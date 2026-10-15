@@ -9,26 +9,46 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource definition for AWS::BedrockAgentCore::BrowserProfile
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::BrowserProfile"
-	Properties!: close({
+	let properties = close({
 		Description?: #BrowserProfileDescription
 		Name!:        #BrowserProfileName
 
 		// A map of tag keys and values.
 		Tags?: #TagsMap
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#BrowserProfileDescription: string | fn.#StringExpression
+#BrowserProfileDescription: string | number | bool | fn.#StringExpression
 
-#BrowserProfileName: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
+#BrowserProfileName: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" |
+{
+	number | bool
+	_cfnString: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #TagsMap: close({
 
-	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
-	fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression

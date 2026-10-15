@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The request to create a new origin access identity (OAI). An origin access
@@ -17,10 +19,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Amazon CloudFront Developer Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::CloudFrontOriginAccessIdentity"
-	Properties!: close({
+	let properties = close({
 		// The current configuration information for the identity.
 		CloudFrontOriginAccessIdentityConfig!: #CloudFrontOriginAccessIdentityConfig
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CloudFrontOriginAccessIdentityConfig: close({Comment!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#CloudFrontOriginAccessIdentityConfig: close({Comment!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression

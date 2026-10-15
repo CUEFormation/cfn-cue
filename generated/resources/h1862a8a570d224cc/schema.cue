@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An AWS RCS Agent in AWS End User Messaging SMS. The RCS agent is the
@@ -20,7 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // carriers.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SMSVOICE::RcsAgent"
-	Properties?: close({
+	let properties = close({
 		DeletionProtectionEnabled?: bool |
 			"true" |
 			"True" |
@@ -29,7 +31,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		OptOutListName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
+		OptOutListName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		SelfManagedOptOutsEnabled?: bool |
 			"true" |
 			"True" |
@@ -38,23 +45,62 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		Tags?:              list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TwoWayChannelArn?:  strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^\\S+$" | fn.#StringExpression
-		TwoWayChannelRole?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:\\S+$" | fn.#StringExpression
-		TwoWayEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		TwoWayMediaS3BucketName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9.-]*[a-z0-9]$" |
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TwoWayChannelArn?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^\\S+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^\\S+$" & "\(self)"
+		} |
 		fn.#StringExpression
-		TwoWayMediaS3KeyPrefix?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\S]+$" | fn.#StringExpression
-		TwoWayMediaS3Role?:      strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:\\S+$" | fn.#StringExpression
-		TwoWayRcsEventsEnabled?: list.MaxItems(100) & [...] & [
-			...strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-		] |
+		TwoWayChannelRole?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:\\S+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:\\S+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		TwoWayEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		TwoWayMediaS3BucketName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9.-]*[a-z0-9]$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9.-]*[a-z0-9]$" & "\(self)"
+		} |
+		fn.#StringExpression
+		TwoWayMediaS3KeyPrefix?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\S]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\S]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		TwoWayMediaS3Role?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:\\S+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:\\S+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		TwoWayRcsEventsEnabled?: list.MaxItems(100) & [...] & [...strings.MaxRunes(50) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & =~"^.*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

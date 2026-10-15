@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS Cost Anomaly Detection leverages advanced Machine Learning technologies
@@ -21,18 +23,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Create subscription to be notified
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CE::AnomalySubscription"
-	Properties!: close({
+	let properties = close({
 		Frequency!:      "DAILY" | "IMMEDIATE" | "WEEKLY" | fn.#StringExpression
 		MonitorArnList!: [...#Arn] | fn.#ListExpression
 		ResourceTags?:   list.MaxItems(200) & [...] & [...#ResourceTag] | fn.#ListExpression
 		Subscribers!: [...close({
 			Address!: =~"(^[a-zA-Z0-9.!#$%&'*+=?^_‘{|}~-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$)|(^arn:(aws[a-zA-Z-]*):sns:[a-zA-Z0-9-]+:[0-9]{12}:[a-zA-Z0-9_-]+(\\.fifo)?$)" |
-				fn.#StringExpression
+			{
+				number | bool
+				_cfnString: =~"(^[a-zA-Z0-9.!#$%&'*+=?^_‘{|}~-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$)|(^arn:(aws[a-zA-Z-]*):sns:[a-zA-Z0-9-]+:[0-9]{12}:[a-zA-Z0-9_-]+(\\.fifo)?$)" &
+					"\(self)"
+			} |
+			fn.#StringExpression
 			Type!: "EMAIL" | "SNS" | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-		SubscriptionName!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*" | fn.#StringExpression
+		SubscriptionName!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\S\\s]*" & "\(self)"
+		} |
+		fn.#StringExpression
 		Threshold?: >=0 |
 			{
 				string &
@@ -52,14 +64,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		ThresholdExpression?: string | fn.#StringExpression
+		ThresholdExpression?: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: =~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$" | fn.#StringExpression
+#Arn: =~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #ResourceTag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

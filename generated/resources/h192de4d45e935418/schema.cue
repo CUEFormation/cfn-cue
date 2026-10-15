@@ -14,34 +14,54 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lambda::Url
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lambda::Url"
-	Properties!: close({
-		AuthType!:          "AWS_IAM" | "NONE" | fn.#StringExpression
-		Cors?:              #Cors
-		InvokeMode?:        "BUFFERED" | "RESPONSE_STREAM" | fn.#StringExpression
-		Qualifier?:         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		TargetFunctionArn!: string | fn.#StringExpression
+	let properties = close({
+		AuthType!:   "AWS_IAM" | "NONE" | fn.#StringExpression
+		Cors?:       #Cors
+		InvokeMode?: "BUFFERED" | "RESPONSE_STREAM" | fn.#StringExpression
+		Qualifier?: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		TargetFunctionArn!: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AllowHeaders: list.MaxItems(100) & list.MinItems(1) & [
-	...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-] |
+#AllowHeaders: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(1024) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression] |
 fn.#ListExpression
 
-#AllowMethods: list.MaxItems(6) & list.MinItems(1) & [
-	...("GET" | "PUT" | "HEAD" | "POST" | "PATCH" | "DELETE" | "*") & (strings.MaxRunes(6) & strings.MinRunes(0)) |
-	fn.#StringExpression
-] |
+#AllowMethods: list.MaxItems(6) & list.MinItems(1) & [...("GET" | "PUT" | "HEAD" | "POST" | "PATCH" | "DELETE" | "*") & (strings.MaxRunes(6) & strings.MinRunes(0)) |
+{
+	number | bool
+	_cfnString: ("GET" | "PUT" | "HEAD" | "POST" | "PATCH" | "DELETE" | "*") &
+	strings.MaxRunes(6) &
+	strings.MinRunes(0) &
+	"\(self)"
+} |
+fn.#StringExpression] |
 fn.#ListExpression
 
-#AllowOrigins: list.MaxItems(100) & list.MinItems(1) & [
-	...strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
-] |
+#AllowOrigins: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(253) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(253) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression] |
 fn.#ListExpression
 
 #Cors: close({
@@ -77,7 +97,10 @@ fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#ExposeHeaders: list.MaxItems(100) & list.MinItems(1) & [
-	...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-] |
+#ExposeHeaders: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(1024) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression] |
 fn.#ListExpression

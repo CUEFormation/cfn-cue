@@ -10,14 +10,16 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MSK::Topic
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MSK::Topic"
-	Properties!: close({
-		ClusterArn!: string | fn.#StringExpression
-		Configs?:    string | fn.#StringExpression
+	let properties = close({
+		ClusterArn!: string | number | bool | fn.#StringExpression
+		Configs?:    string | number | bool | fn.#StringExpression
 		PartitionCount!: int & >=1 |
 			{
 				string &
@@ -52,6 +54,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		TopicName!: string | fn.#StringExpression
+		TopicName!: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

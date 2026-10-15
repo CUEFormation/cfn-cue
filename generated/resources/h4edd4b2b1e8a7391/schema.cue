@@ -10,6 +10,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a routing rule. When the incoming request to a domain name matches
@@ -17,10 +19,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Supported only for REST APIs.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGatewayV2::RoutingRule"
-	Properties!: close({
+	let properties = close({
 		Actions!:       [...#Action] | fn.#ListExpression
 		Conditions!:    [...#Condition] | fn.#ListExpression
-		DomainNameArn!: string | fn.#StringExpression
+		DomainNameArn!: string | number | bool | fn.#StringExpression
 		Priority!: int & <=1000000 & >=1 |
 			{
 				string &
@@ -40,6 +42,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Action: {
@@ -49,8 +53,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 } | fn.#ObjectExpression
 
 #ActionInvokeApi: {
-	ApiId!:         string | fn.#StringExpression
-	Stage!:         string | fn.#StringExpression
+	ApiId!:         string | number | bool | fn.#StringExpression
+	Stage!:         string | number | bool | fn.#StringExpression
 	StripBasePath?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	...
 } | fn.#ObjectExpression
@@ -65,13 +69,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 } | fn.#ObjectExpression
 
 #MatchBasePaths: {
-	AnyOf!: [...string | fn.#StringExpression] | fn.#ListExpression
+	AnyOf!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	...
 } | fn.#ObjectExpression
 
 #MatchHeaderValue: {
-	Header!:    string | fn.#StringExpression
-	ValueGlob!: string | fn.#StringExpression
+	Header!:    string | number | bool | fn.#StringExpression
+	ValueGlob!: string | number | bool | fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 

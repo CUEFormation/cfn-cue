@@ -14,32 +14,51 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::ElastiCache::ServerlessCache resource creates an Amazon ElastiCache Serverless Cache.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ElastiCache::ServerlessCache"
-	Properties!: close({
+	let properties = close({
 		CacheUsageLimits?:  #CacheUsageLimits
 		ConnectionType?:    #ConnectionType
-		DailySnapshotTime?: string | fn.#StringExpression
-		Description?:       string | fn.#StringExpression
+		DailySnapshotTime?: string | number | bool | fn.#StringExpression
+		Description?:       string | number | bool | fn.#StringExpression
 		Endpoint?:          close({}) | fn.#ObjectExpression
-		Engine!:            string | fn.#StringExpression
-		FinalSnapshotName?: string | fn.#StringExpression
-		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string |
-			fn.#StringExpression
-		MajorEngineVersion?: string | fn.#StringExpression
+		Engine!:            string | number | bool | fn.#StringExpression
+		FinalSnapshotName?: string | number | bool | fn.#StringExpression
+		KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+		} |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+				"\(self)"
+		} |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		MajorEngineVersion?: string | number | bool | fn.#StringExpression
 		NetworkType?:        #NetworkType
 		ReaderEndpoint?:     close({}) | fn.#ObjectExpression
-		SecurityGroupIds?: list.UniqueItems() & [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
+		SecurityGroupIds?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		ServerlessCacheName!: string | number | bool | fn.#StringExpression
+		SnapshotArnsToRestore?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
 			fn.#ListExpression
-		ServerlessCacheName!:   string | fn.#StringExpression
-		SnapshotArnsToRestore?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
 		SnapshotRetentionLimit?: int |
 			{
 				string &
@@ -56,10 +75,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		SubnetIds?:   list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		SubnetIds?:   list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		UserGroupId?: string | fn.#StringExpression
+		UserGroupId?: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CacheUsageLimits: close({
@@ -68,7 +89,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#ConnectionType: =~"(?i)^(?:public|vpc)$" | fn.#StringExpression
+#ConnectionType: =~"(?i)^(?:public|vpc)$" |
+{
+	number | bool
+	_cfnString: =~"(?i)^(?:public|vpc)$" & "\(self)"
+} |
+fn.#StringExpression
 
 #DataStorage: close({
 	Maximum?: int |
@@ -99,7 +125,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Unit!: =~"(?i)^(?:gb)$" | fn.#StringExpression
+	Unit!: =~"(?i)^(?:gb)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:gb)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -135,10 +166,25 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#NetworkType: =~"(?i)^(?:dual_stack|ipv4|ipv6)$" | fn.#StringExpression
+#NetworkType: =~"(?i)^(?:dual_stack|ipv4|ipv6)$" |
+{
+	number | bool
+	_cfnString: =~"(?i)^(?:dual_stack|ipv4|ipv6)$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

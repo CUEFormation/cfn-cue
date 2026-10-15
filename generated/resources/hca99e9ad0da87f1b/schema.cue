@@ -13,16 +13,23 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::Lambda::EventInvokeConfig resource configures options for
 // asynchronous invocation on a version or an alias.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lambda::EventInvokeConfig"
-	Properties!: close({
+	let properties = close({
 		DestinationConfig?: #DestinationConfig
 		FunctionName!: =~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]+(-[a-z]+)+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_]+))?$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]+(-[a-z]+)+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_]+))?$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		MaximumEventAgeInSeconds?: int & <=21600 & >=60 |
 			{
 				string &
@@ -59,8 +66,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Qualifier!: =~"^\\$(LATEST(\\.PUBLISHED)?)|[a-zA-Z0-9$_-]{1,129}$" | fn.#StringExpression
+		Qualifier!: =~"^\\$(LATEST(\\.PUBLISHED)?)|[a-zA-Z0-9$_-]{1,129}$" |
+		{
+			number | bool
+			_cfnString: =~"^\\$(LATEST(\\.PUBLISHED)?)|[a-zA-Z0-9$_-]{1,129}$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DestinationConfig: close({
@@ -73,6 +87,13 @@ fn.#ObjectExpression
 	Destination!: strings.MaxRunes(350) &
 	strings.MinRunes(0) &
 	=~"^$|arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:([a-z]+(-[a-z]+)+-\\d{1})?:(\\d{12})?:(.*)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(350) &
+		strings.MinRunes(0) &
+		=~"^$|arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:([a-z]+(-[a-z]+)+-\\d{1})?:(\\d{12})?:(.*)" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -81,6 +102,13 @@ fn.#ObjectExpression
 	Destination!: strings.MaxRunes(350) &
 	strings.MinRunes(0) &
 	=~"^$|arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:([a-z]+(-[a-z]+)+-\\d{1})?:(\\d{12})?:(.*)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(350) &
+		strings.MinRunes(0) &
+		=~"^$|arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:([a-z]+(-[a-z]+)+-\\d{1})?:(\\d{12})?:(.*)" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

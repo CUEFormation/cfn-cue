@@ -11,39 +11,68 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A data source is used to import technical metadata of assets (data) from the
 // source databases or data warehouses into Amazon DataZone.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataZone::DataSource"
-	Properties!: close({
+	let properties = close({
 		AssetFormsInput?: list.MaxItems(10) & [...] & [...#FormInput] | fn.#ListExpression
 
 		// Configuration of the data source. It can be set to either
 		// glueRunConfiguration or redshiftRunConfiguration.
 		Configuration?:        #DataSourceConfigurationInput
-		ConnectionIdentifier?: string | fn.#StringExpression
-		Description?:          strings.MaxRunes(2048) | fn.#StringExpression
-		DomainIdentifier!:     =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		ConnectionIdentifier?: string | number | bool | fn.#StringExpression
+		Description?: strings.MaxRunes(2048) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Specifies whether the data source is enabled.
 		EnableSetting?:         #EnableSetting
-		EnvironmentIdentifier?: string | fn.#StringExpression
-		Name!:                  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		ProjectIdentifier!:     string | fn.#StringExpression
-		PublishOnImport?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		EnvironmentIdentifier?: string | number | bool | fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ProjectIdentifier!: string | number | bool | fn.#StringExpression
+		PublishOnImport?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 		// Specifies whether the business name generation is to be enabled for this data source.
 		Recommendation?: #RecommendationConfiguration
 
 		// The schedule of the data source runs.
 		Schedule?: #ScheduleConfiguration
-		Type!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Type!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#DataAccessRole: =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" | fn.#StringExpression
+#DataAccessRole: =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #DataSourceConfigurationInput: matchN(1, [close(
 	{GlueRunConfiguration?: #GlueRunConfigurationInput},
@@ -57,30 +86,55 @@ fn.#ValueExpression
 #EnableSetting: "ENABLED" | "DISABLED" | fn.#StringExpression
 
 #FilterExpression: close({
-	Expression!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Type!:       #FilterExpressionType
+	Expression!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: #FilterExpressionType
 }) |
 fn.#ObjectExpression
 
 #FilterExpressionType: "INCLUDE" | "EXCLUDE" | fn.#StringExpression
 
 #FormInput: close({
-	Content?: strings.MaxRunes(75000) | fn.#StringExpression
+	Content?: strings.MaxRunes(75000) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(75000) & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// The name of the metadata form.
-	FormName!:       #FormName
-	TypeIdentifier?: strings.MaxRunes(385) & strings.MinRunes(1) | fn.#StringExpression
+	FormName!: #FormName
+	TypeIdentifier?: strings.MaxRunes(385) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(385) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// The revision of the metadata form type.
 	TypeRevision?: #TypeRevision
 }) |
 fn.#ObjectExpression
 
-#FormName: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#FormName: strings.MaxRunes(128) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #GlueRunConfigurationInput: close({
 	AutoImportDataQualityResult?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CatalogName?:                 strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	CatalogName?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// The data access role included in the configuration details of the AWS Glue data source.
 	DataAccessRole?:                 #DataAccessRole
@@ -93,14 +147,25 @@ fn.#ObjectExpression
 }) |
 	fn.#ObjectExpression
 
-#RedshiftClusterStorage: close(
-	{ClusterName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[0-9a-z].[a-z0-9\\-]*$" | fn.#StringExpression},
-) |
+#RedshiftClusterStorage: close({
+	ClusterName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[0-9a-z].[a-z0-9\\-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[0-9a-z].[a-z0-9\\-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #RedshiftCredentialConfiguration: close({
 	SecretManagerArn!: strings.MaxRunes(256) &
 	=~"^arn:aws[^:]*:secretsmanager:[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]:\\d{12}:secret:.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		=~"^arn:aws[^:]*:secretsmanager:[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]:\\d{12}:secret:.*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -119,9 +184,14 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#RedshiftServerlessStorage: close(
-	{WorkgroupName!: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" | fn.#StringExpression},
-) |
+#RedshiftServerlessStorage: close({
+	WorkgroupName!: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #RedshiftStorage: matchN(1, [close(
@@ -132,9 +202,19 @@ fn.#ObjectExpression
 fn.#ValueExpression
 
 #RelationalFilterConfiguration: close({
-	DatabaseName!:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	DatabaseName!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	FilterExpressions?: [...#FilterExpression] | fn.#ListExpression
-	SchemaName?:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	SchemaName?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -150,6 +230,13 @@ fn.#ObjectExpression
 	Schedule?: strings.MaxRunes(256) &
 	strings.MinRunes(1) &
 	=~"cron\\((\\b[0-5]?[0-9]\\b) (\\b2[0-3]\\b|\\b[0-1]?[0-9]\\b) (.*){1,5} (.*){1,5} (.*){1,5} (.*){1,5}\\)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"cron\\((\\b[0-5]?[0-9]\\b) (\\b2[0-3]\\b|\\b[0-1]?[0-9]\\b) (.*){1,5} (.*){1,5} (.*){1,5} (.*){1,5}\\)" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 
 	// The timezone of the data source run.
@@ -225,11 +312,26 @@ fn.#ObjectExpression
 
 #TrackingAssets: struct.MaxFields(1) & close({
 
-	{[=~"^.{1,64}$"]: list.MaxItems(500) & [...] & [
-		...=~"^arn:aws[^:]*:sagemaker:[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]:\\d{12}:[\\w+=,.@-]{1,128}/[\\w+=,.@-]{1,256}$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^.{1,64}$"]: list.MaxItems(500) & [...] & [...=~"^arn:aws[^:]*:sagemaker:[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]:\\d{12}:[\\w+=,.@-]{1,128}/[\\w+=,.@-]{1,256}$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[^:]*:sagemaker:[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]:\\d{12}:[\\w+=,.@-]{1,128}/[\\w+=,.@-]{1,256}$" &
+				"\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+	}
+}) |
 fn.#ObjectExpression
 
-#TypeRevision: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+#TypeRevision: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+} |
+fn.#StringExpression

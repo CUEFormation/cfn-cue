@@ -10,13 +10,20 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53GlobalResolver::GlobalResolver
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53GlobalResolver::GlobalResolver"
-	Properties!: close({
-		ClientToken?:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		ClientToken?: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Description?:         #ResourceDescription
 		IpAddressType?:       #GlobalResolverIpAddressType
 		Name!:                #ResourceName
@@ -24,18 +31,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Regions!:             [...#Region] | fn.#ListExpression
 		Tags?:                list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #GlobalResolverIpAddressType: "IPV4" | "DUAL_STACK" | fn.#StringExpression
 
-#Region: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
+#Region: strings.MaxRunes(32) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#ResourceDescription: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+#ResourceDescription: strings.MaxRunes(256) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#ResourceName: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+#ResourceName: strings.MaxRunes(64) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

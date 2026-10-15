@@ -14,24 +14,50 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::DMS::DataMigration.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DMS::DataMigration"
-	Properties!: close({
-		DataMigrationIdentifier?: strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
-		DataMigrationName?:       strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		DataMigrationIdentifier?: strings.MaxRunes(300) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(300) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		DataMigrationName?: strings.MaxRunes(300) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(300) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The property describes the settings for the data migration.
-		DataMigrationSettings?:      #DataMigrationSettings
-		DataMigrationType!:          "full-load" | "cdc" | "full-load-and-cdc" | fn.#StringExpression
-		MigrationProjectIdentifier!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		ServiceAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(300) & strings.MinRunes(1)) |
+		DataMigrationSettings?: #DataMigrationSettings
+		DataMigrationType!:     "full-load" | "cdc" | "full-load-and-cdc" | fn.#StringExpression
+		MigrationProjectIdentifier!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ServiceAccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(300) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(300) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		SourceDataSettings?: list.UniqueItems() & [...#SourceDataSettings] | fn.#ListExpression
 		Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DataMigrationSettings: close({
@@ -52,20 +78,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	SelectionRules?: string | fn.#StringExpression
+	SelectionRules?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SourceDataSettings: close({
-	CDCStartPosition?: strings.MaxRunes(40) | fn.#StringExpression
-	CDCStartTime?:     strings.MaxRunes(40) | fn.#StringExpression
-	CDCStopTime?:      strings.MaxRunes(40) | fn.#StringExpression
-	SlotName?:         strings.MaxRunes(255) | fn.#StringExpression
+	CDCStartPosition?: strings.MaxRunes(40) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(40) & "\(self)"
+	} |
+	fn.#StringExpression
+	CDCStartTime?: strings.MaxRunes(40) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(40) & "\(self)"
+	} |
+	fn.#StringExpression
+	CDCStopTime?: strings.MaxRunes(40) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(40) & "\(self)"
+	} |
+	fn.#StringExpression
+	SlotName?: strings.MaxRunes(255) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

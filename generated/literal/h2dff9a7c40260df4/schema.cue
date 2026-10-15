@@ -71,7 +71,7 @@ import (
 
 	// The IDs of the subnets for the load balancer. You can specify at most one
 	// subnet per Availability Zone.
-	Subnets?: [...string]
+	Subnets?: [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"]
 
 	// The tags associated with a load balancer.
 	Tags?: list.MinItems(1) & [...#Tag]
@@ -89,7 +89,7 @@ import (
 	Enabled!: bool
 
 	// The name of the Amazon S3 bucket where the access logs are stored.
-	S3BucketName!: string
+	S3BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$"
 
 	// The logical hierarchy you created for your Amazon S3 bucket, for example
 	// `my-bucket-prefix/prod`. If the prefix is not provided, the log is placed at
@@ -164,7 +164,13 @@ import (
 	PolicyName?: string
 })
 
-#Listeners: close({
+#Listeners: matchIf({
+	Protocol!: "HTTPS" | "SSL"
+	...
+}, {
+	SSLCertificateId!: _
+	...
+}, _) & close({
 	// The port on which the instance is listening.
 	InstancePort!: string
 

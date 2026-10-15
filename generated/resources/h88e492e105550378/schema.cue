@@ -9,23 +9,51 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::Policy
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::Policy"
-	Properties!: close({
-		Definition!:      #PolicyDefinition
-		Description?:     strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Definition!: #PolicyDefinition
+		Description?: strings.MaxRunes(4096) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		EnforcementMode?: #EnforcementMode
-		Name!: strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]*$" | fn.#StringExpression
+		Name!: strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		PolicyEngineId!: strings.MaxRunes(59) & strings.MinRunes(12) & =~"^[A-Za-z][A-Za-z0-9_]*-[a-z0-9_]{10}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(59) &
+			strings.MinRunes(12) &
+			=~"^[A-Za-z][A-Za-z0-9_]*-[a-z0-9_]{10}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ValidationMode?: #PolicyValidationMode
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CedarPolicy: close({Statement!: strings.MaxRunes(10000) & strings.MinRunes(35) | fn.#StringExpression}) |
+#CedarPolicy: close({
+	Statement!: strings.MaxRunes(10000) & strings.MinRunes(35) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000) & strings.MinRunes(35) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #EnforcementMode: "ACTIVE" | "LOG_ONLY" | fn.#StringExpression
@@ -39,7 +67,14 @@ fn.#ObjectExpression
 }) & matchN(>=1, [{Cedar!: _}, {Policy!: _}]) |
 fn.#ObjectExpression
 
-#PolicyStatement: close({Statement!: strings.MaxRunes(10000) & strings.MinRunes(35) | fn.#StringExpression}) |
+#PolicyStatement: close({
+	Statement!: strings.MaxRunes(10000) & strings.MinRunes(35) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000) & strings.MinRunes(35) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #PolicyValidationMode: "FAIL_ON_ANY_FINDINGS" | "IGNORE_ALL_FINDINGS" | fn.#StringExpression

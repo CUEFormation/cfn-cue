@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ApiGateway::UsagePlan`` resource creates a usage plan for deployed
@@ -30,22 +32,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // to manage API requests.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::UsagePlan"
-	Properties?: close({
+	let properties = close({
 		ApiStages?:     list.UniqueItems() & [...#ApiStage] | fn.#ListExpression
-		Description?:   string | fn.#StringExpression
+		Description?:   string | number | bool | fn.#StringExpression
 		Quota?:         #QuotaSettings
 		Tags?:          [...#Tag] | fn.#ListExpression
 		Throttle?:      #ThrottleSettings
-		UsagePlanName?: string | fn.#StringExpression
+		UsagePlanName?: string | number | bool | fn.#StringExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ApiStage: close({
-	ApiId?: string | fn.#StringExpression
-	Stage?: string | fn.#StringExpression
+	ApiId?: string | number | bool | fn.#StringExpression
+	Stage?: string | number | bool | fn.#StringExpression
 	Throttle?: close({
 
-		{[=~".*"]: #ThrottleSettings}}) |
+		{[=~".*"]: #ThrottleSettings}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
@@ -81,13 +90,23 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Period?: string | fn.#StringExpression
+	Period?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

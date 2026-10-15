@@ -13,12 +13,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::EKS::Nodegroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EKS::Nodegroup"
-	Properties!: close({
+	let properties = close({
 		AmiType?: "AL2023_ARM_64_NVIDIA" |
 			"AL2023_ARM_64_STANDARD" |
 			"AL2023_x86_64_NEURON" |
@@ -44,7 +46,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"WINDOWS_FULL_2025_x86_64" |
 			fn.#StringExpression
 		CapacityType?: "CAPACITY_BLOCK" | "ON_DEMAND" | "OnDemand" | "SPOT" | fn.#StringExpression
-		ClusterName!:  strings.MinRunes(1) | fn.#StringExpression
+		ClusterName!: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		DiskSize?: int |
 			{
 				string &
@@ -62,10 +69,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		ForceUpdateEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		InstanceTypes?:      [...string | fn.#StringExpression] | fn.#ListExpression
+		InstanceTypes?:      [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Labels?: close({
 
-			{[=~"^.+$"]: string | fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+		}) |
 		fn.#ObjectExpression
 
 		// An object representing a node group's launch template specification.
@@ -73,36 +85,69 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		// The node auto repair configuration for node group.
 		NodeRepairConfig?: #NodeRepairConfig
-		NodeRole!:         string | fn.#StringExpression
-		NodegroupName?:    strings.MinRunes(1) | fn.#StringExpression
-		ReleaseVersion?:   string | fn.#StringExpression
+		NodeRole!:         string | number | bool | fn.#StringExpression
+		NodegroupName?: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ReleaseVersion?: string | number | bool | fn.#StringExpression
 
 		// The remote access (SSH) configuration to use with your node group.
 		RemoteAccess?: #RemoteAccess
 
 		// The scaling configuration details for the Auto Scaling group that is created for your node group.
 		ScalingConfig?: #ScalingConfig
-		Subnets!:       [...string | fn.#StringExpression] | fn.#ListExpression
+		Subnets!: [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		Tags?: close({
 
-			{[=~"^.+$"]: string | fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+		}) |
 		fn.#ObjectExpression
 		Taints?: [...#Taint] | fn.#ListExpression
 
 		// The node group update configuration.
 		UpdateConfig?: #UpdateConfig
-		Version?:      string | fn.#StringExpression
+		Version?:      string | number | bool | fn.#StringExpression
 
 		// The warm pool configuration details for the Auto Scaling group that is
 		// created for the node group.
 		WarmPoolConfig?: #WarmPoolConfig
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #LaunchTemplateSpecification: close({
-	Id?:      strings.MinRunes(1) | fn.#StringExpression
-	Name?:    strings.MinRunes(1) | fn.#StringExpression
-	Version?: strings.MinRunes(1) | fn.#StringExpression
+	Id?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Version?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -190,15 +235,15 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	NodeMonitoringCondition?: string | fn.#StringExpression
-	NodeUnhealthyReason?:     string | fn.#StringExpression
+	NodeMonitoringCondition?: string | number | bool | fn.#StringExpression
+	NodeUnhealthyReason?:     string | number | bool | fn.#StringExpression
 	RepairAction?:            "Replace" | "Reboot" | "NoAction" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RemoteAccess: close({
-	Ec2SshKey!:            string | fn.#StringExpression
-	SourceSecurityGroups?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Ec2SshKey!:            string | number | bool | fn.#StringExpression
+	SourceSecurityGroups?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -252,9 +297,24 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Taint: close({
-	Effect?: ("NO_EXECUTE" | "NO_SCHEDULE" | "PREFER_NO_SCHEDULE") & strings.MinRunes(1) | fn.#StringExpression
-	Key?:    strings.MaxRunes(317) & strings.MinRunes(1) | fn.#StringExpression
-	Value?:  strings.MaxRunes(63) & strings.MinRunes(0) | fn.#StringExpression
+	Effect?: ("NO_EXECUTE" | "NO_SCHEDULE" | "PREFER_NO_SCHEDULE") & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: ("NO_EXECUTE" | "NO_SCHEDULE" | "PREFER_NO_SCHEDULE") & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Key?: strings.MaxRunes(317) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(317) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(63) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

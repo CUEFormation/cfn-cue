@@ -14,19 +14,33 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a template that defines certificate configurations, both for
 // issuance and client handling
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::PCAConnectorAD::Template"
-	Properties!: close({
+	let properties = close({
 		ConnectorArn!: strings.MaxRunes(200) &
 		strings.MinRunes(5) &
 		=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:connector\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) &
+			strings.MinRunes(5) &
+			=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:connector\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Definition!: #TemplateDefinition
-		Name!:       strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ReenrollAllCertificateHolders?: bool |
 			"true" |
 			"True" |
@@ -37,6 +51,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#BooleanExpression
 		Tags?: #Tags
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ApplicationPolicies: close({
@@ -288,9 +304,12 @@ fn.#ObjectExpression
 #PrivateKeyAlgorithm: "RSA" | "ECDH_P256" | "ECDH_P384" | "ECDH_P521" | fn.#StringExpression
 
 #PrivateKeyAttributesV2: close({
-	CryptoProviders?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	CryptoProviders?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	KeySpec!: #KeySpec
 	MinimalKeyLength!: >=1 |
@@ -317,9 +336,12 @@ fn.#ObjectExpression
 
 #PrivateKeyAttributesV3: close({
 	Algorithm!: #PrivateKeyAlgorithm
-	CryptoProviders?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	CryptoProviders?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	KeySpec!:          #KeySpec
 	KeyUsageProperty!: #KeyUsageProperty
@@ -347,9 +369,12 @@ fn.#ObjectExpression
 
 #PrivateKeyAttributesV4: close({
 	Algorithm?: #PrivateKeyAlgorithm
-	CryptoProviders?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	CryptoProviders?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	KeySpec!:          #KeySpec
 	KeyUsageProperty?: #KeyUsageProperty
@@ -458,7 +483,12 @@ fn.#ObjectExpression
 
 #Tags: close({
 
-	{[=~".+"]: string | fn.#StringExpression}}) |
+	{[=~".+"]: string | number | bool | fn.#StringExpression}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #TemplateDefinition: matchN(1, [
@@ -474,9 +504,12 @@ fn.#ValueExpression
 	PrivateKeyAttributes!: #PrivateKeyAttributesV2
 	PrivateKeyFlags!:      #PrivateKeyFlagsV2
 	SubjectNameFlags!:     #SubjectNameFlagsV2
-	SupersededTemplates?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	SupersededTemplates?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -490,9 +523,12 @@ fn.#ObjectExpression
 	PrivateKeyAttributes!: #PrivateKeyAttributesV3
 	PrivateKeyFlags!:      #PrivateKeyFlagsV3
 	SubjectNameFlags!:     #SubjectNameFlagsV3
-	SupersededTemplates?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	SupersededTemplates?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -506,9 +542,12 @@ fn.#ObjectExpression
 	PrivateKeyAttributes!: #PrivateKeyAttributesV4
 	PrivateKeyFlags!:      #PrivateKeyFlagsV4
 	SubjectNameFlags!:     #SubjectNameFlagsV4
-	SupersededTemplates?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	SupersededTemplates?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression

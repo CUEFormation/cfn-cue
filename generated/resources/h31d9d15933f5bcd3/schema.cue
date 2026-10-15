@@ -10,13 +10,20 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::Route53Resolver::ResolverEndpoint
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53Resolver::ResolverEndpoint"
-	Properties!: close({
-		Direction!:    =~"(?i)^(?:inbound|inbound_delegation|outbound)$" | fn.#StringExpression
+	let properties = close({
+		Direction!: =~"(?i)^(?:inbound|inbound_delegation|outbound)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:inbound|inbound_delegation|outbound)$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Dns64Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		IpAddresses!:  list.MaxItems(20) & list.MinItems(2) & [...#IpAddressRequest] | fn.#ListExpression
 		Ipv6InternetAccessEnabled?: bool |
@@ -27,15 +34,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		Name?: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+		Name?: strings.MaxRunes(64) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		OutpostArn?: strings.MaxRunes(255) &
 		strings.MinRunes(1) &
 		=~"^arn:aws([a-z-]+)?:outposts:[a-z\\d-]+:\\d{12}:outpost/op-[a-f0-9]{17}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			=~"^arn:aws([a-z-]+)?:outposts:[a-z\\d-]+:\\d{12}:outpost/op-[a-f0-9]{17}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		PreferredInstanceType?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Protocols?: list.MaxItems(2) & list.MinItems(1) & [...=~"(?i)^(?:do53|doh|doh-fips)$" | fn.#StringExpression] |
-			fn.#ListExpression
-		ResolverEndpointType?: =~"(?i)^(?:dualstack|ipv4|ipv6)$" | fn.#StringExpression
+		PreferredInstanceType?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Protocols?: list.MaxItems(2) & list.MinItems(1) & [...=~"(?i)^(?:do53|doh|doh-fips)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:do53|doh|doh-fips)$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		ResolverEndpointType?: =~"(?i)^(?:dualstack|ipv4|ipv6)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:dualstack|ipv4|ipv6)$" & "\(self)"
+		} |
+		fn.#StringExpression
 		RniEnhancedMetricsEnabled?: bool |
 			"true" |
 			"True" |
@@ -44,10 +78,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		SecurityGroupIds!: [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(64) & strings.MinRunes(1)) |
-			fn.#StringExpression
-		] |
+		SecurityGroupIds!: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+			strings.MaxRunes(64) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 		TargetNameServerMetricsEnabled?: bool |
@@ -59,17 +98,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"FALSE" |
 			fn.#BooleanExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #IpAddressRequest: close({
-	Ip?:       strings.MaxRunes(36) & strings.MinRunes(7) | fn.#StringExpression
-	Ipv6?:     strings.MaxRunes(39) & strings.MinRunes(7) | fn.#StringExpression
-	SubnetId!: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
+	Ip?: strings.MaxRunes(36) & strings.MinRunes(7) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(36) & strings.MinRunes(7) & "\(self)"
+	} |
+	fn.#StringExpression
+	Ipv6?: strings.MaxRunes(39) & strings.MinRunes(7) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(39) & strings.MinRunes(7) & "\(self)"
+	} |
+	fn.#StringExpression
+	SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & (strings.MaxRunes(32) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

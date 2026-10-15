@@ -15,14 +15,23 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::GameLiftStreams::StreamGroup Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GameLiftStreams::StreamGroup"
-	Properties!: close({
+	let properties = close({
 		DefaultApplication?: #DefaultApplication
 		Description!: strings.MaxRunes(80) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.!+@/][a-zA-Z0-9-_.!+@/ ]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(80) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z0-9-_.!+@/][a-zA-Z0-9-_.!+@/ ]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		LocationConfigurations!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
 			...#LocationConfiguration
@@ -31,6 +40,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		StreamClass!: #StreamClass
 		Tags?:        #Tags
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DefaultApplication: close({
@@ -41,8 +52,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		]*):([0-9]{12}):([^:
 		]*)$
 		""" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"""
+			^arn:aws:gameliftstreams:([^:
+			]*):([0-9]{12}):([^:
+			]*)$
+			""" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Id?: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+	Id?: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -62,7 +89,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	LocationName!: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+	LocationName!: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	MaximumCapacity?: int & >=0 |
 		{
 			string &
@@ -112,20 +144,47 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#StreamClass: strings.MaxRunes(20) & strings.MinRunes(1) | fn.#StringExpression
+#StreamClass: strings.MaxRunes(20) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(20) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #Tags: struct.MaxFields(50) & struct.MinFields(1) & close({
 
-	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
+	{
+		[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #VpcTransitConfiguration: close({
-	Ipv4CidrBlocks!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		...=~"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])/([0-9]|[1-2][0-9]|3[0-2])$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(32) & strings.MinRunes(1)) |
+	Ipv4CidrBlocks!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...=~"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])/([0-9]|[1-2][0-9]|3[0-2])$" |
+	{
+		number | bool
+		_cfnString: =~"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])/([0-9]|[1-2][0-9]|3[0-2])$" &
+			"\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & (strings.MaxRunes(32) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

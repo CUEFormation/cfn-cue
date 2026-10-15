@@ -2,6 +2,8 @@
 
 package schema
 
+import "github.com/cueformation/cfn-cue/fn:fn"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::VPCCidrBlock
@@ -12,7 +14,7 @@ package schema
 	AmazonProvidedIpv6CidrBlock?: bool
 
 	// An IPv4 CIDR block to associate with the VPC.
-	CidrBlock?: string
+	CidrBlock?: fn.#IPv4Network & string
 
 	// The Id of the VPC associated CIDR Block.
 	Id?: string
@@ -31,7 +33,7 @@ package schema
 	Ipv6AddressAttribute?: string
 
 	// An IPv6 CIDR block from the IPv6 address pool.
-	Ipv6CidrBlock?: string
+	Ipv6CidrBlock?: fn.#IPv6Network & string
 
 	// The name of the location from which we advertise the IPV6 CIDR block.
 	Ipv6CidrBlockNetworkBorderGroup?: string

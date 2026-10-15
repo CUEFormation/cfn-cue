@@ -5,6 +5,7 @@ package schema
 import (
 	"strings"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -204,7 +205,7 @@ import (
 #cidrListAliases: [...string]
 
 // cidrs
-#cidrs: [...string]
+#cidrs: [...fn.#IPv4Network & string]
 
 // IPv6 Cidrs
-#ipv6Cidrs: [...string]
+#ipv6Cidrs: [...fn.#IPv6Network & string]

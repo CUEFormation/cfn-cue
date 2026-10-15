@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Logs::StorageTierPolicy. Manages the
@@ -14,6 +16,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // to lower-cost storage tiers. Deleting this resource reverts the account to
 // standard (single-tier) storage.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Logs::StorageTierPolicy"
-	Properties!: close({StorageTier!: "INTELLIGENT_TIERING" | fn.#StringExpression})
+	Type!: "AWS::Logs::StorageTierPolicy"
+	let properties = close({StorageTier!: "INTELLIGENT_TIERING" | fn.#StringExpression})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

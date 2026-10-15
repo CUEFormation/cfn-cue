@@ -6,12 +6,14 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::LakeFormation::DataLakeSettings
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::LakeFormation::DataLakeSettings"
-	Properties?: close({
+	let properties = close({
 		Admins?: [...#DataLakePrincipal] | fn.#ListExpression
 		AllowExternalDataFiltering?: bool |
 			"true" |
@@ -29,21 +31,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		AuthorizedSessionTagValueList?:    [...string | fn.#StringExpression] | fn.#ListExpression
+		AuthorizedSessionTagValueList?:    [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		CreateDatabaseDefaultPermissions?: [...#PrincipalPermissions] | fn.#ListExpression
 		CreateTableDefaultPermissions?:    [...#PrincipalPermissions] | fn.#ListExpression
 		ExternalDataFilteringAllowList?:   [...#DataLakePrincipal] | fn.#ListExpression
-		MutationType?:                     string | fn.#StringExpression
-		Parameters?:                       fn.#Object & {...} | string | fn.#StringObjectExpression
+		MutationType?:                     string | number | bool | fn.#StringExpression
+		Parameters?:                       fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		ReadOnlyAdmins?:                   [...#DataLakePrincipal] | fn.#ListExpression
-		TrustedResourceOwners?:            [...string | fn.#StringExpression] | fn.#ListExpression
+		TrustedResourceOwners?:            [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#DataLakePrincipal: close({DataLakePrincipalIdentifier!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#DataLakePrincipal: close({DataLakePrincipalIdentifier!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #PrincipalPermissions: close({
-	Permissions!: [...string | fn.#StringExpression] | fn.#ListExpression
+	Permissions!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Principal!:   #DataLakePrincipal
 }) |
 fn.#ObjectExpression

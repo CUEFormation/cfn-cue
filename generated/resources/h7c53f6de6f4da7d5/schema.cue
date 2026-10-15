@@ -10,21 +10,40 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::MemoryDB::SubnetGroup resource creates an Amazon MemoryDB Subnet Group.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MemoryDB::SubnetGroup"
-	Properties!: close({
-		Description?:     string | fn.#StringExpression
-		SubnetGroupName!: =~"[a-z][a-z0-9\\-]*" | fn.#StringExpression
-		SubnetIds!:       list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		Tags?:            list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	let properties = close({
+		Description?: string | number | bool | fn.#StringExpression
+		SubnetGroupName!: =~"[a-z][a-z0-9\\-]*" |
+		{
+			number | bool
+			_cfnString: =~"[a-z][a-z0-9\\-]*" & "\(self)"
+		} |
+		fn.#StringExpression
+		SubnetIds!: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		Tags?:      list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -9,15 +9,22 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Inspector CodeSecurityIntegration resource schema
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::InspectorV2::CodeSecurityIntegration"
-	Properties?: close({
+	let properties = close({
 		// Create Integration Details
 		CreateIntegrationDetails?: #CreateDetails
-		Name?: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$:.]*$" | fn.#StringExpression
+		Name?: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$:.]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$:.]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: #TagMap
 
 		// Integration Type
@@ -26,13 +33,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Update Integration Details
 		UpdateIntegrationDetails?: #UpdateDetails
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CreateDetails: close({gitlabSelfManaged!: #CreateGitLabSelfManagedIntegrationDetail}) | fn.#ObjectExpression
 
 #CreateGitLabSelfManagedIntegrationDetail: close({
-	accessToken!: string | fn.#StringExpression
-	instanceUrl!: string | fn.#StringExpression
+	accessToken!: string | number | bool | fn.#StringExpression
+	instanceUrl!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -40,7 +49,19 @@ fn.#ObjectExpression
 
 #TagMap: close({
 
-	{[=~"^.{2,127}$"]: =~"^.{1,255}$" | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^.{2,127}$"]: =~"^.{1,255}$" |
+		{
+			number | bool
+			_cfnString: =~"^.{1,255}$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #UpdateDetails: matchN(1, [{
@@ -56,12 +77,27 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #UpdateGitHubIntegrationDetail: close({
-	code!:           strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	installationId!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	code!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	installationId!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#UpdateGitLabSelfManagedIntegrationDetail: close(
-	{authCode!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#UpdateGitLabSelfManagedIntegrationDetail: close({
+	authCode!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression

@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Specifies an Elastic IP (EIP) address and can, optionally, associate it with
@@ -21,20 +23,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Amazon EC2 User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::EIP"
-	Properties?: close({
-		Address?:            string | fn.#StringExpression
-		Domain?:             =~"(?i)^(?:standard|vpc)$" | fn.#StringExpression
-		InstanceId?:         string | fn.#StringExpression
-		IpamPoolId?:         string | fn.#StringExpression
-		NetworkBorderGroup?: string | fn.#StringExpression
-		PublicIpv4Pool?:     string | fn.#StringExpression
+	let properties = close({
+		Address?: string | number | bool | fn.#StringExpression
+		Domain?: =~"(?i)^(?:standard|vpc)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:standard|vpc)$" & "\(self)"
+		} |
+		fn.#StringExpression
+		InstanceId?:         string | number | bool | fn.#StringExpression
+		IpamPoolId?:         string | number | bool | fn.#StringExpression
+		NetworkBorderGroup?: string | number | bool | fn.#StringExpression
+		PublicIpv4Pool?:     string | number | bool | fn.#StringExpression
 		Tags?:               [...#Tag] | fn.#ListExpression
-		TransferAddress?:    string | fn.#StringExpression
+		TransferAddress?:    string | number | bool | fn.#StringExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

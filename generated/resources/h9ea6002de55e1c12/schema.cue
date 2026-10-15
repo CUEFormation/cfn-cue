@@ -10,21 +10,30 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SES::MultiRegionEndpoint
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SES::MultiRegionEndpoint"
-	Properties!: close({
-		Details!:      #Details
-		EndpointName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-_]+$" | fn.#StringExpression
-		Tags?:         #Tags
+	let properties = close({
+		Details!: #Details
+		EndpointName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-_]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-_]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: #Tags
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Details: close({RouteDetails!: #RouteDetails}) | fn.#ObjectExpression
 
-#Region: string | fn.#StringExpression
+#Region: string | number | bool | fn.#StringExpression
 
 #RouteDetails: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
 	...close({Region!: #Region}) | fn.#ObjectExpression
@@ -32,8 +41,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ListExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

@@ -14,15 +14,22 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::SES::ConfigurationSet.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SES::ConfigurationSet"
-	Properties?: close({
-		ArchivingOptions?:   #ArchivingOptions
-		DeliveryOptions?:    #DeliveryOptions
-		Name?:               =~"^[a-zA-Z0-9_-]{1,64}$" | fn.#StringExpression
+	let properties = close({
+		ArchivingOptions?: #ArchivingOptions
+		DeliveryOptions?:  #DeliveryOptions
+		Name?: =~"^[a-zA-Z0-9_-]{1,64}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_-]{1,64}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ReputationOptions?:  #ReputationOptions
 		SendingOptions?:     #SendingOptions
 		SuppressionOptions?: #SuppressionOptions
@@ -30,11 +37,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		TrackingOptions?:    #TrackingOptions
 		VdmOptions?:         #VdmOptions
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ArchivingOptions: close({ArchiveArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#ArchivingOptions: close({ArchiveArn?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
-#DashboardOptions: close({EngagementMetrics!: =~"ENABLED|DISABLED" | fn.#StringExpression}) | fn.#ObjectExpression
+#DashboardOptions: close({
+	EngagementMetrics!: =~"ENABLED|DISABLED" |
+	{
+		number | bool
+		_cfnString: =~"ENABLED|DISABLED" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #DeliveryOptions: close({
 	MaxDeliverySeconds?: <=50400 & >=300 |
@@ -57,12 +74,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	SendingPoolName?: string | fn.#StringExpression
-	TlsPolicy?:       =~"REQUIRE|OPTIONAL" | fn.#StringExpression
+	SendingPoolName?: string | number | bool | fn.#StringExpression
+	TlsPolicy?: =~"REQUIRE|OPTIONAL" |
+	{
+		number | bool
+		_cfnString: =~"REQUIRE|OPTIONAL" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#GuardianOptions: close({OptimizedSharedDelivery!: =~"ENABLED|DISABLED" | fn.#StringExpression}) | fn.#ObjectExpression
+#GuardianOptions: close({
+	OptimizedSharedDelivery!: =~"ENABLED|DISABLED" |
+	{
+		number | bool
+		_cfnString: =~"ENABLED|DISABLED" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #ReputationOptions: close(
 	{ReputationMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
@@ -75,14 +105,30 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #SuppressionOptions: close({
-	SuppressedReasons?: [...=~"BOUNCE|COMPLAINT" | fn.#StringExpression] | fn.#ListExpression
+	SuppressedReasons?: [...=~"BOUNCE|COMPLAINT" |
+	{
+		number | bool
+		_cfnString: =~"BOUNCE|COMPLAINT" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	ValidationOptions?: close({
 		ConditionThreshold!: close({
-			ConditionThresholdEnabled!: =~"ENABLED|DISABLED" | fn.#StringExpression
-			OverallConfidenceThreshold?: close(
-				{ConfidenceVerdictThreshold!: =~"MEDIUM|HIGH|MANAGED" | fn.#StringExpression},
-			) |
-				fn.#ObjectExpression
+			ConditionThresholdEnabled!: =~"ENABLED|DISABLED" |
+			{
+				number | bool
+				_cfnString: =~"ENABLED|DISABLED" & "\(self)"
+			} |
+			fn.#StringExpression
+			OverallConfidenceThreshold?: close({
+				ConfidenceVerdictThreshold!: =~"MEDIUM|HIGH|MANAGED" |
+				{
+					number | bool
+					_cfnString: =~"MEDIUM|HIGH|MANAGED" & "\(self)"
+				} |
+				fn.#StringExpression
+			}) |
+			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
 	}) |
@@ -91,14 +137,29 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TrackingOptions: close({
-	CustomRedirectDomain?: string | fn.#StringExpression
-	HttpsPolicy?:          =~"REQUIRE|REQUIRE_OPEN_ONLY|OPTIONAL" | fn.#StringExpression
+	CustomRedirectDomain?: string | number | bool | fn.#StringExpression
+	HttpsPolicy?: =~"REQUIRE|REQUIRE_OPEN_ONLY|OPTIONAL" |
+	{
+		number | bool
+		_cfnString: =~"REQUIRE|REQUIRE_OPEN_ONLY|OPTIONAL" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

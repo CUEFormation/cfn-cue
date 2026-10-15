@@ -6,25 +6,33 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DMS::EventSubscription
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DMS::EventSubscription"
-	Properties!: close({
+	let properties = close({
 		Enabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		EventCategories?: [...string | fn.#StringExpression] | fn.#ListExpression
-		SnsTopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		SourceIds?:        [...string | fn.#StringExpression] | fn.#ListExpression
-		SourceType?:       string | fn.#StringExpression
-		SubscriptionName?: string | fn.#StringExpression
+		EventCategories?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		SnsTopicArn!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SourceIds?:        [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		SourceType?:       string | number | bool | fn.#StringExpression
+		SubscriptionName?: string | number | bool | fn.#StringExpression
 		Tags?:             [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

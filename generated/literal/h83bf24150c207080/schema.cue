@@ -47,9 +47,9 @@ import "list"
 
 #CFNProtectedResource: close({
 	// Information about the protected S3 bucket resource.
-	S3Bucket!: close({
+	S3Bucket!: matchN(2, [{...}, {...}]) & close({
 		// Name of the S3 bucket.
-		BucketName?: string
+		BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$"
 
 		// Information about the specified object prefixes. The S3 object will be
 		// scanned only if it belongs to any of the specified object prefixes.

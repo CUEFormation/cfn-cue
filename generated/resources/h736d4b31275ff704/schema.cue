@@ -10,12 +10,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CodeBuild::Project
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodeBuild::Project"
-	Properties!: close({
+	let properties = close({
 		Artifacts!: #Artifacts
 		AutoRetryLimit?: number |
 			{
@@ -55,12 +57,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Description?:         string | fn.#StringExpression
-		EncryptionKey?:       string | fn.#StringExpression
+		Description?:         string | number | bool | fn.#StringExpression
+		EncryptionKey?:       string | number | bool | fn.#StringExpression
 		Environment!:         #Environment
 		FileSystemLocations?: [...#ProjectFileSystemLocation] | fn.#ListExpression
 		LogsConfig?:          #LogsConfig
-		Name?:                string | fn.#StringExpression
+		Name?:                string | number | bool | fn.#StringExpression
 		QueuedTimeoutInMinutes?: int & <=480 & >=5 |
 			{
 				string &
@@ -79,13 +81,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		ResourceAccessRole?:      string | fn.#StringExpression
+		ResourceAccessRole?:      string | number | bool | fn.#StringExpression
 		SecondaryArtifacts?:      [...#Artifacts] | fn.#ListExpression
 		SecondarySourceVersions?: [...#ProjectSourceVersion] | fn.#ListExpression
 		SecondarySources?:        [...#Source] | fn.#ListExpression
-		ServiceRole!:             string | fn.#StringExpression
+		ServiceRole!:             string | number | bool | fn.#StringExpression
 		Source!:                  #Source
-		SourceVersion?:           string | fn.#StringExpression
+		SourceVersion?:           string | number | bool | fn.#StringExpression
 		Tags?:                    [...#Tag] | fn.#ListExpression
 		TimeoutInMinutes?: int & <=2160 & >=5 |
 			{
@@ -106,26 +108,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		Triggers?:   #ProjectTriggers
-		Visibility?: string | fn.#StringExpression
+		Visibility?: string | number | bool | fn.#StringExpression
 		VpcConfig?:  #VpcConfig
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Artifacts: close({
-	ArtifactIdentifier?:   string | fn.#StringExpression
+#Artifacts: matchIf({
+	Type!: "S3"
+	...
+}, {
+	Location!: _
+	...
+}, _) & close({
+	ArtifactIdentifier?:   string | number | bool | fn.#StringExpression
 	EncryptionDisabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Location?:             string | fn.#StringExpression
-	Name?:                 string | fn.#StringExpression
-	NamespaceType?:        string | fn.#StringExpression
+	Location?:             string | number | bool | fn.#StringExpression
+	Name?:                 string | number | bool | fn.#StringExpression
+	NamespaceType?:        string | number | bool | fn.#StringExpression
 	OverrideArtifactName?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Packaging?:            string | fn.#StringExpression
-	Path?:                 string | fn.#StringExpression
-	Type!:                 string | fn.#StringExpression
+	Packaging?:            string | number | bool | fn.#StringExpression
+	Path?:                 string | number | bool | fn.#StringExpression
+	Type!:                 string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #BatchRestrictions: close({
-	ComputeTypesAllowed?: [...string | fn.#StringExpression] | fn.#ListExpression
+	ComputeTypesAllowed?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	MaximumBuildsAllowed?: int |
 		{
 			string &
@@ -144,47 +154,49 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #BuildStatusConfig: close({
-	Context?:   string | fn.#StringExpression
-	TargetUrl?: string | fn.#StringExpression
+	Context?:   string | number | bool | fn.#StringExpression
+	TargetUrl?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CloudWatchLogsConfig: close({
-	GroupName?:  string | fn.#StringExpression
-	Status!:     string | fn.#StringExpression
-	StreamName?: string | fn.#StringExpression
+	GroupName?:  string | number | bool | fn.#StringExpression
+	Status!:     string | number | bool | fn.#StringExpression
+	StreamName?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DockerServer: close({
-	ComputeType!: string | fn.#StringExpression
-	SecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
+	ComputeType!: string | number | bool | fn.#StringExpression
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #Environment: close({
-	Certificate?:              string | fn.#StringExpression
-	ComputeType!:              string | fn.#StringExpression
+	Certificate?:              string | number | bool | fn.#StringExpression
+	ComputeType!:              string | number | bool | fn.#StringExpression
 	DockerServer?:             #DockerServer
 	EnvironmentVariables?:     [...#EnvironmentVariable] | fn.#ListExpression
 	Fleet?:                    #ProjectFleet
-	HostKernel?:               string | fn.#StringExpression
-	Image!:                    string | fn.#StringExpression
-	ImagePullCredentialsType?: string | fn.#StringExpression
+	HostKernel?:               string | number | bool | fn.#StringExpression
+	Image!:                    string | number | bool | fn.#StringExpression
+	ImagePullCredentialsType?: string | number | bool | fn.#StringExpression
 	PrivilegedMode?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RegistryCredential?:       #RegistryCredential
-	Type!:                     string | fn.#StringExpression
+	Type!:                     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EnvironmentVariable: close({
-	Name!:  string | fn.#StringExpression
-	Type?:  string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Name!:  string | number | bool | fn.#StringExpression
+	Type?:  string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -202,10 +214,10 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ProjectBuildBatchConfig: close({
-	BatchReportMode?:  string | fn.#StringExpression
+	BatchReportMode?:  string | number | bool | fn.#StringExpression
 	CombineArtifacts?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Restrictions?:     #BatchRestrictions
-	ServiceRole?:      string | fn.#StringExpression
+	ServiceRole?:      string | number | bool | fn.#StringExpression
 	TimeoutInMins?: int |
 		{
 			string &
@@ -224,32 +236,32 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ProjectCache: close({
-	CacheNamespace?: string | fn.#StringExpression
-	Location?:       string | fn.#StringExpression
-	Modes?:          [...string | fn.#StringExpression] | fn.#ListExpression
-	Type!:           string | fn.#StringExpression
+	CacheNamespace?: string | number | bool | fn.#StringExpression
+	Location?:       string | number | bool | fn.#StringExpression
+	Modes?:          [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Type!:           string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ProjectFileSystemLocation: close({
-	Identifier!:   string | fn.#StringExpression
-	Location!:     string | fn.#StringExpression
-	MountOptions?: string | fn.#StringExpression
-	MountPoint!:   string | fn.#StringExpression
-	Type!:         string | fn.#StringExpression
+	Identifier!:   string | number | bool | fn.#StringExpression
+	Location!:     string | number | bool | fn.#StringExpression
+	MountOptions?: string | number | bool | fn.#StringExpression
+	MountPoint!:   string | number | bool | fn.#StringExpression
+	Type!:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ProjectFleet: close({FleetArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#ProjectFleet: close({FleetArn?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #ProjectSourceVersion: close({
-	SourceIdentifier!: string | fn.#StringExpression
-	SourceVersion?:    string | fn.#StringExpression
+	SourceIdentifier!: string | number | bool | fn.#StringExpression
+	SourceVersion?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ProjectTriggers: close({
-	BuildType?:              string | fn.#StringExpression
+	BuildType?:              string | number | bool | fn.#StringExpression
 	FilterGroups?:           [...#FilterGroup] | fn.#ListExpression
 	PullRequestBuildPolicy?: #PullRequestBuildPolicy
 	ScopeConfiguration?:     #ScopeConfiguration
@@ -258,34 +270,40 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PullRequestBuildPolicy: close({
-	ApproverRoles?:           [...string | fn.#StringExpression] | fn.#ListExpression
-	RequiresCommentApproval!: string | fn.#StringExpression
+	ApproverRoles?:           [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	RequiresCommentApproval!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RegistryCredential: close({
-	Credential!:         string | fn.#StringExpression
-	CredentialProvider!: string | fn.#StringExpression
+	Credential!:         string | number | bool | fn.#StringExpression
+	CredentialProvider!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #S3LogsConfig: close({
 	EncryptionDisabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Location?:           string | fn.#StringExpression
-	Status!:             string | fn.#StringExpression
+	Location?:           string | number | bool | fn.#StringExpression
+	Status!:             string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ScopeConfiguration: close({
-	Domain?: string | fn.#StringExpression
-	Name!:   string | fn.#StringExpression
-	Scope?:  string | fn.#StringExpression
+	Domain?: string | number | bool | fn.#StringExpression
+	Name!:   string | number | bool | fn.#StringExpression
+	Scope?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Source: close({
+#Source: matchIf({
+	Type!: "S3"
+	...
+}, {
+	Location!: _
+	...
+}, _) & close({
 	Auth?:              #SourceAuth
-	BuildSpec?:         string | fn.#StringExpression
+	BuildSpec?:         string | number | bool | fn.#StringExpression
 	BuildStatusConfig?: #BuildStatusConfig
 	GitCloneDepth?: int |
 		{
@@ -303,33 +321,45 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	GitSubmodulesConfig?: #GitSubmodulesConfig
 	InsecureSsl?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Location?:            string | fn.#StringExpression
+	Location?:            string | number | bool | fn.#StringExpression
 	ReportBuildStatus?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SourceIdentifier?:    string | fn.#StringExpression
-	Type!:                string | fn.#StringExpression
+	SourceIdentifier?:    string | number | bool | fn.#StringExpression
+	Type!:                string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SourceAuth: close({
-	Resource?: string | fn.#StringExpression
-	Type!:     string | fn.#StringExpression
+	Resource?: string | number | bool | fn.#StringExpression
+	Type!:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VpcConfig: close({
-	SecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Subnets?: [...string | fn.#StringExpression] | fn.#ListExpression
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Subnets?: [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

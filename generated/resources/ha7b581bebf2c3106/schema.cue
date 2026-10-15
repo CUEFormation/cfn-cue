@@ -10,12 +10,14 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::AutomatedReasoningPolicy Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Bedrock::AutomatedReasoningPolicy"
-	Properties!: close({
+	let properties = close({
 		Description?:      #Description
 		ForceDelete?:      #ForceDelete
 		KmsKeyId?:         #KmsKeyId
@@ -23,20 +25,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		PolicyDefinition?: #PolicyDefinition
 		Tags?:             #Tags
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Description: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" | fn.#StringExpression
+#Description: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #ForceDelete: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-#KmsKeyId: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-	string) &
+#KmsKeyId: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^(arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:((key/[a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+)))|([a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+)$" |
+{
+	number | bool
+	_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^(arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:((key/[a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+)))|([a-zA-Z0-9-]{36})|(alias/[a-zA-Z0-9-_/]+)$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#Name: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ ]+$" | fn.#StringExpression
+#Name: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ ]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ ]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #PolicyDefinition: close({
 	// The rules definition block of an AutomatedReasoningPolicyDefinition.
@@ -47,22 +72,47 @@ fn.#StringExpression
 
 	// The variables definition block of an AutomatedReasoningPolicyDefinition.
 	Variables?: #PolicyDefinitionVariableList
-	Version?:   string | fn.#StringExpression
+	Version?:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PolicyDefinitionRule: close({
-	AlternateExpression?: strings.MaxRunes(2048) & =~"^[\\s\\S]+$" | fn.#StringExpression
-	Expression!:          strings.MaxRunes(2048) & =~"^[\\s\\S]+$" | fn.#StringExpression
-	Id!:                  strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[A-Z][0-9A-Z]{11}$" | fn.#StringExpression
+	AlternateExpression?: strings.MaxRunes(2048) & =~"^[\\s\\S]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^[\\s\\S]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Expression!: strings.MaxRunes(2048) & =~"^[\\s\\S]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^[\\s\\S]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Id!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[A-Z][0-9A-Z]{11}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[A-Z][0-9A-Z]{11}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PolicyDefinitionRuleList: list.MaxItems(500) & [...] & [...#PolicyDefinitionRule] | fn.#ListExpression
 
 #PolicyDefinitionType: close({
-	Description?: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" | fn.#StringExpression
-	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]+$" | fn.#StringExpression
+	Description?: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// A list of valid values for this type.
 	Values!: #PolicyDefinitionTypeValueList
@@ -72,8 +122,18 @@ fn.#ObjectExpression
 #PolicyDefinitionTypeList: list.MaxItems(50) & [...] & [...#PolicyDefinitionType] | fn.#ListExpression
 
 #PolicyDefinitionTypeValue: close({
-	Description?: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" | fn.#StringExpression
-	Value!:       strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]+$" | fn.#StringExpression
+	Description?: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -81,17 +141,42 @@ fn.#ObjectExpression
 	fn.#ListExpression
 
 #PolicyDefinitionVariable: close({
-	Description!: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" | fn.#StringExpression
-	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]+$" | fn.#StringExpression
-	Type!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]+$" | fn.#StringExpression
+	Description!: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PolicyDefinitionVariableList: list.MaxItems(200) & [...] & [...#PolicyDefinitionVariable] | fn.#ListExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

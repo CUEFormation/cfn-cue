@@ -10,17 +10,44 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::ServiceCatalog::CloudFormationProduct
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ServiceCatalog::CloudFormationProduct"
-	Properties!: close({
-		AcceptLanguage?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-		Description?:    strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
-		Distributor?:    strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
-		Name!:           strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
-		Owner!:          strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		AcceptLanguage?: strings.MaxRunes(100) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(8191) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(8191) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Distributor?: strings.MaxRunes(8191) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(8191) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(8191) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(8191) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Owner!: strings.MaxRunes(8191) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(8191) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		ProductType?: "CLOUD_FORMATION_TEMPLATE" |
 			"MARKETPLACE_AMI" |
 			"MARKETPLACE_CAR" |
@@ -43,27 +70,64 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// UpdateProduct, DescribeProductAsAdmin, and SearchProductAsAdmin APIs. This
 		// response contains the same fields as the ConnectionParameters request, with
 		// the addition of the LastSync response.
-		SourceConnection?:   #SourceConnection
-		SupportDescription?: strings.MaxRunes(8191) & strings.MinRunes(0) | fn.#StringExpression
-		SupportEmail?:       strings.MaxRunes(254) & strings.MinRunes(0) | fn.#StringExpression
-		SupportUrl?:         strings.MaxRunes(2083) & strings.MinRunes(0) | fn.#StringExpression
-		Tags?:               list.MaxItems(20) & [...] & [...#Tag] | fn.#ListExpression
+		SourceConnection?: #SourceConnection
+		SupportDescription?: strings.MaxRunes(8191) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(8191) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		SupportEmail?: strings.MaxRunes(254) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(254) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		SupportUrl?: strings.MaxRunes(2083) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2083) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(20) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CodeStarParameters: close({
-	ArtifactPath!:  strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	Branch!:        strings.MaxRunes(250) & strings.MinRunes(1) | fn.#StringExpression
-	ConnectionArn!: strings.MaxRunes(1224) & strings.MinRunes(1) | fn.#StringExpression
-	Repository!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	ArtifactPath!: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Branch!: strings.MaxRunes(250) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(250) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ConnectionArn!: strings.MaxRunes(1224) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1224) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Repository!: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ProvisioningArtifactProperties: close({
-	Description?:               string | fn.#StringExpression
+	Description?:               string | number | bool | fn.#StringExpression
 	DisableTemplateValidation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Info!:                      fn.#Object & {...} | string | fn.#StringObjectExpression
-	Name?:                      string | fn.#StringExpression
+	Info!:                      fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+	Name?:                      string | number | bool | fn.#StringExpression
 	Type?: "CLOUD_FORMATION_TEMPLATE" |
 		"MARKETPLACE_AMI" |
 		"MARKETPLACE_CAR" |
@@ -81,7 +145,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

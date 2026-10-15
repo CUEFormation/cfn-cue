@@ -14,38 +14,74 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoTAnalytics::Datastore
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTAnalytics::Datastore"
-	Properties?: close({
-		DatastoreName?:           strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
+	let properties = close({
+		DatastoreName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		DatastorePartitions?:     #DatastorePartitions
 		DatastoreStorage?:        #DatastoreStorage
 		FileFormatConfiguration?: #FileFormatConfiguration
 		RetentionPeriod?:         #RetentionPeriod
 		Tags?:                    list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Column: close({
-	Name!: string | fn.#StringExpression
-	Type!: string | fn.#StringExpression
+	Name!: string | number | bool | fn.#StringExpression
+	Type!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CustomerManagedS3: close({
-	Bucket!:    strings.MaxRunes(255) & strings.MinRunes(3) & =~"[a-zA-Z0-9.\\-_]*" | fn.#StringExpression
-	KeyPrefix?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9!_.*'()/{}:-]*/" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	Bucket!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"[a-zA-Z0-9.\\-_]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & =~"[a-zA-Z0-9.\\-_]*" & "\(self)"
+	} |
+	fn.#StringExpression
+	KeyPrefix?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9!_.*'()/{}:-]*/" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9!_.*'()/{}:-]*/" & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CustomerManagedS3Storage: close({
-	Bucket!:    strings.MaxRunes(255) & strings.MinRunes(3) & =~"[a-zA-Z0-9.\\-_]*" | fn.#StringExpression
-	KeyPrefix?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9!_.*'()/{}:-]*/" | fn.#StringExpression
+	Bucket!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"[a-zA-Z0-9.\\-_]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & =~"[a-zA-Z0-9.\\-_]*" & "\(self)"
+	} |
+	fn.#StringExpression
+	KeyPrefix?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9!_.*'()/{}:-]*/" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9!_.*'()/{}:-]*/" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -73,11 +109,19 @@ fn.#ObjectExpression
 
 #IotSiteWiseMultiLayerStorage: close({CustomerManagedS3Storage?: #CustomerManagedS3Storage}) | fn.#ObjectExpression
 
-#JsonConfiguration: fn.#Object & {...} | string | fn.#StringObjectExpression
+#JsonConfiguration: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 #ParquetConfiguration: close({SchemaDefinition?: #SchemaDefinition}) | fn.#ObjectExpression
 
-#Partition: close({AttributeName!: =~"[a-zA-Z0-9_]+" | fn.#StringExpression}) | fn.#ObjectExpression
+#Partition: close({
+	AttributeName!: =~"[a-zA-Z0-9_]+" |
+	{
+		number | bool
+		_cfnString: =~"[a-zA-Z0-9_]+" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #RetentionPeriod: close({
 	NumberOfDays?: int & <=2147483647 & >=1 |
@@ -103,16 +147,36 @@ fn.#ObjectExpression
 #SchemaDefinition: close({Columns?: list.MaxItems(100) & list.MinItems(1) & [...#Column] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-#ServiceManagedS3: fn.#Object & {...} | string | fn.#StringObjectExpression
+#ServiceManagedS3: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TimestampPartition: close({
-	AttributeName!:   =~"[a-zA-Z0-9_]+" | fn.#StringExpression
-	TimestampFormat?: =~"[a-zA-Z0-9\\s\\[\\]_,.'/:-]*" | fn.#StringExpression
+	AttributeName!: =~"[a-zA-Z0-9_]+" |
+	{
+		number | bool
+		_cfnString: =~"[a-zA-Z0-9_]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	TimestampFormat?: =~"[a-zA-Z0-9\\s\\[\\]_,.'/:-]*" |
+	{
+		number | bool
+		_cfnString: =~"[a-zA-Z0-9\\s\\[\\]_,.'/:-]*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

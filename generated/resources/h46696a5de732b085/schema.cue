@@ -10,23 +10,32 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Inspector CodeSecurityScanConfiguration resource schema
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::InspectorV2::CodeSecurityScanConfiguration"
-	Properties?: close({
+	let properties = close({
 		// Code Security Scan Configuration
 		Configuration?: #CodeSecurityScanConfiguration
 
 		// Configuration Level
 		Level?: #ConfigurationLevel
-		Name?:  strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$:.]*$" | fn.#StringExpression
+		Name?: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$:.]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_$:.]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Scope Settings
 		ScopeSettings?: #ScopeSettings
 		Tags?:          #TagMap
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CodeSecurityScanConfiguration: close({
@@ -46,8 +55,13 @@ fn.#ObjectExpression
 #ContinuousIntegrationScanEvent: "PULL_REQUEST" | "PUSH" | fn.#StringExpression
 
 #PeriodicScanConfiguration: close({
-	frequency?:           #PeriodicScanFrequency
-	frequencyExpression?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	frequency?: #PeriodicScanFrequency
+	frequencyExpression?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -61,5 +75,17 @@ fn.#ObjectExpression
 
 #TagMap: close({
 
-	{[=~"^.{2,127}$"]: =~"^.{1,255}$" | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^.{2,127}$"]: =~"^.{1,255}$" |
+		{
+			number | bool
+			_cfnString: =~"^.{1,255}$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression

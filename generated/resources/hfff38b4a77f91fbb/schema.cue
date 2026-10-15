@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecurityAgent::Integration. Creates a
@@ -17,47 +19,63 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // and remediation.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityAgent::Integration"
-	Properties!: close({
-		DisplayName!: string | fn.#StringExpression
-		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string |
-			fn.#StringExpression
-		PrivateConnectionName?: string | fn.#StringExpression
+	let properties = close({
+		DisplayName!: string | number | bool | fn.#StringExpression
+		KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+		} |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+				"\(self)"
+		} |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		PrivateConnectionName?: string | number | bool | fn.#StringExpression
 		Provider!:              "GITHUB" | "GITLAB" | "BITBUCKET" | "CONFLUENCE" | fn.#StringExpression
 		ProviderInput?:         #ProviderInput
 		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #BitbucketInput: close({
-	Code!:           string | fn.#StringExpression
-	InstallationId!: string | fn.#StringExpression
-	State!:          string | fn.#StringExpression
-	Workspace!:      string | fn.#StringExpression
+	Code!:           string | number | bool | fn.#StringExpression
+	InstallationId!: string | number | bool | fn.#StringExpression
+	State!:          string | number | bool | fn.#StringExpression
+	Workspace!:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ConfluenceInput: close({
-	Code!:           string | fn.#StringExpression
-	InstallationId!: string | fn.#StringExpression
-	SiteUrl!:        string | fn.#StringExpression
-	State!:          string | fn.#StringExpression
+	Code!:           string | number | bool | fn.#StringExpression
+	InstallationId!: string | number | bool | fn.#StringExpression
+	SiteUrl!:        string | number | bool | fn.#StringExpression
+	State!:          string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GitHubInput: close({
-	Code!:             string | fn.#StringExpression
-	InstallationId?:   string | fn.#StringExpression
-	OrganizationName?: string | fn.#StringExpression
-	State!:            string | fn.#StringExpression
-	TargetUrl?:        string | fn.#StringExpression
+	Code!:             string | number | bool | fn.#StringExpression
+	InstallationId?:   string | number | bool | fn.#StringExpression
+	OrganizationName?: string | number | bool | fn.#StringExpression
+	State!:            string | number | bool | fn.#StringExpression
+	TargetUrl?:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GitLabInput: close({
-	AccessToken!: string | fn.#StringExpression
-	GroupId?:     string | fn.#StringExpression
-	TargetUrl?:   string | fn.#StringExpression
+	AccessToken!: string | number | bool | fn.#StringExpression
+	GroupId?:     string | number | bool | fn.#StringExpression
+	TargetUrl?:   string | number | bool | fn.#StringExpression
 	TokenType!:   "PERSONAL" | "GROUP" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -71,7 +89,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

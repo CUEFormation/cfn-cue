@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::CloudWatch::CompositeAlarm type specifies an alarm which aggregates
@@ -21,9 +23,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // AlarmRule expression
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudWatch::CompositeAlarm"
-	Properties!: close({
-		ActionsEnabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ActionsSuppressor?: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		ActionsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ActionsSuppressor?: strings.MaxRunes(1600) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1600) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ActionsSuppressorExtensionPeriod?: int & >=0 |
 			{
 				string &
@@ -58,23 +65,63 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		AlarmActions?: list.MaxItems(5) & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
+		AlarmActions?: list.MaxItems(5) & [...strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		AlarmDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		AlarmName?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		AlarmRule!:        strings.MaxRunes(10240) & strings.MinRunes(1) | fn.#StringExpression
-		InsufficientDataActions?: list.MaxItems(5) & [
-			...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		] |
+		AlarmDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		AlarmName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		AlarmRule!: strings.MaxRunes(10240) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(10240) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		InsufficientDataActions?: list.MaxItems(5) & [...strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		OKActions?: list.MaxItems(5) & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
+		OKActions?: list.MaxItems(5) & [...strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

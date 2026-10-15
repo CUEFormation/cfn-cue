@@ -9,19 +9,33 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This schema is for testing purpose only.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RoboMaker::RobotApplication"
-	Properties!: close({
-		CurrentRevisionId?:  strings.MaxRunes(40) & strings.MinRunes(1) | fn.#StringExpression
-		Environment?:        string | fn.#StringExpression
-		Name?:               strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		CurrentRevisionId?: strings.MaxRunes(40) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(40) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Environment?: string | number | bool | fn.#StringExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		RobotSoftwareSuite!: #RobotSoftwareSuite
 		Sources?:            [...#SourceConfig] | fn.#ListExpression
 		Tags?:               #Tags
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #RobotSoftwareSuite: close({
@@ -31,13 +45,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #SourceConfig: close({
-	Architecture!: ("X86_64" | "ARM64" | "ARMHF") & (strings.MaxRunes(255) & strings.MinRunes(1)) | fn.#StringExpression
-	S3Bucket!:     string | fn.#StringExpression
-	S3Key!:        string | fn.#StringExpression
+	Architecture!: ("X86_64" | "ARM64" | "ARMHF") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: ("X86_64" | "ARM64" | "ARMHF") & strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	S3Key!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tags: close({
 
-	{[=~"^[a-zA-Z0-9-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{
+		[=~"^[a-zA-Z0-9-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression

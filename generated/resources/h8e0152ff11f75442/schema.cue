@@ -10,23 +10,28 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SES::EmailIdentity
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SES::EmailIdentity"
-	Properties!: close({
+	let properties = close({
 		ConfigurationSetAttributes?: #ConfigurationSetAttributes
 		DkimAttributes?:             #DkimAttributes
 		DkimSigningAttributes?:      #DkimSigningAttributes
-		EmailIdentity!:              string | fn.#StringExpression
+		EmailIdentity!:              string | number | bool | fn.#StringExpression
 		FeedbackAttributes?:         #FeedbackAttributes
 		MailFromAttributes?:         #MailFromAttributes
 		Tags?:                       list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ConfigurationSetAttributes: close({ConfigurationSetName?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#ConfigurationSetAttributes: close({ConfigurationSetName?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #DkimAttributes: close(
 	{SigningEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
@@ -34,9 +39,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 
 #DkimSigningAttributes: close({
-	DomainSigningPrivateKey?: string | fn.#StringExpression
-	DomainSigningSelector?:   string | fn.#StringExpression
-	NextSigningKeyLength?:    =~"RSA_1024_BIT|RSA_2048_BIT" | fn.#StringExpression
+	DomainSigningPrivateKey?: string | number | bool | fn.#StringExpression
+	DomainSigningSelector?:   string | number | bool | fn.#StringExpression
+	NextSigningKeyLength?: =~"RSA_1024_BIT|RSA_2048_BIT" |
+	{
+		number | bool
+		_cfnString: =~"RSA_1024_BIT|RSA_2048_BIT" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -46,13 +56,28 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #MailFromAttributes: close({
-	BehaviorOnMxFailure?: =~"USE_DEFAULT_VALUE|REJECT_MESSAGE" | fn.#StringExpression
-	MailFromDomain?:      string | fn.#StringExpression
+	BehaviorOnMxFailure?: =~"USE_DEFAULT_VALUE|REJECT_MESSAGE" |
+	{
+		number | bool
+		_cfnString: =~"USE_DEFAULT_VALUE|REJECT_MESSAGE" & "\(self)"
+	} |
+	fn.#StringExpression
+	MailFromDomain?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

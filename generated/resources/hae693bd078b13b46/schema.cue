@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ApiGateway::BasePathMapping`` resource creates a base path that
@@ -13,10 +15,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // public custom domain names.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::BasePathMapping"
-	Properties!: close({
-		BasePath?:   string | fn.#StringExpression
-		DomainName!: string | fn.#StringExpression
-		RestApiId?:  string | fn.#StringExpression
-		Stage?:      string | fn.#StringExpression
+	let properties = close({
+		BasePath?:   string | number | bool | fn.#StringExpression
+		DomainName!: string | number | bool | fn.#StringExpression
+		RestApiId?:  string | number | bool | fn.#StringExpression
+		Stage?:      string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

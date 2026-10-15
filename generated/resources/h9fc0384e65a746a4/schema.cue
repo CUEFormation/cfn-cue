@@ -13,15 +13,24 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for ContactFlowModuleAlias
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::ContactFlowModuleAlias"
-	Properties!: close({
+	let properties = close({
 		ContactFlowModuleId!: strings.MaxRunes(500) &
 		strings.MinRunes(1) &
 		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]+:[0-9]{12}:instance/[-a-zA-Z0-9]+/flow-module/[-a-zA-Z0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) &
+			strings.MinRunes(1) &
+			=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]+:[0-9]{12}:instance/[-a-zA-Z0-9]+/flow-module/[-a-zA-Z0-9]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ContactFlowModuleVersion!: int & >=1 |
 			{
@@ -40,7 +49,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Description?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-		Name!:        strings.MaxRunes(127) & strings.MinRunes(1) & =~"^([$0-9a-zA-Z][_-]?)+$" | fn.#StringExpression
+		Description?: strings.MaxRunes(500) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^([$0-9a-zA-Z][_-]?)+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^([$0-9a-zA-Z][_-]?)+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

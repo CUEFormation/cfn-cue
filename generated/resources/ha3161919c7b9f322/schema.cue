@@ -10,12 +10,16 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::CertificateManager::Account.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::CertificateManager::Account"
-	Properties!: close({ExpiryEventsConfiguration!: #ExpiryEventsConfiguration})
+	Type!: "AWS::CertificateManager::Account"
+	let properties = close({ExpiryEventsConfiguration!: #ExpiryEventsConfiguration})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ExpiryEventsConfiguration: close({

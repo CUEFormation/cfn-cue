@@ -9,57 +9,65 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpsWorks::App
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::OpsWorks::App"
-	Properties!: close({
+	let properties = close({
 		AppSource?: #Source
 		Attributes?: {
-			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
+			{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
 			...
 		} | fn.#ObjectExpression
 		DataSources?:      list.UniqueItems() & [...#DataSource] | fn.#ListExpression
-		Description?:      string | fn.#StringExpression
-		Domains?:          [...string | fn.#StringExpression] | fn.#ListExpression
+		Description?:      string | number | bool | fn.#StringExpression
+		Domains?:          [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		EnableSsl?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Environment?:      [...#EnvironmentVariable] | fn.#ListExpression
-		Name!:             string | fn.#StringExpression
-		Shortname?:        string | fn.#StringExpression
+		Name!:             string | number | bool | fn.#StringExpression
+		Shortname?:        string | number | bool | fn.#StringExpression
 		SslConfiguration?: #SslConfiguration
-		StackId!:          string | fn.#StringExpression
-		Type!:             string | fn.#StringExpression
+		StackId!:          string | number | bool | fn.#StringExpression
+		Type!:             string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DataSource: close({
-	Arn?:          string | fn.#StringExpression
-	DatabaseName?: string | fn.#StringExpression
-	Type?:         string | fn.#StringExpression
+	Arn?:          string | number | bool | fn.#StringExpression
+	DatabaseName?: string | number | bool | fn.#StringExpression
+	Type?:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EnvironmentVariable: close({
-	Key!:    string | fn.#StringExpression
+	Key!:    string | number | bool | fn.#StringExpression
 	Secure?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Value!:  string | fn.#StringExpression
+	Value!:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Source: close({
-	Password?: string | fn.#StringExpression
-	Revision?: string | fn.#StringExpression
-	SshKey?:   string | fn.#StringExpression
-	Type?:     string | fn.#StringExpression
-	Url?:      string | fn.#StringExpression
-	Username?: string | fn.#StringExpression
+	Password?: string | number | bool | fn.#StringExpression
+	Revision?: string | number | bool | fn.#StringExpression
+	SshKey?:   string | number | bool | fn.#StringExpression
+	Type?:     string | number | bool | fn.#StringExpression
+	Url?:      string | number | bool | fn.#StringExpression
+	Username?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SslConfiguration: close({
-	Certificate?: string | fn.#StringExpression
-	Chain?:       string | fn.#StringExpression
-	PrivateKey?:  string | fn.#StringExpression
+	Certificate?: string | number | bool | fn.#StringExpression
+	Chain?:       string | number | bool | fn.#StringExpression
+	PrivateKey?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

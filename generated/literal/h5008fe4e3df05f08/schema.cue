@@ -17,7 +17,11 @@ import (
 
 	// The name of the S3 bucket associated with an associated S3 repository. It
 	// must start with `codeguru-reviewer-`.
-	BucketName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^\\S(.*\\S)?$"
+	BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"^\\S(.*\\S)?$"
 
 	// The Amazon Resource Name (ARN) of an AWS CodeStar Connections connection.
 	ConnectionArn?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:aws(-[\\w]+)*:.+:.+:[0-9]{12}:.+"

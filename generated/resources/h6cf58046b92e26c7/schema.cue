@@ -15,16 +15,25 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoTAnalytics::Pipeline
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTAnalytics::Pipeline"
-	Properties!: close({
+	let properties = close({
 		PipelineActivities!: list.MaxItems(25) & list.MinItems(1) & [...#Activity] | fn.#ListExpression
-		PipelineName?:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
-		Tags?:               list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		PipelineName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Activity: close({
@@ -44,50 +53,166 @@ fn.#ObjectExpression
 #AddAttributes: close({
 	Attributes!: struct.MaxFields(50) & struct.MinFields(1) & close({
 
-		{[=~"^.*$"]: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{
+			[=~"^.*$"]: strings.MaxRunes(256) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
+		}
+	}) |
 	fn.#ObjectExpression
-	Name!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Next?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Next?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Channel: close({
-	ChannelName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
-	Name!:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Next?:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	ChannelName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Next?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Datastore: close({
-	DatastoreName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
-	Name!:          strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	DatastoreName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DeviceRegistryEnrich: close({
-	Attribute!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Next?:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	Attribute!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
 	fn.#StringExpression
-	ThingName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Next?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	ThingName!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DeviceShadowEnrich: close({
-	Attribute!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Next?:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	Attribute!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
 	fn.#StringExpression
-	ThingName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Next?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	ThingName!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Filter: close({
-	Filter!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Next?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Filter!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Next?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -108,42 +233,113 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	LambdaName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" | fn.#StringExpression
-	Name!:       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Next?:       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	LambdaName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Next?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Math: close({
-	Attribute!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Math!:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Next?:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Attribute!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Math!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Next?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RemoveAttributes: close({
-	Attributes!: list.MaxItems(50) & list.MinItems(1) & [
-		...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	Attributes!: list.MaxItems(50) & list.MinItems(1) & [...strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Name!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Next?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Next?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SelectAttributes: close({
-	Attributes!: list.MaxItems(50) & list.MinItems(1) & [
-		...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	Attributes!: list.MaxItems(50) & list.MinItems(1) & [...strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Name!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Next?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Next?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

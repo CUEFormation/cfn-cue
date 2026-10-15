@@ -10,39 +10,91 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::IntegrationResourceProperty
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::IntegrationResourceProperty"
-	Properties!: close({
-		ResourceArn!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:aws:.*:.*:[0-9]+:.*" | fn.#StringExpression
+	let properties = close({
+		ResourceArn!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:aws:.*:.*:[0-9]+:.*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:aws:.*:.*:[0-9]+:.*" & "\(self)"
+		} |
+		fn.#StringExpression
 		SourceProcessingProperties?: close({
-			RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(128) & strings.MinRunes(1)) |
+			RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(128) & strings.MinRunes(1)) |
+			{
+				number | bool
+				_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+				strings.MaxRunes(128) &
+				strings.MinRunes(1) &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		TargetProcessingProperties?: close({
-			ConnectionName?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-			EventBusArn?:    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-			KmsArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			ConnectionName?: strings.MaxRunes(128) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
+			EventBusArn?: strings.MaxRunes(128) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
+			KmsArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 			strings.MaxRunes(128) &
 			strings.MinRunes(1) &
 			=~"arn:aws:kms:.*:[0-9]+:.*" |
+			{
+				number | bool
+				_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+				strings.MaxRunes(128) &
+				strings.MinRunes(1) &
+				=~"arn:aws:kms:.*:[0-9]+:.*" &
+				"\(self)"
+			} |
 			fn.#StringExpression
-			RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 			strings.MaxRunes(128) &
 			strings.MinRunes(1) &
 			=~"arn:aws:iam:.*:[0-9]+:.*" |
+			{
+				number | bool
+				_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+				strings.MaxRunes(128) &
+				strings.MinRunes(1) &
+				=~"arn:aws:iam:.*:[0-9]+:.*" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

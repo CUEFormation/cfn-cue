@@ -10,40 +10,46 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppMesh::VirtualGateway
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppMesh::VirtualGateway"
-	Properties!: close({
-		MeshName!:           string | fn.#StringExpression
-		MeshOwner?:          string | fn.#StringExpression
+	let properties = close({
+		MeshName!:           string | number | bool | fn.#StringExpression
+		MeshOwner?:          string | number | bool | fn.#StringExpression
 		Spec!:               #VirtualGatewaySpec
 		Tags?:               [...#Tag] | fn.#ListExpression
-		VirtualGatewayName?: string | fn.#StringExpression
+		VirtualGatewayName?: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #JsonFormatRef: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LoggingFormat: close({
 	Json?: [...#JsonFormatRef] | fn.#ListExpression
-	Text?: string | fn.#StringExpression
+	Text?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#SubjectAlternativeNameMatchers: close({Exact?: [...string | fn.#StringExpression] | fn.#ListExpression}) |
+#SubjectAlternativeNameMatchers: close(
+	{Exact?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 #SubjectAlternativeNames: close({Match!: #SubjectAlternativeNameMatchers}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -94,7 +100,7 @@ fn.#ObjectExpression
 
 #VirtualGatewayFileAccessLog: close({
 	Format?: #LoggingFormat
-	Path!:   string | fn.#StringExpression
+	Path!:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -145,7 +151,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Path?: string | fn.#StringExpression
+	Path?: string | number | bool | fn.#StringExpression
 	Port?: int |
 		{
 			string &
@@ -160,7 +166,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Protocol!: string | fn.#StringExpression
+	Protocol!: string | number | bool | fn.#StringExpression
 	TimeoutMillis!: int |
 		{
 			string &
@@ -252,16 +258,20 @@ fn.#ObjectExpression
 
 #VirtualGatewayListenerTls: close({
 	Certificate!: #VirtualGatewayListenerTlsCertificate
-	Mode!:        string | fn.#StringExpression
+	Mode!:        string | number | bool | fn.#StringExpression
 	Validation?:  #VirtualGatewayListenerTlsValidationContext
 }) |
 fn.#ObjectExpression
 
 #VirtualGatewayListenerTlsAcmCertificate: close({
-	CertificateArn!: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	CertificateArn!: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
 #VirtualGatewayListenerTlsCertificate: close({
 	ACM?:  #VirtualGatewayListenerTlsAcmCertificate
@@ -271,12 +281,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VirtualGatewayListenerTlsFileCertificate: close({
-	CertificateChain!: string | fn.#StringExpression
-	PrivateKey!:       string | fn.#StringExpression
+	CertificateChain!: string | number | bool | fn.#StringExpression
+	PrivateKey!:       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#VirtualGatewayListenerTlsSdsCertificate: close({SecretName!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#VirtualGatewayListenerTlsSdsCertificate: close({SecretName!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #VirtualGatewayListenerTlsValidationContext: close({
 	SubjectAlternativeNames?: #SubjectAlternativeNames
@@ -307,7 +318,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Protocol!: string | fn.#StringExpression
+	Protocol!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -325,14 +336,15 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VirtualGatewayTlsValidationContextAcmTrust: close(
-	{CertificateAuthorityArns!: [...string | fn.#StringExpression] | fn.#ListExpression},
+	{CertificateAuthorityArns!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
-#VirtualGatewayTlsValidationContextFileTrust: close({CertificateChain!: string | fn.#StringExpression}) |
+#VirtualGatewayTlsValidationContextFileTrust: close({CertificateChain!: string | number | bool | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-#VirtualGatewayTlsValidationContextSdsTrust: close({SecretName!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#VirtualGatewayTlsValidationContextSdsTrust: close({SecretName!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #VirtualGatewayTlsValidationContextTrust: close({
 	ACM?:  #VirtualGatewayTlsValidationContextAcmTrust

@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ECR::RegistryPolicy`` resource creates or updates the permissions
@@ -20,7 +22,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Amazon Elastic Container Registry User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ECR::RegistryPolicy"
-	Properties!: close(
-		{PolicyText!: fn.#Object & {...} | strings.MaxRunes(10240) & strings.MinRunes(0) | fn.#StringObjectExpression},
-	)
+	let properties = close({
+		PolicyText!: fn.#Object & {...} |
+		strings.MaxRunes(10240) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(10240) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringObjectExpression
+	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

@@ -2,6 +2,8 @@
 
 package schema
 
+import "github.com/cueformation/cfn-cue/fn:fn"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Specifies a virtual private cloud (VPC).
@@ -28,7 +30,7 @@ package schema
 	// for example, if you specify ``100.68.0.18/18``, we modify it to
 	// ``100.68.0.0/18``.
 	// You must specify either``CidrBlock`` or ``Ipv4IpamPoolId``.
-	CidrBlock?:             string
+	CidrBlock?:             fn.#IPv4Network & string
 	CidrBlockAssociations?: [...string]
 	DefaultNetworkAcl?:     string
 	DefaultSecurityGroup?:  =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"

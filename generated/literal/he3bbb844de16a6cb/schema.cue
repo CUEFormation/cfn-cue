@@ -181,7 +181,7 @@ import (
 
 	// The list of subnets to connect to in the virtual private cloud (VPC). AWS
 	// creates elastic network interfaces inside these subnets.
-	Subnets!: list.MinItems(1) & list.UniqueItems() & [...string]
+	Subnets!: list.MinItems(1) & list.UniqueItems() & [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"]
 })
 
 // Specifies the worker configuration to use with the connector.

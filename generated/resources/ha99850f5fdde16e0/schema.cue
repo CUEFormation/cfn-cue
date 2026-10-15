@@ -10,44 +10,48 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Budgets::Budget
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Budgets::Budget"
-	Properties!: close({
+	let properties = close({
 		Budget!:                       #BudgetData
 		NotificationsWithSubscribers?: [...#NotificationWithSubscribers] | fn.#ListExpression
 		ResourceTags?:                 [...#ResourceTag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AutoAdjustData: close({
-	AutoAdjustType!:    string | fn.#StringExpression
+	AutoAdjustType!:    string | number | bool | fn.#StringExpression
 	HistoricalOptions?: #HistoricalOptions
 }) |
 fn.#ObjectExpression
 
 #BudgetData: close({
 	AutoAdjustData?:      #AutoAdjustData
-	BillingViewArn?:      string | fn.#StringExpression
+	BillingViewArn?:      string | number | bool | fn.#StringExpression
 	BudgetLimit?:         #Spend
-	BudgetName?:          string | fn.#StringExpression
-	BudgetType!:          string | fn.#StringExpression
-	CostFilters?:         fn.#Object & {...} | string | fn.#StringObjectExpression
+	BudgetName?:          string | number | bool | fn.#StringExpression
+	BudgetType!:          string | number | bool | fn.#StringExpression
+	CostFilters?:         fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	CostTypes?:           #CostTypes
 	FilterExpression?:    #Expression
-	Metrics?:             [...string | fn.#StringExpression] | fn.#ListExpression
-	PlannedBudgetLimits?: fn.#Object & {...} | string | fn.#StringObjectExpression
+	Metrics?:             [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	PlannedBudgetLimits?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	TimePeriod?:          #TimePeriod
-	TimeUnit!:            string | fn.#StringExpression
+	TimeUnit!:            string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CostCategoryValues: close({
-	Key?:          string | fn.#StringExpression
-	MatchOptions?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Values?:       [...string | fn.#StringExpression] | fn.#ListExpression
+	Key?:          string | number | bool | fn.#StringExpression
+	MatchOptions?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Values?:       [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -77,9 +81,9 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ExpressionDimensionValues: close({
-	Key?:          string | fn.#StringExpression
-	MatchOptions?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Values?:       [...string | fn.#StringExpression] | fn.#ListExpression
+	Key?:          string | number | bool | fn.#StringExpression
+	MatchOptions?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Values?:       [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -102,8 +106,8 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Notification: close({
-	ComparisonOperator!: string | fn.#StringExpression
-	NotificationType!:   string | fn.#StringExpression
+	ComparisonOperator!: string | number | bool | fn.#StringExpression
+	NotificationType!:   string | number | bool | fn.#StringExpression
 	Threshold!: <=1000000000 & >=0.1 |
 		{
 			string &
@@ -124,7 +128,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ThresholdType?: string | fn.#StringExpression
+	ThresholdType?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -135,8 +139,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ResourceTag: close({
-	Key!:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -160,25 +164,25 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Unit!: string | fn.#StringExpression
+	Unit!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Subscriber: close({
-	Address!:          string | fn.#StringExpression
-	SubscriptionType!: string | fn.#StringExpression
+	Address!:          string | number | bool | fn.#StringExpression
+	SubscriptionType!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TagValues: close({
-	Key?:          string | fn.#StringExpression
-	MatchOptions?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Values?:       [...string | fn.#StringExpression] | fn.#ListExpression
+	Key?:          string | number | bool | fn.#StringExpression
+	MatchOptions?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Values?:       [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #TimePeriod: close({
-	End?:   string | fn.#StringExpression
-	Start?: string | fn.#StringExpression
+	End?:   string | number | bool | fn.#StringExpression
+	Start?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

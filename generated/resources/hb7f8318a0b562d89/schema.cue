@@ -6,10 +6,21 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Detective::OrganizationAdmin
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Detective::OrganizationAdmin"
-	Properties!: close({AccountId!: =~"[0-9]{12}" | fn.#StringExpression})
+	Type!: "AWS::Detective::OrganizationAdmin"
+	let properties = close({
+		AccountId!: =~"[0-9]{12}" |
+		{
+			number | bool
+			_cfnString: =~"[0-9]{12}" & "\(self)"
+		} |
+		fn.#StringExpression
+	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

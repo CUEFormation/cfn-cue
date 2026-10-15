@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Policy Grant in AWS DataZone is an explicit authorization assignment that
@@ -20,14 +22,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // through AWS IAM alone.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataZone::PolicyGrant"
-	Properties!: close({
-		Detail!:           #PolicyGrantDetail & fn.#Object & {...} | fn.#ValueExpression
-		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-		EntityIdentifier!: string | fn.#StringExpression
+	let properties = close({
+		Detail!: #PolicyGrantDetail & fn.#Object & {...} | fn.#ValueExpression
+		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		EntityIdentifier!: string | number | bool | fn.#StringExpression
 		EntityType!:       #TargetEntityType
 		PolicyType!:       #ManagedPolicyType
 		Principal!:        #PolicyGrantPrincipal & fn.#Object & {...} | fn.#ValueExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AddToProjectMemberPoolPolicyGrantDetail: close(
@@ -49,9 +58,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 ) |
 	fn.#ObjectExpression
 
-#CreateEnvironmentProfilePolicyGrantDetail: close(
-	{DomainUnitId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" | fn.#StringExpression},
-) |
+#CreateEnvironmentProfilePolicyGrantDetail: close({
+	DomainUnitId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #CreateFormTypePolicyGrantDetail: close(
@@ -66,7 +80,7 @@ fn.#ObjectExpression
 
 #CreateProjectFromProjectProfilePolicyGrantDetail: close({
 	IncludeChildDomainUnits?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ProjectProfiles?:         [...string | fn.#StringExpression] | fn.#ListExpression
+	ProjectProfiles?:         [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -78,7 +92,12 @@ fn.#ObjectExpression
 #DomainUnitDesignation: "OWNER" | fn.#StringExpression
 
 #DomainUnitFilterForProject: close({
-	DomainUnit!:              strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" | fn.#StringExpression
+	DomainUnit!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	IncludeChildDomainUnits?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
@@ -88,15 +107,25 @@ fn.#ObjectExpression
 #DomainUnitPolicyGrantPrincipal: close({
 	DomainUnitDesignation?: #DomainUnitDesignation
 	DomainUnitGrantFilter?: #DomainUnitGrantFilter
-	DomainUnitIdentifier?:  strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" | fn.#StringExpression
+	DomainUnitIdentifier?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GroupPolicyGrantPrincipal: close({
 	GroupIdentifier!: =~"(^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$|[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r  ]+)" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"(^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$|[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r  ]+)" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 }) |
-	fn.#ValueExpression
+fn.#ValueExpression
 
 #ManagedPolicyType: "CREATE_DOMAIN_UNIT" |
 	"OVERRIDE_DOMAIN_UNIT_OWNERS" |
@@ -163,14 +192,24 @@ fn.#ValueExpression
 )]) |
 fn.#ValueExpression
 
-#ProjectDesignation: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+#ProjectDesignation: =~"^[a-zA-Z0-9_-]{1,36}$" |
+{
+	number | bool
+	_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #ProjectGrantFilter: close({DomainUnitFilter!: #DomainUnitFilterForProject}) | fn.#ValueExpression
 
 #ProjectPolicyGrantPrincipal: close({
 	ProjectDesignation?: #ProjectDesignation
 	ProjectGrantFilter?: #ProjectGrantFilter
-	ProjectIdentifier?:  =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+	ProjectIdentifier?: =~"^[a-zA-Z0-9_-]{1,36}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

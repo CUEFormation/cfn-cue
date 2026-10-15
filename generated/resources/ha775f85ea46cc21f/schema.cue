@@ -9,27 +9,41 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for an IP access control group for Amazon WorkSpaces.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WorkSpaces::WorkspaceIpGroup"
-	Properties!: close({
-		GroupDesc?: string | fn.#StringExpression
-		GroupName!: string | fn.#StringExpression
+	let properties = close({
+		GroupDesc?: string | number | bool | fn.#StringExpression
+		GroupName!: string | number | bool | fn.#StringExpression
 		Tags?:      [...#Tag] | fn.#ListExpression
 		UserRules?: [...#IpRuleItem] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #IpRuleItem: close({
-	IpRule!:   string | fn.#StringExpression
-	RuleDesc?: string | fn.#StringExpression
+	IpRule!:   string | number | bool | fn.#StringExpression
+	RuleDesc?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

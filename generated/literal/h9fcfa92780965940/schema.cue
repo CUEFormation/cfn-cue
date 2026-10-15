@@ -79,8 +79,12 @@ import (
 	=~"^(/|[-a-zA-Z0-9;?:@&=+$,%_.!~*()']+(/[-a-zA-Z0-9;?:@&=+$,%_.!~*()']+)*)$"
 	Enabled!:          bool
 	ExpirationInDays?: int & <=5000 & >=1
-	S3BucketName?:     strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[-a-zA-Z0-9._/]+$"
-	S3ObjectAcl?:      "BUCKET_OWNER_FULL_CONTROL" | "PUBLIC_READ"
+	S3BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(255) &
+	strings.MinRunes(3) &
+	=~"^[-a-zA-Z0-9._/]+$"
+	S3ObjectAcl?: "BUCKET_OWNER_FULL_CONTROL" | "PUBLIC_READ"
 })
 
 // Configures the default behavior of the CRL Distribution Point extension for

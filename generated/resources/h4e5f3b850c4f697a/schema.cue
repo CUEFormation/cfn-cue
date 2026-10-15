@@ -10,33 +10,97 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Route53Resolver::ResolverRule
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53Resolver::ResolverRule"
-	Properties!: close({
-		DelegationRecord?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		DomainName?:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		Name?:               strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-		ResolverEndpointId?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-		RuleType!:           =~"(?i)^(?:delegate|forward|recursive|system)$" | fn.#StringExpression
-		Tags?:               list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-		TargetIps?:          list.MinItems(1) & [...#TargetAddress] | fn.#ListExpression
+	let properties = close({
+		DelegationRecord?: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainName?: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(64) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		ResolverEndpointId?: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		RuleType!: =~"(?i)^(?:delegate|forward|recursive|system)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:delegate|forward|recursive|system)$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?:      list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		TargetIps?: list.MinItems(1) & [...#TargetAddress] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TargetAddress: close({
-	Ip?:                   strings.MaxRunes(36) & strings.MinRunes(7) | fn.#StringExpression
-	Ipv6?:                 strings.MaxRunes(39) & strings.MinRunes(7) | fn.#StringExpression
-	Port?:                 strings.MaxRunes(65535) & strings.MinRunes(0) | fn.#StringExpression
-	Protocol?:             =~"(?i)^(?:do53|doh)$" | fn.#StringExpression
-	ServerNameIndication?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	Ip?: strings.MaxRunes(36) & strings.MinRunes(7) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(36) & strings.MinRunes(7) & "\(self)"
+	} |
+	fn.#StringExpression
+	Ipv6?: strings.MaxRunes(39) & strings.MinRunes(7) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(39) & strings.MinRunes(7) & "\(self)"
+	} |
+	fn.#StringExpression
+	Port?: strings.MaxRunes(65535) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(65535) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Protocol?: =~"(?i)^(?:do53|doh)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:do53|doh)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ServerNameIndication?: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

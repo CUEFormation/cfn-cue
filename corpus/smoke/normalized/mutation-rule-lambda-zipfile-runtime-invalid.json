@@ -1,0 +1,15 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "Code": {
+          "ZipFile": "x"
+        },
+        "Handler": "x",
+        "Role": "arn:aws:iam::123456789012:role/r",
+        "Runtime": "java21"
+      },
+      "Type": "AWS::Lambda::Function"
+    }
+  }
+}

@@ -10,34 +10,71 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Location::Map Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Location::Map"
-	Properties!: close({
+	let properties = close({
 		Configuration!: #MapConfiguration
-		Description?:   strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-		MapName!:       strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" | fn.#StringExpression
-		PricingPlan?:   #PricingPlan
-		Tags?:          list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		MapName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		PricingPlan?: #PricingPlan
+		Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #MapConfiguration: close({
-	CustomLayers?: list.MaxItems(10) & [
-		...strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" | fn.#StringExpression
-	] |
+	CustomLayers?: list.MaxItems(10) & [...strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	PoliticalView?: strings.MaxRunes(3) & strings.MinRunes(3) & =~"^[A-Z]{3}$" | fn.#StringExpression
-	Style!:         strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" | fn.#StringExpression
+	PoliticalView?: strings.MaxRunes(3) & strings.MinRunes(3) & =~"^[A-Z]{3}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(3) & strings.MinRunes(3) & =~"^[A-Z]{3}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Style!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PricingPlan: "RequestBasedUsage" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z+-=._:/]+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9 _=@:.+-/]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z+-=._:/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z+-=._:/]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9 _=@:.+-/]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9 _=@:.+-/]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

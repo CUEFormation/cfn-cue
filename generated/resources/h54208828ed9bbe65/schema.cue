@@ -13,21 +13,40 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MSK::Cluster
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MSK::Cluster"
-	Properties!: close({
+	let properties = close({
 		BrokerNodeGroupInfo!:  #BrokerNodeGroupInfo
 		ClientAuthentication?: #ClientAuthentication
-		ClusterName!:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-		ConfigurationInfo?:    #ConfigurationInfo
-		EncryptionInfo?:       #EncryptionInfo
-		EnhancedMonitoring?: ("DEFAULT" | "PER_BROKER" | "PER_TOPIC_PER_BROKER" | "PER_TOPIC_PER_PARTITION") & (strings.MaxRunes(23) & strings.MinRunes(7)) |
+		ClusterName!: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
 		fn.#StringExpression
-		KafkaVersion!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		LoggingInfo?:  #LoggingInfo
+		ConfigurationInfo?: #ConfigurationInfo
+		EncryptionInfo?:    #EncryptionInfo
+		EnhancedMonitoring?: ("DEFAULT" | "PER_BROKER" | "PER_TOPIC_PER_BROKER" | "PER_TOPIC_PER_PARTITION") & (strings.MaxRunes(23) & strings.MinRunes(7)) |
+		{
+			number | bool
+			_cfnString: ("DEFAULT" | "PER_BROKER" | "PER_TOPIC_PER_BROKER" | "PER_TOPIC_PER_PARTITION") &
+			strings.MaxRunes(23) &
+			strings.MinRunes(7) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		KafkaVersion!: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		LoggingInfo?: #LoggingInfo
 		NumberOfBrokerNodes!: int & >=1 |
 			{
 				string &
@@ -47,13 +66,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		OpenMonitoring?: #OpenMonitoring
 		Rebalancing?:    #Rebalancing
-		StorageMode?:    ("LOCAL" | "TIERED") & (strings.MaxRunes(6) & strings.MinRunes(5)) | fn.#StringExpression
+		StorageMode?: ("LOCAL" | "TIERED") & (strings.MaxRunes(6) & strings.MinRunes(5)) |
+		{
+			number | bool
+			_cfnString: ("LOCAL" | "TIERED") & strings.MaxRunes(6) & strings.MinRunes(5) & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: close({
 
-			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | number | bool | fn.#StringExpression}
+		}) |
 		fn.#ObjectExpression
 		ZookeeperAccess?: #ZookeeperAccess
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AuthorizerLogs: close({
@@ -71,15 +102,27 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #BrokerNodeGroupInfo: close({
-	BrokerAZDistribution?: "DEFAULT" & (strings.MaxRunes(9) & strings.MinRunes(6)) | fn.#StringExpression
-	ClientSubnets!:        [...string | fn.#StringExpression] | fn.#ListExpression
-	ConnectivityInfo?:     #ConnectivityInfo
-	InstanceType!:         strings.MaxRunes(32) & strings.MinRunes(5) | fn.#StringExpression
-	SecurityGroups?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
+	BrokerAZDistribution?: "DEFAULT" & (strings.MaxRunes(9) & strings.MinRunes(6)) |
+	{
+		number | bool
+		_cfnString: "DEFAULT" & strings.MaxRunes(9) & strings.MinRunes(6) & "\(self)"
+	} |
+	fn.#StringExpression
+	ClientSubnets!:    [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	ConnectivityInfo?: #ConnectivityInfo
+	InstanceType!: strings.MaxRunes(32) & strings.MinRunes(5) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(5) & "\(self)"
+	} |
+	fn.#StringExpression
+	SecurityGroups?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	StorageInfo?: #StorageInfo
 }) |
 fn.#ObjectExpression
@@ -93,12 +136,12 @@ fn.#ObjectExpression
 
 #CloudWatchLogs: close({
 	Enabled!:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LogGroup?: string | fn.#StringExpression
+	LogGroup?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ConfigurationInfo: close({
-	Arn!: string | fn.#StringExpression
+	Arn!: string | number | bool | fn.#StringExpression
 	Revision!: int |
 		{
 			string &
@@ -144,7 +187,7 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#EncryptionAtRest: close({DataVolumeKMSKeyId!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#EncryptionAtRest: close({DataVolumeKMSKeyId!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #EncryptionInTransit: close({
 	ClientBroker?: "TLS" | "TLS_PLAINTEXT" | "PLAINTEXT" | fn.#StringExpression
@@ -159,7 +202,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Firehose: close({
-	DeliveryStream?: string | fn.#StringExpression
+	DeliveryStream?: string | number | bool | fn.#StringExpression
 	Enabled!:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
@@ -212,14 +255,22 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#PublicAccess: close({Type?: strings.MaxRunes(23) & strings.MinRunes(7) | fn.#StringExpression}) | fn.#ObjectExpression
+#PublicAccess: close({
+	Type?: strings.MaxRunes(23) & strings.MinRunes(7) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(23) & strings.MinRunes(7) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #Rebalancing: close({Status!: "PAUSED" | "ACTIVE" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #S3: close({
-	Bucket?:  string | fn.#StringExpression
+	Bucket?:  string | number | bool | fn.#StringExpression
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Prefix?:  string | fn.#StringExpression
+	Prefix?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -235,7 +286,7 @@ fn.#ObjectExpression
 #StorageInfo: close({EBSStorageInfo?: #EBSStorageInfo}) | fn.#ObjectExpression
 
 #Tls: close({
-	CertificateAuthorityArnList?: [...string | fn.#StringExpression] | fn.#ListExpression
+	CertificateAuthorityArnList?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Enabled?:                     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression

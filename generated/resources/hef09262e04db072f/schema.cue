@@ -14,21 +14,47 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::Instance
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lightsail::Instance"
-	Properties!: close({
-		AddOns?:           [...#AddOn] | fn.#ListExpression
-		AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		BlueprintId!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-		BundleId!:         strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-		Hardware?:         close({Disks?: list.UniqueItems() & [...#Disk] | fn.#ListExpression}) | fn.#ObjectExpression
-		InstanceName!: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][\\w\\-.]*[a-zA-Z0-9]$" |
+	let properties = close({
+		AddOns?: [...#AddOn] | fn.#ListExpression
+		AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
 		fn.#StringExpression
-		KeyPairName?: =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
-		Location?:    close({}) | fn.#ObjectExpression
+		BlueprintId!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+		} |
+		fn.#StringExpression
+		BundleId!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+		} |
+		fn.#StringExpression
+		Hardware?: close({Disks?: list.UniqueItems() & [...#Disk] | fn.#ListExpression}) | fn.#ObjectExpression
+		InstanceName!: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][\\w\\-.]*[a-zA-Z0-9]$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][\\w\\-.]*[a-zA-Z0-9]$" & "\(self)"
+		} |
+		fn.#StringExpression
+		KeyPairName?: =~"^\\w[\\w\\-]*\\w$" |
+		{
+			number | bool
+			_cfnString: =~"^\\w[\\w\\-]*\\w$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Location?: close({}) | fn.#ObjectExpression
 		Networking?: close({
 			MonthlyTransfer?: close({}) | fn.#ObjectExpression
 			Ports!:           list.UniqueItems() & [...#Port] | fn.#ListExpression
@@ -36,12 +62,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 		State?:    close({}) | fn.#ObjectExpression
 		Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		UserData?: string | fn.#StringExpression
+		UserData?: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AddOn: close({
 	AddOnType!: ("AutoSnapshot" | "StopInstanceOnIdle") & (strings.MaxRunes(128) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: ("AutoSnapshot" | "StopInstanceOnIdle") & strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
 	fn.#StringExpression
 	AutoSnapshotAddOnRequest?: #AutoSnapshotAddOn
 	Status?: "Enabling" |
@@ -55,12 +87,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#AutoSnapshotAddOn: close({SnapshotTimeOfDay?: =~"^[0-9]{2}:00$" | fn.#StringExpression}) | fn.#ObjectExpression
+#AutoSnapshotAddOn: close({
+	SnapshotTimeOfDay?: =~"^[0-9]{2}:00$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9]{2}:00$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #Disk: close({
-	AttachedTo?:      string | fn.#StringExpression
-	AttachmentState?: string | fn.#StringExpression
+	AttachedTo?:      string | number | bool | fn.#StringExpression
+	AttachmentState?: string | number | bool | fn.#StringExpression
 	DiskName!: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][\\w\\-.]*[a-zA-Z0-9]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][\\w\\-.]*[a-zA-Z0-9]$" & "\(self)"
+	} |
 	fn.#StringExpression
 	IOPS?: int |
 		{
@@ -77,18 +121,18 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	IsSystemDisk?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Path!:         string | fn.#StringExpression
-	SizeInGb?:     string | fn.#StringExpression
+	Path!:         string | number | bool | fn.#StringExpression
+	SizeInGb?:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Port: close({
-	AccessDirection?: string | fn.#StringExpression
-	AccessFrom?:      string | fn.#StringExpression
-	AccessType?:      string | fn.#StringExpression
+	AccessDirection?: string | number | bool | fn.#StringExpression
+	AccessFrom?:      string | number | bool | fn.#StringExpression
+	AccessType?:      string | number | bool | fn.#StringExpression
 	CidrListAliases?: #cidrListAliases
 	Cidrs?:           #cidrs
-	CommonName?:      string | fn.#StringExpression
+	CommonName?:      string | number | bool | fn.#StringExpression
 	FromPort?: int |
 		{
 			string &
@@ -104,7 +148,7 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	Ipv6Cidrs?: #ipv6Cidrs
-	Protocol?:  string | fn.#StringExpression
+	Protocol?:  string | number | bool | fn.#StringExpression
 	ToPort?: int |
 		{
 			string &
@@ -123,13 +167,35 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#cidrListAliases: [...string | fn.#StringExpression] | fn.#ListExpression
+#cidrListAliases: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 
-#cidrs: [...string | fn.#StringExpression] | fn.#ListExpression
+#cidrs: [...fn.#IPv4Network & string |
+{
+	number | bool
+	_cfnString: fn.#IPv4Network & string & "\(self)"
+} |
+fn.#StringExpression] |
+fn.#ListExpression
 
-#ipv6Cidrs: [...string | fn.#StringExpression] | fn.#ListExpression
+#ipv6Cidrs: [...fn.#IPv6Network & string |
+{
+	number | bool
+	_cfnString: fn.#IPv6Network & string & "\(self)"
+} |
+fn.#StringExpression] |
+fn.#ListExpression

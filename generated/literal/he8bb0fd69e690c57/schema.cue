@@ -6,6 +6,7 @@ import (
 	"time"
 	"strings"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -53,7 +54,7 @@ import (
 // A rule that allows a specific CIDR block to access the public router network interface.
 #PublicRouterNetworkInterfaceRule: close({
 	// The CIDR block that is allowed to access the public router network interface.
-	Cidr!: string
+	Cidr!: fn.#IPv4Network & string
 })
 
 // The configuration settings for a router network interface.
@@ -79,5 +80,5 @@ import (
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 	// The ID of the subnet within the VPC to associate the router network interface with.
-	SubnetId!: string
+	SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })

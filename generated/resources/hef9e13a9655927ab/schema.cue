@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CustomerProfiles::Recommender
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CustomerProfiles::Recommender"
-	Properties!: close({
+	let properties = close({
 		Description?:           #Description
 		DomainName!:            #DomainName
 		RecommenderConfig?:     #RecommenderConfig
@@ -27,14 +29,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		RecommenderRecipeName!: #RecommenderRecipeName
 		Tags?:                  list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Description: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+#Description: strings.MaxRunes(1000) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#DomainName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+#DomainName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #EventParameters: close({
-	EventType!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	EventType!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	EventValueThreshold?: number |
 		{
 			string &
@@ -64,7 +83,12 @@ fn.#ObjectExpression
 
 #RecommenderConfig: close({EventsConfig?: #EventsConfig}) | fn.#ObjectExpression
 
-#RecommenderName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+#RecommenderName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #RecommenderRecipeName: ("frequently-paired-items" |
 	"personalized-ranking" |
@@ -72,10 +96,32 @@ fn.#ObjectExpression
 	"recommended-for-you" |
 	"similar-items" |
 	"trending-now") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+{
+	number | bool
+	_cfnString: ("frequently-paired-items" |
+		"personalized-ranking" |
+		"popular-items" |
+		"recommended-for-you" |
+		"similar-items" |
+		"trending-now") &
+	strings.MaxRunes(255) &
+	strings.MinRunes(1) &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

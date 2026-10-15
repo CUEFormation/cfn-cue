@@ -10,30 +10,68 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Subscription targets enables one to access the data to which you have
 // subscribed in your projects.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataZone::SubscriptionTarget"
-	Properties!: close({
-		ApplicableAssetTypes!: [...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\.]*" | fn.#StringExpression] |
+	let properties = close({
+		ApplicableAssetTypes!: [...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\.]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\.]*" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		AuthorizedPrincipals!: list.MaxItems(10) & list.MinItems(1) & [...=~"^[a-zA-Z0-9:/_-]*$" | fn.#StringExpression] |
-			fn.#ListExpression
-		DomainIdentifier!:      =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-		EnvironmentIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		AuthorizedPrincipals!: list.MaxItems(10) & list.MinItems(1) & [...=~"^[a-zA-Z0-9:/_-]*$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9:/_-]*$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		EnvironmentIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ManageAccessRole?: =~"^arn:aws(|-cn|-us-gov):iam::\\d{12}:(role|role/service-role)/[\\w+=,.@-]*$" |
-			fn.#StringExpression
-		Name!:                     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		Provider?:                 string | fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws(|-cn|-us-gov):iam::\\d{12}:(role|role/service-role)/[\\w+=,.@-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Provider?:                 string | number | bool | fn.#StringExpression
 		SubscriptionTargetConfig!: [...#SubscriptionTargetForm] | fn.#ListExpression
-		Type!:                     string | fn.#StringExpression
+		Type!:                     string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #SubscriptionTargetForm: close({
-	Content!:  string | fn.#StringExpression
-	FormName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Content!: string | number | bool | fn.#StringExpression
+	FormName!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

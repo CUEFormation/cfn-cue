@@ -10,12 +10,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaConvert::Queue
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaConvert::Queue"
-	Properties?: close({
+	let properties = close({
 		ConcurrentJobs?: int |
 			{
 				string &
@@ -32,7 +34,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Description?: string | fn.#StringExpression
+		Description?: string | number | bool | fn.#StringExpression
 		MaximumConcurrentFeeds?: int & >=0 |
 			{
 				string &
@@ -50,9 +52,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name?:        string | fn.#StringExpression
+		Name?:        string | number | bool | fn.#StringExpression
 		PricingPlan?: "ON_DEMAND" | "RESERVED" | fn.#StringExpression
 		Status?:      "ACTIVE" | "PAUSED" | fn.#StringExpression
-		Tags?:        fn.#Object & {...} | string | fn.#StringObjectExpression
+		Tags?:        fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

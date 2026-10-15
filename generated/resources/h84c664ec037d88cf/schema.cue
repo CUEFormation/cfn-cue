@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The connection group for your distribution tenants. When you first create a
@@ -15,17 +17,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // default one will be associated with your distribution tenant.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::ConnectionGroup"
-	Properties!: close({
-		AnycastIpListId?: string | fn.#StringExpression
+	let properties = close({
+		AnycastIpListId?: string | number | bool | fn.#StringExpression
 		Enabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Ipv6Enabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Name!:            string | fn.#StringExpression
+		Name!:            string | number | bool | fn.#StringExpression
 		Tags?:            [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

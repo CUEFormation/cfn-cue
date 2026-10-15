@@ -13,12 +13,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Specifies a customer gateway.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::CustomerGateway"
-	Properties!: close({
+	let properties = close({
 		BgpAsn?: int |
 			{
 				string &
@@ -37,16 +39,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		BgpAsnExtended?: math.MultipleOf(1) & <=4294967294 & >=2147483648 | fn.#NumberExpression
 		CertificateArn?: =~"^arn:(aws[a-zA-Z-]*)?:acm:[a-z]{2}((-gov)|(-iso([a-z]{1})?))?-[a-z]+-\\d{1}:\\d{12}:certificate\\/[a-zA-Z0-9-_]+$" |
-			fn.#StringExpression
-		DeviceName?: string | fn.#StringExpression
-		IpAddress!:  string | fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:(aws[a-zA-Z-]*)?:acm:[a-z]{2}((-gov)|(-iso([a-z]{1})?))?-[a-z]+-\\d{1}:\\d{12}:certificate\\/[a-zA-Z0-9-_]+$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		DeviceName?: string | number | bool | fn.#StringExpression
+		IpAddress!:  string | number | bool | fn.#StringExpression
 		Tags?:       [...#Tag] | fn.#ListExpression
-		Type!:       string | fn.#StringExpression
+		Type!:       string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

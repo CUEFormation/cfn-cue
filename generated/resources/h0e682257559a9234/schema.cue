@@ -11,6 +11,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SupportAuthZ::SupportPermit. Represents a
@@ -18,21 +20,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // resources for a set of actions.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SupportAuthZ::SupportPermit"
-	Properties!: close({
-		Description?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		Name!:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]{1,256}$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]{1,256}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]{1,256}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Permit!:         #Permit
 		SigningKeyInfo!: #SigningKeyInfo
 		SupportCaseDisplayId?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:/-]{1,512}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:/-]{1,512}$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ActionSet: close({
-	Actions?: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]*:[A-Za-z0-9_.-]+$" | fn.#StringExpression
-	] |
+	Actions?: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(255) &
+	strings.MinRunes(3) &
+	=~"^[a-z][a-z0-9-]*:[A-Za-z0-9_.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]*:[A-Za-z0-9_.-]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	AllActions?: close({}) | fn.#ObjectExpression
 }) |
@@ -53,20 +76,40 @@ fn.#ObjectExpression
 
 #ResourceSet: close({
 	AllResourcesInRegion?: close({}) | fn.#ObjectExpression
-	Resources?: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:/_.-]+$" | fn.#StringExpression
-	] |
+	Resources?: list.MaxItems(5) & list.MinItems(1) & [...strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9:/_.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:/_.-]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#SigningKeyInfo: close(
-	{KmsKey!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/:_-]{1,512}$" | fn.#StringExpression},
-) |
+#SigningKeyInfo: close({
+	KmsKey!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/:_-]{1,512}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/:_-]{1,512}$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

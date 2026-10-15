@@ -10,18 +10,35 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::CustomEntityType
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::CustomEntityType"
-	Properties?: close({
-		ContextWords?: list.MaxItems(20) & list.MinItems(1) & [
-			...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		] |
+	let properties = close({
+		ContextWords?: list.MaxItems(20) & list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		Name?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		RegexString?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:        fn.#Object & {...} | string | fn.#StringObjectExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		RegexString?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

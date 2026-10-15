@@ -10,14 +10,16 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::VerifiedAccessInstance resource creates an AWS EC2 Verified Access Instance.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::VerifiedAccessInstance"
-	Properties?: close({
-		CidrEndpointsCustomSubDomain?: string | fn.#StringExpression
-		Description?:                  string | fn.#StringExpression
+	let properties = close({
+		CidrEndpointsCustomSubDomain?: string | number | bool | fn.#StringExpression
+		Description?:                  string | number | bool | fn.#StringExpression
 		FipsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 		// The configuration options for AWS Verified Access instances.
@@ -26,44 +28,63 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		VerifiedAccessTrustProviderIds?: list.UniqueItems() & [...#VerifiedAccessTrustProviderId] | fn.#ListExpression
 		VerifiedAccessTrustProviders?:   list.UniqueItems() & [...#VerifiedAccessTrustProvider] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VerifiedAccessLogs: close({
 	CloudWatchLogs?: close({
 		Enabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		LogGroup?: string | fn.#StringExpression
+		LogGroup?: string | number | bool | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	IncludeTrustContext?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	KinesisDataFirehose?: close({
-		DeliveryStream?: string | fn.#StringExpression
+		DeliveryStream?: string | number | bool | fn.#StringExpression
 		Enabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	}) |
 	fn.#ObjectExpression
-	LogVersion?: string | fn.#StringExpression
+	LogVersion?: string | number | bool | fn.#StringExpression
 	S3?: close({
-		BucketName?:  string | fn.#StringExpression
-		BucketOwner?: string | fn.#StringExpression
+		BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+				=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		BucketOwner?: string | number | bool | fn.#StringExpression
 		Enabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Prefix?:      string | fn.#StringExpression
+		Prefix?:      string | number | bool | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 #VerifiedAccessTrustProvider: close({
-	Description?:                   string | fn.#StringExpression
-	DeviceTrustProviderType?:       string | fn.#StringExpression
-	TrustProviderType?:             string | fn.#StringExpression
-	UserTrustProviderType?:         string | fn.#StringExpression
-	VerifiedAccessTrustProviderId?: string | fn.#StringExpression
+	Description?:                   string | number | bool | fn.#StringExpression
+	DeviceTrustProviderType?:       string | number | bool | fn.#StringExpression
+	TrustProviderType?:             string | number | bool | fn.#StringExpression
+	UserTrustProviderType?:         string | number | bool | fn.#StringExpression
+	VerifiedAccessTrustProviderId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#VerifiedAccessTrustProviderId: string | fn.#StringExpression
+#VerifiedAccessTrustProviderId: string | number | bool | fn.#StringExpression

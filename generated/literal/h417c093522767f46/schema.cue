@@ -54,7 +54,9 @@ import (
 
 	// The AWS Key Management Service (KMS) key ID of the encryption key that you
 	// want to use to encrypt data in the namespace.
-	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 
 	// The collection of log types to be exported provided by the customer. Should
 	// only be one of the three supported log types: userlog, useractivitylog and
@@ -97,12 +99,14 @@ import (
 	DbName?:                      =~"[a-zA-Z][a-zA-Z_0-9+.@-]*"
 	DefaultIamRoleArn?:           =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	IamRoles?:                    [...strings.MaxRunes(512) & strings.MinRunes(0)]
-	KmsKeyId?:                    =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
-	LogExports?:                  list.MaxItems(16) & [...] & [...#LogExport]
-	NamespaceArn?:                string
-	NamespaceId?:                 string
-	NamespaceName?:               strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$"
-	Status?:                      #NamespaceStatus
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
+	LogExports?:    list.MaxItems(16) & [...] & [...#LogExport]
+	NamespaceArn?:  string
+	NamespaceId?:   string
+	NamespaceName?: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$"
+	Status?:        #NamespaceStatus
 })
 
 #NamespaceStatus: "AVAILABLE" | "MODIFYING" | "DELETING"

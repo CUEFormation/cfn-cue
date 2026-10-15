@@ -9,13 +9,22 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SSM::ResourcePolicy
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSM::ResourcePolicy"
-	Properties!: close({
-		Policy!:      fn.#Object & {...} | string | fn.#StringObjectExpression
-		ResourceArn!: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	let properties = close({
+		Policy!: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		ResourceArn!: strings.MaxRunes(2048) & strings.MinRunes(20) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

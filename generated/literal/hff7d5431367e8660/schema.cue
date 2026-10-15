@@ -52,7 +52,10 @@ import (
 		...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^sg-[0-9a-zA-Z]*|(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$"
 	]
 	Subnets!: list.MaxItems(16) & [...] & [
-		...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^subnet-[0-9a-z]*|(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$"
+		...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^subnet-[0-9a-z]*|(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$"
 	]
 })
 
@@ -495,7 +498,7 @@ import (
 #RequestedPipeState: "RUNNING" | "STOPPED"
 
 #S3LogDestination: close({
-	BucketName?:   string
+	BucketName?:   =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$"
 	BucketOwner?:  string
 	OutputFormat?: #S3OutputFormat
 	Prefix?:       string
@@ -537,7 +540,12 @@ import (
 	SecurityGroup?: list.MaxItems(5) & [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^sg-[0-9a-zA-Z]*$"]
 
 	// List of SubnetId.
-	Subnets?: list.MaxItems(16) & [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^subnet-[0-9a-z]*$"]
+	Subnets?: list.MaxItems(16) & [...] & [
+		...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^subnet-[0-9a-z]*$"
+	]
 })
 
 #SelfManagedKafkaStartPosition: "TRIM_HORIZON" | "LATEST"

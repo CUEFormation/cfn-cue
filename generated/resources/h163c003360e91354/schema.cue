@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::OnlineEvaluationConfig -
@@ -21,24 +23,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // agent performance.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::OnlineEvaluationConfig"
-	Properties!: close({
+	let properties = close({
 		// The configuration for clustering analysis of evaluation results.
 		ClusteringConfig?: #ClusteringConfig
 
 		// The data source configuration that specifies CloudWatch log groups and service names to monitor.
 		DataSourceConfig!: #DataSourceConfig
-		Description?:      strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-		EvaluationExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		EvaluationExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(1) &
 		=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Evaluators?: list.MaxItems(25) & [...] & [...#EvaluatorReference] | fn.#ListExpression
 
 		// The execution status indicating whether the online evaluation is currently running.
-		ExecutionStatus?:            #ExecutionStatus
-		Insights?:                   list.MaxItems(10) & [...] & [...#Insight] | fn.#ListExpression
-		OnlineEvaluationConfigName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
+		ExecutionStatus?: #ExecutionStatus
+		Insights?:        list.MaxItems(10) & [...] & [...#Insight] | fn.#ListExpression
+		OnlineEvaluationConfigName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The configuration that specifies where evaluation results should be written.
 		OutputConfig?: #OutputConfig
@@ -47,20 +67,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Rule!: #Rule
 		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CloudWatchLogsInputConfig: close({
-	LogGroupNamePrefixes?: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
-	] |
+	LogGroupNamePrefixes?: list.MaxItems(5) & list.MinItems(1) & [...strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"^[.\\-_/#A-Za-z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	LogGroupNames?: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
-	] |
+	LogGroupNames?: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"^[.\\-_/#A-Za-z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	ServiceNames!: list.MaxItems(1) & list.MinItems(1) & [
-		...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$" | fn.#StringExpression
-	] |
+	ServiceNames!: list.MaxItems(1) & list.MinItems(1) & [...strings.MaxRunes(256) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9._-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	if LogGroupNames != _|_ if LogGroupNames."Fn::If" == _|_ {
 		LogGroupNamePrefixes?: close({"Fn::If": _}) | error(
@@ -71,8 +108,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #CloudWatchOutputConfig: close({
-	LogGroupName?:      strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
-	MetricsNamespace?:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._#/:-]+$" | fn.#StringExpression
+	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	MetricsNamespace?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._#/:-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._#/:-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ResultDestination?: "DEDICATED_LOG_GROUP" | "SOURCE_LOG_GROUP" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -86,14 +133,24 @@ fn.#ObjectExpression
 
 #EvaluatorReference: close({
 	EvaluatorId!: =~"^(Builtin\\.[a-zA-Z0-9._-]+|ThirdParty\\.[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+|[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10})$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^(Builtin\\.[a-zA-Z0-9._-]+|ThirdParty\\.[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+|[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10})$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
 #ExecutionStatus: "ENABLED" | "DISABLED" | fn.#StringExpression
 
 #Filter: close({
-	Key!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$" | fn.#StringExpression
+	Key!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Operator!: "Equals" |
 		"NotEquals" |
 		"GreaterThan" |
@@ -128,13 +185,23 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	StringValue?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	StringValue?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Insight: close(
-	{InsightId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9._]+$" | fn.#StringExpression},
-) |
+#Insight: close({
+	InsightId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9._]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9._]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #OutputConfig: close({CloudWatchConfig?: #CloudWatchOutputConfig}) | fn.#ObjectExpression
@@ -191,7 +258,17 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -14,29 +14,50 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for an Amazon Chime SDK Media Insights Pipeline Configuration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Chime::MediaInsightsPipelineConfiguration"
-	Properties!: close({
+	let properties = close({
 		Elements!: [...#MediaInsightsPipelineConfigurationElement] | fn.#ListExpression
 		MediaInsightsPipelineConfigurationName!: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 		RealTimeAlertConfiguration?: #RealTimeAlertConfiguration
-		ResourceAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		ResourceAccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"^arn[\\/\\:\\-\\_\\.a-zA-Z0-9]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^arn[\\/\\:\\-\\_\\.a-zA-Z0-9]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AmazonTranscribeCallAnalyticsProcessorConfiguration: close({
-	CallAnalyticsStreamCategories?: list.MaxItems(20) & list.MinItems(1) & [
-		...strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
-	] |
+	CallAnalyticsStreamCategories?: list.MaxItems(20) & list.MinItems(1) & [...strings.MaxRunes(200) &
+	strings.MinRunes(1) &
+	=~"^[0-9a-zA-Z._-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	ContentIdentificationType?: "PII" | fn.#StringExpression
 	ContentRedactionType?:      "PII" | fn.#StringExpression
@@ -59,13 +80,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"de-DE" |
 		"pt-BR" |
 		fn.#StringExpression
-	LanguageModelName?:       strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
+	LanguageModelName?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	PartialResultsStability?: "high" | "medium" | "low" | fn.#StringExpression
-	PiiEntityTypes?:          strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[A-Z_, ]+$" | fn.#StringExpression
+	PiiEntityTypes?: strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[A-Z_, ]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[A-Z_, ]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	PostCallAnalyticsSettings?: #PostCallAnalyticsSettings
 	VocabularyFilterMethod?:    "remove" | "mask" | "tag" | fn.#StringExpression
-	VocabularyFilterName?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
-	VocabularyName?:       strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
+	VocabularyFilterName?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	VocabularyName?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -93,10 +134,25 @@ fn.#ObjectExpression
 		"de-DE" |
 		"pt-BR" |
 		fn.#StringExpression
-	LanguageModelName?:       strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
-	LanguageOptions?:         strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z-,]+$" | fn.#StringExpression
+	LanguageModelName?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LanguageOptions?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z-,]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z-,]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	PartialResultsStability?: "high" | "medium" | "low" | fn.#StringExpression
-	PiiEntityTypes?:          strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[A-Z_, ]+$" | fn.#StringExpression
+	PiiEntityTypes?: strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[A-Z_, ]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[A-Z_, ]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	PreferredLanguage?: "en-US" |
 		"en-GB" |
 		"es-US" |
@@ -109,30 +165,69 @@ fn.#ObjectExpression
 		fn.#StringExpression
 	ShowSpeakerLabel?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	VocabularyFilterMethod?: "remove" | "mask" | "tag" | fn.#StringExpression
-	VocabularyFilterName?:   strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
-	VocabularyFilterNames?: strings.MaxRunes(3000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9,-._]+$" | fn.#StringExpression
-	VocabularyName?:        strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
-	VocabularyNames?:       strings.MaxRunes(3000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9,-._]+$" | fn.#StringExpression
+	VocabularyFilterName?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	VocabularyFilterNames?: strings.MaxRunes(3000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9,-._]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(3000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9,-._]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	VocabularyName?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	VocabularyNames?: strings.MaxRunes(3000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9,-._]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(3000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9,-._]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#IssueDetectionConfiguration: close(
-	{RuleName!: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression},
-) |
+#IssueDetectionConfiguration: close({
+	RuleName!: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #KeywordMatchConfiguration: close({
-	Keywords!: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[\\s0-9a-zA-Z'-]+$" | fn.#StringExpression
-	] |
+	Keywords!: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(100) &
+	strings.MinRunes(1) &
+	=~"^[\\s0-9a-zA-Z'-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[\\s0-9a-zA-Z'-]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Negate?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RuleName!: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
+	Negate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RuleName!: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #KinesisDataStreamSinkConfiguration: close({
 	InsightsTarget?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^arn[\\/\\:\\-\\_\\.a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^arn[\\/\\:\\-\\_\\.a-zA-Z0-9]+$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -152,10 +247,24 @@ fn.#ObjectExpression
 
 #PostCallAnalyticsSettings: close({
 	ContentRedactionOutput?: "redacted" | "redacted_and_unredacted" | fn.#StringExpression
-	DataAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MaxRunes(4096) |
+	DataAccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MaxRunes(4096) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MaxRunes(4096) & "\(self)"
+	} |
 	fn.#StringExpression
-	OutputEncryptionKMSKeyId?: strings.MaxRunes(4096) | fn.#StringExpression
-	OutputLocation!:           strings.MaxRunes(4096) | fn.#StringExpression
+	OutputEncryptionKMSKeyId?: strings.MaxRunes(4096) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & "\(self)"
+	} |
+	fn.#StringExpression
+	OutputLocation!: strings.MaxRunes(4096) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -175,13 +284,22 @@ fn.#ObjectExpression
 
 #S3RecordingSinkConfiguration: close({
 	Destination?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^arn[\\/\\:\\-\\_\\.a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^arn[\\/\\:\\-\\_\\.a-zA-Z0-9]+$" & "\(self)"
+	} |
 	fn.#StringExpression
 	RecordingFileFormat?: "Wav" | "Opus" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SentimentConfiguration: close({
-	RuleName!:      strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
+	RuleName!: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z._-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	SentimentType!: "NEGATIVE" | fn.#StringExpression
 	TimePeriod!: int & <=1800 & >=60 |
 		{
@@ -203,7 +321,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

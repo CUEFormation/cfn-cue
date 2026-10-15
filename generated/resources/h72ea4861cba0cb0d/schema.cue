@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents the association between an Amazon Macie administrator account and
@@ -18,15 +20,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // it removes the association.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Macie::Member"
-	Properties!: close({
-		AccountId!: =~"^[0-9]{12}$" | fn.#StringExpression
-		Email?:     string | fn.#StringExpression
-		Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	let properties = close({
+		AccountId!: =~"^[0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: =~"^[0-9]{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Email?: string | number | bool | fn.#StringExpression
+		Tags?:  list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

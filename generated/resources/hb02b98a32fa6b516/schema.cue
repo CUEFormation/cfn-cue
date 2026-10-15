@@ -14,17 +14,20 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Information about a daemon resource.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ECS::Daemon"
-	Properties?: close({
-		CapacityProviderArns?:    list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-		ClusterArn?:              string | fn.#StringExpression
+	let properties = close({
+		CapacityProviderArns?: list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
+		ClusterArn?:              string | number | bool | fn.#StringExpression
 		Critical?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		DaemonName?:              string | fn.#StringExpression
-		DaemonTaskDefinitionArn?: string | fn.#StringExpression
+		DaemonName?:              string | number | bool | fn.#StringExpression
+		DaemonTaskDefinitionArn?: string | number | bool | fn.#StringExpression
 
 		// The deployment configuration used for this daemon deployment.
 		DeploymentConfiguration?: #DaemonDeploymentConfiguration
@@ -33,10 +36,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		PropagateTags?:           "DAEMON" | "NONE" | fn.#StringExpression
 		Tags?:                    list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DaemonAlarmConfiguration: close({
-	AlarmNames?: [...string | fn.#StringExpression] | fn.#ListExpression
+	AlarmNames?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Enable?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
@@ -86,7 +91,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

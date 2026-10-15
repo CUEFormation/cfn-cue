@@ -58,7 +58,10 @@ import (
 	Status?:             #NetworkInterfaceStatus
 
 	// <p>The subnet ID associated with the network interface.</p>
-	SubnetId?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^subnet-[0-9a-z]*$"
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(255) &
+	strings.MinRunes(1) &
+	=~"^subnet-[0-9a-z]*$"
 })
 
 #NetworkInterfaceStatus: "CREATING" |

@@ -14,14 +14,26 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::ODB::CloudExadataInfrastructure resource creates an Exadata Infrastructure
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ODB::CloudExadataInfrastructure"
-	Properties?: close({
-		AvailabilityZone?:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		AvailabilityZoneId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		AvailabilityZoneId?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ComputeCount?: int |
 			{
 				string &
@@ -40,13 +52,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		CustomerContactsToSendToOCI?: [...#CustomerContact] | fn.#ListExpression
 		DatabaseServerType?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\/.=-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\/.=-]+$" & "\(self)"
+		} |
 		fn.#StringExpression
-		DisplayName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		DisplayName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The scheduling details for the maintenance window. Patching and system
 		// updates take place during the maintenance window.
 		MaintenanceWindow?: #MaintenanceWindow
-		Shape?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\/.=-]+$" | fn.#StringExpression
+		Shape?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\/.=-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\/.=-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		StorageCount?: int |
 			{
 				string &
@@ -64,12 +90,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		StorageServerType?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\/.=-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\/.=-]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CustomerContact: close({Email?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#CustomerContact: close({Email?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #MaintenanceWindow: close({
 	CustomActionTimeoutInMins?: int & <=120 & >=15 |
@@ -169,7 +201,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

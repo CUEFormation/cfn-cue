@@ -11,7 +11,10 @@ import (
 
 // Resource Type definition for AWS::SSM::ResourceDataSync
 #Properties: close({
-	BucketName?:   strings.MaxRunes(2048) & strings.MinRunes(1)
+	BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1)
 	BucketPrefix?: strings.MaxRunes(64) & strings.MinRunes(0)
 	BucketRegion?: strings.MaxRunes(64) & strings.MinRunes(1)
 	KMSKeyArn?:
@@ -29,7 +32,10 @@ import (
 })
 
 #S3Destination: close({
-	BucketName!:   strings.MaxRunes(2048) & strings.MinRunes(1)
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1)
 	BucketPrefix?: strings.MaxRunes(256) & strings.MinRunes(1)
 	BucketRegion!: strings.MaxRunes(64) & strings.MinRunes(1)
 	KMSKeyArn?:

@@ -10,28 +10,50 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTSiteWise::ComputationModel.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTSiteWise::ComputationModel"
-	Properties!: close({
+	let properties = close({
 		// The configuration for the computation model.
 		ComputationModelConfiguration!: #ComputationModelConfiguration
 
 		// The data binding for the computation model.
 		ComputationModelDataBinding!: #ComputationModelDataBinding
 		ComputationModelDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 		ComputationModelName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AnomalyDetectionComputationModelConfiguration: close({
-	InputProperties!: strings.MaxRunes(67) & strings.MinRunes(4) & =~"^\\$\\{[a-z][a-z0-9_]*\\}$" | fn.#StringExpression
-	ResultProperty!:  strings.MaxRunes(67) & strings.MinRunes(4) & =~"^\\$\\{[a-z][a-z0-9_]*\\}$" | fn.#StringExpression
+	InputProperties!: strings.MaxRunes(67) & strings.MinRunes(4) & =~"^\\$\\{[a-z][a-z0-9_]*\\}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(67) & strings.MinRunes(4) & =~"^\\$\\{[a-z][a-z0-9_]*\\}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ResultProperty!: strings.MaxRunes(67) & strings.MinRunes(4) & =~"^\\$\\{[a-z][a-z0-9_]*\\}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(67) & strings.MinRunes(4) & =~"^\\$\\{[a-z][a-z0-9_]*\\}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -39,10 +61,24 @@ fn.#ObjectExpression
 	AssetModelId!: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(36) &
+		strings.MinRunes(36) &
+		=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	PropertyId!: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(36) &
+		strings.MinRunes(36) &
+		=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -51,10 +87,24 @@ fn.#ObjectExpression
 	AssetId!: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(36) &
+		strings.MinRunes(36) &
+		=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	PropertyId!: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(36) &
+		strings.MinRunes(36) &
+		=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -81,7 +131,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

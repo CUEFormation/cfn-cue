@@ -2,15 +2,45 @@
 
 package schema
 
+import "github.com/cueformation/cfn-cue/fn:fn"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::SecurityGroupIngress
-#Properties: close({
+#Properties: matchN(2, [matchIf({
+	IpProtocol!: "1" | ==1 | "icmp"
+	...
+}, matchIf({
+	FromPort!: ==-1 | "-1"
+	...
+}, {
+	ToPort!: ==-1 | "-1"
+	...
+}, _), matchIf({
+	ToPort!: ==-1 | "-1"
+	...
+}, {
+	FromPort!: ==-1 | "-1"
+	...
+}, _) & matchIf({
+	FromPort!: ==-1 | "-1"
+	...
+}, {
+	ToPort!: ==-1 | "-1"
+	...
+}, _)), matchIf({
+	IpProtocol!: (==1 | "1" | "icmp" | ==6 | "6" | "tcp" | ==17 | "17" | "udp") & (int | string)
+	...
+}, {
+	FromPort!: _
+	ToPort!:   _
+	...
+}, _)]) & (close({
 	// The IPv4 ranges
-	CidrIp?: string
+	CidrIp?: fn.#IPv4Network & string
 
 	// [VPC only] The IPv6 ranges
-	CidrIpv6?: string
+	CidrIpv6?: fn.#IPv6Network & string
 
 	// Updates the description of an ingress (inbound) security group rule. You can
 	// replace an existing description, or add a description to a rule that did not
@@ -60,7 +90,7 @@ package schema
 	//
 	// You must specify the GroupName property or the GroupId property. For security
 	// groups that are in a VPC, you must use the GroupId property.
-	SourceSecurityGroupName?: string
+	SourceSecurityGroupName?: =~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$"
 
 	// [nondefault VPC] The AWS account ID that owns the source security group. You
 	// can't specify this property with an IP address range.
@@ -118,4 +148,4 @@ package schema
 }) & matchN(
 	>=1,
 	[{CidrIp!: _}, {CidrIpv6!: _}, {SourcePrefixListId!: _}, {SourceSecurityGroupId!: _}, {SourceSecurityGroupName!: _}],
-)
+))

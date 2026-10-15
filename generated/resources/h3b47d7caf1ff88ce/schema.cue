@@ -6,24 +6,31 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaLive::Cluster Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaLive::Cluster"
-	Properties?: close({
+	let properties = close({
 		ClusterType?: #ClusterType
-		InstanceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-			=~"^arn:.+:iam:.+:role/.+$" |
-			fn.#StringExpression
-		Name?:            string | fn.#StringExpression
+		InstanceRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"^arn:.+:iam:.+:role/.+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"^arn:.+:iam:.+:role/.+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name?:            string | number | bool | fn.#StringExpression
 		NetworkSettings?: #ClusterNetworkSettings
 		Tags?:            [...#Tags] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ClusterNetworkSettings: close({
-	DefaultRoute?:      string | fn.#StringExpression
+	DefaultRoute?:      string | number | bool | fn.#StringExpression
 	InterfaceMappings?: [...#InterfaceMapping] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -31,13 +38,13 @@ fn.#ObjectExpression
 #ClusterType: "ON_PREMISES" | "OUTPOSTS_RACK" | "OUTPOSTS_SERVER" | "EC2" | fn.#StringExpression
 
 #InterfaceMapping: close({
-	LogicalInterfaceName?: string | fn.#StringExpression
-	NetworkId?:            string | fn.#StringExpression
+	LogicalInterfaceName?: string | number | bool | fn.#StringExpression
+	NetworkId?:            string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tags: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

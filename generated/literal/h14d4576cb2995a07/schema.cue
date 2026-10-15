@@ -9,7 +9,13 @@ import "list"
 // The ``AWS::ApiGateway::Authorizer`` resource creates an authorization layer
 // that API Gateway activates for methods that have authorization enabled. API
 // Gateway activates the authorizer when a client calls those methods.
-#Properties: close({
+#Properties: matchIf({
+	Type!: "TOKEN" | "REQUEST"
+	...
+}, {
+	AuthorizerResultTtlInSeconds?: null | bool | <=3600 & >=0 | string | [...] | {...}
+	...
+}, _) & close({
 	AuthType?:                     string
 	AuthorizerCredentials?:        string
 	AuthorizerId?:                 string

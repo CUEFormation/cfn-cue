@@ -80,7 +80,21 @@ import (
 // actions listed above.
 // If you are experiencing active production issues related to this change,
 // contact AWS Support or your Technical Account Manager.
-#Properties: close({
+#Properties: matchIf(matchN(0, [matchN(0, [{
+	LaunchType!:         "FARGATE"
+	SchedulingStrategy?: string
+	...
+}]) & matchN(0, [{
+	DeploymentController!: {
+		Type!: "CODE_DEPLOY" | "EXTERNAL"
+		...
+	}
+	SchedulingStrategy?: string
+	...
+}])]), {
+	SchedulingStrategy?: "REPLICA"
+	...
+}, _) & close({
 	// Indicates whether to use Availability Zone rebalancing for the service.
 	// For more information, see [Balancing an Amazon ECS service across
 	// Availability
@@ -381,7 +395,7 @@ import (
 	// The IDs of the subnets associated with the task or service. There's a limit
 	// of 16 subnets that can be specified.
 	// All specified subnets must be from the same VPC.
-	Subnets?: [...string]
+	Subnets?: [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"]
 })
 
 // Configuration for a canary deployment strategy that shifts a fixed percentage
@@ -1632,7 +1646,9 @@ import (
 	// AWS authenticates the AWS Key Management Service key asynchronously.
 	// Therefore, if you specify an ID, alias, or ARN that is invalid, the action
 	// can appear to complete, but eventually fails.
-	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 
 	// The ARN of the IAM role to associate with this volume. This is the Amazon ECS
 	// infrastructure IAM role that is used to manage your AWS infrastructure. We

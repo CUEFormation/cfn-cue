@@ -5,6 +5,7 @@ package schema
 import (
 	"list"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -296,7 +297,7 @@ import (
 // Network configuration of nodes run on-premises with EKS Hybrid Nodes.
 #RemoteNodeNetwork: close({
 	// Specifies the list of remote node CIDRs.
-	Cidrs!: [...string]
+	Cidrs!: [...fn.#IPv4Network & string]
 })
 
 // Network configuration of nodes run on-premises with EKS Hybrid Nodes.
@@ -305,7 +306,7 @@ import (
 // Network configuration of pods run on-premises with EKS Hybrid Nodes.
 #RemotePodNetwork: close({
 	// Specifies the list of remote pod CIDRs.
-	Cidrs!: [...string]
+	Cidrs!: [...fn.#IPv4Network & string]
 })
 
 // Network configuration of pods run on-premises with EKS Hybrid Nodes.

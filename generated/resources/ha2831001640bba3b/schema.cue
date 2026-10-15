@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A cache policy.
@@ -26,18 +28,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // origin but *not* include them in the cache key, use ``OriginRequestPolicy``.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::CachePolicy"
-	Properties!: close({
+	let properties = close({
 		// The cache policy configuration.
 		CachePolicyConfig!: #CachePolicyConfig
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CachePolicyConfig: close({
-	Comment?:    string | fn.#StringExpression
+	Comment?:    string | number | bool | fn.#StringExpression
 	DefaultTTL!: math.MultipleOf(1) & >=0 | fn.#NumberExpression
 	MaxTTL!:     math.MultipleOf(1) & >=0 | fn.#NumberExpression
 	MinTTL!:     math.MultipleOf(1) & >=0 | fn.#NumberExpression
-	Name!:       string | fn.#StringExpression
+	Name!:       string | number | bool | fn.#StringExpression
 
 	// The HTTP headers, cookies, and URL query strings to include in the cache key.
 	// The values included in the cache key are also included in requests that
@@ -47,14 +51,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #CookiesConfig: close({
-	CookieBehavior!: =~"^(none|whitelist|allExcept|all)$" | fn.#StringExpression
-	Cookies?:        [...string | fn.#StringExpression] | fn.#ListExpression
+	CookieBehavior!: =~"^(none|whitelist|allExcept|all)$" |
+	{
+		number | bool
+		_cfnString: =~"^(none|whitelist|allExcept|all)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Cookies?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #HeadersConfig: close({
-	HeaderBehavior!: =~"^(none|whitelist)$" | fn.#StringExpression
-	Headers?:        [...string | fn.#StringExpression] | fn.#ListExpression
+	HeaderBehavior!: =~"^(none|whitelist)$" |
+	{
+		number | bool
+		_cfnString: =~"^(none|whitelist)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Headers?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -79,7 +93,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #QueryStringsConfig: close({
-	QueryStringBehavior!: =~"^(none|whitelist|allExcept|all)$" | fn.#StringExpression
-	QueryStrings?:        [...string | fn.#StringExpression] | fn.#ListExpression
+	QueryStringBehavior!: =~"^(none|whitelist|allExcept|all)$" |
+	{
+		number | bool
+		_cfnString: =~"^(none|whitelist|allExcept|all)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	QueryStrings?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression

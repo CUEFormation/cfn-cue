@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::SecurityHub::HubV2 resource represents the implementation of the AWS
@@ -16,10 +18,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in each region in which you enable Security Hub V2.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityHub::HubV2"
-	Properties?: close({
+	let properties = close({
 		NetworkScanning?: #NetworkScanning
 		Tags?:            #Tags
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #NetworkScanning: close({Status!: "ENABLED" | "DISABLED" | fn.#StringExpression}) | fn.#ObjectExpression

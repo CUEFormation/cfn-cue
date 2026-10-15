@@ -14,22 +14,29 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaPackage::OriginEndpoint
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaPackage::OriginEndpoint"
-	Properties!: close({
+	let properties = close({
 		Authorization?: #Authorization
-		ChannelId!:     string | fn.#StringExpression
+		ChannelId!:     string | number | bool | fn.#StringExpression
 		CmafPackage?:   #CmafPackage
 		DashPackage?:   #DashPackage
-		Description?:   string | fn.#StringExpression
+		Description?:   string | number | bool | fn.#StringExpression
 		HlsPackage?:    #HlsPackage
-		Id!:            strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		ManifestName?:  string | fn.#StringExpression
-		MssPackage?:    #MssPackage
-		Origination?:   "ALLOW" | "DENY" | fn.#StringExpression
+		Id!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ManifestName?: string | number | bool | fn.#StringExpression
+		MssPackage?:   #MssPackage
+		Origination?:  "ALLOW" | "DENY" | fn.#StringExpression
 		StartoverWindowSeconds?: int |
 			{
 				string &
@@ -63,22 +70,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Whitelist?: [...string | fn.#StringExpression] | fn.#ListExpression
+		Whitelist?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AdsOnDeliveryRestrictions: "NONE" | "RESTRICTED" | "UNRESTRICTED" | "BOTH" | fn.#StringExpression
 
 #Authorization: close({
-	CdnIdentifierSecret!: string | fn.#StringExpression
-	SecretsRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	CdnIdentifierSecret!: string | number | bool | fn.#StringExpression
+	SecretsRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CmafEncryption: close({
-	ConstantInitializationVector?: strings.MaxRunes(32) & strings.MinRunes(32) | fn.#StringExpression
-	EncryptionMethod?:             "SAMPLE_AES" | "AES_CTR" | fn.#StringExpression
+	ConstantInitializationVector?: strings.MaxRunes(32) & strings.MinRunes(32) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(32) & "\(self)"
+	} |
+	fn.#StringExpression
+	EncryptionMethod?: "SAMPLE_AES" | "AES_CTR" | fn.#StringExpression
 	KeyRotationIntervalSeconds?: int |
 		{
 			string &
@@ -114,7 +132,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SegmentPrefix?:   string | fn.#StringExpression
+	SegmentPrefix?:   string | number | bool | fn.#StringExpression
 	StreamSelection?: #StreamSelection
 }) |
 fn.#ObjectExpression
@@ -233,7 +251,7 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	UtcTiming?:    "HTTP-XSDATE" | "HTTP-ISO" | "HTTP-HEAD" | "NONE" | fn.#StringExpression
-	UtcTimingUri?: string | fn.#StringExpression
+	UtcTimingUri?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -259,7 +277,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #HlsEncryption: close({
-	ConstantInitializationVector?: string | fn.#StringExpression
+	ConstantInitializationVector?: string | number | bool | fn.#StringExpression
 	EncryptionMethod?:             "AES_128" | "SAMPLE_AES" | fn.#StringExpression
 	KeyRotationIntervalSeconds?: int |
 		{
@@ -295,9 +313,9 @@ fn.#ObjectExpression
 	] |
 		fn.#ListExpression
 	AdsOnDeliveryRestrictions?: #AdsOnDeliveryRestrictions
-	Id!:                        string | fn.#StringExpression
+	Id!:                        string | number | bool | fn.#StringExpression
 	IncludeIframeOnlyStream?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ManifestName?:              string | fn.#StringExpression
+	ManifestName?:              string | number | bool | fn.#StringExpression
 	PlaylistType?:              "NONE" | "EVENT" | "VOD" | fn.#StringExpression
 	PlaylistWindowSeconds?: int |
 		{
@@ -327,7 +345,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Url?: string | fn.#StringExpression
+	Url?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -434,13 +452,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SpekeKeyProvider: close({
-	CertificateArn?:                  string | fn.#StringExpression
+	CertificateArn?:                  string | number | bool | fn.#StringExpression
 	EncryptionContractConfiguration?: #EncryptionContractConfiguration
-	ResourceId!:                      string | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	SystemIds!: [...string | fn.#StringExpression] | fn.#ListExpression
-	Url!:       string | fn.#StringExpression
+	ResourceId!:                      string | number | bool | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SystemIds!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Url!:       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -478,7 +500,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

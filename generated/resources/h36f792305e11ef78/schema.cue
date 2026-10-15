@@ -9,25 +9,51 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Notifications::NotificationConfiguration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Notifications::NotificationConfiguration"
-	Properties!: close({
+	let properties = close({
 		AggregationDuration?: #AggregationDuration
 		Description!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[^\\x{0001}-\\x{001F}\\x{007F}-\\x{009F}]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(0) &
+			=~"^[^\\x{0001}-\\x{001F}\\x{007F}-\\x{009F}]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_\\-]+$" | fn.#StringExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_\\-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_\\-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: #TagMap
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AggregationDuration: "LONG" | "SHORT" | "NONE" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

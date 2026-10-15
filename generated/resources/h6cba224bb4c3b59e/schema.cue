@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Specifies a static route for a VPN connection between an existing virtual
@@ -16,8 +18,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::VPNConnectionRoute"
-	Properties!: close({
-		DestinationCidrBlock!: string | fn.#StringExpression
-		VpnConnectionId!:      string | fn.#StringExpression
+	let properties = close({
+		DestinationCidrBlock!: fn.#IPv4Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv4Network & string & "\(self)"
+		} |
+		fn.#StringExpression
+		VpnConnectionId!: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

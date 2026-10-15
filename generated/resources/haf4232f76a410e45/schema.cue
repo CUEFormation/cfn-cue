@@ -10,15 +10,35 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecurityLake::AwsLogSource
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityLake::AwsLogSource"
-	Properties!: close({
-		Accounts?:      list.UniqueItems() & [...=~"^[0-9]{12}$" | fn.#StringExpression] | fn.#ListExpression
-		DataLakeArn!:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		SourceName!:    string | fn.#StringExpression
-		SourceVersion!: =~"^(latest|[0-9]\\.[0-9])$" | fn.#StringExpression
+	let properties = close({
+		Accounts?: list.UniqueItems() & [...=~"^[0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: =~"^[0-9]{12}$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		DataLakeArn!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		SourceName!: string | number | bool | fn.#StringExpression
+		SourceVersion!: =~"^(latest|[0-9]\\.[0-9])$" |
+		{
+			number | bool
+			_cfnString: =~"^(latest|[0-9]\\.[0-9])$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

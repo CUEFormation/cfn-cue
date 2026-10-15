@@ -15,28 +15,66 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Personalize::Solution.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Personalize::Solution"
-	Properties!: close({
+	let properties = close({
 		DatasetGroupArn!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(0) &
+			=~"arn:([a-z\\d-]+):personalize:.*:.*:.+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		EventType?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		Name!:      strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*" | fn.#StringExpression
+		EventType?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*" & "\(self)"
+		} |
+		fn.#StringExpression
 		PerformAutoML?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		PerformHPO?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		RecipeArn?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(0) &
+			=~"arn:([a-z\\d-]+):personalize:.*:.*:.+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		SolutionConfig?: #SolutionConfig
 		Tags?:           list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CategoricalHyperParameterRange: close({
-	Name?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Values?: list.MaxItems(100) & [...] & [...strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression] |
+	Name?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Values?: list.MaxItems(100) & [...] & [...strings.MaxRunes(1000) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -80,7 +118,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Name?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Name?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -115,28 +158,60 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Name?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Name?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SolutionConfig: close({
 	AlgorithmHyperParameters?: struct.MaxFields(100) & close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		{[=~".{1,}"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	AutoMLConfig?: close({
-		MetricName?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		RecipeList?: list.MaxItems(100) & [...] & [
-			...strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" |
-			fn.#StringExpression
-		] |
+		MetricName?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		RecipeList?: list.MaxItems(100) & [...] & [...strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"arn:([a-z\\d-]+):personalize:.*:.*:.+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(0) &
+			=~"arn:([a-z\\d-]+):personalize:.*:.*:.+" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
-	EventValueThreshold?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	EventValueThreshold?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	FeatureTransformationParameters?: struct.MaxFields(100) & close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		{[=~".{1,}"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	HpoConfig?: close({
 		AlgorithmHyperParameterRanges?: close({
@@ -149,14 +224,39 @@ fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
 		HpoObjective?: close({
-			MetricName?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-			MetricRegex?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-			Type?: ("Maximize" | "Minimize") & (strings.MaxRunes(256) & strings.MinRunes(0)) | fn.#StringExpression
+			MetricName?: strings.MaxRunes(256) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
+			MetricRegex?: strings.MaxRunes(256) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
+			Type?: ("Maximize" | "Minimize") & (strings.MaxRunes(256) & strings.MinRunes(0)) |
+			{
+				number | bool
+				_cfnString: ("Maximize" | "Minimize") & strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		HpoResourceConfig?: close({
-			MaxNumberOfTrainingJobs?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-			MaxParallelTrainingJobs?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+			MaxNumberOfTrainingJobs?: strings.MaxRunes(256) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
+			MaxParallelTrainingJobs?: strings.MaxRunes(256) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 	}) |
@@ -165,7 +265,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

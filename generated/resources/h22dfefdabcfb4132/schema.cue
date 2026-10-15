@@ -10,13 +10,17 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This schema provides construct and validation rules for AWS-XRay
 // TransactionSearchConfig resource parameters.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::XRay::TransactionSearchConfig"
-	Properties?: close({IndexingPercentage?: #IndexingPercentage})
+	Type!: "AWS::XRay::TransactionSearchConfig"
+	let properties = close({IndexingPercentage?: #IndexingPercentage})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #IndexingPercentage: <=100 & >=0 |

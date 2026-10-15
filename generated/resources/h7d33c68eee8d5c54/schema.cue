@@ -10,35 +10,87 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The `AWS::Redshift::EventSubscription` resource creates an Amazon Redshift Event Subscription.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Redshift::EventSubscription"
-	Properties!: close({
+	let properties = close({
 		Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		EventCategories?: list.UniqueItems() & [
-			...("configuration" | "management" | "monitoring" | "security" | "pending") & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
-			fn.#StringExpression
-		] |
+		EventCategories?: list.UniqueItems() & [...("configuration" |
+			"management" |
+			"monitoring" |
+			"security" |
+			"pending") & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
+		{
+			number | bool
+			_cfnString: ("configuration" | "management" | "monitoring" | "security" | "pending") &
+			strings.MaxRunes(2147483647) &
+			strings.MinRunes(0) &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		Severity?: ("ERROR" | "INFO") & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) | fn.#StringExpression
-		SnsTopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
+		Severity?: ("ERROR" | "INFO") & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
+		{
+			number | bool
+			_cfnString: ("ERROR" | "INFO") & strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
 		fn.#StringExpression
-		SourceIds?: [...strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
+		SnsTopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" &
+			strings.MaxRunes(2147483647) &
+			strings.MinRunes(0) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		SourceIds?: [...strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		SourceType?: ("cluster" |
 			"cluster-parameter-group" |
 			"cluster-security-group" |
 			"cluster-snapshot" |
 			"scheduled-action") & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
+		{
+			number | bool
+			_cfnString: ("cluster" |
+				"cluster-parameter-group" |
+				"cluster-security-group" |
+				"cluster-snapshot" |
+				"scheduled-action") &
+			strings.MaxRunes(2147483647) &
+			strings.MinRunes(0) &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		SubscriptionName!: string | fn.#StringExpression
+		SubscriptionName!: string | number | bool | fn.#StringExpression
 		Tags?:             [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

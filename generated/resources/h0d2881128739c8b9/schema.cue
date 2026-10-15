@@ -10,38 +10,76 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::QuickSight::Space
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QuickSight::Space"
-	Properties!: close({
-		AwsAccountId!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+	let properties = close({
+		AwsAccountId!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Description?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\P{C}\\n\\r\\t\\f\\v\\p{Cf}]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\P{C}\\n\\r\\t\\f\\v\\p{Cf}]*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\P{C}\\n\\r\\t\\f\\v\\p{Cf}]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\P{C}\\n\\r\\t\\f\\v\\p{Cf}]*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Permissions?: [...#ResourcePermission] | fn.#ListExpression
 		Resources?:   [...#SpaceResource] | fn.#ListExpression
-		SpaceId!:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_=.+]+$" | fn.#StringExpression
-		Tags?:        list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+		SpaceId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_=.+]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_=.+]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ResourcePermission: close({
-	Actions!:   list.MaxItems(20) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Actions!: list.MaxItems(20) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
+	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SpaceResource: close({
-	ResourceArn!:  string | fn.#StringExpression
+	ResourceArn!:  string | number | bool | fn.#StringExpression
 	ResourceType!: "TOPIC" | "DASHBOARD" | "KNOWLEDGE_BASE" | "ACTION_CONNECTOR" | "DATA_SET" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

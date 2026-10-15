@@ -9,15 +9,29 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This schema provides construct and validation rules for AWS-XRay Resource
 // Policy resource parameters.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::XRay::ResourcePolicy"
-	Properties!: close({
+	let properties = close({
 		BypassPolicyLockoutCheck?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		PolicyDocument!:           strings.MaxRunes(5120) & strings.MinRunes(1) | fn.#StringExpression
-		PolicyName!:               strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" | fn.#StringExpression
+		PolicyDocument!: strings.MaxRunes(5120) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(5120) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		PolicyName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

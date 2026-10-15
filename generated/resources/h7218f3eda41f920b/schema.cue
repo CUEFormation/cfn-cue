@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::SSM::Association resource associates an SSM document in AWS Systems
@@ -21,29 +23,85 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // document.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSM::Association"
-	Properties!: close({
+	let properties = close({
 		ApplyOnlyAtCronInterval?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		AssociationDispatchAssumeRole?: strings.MaxRunes(512) &
 		strings.MinRunes(1) &
 		=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) &
+			strings.MinRunes(1) &
+			=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		AssociationName?:               =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
-		AutomationTargetParameterName?: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-		CalendarNames?:                 [...string | fn.#StringExpression] | fn.#ListExpression
-		ComplianceSeverity?:            "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" | "UNSPECIFIED" | fn.#StringExpression
-		DocumentVersion?:               =~"([$]LATEST|[$]DEFAULT|^[1-9][0-9]*$)" | fn.#StringExpression
-		InstanceId?:                    =~"(^i-(\\w{8}|\\w{17})$)|(^mi-\\w{17}$)" | fn.#StringExpression
+		AssociationName?: =~"^[a-zA-Z0-9_\\-.]{3,128}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_\\-.]{3,128}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		AutomationTargetParameterName?: strings.MaxRunes(50) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		CalendarNames?:      [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		ComplianceSeverity?: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" | "UNSPECIFIED" | fn.#StringExpression
+		DocumentVersion?: =~"([$]LATEST|[$]DEFAULT|^[1-9][0-9]*$)" |
+		{
+			number | bool
+			_cfnString: =~"([$]LATEST|[$]DEFAULT|^[1-9][0-9]*$)" & "\(self)"
+		} |
+		fn.#StringExpression
+		InstanceId?: =~"(^i-(\\w{8}|\\w{17})$)|(^mi-\\w{17}$)" |
+		{
+			number | bool
+			_cfnString: =~"(^i-(\\w{8}|\\w{17})$)|(^mi-\\w{17}$)" & "\(self)"
+		} |
+		fn.#StringExpression
 		MaxConcurrency?: strings.MaxRunes(7) & strings.MinRunes(1) & =~"^([1-9][0-9]{0,6}|[1-9][0-9]%|[1-9]%|100%)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(7) &
+			strings.MinRunes(1) &
+			=~"^([1-9][0-9]{0,6}|[1-9][0-9]%|[1-9]%|100%)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		MaxErrors?: strings.MaxRunes(7) & strings.MinRunes(1) & =~"^([1-9][0-9]{0,6}|[0]|[1-9][0-9]%|[0-9]%|100%)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(7) &
+			strings.MinRunes(1) &
+			=~"^([1-9][0-9]{0,6}|[0]|[1-9][0-9]%|[0-9]%|100%)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name!:           =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" | fn.#StringExpression
+		Name!: =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		OutputLocation?: #InstanceAssociationOutputLocation
 		Parameters?: close({
 
-			{[=~".{1,255}"]: #ParameterValues}}) |
+			{[=~".{1,255}"]: #ParameterValues}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
-		ScheduleExpression?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		ScheduleExpression?: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ScheduleOffset?: int & <=6 & >=1 |
 			{
 				string &
@@ -84,15 +142,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #InstanceAssociationOutputLocation: close({S3Location?: #S3OutputLocation}) | fn.#ObjectExpression
 
-#ParameterValues: [...string | fn.#StringExpression] | fn.#ListExpression
+#ParameterValues: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 
-#S3BucketName: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+#S3BucketName: strings.MaxRunes(63) & strings.MinRunes(3) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & "\(self)"
+} |
+fn.#StringExpression
 
-#S3KeyPrefix: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+#S3KeyPrefix: strings.MaxRunes(1024) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression
 
 #S3OutputLocation: close({
 	OutputS3BucketName?: #S3BucketName
@@ -101,17 +171,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#S3Region: strings.MaxRunes(20) & strings.MinRunes(3) | fn.#StringExpression
+#S3Region: strings.MaxRunes(20) & strings.MinRunes(3) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(20) & strings.MinRunes(3) & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Target: close({
 	Key!: strings.MaxRunes(163) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]{1,128}$|resource-groups:Name" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(163) &
+		strings.MinRunes(1) &
+		=~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]{1,128}$|resource-groups:Name" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Values!: list.MaxItems(50) & [...] & [...string & string | fn.#StringExpression] | fn.#ListExpression
+	Values!: list.MaxItems(50) & [...] & [...string & string |
+	{
+		number | bool
+		_cfnString: string & string & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression

@@ -9,15 +9,24 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a generated template from existing resources using the CloudFormation IaC Generator.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFormation::GeneratedTemplate"
-	Properties!: close({
-		GeneratedTemplateName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		GeneratedTemplateName!: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		TemplateConfiguration?: #TemplateConfiguration
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #TemplateConfiguration: close({

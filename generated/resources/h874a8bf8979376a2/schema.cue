@@ -11,12 +11,14 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::NetworkFirewall::LoggingConfiguration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::NetworkFirewall::LoggingConfiguration"
-	Properties!: close({
+	let properties = close({
 		EnableMonitoringDashboard?: bool |
 			"true" |
 			"True" |
@@ -25,16 +27,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		FirewallArn!:          #ResourceArn
-		FirewallName?:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+		FirewallArn!: #ResourceArn
+		FirewallName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		LoggingConfiguration!: #LoggingConfiguration
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #LogDestinationConfig: close({
 	LogDestination!: struct.MinFields(1) & close({
 
-		{[=~"^[0-9A-Za-z.\\-_@\\/]+$"]: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression}}) |
+		{[=~"^(?:Ref)$"]: error("disallowed")}
+
+		{
+			[=~"^[0-9A-Za-z.\\-_@\\/]+$"]: strings.MaxRunes(1024) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
+		}
+	}) |
 	fn.#ObjectExpression
 	LogDestinationType!: "S3" | "CloudWatchLogs" | "KinesisDataFirehose" | fn.#StringExpression
 	LogType!:            "ALERT" | "FLOW" | "TLS" | fn.#StringExpression
@@ -46,4 +65,9 @@ fn.#ObjectExpression
 ) |
 	fn.#ObjectExpression
 
-#ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:aws.*$" | fn.#StringExpression
+#ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:aws.*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:aws.*$" & "\(self)"
+} |
+fn.#StringExpression

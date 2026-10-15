@@ -3,6 +3,7 @@
 package schema
 
 import (
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
 )
@@ -40,7 +41,7 @@ import (
 })
 
 #Entry: close({
-	Cidr!:        string & (strings.MaxRunes(46) & strings.MinRunes(1))
+	Cidr!:        (fn.#IPv4Network & string | fn.#IPv6Network & string) & (strings.MaxRunes(46) & strings.MinRunes(1))
 	Description?: strings.MaxRunes(255) & strings.MinRunes(0)
 })
 

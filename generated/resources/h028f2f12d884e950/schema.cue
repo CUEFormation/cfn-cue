@@ -10,42 +10,108 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Wisdom::QuickResponse Resource Type.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Wisdom::QuickResponse"
-	Properties!: close({
-		Channels?:              [...#ChannelType] | fn.#ListExpression
-		Content!:               #QuickResponseContentProvider
-		ContentType?:           =~"^(application/x\\.quickresponse;format=(plain|markdown))$" | fn.#StringExpression
-		Description?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Channels?: [...#ChannelType] | fn.#ListExpression
+		Content!:  #QuickResponseContentProvider
+		ContentType?: =~"^(application/x\\.quickresponse;format=(plain|markdown))$" |
+		{
+			number | bool
+			_cfnString: =~"^(application/x\\.quickresponse;format=(plain|markdown))$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		GroupingConfiguration?: #GroupingConfiguration
 		IsActive?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		KnowledgeBaseArn!: =~"^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}$" |
-			fn.#StringExpression
-		Language?:    strings.MaxRunes(5) & strings.MinRunes(2) | fn.#StringExpression
-		Name!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		ShortcutKey?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		Language?: strings.MaxRunes(5) & strings.MinRunes(2) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(5) & strings.MinRunes(2) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ShortcutKey?: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ChannelType: ("Chat" | "Email") & (strings.MaxRunes(10) & strings.MinRunes(1)) | fn.#StringExpression
+#ChannelType: ("Chat" | "Email") & (strings.MaxRunes(10) & strings.MinRunes(1)) |
+{
+	number | bool
+	_cfnString: ("Chat" | "Email") & strings.MaxRunes(10) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #GroupingConfiguration: close({
-	Criteria!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Values!:   list.UniqueItems() & [...#GroupingValue] | fn.#ListExpression
+	Criteria!: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Values!: list.UniqueItems() & [...#GroupingValue] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#GroupingValue: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+#GroupingValue: strings.MaxRunes(2048) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#QuickResponseContentProvider: close({Content?: strings.MaxRunes(4000) & strings.MinRunes(1) | fn.#StringExpression}) |
+#QuickResponseContentProvider: close({
+	Content?: strings.MaxRunes(4000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -10,20 +10,29 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema of AWS::EMRContainers::SecurityConfiguration Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EMRContainers::SecurityConfiguration"
-	Properties!: close({
+	let properties = close({
 		// Container provider for the security configuration.
 		ContainerProvider?: #ContainerProvider
-		Name?:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
+		Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Security configuration input for the security configuration.
 		SecurityConfigurationData!: #SecurityConfigurationData
 		Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AtRestEncryptionConfiguration: close({
@@ -43,13 +52,18 @@ fn.#ObjectExpression
 #ContainerInfo: close({EksInfo?: #EksInfo}) | fn.#ObjectExpression
 
 #ContainerProvider: close({
-	Id!:   strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*$" | fn.#StringExpression
+	Id!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Info?: #ContainerInfo
 	Type!: "EKS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#EksInfo: close({Namespace?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#EksInfo: close({Namespace?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #EncryptionConfiguration: close({
 	AtRestEncryptionConfiguration?:    #AtRestEncryptionConfiguration
@@ -61,6 +75,13 @@ fn.#ObjectExpression
 	SystemRole?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):iam::\\d{12}:role/.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):iam::\\d{12}:role/.+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -78,6 +99,13 @@ fn.#ObjectExpression
 	IdentityCenterInstanceARN?: strings.MaxRunes(1224) &
 	strings.MinRunes(10) &
 	=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1224) &
+		strings.MinRunes(10) &
+		=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -87,34 +115,70 @@ fn.#ObjectExpression
 
 #LakeFormationConfiguration: close({
 	AuthorizedSessionTagValue?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9 ]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9 ]+$" & "\(self)"
+	} |
 	fn.#StringExpression
 	QueryAccessControlEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	QueryEngineRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	QueryEngineRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):iam::\\d{12}:role/.+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):iam::\\d{12}:role/.+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	SecureNamespaceInfo?: #SecureNamespaceInfo
 }) |
 fn.#ObjectExpression
 
 #LocalDiskEncryptionConfiguration: close({
-	AwsKmsKeyId?:               string | fn.#StringExpression
+	AwsKmsKeyId?:               string | number | bool | fn.#StringExpression
 	EncryptionKeyProviderType?: "AwsKms" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #S3EncryptionConfiguration: close({
 	EncryptionOption?: "SSE-S3" | "SSE-KMS" | "CSE-KMS" | fn.#StringExpression
-	KMSKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
+	KMSKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+	} |
+	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+			"\(self)"
+	} |
+	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SecureNamespaceInfo: close({
-	ClusterId?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*$" | fn.#StringExpression
-	Namespace?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$" | fn.#StringExpression
+	ClusterId?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Namespace?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9]([-a-z0-9]*[a-z0-9])?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -127,13 +191,13 @@ fn.#ObjectExpression
 
 #TLSCertificateConfiguration: close({
 	CertificateProviderType?: "PEM" | fn.#StringExpression
-	PrivateKeySecretArn?:     string | fn.#StringExpression
-	PublicKeySecretArn?:      string | fn.#StringExpression
+	PrivateKeySecretArn?:     string | number | bool | fn.#StringExpression
+	PublicKeySecretArn?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

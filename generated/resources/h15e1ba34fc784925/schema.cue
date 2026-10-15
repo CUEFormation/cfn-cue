@@ -9,20 +9,41 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpenSearchServerless::AccessPolicy
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::OpenSearchServerless::AccessPolicy"
-	Properties!: close({
-		Description?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-		Name!:        strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,31}$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,31}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,31}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Policy!: strings.MaxRunes(20480) &
 		strings.MinRunes(1) &
 		=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(20480) &
+			strings.MinRunes(1) &
+			=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Type!: #AccessPolicyType
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AccessPolicyType: "data" | fn.#StringExpression

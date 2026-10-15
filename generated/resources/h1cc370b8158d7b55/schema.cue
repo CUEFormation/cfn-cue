@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::Rekognition::Collection type creates an Amazon Rekognition
@@ -17,16 +19,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // faces which can later be referenced for searches on the group
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Rekognition::Collection"
-	Properties!: close({
+	let properties = close({
 		CollectionId!: #CollectionId
 		Tags?:         list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CollectionId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\A[a-zA-Z0-9_\\.\\-]+$" | fn.#StringExpression
+#CollectionId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\A[a-zA-Z0-9_\\.\\-]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\A[a-zA-Z0-9_\\.\\-]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & =~"\\A[a-zA-Z0-9+\\-=\\._\\:\\/@]+$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & =~"\\A[a-zA-Z0-9+\\-=\\._\\:\\/@]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & =~"\\A[a-zA-Z0-9+\\-=\\._\\:\\/@]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

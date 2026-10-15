@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The details of a daemon task definition. A daemon task definition is a
@@ -22,30 +24,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // infrastructure.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ECS::DaemonTaskDefinition"
-	Properties?: close({
+	let properties = close({
 		ContainerDefinitions?: list.UniqueItems() & [...#DaemonContainerDefinition] | fn.#ListExpression
-		Cpu?:                  string | fn.#StringExpression
-		ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		Family?:  string | fn.#StringExpression
+		Cpu?:                  string | number | bool | fn.#StringExpression
+		ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Family?:  string | number | bool | fn.#StringExpression
 		IpcMode?: "none" | "shared" | fn.#StringExpression
-		Memory?:  string | fn.#StringExpression
+		Memory?:  string | number | bool | fn.#StringExpression
 		PidMode?: "none" | "shared" | fn.#StringExpression
 		Tags?:    list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-		TaskRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		TaskRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Volumes?: list.UniqueItems() & [...#Volume] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ContainerDependency: close({
 	Condition?:     "COMPLETE" | "HEALTHY" | "START" | "SUCCESS" | fn.#StringExpression
-	ContainerName?: string | fn.#StringExpression
+	ContainerName?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DaemonContainerDefinition: close({
-	Command?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Command?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Cpu?: int |
 		{
 			string &
@@ -61,7 +73,7 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	DependsOn?:        [...#ContainerDependency] | fn.#ListExpression
-	EntryPoint?:       [...string | fn.#StringExpression] | fn.#ListExpression
+	EntryPoint?:       [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Environment?:      [...#KeyValuePair] | fn.#ListExpression
 	EnvironmentFiles?: [...#EnvironmentFile] | fn.#ListExpression
 	Essential?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -72,7 +84,7 @@ fn.#ObjectExpression
 
 	// The container health check command and associated configuration parameters for the container.
 	HealthCheck?: #HealthCheck
-	Image!:       string | fn.#StringExpression
+	Image!:       string | number | bool | fn.#StringExpression
 	Interactive?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 	// Linux-specific modifications that are applied to the container configuration,
@@ -110,7 +122,7 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	MountPoints?:            [...#MountPoint] | fn.#ListExpression
-	Name!:                   string | fn.#StringExpression
+	Name!:                   string | number | bool | fn.#StringExpression
 	Privileged?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PseudoTerminal?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ReadonlyRootFilesystem?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -152,35 +164,40 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	SystemControls?:   [...#SystemControl] | fn.#ListExpression
 	Ulimits?:          [...#Ulimit] | fn.#ListExpression
-	User?:             string | fn.#StringExpression
-	WorkingDirectory?: string | fn.#StringExpression
+	User?:             string | number | bool | fn.#StringExpression
+	WorkingDirectory?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Device: close({
-	ContainerPath?: string | fn.#StringExpression
-	HostPath?:      string | fn.#StringExpression
+	ContainerPath?: string | number | bool | fn.#StringExpression
+	HostPath?:      string | number | bool | fn.#StringExpression
 	Permissions?:   [..."mknod" | "read" | "write" | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #EnvironmentFile: close({
 	Type?:  "s3" | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FirelensConfiguration: close({
 	Options?: close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		{[=~".{1,}"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	Type?: "fluentbit" | "fluentd" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #HealthCheck: close({
-	Command?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Command?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Interval?: int |
 		{
 			string &
@@ -240,17 +257,17 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#HostVolumeProperties: close({SourcePath?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#HostVolumeProperties: close({SourcePath?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #KernelCapabilities: close({
-	Add?:  [...string | fn.#StringExpression] | fn.#ListExpression
-	Drop?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Add?:  [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Drop?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #KeyValuePair: close({
-	Name?:  string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Name?:  string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -268,23 +285,29 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #LogConfiguration: close({
-	LogDriver!: string | fn.#StringExpression
+	LogDriver!: string | number | bool | fn.#StringExpression
 	Options?: close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		{[=~".{1,}"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	SecretOptions?: [...#Secret] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #MountPoint: close({
-	ContainerPath?: string | fn.#StringExpression
+	ContainerPath?: string | number | bool | fn.#StringExpression
 	ReadOnly?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SourceVolume?:  string | fn.#StringExpression
+	SourceVolume?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#RepositoryCredentials: close({CredentialsParameter?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#RepositoryCredentials: close({CredentialsParameter?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #RestartPolicy: close({
 	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -325,26 +348,36 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Secret: close({
-	Name!:      string | fn.#StringExpression
-	ValueFrom!: string | fn.#StringExpression
+	Name!:      string | number | bool | fn.#StringExpression
+	ValueFrom!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SystemControl: close({
-	Namespace?: string | fn.#StringExpression
-	Value?:     string | fn.#StringExpression
+	Namespace?: string | number | bool | fn.#StringExpression
+	Value?:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tmpfs: close({
-	ContainerPath?: string | fn.#StringExpression
-	MountOptions?:  [...string | fn.#StringExpression] | fn.#ListExpression
+	ContainerPath?: string | number | bool | fn.#StringExpression
+	MountOptions?:  [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Size!: int |
 		{
 			string &
@@ -423,6 +456,6 @@ fn.#ObjectExpression
 	// can mount ``C:\my\path:C:\my\path`` and ``D:\:D:\``, but not
 	// ``D:\my\path:C:\my\path`` or ``D:\:C:\my\path``.
 	Host?: #HostVolumeProperties
-	Name?: string | fn.#StringExpression
+	Name?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

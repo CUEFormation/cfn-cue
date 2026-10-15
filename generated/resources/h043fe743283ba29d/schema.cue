@@ -10,20 +10,44 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DirectConnect::DirectConnectGateway
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DirectConnect::DirectConnectGateway"
-	Properties!: close({
-		AmazonSideAsn?:            =~"^[1-9][0-9]*$" | fn.#StringExpression
-		DirectConnectGatewayName!: =~"^[\\w \\-_,\\/]{1,100}$" | fn.#StringExpression
-		Tags?:                     list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	let properties = close({
+		AmazonSideAsn?: =~"^[1-9][0-9]*$" |
+		{
+			number | bool
+			_cfnString: =~"^[1-9][0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DirectConnectGatewayName!: =~"^[\\w \\-_,\\/]{1,100}$" |
+		{
+			number | bool
+			_cfnString: =~"^[\\w \\-_,\\/]{1,100}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

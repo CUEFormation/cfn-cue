@@ -10,14 +10,21 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A security control in Security Hub describes a security best practice related
 // to a specific resource.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityHub::SecurityControl"
-	Properties!: close({
-		LastUpdateReason?: =~"^([^\u0000-\u007f]|[-_ a-zA-Z0-9])+$" | fn.#StringExpression
+	let properties = close({
+		LastUpdateReason?: =~"^([^\u0000-\u007f]|[-_ a-zA-Z0-9])+$" |
+		{
+			number | bool
+			_cfnString: =~"^([^\u0000-\u007f]|[-_ a-zA-Z0-9])+$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// An object that identifies the name of a control parameter, its current value,
 		// and whether it has been customized.
@@ -33,6 +40,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// APIGateway.3.
 		SecurityControlId?: #NonEmptyString
 	}) & matchN(>=1, [{SecurityControlId!: _}, {SecurityControlArn!: _}])
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #IntegerList: [
@@ -53,7 +62,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 ] |
 	fn.#ListExpression
 
-#NonEmptyString: =~".*\\S.*" | fn.#StringExpression
+#NonEmptyString: =~".*\\S.*" |
+{
+	number | bool
+	_cfnString: =~".*\\S.*" & "\(self)"
+} |
+fn.#StringExpression
 
 #NonEmptyStringList: [...#NonEmptyString] | fn.#ListExpression
 
@@ -235,5 +249,10 @@ fn.#ObjectExpression
 
 #Parameters: close({
 
-	{[=~".*\\S.*"]: #ParameterConfiguration}}) |
+	{[=~".*\\S.*"]: #ParameterConfiguration}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression

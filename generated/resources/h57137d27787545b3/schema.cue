@@ -14,17 +14,24 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::OpenSearchService::Domain"
-	Properties?: close({
+	let properties = close({
 		AIMLOptions?:    #AIMLOptions
-		AccessPolicies?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		AccessPolicies?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		AdvancedOptions?: close({
 
-			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+			{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 		AdvancedSecurityOptions?: close({
 			AnonymousAuthEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -48,15 +55,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		CognitoOptions?:                #CognitoOptions
 		DeploymentStrategyOptions?:     #DeploymentStrategyOptions
 		DomainEndpointOptions?:         #DomainEndpointOptions
-		DomainName?:                    string | fn.#StringExpression
+		DomainName?:                    string | number | bool | fn.#StringExpression
 		EBSOptions?:                    #EBSOptions
 		EncryptionAtRestOptions?:       #EncryptionAtRestOptions
 		EngineMode?:                    "GENERAL" | "OPTIMIZED" | fn.#StringExpression
-		EngineVersion?:                 string | fn.#StringExpression
-		IPAddressType?:                 string | fn.#StringExpression
+		EngineVersion?:                 string | number | bool | fn.#StringExpression
+		IPAddressType?:                 string | number | bool | fn.#StringExpression
 		IdentityCenterOptions?: close({
 			EnabledAPIAccess?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-			IdentityCenterInstanceARN?: string | fn.#StringExpression
+			IdentityCenterInstanceARN?: string | number | bool | fn.#StringExpression
 
 			// The roles key for Identity Center options.
 			RolesKey?: #RolesKeyIdcType
@@ -67,7 +74,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 		LogPublishingOptions?: close({
 
-			{[=~"[a-zA-Z0-9]+"]: #LogPublishingOption}}) |
+			{[=~"[a-zA-Z0-9]+"]: #LogPublishingOption}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 		NodeToNodeEncryptionOptions?: #NodeToNodeEncryptionOptions
 		OffPeakWindowOptions?:        #OffPeakWindowOptions
@@ -78,6 +90,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		UseCase?:                "SEARCH" | "VECTOR" | "OBSERVABILITY" | "MIXED" | fn.#StringExpression
 		VPCOptions?:             #VPCOptions
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AIMLOptions: close({
@@ -88,8 +102,8 @@ fn.#ObjectExpression
 
 #AutomatedSnapshotPauseOptions: close({
 	Enabled!:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EndTime?:   string | fn.#StringExpression
-	StartTime?: string | fn.#StringExpression
+	EndTime?:   string | number | bool | fn.#StringExpression
+	StartTime?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -110,7 +124,7 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	DedicatedMasterEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DedicatedMasterType?:    string | fn.#StringExpression
+	DedicatedMasterType?:    string | number | bool | fn.#StringExpression
 	InstanceCount?: int |
 		{
 			string &
@@ -125,7 +139,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	InstanceType?:              string | fn.#StringExpression
+	InstanceType?:              string | number | bool | fn.#StringExpression
 	MultiAZWithStandbyEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	NodeOptions?:               [...#NodeOption] | fn.#ListExpression
 	WarmCount?: int |
@@ -143,7 +157,7 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	WarmEnabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	WarmType?:             string | fn.#StringExpression
+	WarmType?:             string | number | bool | fn.#StringExpression
 	ZoneAwarenessConfig?:  #ZoneAwarenessConfig
 	ZoneAwarenessEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
@@ -151,10 +165,14 @@ fn.#ObjectExpression
 
 #CognitoOptions: close({
 	Enabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IdentityPoolId?: string | fn.#StringExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	UserPoolId?: string | fn.#StringExpression
+	IdentityPoolId?: string | number | bool | fn.#StringExpression
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	UserPoolId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -167,11 +185,11 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #DomainEndpointOptions: close({
-	CustomEndpoint?:               string | fn.#StringExpression
-	CustomEndpointCertificateArn?: string | fn.#StringExpression
+	CustomEndpoint?:               string | number | bool | fn.#StringExpression
+	CustomEndpointCertificateArn?: string | number | bool | fn.#StringExpression
 	CustomEndpointEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnforceHTTPS?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	TLSSecurityPolicy?:            string | fn.#StringExpression
+	TLSSecurityPolicy?:            string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -219,49 +237,68 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	VolumeType?: string | fn.#StringExpression
+	VolumeType?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EncryptionAtRestOptions: close({
 	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+	} |
+	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+			"\(self)"
+	} |
+	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #IAMFederationOptions: close({
 	Enabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RolesKey?:   string | fn.#StringExpression
-	SubjectKey?: string | fn.#StringExpression
+	RolesKey?:   string | number | bool | fn.#StringExpression
+	SubjectKey?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Idp: close({
-	EntityId!:        string | fn.#StringExpression
-	MetadataContent!: strings.MaxRunes(1048576) & strings.MinRunes(1) | fn.#StringExpression
+	EntityId!: string | number | bool | fn.#StringExpression
+	MetadataContent!: strings.MaxRunes(1048576) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1048576) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #JWTOptions: close({
 	Enabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PublicKey?:  string | fn.#StringExpression
-	RolesKey?:   string | fn.#StringExpression
-	SubjectKey?: string | fn.#StringExpression
+	PublicKey?:  string | number | bool | fn.#StringExpression
+	RolesKey?:   string | number | bool | fn.#StringExpression
+	SubjectKey?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LogPublishingOption: close({
-	CloudWatchLogsLogGroupArn?: string | fn.#StringExpression
+	CloudWatchLogsLogGroupArn?: string | number | bool | fn.#StringExpression
 	Enabled?:                   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #MasterUserOptions: close({
-	MasterUserARN?:      string | fn.#StringExpression
-	MasterUserName?:     string | fn.#StringExpression
-	MasterUserPassword?: string | fn.#StringExpression
+	MasterUserARN?:      string | number | bool | fn.#StringExpression
+	MasterUserName?:     string | number | bool | fn.#StringExpression
+	MasterUserPassword?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -281,7 +318,7 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Type?:    string | fn.#StringExpression
+	Type?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -314,9 +351,9 @@ fn.#ObjectExpression
 #SAMLOptions: close({
 	Enabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Idp?:               #Idp
-	MasterBackendRole?: string | fn.#StringExpression
-	MasterUserName?:    string | fn.#StringExpression
-	RolesKey?:          string | fn.#StringExpression
+	MasterBackendRole?: string | number | bool | fn.#StringExpression
+	MasterUserName?:    string | number | bool | fn.#StringExpression
+	RolesKey?:          string | number | bool | fn.#StringExpression
 	SessionTimeoutMinutes?: int |
 		{
 			string &
@@ -331,7 +368,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SubjectKey?: string | fn.#StringExpression
+	SubjectKey?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -374,19 +411,31 @@ fn.#ObjectExpression
 #SubjectKeyIdcType: "UserName" | "UserId" | "Email" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VPCOptions: close({
 	EgressEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SecurityGroupIds?: list.UniqueItems() & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SubnetIds?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroupIds?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SubnetIds?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

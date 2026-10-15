@@ -10,45 +10,94 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Amazon DataZone projects are business use case–based groupings of people,
 // assets (data), and tools used to simplify access to the AWS analytics.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataZone::Project"
-	Properties!: close({
-		Description?:      strings.MaxRunes(2048) | fn.#StringExpression
-		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-		DomainUnitId?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" | fn.#StringExpression
-		GlossaryTerms?: list.MaxItems(20) & [...] & [...=~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression] |
-			fn.#ListExpression
+	let properties = close({
+		Description?: strings.MaxRunes(2048) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainUnitId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		GlossaryTerms?: list.MaxItems(20) & [...] & [...=~"^[a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		MembershipAssignments?: [...#ProjectMembershipAssignment] | fn.#ListExpression
-		Name!:                  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
-		ProjectCategory?:       string | fn.#StringExpression
-		ProjectExecutionRole?:  =~"^arn:aws[^:]*:iam::\\d{12}:role/[\\w+=,.@/-]+$" | fn.#StringExpression
-		ProjectProfileId?:      =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-		ProjectProfileVersion?: string | fn.#StringExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ProjectCategory?: string | number | bool | fn.#StringExpression
+		ProjectExecutionRole?: =~"^arn:aws[^:]*:iam::\\d{12}:role/[\\w+=,.@/-]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[^:]*:iam::\\d{12}:role/[\\w+=,.@/-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ProjectProfileId?: =~"^[a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ProjectProfileVersion?: string | number | bool | fn.#StringExpression
 		ResourceTags?:          [...#ResourceTag] | fn.#ListExpression
 		UserParameters?:        [...#EnvironmentConfigurationUserParameter] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #EnvironmentConfigurationUserParameter: close({
-	EnvironmentConfigurationName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
-	EnvironmentId?:                =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-	EnvironmentParameters?:        [...#EnvironmentParameter] | fn.#ListExpression
+	EnvironmentConfigurationName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	EnvironmentId?: =~"^[a-zA-Z0-9_-]{1,36}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	EnvironmentParameters?: [...#EnvironmentParameter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #EnvironmentParameter: close({
-	Name?:  string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Name?:  string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Member: close({
-	GroupIdentifier?: string | fn.#StringExpression
-	UserIdentifier?:  string | fn.#StringExpression
+	GroupIdentifier?: string | number | bool | fn.#StringExpression
+	UserIdentifier?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -59,9 +108,24 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ResourceTag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w \\.:/=+@-]+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w \\.:/=+@-]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w \\.:/=+@-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w \\.:/=+@-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w \\.:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w \\.:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#UserDesignation: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+#UserDesignation: =~"^[a-zA-Z0-9_-]{1,36}$" |
+{
+	number | bool
+	_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+} |
+fn.#StringExpression

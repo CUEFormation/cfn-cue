@@ -10,31 +10,47 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaPackage::Channel
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaPackage::Channel"
-	Properties!: close({
-		Description?: string | fn.#StringExpression
+	let properties = close({
+		Description?: string | number | bool | fn.#StringExpression
 
 		// The configuration parameters for egress access logging.
 		EgressAccessLogs?: #LogConfiguration
 		HlsIngest?: close({ingestEndpoints?: [...close({}) | fn.#ObjectExpression] | fn.#ListExpression}) |
 			fn.#ObjectExpression
-		Id!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Id!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The configuration parameters for egress access logging.
 		IngressAccessLogs?: #LogConfiguration
 		Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#LogConfiguration: close({LogGroupName?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}) |
+#LogConfiguration: close({
+	LogGroupName?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

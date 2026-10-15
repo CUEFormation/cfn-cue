@@ -112,7 +112,7 @@ import (
 	AvailabilityZone?:   string
 	NetworkInterfaceId?: string
 	PrivateIpAddress?:   string
-	SubnetId?:           string
+	SubnetId?:           =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 #PerformanceTarget: close({

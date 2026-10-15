@@ -10,34 +10,66 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Contains detailed information about a report plan in AWS Backup Audit Manager.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Backup::ReportPlan"
-	Properties!: close({
+	let properties = close({
 		ReportDeliveryChannel!: close({
-			Formats?:      list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-			S3BucketName!: string | fn.#StringExpression
-			S3KeyPrefix?:  string | fn.#StringExpression
+			Formats?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+			S3BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
+			{
+				number | bool
+				_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+					=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+					"\(self)"
+			} |
+			fn.#StringExpression
+			S3KeyPrefix?: string | number | bool | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
-		ReportPlanDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*\\S.*" | fn.#StringExpression
-		ReportPlanName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z][_a-zA-Z0-9]*" | fn.#StringExpression
+		ReportPlanDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*\\S.*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*\\S.*" & "\(self)"
+		} |
+		fn.#StringExpression
+		ReportPlanName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z][_a-zA-Z0-9]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z][_a-zA-Z0-9]*" & "\(self)"
+		} |
+		fn.#StringExpression
 		ReportPlanTags?: [...#Tag] | fn.#ListExpression
 		ReportSetting!: close({
-			Accounts?:          list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-			FrameworkArns?:     list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-			OrganizationUnits?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-			Regions?:           list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-			ReportTemplate!:    string | fn.#StringExpression
+			Accounts?:      list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+			FrameworkArns?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+			OrganizationUnits?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
+				fn.#ListExpression
+			Regions?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+			ReportTemplate!: string | number | bool | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

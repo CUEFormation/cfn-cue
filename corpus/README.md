@@ -6,14 +6,26 @@ for byte. The source lock pins Git commits, archive checksums, licenses, and pat
 filters. Each downloaded template records its source URL and original and
 normalized SHA-256 checksums.
 
-The initial sources are AWS's
-[CloudFormation examples](https://github.com/aws-cloudformation/aws-cloudformation-templates)
-and cfn-lint's
-[good fixtures](https://github.com/aws-cloudformation/cfn-lint/tree/main/test/fixtures/templates/good).
-“Good” is an upstream directory name, not a guarantee that every fixture passes
-standalone linting with today's schemas. Some rely on test-specific configuration.
-AWS's examples use `.yaml` as the source of truth; generated JSON copies and
-unrelated `.yml` configuration files are excluded.
+The locked sources are:
+
+| ID | Source | Templates |
+| --- | --- | --- |
+| `aws-examples` | AWS's [CloudFormation examples](https://github.com/aws-cloudformation/aws-cloudformation-templates) | 144 |
+| `cfn-lint-good` | cfn-lint's [good fixtures](https://github.com/aws-cloudformation/cfn-lint/tree/main/test/fixtures/templates/good) | 95 |
+| `cfn-lint-bad` | cfn-lint's [bad fixtures](https://github.com/aws-cloudformation/cfn-lint/tree/main/test/fixtures/templates/bad) | 98 |
+| `cfn-lint-snapshot` | cfn-lint's quickstart, integration, and public snapshot templates | 44 |
+| `widdix` | [widdix/aws-cf-templates](https://github.com/widdix/aws-cf-templates) | 65 |
+| `sam-translator-output` | SAM's [translator output](https://github.com/aws/serverless-application-model/tree/develop/tests/translator/output) for the `aws` partition | 567 |
+| `troposphere-examples` | troposphere's [example output](https://github.com/cloudtools/troposphere/tree/main/tests/examples_output) | 88 |
+
+“Good” and “bad” are upstream directory names, not guarantees about standalone
+linting with today's schemas. Some fixtures rely on test-specific configuration,
+and several bad fixtures deliberately fail to parse. AWS's examples use `.yaml`
+as the source of truth; generated JSON copies and unrelated `.yml` configuration
+files are excluded. SAM's translator output is CloudFormation produced by the
+SAM transform; its error cases are not templates and are excluded. The `aws-cn`
+and `aws-us-gov` partition copies are excluded because surveys check commercial
+regions. troposphere's output is generated JSON with a `.template` extension.
 
 ## Quick start
 
@@ -121,7 +133,7 @@ using that environment, rather than an independently upgraded global cfn-lint.
 .venv/bin/python corpus/corpus.py fetch
 ```
 
-This downloads two pinned ZIP archives into `.corpus-cache/` and writes
+This downloads each source's pinned ZIP archive into `.corpus-cache/` and writes
 `.corpus/index.json`, `.corpus/licenses/`, `.corpus/original/`, and
 `.corpus/normalized/`. Downloads and archive members have size limits, checksum
 verification, and path checks. Cached archives support offline repetition.
@@ -226,7 +238,12 @@ Each report contains:
 - `run.json`: input and tool fingerprints; resuming with changed inputs is refused.
 
 Results distinguish agreement, disagreements in either direction, unsupported
-inputs, normalization errors, tool failures, and timeouts. Resource coverage
+inputs, normalization errors, tool failures, and timeouts. When CUE accepts a
+template and cfn-lint's only errors are Lambda runtime lifecycle rules (E2531,
+E2533), the result is `cue-accepts-lint-lifecycle-only`. Those rules compare
+the runtime's AWS deprecation dates with today's date, so they change over
+time without any change to the template. The Markdown report counts these
+results but leaves them out of the cases requiring attention. Resource coverage
 encountered in a failing template is separate from coverage in accepted
 templates. Passing both validators is evidence of compatibility, not proof of
 deployability: cfn-lint performs best-effort semantic analysis, and the converter
@@ -239,11 +256,19 @@ negative examples and documented known disagreements. Missing cases, unexecuted
 expectations, or changed results fail the contract; no automatic baseline
 updates occur.
 
-The checked-in `smoke/` corpus contains 46 templates: 11 pinned upstream examples
-and 35 project-authored cases, with 92 expectations across two regions. Cases
+The checked-in `smoke/` corpus contains 79 templates: 11 pinned upstream examples
+and 68 project-authored cases, with 158 expectations across two regions. Cases
 cover scalar compatibility, formats, nested intrinsics, required properties,
 enums, unknown/read-only fields, wrong function results and arguments, custom
 resource aliases and ServiceToken requirements, and invalid Transform values.
+Template grammar cases from the full survey cover logical IDs that start with a
+digit, `&` in condition names, `Fn::If` around `Properties` and `UpdatePolicy`,
+and boolean mapping values. Dynamic reference cases check that a resolved
+password skips AmazonMQ's pattern, while a literal or unknown resolver does not.
+Format cases cover a CIDR with host bits set, a KMS key ID and an S3 bucket name.
+Service rule cases (`rule-*`) cover rules taken from cfn-lint's extension schemas,
+including the condition shapes that needed rewriting for CUE and resources whose
+slow rules are skipped.
 The read-only property and malformed custom type name disagreements with cfn-lint
 remain documented. Expected failures are explicit and annotated.
 

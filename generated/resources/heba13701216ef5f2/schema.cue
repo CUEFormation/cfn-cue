@@ -10,29 +10,65 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::ActionConnector Resource Type.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QuickSight::ActionConnector"
-	Properties!: close({
-		ActionConnectorId!:    strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	let properties = close({
+		ActionConnectorId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		AuthenticationConfig!: #AuthConfig
-		AwsAccountId!:         strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-		Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[A-Za-z0-9 _.,!?-]*$" | fn.#StringExpression
+		AwsAccountId!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[A-Za-z0-9 _.,!?-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[A-Za-z0-9 _.,!?-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9](?:[\\w- ]*[A-Za-z0-9])?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			=~"^[A-Za-z0-9](?:[\\w- ]*[A-Za-z0-9])?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Permissions?:      list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
 		Tags?:             list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 		Type!:             #ActionConnectorType
-		VpcConnectionArn?: string | fn.#StringExpression
+		VpcConnectionArn?: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #APIKeyConnectionMetadata: close({
-	ApiKey!:       string | fn.#StringExpression
-	BaseEndpoint!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" | fn.#StringExpression
-	Email?:        =~"^[\\w.%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$" | fn.#StringExpression
+	ApiKey!: string | number | bool | fn.#StringExpression
+	BaseEndpoint!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" & "\(self)"
+	} |
+	fn.#StringExpression
+	Email?: =~"^[\\w.%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$" |
+	{
+		number | bool
+		_cfnString: =~"^[\\w.%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -92,39 +128,94 @@ fn.#ValueExpression
 #AuthorizationCodeGrantCredentialsSource: "PLAIN_CREDENTIALS" | fn.#StringExpression
 
 #AuthorizationCodeGrantDetails: close({
-	AuthorizationEndpoint!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" | fn.#StringExpression
-	ClientId!:              strings.MaxRunes(1024) | fn.#StringExpression
-	ClientSecret!:          strings.MaxRunes(2048) | fn.#StringExpression
-	TokenEndpoint!:         strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" | fn.#StringExpression
+	AuthorizationEndpoint!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" & "\(self)"
+	} |
+	fn.#StringExpression
+	ClientId!: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
+	ClientSecret!: strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression
+	TokenEndpoint!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AuthorizationCodeGrantMetadata: close({
 	AuthorizationCodeGrantCredentialsDetails?: #AuthorizationCodeGrantCredentialsDetails
 	AuthorizationCodeGrantCredentialsSource?:  #AuthorizationCodeGrantCredentialsSource
-	BaseEndpoint!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" | fn.#StringExpression
-	RedirectUrl!:  strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" | fn.#StringExpression
+	BaseEndpoint!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" & "\(self)"
+	} |
+	fn.#StringExpression
+	RedirectUrl!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #BasicAuthConnectionMetadata: close({
-	BaseEndpoint!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" | fn.#StringExpression
-	Password!:     string | fn.#StringExpression
-	Username!:     string | fn.#StringExpression
+	BaseEndpoint!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" & "\(self)"
+	} |
+	fn.#StringExpression
+	Password!: string | number | bool | fn.#StringExpression
+	Username!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ClientCredentialsDetails: close({ClientCredentialsGrantDetails!: #ClientCredentialsGrantDetails}) | fn.#ValueExpression
 
 #ClientCredentialsGrantDetails: close({
-	ClientId!:      strings.MaxRunes(1024) | fn.#StringExpression
-	ClientSecret!:  strings.MaxRunes(2048) | fn.#StringExpression
-	TokenEndpoint!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" | fn.#StringExpression
+	ClientId!: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
+	ClientSecret!: strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression
+	TokenEndpoint!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ClientCredentialsGrantMetadata: close({
-	BaseEndpoint!:             strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" | fn.#StringExpression
+	BaseEndpoint!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" & "\(self)"
+	} |
+	fn.#StringExpression
 	ClientCredentialsDetails?: #ClientCredentialsDetails
 	ClientCredentialsSource?:  #ClientCredentialsSource
 }) |
@@ -141,24 +232,52 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #IAMConnectionMetadata: close({
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#NoneConnectionMetadata: close(
-	{BaseEndpoint!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" | fn.#StringExpression},
-) |
+#NoneConnectionMetadata: close({
+	BaseEndpoint!: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^https://.*" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #ResourcePermission: close({
-	Actions!:   list.MaxItems(30) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Actions!: list.MaxItems(30) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
+	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

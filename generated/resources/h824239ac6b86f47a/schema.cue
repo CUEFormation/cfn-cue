@@ -14,24 +14,33 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RTBFabric::OutboundExternalLink Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RTBFabric::OutboundExternalLink"
-	Properties!: close({
+	let properties = close({
 		GatewayId!:       #GatewayId
 		LinkAttributes?:  #LinkAttributes
 		LinkLogSettings!: #LinkLogSettings
 		PublicEndpoint!:  #PublicEndpoint
 		Tags?:            #Tags
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#GatewayId: =~"^rtb-gw-[a-z0-9-]{1,25}$" | fn.#StringExpression
+#GatewayId: =~"^rtb-gw-[a-z0-9-]{1,25}$" |
+{
+	number | bool
+	_cfnString: =~"^rtb-gw-[a-z0-9-]{1,25}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #LinkAttributes: close({
-	CustomerProvidedId?: string | fn.#StringExpression
+	CustomerProvidedId?: string | number | bool | fn.#StringExpression
 	ResponderErrorMasking?: list.MaxItems(200) & list.MinItems(1) & [...#ResponderErrorMaskingForHttpCode] |
 		fn.#ListExpression
 }) |
@@ -87,11 +96,21 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#PublicEndpoint: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^(https|http)://.+$" | fn.#StringExpression
+#PublicEndpoint: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^(https|http)://.+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^(https|http)://.+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #ResponderErrorMaskingForHttpCode: close({
-	Action!:   "NO_BID" | "PASSTHROUGH" | fn.#StringExpression
-	HttpCode!: strings.MaxRunes(7) & strings.MinRunes(3) & =~"^DEFAULT|4XX|5XX|\\d{3}$" | fn.#StringExpression
+	Action!: "NO_BID" | "PASSTHROUGH" | fn.#StringExpression
+	HttpCode!: strings.MaxRunes(7) & strings.MinRunes(3) & =~"^DEFAULT|4XX|5XX|\\d{3}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(7) & strings.MinRunes(3) & =~"^DEFAULT|4XX|5XX|\\d{3}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	LoggingTypes!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...#ResponderErrorMaskingLoggingType] |
 		fn.#ListExpression
 	ResponseLoggingPercentage?: <=100 & >=0 |
@@ -121,8 +140,20 @@ fn.#ObjectExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^(resourceArn|internalId|[a-zA-Z0-9+\\-=._:/@]+)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"^(resourceArn|internalId|[a-zA-Z0-9+\\-=._:/@]+)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

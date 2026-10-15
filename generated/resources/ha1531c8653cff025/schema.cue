@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A notify configuration defines the settings used to send templated messages
@@ -17,8 +19,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // name, use case, enabled channels, and enabled countries.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SMSVOICE::NotifyConfiguration"
-	Properties!: close({
-		DefaultTemplateId?: strings.MaxRunes(256) & =~"^[A-Za-z0-9_-]*$" | fn.#StringExpression
+	let properties = close({
+		DefaultTemplateId?: strings.MaxRunes(256) & =~"^[A-Za-z0-9_-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & =~"^[A-Za-z0-9_-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		DeletionProtectionEnabled?: bool |
 			"true" |
 			"True" |
@@ -27,23 +34,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		DisplayName!: strings.MaxRunes(15) & strings.MinRunes(1) & =~"^[A-Za-z0-9_ -]+$" | fn.#StringExpression
+		DisplayName!: strings.MaxRunes(15) & strings.MinRunes(1) & =~"^[A-Za-z0-9_ -]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(15) & strings.MinRunes(1) & =~"^[A-Za-z0-9_ -]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		EnabledChannels!: list.MaxItems(4) & list.MinItems(1) & [
 			..."SMS" | "VOICE" | "MMS" | "RCS" | fn.#StringExpression
 		] |
 			fn.#ListExpression
-		EnabledCountries?: list.MaxItems(300) & [
-			...strings.MaxRunes(2) & strings.MinRunes(2) & =~"^[A-Z]{2}$" | fn.#StringExpression
-		] |
+		EnabledCountries?: list.MaxItems(300) & [...strings.MaxRunes(2) & strings.MinRunes(2) & =~"^[A-Z]{2}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2) & strings.MinRunes(2) & =~"^[A-Z]{2}$" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		PoolId?:  strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" | fn.#StringExpression
+		PoolId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?:    list.MaxItems(200) & [...#Tag] | fn.#ListExpression
 		UseCase!: "CODE_VERIFICATION" | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

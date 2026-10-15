@@ -10,19 +10,32 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This creates a Resource of UsageProfile type.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::UsageProfile"
-	Properties!: close({
+	let properties = close({
 		Configuration?: #ProfileConfiguration & (null | bool | number | string | list.MinItems(1) | {...}) |
 		fn.#ValueExpression
 		Description?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\-\\:\\_]{1,64}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\-\\:\\_]{1,64}" & "\(self)"
+		} |
 		fn.#StringExpression
-		Name!: strings.MaxRunes(128) & strings.MinRunes(5) | fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(5) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(5) & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ConfigurationObject: (null |
@@ -71,7 +84,12 @@ close({
 	[...] |
 	close({
 
-		{[=~"^.+$"]: #ConfigurationObject}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{[=~"^.+$"]: #ConfigurationObject}
+	}) |
 	fn.#ValueExpression
 	SessionConfiguration?: null |
 	bool |
@@ -80,13 +98,28 @@ close({
 	[...] |
 	close({
 
-		{[=~"^.+$"]: #ConfigurationObject}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{[=~"^.+$"]: #ConfigurationObject}
+	}) |
 	fn.#ValueExpression
 }) & matchN(>=1, [{JobConfiguration!: _}, {SessionConfiguration!: _}]) |
 fn.#ValueExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -6,13 +6,20 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::UserHierarchyStructure
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::UserHierarchyStructure"
-	Properties!: close({
-		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+	let properties = close({
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		UserHierarchyStructure?: close({
 			LevelFive?:  #LevelFive
 			LevelFour?:  #LevelFour
@@ -22,12 +29,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		}) |
 		fn.#ObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #HierarchyLevelArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent-group-level/[-0-9]*$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent-group-level/[-0-9]*$" &
+		"\(self)"
+} |
+fn.#StringExpression
 
-#HierarchyLevelId: string | fn.#StringExpression
+#HierarchyLevelId: string | number | bool | fn.#StringExpression
 
 #LevelFive: close({
 	HierarchyLevelArn?: #HierarchyLevelArn
@@ -64,4 +78,4 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Name: string | fn.#StringExpression
+#Name: string | number | bool | fn.#StringExpression

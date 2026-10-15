@@ -10,28 +10,47 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::BCMDataExports::Export Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BCMDataExports::Export"
-	Properties!: close({
+	let properties = close({
 		Export!: close({
-			DataQuery!:   #DataQuery
-			Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
+			DataQuery!: #DataQuery
+			Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" & "\(self)"
+			} |
+			fn.#StringExpression
 			DestinationConfigurations!: #DestinationConfigurations
-			Name!:           strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9A-Za-z\\-_]+$" | fn.#StringExpression
+			Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9A-Za-z\\-_]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9A-Za-z\\-_]+$" & "\(self)"
+			} |
+			fn.#StringExpression
 			RefreshCadence!: #RefreshCadence
 		}) |
 		fn.#ObjectExpression
 		Tags?: list.MaxItems(200) & [...] & [...#ResourceTag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CompressionOption: "GZIP" | "PARQUET" | "ZIP" | fn.#StringExpression
 
 #DataQuery: close({
-	QueryStatement!:      strings.MaxRunes(36000) & strings.MinRunes(1) & =~"^[\\S\\s]*$" | fn.#StringExpression
+	QueryStatement!: strings.MaxRunes(36000) & strings.MinRunes(1) & =~"^[\\S\\s]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(36000) & strings.MinRunes(1) & =~"^[\\S\\s]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	TableConfigurations?: #TableConfigurations
 }) |
 fn.#ObjectExpression
@@ -47,17 +66,56 @@ fn.#ObjectExpression
 #RefreshCadence: close({Frequency!: #FrequencyOption}) | fn.#ObjectExpression
 
 #ResourceTag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #S3Destination: close({
-	S3Bucket!:               strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
-	S3BucketOwner?:          strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(0) &
+	=~"^[\\S\\s]*$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(0) &
+		=~"^[\\S\\s]*$" &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	S3BucketOwner?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	S3OutputConfigurations!: #S3OutputConfigurations
-	S3Prefix!:               strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
-	S3Region!:               strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
+	S3Prefix!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	S3Region!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -73,10 +131,27 @@ fn.#ObjectExpression
 
 #TableConfigurations: close({
 
-	{[=~"^[\\S\\s]*$"]: #TableProperties}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^[\\S\\s]*$"]: #TableProperties}
+}) |
 fn.#ObjectExpression
 
 #TableProperties: close({
 
-	{[=~"^[\\S\\s]*$"]: strings.MaxRunes(16384) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[\\S\\s]*$"]: strings.MaxRunes(16384) & strings.MinRunes(0) & =~"^[\\S\\s]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(16384) & strings.MinRunes(0) & =~"^[\\S\\s]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression

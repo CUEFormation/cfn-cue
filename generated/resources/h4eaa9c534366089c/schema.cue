@@ -14,35 +14,78 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::ElastiCache::ReplicationGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ElastiCache::ReplicationGroup"
-	Properties!: close({
+	let properties = matchIf({
+		Engine!: "valkey"
+		...
+	}, {
+		TransitEncryptionEnabled!: _
+		...
+	}, _) & close({
 		AtRestEncryptionEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		AuthToken?:                string | fn.#StringExpression
+		AuthToken?:                string | number | bool | fn.#StringExpression
 		AutoMinorVersionUpgrade?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		AutomaticFailoverEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		CacheNodeType?:            string | fn.#StringExpression
-		CacheParameterGroupName?:  string | fn.#StringExpression
-		CacheSecurityGroupNames?:  list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		CacheSubnetGroupName?:     string | fn.#StringExpression
-		ClusterMode?:              =~"(?i)^(?:compatible|disabled|enabled)$" | fn.#StringExpression
-		DataTieringEnabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Durability?:               =~"(?i)^(?:async|default|disabled|sync)$" | fn.#StringExpression
-		Engine?:                   string | fn.#StringExpression
-		EngineVersion?:            string | fn.#StringExpression
-		GlobalReplicationGroupId?: string | fn.#StringExpression
-		IpDiscovery?:              =~"(?i)^(?:ipv4|ipv6)$" | fn.#StringExpression
-		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string |
-			fn.#StringExpression
+		CacheNodeType?:            string | number | bool | fn.#StringExpression
+		CacheParameterGroupName?:  string | number | bool | fn.#StringExpression
+		CacheSecurityGroupNames?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
+		CacheSubnetGroupName?: string | number | bool | fn.#StringExpression
+		ClusterMode?: =~"(?i)^(?:compatible|disabled|enabled)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:compatible|disabled|enabled)$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DataTieringEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Durability?: =~"(?i)^(?:async|default|disabled|sync)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:async|default|disabled|sync)$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Engine?:                   string | number | bool | fn.#StringExpression
+		EngineVersion?:            string | number | bool | fn.#StringExpression
+		GlobalReplicationGroupId?: string | number | bool | fn.#StringExpression
+		IpDiscovery?: =~"(?i)^(?:ipv4|ipv6)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:ipv4|ipv6)$" & "\(self)"
+		} |
+		fn.#StringExpression
+		KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+		} |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+				"\(self)"
+		} |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		LogDeliveryConfigurations?: [...#LogDeliveryConfigurationRequest] | fn.#ListExpression
-		MultiAZEnabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		NetworkType?:            =~"(?i)^(?:dual_stack|ipv4|ipv6)$" | fn.#StringExpression
+		MultiAZEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		NetworkType?: =~"(?i)^(?:dual_stack|ipv4|ipv6)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:dual_stack|ipv4|ipv6)$" & "\(self)"
+		} |
+		fn.#StringExpression
 		NodeGroupConfiguration?: [...#NodeGroupConfiguration] | fn.#ListExpression
-		NotificationTopicArn?:   string | fn.#StringExpression
+		NotificationTopicArn?:   string | number | bool | fn.#StringExpression
 		NumCacheClusters?: int & <=6 & >=1 |
 			{
 				string &
@@ -93,9 +136,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		PreferredCacheClusterAZs?:   [...string | fn.#StringExpression] | fn.#ListExpression
-		PreferredMaintenanceWindow?: string | fn.#StringExpression
-		PrimaryClusterId?:           string | fn.#StringExpression
+		PreferredCacheClusterAZs?:   [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		PreferredMaintenanceWindow?: string | number | bool | fn.#StringExpression
+		PrimaryClusterId?:           string | number | bool | fn.#StringExpression
 		ReplicasPerNodeGroup?: int & <=5 & >=0 |
 			{
 				string &
@@ -114,15 +157,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		ReplicationGroupDescription!: string | fn.#StringExpression
-		ReplicationGroupId?:          string | fn.#StringExpression
-		SecurityGroupIds?: list.UniqueItems() & [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
-		SnapshotArns?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		SnapshotName?: string | fn.#StringExpression
+		ReplicationGroupDescription!: string | number | bool | fn.#StringExpression
+		ReplicationGroupId?:          string | number | bool | fn.#StringExpression
+		SecurityGroupIds?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		SnapshotArns?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		SnapshotName?: string | number | bool | fn.#StringExpression
 		SnapshotRetentionLimit?: int |
 			{
 				string &
@@ -139,19 +184,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		SnapshotWindow?:           string | fn.#StringExpression
-		SnapshottingClusterId?:    string | fn.#StringExpression
+		SnapshotWindow?:           string | number | bool | fn.#StringExpression
+		SnapshottingClusterId?:    string | number | bool | fn.#StringExpression
 		Tags?:                     [...#Tag] | fn.#ListExpression
 		TransitEncryptionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		TransitEncryptionMode?:    =~"(?i)^(?:preferred|required)$" | fn.#StringExpression
-		UserGroupIds?: list.UniqueItems() & [...] & [
-			...strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9\\-]*$" | fn.#StringExpression
-		] |
+		TransitEncryptionMode?: =~"(?i)^(?:preferred|required)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:preferred|required)$" & "\(self)"
+		} |
+		fn.#StringExpression
+		UserGroupIds?: list.UniqueItems() & [...] & [...strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9\\-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9\\-]*$" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CloudWatchLogsDestinationDetails: close({LogGroup!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#CloudWatchLogsDestinationDetails: close({LogGroup!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #DestinationDetails: close({
 	CloudWatchLogsDetails?:  #CloudWatchLogsDestinationDetails
@@ -159,20 +215,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#KinesisFirehoseDestinationDetails: close({DeliveryStream!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#KinesisFirehoseDestinationDetails: close({DeliveryStream!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #LogDeliveryConfigurationRequest: close({
 	DestinationDetails!: #DestinationDetails
-	DestinationType!:    =~"(?i)^(?:cloudwatch-logs|kinesis-firehose)$" | fn.#StringExpression
-	LogFormat!:          =~"(?i)^(?:json|text)$" | fn.#StringExpression
-	LogType!:            =~"(?i)^(?:engine-log|slow-log)$" | fn.#StringExpression
+	DestinationType!: =~"(?i)^(?:cloudwatch-logs|kinesis-firehose)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:cloudwatch-logs|kinesis-firehose)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LogFormat!: =~"(?i)^(?:json|text)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:json|text)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LogType!: =~"(?i)^(?:engine-log|slow-log)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:engine-log|slow-log)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #NodeGroupConfiguration: close({
-	NodeGroupId?:              strings.MaxRunes(4) & strings.MinRunes(1) & =~"^\\d+$" | fn.#StringExpression
-	PrimaryAvailabilityZone?:  string | fn.#StringExpression
-	ReplicaAvailabilityZones?: [...string | fn.#StringExpression] | fn.#ListExpression
+	NodeGroupId?: strings.MaxRunes(4) & strings.MinRunes(1) & =~"^\\d+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4) & strings.MinRunes(1) & =~"^\\d+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	PrimaryAvailabilityZone?:  string | number | bool | fn.#StringExpression
+	ReplicaAvailabilityZones?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	ReplicaCount?: int |
 		{
 			string &
@@ -187,12 +264,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Slots?: string | fn.#StringExpression
+	Slots?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -10,56 +10,60 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AutoScalingPlans::ScalingPlan
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AutoScalingPlans::ScalingPlan"
-	Properties!: close({
+	let properties = close({
 		ApplicationSource!:   #ApplicationSource
 		ScalingInstructions!: [...#ScalingInstruction] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ApplicationSource: close({
-	CloudFormationStackARN?: string | fn.#StringExpression
+	CloudFormationStackARN?: string | number | bool | fn.#StringExpression
 	TagFilters?:             [...#TagFilter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #CustomizedLoadMetricSpecification: close({
 	Dimensions?: [...#MetricDimension] | fn.#ListExpression
-	MetricName!: string | fn.#StringExpression
-	Namespace!:  string | fn.#StringExpression
-	Statistic!:  string | fn.#StringExpression
-	Unit?:       string | fn.#StringExpression
+	MetricName!: string | number | bool | fn.#StringExpression
+	Namespace!:  string | number | bool | fn.#StringExpression
+	Statistic!:  string | number | bool | fn.#StringExpression
+	Unit?:       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CustomizedScalingMetricSpecification: close({
 	Dimensions?: [...#MetricDimension] | fn.#ListExpression
-	MetricName!: string | fn.#StringExpression
-	Namespace!:  string | fn.#StringExpression
-	Statistic!:  string | fn.#StringExpression
-	Unit?:       string | fn.#StringExpression
+	MetricName!: string | number | bool | fn.#StringExpression
+	Namespace!:  string | number | bool | fn.#StringExpression
+	Statistic!:  string | number | bool | fn.#StringExpression
+	Unit?:       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MetricDimension: close({
-	Name!:  string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Name!:  string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PredefinedLoadMetricSpecification: close({
-	PredefinedLoadMetricType!: string | fn.#StringExpression
-	ResourceLabel?:            string | fn.#StringExpression
+	PredefinedLoadMetricType!: string | number | bool | fn.#StringExpression
+	ResourceLabel?:            string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PredefinedScalingMetricSpecification: close({
-	PredefinedScalingMetricType!: string | fn.#StringExpression
-	ResourceLabel?:               string | fn.#StringExpression
+	PredefinedScalingMetricType!: string | number | bool | fn.#StringExpression
+	ResourceLabel?:               string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -95,7 +99,7 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	PredefinedLoadMetricSpecification?:    #PredefinedLoadMetricSpecification
-	PredictiveScalingMaxCapacityBehavior?: string | fn.#StringExpression
+	PredictiveScalingMaxCapacityBehavior?: string | number | bool | fn.#StringExpression
 	PredictiveScalingMaxCapacityBuffer?: int |
 		{
 			string &
@@ -110,10 +114,10 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	PredictiveScalingMode?:       string | fn.#StringExpression
-	ResourceId!:                  string | fn.#StringExpression
-	ScalableDimension!:           string | fn.#StringExpression
-	ScalingPolicyUpdateBehavior?: string | fn.#StringExpression
+	PredictiveScalingMode?:       string | number | bool | fn.#StringExpression
+	ResourceId!:                  string | number | bool | fn.#StringExpression
+	ScalableDimension!:           string | number | bool | fn.#StringExpression
+	ScalingPolicyUpdateBehavior?: string | number | bool | fn.#StringExpression
 	ScheduledActionBufferTime?: int |
 		{
 			string &
@@ -128,14 +132,14 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ServiceNamespace!:             string | fn.#StringExpression
+	ServiceNamespace!:             string | number | bool | fn.#StringExpression
 	TargetTrackingConfigurations!: [...#TargetTrackingConfiguration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #TagFilter: close({
-	Key!:    string | fn.#StringExpression
-	Values?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Key!:    string | number | bool | fn.#StringExpression
+	Values?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

@@ -11,6 +11,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a continuous deployment policy that routes a subset of production
@@ -25,17 +27,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Amazon CloudFront Developer Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::ContinuousDeploymentPolicy"
-	Properties!: close({
+	let properties = close({
 		// Contains the configuration for a continuous deployment policy.
 		ContinuousDeploymentPolicyConfig!: #ContinuousDeploymentPolicyConfig
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ContinuousDeploymentPolicyConfig: close({
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	SingleHeaderPolicyConfig?: close({
-		Header!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		Value!:  strings.MaxRunes(1783) & strings.MinRunes(1) | fn.#StringExpression
+		Header!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Value!: strings.MaxRunes(1783) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1783) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	SingleWeightPolicyConfig?: close({
@@ -43,7 +57,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Weight!:                  math.MultipleOf(0.01) & <=1 & >=0 | fn.#NumberExpression
 	}) |
 	fn.#ObjectExpression
-	StagingDistributionDnsNames!: list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] |
+	StagingDistributionDnsNames!: list.MinItems(1) & list.UniqueItems() & [
+		...string | number | bool | fn.#StringExpression
+	] |
 		fn.#ListExpression
 
 	// Contains the parameters for routing production traffic from your primary to
@@ -60,8 +76,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SingleHeaderConfig: close({
-	Header!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Value!:  strings.MaxRunes(1783) & strings.MinRunes(1) | fn.#StringExpression
+	Header!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(1783) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1783) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

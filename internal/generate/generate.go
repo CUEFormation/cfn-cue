@@ -25,6 +25,9 @@ type Options struct {
 	// NoIAMPolicies keeps provider schemas for IAM policy properties
 	// instead of substituting iam package profiles.
 	NoIAMPolicies bool
+	// NoCfnLintRules omits the single-resource service rules taken from
+	// cfn-lint's extension schemas (see extensions.go).
+	NoCfnLintRules bool
 }
 type SchemaInfo struct {
 	Type               string `json:"type"`
@@ -39,6 +42,7 @@ type Manifest struct {
 	LanguageExtensions bool                         `json:"languageExtensions"`
 	IncludeSAM         bool                         `json:"includeSAM"`
 	IAMPolicies        bool                         `json:"iamPolicies"`
+	CfnLintRules       bool                         `json:"cfnLintRules"`
 	Regions            map[string]map[string]string `json:"regions"`
 	Schemas            map[string]SchemaInfo        `json:"schemas"`
 	Diagnostics        []Diagnostic                 `json:"diagnostics"`
@@ -72,7 +76,7 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 	} else if !os.IsNotExist(e) {
 		return nil, e
 	}
-	m := &Manifest{Generator: "cfn-cue/v2", Source: source.Label, SourceSHA256: source.SHA256, Module: opt.Module, LanguageExtensions: opt.LanguageExtensions, IncludeSAM: opt.IncludeSAM, IAMPolicies: !opt.NoIAMPolicies, Regions: map[string]map[string]string{}, Schemas: map[string]SchemaInfo{}, Diagnostics: []Diagnostic{}}
+	m := &Manifest{Generator: "cfn-cue/v2", Source: source.Label, SourceSHA256: source.SHA256, Module: opt.Module, LanguageExtensions: opt.LanguageExtensions, IncludeSAM: opt.IncludeSAM, IAMPolicies: !opt.NoIAMPolicies, CfnLintRules: !opt.NoCfnLintRules, Regions: map[string]map[string]string{}, Schemas: map[string]SchemaInfo{}, Diagnostics: []Diagnostic{}}
 	m.ValidationNotes = []string{
 		"Each region has a full resource package and a separate types package. The types package checks template structure and regional type names, leaving resource Properties unconstrained.",
 		"The full region #Template selects each resource's schema by Type. Loading a complete region imports every resource package; -resources modules load faster.",
@@ -216,7 +220,7 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 		}
 		sum := sha256.Sum256(b)
 		m.Schemas[hash] = SchemaInfo{typ, hex.EncodeToString(sum[:]), len(asArray(root["required"])) > 0}
-		c := &converter{module: opt.Module, resource: typ, extensions: opt.LanguageExtensions, iam: !opt.NoIAMPolicies}
+		c := &converter{module: opt.Module, resource: typ, extensions: opt.LanguageExtensions, iam: !opt.NoIAMPolicies, cfnLintRules: !opt.NoCfnLintRules}
 		f, e := c.extract(root, false)
 		if e != nil {
 			return nil, fmt.Errorf("literal %s: %w", typ, e)
@@ -231,12 +235,21 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 		}
 		stripRootEmbed(f)
 		addImport(f, "base", opt.Module+"/template:template")
+		addImport(f, "structs", "struct")
+		if !imports(f, opt.Module+"/fn:fn") {
+			addImport(f, "fn", opt.Module+"/fn:fn")
+		}
 		propsRequired := len(asArray(root["required"])) > 0
 		if e = inlineProperties(f, func(properties ast.Expr) ast.Expr {
+			var resource *ast.StructLit
 			if typ == cfn.CustomResourceType {
-				return and(sel("base", "ResourceAttributes"), obj(field("Type", union(str(typ), &ast.UnaryExpr{Op: token.MAT, X: str(cfn.CustomResourcePattern)}), false), field("Properties", properties, false)))
+				resource = obj(field("Type", union(str(typ), &ast.UnaryExpr{Op: token.MAT, X: str(cfn.CustomResourcePattern)}), false), field("Properties", conditionalProperties(), false))
+			} else {
+				resource = obj(field("Type", str(typ), false), field("Properties", conditionalProperties(), !propsRequired))
 			}
-			return and(sel("base", "ResourceAttributes"), obj(field("Type", str(typ), false), field("Properties", properties, !propsRequired)))
+			// Keep Type first so a reader sees which resource this is.
+			resource.Elts = []ast.Decl{resource.Elts[0], &ast.LetClause{Ident: ast.NewIdent("properties"), Expr: properties}, resource.Elts[1]}
+			return and(sel("base", "ResourceAttributes"), resource)
 		}); e != nil {
 			return nil, fmt.Errorf("template %s: %w", typ, e)
 		}
@@ -314,6 +327,17 @@ func inlineProperties(f *ast.File, resource func(ast.Expr) ast.Expr) error {
 		return nil
 	}
 	return fmt.Errorf("extracted schema has no #Properties")
+}
+
+// conditionalProperties accepts the properties object, or Fn::If choosing
+// between two of them, as in {"Fn::If": [Condition, {...}, {Ref:
+// AWS::NoValue}]}. MinFields keeps an empty object, which the properties
+// alternative also accepts, from making the choice ambiguous.
+func conditionalProperties() ast.Expr {
+	branch := union(id("properties"), sel("fn", "NoValue"))
+	key := ast.NewList(&ast.UnaryExpr{Op: token.MAT, X: str("^Fn::If$")})
+	condition := ast.NewCall(id("close"), &ast.StructLit{Elts: []ast.Decl{&ast.Field{Label: key, Value: tuple(id("string"), branch, branch)}}})
+	return union(id("properties"), and(condition, ast.NewCall(ast.NewSel(id("structs"), "MinFields"), ast.NewLit(token.INT, "1"))))
 }
 
 func stripRootEmbed(f *ast.File) {

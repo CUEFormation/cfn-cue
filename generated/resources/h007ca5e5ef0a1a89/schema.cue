@@ -9,12 +9,14 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTSiteWise::AccessPolicy
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTSiteWise::AccessPolicy"
-	Properties!: close({
+	let properties = close({
 		// The identity for this access policy. Choose either a user or a group but not both.
 		AccessPolicyIdentity!:   #AccessPolicyIdentity
 		AccessPolicyPermission!: "ADMINISTRATOR" | "VIEWER" | fn.#StringExpression
@@ -23,6 +25,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// portal or project but not both.
 		AccessPolicyResource!: #AccessPolicyResource
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AccessPolicyIdentity: close({
@@ -40,19 +44,56 @@ fn.#ObjectExpression
 
 #IamRole: close({
 	arn?: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1600) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #IamUser: close({
 	arn?: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1600) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Portal: close({id?: strings.MaxRunes(36) & strings.MinRunes(36) | fn.#StringExpression}) | fn.#ObjectExpression
+#Portal: close({
+	id?: strings.MaxRunes(36) & strings.MinRunes(36) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(36) & strings.MinRunes(36) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
-#Project: close({id?: strings.MaxRunes(36) & strings.MinRunes(36) | fn.#StringExpression}) | fn.#ObjectExpression
+#Project: close({
+	id?: strings.MaxRunes(36) & strings.MinRunes(36) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(36) & strings.MinRunes(36) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
-#User: close({id?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression}) |
+#User: close({
+	id?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression

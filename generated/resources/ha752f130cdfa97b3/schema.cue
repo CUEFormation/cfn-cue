@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A key group.
@@ -14,15 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // cookies](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/PrivateContent.html).
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::KeyGroup"
-	Properties!: close({
+	let properties = close({
 		// The key group configuration.
 		KeyGroupConfig!: #KeyGroupConfig
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #KeyGroupConfig: close({
-	Comment?: string | fn.#StringExpression
-	Items!:   [...string | fn.#StringExpression] | fn.#ListExpression
-	Name!:    string | fn.#StringExpression
+	Comment?: string | number | bool | fn.#StringExpression
+	Items!:   [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Name!:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

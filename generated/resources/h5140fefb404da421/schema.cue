@@ -10,25 +10,34 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Backup::TieringConfiguration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Backup::TieringConfiguration"
-	Properties!: close({
-		BackupVaultName!:          string | fn.#StringExpression
+	let properties = close({
+		BackupVaultName!:          string | number | bool | fn.#StringExpression
 		ResourceSelection!:        [...#ResourceSelection] | fn.#ListExpression
-		TieringConfigurationName!: string | fn.#StringExpression
+		TieringConfigurationName!: string | number | bool | fn.#StringExpression
 		TieringConfigurationTags?: close({
 
-			{[=~"^.{1,128}$"]: string | fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^.{1,128}$"]: string | number | bool | fn.#StringExpression}
+		}) |
 		fn.#ObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ResourceSelection: close({
-	ResourceType!: string | fn.#StringExpression
-	Resources!:    [...string | fn.#StringExpression] | fn.#ListExpression
+	ResourceType!: string | number | bool | fn.#StringExpression
+	Resources!:    [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	TieringDownSettingsInDays!: int |
 		{
 			string &

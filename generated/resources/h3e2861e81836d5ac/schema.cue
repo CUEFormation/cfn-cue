@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CloudWatch::ResourceMetricsConfiguration.
@@ -17,19 +19,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // identified by the ARN of the resource being monitored.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudWatch::ResourceMetricsConfiguration"
-	Properties!: close({
+	let properties = close({
 		MetricSelections?: list.MaxItems(1) & list.MinItems(1) & [...#ResourceMetricSelection] | fn.#ListExpression
 		ResourceArn!: strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:[a-zA-Z0-9-]+:[a-zA-Z0-9-]+:[a-zA-Z0-9-]*:\\d{12}:.+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:[a-zA-Z0-9-]+:[a-zA-Z0-9-]+:[a-zA-Z0-9-]*:\\d{12}:.+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ResourceMetricSelection: close({
-	IncludeMetrics!: list.MaxItems(500) & list.MinItems(1) & [
-		...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	IncludeMetrics!: list.MaxItems(500) & list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression

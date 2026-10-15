@@ -10,34 +10,68 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Create and manage wireless gateways, including LoRa gateways.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTWireless::WirelessGateway"
-	Properties!: close({
-		Description?:          strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-		LastUplinkReceivedAt?: string | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		LastUplinkReceivedAt?: string | number | bool | fn.#StringExpression
 
 		// The combination of Package, Station and Model which represents the version of
 		// the LoRaWAN Wireless Gateway.
-		LoRaWAN!:   #LoRaWANGateway
-		Name?:      strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		LoRaWAN!: #LoRaWANGateway
+		Name?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?:      list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-		ThingArn?:  string | fn.#StringExpression
-		ThingName?: string | fn.#StringExpression
+		ThingArn?:  string | number | bool | fn.#StringExpression
+		ThingName?: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #LoRaWANGateway: close({
 	GatewayEui!: =~"^(([0-9A-Fa-f]{2}-){7}|([0-9A-Fa-f]{2}:){7}|([0-9A-Fa-f]{2}\\s){7}|([0-9A-Fa-f]{2}){7})([0-9A-Fa-f]{2})$" |
-		fn.#StringExpression
-	RfRegion!: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^(([0-9A-Fa-f]{2}-){7}|([0-9A-Fa-f]{2}:){7}|([0-9A-Fa-f]{2}\\s){7}|([0-9A-Fa-f]{2}){7})([0-9A-Fa-f]{2})$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
+	RfRegion!: strings.MaxRunes(64) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

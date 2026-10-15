@@ -10,19 +10,31 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::IdentityCenterConfiguration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::IdentityCenterConfiguration"
-	Properties!: close({
+	let properties = close({
 		InstanceArn!: strings.MaxRunes(1224) &
 		strings.MinRunes(10) &
 		=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1224) &
+			strings.MinRunes(10) &
+			=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Scopes?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-			...strings.MaxRunes(50) & strings.MinRunes(0) | fn.#StringExpression
-		] |
+		Scopes?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(50) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		UserBackgroundSessionsEnabled?: bool |
 			"true" |
@@ -33,4 +45,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"FALSE" |
 			fn.#BooleanExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

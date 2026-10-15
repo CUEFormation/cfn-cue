@@ -10,15 +10,27 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates and manages a multi-cloud connector for Amazon Inspector, enabling
 // vulnerability scanning of Azure resources.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::InspectorV2::Connector"
-	Properties!: close({
-		Description?: strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
-		Name!:        strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\p{L}\\p{N}_-]+$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(200) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\p{L}\\p{N}_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\p{L}\\p{N}_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The cloud provider for this connector.
 		Provider!: #CloudProvider
@@ -35,22 +47,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				AwsConfigConnectorArn!: strings.MaxRunes(512) &
 				strings.MinRunes(1) &
 				=~"arn:([^:]+):config:([^:]+):([^:]+):connector/([^/]+)/([^/]+)/([^/:\\s]+)" |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(512) &
+					strings.MinRunes(1) &
+					=~"arn:([^:]+):config:([^:]+):([^:]+):connector/([^/]+)/([^/]+)/([^/:\\s]+)" &
+					"\(self)"
+				} |
 				fn.#StringExpression
-				AzureRegions!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+				AzureRegions!: list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+					fn.#ListExpression
 				ScopeConfiguration!: close({
 					ContainerImageScanning?: close({
-						ScopeType!:   #ScopeType
-						ScopeValues?: list.MaxItems(100) & [...string | fn.#StringExpression] | fn.#ListExpression
+						ScopeType!: #ScopeType
+						ScopeValues?: list.MaxItems(100) & [...string | number | bool | fn.#StringExpression] |
+							fn.#ListExpression
 					}) |
 					fn.#ObjectExpression
 					ServerlessScanning?: close({
-						ScopeType!:   #ScopeType
-						ScopeValues?: list.MaxItems(100) & [...string | fn.#StringExpression] | fn.#ListExpression
+						ScopeType!: #ScopeType
+						ScopeValues?: list.MaxItems(100) & [...string | number | bool | fn.#StringExpression] |
+							fn.#ListExpression
 					}) |
 					fn.#ObjectExpression
 					VmScanning?: close({
-						ScopeType!:   #ScopeType
-						ScopeValues?: list.MaxItems(100) & [...string | fn.#StringExpression] | fn.#ListExpression
+						ScopeType!: #ScopeType
+						ScopeValues?: list.MaxItems(100) & [...string | number | bool | fn.#StringExpression] |
+							fn.#ListExpression
 					}) |
 					fn.#ObjectExpression
 				}) |
@@ -61,6 +84,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CloudProvider: "AZURE" | fn.#StringExpression
@@ -68,7 +93,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #ScopeType: "TENANT" | "SUBSCRIPTION" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _.:/=+\\-@]+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _.:/=+\\-@]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _.:/=+\\-@]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DLM::LifecyclePolicy
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DLM::LifecyclePolicy"
-	Properties?: close({
+	let properties = close({
 		CopyTags?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		CreateInterval?: int & >=1 |
 			{
@@ -40,12 +42,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		CrossRegionCopyTargets?: #CrossRegionCopyTargets
 		DefaultPolicy?:          "INSTANCE" | "VOLUME" | fn.#StringExpression
-		Description?: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$" | fn.#StringExpression
-		Exclusions?:  #Exclusions
-		ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		Description?: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Exclusions?: #Exclusions
+		ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(0) &
 		=~"^arn:aws(-[a-z]{1,3}){0,2}:iam::\\d+:role/" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(0) &
+			=~"^arn:aws(-[a-z]{1,3}){0,2}:iam::\\d+:role/" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ExtendDeletion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		PolicyDetails?:  #PolicyDetails
@@ -66,14 +81,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		State?: string | fn.#StringExpression
+		State?: string | number | bool | fn.#StringExpression
 		Tags?:  [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Action: close({
 	CrossRegionCopy!: list.MaxItems(3) & [...] & [...#CrossRegionCopyAction] | fn.#ListExpression
-	Name!:            strings.MaxRunes(120) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$" | fn.#StringExpression
+	Name!: strings.MaxRunes(120) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(120) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -83,6 +105,10 @@ fn.#ObjectExpression
 
 #CreateRule: close({
 	CronExpression?: strings.MaxRunes(106) & strings.MinRunes(17) & =~"^cron\\([^\\n]{11,100}\\)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(106) & strings.MinRunes(17) & =~"^cron\\([^\\n]{11,100}\\)$" & "\(self)"
+	} |
 	fn.#StringExpression
 	Interval?: int & >=1 |
 		{
@@ -102,9 +128,14 @@ fn.#ObjectExpression
 	IntervalUnit?: "HOURS" | fn.#StringExpression
 	Location?:     "CLOUD" | "LOCAL_ZONE" | "OUTPOST_LOCAL" | fn.#StringExpression
 	Scripts?:      list.MaxItems(1) & [...] & [...#Script] | fn.#ListExpression
-	Times?: list.MaxItems(1) & [...] & [
-		...strings.MaxRunes(5) & strings.MinRunes(5) & =~"^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" | fn.#StringExpression
-	] |
+	Times?: list.MaxItems(1) & [...] & [...strings.MaxRunes(5) &
+	strings.MinRunes(5) &
+	=~"^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(5) & strings.MinRunes(5) & =~"^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -112,7 +143,12 @@ fn.#ObjectExpression
 #CrossRegionCopyAction: close({
 	EncryptionConfiguration!: #EncryptionConfiguration
 	RetainRule?:              #CrossRegionCopyRetainRule
-	Target!: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[\\w:\\-\\/\\*]+$" | fn.#StringExpression
+	Target!: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[\\w:\\-\\/\\*]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[\\w:\\-\\/\\*]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -160,19 +196,41 @@ fn.#ObjectExpression
 	CmkArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^arn:aws(-[a-z]{1,3}){0,2}:kms:([a-z]+-){2,3}\\d:\\d+:key/" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^arn:aws(-[a-z]{1,3}){0,2}:kms:([a-z]+-){2,3}\\d:\\d+:key/" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	CopyTags?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DeprecateRule?: #CrossRegionCopyDeprecateRule
 	Encrypted!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RetainRule?:    #CrossRegionCopyRetainRule
-	Target?:        strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[\\w:\\-\\/\\*]+$" | fn.#StringExpression
-	TargetRegion?:  strings.MaxRunes(16) & strings.MinRunes(0) & =~"^([a-z]+-){2,3}\\d$" | fn.#StringExpression
+	Target?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[\\w:\\-\\/\\*]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[\\w:\\-\\/\\*]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TargetRegion?: strings.MaxRunes(16) & strings.MinRunes(0) & =~"^([a-z]+-){2,3}\\d$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(16) & strings.MinRunes(0) & =~"^([a-z]+-){2,3}\\d$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#CrossRegionCopyTarget: close(
-	{TargetRegion?: strings.MaxRunes(16) & strings.MinRunes(0) & =~"^([a-z]+-){2,3}\\d$" | fn.#StringExpression},
-) |
+#CrossRegionCopyTarget: close({
+	TargetRegion?: strings.MaxRunes(16) & strings.MinRunes(0) & =~"^([a-z]+-){2,3}\\d$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(16) & strings.MinRunes(0) & =~"^([a-z]+-){2,3}\\d$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #CrossRegionCopyTargets: list.MaxItems(3) & [...] & [...#CrossRegionCopyTarget] | fn.#ListExpression
@@ -217,17 +275,32 @@ fn.#ObjectExpression
 	CmkArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^arn:aws(-[a-z]{1,3}){0,2}:kms:([a-z]+-){2,3}\\d:\\d+:key/" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^arn:aws(-[a-z]{1,3}){0,2}:kms:([a-z]+-){2,3}\\d:\\d+:key/" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Encrypted!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #EventParameters: close({
-	DescriptionRegex?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-	EventType!:        "shareSnapshot" | fn.#StringExpression
-	SnapshotOwner!: list.MaxItems(50) & [...] & [
-		...strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	] |
+	DescriptionRegex?: strings.MaxRunes(1000) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	EventType!: "shareSnapshot" | fn.#StringExpression
+	SnapshotOwner!: list.MaxItems(50) & [...] & [...strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -238,7 +311,8 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ExcludeVolumeTypesList: list.MaxItems(6) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+#ExcludeVolumeTypesList: list.MaxItems(6) & [...] & [...string | number | bool | fn.#StringExpression] |
+	fn.#ListExpression
 
 #Exclusions: close({
 	ExcludeBootVolumes?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -248,13 +322,23 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #FastRestoreRule: close({
-	AvailabilityZoneIds?: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(16) & strings.MinRunes(0) & =~"^[a-z]{3,4}\\d-az\\d+$" | fn.#StringExpression
-	] |
+	AvailabilityZoneIds?: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(16) &
+	strings.MinRunes(0) &
+	=~"^[a-z]{3,4}\\d-az\\d+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(16) & strings.MinRunes(0) & =~"^[a-z]{3,4}\\d-az\\d+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	AvailabilityZones?: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(16) & strings.MinRunes(0) & =~"^([a-z]+-){2,3}\\d[a-z]$" | fn.#StringExpression
-	] |
+	AvailabilityZones?: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(16) &
+	strings.MinRunes(0) &
+	=~"^([a-z]+-){2,3}\\d[a-z]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(16) & strings.MinRunes(0) & =~"^([a-z]+-){2,3}\\d[a-z]$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	Count?: int & <=1000 & >=1 |
 		{
@@ -429,11 +513,16 @@ fn.#ObjectExpression
 	CrossRegionCopyRules?: list.MaxItems(3) & [...] & [...#CrossRegionCopyRule] | fn.#ListExpression
 	DeprecateRule?:        #DeprecateRule
 	FastRestoreRule?:      #FastRestoreRule
-	Name?:                 strings.MaxRunes(120) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$" | fn.#StringExpression
-	RetainRule?:           #RetainRule
-	ShareRules?:           list.MaxItems(1) & [...] & [...#ShareRule] | fn.#ListExpression
-	TagsToAdd?:            list.MaxItems(45) & [...] & [...#Tag] | fn.#ListExpression
-	VariableTags?:         list.MaxItems(45) & [...] & [...#Tag] | fn.#ListExpression
+	Name?: strings.MaxRunes(120) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(120) & strings.MinRunes(0) & =~"^[0-9A-Za-z _-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	RetainRule?:   #RetainRule
+	ShareRules?:   list.MaxItems(1) & [...] & [...#ShareRule] | fn.#ListExpression
+	TagsToAdd?:    list.MaxItems(45) & [...] & [...#Tag] | fn.#ListExpression
+	VariableTags?: list.MaxItems(45) & [...] & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -449,6 +538,13 @@ fn.#ObjectExpression
 	ExecutionHandler?: strings.MaxRunes(200) &
 	strings.MinRunes(0) &
 	=~"^([a-zA-Z0-9_\\-.]{3,128}|[a-zA-Z0-9_\\-.:/]{3,200}|[A-Z0-9_]+)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) &
+		strings.MinRunes(0) &
+		=~"^([a-zA-Z0-9_\\-.]{3,128}|[a-zA-Z0-9_\\-.:/]{3,200}|[A-Z0-9_]+)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	ExecutionHandlerService?: "AWS_SYSTEMS_MANAGER" | fn.#StringExpression
 	ExecutionTimeout?: int & <=120 & >=10 |
@@ -488,9 +584,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ShareRule: close({
-	TargetAccounts?: list.MinItems(1) & [
-		...strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	] |
+	TargetAccounts?: list.MinItems(1) & [...strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	UnshareInterval?: int & >=1 |
 		{
@@ -512,7 +611,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	Value!: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(500) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(500) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

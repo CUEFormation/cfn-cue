@@ -155,7 +155,11 @@ import (
 	"NO_OP"
 
 #S3SourceProperties: close({
-	BucketName!:   strings.MaxRunes(63) & strings.MinRunes(3) & =~"\\S+"
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"\\S+"
 	BucketPrefix?: strings.MaxRunes(512) & strings.MinRunes(0) & =~".*"
 })
 

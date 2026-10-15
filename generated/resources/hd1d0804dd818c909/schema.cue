@@ -9,26 +9,65 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS Datazone Environment Profile is pre-configured set of resources and
 // blueprints that provide reusable templates for creating environments.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataZone::EnvironmentProfile"
-	Properties!: close({
-		AwsAccountId!:                   =~"^\\d{12}$" | fn.#StringExpression
-		AwsAccountRegion!:               =~"^[a-z]{2}-[a-z]{4,10}-\\d$" | fn.#StringExpression
-		Description?:                    strings.MaxRunes(2048) | fn.#StringExpression
-		DomainIdentifier!:               =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-		EnvironmentBlueprintIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-		Name!:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
-		ProjectIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-		UserParameters?:    [...#EnvironmentParameter] | fn.#ListExpression
+	let properties = close({
+		AwsAccountId!: =~"^\\d{12}$" |
+		{
+			number | bool
+			_cfnString: =~"^\\d{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		AwsAccountRegion!: =~"^[a-z]{2}-[a-z]{4,10}-\\d$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-z]{2}-[a-z]{4,10}-\\d$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(2048) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		EnvironmentBlueprintIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ProjectIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		UserParameters?: [...#EnvironmentParameter] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #EnvironmentParameter: close({
-	Name?:  string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Name?:  string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

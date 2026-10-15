@@ -14,22 +14,36 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DevOpsAgent::PrivateConnection
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DevOpsAgent::PrivateConnection"
-	Properties!: close({
-		Certificate?: strings.MaxRunes(32768) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Certificate?: strings.MaxRunes(32768) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32768) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The connection configuration for the Private Connection.
 		ConnectionConfiguration!: #ConnectionConfiguration
-		Name!: strings.MaxRunes(30) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" | fn.#StringExpression
+		Name!: strings.MaxRunes(30) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(30) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ConnectionConfiguration: fn.#Object & {...} & matchN(1, [
+#ConnectionConfiguration: fn.#Object & matchN(1, [
 	close({SelfManaged!: #SelfManagedMode}), close({ServiceManaged!: #ServiceManagedMode}),
 ]) |
 fn.#ObjectExpression
@@ -38,13 +52,25 @@ fn.#ObjectExpression
 	ResourceConfigurationId!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ServiceManagedMode: close({
 	DnsResolution?: "PUBLIC" | "IN_VPC" | fn.#StringExpression
-	HostAddress!:   strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9.:\\-]+$" | fn.#StringExpression
+	HostAddress!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9.:\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9.:\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	IpAddressType?: "IPV4" | "IPV6" | "DUAL_STACK" | fn.#StringExpression
 	Ipv4AddressesPerEni?: int & <=62 & >=1 |
 		{
@@ -62,31 +88,67 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	PortRanges?: list.MaxItems(11) & list.MinItems(1) & [...=~"^((\\d{1,5}\\-\\d{1,5})|(\\d+))$" | fn.#StringExpression] |
-		fn.#ListExpression
-	SecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	PortRanges?: list.MaxItems(11) & list.MinItems(1) & [...=~"^((\\d{1,5}\\-\\d{1,5})|(\\d+))$" |
+	{
+		number | bool
+		_cfnString: =~"^((\\d{1,5}\\-\\d{1,5})|(\\d+))$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(20) &
+	strings.MinRunes(11) &
+	=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(20) &
 		strings.MinRunes(11) &
-		=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
-		fn.#StringExpression
-	] |
+		=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	SubnetIds?: list.MaxItems(20) & list.MinItems(1) & [
-		...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
-		fn.#StringExpression
-	] |
+	SubnetIds?: list.MaxItems(20) & list.MinItems(1) & [...strings.MaxRunes(24) &
+	strings.MinRunes(15) &
+	=~"^subnet-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(24) &
+		strings.MinRunes(15) &
+		=~"^subnet-(([0-9a-z]{8})|([0-9a-z]{17}))$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
 	strings.MaxRunes(50) &
 	strings.MinRunes(5) &
 	=~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(50) &
+		strings.MinRunes(5) &
+		=~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

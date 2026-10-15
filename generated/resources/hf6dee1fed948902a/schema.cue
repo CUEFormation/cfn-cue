@@ -10,33 +10,63 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::Comprehend::Flywheel resource creates an Amazon Comprehend Flywheel
 // that enables customer to train their model.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Comprehend::Flywheel"
-	Properties!: close({
+	let properties = close({
 		ActiveModelArn?: strings.MaxRunes(256) &
 		strings.MinRunes(0) &
 		=~"arn:aws(-[^:]+)?:comprehend:[a-zA-Z0-9-]*:[0-9]{12}:(document-classifier|entity-recognizer)/[a-zA-Z0-9](-*[a-zA-Z0-9])*(/version/[a-zA-Z0-9](-*[a-zA-Z0-9])*)?" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(0) &
+			=~"arn:aws(-[^:]+)?:comprehend:[a-zA-Z0-9-]*:[0-9]{12}:(document-classifier|entity-recognizer)/[a-zA-Z0-9](-*[a-zA-Z0-9])*(/version/[a-zA-Z0-9](-*[a-zA-Z0-9])*)?" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		DataAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		DataAccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		DataLakeS3Uri!: strings.MaxRunes(512) &
 		strings.MinRunes(0) &
 		=~"s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) &
+			strings.MinRunes(0) &
+			=~"s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		DataSecurityConfig?: #DataSecurityConfig
 		FlywheelName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		ModelType?:  "DOCUMENT_CLASSIFIER" | "ENTITY_RECOGNIZER" | fn.#StringExpression
 		Tags?:       list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		TaskConfig?: #TaskConfig
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DataSecurityConfig: close({
@@ -48,9 +78,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #DocumentClassificationConfig: close({
-	Labels?: list.MaxItems(1000) & list.UniqueItems() & [...] & [
-		...strings.MaxRunes(5000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
-	] |
+	Labels?: list.MaxItems(1000) & list.UniqueItems() & [...] & [...strings.MaxRunes(5000) &
+	strings.MinRunes(0) &
+	=~"^\\P{C}*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(5000) & strings.MinRunes(0) & =~"^\\P{C}*$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	Mode!: "MULTI_CLASS" | "MULTI_LABEL" | fn.#StringExpression
 }) |
@@ -62,14 +97,36 @@ fn.#ObjectExpression
 }) |
 	fn.#ObjectExpression
 
-#EntityTypesListItem: close({Type!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression}) |
+#EntityTypesListItem: close({
+	Type!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
-#KmsKeyId: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^\\p{ASCII}+$" | fn.#StringExpression
+#KmsKeyId: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^\\p{ASCII}+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^\\p{ASCII}+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -81,17 +138,33 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VpcConfig: close({
-	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(1) &
+	=~"[-0-9a-zA-Z]+" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(32) &
 		strings.MinRunes(1) &
-		=~"[-0-9a-zA-Z]+" |
-		fn.#StringExpression
-	] |
+		=~"[-0-9a-zA-Z]+" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Subnets!: list.MaxItems(16) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(32) & strings.MinRunes(1) & =~"[-0-9a-zA-Z]+" | fn.#StringExpression
-	] |
+	Subnets!: list.MaxItems(16) & list.MinItems(1) & list.UniqueItems() & [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(1) &
+	=~"[-0-9a-zA-Z]+" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(1) &
+		=~"[-0-9a-zA-Z]+" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression

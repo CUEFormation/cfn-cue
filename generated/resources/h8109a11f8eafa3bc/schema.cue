@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::LakeFormation::PrincipalPermissions`` resource represents the
@@ -21,7 +23,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // LFlong``RevokePermissions`` API operation.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::LakeFormation::PrincipalPermissions"
-	Properties!: close({
+	let properties = close({
 		// The identifier for the GLUDC. By default, the account ID. The GLUDC is the
 		// persistent metadata store. It contains database definitions, table
 		// definitions, and other control information to manage your Lake Formation
@@ -40,11 +42,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// The resource to be granted or revoked permissions.
 		Resource!: _#defs."/$defs/Properties/definitions/Resource"
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CatalogIdString: strings.MaxRunes(255) & strings.MinRunes(12) | fn.#StringExpression
+#CatalogIdString: strings.MaxRunes(255) & strings.MinRunes(12) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(12) & "\(self)"
+} |
+fn.#StringExpression
 
-#CatalogResource: string | fn.#StringExpression
+#CatalogResource: string | number | bool | fn.#StringExpression
 
 #ColumnNames: [...#NameString] | fn.#ListExpression
 
@@ -75,7 +84,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DataLakePrincipalString: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#DataLakePrincipalString: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #DataLocationResource: close({
 	// The identifier for the GLUDC where the location is registered with LFlong.
@@ -106,7 +120,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#LFTagKey: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#LFTagKey: strings.MaxRunes(128) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #LFTagKeyResource: close({
 	// The identifier for the GLUDC where the location is registered with GLUDC.
@@ -134,9 +153,19 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#LFTagValue: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+#LFTagValue: strings.MaxRunes(256) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression
 
-#NameString: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#NameString: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #Permission: "ALL" |
 	"SELECT" |
@@ -155,7 +184,7 @@ fn.#ObjectExpression
 
 #PermissionList: [...#Permission] | fn.#ListExpression
 
-#ResourceArnString: string | fn.#StringExpression
+#ResourceArnString: string | number | bool | fn.#StringExpression
 
 #ResourceType: "DATABASE" | "TABLE" | fn.#StringExpression
 
@@ -177,7 +206,7 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#TableWildcard: fn.#Object & {...} | string | fn.#StringObjectExpression
+#TableWildcard: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 #TableWithColumnsResource: close({
 	// The identifier for the GLUDC where the location is registered with LFlong.

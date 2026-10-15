@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a new Scheduled Query that allows you to define a Logs Insights query
@@ -21,18 +23,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // results.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Logs::ScheduledQuery"
-	Properties!: close({
-		Description?:              strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		DestinationConfiguration?: #DestinationConfiguration
-		ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
+	let properties = close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
 		fn.#StringExpression
-		LogGroupIdentifiers?: list.MaxItems(50) & list.MinItems(1) & [
-			...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[\\w#+=/:,.@-]*$" | fn.#StringExpression
-		] |
+		DestinationConfiguration?: #DestinationConfiguration
+		ExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		LogGroupIdentifiers?: list.MaxItems(50) & list.MinItems(1) & [...strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^[\\w#+=/:,.@-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[\\w#+=/:,.@-]*$" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		Name!:          strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-/.#]+$" | fn.#StringExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-/.#]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-/.#]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		QueryLanguage!: "CWLI" | "PPL" | "SQL" | fn.#StringExpression
-		QueryString!:   strings.MaxRunes(10000) & strings.MinRunes(0) | fn.#StringExpression
+		QueryString!: strings.MaxRunes(10000) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(10000) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		ScheduleEndTime?: >=0 |
 			{
 				string &
@@ -52,7 +78,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		ScheduleExpression!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		ScheduleExpression!: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		ScheduleStartTime?: >=0 |
 			{
 				string &
@@ -90,13 +121,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		State?: #ScheduledQueryState
 		Tags?: [...close({
-			Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-			Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+			Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-		Timezone?: strings.MinRunes(1) | fn.#StringExpression
+		Timezone?: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DestinationConfiguration: close({S3Configuration?: #S3Configuration}) | fn.#ObjectExpression
@@ -105,8 +153,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	DestinationIdentifier!: strings.MaxRunes(1024) &
 	strings.MinRunes(0) &
 	=~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) &
+		strings.MinRunes(0) &
+		=~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MinRunes(1) & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

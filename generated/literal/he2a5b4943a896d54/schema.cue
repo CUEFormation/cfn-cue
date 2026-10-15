@@ -259,7 +259,11 @@ import (
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^[a-zA-Z0-9:_/+=,@.#-]+$"
-	S3Bucket!:      strings.MaxRunes(62) & strings.MinRunes(1) & =~"^[a-zA-Z0-9.-]+$"
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(62) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9.-]+$"
 	S3Prefix?:      strings.MaxRunes(62) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!_.*'()/-]+$"
 	S3SseKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9-:/]+$"
 })

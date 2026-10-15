@@ -10,33 +10,81 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::QuickSight::Agent
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QuickSight::Agent"
-	Properties!: close({
-		ActionConnectors?:  list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-		AgentId!:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_.+]+$" | fn.#StringExpression
-		AgentLifecycle?:    "PREVIEW" | "PUBLISHED" | fn.#StringExpression
-		AwsAccountId!:      strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+	let properties = close({
+		ActionConnectors?: list.MaxItems(10) & [...] & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
+		AgentId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_.+]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_.+]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		AgentLifecycle?: "PREVIEW" | "PUBLISHED" | fn.#StringExpression
+		AwsAccountId!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		CustomPromptInput?: #CustomPromptInput
-		Description?:       strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
-		IconId?:            strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-		Name!:              strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-		Spaces?:            list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-		StarterPrompts?: list.MaxItems(3) & [...] & [
-			...strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-		] |
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		IconId?: strings.MaxRunes(200) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(50) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Spaces?: list.MaxItems(10) & [...] & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		StarterPrompts?: list.MaxItems(3) & [...] & [...strings.MaxRunes(100) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		Tags?:           list.MaxItems(200) & [...#AgentTag] | fn.#ListExpression
-		WelcomeMessage?: strings.MaxRunes(300) & strings.MinRunes(0) | fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...#AgentTag] | fn.#ListExpression
+		WelcomeMessage?: strings.MaxRunes(300) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(300) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AgentTag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -52,17 +100,57 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CustomPromptInputParameters: close({
-	CustomInstructions?: strings.MaxRunes(350000) & strings.MinRunes(5) | fn.#StringExpression
-	Identity?:           strings.MaxRunes(350000) & strings.MinRunes(5) | fn.#StringExpression
-	OutputStyle?:        strings.MaxRunes(350000) & strings.MinRunes(5) | fn.#StringExpression
-	ResponseLength?:     strings.MaxRunes(350000) & strings.MinRunes(5) | fn.#StringExpression
-	Tone?:               strings.MaxRunes(350000) & strings.MinRunes(5) | fn.#StringExpression
+	CustomInstructions?: strings.MaxRunes(350000) & strings.MinRunes(5) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(350000) & strings.MinRunes(5) & "\(self)"
+	} |
+	fn.#StringExpression
+	Identity?: strings.MaxRunes(350000) & strings.MinRunes(5) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(350000) & strings.MinRunes(5) & "\(self)"
+	} |
+	fn.#StringExpression
+	OutputStyle?: strings.MaxRunes(350000) & strings.MinRunes(5) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(350000) & strings.MinRunes(5) & "\(self)"
+	} |
+	fn.#StringExpression
+	ResponseLength?: strings.MaxRunes(350000) & strings.MinRunes(5) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(350000) & strings.MinRunes(5) & "\(self)"
+	} |
+	fn.#StringExpression
+	Tone?: strings.MaxRunes(350000) & strings.MinRunes(5) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(350000) & strings.MinRunes(5) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CustomPromptProfile: close({
-	ModelProfileId!:  strings.MaxRunes(36) | fn.#StringExpression
-	QbsAwsAccountId!: strings.MaxRunes(15) & =~"^QBS[0-9]{12}$" | fn.#StringExpression
-	SubscriptionId!:  strings.MaxRunes(32) | fn.#StringExpression
+	ModelProfileId!: strings.MaxRunes(36) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(36) & "\(self)"
+	} |
+	fn.#StringExpression
+	QbsAwsAccountId!: strings.MaxRunes(15) & =~"^QBS[0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(15) & =~"^QBS[0-9]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SubscriptionId!: strings.MaxRunes(32) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

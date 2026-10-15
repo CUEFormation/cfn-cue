@@ -10,7 +10,46 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElasticLoadBalancingV2::TargetGroup
-#Properties: close({
+#Properties: matchN(3, [matchIf({
+	HealthCheckProtocol!: string
+	...
+}, matchIf({
+	HealthCheckProtocol!: "HTTP" | "HTTPS"
+	...
+}, _, {
+	Matcher?:         error("disallowed")
+	ProtocolVersion?: error("disallowed")
+	...
+}), _), matchIf({
+	Protocol!: string
+	...
+}, matchIf({
+	Port?:     int | string
+	Protocol!: "GENEVE"
+	...
+}, {
+	Port?: ==6081 | "6081"
+	...
+}, _), _), matchIf({
+	TargetType!: string
+	...
+}, matchIf({
+	TargetType!: "lambda"
+	...
+}, {
+	HealthCheckPort?:     error("disallowed")
+	HealthCheckProtocol?: error("disallowed")
+	Port?:                error("disallowed")
+	Protocol?:            error("disallowed")
+	ProtocolVersion?:     error("disallowed")
+	VpcId?:               error("disallowed")
+	...
+}, {
+	Port!:     _
+	Protocol!: _
+	VpcId!:    _
+	...
+}), _)]) & close({
 	// Indicates whether health checks are enabled. If the target type is lambda,
 	// health checks are disabled by default but can be enabled. If the target type
 	// is instance, ip, or alb, health checks are always enabled and cannot be

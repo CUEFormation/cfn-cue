@@ -14,13 +14,15 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::Rekognition::StreamProcessor type is used to create an Amazon
 // Rekognition StreamProcessor that you can use to analyze streaming videos.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Rekognition::StreamProcessor"
-	Properties!: matchN(1, [{
+	let properties = matchN(1, [{
 		ConnectedHomeSettings!: _
 		S3Destination!:         _
 		NotificationChannel!:   _
@@ -36,19 +38,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		FaceSearchSettings?:           #FaceSearchSettings
 		KinesisDataStream?:            #KinesisDataStream
 		KinesisVideoStream!:           #KinesisVideoStream
-		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+				=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+				=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name?:                strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.\\-]+" | fn.#StringExpression
-		NotificationChannel?: #NotificationChannel
+		Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.\\-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.\\-]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		NotificationChannel?:      #NotificationChannel
 		PolygonRegionsOfInterest?: list.UniqueItems() & [...] & [...#Polygon] | fn.#ListExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		=~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			=~"arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		S3Destination?: #S3Destination
 		Tags?:          list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #BoundingBox: close({
@@ -166,7 +192,12 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #FaceSearchSettings: close({
-	CollectionId!: strings.MaxRunes(255) & =~"\\A[a-zA-Z0-9_\\.\\-]+$" | fn.#StringExpression
+	CollectionId!: strings.MaxRunes(255) & =~"\\A[a-zA-Z0-9_\\.\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & =~"\\A[a-zA-Z0-9_\\.\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	FaceMatchThreshold?: <=100 & >=0 |
 		{
 			string &
@@ -190,20 +221,43 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#KinesisDataStream: close(
-	{Arn!: strings.MaxRunes(2048) & =~"(^arn:([a-z\\d-]+):kinesis:([a-z\\d-]+):\\d{12}:.+$)" | fn.#StringExpression},
-) |
-fn.#ObjectExpression
-
-#KinesisVideoStream: close({
-	Arn!: strings.MaxRunes(2048) & =~"(^arn:([a-z\\d-]+):kinesisvideo:([a-z\\d-]+):\\d{12}:.+$)" | fn.#StringExpression
+#KinesisDataStream: close({
+	Arn!: strings.MaxRunes(2048) & =~"(^arn:([a-z\\d-]+):kinesis:([a-z\\d-]+):\\d{12}:.+$)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"(^arn:([a-z\\d-]+):kinesis:([a-z\\d-]+):\\d{12}:.+$)" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Labels: list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression] |
+#KinesisVideoStream: close({
+	Arn!: strings.MaxRunes(2048) & =~"(^arn:([a-z\\d-]+):kinesisvideo:([a-z\\d-]+):\\d{12}:.+$)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"(^arn:([a-z\\d-]+):kinesisvideo:([a-z\\d-]+):\\d{12}:.+$)" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
+
+#Labels: list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(128) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression] |
 fn.#ListExpression
 
-#NotificationChannel: close({Arn!: strings.MaxRunes(2048) | fn.#StringExpression}) | fn.#ObjectExpression
+#NotificationChannel: close({
+	Arn!: strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #Point: close({
 	X!: number |
@@ -250,13 +304,38 @@ fn.#ObjectExpression
 #Polygon: list.MinItems(3) & list.UniqueItems() & [...#Point] | fn.#ListExpression
 
 #S3Destination: close({
-	BucketName!:      strings.MaxRunes(63) | fn.#StringExpression
-	ObjectKeyPrefix?: strings.MaxRunes(256) | fn.#StringExpression
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(63) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	ObjectKeyPrefix?: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\A[a-zA-Z0-9+\\-=\\._\\:\\/@]+$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\A[a-zA-Z0-9+\\-=\\._\\:\\/@]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\A[a-zA-Z0-9+\\-=\\._\\:\\/@]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -6,15 +6,19 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpsWorks::UserProfile
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::OpsWorks::UserProfile"
-	Properties!: close({
+	let properties = close({
 		AllowSelfManagement?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		IamUserArn!:          string | fn.#StringExpression
-		SshPublicKey?:        string | fn.#StringExpression
-		SshUsername?:         string | fn.#StringExpression
+		IamUserArn!:          string | number | bool | fn.#StringExpression
+		SshPublicKey?:        string | number | bool | fn.#StringExpression
+		SshUsername?:         string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

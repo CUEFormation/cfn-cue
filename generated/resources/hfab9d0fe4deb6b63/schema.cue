@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::DataSource Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Bedrock::DataSource"
-	Properties!: close({
+	let properties = close({
 		DataDeletionPolicy?: #DataDeletionPolicy
 		DataSourceConfiguration!: close({
 			ConfluenceConfiguration?:                    #ConfluenceDataSourceConfiguration
@@ -34,7 +36,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					ExclusionFilters?: #FilterList
 					InclusionFilters?: #FilterList
 					Scope?:            #WebScopeType
-					UserAgent?:        strings.MaxRunes(40) & strings.MinRunes(15) | fn.#StringExpression
+					UserAgent?: strings.MaxRunes(40) & strings.MinRunes(15) |
+					{
+						number | bool
+						_cfnString: strings.MaxRunes(40) & strings.MinRunes(15) & "\(self)"
+					} |
+					fn.#StringExpression
 				}) |
 				fn.#ObjectExpression
 				SourceConfiguration!: #WebSourceConfiguration
@@ -42,12 +49,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-		Description?:                       strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-		KnowledgeBaseId!:                   =~"^[0-9a-zA-Z]{10}$" | fn.#StringExpression
-		Name!:                              =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		KnowledgeBaseId!: =~"^[0-9a-zA-Z]{10}$" |
+		{
+			number | bool
+			_cfnString: =~"^[0-9a-zA-Z]{10}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: =~"^([0-9a-zA-Z][_-]?){1,100}$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-zA-Z][_-]?){1,100}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ServerSideEncryptionConfiguration?: #ServerSideEncryptionConfiguration
 		VectorIngestionConfiguration?:      #VectorIngestionConfiguration
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AudioExtractionConfiguration: close({AudioExtractionStatus!: #EnabledOrDisabledState}) | fn.#ObjectExpression
@@ -88,9 +112,19 @@ fn.#ObjectExpression
 #ConfluenceSourceConfiguration: close({
 	AuthType!: "BASIC" | "OAUTH2_CLIENT_CREDENTIALS" | fn.#StringExpression
 	CredentialsSecretArn!: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	HostType!: "SAAS" | fn.#StringExpression
-	HostUrl!:  strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[A-Za-z0-9][^\\s]*$" | fn.#StringExpression
+	HostUrl!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[A-Za-z0-9][^\\s]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[A-Za-z0-9][^\\s]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -183,7 +217,12 @@ fn.#ObjectExpression
 
 #EnrichmentStrategyMethod: "CHUNK_ENTITY_EXTRACTION" | fn.#StringExpression
 
-#FilterList: list.MaxItems(25) & list.MinItems(1) & [...strings.MaxRunes(1000) | fn.#StringExpression] |
+#FilterList: list.MaxItems(25) & list.MinItems(1) & [...strings.MaxRunes(1000) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000) & "\(self)"
+} |
+fn.#StringExpression] |
 fn.#ListExpression
 
 #FixedSizeChunkingConfiguration: close({
@@ -284,6 +323,13 @@ fn.#ObjectExpression
 #ModelArn: strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^(arn:aws(-cn|-us-gov|-eusc|-iso(-[b-f])?)?:(bedrock):[a-z0-9-]{1,20}:([0-9]{12})?:([a-z-]+/)?)?([a-zA-Z0-9.-]{1,63}){0,2}(([:][a-z0-9-]{1,63}){0,2})?(/[a-z0-9]{1,12})?$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^(arn:aws(-cn|-us-gov|-eusc|-iso(-[b-f])?)?:(bedrock):[a-z0-9-]{1,20}:([0-9]{12})?:([a-z-]+/)?)?([a-zA-Z0-9.-]{1,63}){0,2}(([:][a-z0-9-]{1,63}){0,2})?(/[a-z0-9]{1,12})?$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #MonthlySchedule: close({DayOfMonth!: #DayOfMonth}) | fn.#ObjectExpression
@@ -297,7 +343,14 @@ fn.#ObjectExpression
 
 #ParsingModality: "MULTIMODAL" | fn.#StringExpression
 
-#ParsingPrompt: close({ParsingPromptText!: strings.MaxRunes(10000) & strings.MinRunes(1) | fn.#StringExpression}) |
+#ParsingPrompt: close({
+	ParsingPromptText!: strings.MaxRunes(10000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #ParsingStrategy: "BEDROCK_FOUNDATION_MODEL" |
@@ -309,7 +362,12 @@ fn.#ObjectExpression
 #PatternObjectFilter: close({
 	ExclusionFilters?: #FilterList
 	InclusionFilters?: #FilterList
-	ObjectType!:       strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+	ObjectType!: strings.MaxRunes(50) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -321,16 +379,38 @@ fn.#ObjectExpression
 	BucketArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-cn|-us-gov|-eusc|-iso(-[b-f])?)?:s3:::[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-cn|-us-gov|-eusc|-iso(-[b-f])?)?:s3:::[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	BucketOwnerAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-	InclusionPrefixes?: list.MaxItems(1) & list.MinItems(1) & [
-		...strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	BucketOwnerAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	InclusionPrefixes?: list.MaxItems(1) & list.MinItems(1) & [...strings.MaxRunes(300) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(300) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#S3Location: close({URI!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^s3://.{1,128}$" | fn.#StringExpression}) |
+#S3Location: close({
+	URI!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^s3://.{1,128}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^s3://.{1,128}$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #SalesforceCrawlerConfiguration: close({FilterConfiguration?: #CrawlFilterConfiguration}) | fn.#ObjectExpression
@@ -344,12 +424,30 @@ fn.#ObjectExpression
 #SalesforceSourceConfiguration: close({
 	AuthType!: "OAUTH2_CLIENT_CREDENTIALS" | fn.#StringExpression
 	CredentialsSecretArn!: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$" |
-		fn.#StringExpression
-	HostUrl!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[A-Za-z0-9][^\\s]*$" | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
+	HostUrl!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[A-Za-z0-9][^\\s]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[A-Za-z0-9][^\\s]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#SeedUrl: close({Url!: =~"^https?://[A-Za-z0-9][^\\s]*$" | fn.#StringExpression}) | fn.#ObjectExpression
+#SeedUrl: close({
+	Url!: =~"^https?://[A-Za-z0-9][^\\s]*$" |
+	{
+		number | bool
+		_cfnString: =~"^https?://[A-Za-z0-9][^\\s]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #SeedUrls: list.MaxItems(100) & list.MinItems(1) & [...#SeedUrl] | fn.#ListExpression
 
@@ -405,10 +503,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ServerSideEncryptionConfiguration: close({
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-cn|-us-gov|-eusc|-iso(-[b-f])?)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-cn|-us-gov|-eusc|-iso(-[b-f])?)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -424,12 +530,32 @@ fn.#ObjectExpression
 #SharePointSourceConfiguration: close({
 	AuthType!: "OAUTH2_CLIENT_CREDENTIALS" | "OAUTH2_SHAREPOINT_APP_ONLY_CLIENT_CREDENTIALS" | fn.#StringExpression
 	CredentialsSecretArn!: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$" |
-		fn.#StringExpression
-	Domain!:   strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
+	Domain!: strings.MaxRunes(50) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	HostType!: "ONLINE" | fn.#StringExpression
-	SiteUrls!: list.MaxItems(100) & list.MinItems(1) & [...=~"^https://[A-Za-z0-9][^\\s]*$" | fn.#StringExpression] |
-		fn.#ListExpression
-	TenantId?: =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" | fn.#StringExpression
+	SiteUrls!: list.MaxItems(100) & list.MinItems(1) & [...=~"^https://[A-Za-z0-9][^\\s]*$" |
+	{
+		number | bool
+		_cfnString: =~"^https://[A-Za-z0-9][^\\s]*$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	TenantId?: =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -463,10 +589,18 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #TransformationLambdaConfiguration: close({
-	LambdaArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	LambdaArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:[a-z]{2}(-gov)?-[a-z]+-\\d{1}:\\d{12}:function:[a-zA-Z0-9-_\\.]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^arn:(aws[a-zA-Z-]*)?:lambda:[a-z]{2}(-gov)?-[a-z]+-\\d{1}:\\d{12}:function:[a-zA-Z0-9-_\\.]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

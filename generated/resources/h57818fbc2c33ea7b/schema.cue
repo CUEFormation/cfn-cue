@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A storage lake of event data against which you can run complex SQL-based
@@ -22,27 +24,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // depending on the selected BillingMode.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudTrail::EventDataStore"
-	Properties?: close({
+	let properties = close({
 		AdvancedEventSelectors?: list.UniqueItems() & [...#AdvancedEventSelector] | fn.#ListExpression
 		BillingMode?:            "EXTENDABLE_RETENTION_PRICING" | "FIXED_RETENTION_PRICING" | fn.#StringExpression
 		ContextKeySelectors?: list.MaxItems(2) & list.UniqueItems() & [...] & [...#ContextKeySelector] |
 			fn.#ListExpression
 		FederationEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		FederationRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		FederationRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		IngestionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		InsightSelectors?: list.UniqueItems() & [...#InsightSelector] | fn.#ListExpression
 		InsightsDestination?: strings.MaxRunes(256) & strings.MinRunes(3) & =~"^[a-zA-Z0-9._/\\-:]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(3) & =~"^[a-zA-Z0-9._/\\-:]+$" & "\(self)"
+		} |
 		fn.#StringExpression
-		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string) &
+		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 		strings.MaxRunes(350) &
 		strings.MinRunes(1) &
 		=~"^[a-zA-Z0-9._/\\-:]+$" |
+		{
+			number | bool
+			_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+				=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+				=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+			strings.MaxRunes(350) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z0-9._/\\-:]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		MaxEventSize?:       "Standard" | "Large" | fn.#StringExpression
 		MultiRegionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Name?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9._\\-]+$" | fn.#StringExpression
+		Name?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9._\\-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9._\\-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		OrganizationEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		RetentionPeriod?: int & <=3653 & >=7 |
 			{
@@ -72,47 +98,82 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"FALSE" |
 			fn.#BooleanExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AdvancedEventSelector: close({
 	FieldSelectors!: list.MinItems(1) & list.UniqueItems() & [...#AdvancedFieldSelector] | fn.#ListExpression
-	Name?:           strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+	Name?: strings.MaxRunes(1000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AdvancedFieldSelector: close({
-	EndsWith?: list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" | fn.#StringExpression
-	] |
+	EndsWith?: list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Equals?: list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" | fn.#StringExpression
-	] |
+	Equals?: list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Field!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"([\\w|\\d|\\.|_]+)" | fn.#StringExpression
-	NotEndsWith?: list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" | fn.#StringExpression
-	] |
+	Field!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"([\\w|\\d|\\.|_]+)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"([\\w|\\d|\\.|_]+)" & "\(self)"
+	} |
+	fn.#StringExpression
+	NotEndsWith?: list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	NotEquals?: list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" | fn.#StringExpression
-	] |
+	NotEquals?: list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	NotStartsWith?: list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" | fn.#StringExpression
-	] |
+	NotStartsWith?: list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	StartsWith?: list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" | fn.#StringExpression
-	] |
+	StartsWith?: list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #ContextKeySelector: close({
-	Equals!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"(.+)" | fn.#StringExpression
-	] |
+	Equals!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(128) &
+	strings.MinRunes(1) &
+	=~"(.+)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"(.+)" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	Type!: "RequestContext" | "TagContext" | fn.#StringExpression
 }) |
@@ -122,7 +183,7 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

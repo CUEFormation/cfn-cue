@@ -14,13 +14,15 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MWAA::Environment
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MWAA::Environment"
-	Properties!: close({
-		AirflowConfigurationOptions?: fn.#Object & {...} | string | fn.#StringObjectExpression
+	let properties = close({
+		AirflowConfigurationOptions?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		AirflowVersion?:              #AirflowVersion
 		DagS3Path?:                   #RelativePath
 		EndpointManagement?:          #EndpointManagement
@@ -69,30 +71,62 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		SourceBucketArn?:              #S3BucketArn
 		StartupScriptS3ObjectVersion?: #S3ObjectVersion
 		StartupScriptS3Path?:          #RelativePath
-		Tags?:                         fn.#Object & {...} | string | fn.#StringObjectExpression
+		Tags?:                         fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		WebserverAccessMode?:          #WebserverAccessMode
 		WeeklyMaintenanceWindowStart?: #WeeklyMaintenanceWindowStart
 		WorkerReplacementStrategy?:    #WorkerReplacementStrategy
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AirflowVersion: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[0-9a-z.]+$" | fn.#StringExpression
+#AirflowVersion: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[0-9a-z.]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[0-9a-z.]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #EndpointManagement: "CUSTOMER" | "SERVICE" | fn.#StringExpression
 
-#EnvironmentClass: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+#EnvironmentClass: strings.MaxRunes(1024) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#EnvironmentName: strings.MaxRunes(80) & strings.MinRunes(1) & =~"^[a-zA-Z][0-9a-zA-Z\\-_]*$" | fn.#StringExpression
+#EnvironmentName: strings.MaxRunes(80) & strings.MinRunes(1) & =~"^[a-zA-Z][0-9a-zA-Z\\-_]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(80) & strings.MinRunes(1) & =~"^[a-zA-Z][0-9a-zA-Z\\-_]*$" & "\(self)"
+} |
+fn.#StringExpression
 
-#ExecutionRoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#ExecutionRoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(1224) &
 strings.MinRunes(1) &
 =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(1224) &
+	strings.MinRunes(1) &
+	=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #KmsKey: strings.MaxRunes(1224) &
 strings.MinRunes(1) &
 =~"^(((arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:kms:[a-z]{2}-[a-z]+-\\d:\\d+:)?key\\/)?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|(arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):kms:[a-z]{2}-[a-z]+-\\d:\\d+:)?alias/.+)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1224) &
+	strings.MinRunes(1) &
+	=~"^(((arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:kms:[a-z]{2}-[a-z]+-\\d:\\d+:)?key\\/)?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|(arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):kms:[a-z]{2}-[a-z]+-\\d:\\d+:)?alias/.+)$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #LoggingEnabled: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -169,14 +203,31 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#RelativePath: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+#RelativePath: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" & "\(self)"
+} |
+fn.#StringExpression
 
 #S3BucketArn: strings.MaxRunes(1224) &
 strings.MinRunes(1) &
 =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:s3:::[a-z0-9.\\-]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1224) &
+	strings.MinRunes(1) &
+	=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:s3:::[a-z0-9.\\-]+$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#S3ObjectVersion: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+#S3ObjectVersion: strings.MaxRunes(1024) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression
 
 #Schedulers: int & <=5 & >=1 |
 	{
@@ -195,19 +246,39 @@ fn.#StringExpression
 	} |
 	fn.#NumberExpression
 
-#SecurityGroupId: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#SecurityGroupId: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 strings.MaxRunes(1024) &
 strings.MinRunes(1) &
 =~"^sg-[a-zA-Z0-9\\-._]+$" |
+{
+	number | bool
+	_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(1) &
+	=~"^sg-[a-zA-Z0-9\\-._]+$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#SubnetId: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^subnet-[a-zA-Z0-9\\-._]+$" | fn.#StringExpression
+#SubnetId: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^subnet-[a-zA-Z0-9\\-._]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^subnet-[a-zA-Z0-9\\-._]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #WebserverAccessMode: "PRIVATE_ONLY" | "PUBLIC_ONLY" | "PUBLIC_AND_PRIVATE" | fn.#StringExpression
 
 #WeeklyMaintenanceWindowStart: strings.MaxRunes(9) &
 strings.MinRunes(1) &
 =~"(MON|TUE|WED|THU|FRI|SAT|SUN):([01]\\d|2[0-3]):(00|30)" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(9) &
+	strings.MinRunes(1) &
+	=~"(MON|TUE|WED|THU|FRI|SAT|SUN):([01]\\d|2[0-3]):(00|30)" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #WorkerReplacementStrategy: "FORCED" | "GRACEFUL" | fn.#StringExpression

@@ -15,6 +15,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::SecurityHub::Insight resource represents the AWS Security Hub
@@ -22,14 +24,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // related findings.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityHub::Insight"
-	Properties!: close({
+	let properties = close({
 		Filters!: #AwsSecurityFindingFilters & (null | bool | number | string | [...] | struct.MaxFields(10)) |
 		fn.#ObjectExpression
 
 		// The grouping attribute for the insight's findings
 		GroupByAttribute!: #NonEmptyString
-		Name!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"\\S" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AwsSecurityFindingFilters: close({
@@ -182,7 +191,7 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ISO8601DateString: string | fn.#StringExpression
+#ISO8601DateString: string | number | bool | fn.#StringExpression
 
 #IpFilter: close({
 	// A finding's CIDR value.
@@ -203,7 +212,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#NonEmptyString: strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+#NonEmptyString: strings.MinRunes(1) & =~"\\S" |
+{
+	number | bool
+	_cfnString: strings.MinRunes(1) & =~"\\S" & "\(self)"
+} |
+fn.#StringExpression
 
 #NumberFilter: close({
 	Eq?: number |

@@ -15,16 +15,28 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::GatewayRule
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::GatewayRule"
-	Properties!: close({
-		Actions!:           list.MaxItems(2) & list.MinItems(1) & [...#Action] | fn.#ListExpression
-		Conditions?:        list.MaxItems(2) & [...] & [...#Condition] | fn.#ListExpression
-		Description?:       strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		GatewayIdentifier?: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" | fn.#StringExpression
+	let properties = close({
+		Actions!:    list.MaxItems(2) & list.MinItems(1) & [...#Action] | fn.#ListExpression
+		Conditions?: list.MaxItems(2) & [...] & [...#Condition] | fn.#ListExpression
+		Description?: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		GatewayIdentifier?: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Priority!: <=1000000 & >=1 |
 			{
 				string &
@@ -46,6 +58,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Action: matchN(1, [
@@ -63,23 +77,42 @@ fn.#ValueExpression
 
 #ConfigurationBundleReference: close({
 	BundleArn!: =~"^arn:aws[a-zA-Z-]*:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:configuration-bundle/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" |
-		fn.#StringExpression
-	BundleVersion!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:configuration-bundle/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
+	BundleVersion!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #IamPrincipal: close({
 	Arn!: strings.MaxRunes(2048) &
 	=~"^(arn:aws[a-zA-Z-]*:iam::(\\d{12}|\\*):(user|role)/[\\w+=,.@*?/-]+|arn:aws[a-zA-Z-]*:sts::(\\d{12}|\\*):assumed-role/[\\w+=,.@*?/-]+)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		=~"^(arn:aws[a-zA-Z-]*:iam::(\\d{12}|\\*):(user|role)/[\\w+=,.@*?/-]+|arn:aws[a-zA-Z-]*:sts::(\\d{12}|\\*):assumed-role/[\\w+=,.@*?/-]+)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Operator?: #PrincipalMatchOperator
 }) |
 fn.#ObjectExpression
 
 #MatchPaths: close({
-	AnyOf!: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(512) & =~"^/[\\w\\-.]+/\\*$" | fn.#StringExpression
-	] |
+	AnyOf!: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(512) & =~"^/[\\w\\-.]+/\\*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & =~"^/[\\w\\-.]+/\\*$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -98,19 +131,54 @@ fn.#ValueExpression
 
 #StaticOverride: close({
 	BundleArn!: =~"^arn:aws[a-zA-Z-]*:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:configuration-bundle/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" |
-		fn.#StringExpression
-	BundleVersion!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:configuration-bundle/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
+	BundleVersion!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#StaticRoute: close({TargetName!: =~"^([0-9a-zA-Z][-]?){1,100}$" | fn.#StringExpression}) | fn.#ObjectExpression
+#StaticRoute: close({
+	TargetName!: =~"^([0-9a-zA-Z][-]?){1,100}$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-9a-zA-Z][-]?){1,100}$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #TargetTrafficSplitEntry: close({
-	Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	Metadata?:    #TrafficSplitMetadataMap
-	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9-]{0,62}[a-zA-Z0-9])?$" |
+	Description?: strings.MaxRunes(200) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+	} |
 	fn.#StringExpression
-	TargetName!: =~"^([0-9a-zA-Z][-]?){1,100}$" | fn.#StringExpression
+	Metadata?: #TrafficSplitMetadataMap
+	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9-]{0,62}[a-zA-Z0-9])?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9]([a-zA-Z0-9-]{0,62}[a-zA-Z0-9])?$" &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	TargetName!: =~"^([0-9a-zA-Z][-]?){1,100}$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-9a-zA-Z][-]?){1,100}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Weight!: <=99 & >=1 |
 		{
 			string &
@@ -136,9 +204,21 @@ fn.#ObjectExpression
 
 #TrafficSplitEntry: close({
 	ConfigurationBundle!: #ConfigurationBundleReference
-	Description?:         strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	Metadata?:            #TrafficSplitMetadataMap
+	Description?: strings.MaxRunes(200) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Metadata?: #TrafficSplitMetadataMap
 	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9-]{0,62}[a-zA-Z0-9])?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9]([a-zA-Z0-9-]{0,62}[a-zA-Z0-9])?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Weight!: <=99 & >=1 |
 		{
@@ -165,7 +245,19 @@ fn.#ObjectExpression
 
 #TrafficSplitMetadataMap: struct.MaxFields(25) & close({
 
-	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}}) |
+	{
+		[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #WeightedOverride: close(

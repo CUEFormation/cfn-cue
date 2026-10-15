@@ -15,34 +15,76 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Omics::Workflow Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Omics::Workflow"
-	Properties?: close({
+	let properties = close({
 		Accelerators?:         #Accelerators
 		ContainerRegistryMap?: #ContainerRegistryMap
 		ContainerRegistryMapUri?: strings.MaxRunes(750) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(750) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		DefinitionRepository?: #DefinitionRepository
 		DefinitionUri?: strings.MaxRunes(256) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Description?: strings.MaxRunes(256) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Engine?: #WorkflowEngine
 		Main?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		ParameterTemplate?:     #WorkflowParameterTemplate
-		ParameterTemplatePath?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S]+$" | fn.#StringExpression
+		ParameterTemplate?: #WorkflowParameterTemplate
+		ParameterTemplatePath?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		StorageCapacity?: <=100000 & >=0 |
 			{
 				string &
@@ -63,19 +105,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		StorageType?:           #StorageType
-		Tags?:                  #TagMap
-		WorkflowBucketOwnerId?: =~"^[0-9]{12}$" | fn.#StringExpression
-		readmeMarkdown?:        string | fn.#StringExpression
+		StorageType?: #StorageType
+		Tags?:        #TagMap
+		WorkflowBucketOwnerId?: =~"^[0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: =~"^[0-9]{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		readmeMarkdown?: string | number | bool | fn.#StringExpression
 		readmePath?: strings.MaxRunes(128) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		readmeUri?: string | fn.#StringExpression
+		readmeUri?: string | number | bool | fn.#StringExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Accelerators: "GPU" & (strings.MaxRunes(64) & strings.MinRunes(1)) | fn.#StringExpression
+#Accelerators: "GPU" & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+{
+	number | bool
+	_cfnString: "GPU" & strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #ContainerRegistryMap: close({
 	ImageMappings?:    [...#ImageMapping] | fn.#ListExpression
@@ -85,10 +146,23 @@ fn.#ObjectExpression
 
 #DefinitionRepository: {
 	connectionArn?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:aws(-[\\\\w]+)*:.+:.+:[0-9]{12}:.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[\\\\w]+)*:.+:.+:[0-9]{12}:.+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	excludeFilePatterns?: list.MaxItems(50) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	fullRepositoryId?:    =~".+/.+" | fn.#StringExpression
-	sourceReference?:     #SourceReference
+	excludeFilePatterns?: list.MaxItems(50) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
+	fullRepositoryId?: =~".+/.+" |
+	{
+		number | bool
+		_cfnString: =~".+/.+" & "\(self)"
+	} |
+	fn.#StringExpression
+	sourceReference?: #SourceReference
 	...
 } | fn.#ObjectExpression
 
@@ -96,46 +170,115 @@ fn.#ObjectExpression
 	DestinationImage?: strings.MaxRunes(750) &
 	strings.MinRunes(1) &
 	=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(750) &
+		strings.MinRunes(1) &
+		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	SourceImage?: strings.MaxRunes(750) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(750) &
+		strings.MinRunes(1) &
+		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RegistryMapping: close({
-	EcrAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]+$" | fn.#StringExpression
+	EcrAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	EcrRepositoryPrefix?: strings.MaxRunes(256) &
 	strings.MinRunes(1) &
 	=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	UpstreamRegistryUrl?: strings.MaxRunes(750) &
 	strings.MinRunes(1) &
 	=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(750) &
+		strings.MinRunes(1) &
+		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	UpstreamRepositoryPrefix?: strings.MaxRunes(30) &
 	strings.MinRunes(2) &
 	=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(30) &
+		strings.MinRunes(2) &
+		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SourceReference: {
 	type?:  "BRANCH" | "TAG" | "COMMIT" | fn.#StringExpression
-	value?: string | fn.#StringExpression
+	value?: string | number | bool | fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 
-#StorageType: ("STATIC" | "DYNAMIC") & (strings.MaxRunes(64) & strings.MinRunes(1)) | fn.#StringExpression
+#StorageType: ("STATIC" | "DYNAMIC") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+{
+	number | bool
+	_cfnString: ("STATIC" | "DYNAMIC") & strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #TagMap: close({
 
-	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
+	{
+		[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
-#WorkflowEngine: ("WDL" | "NEXTFLOW" | "CWL") & (strings.MaxRunes(64) & strings.MinRunes(1)) | fn.#StringExpression
+#WorkflowEngine: ("WDL" | "NEXTFLOW" | "CWL") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+{
+	number | bool
+	_cfnString: ("WDL" | "NEXTFLOW" | "CWL") & strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #WorkflowParameter: close({
 	Description?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Optional?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
@@ -143,5 +286,10 @@ fn.#ObjectExpression
 
 #WorkflowParameterTemplate: struct.MaxFields(1000) & struct.MinFields(1) & close({
 
-	{[=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$"]: #WorkflowParameter}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$"]: #WorkflowParameter}
+}) |
 fn.#ObjectExpression

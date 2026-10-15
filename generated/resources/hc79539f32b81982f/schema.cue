@@ -9,15 +9,23 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::S3ObjectLambda::AccessPointPolicy resource is an Amazon S3ObjectLambda
 // policy type that you can use to control permissions for your S3ObjectLambda
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3ObjectLambda::AccessPointPolicy"
-	Properties!: close({
+	let properties = close({
 		ObjectLambdaAccessPoint!: strings.MaxRunes(45) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(45) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" & "\(self)"
+		} |
 		fn.#StringExpression
-		PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
+		PolicyDocument!: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

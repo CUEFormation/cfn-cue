@@ -69,7 +69,11 @@ import (
 #Arn: strings.MaxRunes(2048) & strings.MinRunes(1)
 
 // Name of the S3 bucket under which error reports will be created.
-#BucketName: strings.MaxRunes(63) & strings.MinRunes(3) & =~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]"
+#BucketName: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+strings.MaxRunes(63) &
+strings.MinRunes(3) &
+=~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]"
 
 // Using a ClientToken makes the call to CreateScheduledQuery idempotent, in
 // other words, making the same request repeatedly will produce the same
@@ -119,7 +123,9 @@ import (
 // prefix the name with alias/. If ErrorReportConfiguration uses SSE_KMS as
 // encryption type, the same KmsKeyId is used to encrypt the error report at
 // rest.
-#KmsKeyId: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
+#KmsKeyId: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(2048) & strings.MinRunes(1))
 
 // Name of the measure name column from the query result.
 #MeasureNameColumn: string

@@ -14,29 +14,62 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A custom line item is an one time charge that is applied to a specific billing group's bill.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BillingConductor::CustomLineItem"
-	Properties!: close({
-		AccountId?: =~"[0-9]{12}" | fn.#StringExpression
+	let properties = close({
+		AccountId?: =~"[0-9]{12}" |
+		{
+			number | bool
+			_cfnString: =~"[0-9]{12}" & "\(self)"
+		} |
+		fn.#StringExpression
 		BillingGroupArn!: =~"arn:aws(-cn)?:billingconductor::[0-9]{12}:billinggroup/?[a-zA-Z0-9]{10,12}" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"arn:aws(-cn)?:billingconductor::[0-9]{12}:billinggroup/?[a-zA-Z0-9]{10,12}" & "\(self)"
+		} |
+		fn.#StringExpression
 		BillingPeriodRange?:          #BillingPeriodRange
 		ComputationRule?:             "CONSOLIDATED" | "ITEMIZED" | fn.#StringExpression
 		CustomLineItemChargeDetails?: #CustomLineItemChargeDetails
-		Description?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" | fn.#StringExpression
-		PresentationDetails?: close(
-			{Service!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression},
-		) |
+		Description?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		PresentationDetails?: close({
+			Service!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+			} |
+			fn.#StringExpression
+		}) |
 		fn.#ObjectExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AttributeValue: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
+#AttributeValue: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #BillingPeriodRange: close({
 	ExclusiveEndBillingPeriod?:   #ExclusiveEndBillingPeriod
@@ -77,11 +110,14 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #CustomLineItemPercentageChargeDetails: close({
-	ChildAssociatedResources?: list.UniqueItems() & [
-		...=~"(arn:aws(-cn)?:billingconductor::[0-9]{12}:(customlineitem|billinggroup)/)?[a-zA-Z0-9]{10,12}" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
+	ChildAssociatedResources?: list.UniqueItems() & [...=~"(arn:aws(-cn)?:billingconductor::[0-9]{12}:(customlineitem|billinggroup)/)?[a-zA-Z0-9]{10,12}" |
+	{
+		number | bool
+		_cfnString: =~"(arn:aws(-cn)?:billingconductor::[0-9]{12}:(customlineitem|billinggroup)/)?[a-zA-Z0-9]{10,12}" &
+			"\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	PercentageValue!: <=10000 & >=0 |
 		{
 			string &
@@ -105,9 +141,19 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ExclusiveEndBillingPeriod: =~"\\d{4}-(0?[1-9]|1[012])" | fn.#StringExpression
+#ExclusiveEndBillingPeriod: =~"\\d{4}-(0?[1-9]|1[012])" |
+{
+	number | bool
+	_cfnString: =~"\\d{4}-(0?[1-9]|1[012])" & "\(self)"
+} |
+fn.#StringExpression
 
-#InclusiveStartBillingPeriod: =~"\\d{4}-(0?[1-9]|1[012])" | fn.#StringExpression
+#InclusiveStartBillingPeriod: =~"\\d{4}-(0?[1-9]|1[012])" |
+{
+	number | bool
+	_cfnString: =~"\\d{4}-(0?[1-9]|1[012])" & "\(self)"
+} |
+fn.#StringExpression
 
 #LineItemFilter: close({
 	Attribute!:       "LINE_ITEM_TYPE" | "SERVICE" | fn.#StringExpression
@@ -122,8 +168,18 @@ fn.#ObjectExpression
 #LineItemFilters: list.UniqueItems() & [...#LineItemFilter] | fn.#ListExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

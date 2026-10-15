@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::GameLift::Fleet resource creates an Amazon GameLift (GameLift) fleet
@@ -21,7 +23,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // which can host multiple game sessions.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GameLift::Fleet"
-	Properties!: close({
+	let properties = close({
 		// Configuration for Anywhere fleet.
 		AnywhereConfiguration?: #AnywhereConfiguration
 		ApplyCapacity?: "ON_UPDATE" |
@@ -29,6 +31,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"ON_CREATE_AND_UPDATE_WITH_AUTOSCALING" |
 			fn.#StringExpression
 		BuildId?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^build-\\S+|^arn:.*:build/build-\\S+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) &
+			strings.MinRunes(1) &
+			=~"^build-\\S+|^arn:.*:build/build-\\S+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 
 		// Indicates whether to generate a TLS/SSL certificate for the new fleet. TLS
@@ -38,7 +47,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// is created.
 		CertificateConfiguration?: #CertificateConfiguration
 		ComputeType?:              "EC2" | "ANYWHERE" | fn.#StringExpression
-		Description?:              strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		DesiredEC2Instances?: int & >=0 |
 			{
 				string &
@@ -57,11 +71,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		EC2InboundPermissions?: list.MaxItems(50) & [...] & [...#IpPermission] | fn.#ListExpression
-		EC2InstanceType?:       =~"^.*..*$" | fn.#StringExpression
-		FleetType?:             "ON_DEMAND" | "SPOT" | fn.#StringExpression
-		InstanceRoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		EC2InstanceType?: =~"^.*..*$" |
+		{
+			number | bool
+			_cfnString: =~"^.*..*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		FleetType?: "ON_DEMAND" | "SPOT" | fn.#StringExpression
+		InstanceRoleARN?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MinRunes(1) &
 		=~"^arn:aws(-.*)?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MinRunes(1) &
+			=~"^arn:aws(-.*)?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		InstanceRoleCredentialsProvider?: "SHARED_CREDENTIAL_FILE" | fn.#StringExpression
 		Locations?: list.MaxItems(100) & list.MinItems(1) & [...close({
@@ -70,7 +96,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-		LogPaths?: [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		LogPaths?: [...strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		MaxSize?: int & >=0 |
 			{
 				string &
@@ -88,9 +120,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		MetricGroups?: list.MaxItems(1) & [...] & [
-			...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		] |
+		MetricGroups?: list.MaxItems(1) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		MinSize?: int & >=0 |
 			{
@@ -109,10 +144,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name!:                           strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Name!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		NewGameSessionProtectionPolicy?: "FullProtection" | "NoProtection" | fn.#StringExpression
-		PeerVpcAwsAccountId?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9]{12}$" | fn.#StringExpression
-		PeerVpcId?:           strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^vpc-\\S+" | fn.#StringExpression
+		PeerVpcAwsAccountId?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9]{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		PeerVpcId?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^vpc-\\S+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^vpc-\\S+" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Configuration for player gateway.
 		PlayerGatewayConfiguration?: #PlayerGatewayConfiguration
@@ -136,15 +186,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		RuntimeConfiguration?: #RuntimeConfiguration
 		ScalingPolicies?:      list.MaxItems(50) & [...#ScalingPolicy] | fn.#ListExpression
 		ScriptId?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^script-\\S+|^arn:.*:script/script-\\S+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) &
+			strings.MinRunes(1) &
+			=~"^script-\\S+|^arn:.*:script/script-\\S+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ServerLaunchParameters?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"^[A-Za-z0-9_:.+\\/\\\\\\- =@;{},?'\\[\\]\"]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^[A-Za-z0-9_:.+\\/\\\\\\- =@;{},?'\\[\\]\"]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ServerLaunchPath?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:.+\\/\\\\\\- ]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:.+\\/\\\\\\- ]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AnywhereConfiguration: null |
@@ -152,7 +222,14 @@ bool |
 number |
 string |
 [...] |
-close({Cost!: strings.MaxRunes(11) & strings.MinRunes(1) & =~"^\\d{1,5}(?:\\.\\d{1,5})?$" | fn.#StringExpression}) |
+close({
+	Cost!: strings.MaxRunes(11) & strings.MinRunes(1) & =~"^\\d{1,5}(?:\\.\\d{1,5})?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(11) & strings.MinRunes(1) & =~"^\\d{1,5}(?:\\.\\d{1,5})?$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ValueExpression
 
 #CertificateConfiguration: close({CertificateType!: "DISABLED" | "GENERATED" | fn.#StringExpression}) |
@@ -176,7 +253,12 @@ fn.#ValueExpression
 		} |
 		fn.#NumberExpression
 	IpRange!: =~"(^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(/([0-9]|[1-2][0-9]|3[0-2]))$)" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"(^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(/([0-9]|[1-2][0-9]|3[0-2]))$)" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	Protocol!: "TCP" | "UDP" | fn.#StringExpression
 	ToPort!: int & <=60000 & >=1 |
 		{
@@ -197,7 +279,12 @@ fn.#ValueExpression
 }) |
 fn.#ObjectExpression
 
-#Location: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+" | fn.#StringExpression
+#Location: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+" & "\(self)"
+} |
+fn.#StringExpression
 
 #LocationCapacity: close({
 	DesiredEC2Instances?: int & >=0 |
@@ -381,7 +468,12 @@ fn.#ObjectExpression
 		"WaitTime" |
 		"ConcurrentActivatableGameSessions" |
 		fn.#StringExpression
-	Name!:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Name!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	PolicyType?: "RuleBased" | "TargetBased" | "ManagedScaling" | fn.#StringExpression
 	ScalingAdjustment?: int |
 		{
@@ -449,15 +541,36 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	LaunchPath!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([Cc]:\\\\game\\S+|/local/game/\\S+)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([Cc]:\\\\game\\S+|/local/game/\\S+)" & "\(self)"
+	} |
 	fn.#StringExpression
 	Parameters?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:.+\\/\\\\\\- =@;{},?'\\[\\]\"]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^[A-Za-z0-9_:.+\\/\\\\\\- =@;{},?'\\[\\]\"]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

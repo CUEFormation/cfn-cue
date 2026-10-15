@@ -14,49 +14,89 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Crawler
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::Crawler"
-	Properties!: close({
-		Classifiers?:   [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-		Configuration?: string | fn.#StringExpression
-		CrawlerSecurityConfiguration?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-		DatabaseName?:                 string | fn.#StringExpression
-		Description?:                  strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-		LakeFormationConfiguration?:   #LakeFormationConfiguration
-		Name?:                         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		RecrawlPolicy?:                #RecrawlPolicy
-		Role!:                         string | fn.#StringExpression
-		Schedule?:                     #Schedule
-		SchemaChangePolicy?:           #SchemaChangePolicy
-		TablePrefix?:                  strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-		Tags?:                         fn.#Object & {...} | string | fn.#StringObjectExpression
-		Targets!:                      #Targets
+	let properties = close({
+		Classifiers?: [...strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		Configuration?: string | number | bool | fn.#StringExpression
+		CrawlerSecurityConfiguration?: strings.MaxRunes(128) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DatabaseName?: string | number | bool | fn.#StringExpression
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		LakeFormationConfiguration?: #LakeFormationConfiguration
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		RecrawlPolicy?:      #RecrawlPolicy
+		Role!:               string | number | bool | fn.#StringExpression
+		Schedule?:           #Schedule
+		SchemaChangePolicy?: #SchemaChangePolicy
+		TablePrefix?: strings.MaxRunes(128) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?:    fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		Targets!: #Targets
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CatalogTarget: close({
-	ConnectionName?:   string | fn.#StringExpression
-	DatabaseName?:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	DlqEventQueueArn?: string | fn.#StringExpression
-	EventQueueArn?:    string | fn.#StringExpression
-	Tables?: list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
+	ConnectionName?: string | number | bool | fn.#StringExpression
+	DatabaseName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	DlqEventQueueArn?: string | number | bool | fn.#StringExpression
+	EventQueueArn?:    string | number | bool | fn.#StringExpression
+	Tables?: list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #DeltaTarget: close({
-	ConnectionName?:         string | fn.#StringExpression
+	ConnectionName?:         string | number | bool | fn.#StringExpression
 	CreateNativeDeltaTable?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DeltaTables?:            [...string | fn.#StringExpression] | fn.#ListExpression
+	DeltaTables?:            [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	WriteManifest?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #DynamoDBTarget: close({
-	Path?:    string | fn.#StringExpression
+	Path?:    string | number | bool | fn.#StringExpression
 	ScanAll?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ScanRate?: number |
 		{
@@ -81,8 +121,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #HudiTarget: close({
-	ConnectionName?: string | fn.#StringExpression
-	Exclusions?:     [...string | fn.#StringExpression] | fn.#ListExpression
+	ConnectionName?: string | number | bool | fn.#StringExpression
+	Exclusions?:     [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	MaximumTraversalDepth?: int |
 		{
 			string &
@@ -97,13 +137,13 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Paths?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Paths?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #IcebergTarget: close({
-	ConnectionName?: string | fn.#StringExpression
-	Exclusions?:     [...string | fn.#StringExpression] | fn.#ListExpression
+	ConnectionName?: string | number | bool | fn.#StringExpression
+	Exclusions?:     [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	MaximumTraversalDepth?: int |
 		{
 			string &
@@ -118,27 +158,32 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Paths?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Paths?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #JdbcTarget: close({
-	ConnectionName?:           string | fn.#StringExpression
+	ConnectionName?:           string | number | bool | fn.#StringExpression
 	EnableAdditionalMetadata?: [..."COMMENTS" | "RAWTYPES" | fn.#StringExpression] | fn.#ListExpression
-	Exclusions?:               [...string | fn.#StringExpression] | fn.#ListExpression
-	Path?:                     string | fn.#StringExpression
+	Exclusions?:               [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Path?:                     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LakeFormationConfiguration: close({
-	AccountId?:                   strings.MaxRunes(12) & strings.MinRunes(0) | fn.#StringExpression
+	AccountId?: strings.MaxRunes(12) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(12) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	UseLakeFormationCredentials?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #MongoDBTarget: close({
-	ConnectionName?: string | fn.#StringExpression
-	Path?:           string | fn.#StringExpression
+	ConnectionName?: string | number | bool | fn.#StringExpression
+	Path?:           string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -148,11 +193,11 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #S3Target: close({
-	ConnectionName?:   string | fn.#StringExpression
-	DlqEventQueueArn?: string | fn.#StringExpression
-	EventQueueArn?:    string | fn.#StringExpression
-	Exclusions?:       [...string | fn.#StringExpression] | fn.#ListExpression
-	Path?:             string | fn.#StringExpression
+	ConnectionName?:   string | number | bool | fn.#StringExpression
+	DlqEventQueueArn?: string | number | bool | fn.#StringExpression
+	EventQueueArn?:    string | number | bool | fn.#StringExpression
+	Exclusions?:       [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Path?:             string | number | bool | fn.#StringExpression
 	SampleSize?: int |
 		{
 			string &
@@ -170,7 +215,7 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Schedule: close({ScheduleExpression?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Schedule: close({ScheduleExpression?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #SchemaChangePolicy: close({
 	DeleteBehavior?: "DELETE_FROM_DATABASE" | "DEPRECATE_IN_DATABASE" | "LOG" | fn.#StringExpression

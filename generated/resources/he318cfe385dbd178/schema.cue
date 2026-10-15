@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Uploads an artifact to an agent space. Artifacts provide additional context
@@ -13,10 +15,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // configuration files.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityAgent::Artifact"
-	Properties!: close({
-		AgentSpaceId!:    string | fn.#StringExpression
-		ArtifactContent?: string | fn.#StringExpression
+	let properties = close({
+		AgentSpaceId!:    string | number | bool | fn.#StringExpression
+		ArtifactContent?: string | number | bool | fn.#StringExpression
 		ArtifactType!: "TXT" | "PNG" | "JPEG" | "MD" | "PDF" | "DOCX" | "DOC" | "JSON" | "YAML" | fn.#StringExpression
-		FileName!:     string | fn.#StringExpression
+		FileName!:     string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

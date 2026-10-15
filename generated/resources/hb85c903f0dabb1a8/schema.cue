@@ -10,19 +10,33 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::ManagedLoginBranding
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cognito::ManagedLoginBranding"
-	Properties!: close({
-		Assets?:                   #AssetList
-		ClientId?:                 strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+]+$" | fn.#StringExpression
+	let properties = close({
+		Assets?: #AssetList
+		ClientId?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ReturnMergedResources?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Settings?:                 fn.#Object & {...} | fn.#ObjectExpression
 		UseCognitoProvidedValues?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
+		UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AssetList: list.MaxItems(40) & [...] & [...#AssetType] | fn.#ListExpression
@@ -36,7 +50,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#BytesType: strings.MaxRunes(1000000) | fn.#StringExpression
+#BytesType: strings.MaxRunes(1000000) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000000) & "\(self)"
+} |
+fn.#StringExpression
 
 #CategoryType: "FAVICON_ICO" |
 	"FAVICON_SVG" |
@@ -59,4 +78,9 @@ fn.#ObjectExpression
 
 #ExtensionType: "ICO" | "JPEG" | "PNG" | "SVG" | "WEBP" | fn.#StringExpression
 
-#ResourceIdType: strings.MaxRunes(40) & strings.MinRunes(1) & =~"^[\\w\\- ]+$" | fn.#StringExpression
+#ResourceIdType: strings.MaxRunes(40) & strings.MinRunes(1) & =~"^[\\w\\- ]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(40) & strings.MinRunes(1) & =~"^[\\w\\- ]+$" & "\(self)"
+} |
+fn.#StringExpression

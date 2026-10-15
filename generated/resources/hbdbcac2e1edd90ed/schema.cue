@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::IoTManagedIntegrations::CloudConnector. A
@@ -17,18 +19,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // enabling discovery and control of third-party cloud devices.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTManagedIntegrations::CloudConnector"
-	Properties!: close({
-		Description?:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9A-Za-z_\\- ]+$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9A-Za-z_\\- ]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9A-Za-z_\\- ]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		EndpointConfig!: #EndpointConfig
 		EndpointType?:   "LAMBDA" | fn.#StringExpression
-		Name!:           strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #EndpointConfig: close({Lambda?: #LambdaConfig}) | fn.#ObjectExpression
 
 #LambdaConfig: close({
 	Arn!: =~"^(arn:aws:lambda:[0-9a-zA-Z-]+:[0-9]+:function:)?([a-zA-Z0-9-_]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?)$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^(arn:aws:lambda:[0-9a-zA-Z-]+:[0-9]+:function:)?([a-zA-Z0-9-_]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?)$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression

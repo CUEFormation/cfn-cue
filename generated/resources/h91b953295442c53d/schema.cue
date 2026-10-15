@@ -9,13 +9,15 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The distribution tenant.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::DistributionTenant"
-	Properties!: close({
-		ConnectionGroupId?: string | fn.#StringExpression
+	let properties = close({
+		ConnectionGroupId?: string | number | bool | fn.#StringExpression
 
 		// Customizations for the distribution tenant. For each distribution tenant, you
 		// can specify the geographic restrictions, and the Amazon Resource Names
@@ -23,19 +25,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// that you can override or disable from the multi-tenant distribution that was
 		// used to create the distribution tenant.
 		Customizations?: #Customizations
-		DistributionId!: string | fn.#StringExpression
-		Domains!:        [...string | fn.#StringExpression] | fn.#ListExpression
+		DistributionId!: string | number | bool | fn.#StringExpression
+		Domains!:        [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Enabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 		// An object that represents the request for the Amazon CloudFront managed ACM certificate.
 		ManagedCertificateRequest?: #ManagedCertificateRequest
-		Name!:                      string | fn.#StringExpression
+		Name!:                      string | number | bool | fn.#StringExpression
 		Parameters?:                [...#Parameter] | fn.#ListExpression
 		Tags?:                      [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Certificate: close({Arn?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Certificate: close({Arn?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Customizations: close({
 	// The ACMlong (ACM) certificate.
@@ -50,32 +54,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #GeoRestrictionCustomization: close({
-	Locations?:       [...string | fn.#StringExpression] | fn.#ListExpression
+	Locations?:       [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	RestrictionType?: "blacklist" | "whitelist" | "none" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ManagedCertificateRequest: close({
 	CertificateTransparencyLoggingPreference?: "enabled" | "disabled" | fn.#StringExpression
-	PrimaryDomainName?:                        string | fn.#StringExpression
+	PrimaryDomainName?:                        string | number | bool | fn.#StringExpression
 	ValidationTokenHost?:                      "cloudfront" | "self-hosted" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Parameter: close({
-	Name?:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #WebAclCustomization: close({
 	Action?: "override" | "disable" | fn.#StringExpression
-	Arn?:    string | fn.#StringExpression
+	Arn?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

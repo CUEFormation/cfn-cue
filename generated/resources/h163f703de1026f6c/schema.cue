@@ -10,27 +10,56 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates and manages an AWS CloudHSM cluster.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudHSM::Cluster"
-	Properties!: close({
+	let properties = close({
 		BackupRetentionPolicy?: close({
-			Type?:  "DAYS" | fn.#StringExpression
-			Value?: strings.MaxRunes(3) & strings.MinRunes(1) & =~"^[0-9]+$" | fn.#StringExpression
+			Type?: "DAYS" | fn.#StringExpression
+			Value?: strings.MaxRunes(3) & strings.MinRunes(1) & =~"^[0-9]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(3) & strings.MinRunes(1) & =~"^[0-9]+$" & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
-		HsmType!:     strings.MaxRunes(32) & =~"^((p|)hsm[0-9][a-z.]*\\.[a-zA-Z]+)$" | fn.#StringExpression
+		HsmType!: strings.MaxRunes(32) & =~"^((p|)hsm[0-9][a-z.]*\\.[a-zA-Z]+)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32) & =~"^((p|)hsm[0-9][a-z.]*\\.[a-zA-Z]+)$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Mode?:        "FIPS" | "NON_FIPS" | fn.#StringExpression
 		NetworkType?: "IPV4" | "DUALSTACK" | fn.#StringExpression
-		SubnetIds?: list.MaxItems(10) & list.MinItems(1) & [...=~"^subnet-[0-9a-fA-F]{8,17}$" | fn.#StringExpression] |
-			fn.#ListExpression
+		SubnetIds?: list.MaxItems(10) & list.MinItems(1) & [...=~"^subnet-[0-9a-fA-F]{8,17}$" |
+		{
+			number | bool
+			_cfnString: =~"^subnet-[0-9a-fA-F]{8,17}$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		Tags?: list.MaxItems(50) & list.MinItems(1) & [...close({
-			Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-			Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+			Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::Fleet
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppStream::Fleet"
-	Properties!: close({
+	let properties = close({
 		AttributesToDelete?: list.UniqueItems() & [
 			..."VPC_CONFIGURATION" |
 				"VPC_CONFIGURATION_SECURITY_GROUP_IDS" |
@@ -32,8 +34,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		] |
 			fn.#ListExpression
 		ComputeCapacity?: #ComputeCapacity
-		Description?:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		DisableIMDSV1?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Description?: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		DisableIMDSV1?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		DisconnectTimeoutInSeconds?: int & <=360000 & >=60 |
 			{
 				string &
@@ -52,7 +59,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		DisplayName?:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		DisplayName?: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		DomainJoinInfo?: #DomainJoinInfo
 		EnableDefaultInternetAccess?: bool |
 			"true" |
@@ -62,10 +74,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		FleetType?: =~"^ALWAYS_ON$|^ON_DEMAND$|^ELASTIC$" | fn.#StringExpression
-		IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		FleetType?: =~"^ALWAYS_ON$|^ON_DEMAND$|^ELASTIC$" |
+		{
+			number | bool
+			_cfnString: =~"^ALWAYS_ON$|^ON_DEMAND$|^ELASTIC$" & "\(self)"
+		} |
+		fn.#StringExpression
+		IamRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 			=~"^arn:aws(?:\\-cn|\\-iso\\-b|\\-iso|\\-us\\-gov)?:iam::[0-9]{12}:role/.+$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+				=~"^arn:aws(?:\\-cn|\\-iso\\-b|\\-iso|\\-us\\-gov)?:iam::[0-9]{12}:role/.+$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		IdleDisconnectTimeoutInSeconds?: int & <=3600 & >=0 |
 			{
 				string &
@@ -85,10 +108,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		ImageArn?: strings.MaxRunes(1024) & =~"^arn:[a-z-]+:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:.+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			=~"^arn:[a-z-]+:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:.+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ImageName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" & "\(self)"
+		} |
 		fn.#StringExpression
-		InstanceType!: strings.MinRunes(1) | fn.#StringExpression
+		InstanceType!: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		MaxConcurrentSessions?: int |
 			{
 				string &
@@ -139,7 +177,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Name!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Platform?: "AMAZON_LINUX2" |
 			"RHEL8" |
 			"ROCKY_LINUX8" |
@@ -154,15 +197,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		SessionScriptS3Location?: #S3Location
 		StreamView?:              "APP" | "DESKTOP" | fn.#StringExpression
 		Tags?:                    list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-		UsbDeviceFilterStrings?: [
-			...strings.MaxRunes(100) &
+		UsbDeviceFilterStrings?: [...strings.MaxRunes(100) &
+		strings.MinRunes(0) &
+		=~"^((\\w*)\\s*(\\w*)\\s*\\,\\s*(\\w*)\\s*\\,\\s*\\*?(\\w*)\\s*\\,\\s*\\*?(\\w*)\\s*\\,\\s*\\*?\\d*\\s*\\,\\s*\\*?\\d*\\s*\\,\\s*[0-1]\\s*\\,\\s*[0-1]\\s*)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) &
 			strings.MinRunes(0) &
-			=~"^((\\w*)\\s*(\\w*)\\s*\\,\\s*(\\w*)\\s*\\,\\s*\\*?(\\w*)\\s*\\,\\s*\\*?(\\w*)\\s*\\,\\s*\\*?\\d*\\s*\\,\\s*\\*?\\d*\\s*\\,\\s*[0-1]\\s*\\,\\s*[0-1]\\s*)$" |
-			fn.#StringExpression
-		] |
+			=~"^((\\w*)\\s*(\\w*)\\s*\\,\\s*(\\w*)\\s*\\,\\s*\\*?(\\w*)\\s*\\,\\s*\\*?(\\w*)\\s*\\,\\s*\\*?\\d*\\s*\\,\\s*\\*?\\d*\\s*\\,\\s*[0-1]\\s*\\,\\s*[0-1]\\s*)$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		VpcConfig?: #VpcConfig
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ComputeCapacity: close({
@@ -198,20 +248,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #DomainJoinInfo: close({
-	DirectoryName?:                       string | fn.#StringExpression
-	OrganizationalUnitDistinguishedName?: strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
+	DirectoryName?: string | number | bool | fn.#StringExpression
+	OrganizationalUnitDistinguishedName?: strings.MaxRunes(2000) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2000) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #S3Location: close({
-	S3Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	S3Key!:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	S3Key!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & =~"^[\\S\\s]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & =~"^[\\S\\s]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & =~"^[\\S\\s]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -234,11 +316,19 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #VpcConfig: close({
-	SecurityGroupIds?: list.MaxItems(5) & [...] & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
-		fn.#StringExpression
-	] |
+	SecurityGroupIds?: list.MaxItems(5) & [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	SubnetIds?: [...strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+	SubnetIds?: [...strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression

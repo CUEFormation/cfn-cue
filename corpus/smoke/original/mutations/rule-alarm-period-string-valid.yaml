@@ -1,0 +1,11 @@
+Resources:
+  Thing:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ComparisonOperator: GreaterThanThreshold
+      EvaluationPeriods: 1
+      MetricName: Errors
+      Namespace: AWS/Lambda
+      Statistic: Sum
+      Threshold: 1
+      Period: '300'

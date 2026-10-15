@@ -14,13 +14,20 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::FSx::S3AccessPointAttachment
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::FSx::S3AccessPointAttachment"
-	Properties!: close({
-		Name!: strings.MaxRunes(50) & strings.MinRunes(3) | fn.#StringExpression
+	let properties = close({
+		Name!: strings.MaxRunes(50) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The OntapConfiguration of the S3 access point attachment.
 		OntapConfiguration?: #S3AccessPointOntapConfiguration
@@ -28,7 +35,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// The OpenZFSConfiguration of the S3 access point attachment.
 		OpenZFSConfiguration?: #S3AccessPointOpenZFSConfiguration
 		S3AccessPoint?: close({
-			Policy?: fn.#Object & {...} | strings.MaxRunes(200000) & strings.MinRunes(1) | fn.#StringObjectExpression
+			Policy?: fn.#Object & {...} |
+			strings.MaxRunes(200000) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(200000) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringObjectExpression
 
 			// The S3 access point's virtual private cloud (VPC) configuration.
 			VpcConfiguration?: #S3AccessPointVpcConfiguration
@@ -41,6 +54,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			)
 		}
 	}) & matchN(>=1, [{OntapConfiguration!: _}, {OpenZFSConfiguration!: _}])
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #FileSystemGID: close({
@@ -85,12 +100,26 @@ fn.#ObjectExpression
 
 #OntapUnixFileSystemUser: close({
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}\\x{0085}\\x{2028}\\x{2029}\\r\\n]{1,256}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^[^\\x{0000}\\x{0085}\\x{2028}\\x{2029}\\r\\n]{1,256}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OntapWindowsFileSystemUser: close({
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}\\x{0085}\\x{2028}\\x{2029}\\r\\n]{1,256}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^[^\\x{0000}\\x{0085}\\x{2028}\\x{2029}\\r\\n]{1,256}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -150,22 +179,40 @@ fn.#ObjectExpression
 #S3AccessPointOntapConfiguration: close({
 	// The file system identity used to authorize file access requests made using the S3 access point.
 	FileSystemIdentity!: #OntapFileSystemIdentity
-	VolumeId!: strings.MaxRunes(23) & strings.MinRunes(23) & =~"^(fsvol-[0-9a-f]{17,})$" | fn.#StringExpression
+	VolumeId!: strings.MaxRunes(23) & strings.MinRunes(23) & =~"^(fsvol-[0-9a-f]{17,})$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(23) & strings.MinRunes(23) & =~"^(fsvol-[0-9a-f]{17,})$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #S3AccessPointOpenZFSConfiguration: close({
 	// The file system identity used to authorize file access requests made using the S3 access point.
 	FileSystemIdentity!: #OpenZFSFileSystemIdentity
-	VolumeId!: strings.MaxRunes(23) & strings.MinRunes(23) & =~"^(fsvol-[0-9a-f]{17,})$" | fn.#StringExpression
+	VolumeId!: strings.MaxRunes(23) & strings.MinRunes(23) & =~"^(fsvol-[0-9a-f]{17,})$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(23) & strings.MinRunes(23) & =~"^(fsvol-[0-9a-f]{17,})$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #S3AccessPointVpcConfiguration: close({
-	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
 	strings.MaxRunes(21) &
 	strings.MinRunes(12) &
 	=~"^(vpc-[0-9a-f]{8,})$" |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(21) &
+		strings.MinRunes(12) &
+		=~"^(vpc-[0-9a-f]{8,})$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

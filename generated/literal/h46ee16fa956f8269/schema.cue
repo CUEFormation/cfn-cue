@@ -2,6 +2,8 @@
 
 package schema
 
+import "github.com/cueformation/cfn-cue/fn:fn"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::NetworkAclEntry
@@ -9,7 +11,7 @@ package schema
 	// The IPv4 CIDR range to allow or deny, in CIDR notation (for example,
 	// 172.16.0.0/24). Requirement is conditional: You must specify the CidrBlock
 	// or Ipv6CidrBlock property
-	CidrBlock?: string
+	CidrBlock?: fn.#IPv4Network & string
 
 	// Indicates whether this is an egress rule (rule is applied to traffic leaving the subnet)
 	Egress?: bool
@@ -20,7 +22,7 @@ package schema
 	Id?:   string
 
 	// The IPv6 network range to allow or deny, in CIDR notation (for example 2001:db8:1234:1a00::/64)
-	Ipv6CidrBlock?: string
+	Ipv6CidrBlock?: fn.#IPv6Network & string
 
 	// The ID of the network ACL
 	NetworkAclId!: string

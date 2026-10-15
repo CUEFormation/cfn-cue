@@ -9,12 +9,14 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Enable a resource that has been published in the CloudFormation Registry.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFormation::TypeActivation"
-	Properties?: matchN(1, [{
+	let properties = matchN(1, [{
 		TypeName!:    _
 		PublisherId!: _
 		Type!:        _
@@ -24,29 +26,75 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		...
 	}]) & close({
 		AutoUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Specifies logging configuration information for a type.
 		LoggingConfig?: #LoggingConfig
-		MajorVersion?:  strings.MaxRunes(100000) & strings.MinRunes(1) | fn.#StringExpression
+		MajorVersion?: strings.MaxRunes(100000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		PublicTypeArn?: strings.MaxRunes(1024) &
 		=~"arn:aws[A-Za-z0-9-]{0,64}:cloudformation:[A-Za-z0-9-]{1,64}:([0-9]{12})?:type/.+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			=~"arn:aws[A-Za-z0-9-]{0,64}:cloudformation:[A-Za-z0-9-]{1,64}:([0-9]{12})?:type/.+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		PublisherId?: strings.MaxRunes(40) & strings.MinRunes(1) & =~"[0-9a-zA-Z-]{1,40}" | fn.#StringExpression
-		Type?:        "RESOURCE" | "MODULE" | "HOOK" | fn.#StringExpression
-		TypeName?:    =~"[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}(::MODULE){0,1}" | fn.#StringExpression
+		PublisherId?: strings.MaxRunes(40) & strings.MinRunes(1) & =~"[0-9a-zA-Z-]{1,40}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(40) & strings.MinRunes(1) & =~"[0-9a-zA-Z-]{1,40}" & "\(self)"
+		} |
+		fn.#StringExpression
+		Type?: "RESOURCE" | "MODULE" | "HOOK" | fn.#StringExpression
+		TypeName?: =~"[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}(::MODULE){0,1}" |
+		{
+			number | bool
+			_cfnString: =~"[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}(::MODULE){0,1}" & "\(self)"
+		} |
+		fn.#StringExpression
 		TypeNameAlias?: strings.MaxRunes(204) &
 		strings.MinRunes(10) &
 		=~"[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}(::MODULE){0,1}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(204) &
+			strings.MinRunes(10) &
+			=~"[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}(::MODULE){0,1}" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		VersionBump?: "MAJOR" | "MINOR" | fn.#StringExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #LoggingConfig: close({
-	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
-	LogRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(256) & strings.MinRunes(1)) |
+	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LogRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(256) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

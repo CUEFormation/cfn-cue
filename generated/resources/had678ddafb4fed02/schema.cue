@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Redshift::Cluster"
-	Properties!: close({
+	let properties = close({
 		AllowVersionUpgrade?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		AquaConfigurationStatus?: "auto" | "disabled" | "enabled" | fn.#StringExpression
 		AutomatedSnapshotRetentionPeriod?: int |
@@ -38,7 +40,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		AvailabilityZone?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		AvailabilityZone?: strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		AvailabilityZoneRelocation?: bool |
 			"true" |
 			"True" |
@@ -47,19 +54,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		AvailabilityZoneRelocationStatus?: string | fn.#StringExpression
-		Classic?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ClusterIdentifier?: strings.MaxRunes(63) & strings.MinRunes(0) | fn.#StringExpression
-		ClusterParameterGroupName?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-		ClusterSecurityGroups?: [
-			...string & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) | fn.#StringExpression
-		] |
+		AvailabilityZoneRelocationStatus?: string | number | bool | fn.#StringExpression
+		Classic?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ClusterIdentifier?: strings.MaxRunes(63) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		ClusterParameterGroupName?: strings.MaxRunes(255) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		ClusterSecurityGroups?: [...string & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
+		{
+			number | bool
+			_cfnString: string & strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		ClusterSubnetGroupName?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-		ClusterType!:            strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-		ClusterVersion?:         strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-		DBName!:                 strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-		DeferMaintenance?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ClusterSubnetGroupName?: strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		ClusterType!: strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		ClusterVersion?: strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DBName!: strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DeferMaintenance?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		DeferMaintenanceDuration?: int |
 			{
 				string &
@@ -76,22 +116,57 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		DeferMaintenanceEndTime?:   string | fn.#StringExpression
-		DeferMaintenanceStartTime?: string | fn.#StringExpression
-		DestinationRegion?:         string | fn.#StringExpression
-		ElasticIp?:                 strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		DeferMaintenanceEndTime?:   string | number | bool | fn.#StringExpression
+		DeferMaintenanceStartTime?: string | number | bool | fn.#StringExpression
+		DestinationRegion?:         string | number | bool | fn.#StringExpression
+		ElasticIp?: strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		Encrypted?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Endpoint?:           close({}) | fn.#ObjectExpression
 		EnhancedVpcRouting?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		HsmClientCertificateIdentifier?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-		HsmConfigurationIdentifier?:     strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-		IamRoles?: list.MaxItems(50) & [...strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression] |
-		fn.#ListExpression
-		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string) & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
+		HsmClientCertificateIdentifier?: strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
 		fn.#StringExpression
-		LoggingProperties?:    #LoggingProperties
-		MaintenanceTrackName?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		HsmConfigurationIdentifier?: strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		IamRoles?: list.MaxItems(50) & [...strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
+		{
+			number | bool
+			_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+				=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+				=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+			strings.MaxRunes(2147483647) &
+			strings.MinRunes(0) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		LoggingProperties?: #LoggingProperties
+		MaintenanceTrackName?: strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		ManageMasterPassword?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		ManualSnapshotRetentionPeriod?: int |
 			{
@@ -110,12 +185,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		MasterPasswordSecretKmsKeyId?: string & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
+		{
+			number | bool
+			_cfnString: string & strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
 		fn.#StringExpression
-		MasterUserPassword?:      strings.MaxRunes(64) | fn.#StringExpression
-		MasterUsername!:          strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+		MasterUserPassword?: strings.MaxRunes(64) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & "\(self)"
+		} |
+		fn.#StringExpression
+		MasterUsername!: strings.MaxRunes(128) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		MultiAZ?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		NamespaceResourcePolicy?: fn.#Object & {...} | string | fn.#StringObjectExpression
-		NodeType!:                strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		NamespaceResourcePolicy?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		NodeType!: strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		NumberOfNodes?: int & <=100 & >=1 |
 			{
 				string &
@@ -134,7 +228,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		OwnerAccount?: string | fn.#StringExpression
+		OwnerAccount?: string | number | bool | fn.#StringExpression
 		Port?: int |
 			{
 				string &
@@ -151,13 +245,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		PreferredMaintenanceWindow?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		PreferredMaintenanceWindow?: strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		PubliclyAccessible?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ResourceAction?:      string | fn.#StringExpression
-		RevisionTarget?:      string | fn.#StringExpression
+		ResourceAction?:      string | number | bool | fn.#StringExpression
+		RevisionTarget?:      string | number | bool | fn.#StringExpression
 		RotateEncryptionKey?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		SnapshotClusterIdentifier?: string | fn.#StringExpression
-		SnapshotCopyGrantName?:     string | fn.#StringExpression
+		SnapshotClusterIdentifier?: string | number | bool | fn.#StringExpression
+		SnapshotCopyGrantName?:     string | number | bool | fn.#StringExpression
 		SnapshotCopyManual?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		SnapshotCopyRetentionPeriod?: int |
 			{
@@ -175,26 +274,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		SnapshotIdentifier?: string | fn.#StringExpression
+		SnapshotIdentifier?: string | number | bool | fn.#StringExpression
 		Tags?:               list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-		VpcSecurityGroupIds?: [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
-			fn.#StringExpression
-		] |
+		VpcSecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+			strings.MaxRunes(2147483647) &
+			strings.MinRunes(0) &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #LoggingProperties: close({
-	BucketName?:         string | fn.#StringExpression
-	LogDestinationType?: string | fn.#StringExpression
-	LogExports?:         list.MaxItems(3) & [...string | fn.#StringExpression] | fn.#ListExpression
-	S3KeyPrefix?:        string | fn.#StringExpression
+	BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LogDestinationType?: string | number | bool | fn.#StringExpression
+	LogExports?:         list.MaxItems(3) & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	S3KeyPrefix?:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -14,29 +14,53 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a gateway task definition.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTWireless::TaskDefinition"
-	Properties!: close({
+	let properties = close({
 		AutoCreateTasks!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 		// The list of task definitions.
 		LoRaWANUpdateGatewayTaskEntry?: #LoRaWANUpdateGatewayTaskEntry
-		Name?:                          strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:                          list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-		TaskDefinitionType?:            "UPDATE" | fn.#StringExpression
+		Name?: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?:               list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		TaskDefinitionType?: "UPDATE" | fn.#StringExpression
 
 		// Information about the gateways to update.
 		Update?: #UpdateWirelessGatewayTaskCreate
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #LoRaWANGatewayVersion: close({
-	Model?:          strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	PackageVersion?: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
-	Station?:        strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	Model?: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	PackageVersion?: strings.MaxRunes(32) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Station?: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -58,8 +82,13 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	UpdateSignature?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	UpdateVersion?:   #LoRaWANGatewayVersion
+	UpdateSignature?: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	UpdateVersion?: #LoRaWANGatewayVersion
 }) |
 fn.#ObjectExpression
 
@@ -70,14 +99,34 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Key?: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #UpdateWirelessGatewayTaskCreate: close({
-	LoRaWAN?:          #LoRaWANUpdateGatewayTaskCreate
-	UpdateDataRole?:   strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	UpdateDataSource?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	LoRaWAN?: #LoRaWANUpdateGatewayTaskCreate
+	UpdateDataRole?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	UpdateDataSource?: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

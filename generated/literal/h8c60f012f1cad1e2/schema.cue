@@ -4,6 +4,7 @@ package schema
 
 import (
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -46,7 +47,9 @@ import (
 		VmManagement!:    #InitialVlanInfo
 		VmkManagement!:   #InitialVlanInfo
 	})
-	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 
 	// The license information for an EVS environment
 	LicenseInfo?: close({
@@ -112,7 +115,8 @@ import (
 #HostName: =~"^([a-zA-Z0-9\\-]*)$"
 
 #InitialVlanInfo: close({
-	Cidr!:
+	Cidr!: fn.#IPv4Network &
+		string &
 		=~"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[1-2][0-9]|[0-9])$"
 })
 

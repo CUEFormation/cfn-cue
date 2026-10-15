@@ -14,21 +14,35 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::NetworkSecurityManager::Policy. Creates and
 // manages a Network Security Manager policy.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::NetworkSecurityManager::Policy"
-	Properties!: close({
+	let properties = close({
 		AssociatedTemplateAndRuleList?: list.MaxItems(100) & [...] & [...#AssociatedTemplateAndRule] |
 			fn.#ListExpression
 		FirewallType!: "WAF" | "SHIELD_ADVANCED" | fn.#StringExpression
 
 		// Configuration settings for policy behavior.
 		PolicyConfiguration!: #PolicyConfiguration
-		PolicyDescription?:   strings.MaxRunes(256) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" | fn.#StringExpression
+		PolicyDescription?: strings.MaxRunes(256) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & =~"^[a-zA-Z0-9 _.:/=+\\-@]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		PolicyName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9 _.:/=+\\-@]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z0-9][a-zA-Z0-9 _.:/=+\\-@]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Priority!: int & >=1 |
 			{
@@ -49,11 +63,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AssociatedTemplateAndRule: close({
-	RuleArn?:     string | fn.#StringExpression
-	TemplateArn?: string | fn.#StringExpression
+	RuleArn?:     string | number | bool | fn.#StringExpression
+	TemplateArn?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -65,8 +81,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

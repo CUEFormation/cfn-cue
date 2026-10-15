@@ -10,27 +10,46 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::AWSExternalAnthropic::Workspace
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AWSExternalAnthropic::Workspace"
-	Properties!: close({
+	let properties = close({
 		DataResidency?: #DataResidency
-		Name!:          strings.MaxRunes(40) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:          list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		Name!: strings.MaxRunes(40) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(40) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DataResidency: close({
-	AllowedInferenceGeos?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	DefaultInferenceGeo?:  string | fn.#StringExpression
-	WorkspaceGeo?:         string | fn.#StringExpression
+	AllowedInferenceGeos?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	DefaultInferenceGeo?:  string | number | bool | fn.#StringExpression
+	WorkspaceGeo?:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

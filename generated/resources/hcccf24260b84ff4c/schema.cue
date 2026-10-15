@@ -10,18 +10,30 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A resource schema for a Variable in Amazon Fraud Detector.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::FraudDetector::Variable"
-	Properties!: close({
+	let properties = close({
 		DataSource!:   "EVENT" | "EXTERNAL_MODEL_SCORE" | fn.#StringExpression
 		DataType!:     "STRING" | "INTEGER" | "FLOAT" | "BOOLEAN" | fn.#StringExpression
-		DefaultValue!: string | fn.#StringExpression
-		Description?:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		Name!:         =~"^[a-z_][a-z0-9_]{0,99}?$" | fn.#StringExpression
-		Tags?:         list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		DefaultValue!: string | number | bool | fn.#StringExpression
+		Description?: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: =~"^[a-z_][a-z0-9_]{0,99}?$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-z_][a-z0-9_]{0,99}?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 		VariableType?: "AUTH_CODE" |
 			"AVS" |
 			"BILLING_ADDRESS_L1" |
@@ -57,10 +69,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"USERAGENT" |
 			fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

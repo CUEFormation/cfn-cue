@@ -9,34 +9,92 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecurityAgent::SecurityRequirementPack
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityAgent::SecurityRequirementPack"
-	Properties!: close({
-		Description?: strings.MaxRunes(500) | fn.#StringExpression
-		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string) & strings.MaxRunes(2048) |
+	let properties = close({
+		Description?: strings.MaxRunes(500) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & "\(self)"
+		} |
 		fn.#StringExpression
-		Name!:                 strings.MaxRunes(120) & strings.MinRunes(1) | fn.#StringExpression
+		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & strings.MaxRunes(2048) |
+		{
+			number | bool
+			_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+				=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+				=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+			strings.MaxRunes(2048) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(120) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(120) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		SecurityRequirements?: [...#SecurityRequirement] | fn.#ListExpression
 		Status?:               "ENABLED" | "DISABLED" | fn.#StringExpression
 		Tags?:                 [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #SecurityRequirement: close({
-	Description!: strings.MaxRunes(500) | fn.#StringExpression
-	Domain!:      strings.MaxRunes(10000) | fn.#StringExpression
-	Evaluation!:  strings.MaxRunes(10000) | fn.#StringExpression
-	Name!:        strings.MaxRunes(80) | fn.#StringExpression
-	Remediation?: strings.MaxRunes(10000) | fn.#StringExpression
+	Description!: strings.MaxRunes(500) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & "\(self)"
+	} |
+	fn.#StringExpression
+	Domain!: strings.MaxRunes(10000) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000) & "\(self)"
+	} |
+	fn.#StringExpression
+	Evaluation!: strings.MaxRunes(10000) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(80) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(80) & "\(self)"
+	} |
+	fn.#StringExpression
+	Remediation?: strings.MaxRunes(10000) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -9,24 +9,49 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTSiteWise::Dashboard
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTSiteWise::Dashboard"
-	Properties!: close({
-		DashboardDefinition!: strings.MaxRunes(204800) & strings.MinRunes(0) & =~"^.+$" | fn.#StringExpression
+	let properties = close({
+		DashboardDefinition!: strings.MaxRunes(204800) & strings.MinRunes(0) & =~"^.+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(204800) & strings.MinRunes(0) & =~"^.+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		DashboardDescription!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		DashboardName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" & "\(self)"
+		} |
 		fn.#StringExpression
-		ProjectId?: strings.MaxRunes(36) & strings.MinRunes(36) | fn.#StringExpression
-		Tags?:      [...#Tag] | fn.#ListExpression
+		ProjectId?: strings.MaxRunes(36) & strings.MinRunes(36) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) & strings.MinRunes(36) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

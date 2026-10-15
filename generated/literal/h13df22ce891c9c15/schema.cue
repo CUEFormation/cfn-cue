@@ -66,10 +66,12 @@ import (
 #CpuPerformanceFactorRequest: close({References?: [...#PerformanceFactorReferenceRequest]})
 
 #EbsBlockDevice: close({
-	DeleteOnTermination?:                bool
-	Encrypted?:                          bool
-	Iops?:                               int
-	KmsKeyId?:                           =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	DeleteOnTermination?: bool
+	Encrypted?:           bool
+	Iops?:                int
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 	MultiAvailabilityZoneConfiguration?: #MultiAvailabilityZoneConfiguration
 	SnapshotId?:                         string
 	VolumeSize?:                         int
@@ -94,7 +96,7 @@ import (
 	NetworkInterfaces?:    [...#NetworkInterfaceSpecificationRequest]
 	Placement?:            #Placement
 	Priority?:             number
-	SubnetId?:             string
+	SubnetId?:             =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 	WeightedCapacity?:     number
 })
 
@@ -212,7 +214,7 @@ import (
 	PrivateIpAddress?:               string
 	PrivateIpAddresses?:             [...#PrivateIpAddressSpecificationRequest]
 	SecondaryPrivateIpAddressCount?: int
-	SubnetId?:                       string
+	SubnetId?:                       =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 #OnDemandOptionsRequest: close({

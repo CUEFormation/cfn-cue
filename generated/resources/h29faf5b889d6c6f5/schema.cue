@@ -9,23 +9,42 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::NeptuneGraph::PrivateGraphEndpoint resource creates an Amazon
 // NeptuneGraph PrivateGraphEndpoint.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::NeptuneGraph::PrivateGraphEndpoint"
-	Properties!: close({
-		GraphIdentifier!: =~"^g-[a-z0-9]{10}$" | fn.#StringExpression
-		SecurityGroupIds?: [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
-		SubnetIds?: list.MaxItems(6) & list.MinItems(1) & [...=~"^subnet-[a-z0-9]+$" | fn.#StringExpression] |
-			fn.#ListExpression
-		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-			=~"^vpc-[a-z0-9]+$" |
-			fn.#StringExpression
+	let properties = close({
+		GraphIdentifier!: =~"^g-[a-z0-9]{10}$" |
+		{
+			number | bool
+			_cfnString: =~"^g-[a-z0-9]{10}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		SubnetIds?: list.MaxItems(6) & list.MinItems(1) & [...=~"^subnet-[a-z0-9]+$" |
+		{
+			number | bool
+			_cfnString: =~"^subnet-[a-z0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & =~"^vpc-[a-z0-9]+$" |
+		{
+			number | bool
+			_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & =~"^vpc-[a-z0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

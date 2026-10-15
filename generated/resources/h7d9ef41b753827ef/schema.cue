@@ -10,28 +10,64 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::B2BI::Profile Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::B2BI::Profile"
-	Properties!: close({
-		BusinessName!: strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
-		Email?:   strings.MaxRunes(254) & strings.MinRunes(5) & =~"^[\\w\\.\\-]+@[\\w\\.\\-]+$" | fn.#StringExpression
+	let properties = close({
+		BusinessName!: strings.MaxRunes(254) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(254) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Email?: strings.MaxRunes(254) & strings.MinRunes(5) & =~"^[\\w\\.\\-]+@[\\w\\.\\-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(254) & strings.MinRunes(5) & =~"^[\\w\\.\\-]+@[\\w\\.\\-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Logging!: #Logging
-		Name!:    strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
+		Name!: strings.MaxRunes(254) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(254) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Phone!: strings.MaxRunes(22) &
 		strings.MinRunes(7) &
 		=~"^\\+?([0-9 \\t\\-()\\/]{7,})(?:\\s*(?:#|x\\.?|ext\\.?|extension) \\t*(\\d+))?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(22) &
+			strings.MinRunes(7) &
+			=~"^\\+?([0-9 \\t\\-()\\/]{7,})(?:\\s*(?:#|x\\.?|ext\\.?|extension) \\t*(\\d+))?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Logging: "ENABLED" | "DISABLED" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

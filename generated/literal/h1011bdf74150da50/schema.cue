@@ -87,7 +87,10 @@ import (
 
 #Content: close({
 	// The Amazon S3 bucket of the layer archive.
-	S3Bucket!: strings.MaxRunes(63) & strings.MinRunes(3)
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3)
 
 	// The Amazon S3 key of the layer archive.
 	S3Key!: strings.MaxRunes(1024) & strings.MinRunes(1)

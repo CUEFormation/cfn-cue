@@ -10,22 +10,41 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::RolesAnywhere::CRL Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RolesAnywhere::CRL"
-	Properties!: close({
-		CrlData!:        string | fn.#StringExpression
-		Enabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Name!:           string | fn.#StringExpression
-		Tags?:           list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-		TrustAnchorArn?: =~"^arn:aws(-[^:]+)?:rolesanywhere(:.*){2}(:trust-anchor.*)$" | fn.#StringExpression
+	let properties = close({
+		CrlData!: string | number | bool | fn.#StringExpression
+		Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Name!:    string | number | bool | fn.#StringExpression
+		Tags?:    list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		TrustAnchorArn?: =~"^arn:aws(-[^:]+)?:rolesanywhere(:.*){2}(:trust-anchor.*)$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws(-[^:]+)?:rolesanywhere(:.*){2}(:trust-anchor.*)$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

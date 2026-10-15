@@ -40,7 +40,7 @@ type Result struct {
 	HeapMiB       float64  `json:"heapMiB"`
 }
 
-var logicalID = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9]{0,254}$`)
+var logicalID = regexp.MustCompile(`^[A-Za-z0-9]{1,255}$`)
 var schemaID = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
 
 // Check has no cancellation point inside CUE's evaluator. Call it in a process

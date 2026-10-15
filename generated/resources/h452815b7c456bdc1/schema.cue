@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::RDS::DBCluster`` resource creates an Amazon Aurora DB cluster or Multi-AZ DB cluster.
@@ -73,18 +75,81 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Attribute](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html).
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RDS::DBCluster"
-	Properties?: matchN(2, [
+	let properties = matchN(6, [
 		{
 			MasterUsername?: matchN(0, ["rdsadmin"]) | fn.#ValueExpression
 			...
-		},
-		matchIf({
+		}, matchIf({
 			Engine!: "aurora-postgresql" | "postgresql" | fn.#ValueExpression
 			...
 		}, {
 			MasterUsername?: matchN(0, ["admin"]) | fn.#ValueExpression
 			...
-		}, _) & {...}
+		}, _), matchIf({
+			Engine!: "aurora-mysql" | "aurora-postgresql"
+			...
+		}, {
+			AllocatedStorage?:       error("disallowed")
+			DBClusterInstanceClass?: error("disallowed")
+			Iops?:                   error("disallowed")
+			PubliclyAccessible?:     error("disallowed")
+			StorageType?:            matchIf(string, "aurora" | "aurora-iopt1", _) | fn.#ValueExpression
+			...
+		}, _), matchIf({
+			MonitoringRoleArn!: _
+			...
+		}, {
+			MonitoringInterval!: null | bool | >0 | string | [...] | {...} | fn.#ValueExpression
+			...
+		}, matchIf({
+			MonitoringInterval!: matchN(0, [matchN(0, [>0])])
+			...
+		}, {
+			MonitoringRoleArn!: _
+			...
+		}, _)), matchIf({
+			Engine!: "mysql" | "postgres"
+			...
+		}, {
+			AvailabilityZones?:                error("disallowed")
+			BacktrackWindow?:                  error("disallowed")
+			Domain?:                           error("disallowed")
+			DomainIAMRoleName?:                error("disallowed")
+			EnableGlobalWriteForwarding?:      error("disallowed")
+			EnableHttpEndpoint?:               error("disallowed")
+			EnableIAMDatabaseAuthentication?:  error("disallowed")
+			EngineMode?:                       error("disallowed")
+			GlobalClusterIdentifier?:          error("disallowed")
+			NetworkType?:                      error("disallowed")
+			ReplicationSourceIdentifier?:      error("disallowed")
+			ScalingConfiguration?:             error("disallowed")
+			ServerlessV2ScalingConfiguration?: error("disallowed")
+			SourceRegion?:                     error("disallowed")
+			StorageType!:                      matchIf(string, "io1" | "io2" | "gp3", _) | fn.#ValueExpression
+			AllocatedStorage!:                 _
+			DBClusterInstanceClass!:           _
+			Iops!:                             _
+			...
+		}, _),
+		matchIf({
+			EngineMode!: "provisioned"
+			...
+		}, {
+			ScalingConfiguration?: error("disallowed")
+			...
+		}, _) & matchIf({
+			EngineMode!: "serverless"
+			...
+		}, {
+			ServerlessV2ScalingConfiguration?: error("disallowed")
+			...
+		}, _) & matchIf({
+			EngineMode?: error("disallowed")
+			...
+		}, {
+			ScalingConfiguration?: error("disallowed")
+			...
+		}, _)
 	]) & close({
 		MasterUserPassword?: _
 		if MasterUserPassword != _|_ {
@@ -109,7 +174,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		AssociatedRoles?: list.MaxItems(15) & list.UniqueItems() & [...] & [...#DBClusterRole] | fn.#ListExpression
 		AutoMinorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		AvailabilityZones?:       list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		AvailabilityZones?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		BacktrackWindow?: int & >=0 |
 			{
 				string &
@@ -148,19 +213,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ClusterScalabilityType?: "limitless" | "standard" | fn.#StringExpression
 		CopyTagsToSnapshot?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		DBClusterIdentifier?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		DBClusterInstanceClass?:       string | fn.#StringExpression
-		DBClusterParameterGroupName?:  string | fn.#StringExpression
-		DBInstanceParameterGroupName?: string | fn.#StringExpression
-		DBSubnetGroupName?:            string | fn.#StringExpression
-		DBSystemId?:                   string | fn.#StringExpression
+		DBClusterInstanceClass?:       string | number | bool | fn.#StringExpression
+		DBClusterParameterGroupName?:  string | number | bool | fn.#StringExpression
+		DBInstanceParameterGroupName?: string | number | bool | fn.#StringExpression
+		DBSubnetGroupName?:            string | number | bool | fn.#StringExpression
+		DBSystemId?:                   string | number | bool | fn.#StringExpression
 		DatabaseInsightsMode?:         "advanced" | "standard" | fn.#StringExpression
-		DatabaseName?:                 string | fn.#StringExpression
+		DatabaseName?:                 string | number | bool | fn.#StringExpression
 		DeleteAutomatedBackups?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		DeletionProtection?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Domain?:                 string | fn.#StringExpression
-		DomainIAMRoleName?:      string | fn.#StringExpression
-		EnableCloudwatchLogsExports?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		Domain?:                 string | number | bool | fn.#StringExpression
+		DomainIAMRoleName?:      string | number | bool | fn.#StringExpression
+		EnableCloudwatchLogsExports?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
 		EnableGlobalWriteForwarding?: bool |
 			"true" |
 			"True" |
@@ -186,13 +259,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		Engine?:                 string | fn.#StringExpression
-		EngineLifecycleSupport?: string | fn.#StringExpression
-		EngineMode?:             string | fn.#StringExpression
-		EngineVersion?:          string | fn.#StringExpression
+		Engine?:                 string | number | bool | fn.#StringExpression
+		EngineLifecycleSupport?: string | number | bool | fn.#StringExpression
+		EngineMode?:             string | number | bool | fn.#StringExpression
+		EngineVersion?:          string | number | bool | fn.#StringExpression
 		GlobalClusterIdentifier?: strings.MaxRunes(63) &
 		strings.MinRunes(0) &
 		=~"^$|^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) &
+			strings.MinRunes(0) &
+			=~"^$|^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Iops?: int |
 			{
@@ -210,19 +290,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string |
-			fn.#StringExpression
+		KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+		} |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+				"\(self)"
+		} |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ManageMasterUserPassword?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		MasterUserAuthenticationType?: "iam-db-auth" | "password" | fn.#StringExpression
-		"MasterUserPassword"?:         string | fn.#StringExpression
+		"MasterUserPassword"?:         string | number | bool | fn.#StringExpression
 		MasterUserSecret?: close({
-			KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				string |
-				fn.#StringExpression
+			KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			{
+				number | bool
+				_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+			} |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			{
+				number | bool
+				_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+					"\(self)"
+			} |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+			{
+				number | bool
+				_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
-			fn.#ObjectExpression
-		MasterUsername?: strings.MinRunes(1) & =~"^[a-zA-Z]{1}[a-zA-Z0-9_]*$" | fn.#StringExpression
+		fn.#ObjectExpression
+		MasterUsername?: strings.MinRunes(1) & =~"^[a-zA-Z]{1}[a-zA-Z0-9_]*$" |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & =~"^[a-zA-Z]{1}[a-zA-Z0-9_]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		MonitoringInterval?: int |
 			{
 				string &
@@ -239,9 +352,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		MonitoringRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		NetworkType?: string | fn.#StringExpression
+		MonitoringRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		NetworkType?: string | number | bool | fn.#StringExpression
 		PerformanceInsightsEnabled?: bool |
 			"true" |
 			"True" |
@@ -250,7 +367,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		PerformanceInsightsKmsKeyId?: string | fn.#StringExpression
+		PerformanceInsightsKmsKeyId?: string | number | bool | fn.#StringExpression
 		PerformanceInsightsRetentionPeriod?: int |
 			{
 				string &
@@ -283,12 +400,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		PreferredBackupWindow?:      string | fn.#StringExpression
-		PreferredMaintenanceWindow?: string | fn.#StringExpression
+		PreferredBackupWindow?:      string | number | bool | fn.#StringExpression
+		PreferredMaintenanceWindow?: string | number | bool | fn.#StringExpression
 		PubliclyAccessible?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ReplicationSourceIdentifier?: string | fn.#StringExpression
-		RestoreToTime?:               string | fn.#StringExpression
-		RestoreType?:                 string | fn.#StringExpression
+		ReplicationSourceIdentifier?: string | number | bool | fn.#StringExpression
+		RestoreToTime?:               string | number | bool | fn.#StringExpression
+		RestoreType?:                 string | number | bool | fn.#StringExpression
 
 		// The scaling configuration of an Aurora Serverless v1 DB cluster.
 		// This property is only supported for Aurora Serverless v1. For Aurora
@@ -301,28 +418,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Serverless v1, Use the ``ScalingConfiguration`` property.
 		// Valid for: Aurora Serverless v2 DB clusters only
 		ServerlessV2ScalingConfiguration?: #ServerlessV2ScalingConfiguration
-		SnapshotIdentifier?:               string | fn.#StringExpression
-		SourceDBClusterIdentifier?:        string | fn.#StringExpression
-		SourceDbClusterResourceId?:        string | fn.#StringExpression
-		SourceRegion?:                     string | fn.#StringExpression
+		SnapshotIdentifier?:               string | number | bool | fn.#StringExpression
+		SourceDBClusterIdentifier?:        string | number | bool | fn.#StringExpression
+		SourceDbClusterResourceId?:        string | number | bool | fn.#StringExpression
+		SourceRegion?:                     string | number | bool | fn.#StringExpression
 		StorageEncrypted?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		StorageType?:             string | fn.#StringExpression
+		StorageType?:             string | number | bool | fn.#StringExpression
 		Tags?:                    list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		UseLatestRestorableTime?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		VpcSecurityGroupIds?: list.UniqueItems() & [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
+		VpcSecurityGroupIds?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DBClusterRole: close({
-	FeatureName?: string | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	FeatureName?: string | number | bool | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z-]*:iam::[0-9]*:role/.*$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[a-z-]*:iam::[0-9]*:role/.*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -385,7 +514,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TimeoutAction?: string | fn.#StringExpression
+	TimeoutAction?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -446,7 +575,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

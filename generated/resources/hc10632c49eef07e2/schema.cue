@@ -6,14 +6,23 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Wickr::Network. Creates and manages an AWS
 // Wickr network for secure enterprise communications.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Wickr::Network"
-	Properties!: close({
+	let properties = close({
 		AccessLevel!: "STANDARD" | "PREMIUM" | fn.#StringExpression
-		NetworkName!: =~"^[\\S\\s]*$" | fn.#StringExpression
+		NetworkName!: =~"^[\\S\\s]*$" |
+		{
+			number | bool
+			_cfnString: =~"^[\\S\\s]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

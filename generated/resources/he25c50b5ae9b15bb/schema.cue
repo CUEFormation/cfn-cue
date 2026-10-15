@@ -9,21 +9,50 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::RoboMaker::Robot resource creates an AWS RoboMaker Robot.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RoboMaker::Robot"
-	Properties!: close({
-		Architecture!:      "X86_64" | "ARM64" | "ARMHF" | fn.#StringExpression
-		Fleet?:             strings.MaxRunes(1224) & strings.MinRunes(1) | fn.#StringExpression
-		GreengrassGroupId!: strings.MaxRunes(1224) & strings.MinRunes(1) | fn.#StringExpression
-		Name?:              strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:              #Tags
+	let properties = close({
+		Architecture!: "X86_64" | "ARM64" | "ARMHF" | fn.#StringExpression
+		Fleet?: strings.MaxRunes(1224) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1224) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		GreengrassGroupId!: strings.MaxRunes(1224) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1224) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: #Tags
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tags: close({
 
-	{[=~"^[a-zA-Z0-9-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{
+		[=~"^[a-zA-Z0-9-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression

@@ -15,12 +15,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::Memory
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::Memory"
-	Properties!: close({
+	let properties = close({
 		Description?:      #Description
 		EncryptionKeyArn?: #Arn
 		EventExpiryDuration!: int & <=365 & >=3 |
@@ -43,12 +45,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		IndexedKeys?: #IndexedKeysList
 		MemoryExecutionRoleArn?: #Arn &
-		(null |
-		bool |
-		number |
-		=~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		[...] |
-		{...}) |
+		(null | bool | number | =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" | [...] | {...}) |
 		fn.#StringExpression
 		MemoryStrategies?: [...struct.MaxFields(1) & struct.MinFields(1) & close({
 			CustomMemoryStrategy?: close({
@@ -101,9 +98,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		StreamDeliveryResources?: #StreamDeliveryResources
 		Tags?:                    #TagsMap
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: string | fn.#StringExpression
+#Arn: string | number | bool | fn.#StringExpression
 
 #ContentConfiguration: close({
 	Level?: "METADATA_ONLY" | "FULL_CONTENT" | fn.#StringExpression
@@ -120,9 +119,14 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Definition: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+#Definition: strings.MaxRunes(1000) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#Description: string | fn.#StringExpression
+#Description: string | number | bool | fn.#StringExpression
 
 #EpisodicOverride: close({
 	Consolidation?: #EpisodicOverrideConsolidationConfigurationInput
@@ -133,20 +137,20 @@ fn.#ObjectExpression
 
 #EpisodicOverrideConsolidationConfigurationInput: close({
 	AppendToPrompt!: #Prompt
-	ModelId!:        string | fn.#StringExpression
+	ModelId!:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EpisodicOverrideExtractionConfigurationInput: close({
 	AppendToPrompt!: #Prompt
-	ModelId!:        string | fn.#StringExpression
+	ModelId!:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EpisodicOverrideReflectionConfigurationInput: close({
 	AppendToPrompt!:     #Prompt
 	MemoryRecordSchema?: #MemoryRecordSchema
-	ModelId!:            string | fn.#StringExpression
+	ModelId!:            string | number | bool | fn.#StringExpression
 	NamespaceTemplates?: #NamespacesList
 	Namespaces?:         #NamespacesList
 }) |
@@ -173,14 +177,13 @@ fn.#ObjectExpression
 #IndexedKeysList: list.MaxItems(10) & list.MinItems(1) & [...#IndexedKey] | fn.#ListExpression
 
 #InvocationConfigurationInput: close({
-	PayloadDeliveryBucketName?: =~"^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$" | fn.#StringExpression
-	TopicArn?: #Arn &
-	(null |
-	bool |
-	number |
-	=~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-	[...] |
-	{...}) |
+	PayloadDeliveryBucketName?: =~"^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TopicArn?: #Arn & (null | bool | number | =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" | [...] | {...}) |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -198,7 +201,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#LlmExtractionInstruction: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+#LlmExtractionInstruction: strings.MaxRunes(1000) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #MemoryRecordSchema: close({MetadataSchema?: #MetadataSchemaList}) | fn.#ObjectExpression
 
@@ -222,7 +230,12 @@ fn.#ObjectExpression
 }) |
 	fn.#ObjectExpression
 
-#MetadataKey: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
+#MetadataKey: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #MetadataSchemaEntry: close({
 	ExtractionConfig?: #ExtractionConfig
@@ -236,11 +249,26 @@ fn.#ObjectExpression
 
 #MetadataValueType: "STRING" | "STRINGLIST" | "NUMBER" | fn.#StringExpression
 
-#Name: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
+#Name: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" |
+{
+	number | bool
+	_cfnString: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" & "\(self)"
+} |
+fn.#StringExpression
 
-#Namespace: =~"^[a-zA-Z0-9\\-_/]*(\\{[a-zA-Z][a-zA-Z0-9]*\\}[a-zA-Z0-9\\-_/]*)*$" | fn.#StringExpression
+#Namespace: =~"^[a-zA-Z0-9\\-_/]*(\\{[a-zA-Z][a-zA-Z0-9]*\\}[a-zA-Z0-9\\-_/]*)*$" |
+{
+	number | bool
+	_cfnString: =~"^[a-zA-Z0-9\\-_/]*(\\{[a-zA-Z][a-zA-Z0-9]*\\}[a-zA-Z0-9\\-_/]*)*$" & "\(self)"
+} |
+fn.#StringExpression
 
-#NamespaceAllowedValue: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z0-9][a-z0-9-_]*$" | fn.#StringExpression
+#NamespaceAllowedValue: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z0-9][a-z0-9-_]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z0-9][a-z0-9-_]*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #NamespaceKeyEntry: close({
 	Key!:        #NamespaceVariableKey
@@ -256,9 +284,19 @@ fn.#ObjectExpression
 
 #NamespaceKeysList: list.MaxItems(5) & list.MinItems(1) & [...#NamespaceKeyEntry] | fn.#ListExpression
 
-#NamespaceRegexPattern: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+#NamespaceRegexPattern: strings.MaxRunes(64) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#NamespaceVariableKey: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
+#NamespaceVariableKey: strings.MaxRunes(32) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #NamespacesList: list.MinItems(1) & [...#Namespace] | fn.#ListExpression
 
@@ -304,7 +342,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Prompt: strings.MaxRunes(30000) & strings.MinRunes(1) | fn.#StringExpression
+#Prompt: strings.MaxRunes(30000) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(30000) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #SelfManagedConfiguration: close({
 	HistoricalContextWindowSize?: int & <=50 & >=0 |
@@ -336,13 +379,13 @@ fn.#ObjectExpression
 
 #SemanticOverrideConsolidationConfigurationInput: close({
 	AppendToPrompt!: #Prompt
-	ModelId!:        string | fn.#StringExpression
+	ModelId!:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SemanticOverrideExtractionConfigurationInput: close({
 	AppendToPrompt!: #Prompt
-	ModelId!:        string | fn.#StringExpression
+	ModelId!:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -353,7 +396,8 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #StringListValidation: close({
-	AllowedValues?: list.MaxItems(10) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+	AllowedValues?: list.MaxItems(10) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
 	MaxItems?: int & <=5 & >=1 |
 		{
 			string &
@@ -373,23 +417,37 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#StringValidation: close(
-	{AllowedValues!: list.MaxItems(10) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression},
-) |
+#StringValidation: close({
+	AllowedValues!: list.MaxItems(10) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
+}) |
 	fn.#ObjectExpression
 
 #SummaryOverride: close({Consolidation?: #SummaryOverrideConsolidationConfigurationInput}) | fn.#ObjectExpression
 
 #SummaryOverrideConsolidationConfigurationInput: close({
 	AppendToPrompt!: #Prompt
-	ModelId!:        string | fn.#StringExpression
+	ModelId!:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TagsMap: struct.MaxFields(50) & struct.MinFields(0) & close({
 
-	{[=~"^[a-zA-Z0-9\\s._:/=+@-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
-	fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[a-zA-Z0-9\\s._:/=+@-]{1,128}$"]: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #TimeBasedTriggerInput: close({
@@ -449,13 +507,13 @@ fn.#ObjectExpression
 
 #UserPreferenceOverrideConsolidationConfigurationInput: close({
 	AppendToPrompt!: #Prompt
-	ModelId!:        string | fn.#StringExpression
+	ModelId!:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #UserPreferenceOverrideExtractionConfigurationInput: close({
 	AppendToPrompt!: #Prompt
-	ModelId!:        string | fn.#StringExpression
+	ModelId!:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

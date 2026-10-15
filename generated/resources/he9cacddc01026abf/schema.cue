@@ -6,16 +6,20 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Used to install the certificate authority certificate and update the
 // certificate authority status.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ACMPCA::CertificateAuthorityActivation"
-	Properties!: close({
-		Certificate!:             string | fn.#StringExpression
-		CertificateAuthorityArn!: string | fn.#StringExpression
-		CertificateChain?:        string | fn.#StringExpression
-		Status?:                  string | fn.#StringExpression
+	let properties = close({
+		Certificate!:             string | number | bool | fn.#StringExpression
+		CertificateAuthorityArn!: string | number | bool | fn.#StringExpression
+		CertificateChain?:        string | number | bool | fn.#StringExpression
+		Status?:                  string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

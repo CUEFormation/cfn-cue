@@ -30,7 +30,11 @@ import "strings"
 
 #S3Location: close({
 	// The Schema S3 bucket name.
-	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"[a-zA-Z0-9_\\-]{3,63}$"
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"[a-zA-Z0-9_\\-]{3,63}$"
 
 	// This is the schema S3 object key, which includes the full path of "folders"
 	// from the bucket root to the schema.

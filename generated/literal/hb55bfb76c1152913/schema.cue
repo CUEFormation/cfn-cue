@@ -243,7 +243,9 @@ import (
 	// The Amazon Resource Name (ARN) of a AWS Key Management Service key that
 	// SageMaker AI uses to encrypt data on the storage volume attached to your
 	// notebook instance. The KMS key you provide must be enabled.
-	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^[a-zA-Z0-9:/_-]*$"
@@ -293,7 +295,10 @@ import (
 
 	// The ID of the subnet in a VPC to which you would like to have a connectivity
 	// from your ML compute instance.
-	SubnetId?: strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[-0-9a-zA-Z]+$"
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(0) &
+	=~"^[-0-9a-zA-Z]+$"
 
 	// A list of key-value pairs to apply to this resource.
 	Tags?: list.MaxItems(50) & [...] & [...#Tag]

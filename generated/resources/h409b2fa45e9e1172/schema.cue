@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This structure contains information about one delivery in your account.
@@ -20,12 +22,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [CreateDelivery](https://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_CreateDelivery.html).
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Logs::Delivery"
-	Properties!: close({
+	let properties = close({
 		// The ARN of the delivery destination that is associated with this delivery.
 		DeliveryDestinationArn!: #Arn
-		DeliverySourceName!:     strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
-		FieldDelimiter?:         strings.MaxRunes(5) & strings.MinRunes(1) | fn.#StringExpression
-		RecordFields?:           list.MaxItems(128) & [...] & [...#FieldHeader] | fn.#ListExpression
+		DeliverySourceName!: strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		FieldDelimiter?: strings.MaxRunes(5) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(5) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		RecordFields?: list.MaxItems(128) & [...] & [...#FieldHeader] | fn.#ListExpression
 		S3EnableHiveCompatiblePath?: bool |
 			"true" |
 			"True" |
@@ -34,17 +46,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		S3SuffixPath?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		S3SuffixPath?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?" | fn.#StringExpression
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?" & "\(self)"
+} |
+fn.#StringExpression
 
-#FieldHeader: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+#FieldHeader: strings.MaxRunes(50) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

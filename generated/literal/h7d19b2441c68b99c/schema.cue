@@ -474,5 +474,10 @@ strings.MinRunes(7) &
 	]
 
 	// The ID of the subnets in the VPC to which you want to connect your training job or model.
-	Subnets!: list.MaxItems(16) & list.MinItems(1) & [...strings.MaxRunes(32) & strings.MinRunes(0) & =~"[-0-9a-zA-Z]+"]
+	Subnets!: list.MaxItems(16) & list.MinItems(1) & [
+		...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"[-0-9a-zA-Z]+"
+	]
 })

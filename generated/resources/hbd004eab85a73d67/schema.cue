@@ -9,21 +9,56 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::NovaAct::WorkflowDefinition Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::NovaAct::WorkflowDefinition"
-	Properties!: close({
-		Description?:  strings.MaxRunes(4000) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(4000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ExportConfig?: #WorkflowExportConfig
-		Name!:         strings.MaxRunes(40) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,40}$" | fn.#StringExpression
+		Name!: strings.MaxRunes(40) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,40}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(40) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,40}$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #WorkflowExportConfig: close({
-	S3BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9.-]*[a-z0-9]$" | fn.#StringExpression
+	S3BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"^[a-z0-9][a-z0-9.-]*[a-z0-9]$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) &
+		=~"^[a-z0-9][a-z0-9.-]*[a-z0-9]$" &
+		"\(self)"
+	} |
+	fn.#StringExpression
 	S3KeyPrefix?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!\\-_.*'()]+(?:/[a-zA-Z0-9!\\-_.*'()]+)*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9!\\-_.*'()]+(?:/[a-zA-Z0-9!\\-_.*'()]+)*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

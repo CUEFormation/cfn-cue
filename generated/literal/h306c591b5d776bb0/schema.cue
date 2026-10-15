@@ -35,7 +35,14 @@ import (
 
 #BaselinePerformanceFactorsRequest: close({Cpu?: #CpuPerformanceFactorRequest})
 
-#BlockDeviceMapping: close({
+#BlockDeviceMapping: matchIf({
+	Ebs?:         error("disallowed")
+	VirtualName!: _
+	...
+}, {
+	VirtualName?: null | bool | number | =~"^ephemeral([0-9]|[1][0-9]|[2][0-3])$" | [...] | {...}
+	...
+}, _) & (close({
 	DeviceName!:  string
 	Ebs?:         #EbsBlockDevice
 	NoDevice?:    string
@@ -53,7 +60,7 @@ import (
 			"NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice",
 		)
 	}
-}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}])
+}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}]))
 
 #ClassicLoadBalancer: close({Name!: string})
 
@@ -61,7 +68,25 @@ import (
 
 #CpuPerformanceFactorRequest: close({References?: [...#PerformanceFactorReferenceRequest]})
 
-#EbsBlockDevice: close({
+#EbsBlockDevice: matchIf({
+	VolumeType!: "io1"
+	...
+}, {
+	Iops!: null | bool | <=64000 & >=100 | string | [...] | {...}
+	...
+}, _) & matchIf({
+	VolumeType!: "io2"
+	...
+}, {
+	Iops!: null | bool | <=256000 & >=100 | string | [...] | {...}
+	...
+}, _) & matchIf({
+	VolumeType!: "gp3"
+	...
+}, {
+	Iops?: null | bool | <=16000 & >=3000 | string | [...] | {...}
+	...
+}, _) & close({
 	DeleteOnTermination?: bool
 	Encrypted?:           bool
 	Iops?:                int
@@ -93,7 +118,7 @@ import (
 	NetworkInterfaceId?:             string
 	PrivateIpAddresses?:             list.UniqueItems() & [...#PrivateIpAddressSpecification]
 	SecondaryPrivateIpAddressCount?: int
-	SubnetId?:                       string
+	SubnetId?:                       =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 #InstanceRequirementsRequest: close({
@@ -157,7 +182,7 @@ import (
 	InstanceType?:         string
 	Priority?:             number
 	SpotPrice?:            string
-	SubnetId?:             string
+	SubnetId?:             =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 	WeightedCapacity?:     number
 })
 
@@ -213,7 +238,7 @@ import (
 	RamdiskId?:            string
 	SecurityGroups?:       list.UniqueItems() & [...#GroupIdentifier]
 	SpotPrice?:            string
-	SubnetId?:             string
+	SubnetId?:             =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 	TagSpecifications?:    list.UniqueItems() & [...#SpotFleetTagSpecification]
 	UserData?:             string
 	WeightedCapacity?:     number

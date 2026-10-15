@@ -66,7 +66,9 @@ import (
 	FeatureTypes?:       list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [..."TABLES" | "FORMS"]
 })
 
-#KmsKeyId: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+#KmsKeyId: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^\\p{ASCII}+$"
@@ -86,6 +88,9 @@ strings.MinRunes(1) &
 		=~"[-0-9a-zA-Z]+"
 	]
 	Subnets!: list.MaxItems(16) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(32) & strings.MinRunes(1) & =~"[-0-9a-zA-Z]+"
+		...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(1) &
+		=~"[-0-9a-zA-Z]+"
 	]
 })

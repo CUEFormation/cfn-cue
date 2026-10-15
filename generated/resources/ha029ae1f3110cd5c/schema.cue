@@ -10,13 +10,15 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaConnect::Flow
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaConnect::Flow"
-	Properties!: close({
-		AvailabilityZone?: string | fn.#StringExpression
+	let properties = close({
+		AvailabilityZone?: string | number | bool | fn.#StringExpression
 
 		// The encoding configuration to apply to the NDI source content when
 		// transcoding it to a transport stream (TS) for downstream distribution. You
@@ -28,7 +30,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// The maintenance settings you want to use for the flow.
 		Maintenance?:  #Maintenance
 		MediaStreams?: [...#MediaStream] | fn.#ListExpression
-		Name!:         string | fn.#StringExpression
+		Name!:         string | number | bool | fn.#StringExpression
 
 		// Specifies the configuration settings for NDI sources and outputs. Required
 		// when the flow includes NDI sources or outputs.
@@ -36,9 +38,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Source!: close({
 			// The type of decryption that is used on the content ingested from this source.
 			Decryption?:  #Encryption
-			Description?: string | fn.#StringExpression
+			Description?: string | number | bool | fn.#StringExpression
 			EntitlementArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:entitlement:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
-				fn.#StringExpression
+			{
+				number | bool
+				_cfnString: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:entitlement:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" &
+					"\(self)"
+			} |
+			fn.#StringExpression
 
 			// The source configuration for cloud flows receiving a stream from a bridge.
 			GatewayBridgeSource?: #GatewayBridgeSource
@@ -123,7 +130,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 						)
 				} |
 				fn.#NumberExpression
-			Name?: string | fn.#StringExpression
+			Name?: string | number | bool | fn.#StringExpression
 
 			// The settings for the NDI flow source. This includes the exact name of the
 			// upstream NDI sender that you want to connect to your flow source.
@@ -156,8 +163,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 						)
 				} |
 				fn.#NumberExpression
-			SenderIpAddress?:       string | fn.#StringExpression
-			SourceListenerAddress?: string | fn.#StringExpression
+			SenderIpAddress?:       string | number | bool | fn.#StringExpression
+			SourceListenerAddress?: string | number | bool | fn.#StringExpression
 			SourceListenerPort?: int |
 				{
 					string &
@@ -174,10 +181,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 						)
 				} |
 				fn.#NumberExpression
-			StreamId?:         string | fn.#StringExpression
+			StreamId?:         string | number | bool | fn.#StringExpression
 			Tags?:             [...#Tag] | fn.#ListExpression
-			VpcInterfaceName?: string | fn.#StringExpression
-			WhitelistCidr?:    string | fn.#StringExpression
+			VpcInterfaceName?: string | number | bool | fn.#StringExpression
+			WhitelistCidr?:    string | number | bool | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 
@@ -189,6 +196,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:                   [...#Tag] | fn.#ListExpression
 		VpcInterfaces?:          [...#VpcInterface] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AudioMonitoringSetting: close({SilentAudio?: #SilentAudio}) | fn.#ObjectExpression
@@ -237,17 +246,27 @@ fn.#ObjectExpression
 
 #Encryption: close({
 	Algorithm?:                    "aes128" | "aes192" | "aes256" | fn.#StringExpression
-	ConstantInitializationVector?: string | fn.#StringExpression
-	DeviceId?:                     string | fn.#StringExpression
+	ConstantInitializationVector?: string | number | bool | fn.#StringExpression
+	DeviceId?:                     string | number | bool | fn.#StringExpression
 	KeyType?:                      "speke" | "static-key" | "srt-password" | fn.#StringExpression
-	Region?:                       string | fn.#StringExpression
-	ResourceId?:                   string | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	Region?:                       string | number | bool | fn.#StringExpression
+	ResourceId?:                   string | number | bool | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	SecretArn?: =~"^arn:(aws[a-zA-Z-]*):secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:[a-zA-Z0-9/_+=.@-]+$" |
-		fn.#StringExpression
-	Url?: string | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:(aws[a-zA-Z-]*):secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:[a-zA-Z0-9/_+=.@-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Url?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -267,7 +286,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SourcePriority?: close({PrimarySource!: string | fn.#StringExpression}) | fn.#ObjectExpression
+	SourcePriority?: close({PrimarySource!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 	State?:          "ENABLED" | "DISABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -288,10 +307,10 @@ fn.#ValueExpression
 #FlowTransitEncryptionKeyType: "SECRETS_MANAGER" | "AUTOMATIC" | fn.#StringExpression
 
 #Fmtp: close({
-	ChannelOrder?:   string | fn.#StringExpression
+	ChannelOrder?:   string | number | bool | fn.#StringExpression
 	Colorimetry?:    "BT601" | "BT709" | "BT2020" | "BT2100" | "ST2065-1" | "ST2065-3" | "XYZ" | fn.#StringExpression
-	ExactFramerate?: string | fn.#StringExpression
-	Par?:            string | fn.#StringExpression
+	ExactFramerate?: string | number | bool | fn.#StringExpression
+	Par?:            string | number | bool | fn.#StringExpression
 	Range?:          "NARROW" | "FULL" | "FULLPROTECT" | fn.#StringExpression
 	ScanMode?:       "progressive" | "interlace" | "progressive-segmented-frame" | fn.#StringExpression
 	Tcs?: "SDR" |
@@ -328,7 +347,12 @@ fn.#ObjectExpression
 
 #GatewayBridgeSource: close({
 	BridgeArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:bridge:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:bridge:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 
 	// The name of the VPC interface attachment to use for this bridge source.
 	VpcInterfaceAttachment?: #VpcInterfaceAttachment
@@ -356,7 +380,7 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Interface: close({Name!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Interface: close({Name!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Maintenance: close({
 	MaintenanceDay!: "Monday" |
@@ -367,7 +391,7 @@ fn.#ObjectExpression
 		"Saturday" |
 		"Sunday" |
 		fn.#StringExpression
-	MaintenanceStartHour!: string | fn.#StringExpression
+	MaintenanceStartHour!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -388,7 +412,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Description?: string | fn.#StringExpression
+	Description?: string | number | bool | fn.#StringExpression
 	Fmt?: int |
 		{
 			string &
@@ -417,7 +441,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	MediaStreamName!: string | fn.#StringExpression
+	MediaStreamName!: string | number | bool | fn.#StringExpression
 	MediaStreamType!: "video" | "audio" | "ancillary-data" | fn.#StringExpression
 	Tags?:            [...#Tag] | fn.#ListExpression
 	VideoFormat?:     "2160p" | "1080p" | "1080i" | "720p" | "480p" | fn.#StringExpression
@@ -427,19 +451,19 @@ fn.#ObjectExpression
 #MediaStreamAttributes: close({
 	// A set of parameters that define the media stream.
 	Fmtp?: #Fmtp
-	Lang?: string | fn.#StringExpression
+	Lang?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MediaStreamSourceConfiguration: close({
 	EncodingName!:        "jxsv" | "raw" | "smpte291" | "pcm" | fn.#StringExpression
 	InputConfigurations?: [...#InputConfiguration] | fn.#ListExpression
-	MediaStreamName!:     string | fn.#StringExpression
+	MediaStreamName!:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #NdiConfig: close({
-	MachineName?:         string | fn.#StringExpression
+	MachineName?:         string | number | bool | fn.#StringExpression
 	NdiDiscoveryServers?: [...#NdiDiscoveryServerConfig] | fn.#ListExpression
 
 	// A setting that controls whether NDI sources or outputs can be used in the
@@ -450,7 +474,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #NdiDiscoveryServerConfig: close({
-	DiscoveryServerAddress!: string | fn.#StringExpression
+	DiscoveryServerAddress!: string | number | bool | fn.#StringExpression
 	DiscoveryServerPort?: int |
 		{
 			string &
@@ -465,20 +489,30 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	VpcInterfaceAdapter!: string | fn.#StringExpression
+	VpcInterfaceAdapter!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#NdiSourceSettings: close({SourceName?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#NdiSourceSettings: close({SourceName?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #NdiState: "ENABLED" | "DISABLED" | fn.#StringExpression
 
 #SecretsManagerEncryptionKeyConfiguration: close({
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	SecretArn!: =~"^arn:(aws[a-zA-Z-]*):secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:[a-zA-Z0-9/_+=.@-]+$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:(aws[a-zA-Z-]*):secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:[a-zA-Z0-9/_+=.@-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -510,8 +544,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -522,20 +556,34 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VpcInterface: close({
-	Name!:                 string | fn.#StringExpression
-	NetworkInterfaceIds?:  [...string | fn.#StringExpression] | fn.#ListExpression
+	Name!:                 string | number | bool | fn.#StringExpression
+	NetworkInterfaceIds?:  [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	NetworkInterfaceType?: "ena" | "efa" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" |
-		fn.#StringExpression
-	SecurityGroupIds!: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SubnetId!: string | fn.#StringExpression
-	Tags?:     [...#Tag] | fn.#ListExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
+	SecurityGroupIds!: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Tags?: [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#VpcInterfaceAttachment: close({VpcInterfaceName?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#VpcInterfaceAttachment: close({VpcInterfaceName?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression

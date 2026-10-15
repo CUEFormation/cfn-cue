@@ -10,12 +10,14 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // VpcLattice ResourceConfiguration CFN resource
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::VpcLattice::ResourceConfiguration"
-	Properties!: close({
+	let properties = close({
 		AllowAssociationToSharableServiceNetwork?: bool |
 			"true" |
 			"True" |
@@ -24,15 +26,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		CustomDomainName?: strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
-		DomainVerificationId?: strings.MaxRunes(20) & strings.MinRunes(20) & =~"^dv-[a-fA-F0-9]{17}$" |
+		CustomDomainName?: strings.MaxRunes(255) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & "\(self)"
+		} |
 		fn.#StringExpression
-		GroupDomain?:                   strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
-		Name!:                          strings.MaxRunes(40) & strings.MinRunes(3) | fn.#StringExpression
+		DomainVerificationId?: strings.MaxRunes(20) & strings.MinRunes(20) & =~"^dv-[a-fA-F0-9]{17}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(20) & strings.MinRunes(20) & =~"^dv-[a-fA-F0-9]{17}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		GroupDomain?: strings.MaxRunes(255) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(40) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(40) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression
 		PortRanges?:                    [...#PortRange] | fn.#ListExpression
 		ProtocolType?:                  "TCP" | fn.#StringExpression
 		ResourceConfigurationAuthType?: "NONE" | "AWS_IAM" | fn.#StringExpression
-		ResourceConfigurationDefinition?: fn.#Object & {...} & matchN(1, [close(
+		ResourceConfigurationDefinition?: fn.#Object & matchN(1, [close(
 			{IpResource!: #IpResource},
 		), close(
 			{ArnResource!: #ArnResource},
@@ -44,35 +65,75 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 		ResourceConfigurationGroupId?: #Id
 		ResourceConfigurationType!:    "GROUP" | "CHILD" | "SINGLE" | "ARN" | "CIDR" | fn.#StringExpression
-		ResourceGatewayId?:            string | fn.#StringExpression
+		ResourceGatewayId?:            string | number | bool | fn.#StringExpression
 		Tags?:                         list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ArnResource: strings.MaxRunes(1224) & =~"^arn.*" | fn.#StringExpression
+#ArnResource: strings.MaxRunes(1224) & =~"^arn.*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1224) & =~"^arn.*" & "\(self)"
+} |
+fn.#StringExpression
 
 #CidrResource: close({
-	CidrRanges!: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	CidrRanges!: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(50) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #DnsResource: close({
-	DomainName!:    strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
+	DomainName!: strings.MaxRunes(255) & strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & "\(self)"
+	} |
+	fn.#StringExpression
 	IpAddressType!: "IPV4" | "IPV6" | "DUALSTACK" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Id: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^rcfg-[0-9a-z]{17}$" | fn.#StringExpression
+#Id: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^rcfg-[0-9a-z]{17}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^rcfg-[0-9a-z]{17}$" & "\(self)"
+} |
+fn.#StringExpression
 
-#IpResource: strings.MaxRunes(39) & strings.MinRunes(4) | fn.#StringExpression
+#IpResource: strings.MaxRunes(39) & strings.MinRunes(4) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(39) & strings.MinRunes(4) & "\(self)"
+} |
+fn.#StringExpression
 
-#PortRange: strings.MaxRunes(11) & strings.MinRunes(1) & =~"^((\\d{1,5}\\-\\d{1,5})|(\\d+))$" | fn.#StringExpression
+#PortRange: strings.MaxRunes(11) & strings.MinRunes(1) & =~"^((\\d{1,5}\\-\\d{1,5})|(\\d+))$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(11) & strings.MinRunes(1) & =~"^((\\d{1,5}\\-\\d{1,5})|(\\d+))$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

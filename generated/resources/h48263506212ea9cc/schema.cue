@@ -9,12 +9,14 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Classifier
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::Classifier"
-	Properties?: close({
+	let properties = close({
 		// A classifier for comma-separated values (CSV).
 		CsvClassifier?: #CsvClassifier
 
@@ -27,38 +29,86 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// A classifier for XML content.
 		XMLClassifier?: #XMLClassifier
 	}) & matchN(>=1, [{XMLClassifier!: _}, {CsvClassifier!: _}, {GrokClassifier!: _}, {JsonClassifier!: _}])
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CsvClassifier: close({
 	AllowSingleColumn?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ContainsCustomDatatype?:   [...string | fn.#StringExpression] | fn.#ListExpression
+	ContainsCustomDatatype?:   [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	ContainsHeader?:           "ABSENT" | "PRESENT" | "UNKNOWN" | fn.#StringExpression
 	CustomDatatypeConfigured?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Delimiter?:                strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[^\\r\\n]$" | fn.#StringExpression
-	DisableValueTrimming?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Header?:      [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Name?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	QuoteSymbol?: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[^\\r\\n]$" | fn.#StringExpression
+	Delimiter?: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[^\\r\\n]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[^\\r\\n]$" & "\(self)"
+	} |
+	fn.#StringExpression
+	DisableValueTrimming?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Header?: [...strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	QuoteSymbol?: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[^\\r\\n]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1) & strings.MinRunes(1) & =~"^[^\\r\\n]$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GrokClassifier: close({
-	Classification!: string | fn.#StringExpression
-	CustomPatterns?: strings.MaxRunes(16000) & strings.MinRunes(0) | fn.#StringExpression
-	GrokPattern!:    strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Name?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Classification!: string | number | bool | fn.#StringExpression
+	CustomPatterns?: strings.MaxRunes(16000) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(16000) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	GrokPattern!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #JsonClassifier: close({
-	JsonPath!: string | fn.#StringExpression
-	Name?:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	JsonPath!: string | number | bool | fn.#StringExpression
+	Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #XMLClassifier: close({
-	Classification!: string | fn.#StringExpression
-	Name?:           strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	RowTag!:         string | fn.#StringExpression
+	Classification!: string | number | bool | fn.#StringExpression
+	Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	RowTag!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

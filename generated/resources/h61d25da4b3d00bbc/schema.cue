@@ -10,25 +10,29 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaLive::Node Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaLive::Node"
-	Properties!: close({
-		ClusterId!:             string | fn.#StringExpression
-		Name?:                  string | fn.#StringExpression
+	let properties = close({
+		ClusterId!:             string | number | bool | fn.#StringExpression
+		Name?:                  string | number | bool | fn.#StringExpression
 		NodeInterfaceMappings?: [...#NodeInterfaceMapping] | fn.#ListExpression
 		Role?:                  #NodeRole
 		SdiSourceMappings?:     [...#SdiSourceMapping] | fn.#ListExpression
 		Tags?:                  [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #NodeInterfaceMapping: close({
-	LogicalInterfaceName?:  string | fn.#StringExpression
+	LogicalInterfaceName?:  string | number | bool | fn.#StringExpression
 	NetworkInterfaceMode?:  "NAT" | "BRIDGE" | fn.#StringExpression
-	PhysicalInterfaceName?: string | fn.#StringExpression
+	PhysicalInterfaceName?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -63,12 +67,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SdiSource?: string | fn.#StringExpression
+	SdiSource?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

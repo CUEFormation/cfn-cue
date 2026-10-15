@@ -34,7 +34,7 @@ go run ./cmd/cfn-cue -source snapshots/schemas-2026-10-12.zip \
   -out sam -include-sam
 ```
 
-`-source` accepts a local ZIP, a directory containing `providers/` and `resources/`, or an HTTPS ZIP URL. `-module` sets the generated CUE module path. `-strict` refuses to publish output if conversion diagnostics identify omitted or approximated upstream constraints. Strict mode covers schema conversion; semantic CloudFormation checks remain separate. `-iam-policies=false` keeps provider schemas for IAM policy properties (see [IAM policies](#iam-policies)).
+`-source` accepts a local ZIP, a directory containing `providers/` and `resources/`, or an HTTPS ZIP URL. `-module` sets the generated CUE module path. `-strict` refuses to publish output if conversion diagnostics identify omitted or approximated upstream constraints. Strict mode covers schema conversion; semantic CloudFormation checks remain separate. `-iam-policies=false` keeps provider schemas for IAM policy properties (see [IAM policies](#iam-policies)). `-cfn-lint-rules=false` omits the service rules taken from cfn-lint (see [Service rules from cfn-lint](#service-rules-from-cfn-lint)).
 
 Output is generated in a staging directory. A failed run leaves the previous output intact. Only directories containing this generator's manifest marker may be replaced. Treat the entire generated directory as disposable; put authored templates elsewhere.
 
@@ -97,6 +97,16 @@ accept fractions or exponents. Unicode numeral conversions and non-finite
 numbers remain unsupported. Composed scalar constraints whose exact-value
 semantics cannot be established stay strict and produce conversion diagnostics.
 
+String properties accept a number or boolean whose string form satisfies the
+property's string constraints, so `MinSize: 1` passes `=~"^[0-9]+$"` and
+`Enabled: true` passes an unconstrained string. The string form is CUE's
+interpolation of the value (`1`, `-1`, `1.5`, `true`), which can differ from
+CloudFormation's for exponents and trailing zeros. A string enum member such as
+`"-1"` or `"true"` accepts the number or boolean spelled the same way. When a
+property also has a numeric or boolean branch, numbers or booleans must satisfy
+that branch instead. Parameter `Default` and `AllowedValues` accept booleans;
+other parameter fields keep their string type.
+
 Inside the generated module, an authored CUE template can import a regional package:
 
 ```cue
@@ -148,6 +158,8 @@ The generator emits a finite graph of named CUE definitions. It does not recursi
 
 A shared function table has optional function keys and enforces exactly one key in a concrete expression. Result-type views select the permitted keys for strings, numbers, booleans, lists and objects. Multi-type properties use a combined view so shared functions such as `Ref` do not leave competing alternatives. Generic objects reserve intrinsic keys, which prevents malformed functions from passing as ordinary objects. Common input types keep the recursive graph small. `Fn::If` branches use the expected result type; `Ref: "AWS::NoValue"` works through the dynamic reference alternative. Logical functions enforce their argument counts without constructing an eagerly expanded recursive tuple.
 
+`Fn::If` can also choose a resource's whole `Properties`, `UpdatePolicy` or `CreationPolicy`. Each `Properties` branch must match the resource's properties schema or be `Ref: "AWS::NoValue"`; nested `Fn::If` is not accepted there. Policy branches are objects, `AWS::NoValue` or another `Fn::If`. Other intrinsics, such as `UpdatePolicy: {Ref: P}`, are rejected, as in cfn-lint. Required properties are not checked against the branch CloudFormation will pick, because conditions are not evaluated.
+
 Local schema references reuse intrinsic alternatives already present in their
 target definition. Adding them again at a reference created incomplete values
 for object-valued `Fn::If`, including the pinned EMR example. References to
@@ -163,20 +175,53 @@ The schema checks call shapes and known result categories. Dynamic functions suc
 
 ## Validation boundary
 
-This is a structural schema generator, not a replacement for cfn-lint. Keep cfn-lint in the validation workflow for reference existence, attribute names and return types, `Sub` variables, function-specific nesting permissions, function placement, transform execution, condition evaluation, cross-resource relationships, and AWS service rules.
+This is a structural schema generator, not a replacement for cfn-lint. Keep cfn-lint in the validation workflow for reference existence, attribute names and return types, `Sub` variables, function-specific nesting permissions, function placement, transform execution, condition evaluation, cross-resource relationships, and the AWS service rules not listed under [Service rules from cfn-lint](#service-rules-from-cfn-lint).
 
 Literal property constraints apply directly to literal values. Intrinsic values receive argument and result-type checks; this version does not evaluate them or specialize their branches with the complete target property's enum, pattern, or nested object schema. Parameter type names and SAM Globals have structural coverage. Listed IAM policy properties use the profiles described below; other policy objects have structural coverage. ForEach expansion and ForEach in Conditions/Outputs remain future work.
 
 The conversion report in generated/manifest.json lists every remaining approximation. Unsupported Python/ECMAScript regex features are reported; Unicode `\uXXXX` escapes are translated to RE2 notation. Selected-key uniqueness degrades to whole-item uniqueness. Other unsupported constraints are reported rather than silently presented as enforced. AWS provider annotations and defaults are not emitted as deployable values.
 
-Eight cfn-lint identifier formats are enforced as additional literal patterns:
-VPC, security group, and AMI IDs, plus IAM role, KMS key, SNS topic, ACM
-certificate, and Lambda function ARNs. Existing provider patterns still apply.
-Unresolved intrinsic values and template dynamic references defer their result
-format checks. LaunchTemplate's `resolve:ssm` ImageId exception is scoped to
-that property. Dynamic references still receive existing provider constraints;
-placement and syntax checks remain with cfn-lint. Embedded IAM policy semantics
-remain separate.
+Thirteen cfn-lint identifier formats are enforced as additional literal
+patterns: VPC, subnet, security group, AMI and KMS key IDs, KMS alias, security
+group and S3 bucket names, plus IAM role, KMS key, SNS topic, ACM certificate,
+and Lambda function ARNs. cfn-lint's bucket name pattern uses lookarounds, which
+RE2 lacks, so it is checked as two equivalent patterns. `ipv4-network` and
+`ipv6-network` use `fn.#IPv4Network` and `fn.#IPv6Network`, which reject a
+network with host bits set, such as `192.168.1.0/0`, as Python's `ipaddress`
+does for cfn-lint. An IPv4 netmask such as `10.0.0.0/255.0.0.0` is accepted
+without that check. cfn-lint has no rule for the `.Ids` and `.Names` list formats or,
+because of a registration bug, for `AWS::Logs::LogGroup.Name`; those remain
+unenforced and listed in the manifest. Existing provider patterns still apply.
+Unresolved intrinsic values defer their result format checks.
+LaunchTemplate's `resolve:ssm` ImageId exception is scoped to that property.
+
+A string, number or boolean property, or one whose schema has no type, also
+accepts a string containing an `ssm`, `ssm-secure` or `secretsmanager` dynamic
+reference (`fn.#DynamicReference`), as cfn-lint does. CloudFormation resolves
+the reference before it checks the property, so the provider's pattern, enum,
+length and format constraints don't apply to it. Object and list properties
+don't accept one. As in cfn-lint, the reference must be on the first line, which
+may be followed by one final newline. Placement and syntax checks, such as
+`ssm-secure` only in supported properties, remain with cfn-lint. Embedded IAM
+policy semantics remain separate.
+
+## Service rules from cfn-lint
+
+cfn-lint adds service rules to the provider schemas as JSON Schema "extension" files. The generator applies 42 of them, copied unchanged from cfn-lint v1.57.2 into `internal/generate/cfnlint/extensions/`, to 32 resource types. Examples: an S3 bucket with a public `AccessControl` needs `OwnershipControls`; a Lambda target group can't set a port; `ZipFile` code needs a Node.js or Python runtime; an Aurora instance can't set `AllocatedStorage`. `internal/generate/extensions.go` lists each rule ID, file and property path.
+
+Only error-level rules that check one resource are used. Rules that look at other resources, list instance types per region, or carry cfn-lint's multi-megabyte RDS instance class tables remain with cfn-lint, as do warnings.
+
+Each rule is a CUE validator that re-checks the whole resource, so its cost grows with the resource. Seven vendored rules are marked `Slow` and not applied: the ECS task definition rules (E3042, E3047, E3048), the DynamoDB billing mode rules (E3638, E3639) and the RDS engine version rules (E3690, E3691). On the largest corpus instances they added 25–340 ms per resource. With the rest applied, a paired comparison over the 770 corpus templates that use an affected type added a median of 3 ms per template (63 to 67 ms) and 8% to their total CUE time; the largest increase was 88 ms. A single affected resource adds at most about 20 ms.
+
+The generator rewrites the files to approximate cfn-lint’s behavior, with the following compatibility rules and limits:
+
+- `const` and `enum` compare loosely, as in cfn-lint: `"0"` equals `0`, and `"true"` equals `true`.
+- A numeric condition such as `maximum: 60` is not met by a string. cfn-lint compares `"45"` as a number, so CUE skips some rules it would apply, but never applies one to a numeric string cfn-lint exempts.
+- An intrinsic never satisfies a rule's condition, so `AccessControl: {Ref: Acl}` doesn't require `OwnershipControls`. cfn-lint instead resolves the `Ref` to the parameter's values, so it can report a rule CUE skips.
+- `^(?!X).*$` lookahead patterns become a negated prefix, and the RDS rules that lowercase `Engine` match it case-insensitively. A rule with any other pattern RE2 can't compile is skipped with a diagnostic, because dropping a pattern from a condition would apply the rule too widely.
+- `not` over required properties becomes `false` property schemas, and `anyOf` in a condition becomes a double `not`. CUE treats a missing required field in a disjunction as incomplete rather than failing, which would otherwise make these rules reject every resource of the type or always apply.
+
+A rule whose path ends at a referenced definition is added to that definition, so it applies wherever the definition is used, while cfn-lint applies it only at the listed path. Conditions in `Fn::If` values aren't evaluated. These rules are approximations of cfn-lint's, not AWS documentation; disable them with `-cfn-lint-rules=false`.
 
 ## IAM policies
 
@@ -224,7 +269,7 @@ CFN_CUE_PERF=1 go test ./internal/generate -run TestResourcePerformance -v
 scripts/region-bench.sh
 ```
 
-Tests cover recursive provider definitions, nested intrinsics, conditional branches, wrong return categories, malformed function objects, required properties, unknown fields/types, read-only filtering, schema exclusivity, LanguageExtensions, resource ForEach, regional selection, strict diagnostics, and preservation of existing output after failure. The opt-in test generates a filtered module from the real upstream snapshot and checks S3 and IAM templates, including policy documents that permit either strings or objects. A second opt-in test checks the 46 smoke corpus templates against the complete us-east-1 and us-west-2 `#Template` and compares the results with `corpus/smoke/expectations.json`.
+Tests cover recursive provider definitions, nested intrinsics, conditional branches, wrong return categories, malformed function objects, required properties, unknown fields/types, read-only filtering, schema exclusivity, LanguageExtensions, resource ForEach, regional selection, strict diagnostics, and preservation of existing output after failure. The opt-in test generates a filtered module from the real upstream snapshot and checks S3 and IAM templates, including policy documents that permit either strings or objects. A second opt-in test checks the 79 smoke corpus templates against the complete us-east-1 and us-west-2 `#Template` and compares the results with `corpus/smoke/expectations.json`.
 
 See [RESEARCH.md](RESEARCH.md) for upstream locations and the next design decisions.
 

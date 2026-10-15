@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::Logs::LogGroup`` resource specifies a log group. A log group
@@ -23,7 +25,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // (underscore), '-' (hyphen), '/' (forward slash), and '.' (period).
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Logs::LogGroup"
-	Properties?: close({
+	let properties = close({
 		BearerTokenAuthenticationEnabled?: bool |
 			"true" |
 			"True" |
@@ -32,7 +34,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		DataProtectionPolicy?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		DataProtectionPolicy?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		DeletionProtectionEnabled?: bool |
 			"true" |
 			"True" |
@@ -42,11 +44,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"FALSE" |
 			fn.#BooleanExpression
 		FieldIndexPolicies?: list.UniqueItems() & [...fn.#Object & {...} | fn.#ObjectExpression] | fn.#ListExpression
-		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string) & (strings.MaxRunes(256) & strings.MinRunes(0)) |
+		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(256) & strings.MinRunes(0)) |
+		{
+			number | bool
+			_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+				=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+				=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+			strings.MaxRunes(256) &
+			strings.MinRunes(0) &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		LogGroupClass?:          "STANDARD" | "INFREQUENT_ACCESS" | "DELIVERY" | fn.#StringExpression
-		LogGroupName?:           strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+		LogGroupClass?: "STANDARD" | "INFREQUENT_ACCESS" | "DELIVERY" | fn.#StringExpression
+		LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ResourcePolicyDocument?: fn.#Object & {...} | fn.#ObjectExpression
 		RetentionInDays?: (==1 |
 			==3 |
@@ -74,10 +91,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

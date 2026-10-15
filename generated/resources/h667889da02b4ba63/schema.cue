@@ -6,14 +6,18 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::ApplicationEntitlementAssociation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppStream::ApplicationEntitlementAssociation"
-	Properties!: close({
-		ApplicationIdentifier!: string | fn.#StringExpression
-		EntitlementName!:       string | fn.#StringExpression
-		StackName!:             string | fn.#StringExpression
+	let properties = close({
+		ApplicationIdentifier!: string | number | bool | fn.#StringExpression
+		EntitlementName!:       string | number | bool | fn.#StringExpression
+		StackName!:             string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

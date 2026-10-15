@@ -20,7 +20,9 @@ import "strings"
 // encryption.
 #ConnectionPasswordEncryption: close({
 	// An AWS KMS key that is used to encrypt the connection password.
-	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 
 	// When the ReturnConnectionPasswordEncrypted flag is set to 'true', passwords
 	// remain encrypted in the responses of GetConnection and GetConnections. This

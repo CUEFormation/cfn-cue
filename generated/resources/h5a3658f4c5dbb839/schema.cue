@@ -10,27 +10,60 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates an AWS Firewall Manager resource set.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::FMS::ResourceSet"
-	Properties!: close({
-		Description?: strings.MaxRunes(256) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]*)$" | fn.#StringExpression
-		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]+)$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(256) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]*)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]*)$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]+)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]+)$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ResourceTypeList!: list.UniqueItems() & [...#ResourceType] | fn.#ListExpression
 		Resources?: list.UniqueItems() & [..._#defs."/$defs/Properties/definitions/Resource"] | fn.#ListExpression
 		Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ResourceType: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$" | fn.#StringExpression
+#ResourceType: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & =~"^([^\\s]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & =~"^([^\\s]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & =~"^([^\\s]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Resource": strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([^\\s]*)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([^\\s]*)$" & "\(self)"
+} |
 fn.#StringExpression

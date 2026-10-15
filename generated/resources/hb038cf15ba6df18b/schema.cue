@@ -14,20 +14,34 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A service is any software application that can run on instances containers,
 // or serverless functions within an account or virtual private cloud (VPC).
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::VpcLattice::Service"
-	Properties?: close({
+	let properties = close({
 		AuthType?: "NONE" | "AWS_IAM" | fn.#StringExpression
-		CertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		CertificateArn?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		=~"^(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:certificate/[0-9a-z-]+)?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			=~"^(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:certificate/[0-9a-z-]+)?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		CustomDomainName?: strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
-		DnsEntry?:         close({}) | fn.#ObjectExpression
+		CustomDomainName?: strings.MaxRunes(255) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression
+		DnsEntry?: close({}) | fn.#ObjectExpression
 		IdleTimeoutSeconds?: int & <=600 & >=60 |
 			{
 				string &
@@ -46,13 +60,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name?: strings.MaxRunes(40) & strings.MinRunes(3) | fn.#StringExpression
+		Name?: strings.MaxRunes(40) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(40) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

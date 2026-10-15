@@ -1,0 +1,29 @@
+{
+ "description": "When 'BillingMode' is 'PROVISIONED' or omitted (the default) 'ProvisionedThroughput' is required",
+ "if": {
+  "properties": {
+   "BillingMode": {
+    "not": {
+     "const": "PAY_PER_REQUEST"
+    }
+   }
+  }
+ },
+ "then": {
+  "properties": {
+   "ProvisionedThroughput": {
+    "properties": {
+     "ReadCapacityUnits": {
+      "minimum": 1
+     },
+     "WriteCapacityUnits": {
+      "minimum": 1
+     }
+    }
+   }
+  },
+  "required": [
+   "ProvisionedThroughput"
+  ]
+ }
+}

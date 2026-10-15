@@ -10,19 +10,33 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::Instance
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::Instance"
-	Properties!: close({
+	let properties = close({
 		// The attributes for the instance.
-		Attributes!:  #Attributes
-		DirectoryId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^d-[0-9a-f]{10}$" | fn.#StringExpression
+		Attributes!: #Attributes
+		DirectoryId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^d-[0-9a-f]{10}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^d-[0-9a-f]{10}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		IdentityManagementType!: "SAML" | "CONNECT_MANAGED" | "EXISTING_DIRECTORY" | fn.#StringExpression
-		InstanceAlias?:          strings.MaxRunes(45) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		InstanceAlias?: strings.MaxRunes(45) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(45) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Attributes: close({
@@ -67,8 +81,18 @@ fn.#ObjectExpression
 #OutboundCalls: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

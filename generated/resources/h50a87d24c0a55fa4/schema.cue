@@ -14,37 +14,87 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DataSync::LocationObjectStorage.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataSync::LocationObjectStorage"
-	Properties?: close({
-		AccessKey?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-		AgentArns?: list.MaxItems(8) & list.MinItems(1) & [
-			...strings.MaxRunes(128) &
+	let properties = close({
+		AccessKey?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		AgentArns?: list.MaxItems(8) & list.MinItems(1) & [...strings.MaxRunes(128) &
+		strings.MinRunes(0) &
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:agent/agent-[0-9a-z]{17}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
 			strings.MinRunes(0) &
-			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:agent/agent-[0-9a-z]{17}$" |
-			fn.#StringExpression
-		] |
+			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):datasync:[a-z\\-0-9]+:[0-9]{12}:agent/agent-[0-9a-z]{17}$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		BucketName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" |
+		BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) &
+		=~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+			=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+			strings.MaxRunes(63) &
+			strings.MinRunes(3) &
+			=~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		CmkSecretConfig?: close({
-			KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 			strings.MaxRunes(2048) &
 			strings.MinRunes(0) &
 			=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" |
+			{
+				number | bool
+				_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+				strings.MaxRunes(2048) &
+				strings.MinRunes(0) &
+				=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		CustomSecretConfig?: #CustomSecretConfig
 		FederatedIdentity?:  #ObjectStorageFederatedIdentityConfig
-		SecretKey?:          strings.MaxRunes(200) & strings.MinRunes(8) & =~"^.+$" | fn.#StringExpression
-		ServerCertificate?:  strings.MaxRunes(32768) | fn.#StringExpression
+		SecretKey?: strings.MaxRunes(200) & strings.MinRunes(8) & =~"^.+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(8) & =~"^.+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ServerCertificate?: strings.MaxRunes(32768) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32768) & "\(self)"
+		} |
+		fn.#StringExpression
 		ServerHostname?: strings.MaxRunes(255) &
 		strings.MinRunes(0) &
 		=~"^(([a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9\\-]*[A-Za-z0-9])$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) &
+			strings.MinRunes(0) &
+			=~"^(([a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9\\-]*[A-Za-z0-9])$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ServerPort?: int & <=65536 & >=1 |
 			{
@@ -66,29 +116,73 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		ServerProtocol?: "HTTPS" | "HTTP" | fn.#StringExpression
 		Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\p{Zs}]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4096) &
+			strings.MinRunes(0) &
+			=~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\p{Zs}]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CustomSecretConfig: close({
-	SecretAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecretAccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*|)$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*|)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	SecretArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GoogleOidcConfig: close({
-	IdentityPoolName!:     strings.MaxRunes(32) & strings.MinRunes(4) | fn.#StringExpression
-	IdentityProviderName!: strings.MaxRunes(32) & strings.MinRunes(4) | fn.#StringExpression
-	ProjectName!: strings.MaxRunes(30) & strings.MinRunes(6) & =~"^[a-z][a-z0-9-]{4,28}[a-z0-9]$" | fn.#StringExpression
-	ProjectNumber!: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[0-9]+$" | fn.#StringExpression
+	IdentityPoolName!: strings.MaxRunes(32) & strings.MinRunes(4) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(4) & "\(self)"
+	} |
+	fn.#StringExpression
+	IdentityProviderName!: strings.MaxRunes(32) & strings.MinRunes(4) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(4) & "\(self)"
+	} |
+	fn.#StringExpression
+	ProjectName!: strings.MaxRunes(30) & strings.MinRunes(6) & =~"^[a-z][a-z0-9-]{4,28}[a-z0-9]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(30) & strings.MinRunes(6) & =~"^[a-z][a-z0-9-]{4,28}[a-z0-9]$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ProjectNumber!: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -97,13 +191,29 @@ fn.#ObjectExpression
 #ObjectStorageFederatedIdentityConfig: close({
 	AwsIamRole?: strings.MaxRunes(2048) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*|)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*|)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	ExternalIdentity?: #ObjectStorageExternalIdentityConfig
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
+	Key!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

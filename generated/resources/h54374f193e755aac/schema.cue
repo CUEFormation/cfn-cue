@@ -9,22 +9,41 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DocDB::DBClusterParameterGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DocDB::DBClusterParameterGroup"
-	Properties!: close({
-		Description!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Family!:      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Name?:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9-]*" | fn.#StringExpression
-		Parameters!:  fn.#Object & {...} | string | fn.#StringObjectExpression
-		Tags?:        [...#Tag] | fn.#ListExpression
+	let properties = close({
+		Description!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Family!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9-]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9-]*" & "\(self)"
+		} |
+		fn.#StringExpression
+		Parameters!: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		Tags?:       [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

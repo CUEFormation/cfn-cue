@@ -14,30 +14,55 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Transfer::Connector
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Transfer::Connector"
-	Properties!: close({
-		AccessRole!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:.*role/.*" | fn.#StringExpression
+	let properties = close({
+		AccessRole!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:.*role/.*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:.*role/.*" & "\(self)"
+		} |
+		fn.#StringExpression
 		As2Config?: close({
 			// Configuration for an AS2 connector with ASYNC MDN Response
-			AsyncMdnConfig?:    #ConnectorAsyncMdnConfig
-			BasicAuthSecretId?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-			Compression?:       "ZLIB" | "DISABLED" | fn.#StringExpression
+			AsyncMdnConfig?: #ConnectorAsyncMdnConfig
+			BasicAuthSecretId?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
+			Compression?: "ZLIB" | "DISABLED" | fn.#StringExpression
 			EncryptionAlgorithm?: "AES128_CBC" |
 				"AES192_CBC" |
 				"AES256_CBC" |
 				"NONE" |
 				"DES_EDE3_CBC" |
 				fn.#StringExpression
-			LocalProfileId?: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^p-([0-9a-f]{17})$" | fn.#StringExpression
-			MdnResponse?:    "SYNC" | "ASYNC" | "NONE" | fn.#StringExpression
+			LocalProfileId?: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^p-([0-9a-f]{17})$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^p-([0-9a-f]{17})$" & "\(self)"
+			} |
+			fn.#StringExpression
+			MdnResponse?:         "SYNC" | "ASYNC" | "NONE" | fn.#StringExpression
 			MdnSigningAlgorithm?: "SHA256" | "SHA384" | "SHA512" | "SHA1" | "NONE" | "DEFAULT" | fn.#StringExpression
 			MessageSubject?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\x{0020}-\\x{007E}\\t]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\x{0020}-\\x{007E}\\t]+$" & "\(self)"
+			} |
 			fn.#StringExpression
 			PartnerProfileId?: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^p-([0-9a-f]{17})$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^p-([0-9a-f]{17})$" & "\(self)"
+			} |
 			fn.#StringExpression
 			PreserveContentType?: "ENABLED" | "DISABLED" | fn.#StringExpression
 			SigningAlgorithm?:    "SHA256" | "SHA384" | "SHA512" | "SHA1" | "NONE" | fn.#StringExpression
@@ -50,10 +75,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Specifies the egress type for the connector.
 		EgressType?:    #ConnectorEgressType
 		IpAddressType?: #IpAddressType
-		LoggingRole?:   strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:.*role/.*" | fn.#StringExpression
+		LoggingRole?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:.*role/.*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:.*role/.*" & "\(self)"
+		} |
+		fn.#StringExpression
 		SecurityPolicyName?: strings.MaxRunes(50) &
 		strings.MinRunes(0) &
 		=~"TransferSFTPConnectorSecurityPolicy-[A-Za-z0-9-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) &
+			strings.MinRunes(0) &
+			=~"TransferSFTPConnectorSecurityPolicy-[A-Za-z0-9-]+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		SftpConfig?: close({
 			MaxConcurrentConnections?: int & <=5 & >=1 |
@@ -74,22 +111,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 						)
 				} |
 				fn.#NumberExpression
-			OrderedUserSecretVersionStages?: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
-				...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-			] |
+			OrderedUserSecretVersionStages?: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(256) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression] |
 			fn.#ListExpression
 			TrustedHostKeys?: list.MaxItems(10) & [...] & [...#SftpConnectorTrustedHostKey] | fn.#ListExpression
-			UserSecretId?:    strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+			UserSecretId?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		Url?:  strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		Url?: strings.MaxRunes(255) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ConnectorAsyncMdnConfig: close({
 	ServerIds!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#ServerId] | fn.#ListExpression
-	Url!:       strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	Url!: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -117,18 +174,45 @@ fn.#ObjectExpression
 	ResourceConfigurationArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #IpAddressType: "IPV4" | "DUALSTACK" | fn.#StringExpression
 
-#ServerId: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$" | fn.#StringExpression
+#ServerId: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$" & "\(self)"
+} |
+fn.#StringExpression
 
-#SftpConnectorTrustedHostKey: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+#SftpConnectorTrustedHostKey: strings.MaxRunes(2048) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

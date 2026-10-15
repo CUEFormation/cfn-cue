@@ -9,13 +9,27 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema for AWS::ServiceCatalogAppRegistry::AttributeGroupAssociation.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ServiceCatalogAppRegistry::AttributeGroupAssociation"
-	Properties!: close({
-		Application!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\w+|[a-z0-9]{12}" | fn.#StringExpression
-		AttributeGroup!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\w+|[a-z0-9]{12}" | fn.#StringExpression
+	let properties = close({
+		Application!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\w+|[a-z0-9]{12}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\w+|[a-z0-9]{12}" & "\(self)"
+		} |
+		fn.#StringExpression
+		AttributeGroup!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\w+|[a-z0-9]{12}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\w+|[a-z0-9]{12}" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

@@ -14,14 +14,16 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An object representing an Amazon EKS cluster.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EKS::Cluster"
-	Properties!: close({
+	let properties = close({
 		AccessConfig?:                 #AccessConfig
-		ActiveCertificateAuthorityId?: string | fn.#StringExpression
+		ActiveCertificateAuthorityId?: string | number | bool | fn.#StringExpression
 		BootstrapSelfManagedAddons?: bool |
 			"true" |
 			"True" |
@@ -46,23 +48,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			// Todo: add description
 			ElasticLoadBalancing?: #ElasticLoadBalancing
 			IpFamily?:             "ipv4" | "ipv6" | fn.#StringExpression
-			ServiceIpv4Cidr?:      string | fn.#StringExpression
+			ServiceIpv4Cidr?:      string | number | bool | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		Logging?: #Logging
-		Name?:    strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*" | fn.#StringExpression
+		Name?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z][A-Za-z0-9\\-_]*" & "\(self)"
+		} |
+		fn.#StringExpression
 		OutpostConfig?:       #OutpostConfig
 		RemoteNetworkConfig?: #RemoteNetworkConfig
 		ResourcesVpcConfig!:  #ResourcesVpcConfig
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		RollbackConfig?:   #RollbackConfig
-		StorageConfig?:    #StorageConfig
-		Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		UpgradePolicy?:    #UpgradePolicy
-		Version?:          =~"1\\.\\d\\d" | fn.#StringExpression
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		RollbackConfig?: #RollbackConfig
+		StorageConfig?:  #StorageConfig
+		Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		UpgradePolicy?:  #UpgradePolicy
+		Version?: =~"1\\.\\d\\d" |
+		{
+			number | bool
+			_cfnString: =~"1\\.\\d\\d" & "\(self)"
+		} |
+		fn.#StringExpression
 		ZonalShiftConfig?: #ZonalShiftConfig
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AccessConfig: close({
@@ -85,14 +103,18 @@ fn.#ObjectExpression
 
 #ComputeConfig: close({
 	Enabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	NodePools?: [...string | fn.#StringExpression] | fn.#ListExpression
-	NodeRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	NodePools?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	NodeRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ControlPlanePlacement: close({
-	GroupName?:   string | fn.#StringExpression
+	GroupName?:   string | number | bool | fn.#StringExpression
 	SpreadLevel?: "host" | "rack" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -112,17 +134,19 @@ fn.#ObjectExpression
 #EncryptionConfig: close({
 	// The encryption provider for the cluster.
 	Provider?:  #Provider
-	Resources?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Resources?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #EtcdPlacement: close({SpreadLevel?: "host" | "rack" | fn.#StringExpression}) | fn.#ObjectExpression
 
-#HorizontalPodAutoscalerControllerConfig: close({HorizontalPodAutoscalerSyncPeriod?: string | fn.#StringExpression}) |
+#HorizontalPodAutoscalerControllerConfig: close(
+	{HorizontalPodAutoscalerSyncPeriod?: string | number | bool | fn.#StringExpression},
+) |
 	fn.#ObjectExpression
 
 #KubeApiServerConfig: close({
-	EventTtl?:             string | fn.#StringExpression
+	EventTtl?:             string | number | bool | fn.#StringExpression
 	ServiceNodePortRange?: #ServiceNodePortRange
 }) |
 fn.#ObjectExpression
@@ -149,17 +173,17 @@ fn.#ObjectExpression
 #NodeResourcesFitConfig: close({ScoringStrategy?: #ScoringStrategy}) | fn.#ObjectExpression
 
 #OutpostConfig: close({
-	ControlPlaneInstanceType!: string | fn.#StringExpression
+	ControlPlaneInstanceType!: string | number | bool | fn.#StringExpression
 
 	// An object representing the placement configuration for all the control plane
 	// instances of your local Amazon EKS cluster on an AWS Outpost.
 	ControlPlanePlacement?: #ControlPlanePlacement
-	EtcdInstanceType?:      string | fn.#StringExpression
+	EtcdInstanceType?:      string | number | bool | fn.#StringExpression
 
 	// An object representing the placement configuration for the etcd instances of
 	// your local Amazon EKS cluster on an AWS Outpost.
 	EtcdPlacement?: #EtcdPlacement
-	OutpostArns!:   [...string | fn.#StringExpression] | fn.#ListExpression
+	OutpostArns!:   [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -183,7 +207,7 @@ fn.#ObjectExpression
 }) |
 	fn.#ObjectExpression
 
-#Provider: close({KeyArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Provider: close({KeyArn?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #RemoteNetworkConfig: close({
 	// Network configuration of nodes run on-premises with EKS Hybrid Nodes.
@@ -194,16 +218,39 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#RemoteNodeNetwork: close({Cidrs!: [...string | fn.#StringExpression] | fn.#ListExpression}) | fn.#ObjectExpression
+#RemoteNodeNetwork: close({
+	Cidrs!: [...fn.#IPv4Network & string |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network & string & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+}) |
+fn.#ObjectExpression
 
 #RemoteNodeNetworks: list.MaxItems(1) & [...] & [...#RemoteNodeNetwork] | fn.#ListExpression
 
-#RemotePodNetwork: close({Cidrs!: [...string | fn.#StringExpression] | fn.#ListExpression}) | fn.#ObjectExpression
+#RemotePodNetwork: close({
+	Cidrs!: [...fn.#IPv4Network & string |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network & string & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+}) |
+fn.#ObjectExpression
 
 #RemotePodNetworks: list.MaxItems(1) & [...] & [...#RemotePodNetwork] | fn.#ListExpression
 
 #ResourceWeight: close({
-	Name?: strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
+	Name?: strings.MaxRunes(253) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(253) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Weight?: int & <=100 & >=1 |
 		{
 			string &
@@ -227,13 +274,15 @@ fn.#ObjectExpression
 	ControlPlaneEgressMode?: "AWS_MANAGED" | "CUSTOMER_ISOLATED" | "CUSTOMER_ROUTED" | fn.#StringExpression
 	EndpointPrivateAccess?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EndpointPublicAccess?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PublicAccessCidrs?:      [...string | fn.#StringExpression] | fn.#ListExpression
-	SecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SubnetIds!: [...string | fn.#StringExpression] | fn.#ListExpression
+	PublicAccessCidrs?:      [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SubnetIds!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -302,8 +351,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

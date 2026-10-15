@@ -9,27 +9,41 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::AmplifyUIBuilder::Component Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AmplifyUIBuilder::Component"
-	Properties?: close({
-		AppId?:                string | fn.#StringExpression
+	let properties = close({
+		AppId?:                string | number | bool | fn.#StringExpression
 		BindingProperties?:    #ComponentBindingProperties
 		Children?:             [...#ComponentChild] | fn.#ListExpression
 		CollectionProperties?: #ComponentCollectionProperties
-		ComponentType?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		EnvironmentName?:      string | fn.#StringExpression
-		Events?:               #ComponentEvents
-		Name?:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Overrides?:            #ComponentOverrides
-		Properties?:           #ComponentProperties
-		SchemaVersion?:        string | fn.#StringExpression
-		SourceId?:             string | fn.#StringExpression
-		Tags?:                 #Tags
-		Variants?:             [...#ComponentVariant] | fn.#ListExpression
+		ComponentType?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		EnvironmentName?: string | number | bool | fn.#StringExpression
+		Events?:          #ComponentEvents
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Overrides?:     #ComponentOverrides
+		Properties?:    #ComponentProperties
+		SchemaVersion?: string | number | bool | fn.#StringExpression
+		SourceId?:      string | number | bool | fn.#StringExpression
+		Tags?:          #Tags
+		Variants?:      [...#ComponentVariant] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ActionParameters: close({
@@ -37,7 +51,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Fields?: #ComponentProperties
 	Global?: #ComponentProperty
 	Id?:     #ComponentProperty
-	Model?:  string | fn.#StringExpression
+	Model?:  string | number | bool | fn.#StringExpression
 	State?:  #MutationActionSetStateParameter
 	Target?: #ComponentProperty
 	Type?:   #ComponentProperty
@@ -47,111 +61,141 @@ fn.#ObjectExpression
 
 #ComponentBindingProperties: close({
 
-	{[=~".+"]: #ComponentBindingPropertiesValue}}) |
+	{[=~".+"]: #ComponentBindingPropertiesValue}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #ComponentBindingPropertiesValue: close({
 	BindingProperties?: #ComponentBindingPropertiesValueProperties
-	DefaultValue?:      string | fn.#StringExpression
-	Type?:              string | fn.#StringExpression
+	DefaultValue?:      string | number | bool | fn.#StringExpression
+	Type?:              string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ComponentBindingPropertiesValueProperties: close({
-	Bucket?:        string | fn.#StringExpression
-	DefaultValue?:  string | fn.#StringExpression
-	Field?:         string | fn.#StringExpression
-	Key?:           string | fn.#StringExpression
-	Model?:         string | fn.#StringExpression
+	Bucket?:        string | number | bool | fn.#StringExpression
+	DefaultValue?:  string | number | bool | fn.#StringExpression
+	Field?:         string | number | bool | fn.#StringExpression
+	Key?:           string | number | bool | fn.#StringExpression
+	Model?:         string | number | bool | fn.#StringExpression
 	Predicates?:    [...#Predicate] | fn.#ListExpression
-	SlotName?:      string | fn.#StringExpression
-	UserAttribute?: string | fn.#StringExpression
+	SlotName?:      string | number | bool | fn.#StringExpression
+	UserAttribute?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ComponentChild: close({
 	Children?:      [...#ComponentChild] | fn.#ListExpression
-	ComponentType!: string | fn.#StringExpression
+	ComponentType!: string | number | bool | fn.#StringExpression
 	Events?:        #ComponentEvents
-	Name!:          string | fn.#StringExpression
+	Name!:          string | number | bool | fn.#StringExpression
 	Properties!:    #ComponentProperties
-	SourceId?:      string | fn.#StringExpression
+	SourceId?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ComponentCollectionProperties: close({
 
-	{[=~".+"]: #ComponentDataConfiguration}}) |
+	{[=~".+"]: #ComponentDataConfiguration}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #ComponentConditionProperty: close({
 	Else?:        #ComponentProperty
-	Field?:       string | fn.#StringExpression
-	Operand?:     string | fn.#StringExpression
-	OperandType?: string | fn.#StringExpression
-	Operator?:    string | fn.#StringExpression
-	Property?:    string | fn.#StringExpression
+	Field?:       string | number | bool | fn.#StringExpression
+	Operand?:     string | number | bool | fn.#StringExpression
+	OperandType?: string | number | bool | fn.#StringExpression
+	Operator?:    string | number | bool | fn.#StringExpression
+	Property?:    string | number | bool | fn.#StringExpression
 	Then?:        #ComponentProperty
 }) |
 fn.#ObjectExpression
 
 #ComponentDataConfiguration: close({
-	Identifiers?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Model!:       string | fn.#StringExpression
+	Identifiers?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Model!:       string | number | bool | fn.#StringExpression
 	Predicate?:   #Predicate
 	Sort?:        [...#SortProperty] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #ComponentEvent: close({
-	Action?:       string | fn.#StringExpression
-	BindingEvent?: string | fn.#StringExpression
+	Action?:       string | number | bool | fn.#StringExpression
+	BindingEvent?: string | number | bool | fn.#StringExpression
 	Parameters?:   #ActionParameters
 }) |
 fn.#ObjectExpression
 
 #ComponentEvents: close({
 
-	{[=~".+"]: #ComponentEvent}}) |
+	{[=~".+"]: #ComponentEvent}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #ComponentOverrides: close({
 
-	{[=~".+"]: #ComponentOverridesValue}}) |
+	{[=~".+"]: #ComponentOverridesValue}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #ComponentOverridesValue: close({
 
-	{[=~".+"]: string | fn.#StringExpression}}) |
+	{[=~".+"]: string | number | bool | fn.#StringExpression}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #ComponentProperties: close({
 
-	{[=~".+"]: #ComponentProperty}}) |
+	{[=~".+"]: #ComponentProperty}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #ComponentProperty: close({
 	BindingProperties?:           #ComponentPropertyBindingProperties
 	Bindings?:                    #FormBindings
 	CollectionBindingProperties?: #ComponentPropertyBindingProperties
-	ComponentName?:               string | fn.#StringExpression
+	ComponentName?:               string | number | bool | fn.#StringExpression
 	Concat?:                      [...#ComponentProperty] | fn.#ListExpression
 	Condition?:                   #ComponentConditionProperty
 	Configured?:                  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DefaultValue?:                string | fn.#StringExpression
-	Event?:                       string | fn.#StringExpression
-	ImportedValue?:               string | fn.#StringExpression
-	Model?:                       string | fn.#StringExpression
-	Property?:                    string | fn.#StringExpression
-	Type?:                        string | fn.#StringExpression
-	UserAttribute?:               string | fn.#StringExpression
-	Value?:                       string | fn.#StringExpression
+	DefaultValue?:                string | number | bool | fn.#StringExpression
+	Event?:                       string | number | bool | fn.#StringExpression
+	ImportedValue?:               string | number | bool | fn.#StringExpression
+	Model?:                       string | number | bool | fn.#StringExpression
+	Property?:                    string | number | bool | fn.#StringExpression
+	Type?:                        string | number | bool | fn.#StringExpression
+	UserAttribute?:               string | number | bool | fn.#StringExpression
+	Value?:                       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ComponentPropertyBindingProperties: close({
-	Field?:    string | fn.#StringExpression
-	Property!: string | fn.#StringExpression
+	Field?:    string | number | bool | fn.#StringExpression
+	Property!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -163,34 +207,49 @@ fn.#ObjectExpression
 
 #ComponentVariantValues: close({
 
-	{[=~".+"]: string | fn.#StringExpression}}) |
+	{[=~".+"]: string | number | bool | fn.#StringExpression}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #FormBindingElement: close({
-	Element!:  string | fn.#StringExpression
-	Property!: string | fn.#StringExpression
+	Element!:  string | number | bool | fn.#StringExpression
+	Property!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FormBindings: close({
 
-	{[=~".+"]: #FormBindingElement}}) |
+	{[=~".+"]: #FormBindingElement}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #MutationActionSetStateParameter: close({
-	ComponentName!: string | fn.#StringExpression
-	Property!:      string | fn.#StringExpression
+	ComponentName!: string | number | bool | fn.#StringExpression
+	Property!:      string | number | bool | fn.#StringExpression
 	Set!:           #ComponentProperty
 }) |
 fn.#ObjectExpression
 
 #Predicate: close({
-	And?:         [...#Predicate] | fn.#ListExpression
-	Field?:       string | fn.#StringExpression
-	Operand?:     string | fn.#StringExpression
-	OperandType?: =~"^boolean|string|number$" | fn.#StringExpression
-	Operator?:    string | fn.#StringExpression
-	Or?:          [...#Predicate] | fn.#ListExpression
+	And?:     [...#Predicate] | fn.#ListExpression
+	Field?:   string | number | bool | fn.#StringExpression
+	Operand?: string | number | bool | fn.#StringExpression
+	OperandType?: =~"^boolean|string|number$" |
+	{
+		number | bool
+		_cfnString: =~"^boolean|string|number$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Operator?: string | number | bool | fn.#StringExpression
+	Or?:       [...#Predicate] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -198,7 +257,7 @@ fn.#ObjectExpression
 
 #SortProperty: close({
 	Direction!: #SortDirection
-	Field!:     string | fn.#StringExpression
+	Field!:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Vectors::Index
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3Vectors::Index"
-	Properties!: close({
+	let properties = close({
 		DataType!:                #DataType
 		Dimension!:               #Dimension
 		DistanceMetric!:          #DistanceMetric
@@ -30,6 +32,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		VectorBucketArn?:         #VectorBucketArn
 		VectorBucketName?:        #VectorBucketName
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DataType: "float32" | fn.#StringExpression
@@ -54,32 +58,68 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #DistanceMetric: "cosine" | "euclidean" | fn.#StringExpression
 
 #EncryptionConfiguration: close({
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^(arn:aws[-a-z0-9]*:kms:[-a-z0-9]*:[0-9]{12}:key/.+)$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^(arn:aws[-a-z0-9]*:kms:[-a-z0-9]*:[0-9]{12}:key/.+)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	SseType?: "AES256" | "aws:kms" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#IndexName: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+#IndexName: strings.MaxRunes(63) & strings.MinRunes(3) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & "\(self)"
+} |
+fn.#StringExpression
 
 #MetadataConfiguration: close({
-	NonFilterableMetadataKeys?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	NonFilterableMetadataKeys?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(63) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VectorBucketArn: =~"^arn:aws[-a-z0-9]*:s3vectors:[a-z0-9-]+:[0-9]{12}:bucket/[a-z0-9][a-z0-9-.]{1,61}[a-z0-9]$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^arn:aws[-a-z0-9]*:s3vectors:[a-z0-9-]+:[0-9]{12}:bucket/[a-z0-9][a-z0-9-.]{1,61}[a-z0-9]$" &
+		"\(self)"
+} |
+fn.#StringExpression
 
-#VectorBucketName: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+#VectorBucketName: strings.MaxRunes(63) & strings.MinRunes(3) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & "\(self)"
+} |
+fn.#StringExpression

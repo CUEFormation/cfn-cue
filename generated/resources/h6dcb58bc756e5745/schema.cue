@@ -10,33 +10,72 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppConfig::Deployment
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppConfig::Deployment"
-	Properties!: close({
-		ApplicationId!:              strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-		ConfigurationProfileId!:     strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		ConfigurationVersion!:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		DeploymentStrategyId!:       =~"^(^[a-z0-9]{4,7}$|^AppConfig\\.[A-Za-z0-9]{9,40}$)$" | fn.#StringExpression
-		Description?:                strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		ApplicationId!: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ConfigurationProfileId!: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ConfigurationVersion!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		DeploymentStrategyId!: =~"^(^[a-z0-9]{4,7}$|^AppConfig\\.[A-Za-z0-9]{9,40}$)$" |
+		{
+			number | bool
+			_cfnString: =~"^(^[a-z0-9]{4,7}$|^AppConfig\\.[A-Za-z0-9]{9,40}$)$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		DynamicExtensionParameters?: [...#DynamicExtensionParameters] | fn.#ListExpression
-		EnvironmentId!:              strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-		KmsKeyIdentifier?:           strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:                       list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		EnvironmentId!: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		KmsKeyIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DynamicExtensionParameters: close({
-	ExtensionReference?: string | fn.#StringExpression
-	ParameterName?:      string | fn.#StringExpression
-	ParameterValue?:     string | fn.#StringExpression
+	ExtensionReference?: string | number | bool | fn.#StringExpression
+	ParameterName?:      string | number | bool | fn.#StringExpression
+	ParameterValue?:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a connector to a third-party cloud provider in Security Hub CSPM. A
@@ -17,17 +19,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // findings and resource data from the connected environment.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityHub::Connector"
-	Properties!: close({
-		Description?: =~"\\S" | fn.#StringExpression
-		Name!:        =~"\\S" | fn.#StringExpression
-		Provider!:    #Provider
-		Tags?:        #Tags
+	let properties = close({
+		Description?: =~"\\S" |
+		{
+			number | bool
+			_cfnString: =~"\\S" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: =~"\\S" |
+		{
+			number | bool
+			_cfnString: =~"\\S" & "\(self)"
+		} |
+		fn.#StringExpression
+		Provider!: #Provider
+		Tags?:     #Tags
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AzureProviderConfiguration: close({
-	AWSConfigConnectorArn!: string | fn.#StringExpression
-	AzureRegions!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] |
+	AWSConfigConnectorArn!: string | number | bool | fn.#StringExpression
+	AzureRegions!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
+		...string | number | bool | fn.#StringExpression
+	] |
 		fn.#ListExpression
 
 	// The scope configuration that defines which Azure resources are monitored.
@@ -37,7 +53,7 @@ fn.#ObjectExpression
 
 #AzureScopeConfiguration: close({
 	ScopeType!: "TENANT" | "SUBSCRIPTION" | fn.#StringExpression
-	ScopeValues?: list.MaxItems(100) & list.UniqueItems() & [...] & [...string | fn.#StringExpression] |
+	ScopeValues?: list.MaxItems(100) & list.UniqueItems() & [...] & [...string | number | bool | fn.#StringExpression] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression

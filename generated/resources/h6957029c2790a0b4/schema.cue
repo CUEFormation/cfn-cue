@@ -14,20 +14,41 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Transfer::WebApp
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Transfer::WebApp"
-	Properties!: close({
-		AccessEndpoint?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		AccessEndpoint?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		EndpointDetails?: #EndpointDetails
 		IdentityProviderDetails!: close({
 			InstanceArn?: strings.MaxRunes(1224) &
 			strings.MinRunes(10) &
 			=~"^arn:[\\w-]+:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1224) &
+				strings.MinRunes(10) &
+				=~"^arn:[\\w-]+:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			Role?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:[a-z-]+:iam::[0-9]{12}:role[:/]\\S+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(2048) &
+				strings.MinRunes(20) &
+				=~"^arn:[a-z-]+:iam::[0-9]{12}:role[:/]\\S+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
@@ -36,42 +57,86 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		WebAppEndpointPolicy?: #WebAppEndpointPolicy
 		WebAppUnits?:          #WebAppUnits
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #EndpointDetails: close({Vpc?: #Vpc}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Vpc: close({
 	IpAddressType?: "IPV4" | "DUALSTACK" | fn.#StringExpression
-	SecurityGroupIds?: list.MaxItems(10) & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroupIds?: list.MaxItems(10) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(20) &
+	strings.MinRunes(11) &
+	=~"^sg-[0-9a-f]{8,17}$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(20) &
 		strings.MinRunes(11) &
-		=~"^sg-[0-9a-f]{8,17}$" |
-		fn.#StringExpression
-	] |
+		=~"^sg-[0-9a-f]{8,17}$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	SubnetIds?: list.MaxItems(10) & [
-		...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-[0-9a-f]{8,17}$" | fn.#StringExpression
-	] |
+	SubnetIds?: list.MaxItems(10) & [...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-[0-9a-f]{8,17}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-[0-9a-f]{8,17}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
 	strings.MaxRunes(21) &
 	strings.MinRunes(12) &
 	=~"^vpc-[0-9a-f]{8,17}$" |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(21) &
+		strings.MinRunes(12) &
+		=~"^vpc-[0-9a-f]{8,17}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #WebAppCustomization: close({
-	FaviconFile?: strings.MaxRunes(20960) & strings.MinRunes(1) | fn.#StringExpression
-	LogoFile?:    strings.MaxRunes(51200) & strings.MinRunes(1) | fn.#StringExpression
-	Title?:       strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+	FaviconFile?: strings.MaxRunes(20960) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(20960) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	LogoFile?: strings.MaxRunes(51200) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(51200) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Title?: strings.MaxRunes(100) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

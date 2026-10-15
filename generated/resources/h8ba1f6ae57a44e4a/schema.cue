@@ -9,14 +9,16 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTSiteWise::AssetModel
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTSiteWise::AssetModel"
-	Properties!: close({
+	let properties = close({
 		AssetModelCompositeModels?: [...close({
-			ComposedAssetModelId?: string | fn.#StringExpression
+			ComposedAssetModelId?: string | number | bool | fn.#StringExpression
 			CompositeModelProperties?: [...close({
 				// The data type of the asset model property.
 				DataType!: #DataType
@@ -26,38 +28,106 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				ExternalId?: strings.MaxRunes(128) &
 				strings.MinRunes(2) &
 				=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(128) &
+					strings.MinRunes(2) &
+					=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
+					"\(self)"
+				} |
 				fn.#StringExpression
 				LogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(256) &
+					strings.MinRunes(1) &
+					=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" &
+					"\(self)"
+				} |
 				fn.#StringExpression
 				Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(256) &
+					strings.MinRunes(1) &
+					=~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" &
+					"\(self)"
+				} |
 				fn.#StringExpression
 				Type!: close({
 					Attribute?: #Attribute
 					Metric?: close({
-						Expression!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+						Expression!: strings.MaxRunes(1024) & strings.MinRunes(0) |
+						{
+							number | bool
+							_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+						} |
+						fn.#StringExpression
 						Variables!: [...close({
 							Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-z0-9_]*$" |
+							{
+								number | bool
+								_cfnString: strings.MaxRunes(64) &
+								strings.MinRunes(1) &
+								=~"^[a-z][a-z0-9_]*$" &
+								"\(self)"
+							} |
 							fn.#StringExpression
 							Value!: close({
 								HierarchyExternalId?: strings.MaxRunes(128) &
 								strings.MinRunes(2) &
 								=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
+								{
+									number | bool
+									_cfnString: strings.MaxRunes(128) &
+									strings.MinRunes(2) &
+									=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
+									"\(self)"
+								} |
 								fn.#StringExpression
 								HierarchyId?: strings.MaxRunes(36) &
 								strings.MinRunes(36) &
 								=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
+								{
+									number | bool
+									_cfnString: strings.MaxRunes(36) &
+									strings.MinRunes(36) &
+									=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+									"\(self)"
+								} |
 								fn.#StringExpression
 								HierarchyLogicalId?: strings.MaxRunes(256) &
 								strings.MinRunes(1) &
 								=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
+								{
+									number | bool
+									_cfnString: strings.MaxRunes(256) &
+									strings.MinRunes(1) &
+									=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" &
+									"\(self)"
+								} |
 								fn.#StringExpression
 								PropertyExternalId?: strings.MaxRunes(128) &
 								strings.MinRunes(2) &
 								=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
+								{
+									number | bool
+									_cfnString: strings.MaxRunes(128) &
+									strings.MinRunes(2) &
+									=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
+									"\(self)"
+								} |
 								fn.#StringExpression
 								PropertyLogicalId?: strings.MaxRunes(256) &
 								strings.MinRunes(1) &
 								=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
+								{
+									number | bool
+									_cfnString: strings.MaxRunes(256) &
+									strings.MinRunes(1) &
+									=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" &
+									"\(self)"
+								} |
 								fn.#StringExpression
 								PropertyPath?: [...#PropertyPathDefinition] | fn.#ListExpression
 							}) |
@@ -72,30 +142,77 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					}) |
 					fn.#ObjectExpression
 					Transform?: close({
-						Expression!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+						Expression!: strings.MaxRunes(1024) & strings.MinRunes(0) |
+						{
+							number | bool
+							_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+						} |
+						fn.#StringExpression
 						Variables!: [...close({
 							Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-z0-9_]*$" |
+							{
+								number | bool
+								_cfnString: strings.MaxRunes(64) &
+								strings.MinRunes(1) &
+								=~"^[a-z][a-z0-9_]*$" &
+								"\(self)"
+							} |
 							fn.#StringExpression
 							Value!: close({
 								HierarchyExternalId?: strings.MaxRunes(128) &
 								strings.MinRunes(2) &
 								=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
+								{
+									number | bool
+									_cfnString: strings.MaxRunes(128) &
+									strings.MinRunes(2) &
+									=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
+									"\(self)"
+								} |
 								fn.#StringExpression
 								HierarchyId?: strings.MaxRunes(36) &
 								strings.MinRunes(36) &
 								=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
+								{
+									number | bool
+									_cfnString: strings.MaxRunes(36) &
+									strings.MinRunes(36) &
+									=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+									"\(self)"
+								} |
 								fn.#StringExpression
 								HierarchyLogicalId?: strings.MaxRunes(256) &
 								strings.MinRunes(1) &
 								=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
+								{
+									number | bool
+									_cfnString: strings.MaxRunes(256) &
+									strings.MinRunes(1) &
+									=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" &
+									"\(self)"
+								} |
 								fn.#StringExpression
 								PropertyExternalId?: strings.MaxRunes(128) &
 								strings.MinRunes(2) &
 								=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
+								{
+									number | bool
+									_cfnString: strings.MaxRunes(128) &
+									strings.MinRunes(2) &
+									=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
+									"\(self)"
+								} |
 								fn.#StringExpression
 								PropertyLogicalId?: strings.MaxRunes(256) &
 								strings.MinRunes(1) &
 								=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
+								{
+									number | bool
+									_cfnString: strings.MaxRunes(256) &
+									strings.MinRunes(1) &
+									=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" &
+									"\(self)"
+								} |
 								fn.#StringExpression
 								PropertyPath?: [...#PropertyPathDefinition] | fn.#ListExpression
 							}) |
@@ -109,44 +226,130 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				}) |
 				fn.#ObjectExpression
 				Unit?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(256) &
+					strings.MinRunes(1) &
+					=~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" &
+					"\(self)"
+				} |
 				fn.#StringExpression
 			}) |
 			fn.#ObjectExpression] |
 			fn.#ListExpression
 			Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(2048) &
+				strings.MinRunes(1) &
+				=~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) &
+				strings.MinRunes(2) &
+				=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) &
+				strings.MinRunes(1) &
+				=~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			ParentAssetModelCompositeModelExternalId?: strings.MaxRunes(128) &
 			strings.MinRunes(2) &
 			=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) &
+				strings.MinRunes(2) &
+				=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
+				"\(self)"
+			} |
 			fn.#StringExpression
-			Path?: [...string | fn.#StringExpression] | fn.#ListExpression
+			Path?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 			Type!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) &
+				strings.MinRunes(1) &
+				=~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
 		AssetModelDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		AssetModelExternalId?: strings.MaxRunes(128) &
 		strings.MinRunes(2) &
 		=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(2) &
+			=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		AssetModelHierarchies?: [...close({
-			ChildAssetModelId!: strings.MaxRunes(139) & strings.MinRunes(13) | fn.#StringExpression
+			ChildAssetModelId!: strings.MaxRunes(139) & strings.MinRunes(13) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(139) & strings.MinRunes(13) & "\(self)"
+			} |
+			fn.#StringExpression
 			ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) &
+				strings.MinRunes(2) &
+				=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			LogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) &
+				strings.MinRunes(1) &
+				=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) &
+				strings.MinRunes(1) &
+				=~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
 		AssetModelName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 		AssetModelProperties?: [...close({
 			// The data type of the asset model property.
@@ -155,37 +358,103 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			// The data type of the structure for this property.
 			DataTypeSpec?: #DataTypeSpec
 			ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) &
+				strings.MinRunes(2) &
+				=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			LogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) &
+				strings.MinRunes(1) &
+				=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) &
+				strings.MinRunes(1) &
+				=~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			Type!: close({
 				Attribute?: #Attribute
 				Metric?: close({
-					Expression!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+					Expression!: strings.MaxRunes(1024) & strings.MinRunes(0) |
+					{
+						number | bool
+						_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+					} |
+					fn.#StringExpression
 					Variables!: [...close({
-						Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-z0-9_]*$" | fn.#StringExpression
+						Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-z0-9_]*$" |
+						{
+							number | bool
+							_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-z0-9_]*$" & "\(self)"
+						} |
+						fn.#StringExpression
 						Value!: close({
 							HierarchyExternalId?: strings.MaxRunes(128) &
 							strings.MinRunes(2) &
 							=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
+							{
+								number | bool
+								_cfnString: strings.MaxRunes(128) &
+								strings.MinRunes(2) &
+								=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
+								"\(self)"
+							} |
 							fn.#StringExpression
 							HierarchyId?: strings.MaxRunes(36) &
 							strings.MinRunes(36) &
 							=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
+							{
+								number | bool
+								_cfnString: strings.MaxRunes(36) &
+								strings.MinRunes(36) &
+								=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+								"\(self)"
+							} |
 							fn.#StringExpression
 							HierarchyLogicalId?: strings.MaxRunes(256) &
 							strings.MinRunes(1) &
 							=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
+							{
+								number | bool
+								_cfnString: strings.MaxRunes(256) &
+								strings.MinRunes(1) &
+								=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" &
+								"\(self)"
+							} |
 							fn.#StringExpression
 							PropertyExternalId?: strings.MaxRunes(128) &
 							strings.MinRunes(2) &
 							=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
+							{
+								number | bool
+								_cfnString: strings.MaxRunes(128) &
+								strings.MinRunes(2) &
+								=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
+								"\(self)"
+							} |
 							fn.#StringExpression
 							PropertyLogicalId?: strings.MaxRunes(256) &
 							strings.MinRunes(1) &
 							=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
+							{
+								number | bool
+								_cfnString: strings.MaxRunes(256) &
+								strings.MinRunes(1) &
+								=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" &
+								"\(self)"
+							} |
 							fn.#StringExpression
 							PropertyPath?: [...#PropertyPathDefinition] | fn.#ListExpression
 						}) |
@@ -200,29 +469,74 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				}) |
 				fn.#ObjectExpression
 				Transform?: close({
-					Expression!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+					Expression!: strings.MaxRunes(1024) & strings.MinRunes(0) |
+					{
+						number | bool
+						_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+					} |
+					fn.#StringExpression
 					Variables!: [...close({
-						Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-z0-9_]*$" | fn.#StringExpression
+						Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-z0-9_]*$" |
+						{
+							number | bool
+							_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-z0-9_]*$" & "\(self)"
+						} |
+						fn.#StringExpression
 						Value!: close({
 							HierarchyExternalId?: strings.MaxRunes(128) &
 							strings.MinRunes(2) &
 							=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
+							{
+								number | bool
+								_cfnString: strings.MaxRunes(128) &
+								strings.MinRunes(2) &
+								=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
+								"\(self)"
+							} |
 							fn.#StringExpression
 							HierarchyId?: strings.MaxRunes(36) &
 							strings.MinRunes(36) &
 							=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
+							{
+								number | bool
+								_cfnString: strings.MaxRunes(36) &
+								strings.MinRunes(36) &
+								=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+								"\(self)"
+							} |
 							fn.#StringExpression
 							HierarchyLogicalId?: strings.MaxRunes(256) &
 							strings.MinRunes(1) &
 							=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
+							{
+								number | bool
+								_cfnString: strings.MaxRunes(256) &
+								strings.MinRunes(1) &
+								=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" &
+								"\(self)"
+							} |
 							fn.#StringExpression
 							PropertyExternalId?: strings.MaxRunes(128) &
 							strings.MinRunes(2) &
 							=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
+							{
+								number | bool
+								_cfnString: strings.MaxRunes(128) &
+								strings.MinRunes(2) &
+								=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
+								"\(self)"
+							} |
 							fn.#StringExpression
 							PropertyLogicalId?: strings.MaxRunes(256) &
 							strings.MinRunes(1) &
 							=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
+							{
+								number | bool
+								_cfnString: strings.MaxRunes(256) &
+								strings.MinRunes(1) &
+								=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" &
+								"\(self)"
+							} |
 							fn.#StringExpression
 							PropertyPath?: [...#PropertyPathDefinition] | fn.#ListExpression
 						}) |
@@ -236,6 +550,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			}) |
 			fn.#ObjectExpression
 			Unit?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) &
+				strings.MinRunes(1) &
+				=~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
@@ -244,41 +565,71 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		EnforcedAssetModelInterfaceRelationships?: [...#EnforcedAssetModelInterfaceRelationship] | fn.#ListExpression
 		Tags?:                                     [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Attribute: close({DefaultValue?: =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" | fn.#StringExpression}) | fn.#ObjectExpression
+#Attribute: close({
+	DefaultValue?: =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #DataType: "STRING" | "INTEGER" | "DOUBLE" | "BOOLEAN" | "STRUCT" | fn.#StringExpression
 
-#DataTypeSpec: "AWS/ALARM_STATE" & (strings.MaxRunes(256) & strings.MinRunes(1)) | fn.#StringExpression
+#DataTypeSpec: "AWS/ALARM_STATE" & (strings.MaxRunes(256) & strings.MinRunes(1)) |
+{
+	number | bool
+	_cfnString: "AWS/ALARM_STATE" & strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #EnforcedAssetModelInterfacePropertyMapping: close({
-	AssetModelPropertyExternalId?:          string | fn.#StringExpression
-	AssetModelPropertyLogicalId?:           string | fn.#StringExpression
-	InterfaceAssetModelPropertyExternalId!: string | fn.#StringExpression
+	AssetModelPropertyExternalId?:          string | number | bool | fn.#StringExpression
+	AssetModelPropertyLogicalId?:           string | number | bool | fn.#StringExpression
+	InterfaceAssetModelPropertyExternalId!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EnforcedAssetModelInterfaceRelationship: close({
-	InterfaceAssetModelId?: string | fn.#StringExpression
+	InterfaceAssetModelId?: string | number | bool | fn.#StringExpression
 	PropertyMappings?:      [...#EnforcedAssetModelInterfacePropertyMapping] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#Interval: strings.MaxRunes(23) & strings.MinRunes(2) | fn.#StringExpression
+#Interval: strings.MaxRunes(23) & strings.MinRunes(2) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(23) & strings.MinRunes(2) & "\(self)"
+} |
+fn.#StringExpression
 
 #MetricWindow: close({Tumbling?: #TumblingWindow}) | fn.#ObjectExpression
 
-#Offset: strings.MaxRunes(25) & strings.MinRunes(2) | fn.#StringExpression
+#Offset: strings.MaxRunes(25) & strings.MinRunes(2) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(25) & strings.MinRunes(2) & "\(self)"
+} |
+fn.#StringExpression
 
-#PropertyPathDefinition: close(
-	{Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" | fn.#StringExpression},
-) |
+#PropertyPathDefinition: close({
+	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

@@ -580,7 +580,7 @@ strings.MaxRunes(2048) &
 strings.MinRunes(32) &
 =~"^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.*$"
 
-#S3BucketLogDestination: close({
+#S3BucketLogDestination: matchN(2, [{...}, {...}]) & close({
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
@@ -591,7 +591,11 @@ strings.MinRunes(32) &
 	=~"^arn:[\\w\\-]+:s3:::[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
 })
 
-#S3BucketName: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
+#S3BucketName: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+strings.MaxRunes(63) &
+strings.MinRunes(3) &
+=~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
 
 #S3Location: close({
 	S3Bucket!:        #S3BucketName

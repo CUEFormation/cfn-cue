@@ -47,7 +47,11 @@ import (
 	ReportVersioning!: "CREATE_NEW_REPORT" | "OVERWRITE_REPORT"
 
 	// The S3 bucket where AWS delivers the report.
-	S3Bucket!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[A-Za-z0-9_\\.\\-]+"
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(256) &
+	strings.MinRunes(1) &
+	=~"[A-Za-z0-9_\\.\\-]+"
 
 	// The prefix that AWS adds to the report name when AWS delivers the report.
 	// Your prefix can't include spaces.

@@ -35,7 +35,7 @@ import (
 	AttributeDefinitions?: null | bool | number | string | list.MinItems(2) | {...}
 	KeySchema?:            null | bool | number | string | list.MinItems(2) | {...}
 	...
-}, _) & {...} & close({
+}, _) & close({
 	Arn?: string
 
 	// A list of attributes that describe the key schema for the table and indexes.
@@ -459,7 +459,7 @@ import (
 // The S3 bucket that is being imported from.
 #S3BucketSource: close({
 	// The S3 bucket that is being imported from.
-	S3Bucket!: string
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$"
 
 	// The account number of the S3 bucket that is being imported from. If the
 	// bucket is owned by the requester this is optional.

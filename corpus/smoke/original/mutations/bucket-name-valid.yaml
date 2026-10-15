@@ -1,0 +1,5 @@
+Resources:
+  Thing:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: my.bucket-1

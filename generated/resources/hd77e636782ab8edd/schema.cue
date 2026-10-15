@@ -13,29 +13,47 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::AppRunner::Service resource specifies an AppRunner Service.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppRunner::Service"
-	Properties!: close({
-		AutoScalingConfigurationArn?: strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression
-		EncryptionConfiguration?:     #EncryptionConfiguration
-		HealthCheckConfiguration?:    #HealthCheckConfiguration
-		InstanceConfiguration?:       #InstanceConfiguration
-		NetworkConfiguration?:        #NetworkConfiguration
-		ObservabilityConfiguration?:  #ServiceObservabilityConfiguration
+	let properties = close({
+		AutoScalingConfigurationArn?: strings.MaxRunes(1011) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1011) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		EncryptionConfiguration?:    #EncryptionConfiguration
+		HealthCheckConfiguration?:   #HealthCheckConfiguration
+		InstanceConfiguration?:      #InstanceConfiguration
+		NetworkConfiguration?:       #NetworkConfiguration
+		ObservabilityConfiguration?: #ServiceObservabilityConfiguration
 		ServiceName?: strings.MaxRunes(40) & strings.MinRunes(4) & =~"[A-Za-z0-9][A-Za-z0-9-_]{3,39}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(40) & strings.MinRunes(4) & =~"[A-Za-z0-9][A-Za-z0-9-_]{3,39}" & "\(self)"
+		} |
 		fn.#StringExpression
 		SourceConfiguration!: #SourceConfiguration
 		Tags?:                [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AuthenticationConfiguration: close({
 	// Access Role Arn
 	AccessRoleArn?: #RoleArn
-	ConnectionArn?: strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression
+	ConnectionArn?: strings.MaxRunes(1011) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1011) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -46,8 +64,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CodeConfigurationValues: close({
-	BuildCommand?: =~"^[^\\x0a\\x0d]+$" | fn.#StringExpression
-	Port?:         strings.MaxRunes(51200) & strings.MinRunes(0) | fn.#StringExpression
+	BuildCommand?: =~"^[^\\x0a\\x0d]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[^\\x0a\\x0d]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Port?: strings.MaxRunes(51200) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(51200) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	Runtime!: "PYTHON_3" |
 		"NODEJS_12" |
 		"NODEJS_14" |
@@ -64,21 +92,41 @@ fn.#ObjectExpression
 		fn.#StringExpression
 	RuntimeEnvironmentSecrets?:   [...#KeyValuePair] | fn.#ListExpression
 	RuntimeEnvironmentVariables?: [...#KeyValuePair] | fn.#ListExpression
-	StartCommand?:                =~"^[^\\x0a\\x0d]+$" | fn.#StringExpression
+	StartCommand?: =~"^[^\\x0a\\x0d]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[^\\x0a\\x0d]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CodeRepository: close({
 	CodeConfiguration?: #CodeConfiguration
-	RepositoryUrl!:     strings.MaxRunes(51200) & strings.MinRunes(0) | fn.#StringExpression
+	RepositoryUrl!: strings.MaxRunes(51200) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(51200) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	SourceCodeVersion!: #SourceCodeVersion
-	SourceDirectory?:   strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[^\\x00]+" | fn.#StringExpression
+	SourceDirectory?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[^\\x00]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[^\\x00]+" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EgressConfiguration: close({
-	EgressType!:      "DEFAULT" | "VPC" | fn.#StringExpression
-	VpcConnectorArn?: strings.MaxRunes(1011) & strings.MinRunes(44) | fn.#StringExpression
+	EgressType!: "DEFAULT" | "VPC" | fn.#StringExpression
+	VpcConnectorArn?: strings.MaxRunes(1011) & strings.MinRunes(44) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1011) & strings.MinRunes(44) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -86,6 +134,13 @@ fn.#ObjectExpression
 	KmsKey!: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"arn:aws(-[\\w]+)*:kms:[a-z\\-]+-[0-9]{1}:[0-9]{12}:key\\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"arn:aws(-[\\w]+)*:kms:[a-z\\-]+-[0-9]{1}:[0-9]{12}:key\\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -123,7 +178,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Path?:     strings.MinRunes(1) | fn.#StringExpression
+	Path?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Protocol?: "TCP" | "HTTP" | fn.#StringExpression
 	Timeout?: int & <=20 & >=1 |
 		{
@@ -161,10 +221,20 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ImageConfiguration: close({
-	Port?:                        strings.MaxRunes(51200) & strings.MinRunes(0) | fn.#StringExpression
+	Port?: strings.MaxRunes(51200) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(51200) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	RuntimeEnvironmentSecrets?:   [...#KeyValuePair] | fn.#ListExpression
 	RuntimeEnvironmentVariables?: [...#KeyValuePair] | fn.#ListExpression
-	StartCommand?:                =~"^[^\\x0a\\x0d]+$" | fn.#StringExpression
+	StartCommand?: =~"^[^\\x0a\\x0d]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[^\\x0a\\x0d]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -173,6 +243,13 @@ fn.#ObjectExpression
 	ImageIdentifier!: strings.MaxRunes(1024) &
 	strings.MinRunes(1) &
 	=~"([0-9]{12}.dkr.ecr.[a-z\\-]+-[0-9]{1}.amazonaws.com\\/.*)|(^public\\.ecr\\.aws\\/.+\\/.+)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"([0-9]{12}.dkr.ecr.[a-z\\-]+-[0-9]{1}.amazonaws.com\\/.*)|(^public\\.ecr\\.aws\\/.+\\/.+)" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	ImageRepositoryType!: "ECR" | "ECR_PUBLIC" | fn.#StringExpression
 }) |
@@ -185,6 +262,13 @@ fn.#ObjectExpression
 
 #InstanceConfiguration: close({
 	Cpu?: strings.MaxRunes(9) & strings.MinRunes(3) & =~"256|512|1024|2048|4096|(0.25|0.5|1|2|4) vCPU" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(9) &
+		strings.MinRunes(3) &
+		=~"256|512|1024|2048|4096|(0.25|0.5|1|2|4) vCPU" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 
 	// Instance Role Arn
@@ -192,13 +276,20 @@ fn.#ObjectExpression
 	Memory?: strings.MaxRunes(6) &
 	strings.MinRunes(3) &
 	=~"512|1024|2048|3072|4096|6144|8192|10240|12288|(0.5|1|2|3|4|6|8|10|12) GB" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(6) &
+		strings.MinRunes(3) &
+		=~"512|1024|2048|3072|4096|6144|8192|10240|12288|(0.5|1|2|3|4|6|8|10|12) GB" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #KeyValuePair: close({
-	Name?:  string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Name?:  string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -209,21 +300,39 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(1024) &
 strings.MinRunes(29) &
 =~"arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):iam::[0-9]{12}:role/[\\w+=,.@-]{1,64}" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(29) &
+	=~"arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):iam::[0-9]{12}:role/[\\w+=,.@-]{1,64}" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #ServiceObservabilityConfiguration: close({
-	ObservabilityConfigurationArn?: strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression
+	ObservabilityConfigurationArn?: strings.MaxRunes(1011) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1011) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ObservabilityEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #SourceCodeVersion: close({
-	Type!:  "BRANCH" | fn.#StringExpression
-	Value!: strings.MaxRunes(51200) & strings.MinRunes(0) | fn.#StringExpression
+	Type!: "BRANCH" | fn.#StringExpression
+	Value!: strings.MaxRunes(51200) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(51200) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -236,7 +345,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

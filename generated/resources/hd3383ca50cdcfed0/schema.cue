@@ -9,14 +9,33 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS Route53 Recovery Control Routing Control resource schema .
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53RecoveryControl::RoutingControl"
-	Properties!: close({
-		ClusterArn?:      =~"^[A-Za-z0-9:\\/_-]*$" | fn.#StringExpression
-		ControlPanelArn?: =~"^[A-Za-z0-9:\\/_-]*$" | fn.#StringExpression
-		Name!:            strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		ClusterArn?: =~"^[A-Za-z0-9:\\/_-]*$" |
+		{
+			number | bool
+			_cfnString: =~"^[A-Za-z0-9:\\/_-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ControlPanelArn?: =~"^[A-Za-z0-9:\\/_-]*$" |
+		{
+			number | bool
+			_cfnString: =~"^[A-Za-z0-9:\\/_-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

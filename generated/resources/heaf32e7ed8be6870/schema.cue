@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CloudWatch::AlarmMuteRule that allows
@@ -17,32 +19,74 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // specified window.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudWatch::AlarmMuteRule"
-	Properties!: close({
-		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		ExpireDate?:  string | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		ExpireDate?: string | number | bool | fn.#StringExpression
 		MuteTargets?: close(
 			{AlarmNames!: list.MaxItems(500) & list.UniqueItems() & [...] & [...#AlarmName] | fn.#ListExpression},
 		) |
 			fn.#ObjectExpression
-		Name?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Rule!: close({
 			Schedule!: close({
-				Duration!:   strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-				Expression!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-				Timezone?:   strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+				Duration!: strings.MaxRunes(50) & strings.MinRunes(1) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+				} |
+				fn.#StringExpression
+				Expression!: strings.MaxRunes(256) & strings.MinRunes(1) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+				} |
+				fn.#StringExpression
+				Timezone?: strings.MaxRunes(50) & strings.MinRunes(1) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+				} |
+				fn.#StringExpression
 			}) |
 			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-		StartDate?: string | fn.#StringExpression
+		StartDate?: string | number | bool | fn.#StringExpression
 		Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AlarmName: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#AlarmName: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

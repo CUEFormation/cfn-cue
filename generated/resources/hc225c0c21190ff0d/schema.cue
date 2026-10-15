@@ -10,22 +10,46 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for a use case associated with an Amazon Connect
 // integration association.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::UseCase"
-	Properties!: close({
-		InstanceId!:               strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		IntegrationAssociationId!: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:                     list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-		UseCaseType!:              "RULES_EVALUATION" | "CONNECT_CAMPAIGNS" | fn.#StringExpression
+	let properties = close({
+		InstanceId!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		IntegrationAssociationId!: strings.MaxRunes(200) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?:        list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		UseCaseType!: "RULES_EVALUATION" | "CONNECT_CAMPAIGNS" | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

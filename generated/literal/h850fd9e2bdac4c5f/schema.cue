@@ -4,13 +4,101 @@ package schema
 
 import (
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Route53::RecordSet.
-#Properties: close({
+#Properties: matchN(2, [
+	matchIf({
+		AliasTarget!: null | bool | number | string | list.MinItems(1) | {...}
+		...
+	}, {
+		TTL?: error("disallowed")
+		...
+	}, _),
+	matchIf({
+		Type?: "A"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | [...#CfnLintE3023ARecord] | {...}
+		...
+	}, _) & matchIf({
+		Type?: "AAAA"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | [...#CfnLintE3023AAAARecord] | {...}
+		...
+	}, _) & matchIf({
+		Type?: "CAA"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | [...#CfnLintE3023CAARecord] | {...}
+		...
+	}, _) & matchIf({
+		Type?: "CNAME"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | list.MaxItems(1) & [...#CfnLintE3023CNAMERecord] | {...}
+		...
+	}, _) & matchIf({
+		Type?: "DS"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | [...#CfnLintE3023DSRecord] | {...}
+		...
+	}, _) & matchIf({
+		Type?: "MX"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | [...#CfnLintE3023MXRecord] | {...}
+		...
+	}, _) & matchIf({
+		Type?: "NAPTR"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | [...#CfnLintE3023NAPTRRecord] | {...}
+		...
+	}, _) & matchIf({
+		Type?: "NS"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | [...#CfnLintE3023NSRecord] | {...}
+		...
+	}, _) & matchIf({
+		Type?: "PTR"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | [...#CfnLintE3023PTRRecord] | {...}
+		...
+	}, _) & matchIf({
+		Type?: "SOA"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | list.MaxItems(1) & [...#CfnLintE3023SOARecord] | {...}
+		...
+	}, _) & matchIf({
+		Type?: "SPF"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | [...#CfnLintE3023SPFRecord] | {...}
+		...
+	}, _) & matchIf({
+		Type?: "SRV"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | [...#CfnLintE3023SRVRecord] | {...}
+		...
+	}, _) & matchIf({
+		Type?: "TXT"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | [...#CfnLintE3023TXTRecord] | {...}
+		...
+	}, _)
+]) & (close({
 	// Alias resource record sets only: Information about the AWS resource, such as
 	// a CloudFront distribution or an Amazon S3 bucket, that you want to route
 	// traffic to.
@@ -91,7 +179,7 @@ import (
 			"HostedZoneName cannot be used with HostedZoneId; set exactly one of HostedZoneId, HostedZoneName",
 		)
 	}
-}) & (matchN(>=1, [{HostedZoneId!: _}, {HostedZoneName!: _}]) & matchN(>=1, [{HostedZoneId!: _}, {HostedZoneName!: _}]))
+}) & (matchN(>=1, [{HostedZoneId!: _}, {HostedZoneName!: _}]) & matchN(>=1, [{HostedZoneId!: _}, {HostedZoneName!: _}])))
 
 #AliasTarget: close({
 	// The value that you specify depends on where you want to route queries.
@@ -105,6 +193,50 @@ import (
 	// The value used depends on where you want to route traffic.
 	HostedZoneId!: #HostedZoneId
 })
+
+#CfnLintE3023AAAARecord: fn.#IPv6Address
+
+#CfnLintE3023ARecord: fn.#IPv4Address
+
+#CfnLintE3023CAARecord: null | bool | number | =~"^(0|128)\\s([a-zA-Z0-9]+)\\s(\".+\")$" | [...] | {...}
+
+#CfnLintE3023CNAMERecord: #CfnLintE3023DomainName |
+null |
+bool |
+number |
+=~"^.*\\.acm-validations\\.aws\\.?$" |
+[...] |
+{...}
+
+#CfnLintE3023DSRecord: _
+
+#CfnLintE3023DomainName: null |
+bool |
+number |
+=~"^[a-zA-Z0-9\\!\"\\#\\$\\%\\&\\'\\(\\)\\*\\+\\,-\\/\\:\\;\\<\\=\\>\\?\\@\\[\\\\\\]\\^\\_\\`\\{\\|\\}\\~\\.]+$" |
+[...] |
+{...}
+
+#CfnLintE3023MXRecord: null |
+bool |
+number |
+=~"^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{1-3}|65[0-4][0-9]{1-2}|655[0-2][0-9]|6553[0-5])\\s[a-zA-Z0-9\\!\"\\#\\$\\%\\&\\'\\(\\)\\*\\+\\,-\\/\\:\\;\\<\\=\\>\\?\\@\\[\\\\\\]\\^\\_\\`\\{\\|\\}\\~\\.]+$" |
+[...] |
+{...}
+
+#CfnLintE3023NAPTRRecord: _
+
+#CfnLintE3023NSRecord: #CfnLintE3023DomainName
+
+#CfnLintE3023PTRRecord: #CfnLintE3023DomainName
+
+#CfnLintE3023SOARecord: _
+
+#CfnLintE3023SPFRecord: _
+
+#CfnLintE3023SRVRecord: _
+
+#CfnLintE3023TXTRecord: null | bool | number | =~"^(\"[^\"]{1,255}\" *)*\"[^\"]{1,255}\"$" | [...] | {...}
 
 #CidrRoutingConfig: close({
 	// The CIDR collection ID.

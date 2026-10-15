@@ -23,7 +23,7 @@ import "list"
 
 #RevocationContent: close({
 	RevocationType?:  "CRL"
-	S3Bucket?:        string
+	S3Bucket?:        =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$"
 	S3Key?:           string
 	S3ObjectVersion?: string
 })

@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ApplicationAutoScaling::ScalingPolicy`` resource defines a scaling
@@ -26,19 +28,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Application Auto Scaling User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApplicationAutoScaling::ScalingPolicy"
-	Properties!: close({
+	let properties = close({
 		ResourceId?: _
 		if ResourceId != _|_ {
 			ScalableDimension!: _
 			ServiceNamespace!:  _
 		}
 		{}
-		PolicyName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		PolicyName!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		PolicyType!: "PredictiveScaling" | "StepScaling" | "TargetTrackingScaling" | fn.#StringExpression
 
 		// The predictive scaling policy configuration.
 		PredictiveScalingPolicyConfiguration?: #PredictiveScalingPolicyConfiguration
-		ResourceId?:                           strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
+		ResourceId?: strings.MaxRunes(1600) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1600) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ScalableDimension?: "appstream:fleet:DesiredCapacity" |
 			"cassandra:table:ReadCapacityUnits" |
 			"cassandra:table:WriteCapacityUnits" |
@@ -64,7 +76,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"sagemaker:variant:DesiredProvisionedConcurrency" |
 			"workspaces:workspacespool:DesiredUserSessions" |
 			fn.#StringExpression
-		ScalingTargetId?: string | fn.#StringExpression
+		ScalingTargetId?: string | number | bool | fn.#StringExpression
 		ServiceNamespace?: "appstream" |
 			"cassandra" |
 			"comprehend" |
@@ -93,21 +105,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			)
 		}
 	}) & matchN(>=1, [{ScalingTargetId!: _}, {ResourceId!: _}])
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CustomizedMetricSpecification: close({
 	Dimensions?: [...#MetricDimension] | fn.#ListExpression
-	MetricName?: string | fn.#StringExpression
+	MetricName?: string | number | bool | fn.#StringExpression
 	Metrics?:    [...#TargetTrackingMetricDataQuery] | fn.#ListExpression
-	Namespace?:  string | fn.#StringExpression
+	Namespace?:  string | number | bool | fn.#StringExpression
 	Statistic?:  "Average" | "Maximum" | "Minimum" | "SampleCount" | "Sum" | fn.#StringExpression
-	Unit?:       string | fn.#StringExpression
+	Unit?:       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MetricDimension: close({
-	Name!:  string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Name!:  string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -144,7 +158,12 @@ fn.#ObjectExpression
 		"SageMakerVariantProvisionedConcurrencyUtilization" |
 		"WorkSpacesAverageUserSessionsCapacityUtilization" |
 		fn.#StringExpression
-	ResourceLabel?: strings.MaxRunes(1023) & strings.MinRunes(1) | fn.#StringExpression
+	ResourceLabel?: strings.MaxRunes(1023) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1023) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -165,15 +184,35 @@ fn.#ObjectExpression
 
 #PredictiveScalingMetric: close({
 	Dimensions?: [...#PredictiveScalingMetricDimension] | fn.#ListExpression
-	MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Namespace?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Namespace?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PredictiveScalingMetricDataQuery: close({
-	Expression?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Id?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Label?:      string | fn.#StringExpression
+	Expression?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Id?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Label?: string | number | bool | fn.#StringExpression
 
 	// Information about the metric data to return.
 	// Conditional: Within each ``MetricDataQuery`` object, you must specify either
@@ -184,8 +223,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PredictiveScalingMetricDimension: close({
-	Name?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -238,8 +287,13 @@ fn.#ObjectExpression
 	// object that is returned by a call to
 	// [ListMetrics](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_ListMetrics.html).
 	Metric?: #PredictiveScalingMetric
-	Stat?:   string | fn.#StringExpression
-	Unit?:   strings.MaxRunes(1023) & strings.MinRunes(1) | fn.#StringExpression
+	Stat?:   string | number | bool | fn.#StringExpression
+	Unit?: strings.MaxRunes(1023) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1023) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -292,8 +346,28 @@ fn.#ObjectExpression
 		"ECSServiceTotalCPUUtilization" |
 		"ECSServiceTotalMemoryUtilization" |
 		"TotalALBRequestCount") & (strings.MaxRunes(128) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: ("ALBRequestCount" |
+			"ALBRequestCountPerTarget" |
+			"ECSServiceAverageCPUUtilization" |
+			"ECSServiceAverageMemoryUtilization" |
+			"ECSServiceCPUUtilization" |
+			"ECSServiceMemoryUtilization" |
+			"ECSServiceTotalCPUUtilization" |
+			"ECSServiceTotalMemoryUtilization" |
+			"TotalALBRequestCount") &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	ResourceLabel?: strings.MaxRunes(1023) & strings.MinRunes(1) | fn.#StringExpression
+	ResourceLabel?: strings.MaxRunes(1023) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1023) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -307,8 +381,28 @@ fn.#ObjectExpression
 		"ECSServiceTotalCPUUtilization" |
 		"ECSServiceTotalMemoryUtilization" |
 		"TotalALBRequestCount") & (strings.MaxRunes(128) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: ("ALBRequestCount" |
+			"ALBRequestCountPerTarget" |
+			"ECSServiceAverageCPUUtilization" |
+			"ECSServiceAverageMemoryUtilization" |
+			"ECSServiceCPUUtilization" |
+			"ECSServiceMemoryUtilization" |
+			"ECSServiceTotalCPUUtilization" |
+			"ECSServiceTotalMemoryUtilization" |
+			"TotalALBRequestCount") &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	ResourceLabel?: strings.MaxRunes(1023) & strings.MinRunes(1) | fn.#StringExpression
+	ResourceLabel?: strings.MaxRunes(1023) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1023) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -322,8 +416,28 @@ fn.#ObjectExpression
 		"ECSServiceTotalCPUUtilization" |
 		"ECSServiceTotalMemoryUtilization" |
 		"TotalALBRequestCount") & (strings.MaxRunes(128) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: ("ALBRequestCount" |
+			"ALBRequestCountPerTarget" |
+			"ECSServiceAverageCPUUtilization" |
+			"ECSServiceAverageMemoryUtilization" |
+			"ECSServiceCPUUtilization" |
+			"ECSServiceMemoryUtilization" |
+			"ECSServiceTotalCPUUtilization" |
+			"ECSServiceTotalMemoryUtilization" |
+			"TotalALBRequestCount") &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	ResourceLabel?: strings.MaxRunes(1023) & strings.MinRunes(1) | fn.#StringExpression
+	ResourceLabel?: strings.MaxRunes(1023) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1023) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -420,15 +534,35 @@ fn.#ObjectExpression
 
 #TargetTrackingMetric: close({
 	Dimensions?: [...#TargetTrackingMetricDimension] | fn.#ListExpression
-	MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Namespace?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Namespace?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TargetTrackingMetricDataQuery: close({
-	Expression?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Id?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Label?:      string | fn.#StringExpression
+	Expression?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Id?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Label?: string | number | bool | fn.#StringExpression
 
 	// Information about the metric data to return.
 	// Conditional: Within each ``MetricDataQuery`` object, you must specify either
@@ -439,8 +573,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TargetTrackingMetricDimension: close({
-	Name?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -452,8 +596,13 @@ fn.#ObjectExpression
 	// object that is returned by a call to
 	// [ListMetrics](https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_ListMetrics.html).
 	Metric?: #TargetTrackingMetric
-	Stat?:   string | fn.#StringExpression
-	Unit?:   strings.MaxRunes(1023) & strings.MinRunes(1) | fn.#StringExpression
+	Stat?:   string | number | bool | fn.#StringExpression
+	Unit?: strings.MaxRunes(1023) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1023) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

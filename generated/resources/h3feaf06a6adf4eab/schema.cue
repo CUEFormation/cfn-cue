@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ECR::Repository`` resource specifies an Amazon Elastic Container
@@ -20,7 +22,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Amazon ECR User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ECR::Repository"
-	Properties?: close({
+	let properties = close({
 		// If true, deleting the repository force deletes the contents of the
 		// repository. If false, the repository must be empty before attempting to
 		// delete it.
@@ -50,11 +52,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Creates or updates a lifecycle policy. For information about lifecycle policy
 		// syntax, see [Lifecycle policy
 		// template](https://docs.aws.amazon.com/AmazonECR/latest/userguide/LifecyclePolicies.html).
-		LifecyclePolicy?:      #LifecyclePolicy
-		RepositoryName?:       strings.MaxRunes(256) & strings.MinRunes(2) | fn.#StringExpression
-		RepositoryPolicyText?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		LifecyclePolicy?: #LifecyclePolicy
+		RepositoryName?: strings.MaxRunes(256) & strings.MinRunes(2) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(2) & "\(self)"
+		} |
+		fn.#StringExpression
+		RepositoryPolicyText?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #EmptyOnDelete: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -107,9 +116,18 @@ fn.#ObjectExpression
 #ImageTagMutabilityExclusionFilterType: "WILDCARD" | fn.#StringExpression
 
 #ImageTagMutabilityExclusionFilterValue: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._*-]{1,128}" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._*-]{1,128}" & "\(self)"
+} |
 fn.#StringExpression
 
-#KmsKey: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+#KmsKey: strings.MaxRunes(2048) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #LifecyclePolicy: close({
 	// The JSON repository policy text to apply to the repository.
@@ -121,14 +139,34 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#LifecyclePolicyText: strings.MaxRunes(30720) & strings.MinRunes(100) | fn.#StringExpression
+#LifecyclePolicyText: strings.MaxRunes(30720) & strings.MinRunes(100) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(30720) & strings.MinRunes(100) & "\(self)"
+} |
+fn.#StringExpression
 
-#RegistryId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+#RegistryId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #ScanOnPush: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

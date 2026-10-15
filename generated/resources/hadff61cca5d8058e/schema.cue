@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SSMQuickSetup::LifecycleAutomation that
@@ -16,21 +18,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // events.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSMQuickSetup::LifecycleAutomation"
-	Properties!: close({
-		AutomationDocument!:   strings.MaxRunes(500) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
+	let properties = close({
+		AutomationDocument!: strings.MaxRunes(500) & strings.MinRunes(1) & =~"^\\S+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & =~"^\\S+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		AutomationParameters!: #AutomationParameters
-		ResourceKey!:          strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-		Tags?:                 #TagsMap
+		ResourceKey!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: #TagsMap
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AutomationParameters: close({
 
-	{[=~"^[a-zA-Z0-9_]+$"]: [...string | fn.#StringExpression] | fn.#ListExpression}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{[=~"^[a-zA-Z0-9_]+$"]: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression}
+}) |
 fn.#ObjectExpression
 
 #TagsMap: close({
 
-	{[=~"^[A-Za-z0-9 +=@_\\/:.-]+$"]: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9 +=@_\\/:.-]+$" |
-	fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[A-Za-z0-9 +=@_\\/:.-]+$"]: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9 +=@_\\/:.-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9 +=@_\\/:.-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression

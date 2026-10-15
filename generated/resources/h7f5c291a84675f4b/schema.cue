@@ -14,18 +14,34 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::GameLift::GameSessionQueue resource creates an Amazon GameLift
 // (GameLift) game session queue.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GameLift::GameSessionQueue"
-	Properties!: close({
-		CustomEventData?:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
+	let properties = close({
+		CustomEventData?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\s\\S]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\s\\S]*" & "\(self)"
+		} |
+		fn.#StringExpression
 		Destinations?:        [...#GameSessionQueueDestination] | fn.#ListExpression
 		FilterConfiguration?: #FilterConfiguration & fn.#Object & {...} | fn.#ObjectExpression
-		Name!:                strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-]+" | fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		NotificationTarget?: strings.MaxRunes(300) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]*(\\.fifo)?" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(300) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]*(\\.fifo)?" & "\(self)"
+		} |
 		fn.#StringExpression
 		PlayerLatencyPolicies?: [...#PlayerLatencyPolicy] | fn.#ListExpression
 		PriorityConfiguration?: #PriorityConfiguration & fn.#Object & {...} | fn.#ObjectExpression
@@ -48,23 +64,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AllowedLocations: list.MaxItems(100) & list.MinItems(1) & [
-	...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z]+(-([a-z]+|\\d))*" | fn.#StringExpression
-] |
+#AllowedLocations: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(64) &
+strings.MinRunes(1) &
+=~"^[a-z]+(-([a-z]+|\\d))*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z]+(-([a-z]+|\\d))*" & "\(self)"
+} |
+fn.#StringExpression] |
 fn.#ListExpression
 
 #FilterConfiguration: close({AllowedLocations?: #AllowedLocations}) | fn.#ObjectExpression
 
-#GameSessionQueueDestination: close(
-	{DestinationArn?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9:/-]+" | fn.#StringExpression},
-) |
+#GameSessionQueueDestination: close({
+	DestinationArn?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9:/-]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9:/-]+" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
-#LocationOrder: list.MaxItems(100) & list.MinItems(1) & [
-	...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+" | fn.#StringExpression
-] |
+#LocationOrder: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(64) &
+strings.MinRunes(1) &
+=~"^[A-Za-z0-9\\-]+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-]+" & "\(self)"
+} |
+fn.#StringExpression] |
 fn.#ListExpression
 
 #PlayerLatencyPolicy: close({
@@ -113,7 +146,17 @@ fn.#ObjectExpression
 	fn.#ListExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -9,18 +9,39 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Schema for Lambda LayerVersionPermission
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lambda::LayerVersionPermission"
-	Properties!: close({
-		Action!: strings.MaxRunes(22) & strings.MinRunes(0) & =~"^lambda:GetLayerVersion$" | fn.#StringExpression
-		LayerVersionArn!: string | fn.#StringExpression
-		OrganizationId?:  strings.MaxRunes(34) & strings.MinRunes(0) & =~"^o-[a-z0-9]{10,32}$" | fn.#StringExpression
+	let properties = close({
+		Action!: strings.MaxRunes(22) & strings.MinRunes(0) & =~"^lambda:GetLayerVersion$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(22) & strings.MinRunes(0) & =~"^lambda:GetLayerVersion$" & "\(self)"
+		} |
+		fn.#StringExpression
+		LayerVersionArn!: string | number | bool | fn.#StringExpression
+		OrganizationId?: strings.MaxRunes(34) & strings.MinRunes(0) & =~"^o-[a-z0-9]{10,32}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(34) & strings.MinRunes(0) & =~"^o-[a-z0-9]{10,32}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Principal!: strings.MaxRunes(10000) &
 		strings.MinRunes(0) &
 		=~"^\\d{12}|\\*|arn:(aws[a-zA-Z-]*):iam::\\d{12}:root$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(10000) &
+			strings.MinRunes(0) &
+			=~"^\\d{12}|\\*|arn:(aws[a-zA-Z-]*):iam::\\d{12}:root$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

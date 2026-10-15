@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::EventsV2::ResourcePolicy, the resource
@@ -26,11 +28,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // requires events:ListEventBuses and events:ListResourcePolicies.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EventsV2::ResourcePolicy"
-	Properties!: close({
+	let properties = close({
 		EventBusArn!: strings.MaxRunes(1011) &
 		strings.MinRunes(1) &
 		=~"^arn:aws(-[a-z0-9]+)*:events:[a-z][a-z0-9]*(-[a-z0-9]+)*:([0-9]{12}):event-busv2\\/[A-Za-z0-9][\\.\\-_A-Za-z0-9]{0,255}\\/[a-z0-9]{25}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1011) &
+			strings.MinRunes(1) &
+			=~"^arn:aws(-[a-z0-9]+)*:events:[a-z][a-z0-9]*(-[a-z0-9]+)*:([0-9]{12}):event-busv2\\/[A-Za-z0-9][\\.\\-_A-Za-z0-9]{0,255}\\/[a-z0-9]{25}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		PolicyDocument!: fn.#Object & {...} & struct.MinFields(1) | fn.#ObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

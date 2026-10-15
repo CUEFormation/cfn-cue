@@ -14,17 +14,39 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An aggregated metric of certain devices in your fleet
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::FleetMetric"
-	Properties!: close({
-		AggregationField?: strings.MinRunes(1) | fn.#StringExpression
-		AggregationType?:  #AggregationType
-		Description?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		IndexName?:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$" | fn.#StringExpression
-		MetricName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-\\.]+$" | fn.#StringExpression
+	let properties = close({
+		AggregationField?: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		AggregationType?: #AggregationType
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		IndexName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		MetricName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-\\.]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-\\.]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Period?: int & <=86400 & >=60 |
 			{
 				string &
@@ -43,8 +65,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		QueryString?:  strings.MinRunes(1) | fn.#StringExpression
-		QueryVersion?: string | fn.#StringExpression
+		QueryString?: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		QueryVersion?: string | number | bool | fn.#StringExpression
 		Tags?:         list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		Unit?: "Bits" |
 			"Bits/Second" |
@@ -75,17 +102,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"Terabytes/Second" |
 			fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AggregationType: close({
 	Name!: "Cardinality" | "Percentiles" | "Statistics" | fn.#StringExpression
-	Values!: [...strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression] |
+	Values!: [...strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

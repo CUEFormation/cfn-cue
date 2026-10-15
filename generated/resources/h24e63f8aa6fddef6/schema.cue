@@ -6,51 +6,55 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::PushTemplate
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Pinpoint::PushTemplate"
-	Properties!: close({
+	let properties = close({
 		ADM?:                  #AndroidPushNotificationTemplate
 		APNS?:                 #APNSPushNotificationTemplate
 		Baidu?:                #AndroidPushNotificationTemplate
 		Default?:              #DefaultPushNotificationTemplate
-		DefaultSubstitutions?: string | fn.#StringExpression
+		DefaultSubstitutions?: string | number | bool | fn.#StringExpression
 		GCM?:                  #AndroidPushNotificationTemplate
-		Tags?:                 fn.#Object & {...} | string | fn.#StringObjectExpression
-		TemplateDescription?:  string | fn.#StringExpression
-		TemplateName!:         string | fn.#StringExpression
+		Tags?:                 fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		TemplateDescription?:  string | number | bool | fn.#StringExpression
+		TemplateName!:         string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #APNSPushNotificationTemplate: close({
-	Action?:   string | fn.#StringExpression
-	Body?:     string | fn.#StringExpression
-	MediaUrl?: string | fn.#StringExpression
-	Sound?:    string | fn.#StringExpression
-	Title?:    string | fn.#StringExpression
-	Url?:      string | fn.#StringExpression
+	Action?:   string | number | bool | fn.#StringExpression
+	Body?:     string | number | bool | fn.#StringExpression
+	MediaUrl?: string | number | bool | fn.#StringExpression
+	Sound?:    string | number | bool | fn.#StringExpression
+	Title?:    string | number | bool | fn.#StringExpression
+	Url?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AndroidPushNotificationTemplate: close({
-	Action?:            string | fn.#StringExpression
-	Body?:              string | fn.#StringExpression
-	ImageIconUrl?:      string | fn.#StringExpression
-	ImageUrl?:          string | fn.#StringExpression
-	SmallImageIconUrl?: string | fn.#StringExpression
-	Sound?:             string | fn.#StringExpression
-	Title?:             string | fn.#StringExpression
-	Url?:               string | fn.#StringExpression
+	Action?:            string | number | bool | fn.#StringExpression
+	Body?:              string | number | bool | fn.#StringExpression
+	ImageIconUrl?:      string | number | bool | fn.#StringExpression
+	ImageUrl?:          string | number | bool | fn.#StringExpression
+	SmallImageIconUrl?: string | number | bool | fn.#StringExpression
+	Sound?:             string | number | bool | fn.#StringExpression
+	Title?:             string | number | bool | fn.#StringExpression
+	Url?:               string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DefaultPushNotificationTemplate: close({
-	Action?: string | fn.#StringExpression
-	Body?:   string | fn.#StringExpression
-	Sound?:  string | fn.#StringExpression
-	Title?:  string | fn.#StringExpression
-	Url?:    string | fn.#StringExpression
+	Action?: string | number | bool | fn.#StringExpression
+	Body?:   string | number | bool | fn.#StringExpression
+	Sound?:  string | number | bool | fn.#StringExpression
+	Title?:  string | number | bool | fn.#StringExpression
+	Url?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

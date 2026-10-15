@@ -9,17 +9,32 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Applies an IAM resource policy to a table bucket.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3Tables::TableBucketPolicy"
-	Properties!: close({
+	let properties = close({
 		ResourcePolicy!: #ResourcePolicy
 		TableBucketARN!: #TableBucketARN
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ResourcePolicy: fn.#Object & {...} | strings.MaxRunes(20480) & strings.MinRunes(1) | fn.#StringObjectExpression
+#ResourcePolicy: fn.#Object & {...} |
+strings.MaxRunes(20480) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(20480) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringObjectExpression
 
-#TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" | fn.#StringExpression
+#TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" |
+{
+	number | bool
+	_cfnString: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" & "\(self)"
+} |
+fn.#StringExpression

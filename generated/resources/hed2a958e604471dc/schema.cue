@@ -6,18 +6,37 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SES::VdmAttributes
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SES::VdmAttributes"
-	Properties?: close({
+	let properties = close({
 		DashboardAttributes?: #DashboardAttributes
 		GuardianAttributes?:  #GuardianAttributes
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#DashboardAttributes: close({EngagementMetrics?: =~"ENABLED|DISABLED" | fn.#StringExpression}) | fn.#ObjectExpression
+#DashboardAttributes: close({
+	EngagementMetrics?: =~"ENABLED|DISABLED" |
+	{
+		number | bool
+		_cfnString: =~"ENABLED|DISABLED" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
-#GuardianAttributes: close({OptimizedSharedDelivery?: =~"ENABLED|DISABLED" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#GuardianAttributes: close({
+	OptimizedSharedDelivery?: =~"ENABLED|DISABLED" |
+	{
+		number | bool
+		_cfnString: =~"ENABLED|DISABLED" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression

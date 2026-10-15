@@ -9,14 +9,28 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An AWS Support App resource that creates, updates, lists, and deletes Slack
 // workspace configurations.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SupportApp::SlackWorkspaceConfiguration"
-	Properties!: close({
-		TeamId!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
-		VersionId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9]+$" | fn.#StringExpression
+	let properties = close({
+		TeamId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		VersionId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

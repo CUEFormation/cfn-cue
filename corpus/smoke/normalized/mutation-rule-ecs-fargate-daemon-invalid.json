@@ -1,0 +1,12 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "LaunchType": "FARGATE",
+        "SchedulingStrategy": "DAEMON",
+        "TaskDefinition": "task"
+      },
+      "Type": "AWS::ECS::Service"
+    }
+  }
+}

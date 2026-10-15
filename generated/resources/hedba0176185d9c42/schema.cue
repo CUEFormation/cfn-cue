@@ -14,58 +14,121 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::ProcessingJob
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::ProcessingJob"
-	Properties!: close({
+	let properties = close({
 		AppSpecification!: #AppSpecification
 		Environment?:      #Environment
 		ExperimentConfig?: #ExperimentConfig
 		NetworkConfig?:    #NetworkConfig
 		ProcessingInputs?: list.MaxItems(10) & [...] & [...#ProcessingInputsObject] | fn.#ListExpression
 		ProcessingJobName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" & "\(self)"
+		} |
 		fn.#StringExpression
 		ProcessingOutputConfig?: #ProcessingOutputConfig
 		ProcessingResources!:    #ProcessingResources
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		StoppingCondition?: #StoppingCondition
 		Tags?:              list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AppSpecification: close({
-	ContainerArguments?: list.MaxItems(100) & [...] & [
-		...strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	] |
+	ContainerArguments?: list.MaxItems(100) & [...] & [...strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	ContainerEntrypoint?: list.MaxItems(100) & [...] & [
-		...strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	] |
+	ContainerEntrypoint?: list.MaxItems(100) & [...] & [...strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	ImageUri!: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+	ImageUri!: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AthenaDatasetDefinition: close({
-	Catalog!:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Database!: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
+	Catalog!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Database!: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"[a-zA-Z0-9:/_-]*" |
+	{
+		number | bool
+		_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"[a-zA-Z0-9:/_-]*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	OutputCompression?: "GZIP" | "SNAPPY" | "ZLIB" | fn.#StringExpression
 	OutputFormat!:      "PARQUET" | "AVRO" | "ORC" | "JSON" | "TEXTFILE" | fn.#StringExpression
-	OutputS3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(https|s3)://([^/]+)/?(.*)" | fn.#StringExpression
-	QueryString!: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[\\s\\S]+" | fn.#StringExpression
-	WorkGroup?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9._-]+" | fn.#StringExpression
+	OutputS3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(https|s3)://([^/]+)/?(.*)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(https|s3)://([^/]+)/?(.*)" & "\(self)"
+	} |
+	fn.#StringExpression
+	QueryString!: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[\\s\\S]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[\\s\\S]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	WorkGroup?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9._-]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9._-]+" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -201,7 +264,12 @@ fn.#ObjectExpression
 		"ml.r7i.24xlarge" |
 		"ml.r7i.48xlarge" |
 		fn.#StringExpression
-	VolumeKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[a-zA-Z0-9:/_-]*" | fn.#StringExpression
+	VolumeKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[a-zA-Z0-9:/_-]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"[a-zA-Z0-9:/_-]*" & "\(self)"
+	} |
+	fn.#StringExpression
 	VolumeSizeInGB!: int & <=16384 & >=1 |
 		{
 			string &
@@ -222,30 +290,70 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DatasetDefinition: close({
-	AthenaDatasetDefinition?:   #AthenaDatasetDefinition
-	DataDistributionType?:      "FullyReplicated" | "ShardedByS3Key" | fn.#StringExpression
-	InputMode?:                 "File" | "Pipe" | fn.#StringExpression
-	LocalPath?:                 strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+	AthenaDatasetDefinition?: #AthenaDatasetDefinition
+	DataDistributionType?:    "FullyReplicated" | "ShardedByS3Key" | fn.#StringExpression
+	InputMode?:               "File" | "Pipe" | fn.#StringExpression
+	LocalPath?: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
 	RedshiftDatasetDefinition?: #RedshiftDatasetDefinition
 }) |
 fn.#ObjectExpression
 
 #Environment: close({
 
-	{[=~"^[a-zA-Z_][a-zA-Z0-9_]{0,255}$"]: strings.MaxRunes(256) & =~"[\\S\\s]*" | fn.#StringExpression}}) |
-fn.#ObjectExpression
+	{[=~"^(?:Ref)$"]: error("disallowed")}
 
-#ExperimentConfig: close({
-	ExperimentName?:            strings.MaxRunes(120) & =~"[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}" | fn.#StringExpression
-	RunName?:                   strings.MaxRunes(120) & =~"[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}" | fn.#StringExpression
-	TrialComponentDisplayName?: strings.MaxRunes(120) & =~"[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}" | fn.#StringExpression
-	TrialName?:                 strings.MaxRunes(120) & =~"[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}" | fn.#StringExpression
+	{
+		[=~"^[a-zA-Z_][a-zA-Z0-9_]{0,255}$"]: strings.MaxRunes(256) & =~"[\\S\\s]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & =~"[\\S\\s]*" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
 }) |
 fn.#ObjectExpression
 
-#FeatureStoreOutput: close(
-	{FeatureGroupName!: strings.MaxRunes(64) & =~"[a-zA-Z0-9]([_-]*[a-zA-Z0-9]){0,63}" | fn.#StringExpression},
-) |
+#ExperimentConfig: close({
+	ExperimentName?: strings.MaxRunes(120) & =~"[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(120) & =~"[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}" & "\(self)"
+	} |
+	fn.#StringExpression
+	RunName?: strings.MaxRunes(120) & =~"[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(120) & =~"[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}" & "\(self)"
+	} |
+	fn.#StringExpression
+	TrialComponentDisplayName?: strings.MaxRunes(120) & =~"[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(120) & =~"[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}" & "\(self)"
+	} |
+	fn.#StringExpression
+	TrialName?: strings.MaxRunes(120) & =~"[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(120) & =~"[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
+
+#FeatureStoreOutput: close({
+	FeatureGroupName!: strings.MaxRunes(64) & =~"[a-zA-Z0-9]([_-]*[a-zA-Z0-9]){0,63}" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & =~"[a-zA-Z0-9]([_-]*[a-zA-Z0-9]){0,63}" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #NetworkConfig: close({
@@ -265,17 +373,28 @@ fn.#ObjectExpression
 #ProcessingInputsObject: close({
 	AppManaged?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DatasetDefinition?: #DatasetDefinition
-	InputName!:         string | fn.#StringExpression
+	InputName!:         string | number | bool | fn.#StringExpression
 	S3Input?:           #S3Input
 }) |
 fn.#ObjectExpression
 
 #ProcessingOutputConfig: close({
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"[a-zA-Z0-9:/_-]*" |
+	{
+		number | bool
+		_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"[a-zA-Z0-9:/_-]*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Outputs!: list.MaxItems(10) & [...] & [...#ProcessingOutputsObject] | fn.#ListExpression
 }) |
@@ -284,7 +403,7 @@ fn.#ObjectExpression
 #ProcessingOutputsObject: close({
 	AppManaged?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	FeatureStoreOutput?: #FeatureStoreOutput
-	OutputName!:         string | fn.#StringExpression
+	OutputName!:         string | number | bool | fn.#StringExpression
 	S3Output?:           #S3Output
 }) |
 fn.#ObjectExpression
@@ -292,41 +411,105 @@ fn.#ObjectExpression
 #ProcessingResources: close({ClusterConfig!: #ClusterConfig}) | fn.#ObjectExpression
 
 #RedshiftDatasetDefinition: close({
-	ClusterId!: strings.MaxRunes(63) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
-	ClusterRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	ClusterId!: strings.MaxRunes(63) & strings.MinRunes(1) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
+	ClusterRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Database!: strings.MaxRunes(64) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
-	DbUser!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
+	Database!: strings.MaxRunes(64) & strings.MinRunes(1) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
+	DbUser!: strings.MaxRunes(128) & strings.MinRunes(1) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"[a-zA-Z0-9:/_-]*" |
+	{
+		number | bool
+		_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"[a-zA-Z0-9:/_-]*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	OutputCompression?: "None" | "GZIP" | "SNAPPY" | "ZSTD" | "BZIP2" | fn.#StringExpression
 	OutputFormat!:      "PARQUET" | "CSV" | fn.#StringExpression
-	OutputS3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(https|s3)://([^/]+)/?(.*)" | fn.#StringExpression
-	QueryString!: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[\\s\\S]+" | fn.#StringExpression
+	OutputS3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(https|s3)://([^/]+)/?(.*)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(https|s3)://([^/]+)/?(.*)" & "\(self)"
+	} |
+	fn.#StringExpression
+	QueryString!: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[\\s\\S]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"[\\s\\S]+" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #S3Input: close({
-	LocalPath?:              strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+	LocalPath?: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
 	S3CompressionType?:      "None" | "Gzip" | fn.#StringExpression
 	S3DataDistributionType?: "FullyReplicated" | "ShardedByS3Key" | fn.#StringExpression
 	S3DataType!:             "ManifestFile" | "S3Prefix" | fn.#StringExpression
 	S3InputMode?:            "File" | "Pipe" | fn.#StringExpression
-	S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(https|s3)://([^/]+)/?(.*)" | fn.#StringExpression
+	S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(https|s3)://([^/]+)/?(.*)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(https|s3)://([^/]+)/?(.*)" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #S3Output: close({
-	LocalPath?:    strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+	LocalPath?: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
 	S3UploadMode!: "Continuous" | "EndOfJob" | fn.#StringExpression
-	S3Uri!:        strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(https|s3)://([^/]+)/?(.*)" | fn.#StringExpression
+	S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(https|s3)://([^/]+)/?(.*)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(https|s3)://([^/]+)/?(.*)" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -351,23 +534,49 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VpcConfig: close({
-	SecurityGroupIds!: list.MaxItems(5) & [...] & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroupIds!: list.MaxItems(5) & [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(0) &
+	=~"[-0-9a-zA-Z]+" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(32) &
 		strings.MinRunes(0) &
-		=~"[-0-9a-zA-Z]+" |
-		fn.#StringExpression
-	] |
+		=~"[-0-9a-zA-Z]+" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Subnets!: list.MaxItems(16) & [...] & [
-		...strings.MaxRunes(32) & strings.MinRunes(0) & =~"[-0-9a-zA-Z]+" | fn.#StringExpression
-	] |
+	Subnets!: list.MaxItems(16) & [...] & [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(0) &
+	=~"[-0-9a-zA-Z]+" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"[-0-9a-zA-Z]+" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression

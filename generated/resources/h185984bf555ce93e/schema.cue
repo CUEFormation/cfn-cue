@@ -14,28 +14,56 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::HoursOfOperation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::HoursOfOperation"
-	Properties!: close({
+	let properties = close({
 		ChildHoursOfOperations?: [...#HoursOfOperationsIdentifier] | fn.#ListExpression
 		Config!: list.MaxItems(100) & list.UniqueItems() & [...] & [...#HoursOfOperationConfig] | fn.#ListExpression
 		Description?: strings.MaxRunes(250) & strings.MinRunes(1) & =~"^[\\P{C}\\r\\n\\t]{1,250}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(250) & strings.MinRunes(1) & =~"^[\\P{C}\\r\\n\\t]{1,250}$" & "\(self)"
+		} |
 		fn.#StringExpression
 		HoursOfOperationOverrides?: list.MaxItems(50) & [...#HoursOfOperationOverride] | fn.#ListExpression
-		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-		Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\P{C}\\r\\n\\t]{1,127}$" | fn.#StringExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\P{C}\\r\\n\\t]{1,127}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\P{C}\\r\\n\\t]{1,127}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ParentHoursOfOperations?: [...#HoursOfOperationsIdentifier] | fn.#ListExpression
 		Tags?:                    list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TimeZone!:                string | fn.#StringExpression
+		TimeZone!:                string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#EffectiveFrom: =~"^\\d{4}-\\d{2}-\\d{2}$" | fn.#StringExpression
+#EffectiveFrom: =~"^\\d{4}-\\d{2}-\\d{2}$" |
+{
+	number | bool
+	_cfnString: =~"^\\d{4}-\\d{2}-\\d{2}$" & "\(self)"
+} |
+fn.#StringExpression
 
-#EffectiveTill: =~"^\\d{4}-\\d{2}-\\d{2}$" | fn.#StringExpression
+#EffectiveTill: =~"^\\d{4}-\\d{2}-\\d{2}$" |
+{
+	number | bool
+	_cfnString: =~"^\\d{4}-\\d{2}-\\d{2}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #HoursOfOperationConfig: close({
 	Day!: "SUNDAY" | "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | fn.#StringExpression
@@ -71,7 +99,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#HoursOfOperationOverrideId: =~"^[-a-zA-Z0-9]*$" | fn.#StringExpression
+#HoursOfOperationOverrideId: =~"^[-a-zA-Z0-9]*$" |
+{
+	number | bool
+	_cfnString: =~"^[-a-zA-Z0-9]*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #HoursOfOperationTimeSlice: close({
 	Hours!: int & <=23 & >=0 |
@@ -110,8 +143,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #HoursOfOperationsIdentifier: close({
-	Id!:   string | fn.#StringExpression
-	Name?: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+	Id!: string | number | bool | fn.#StringExpression
+	Name?: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -157,9 +195,19 @@ fn.#ObjectExpression
 
 #OverrideConfig: list.MaxItems(100) & list.UniqueItems() & [...#HoursOfOperationOverrideConfig] | fn.#ListExpression
 
-#OverrideDescription: strings.MaxRunes(250) & strings.MinRunes(1) | fn.#StringExpression
+#OverrideDescription: strings.MaxRunes(250) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(250) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#OverrideName: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+#OverrideName: strings.MaxRunes(127) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #OverrideTimeSlice: close({
 	Hours!: int & <=23 & >=0 |
@@ -248,7 +296,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

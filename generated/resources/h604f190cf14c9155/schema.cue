@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RTBFabric::ResponderGateway Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RTBFabric::ResponderGateway"
-	Properties!: close({
+	let properties = close({
 		AcmCertificateArn?:            #AcmCertificateArn
 		Description?:                  #Description
 		DomainName?:                   #DomainName
@@ -34,44 +36,102 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		TrustStoreConfiguration?:      #TrustStoreConfiguration
 		VpcId!:                        #VpcId
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AcmCertificateArn: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-	fn.#StringExpression
+#AcmCertificateArn: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" & "\(self)"
+} |
+fn.#StringExpression
 
-#AutoScalingGroupNameList: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+#AutoScalingGroupNameList: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 
 #AutoScalingGroupsConfiguration: close({
 	AutoScalingGroupNameList!: #AutoScalingGroupNameList
 	HealthCheckConfig?:        #HealthCheckConfig
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Base64EncodedCertificateChain: strings.MaxRunes(2097152) & strings.MinRunes(1) | fn.#StringExpression
+#Base64EncodedCertificateChain: strings.MaxRunes(2097152) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2097152) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #CertificateAuthorityCertificates: list.MaxItems(1) & list.UniqueItems() & [...] & [...#Base64EncodedCertificateChain] |
 	fn.#ListExpression
 
-#Description: =~"^[A-Za-z0-9 ]+$" | fn.#StringExpression
+#Description: =~"^[A-Za-z0-9 ]+$" |
+{
+	number | bool
+	_cfnString: =~"^[A-Za-z0-9 ]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #DomainName: strings.MaxRunes(255) &
 strings.MinRunes(1) &
 =~"^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) &
+	strings.MinRunes(1) &
+	=~"^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))+$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #EksEndpointsConfiguration: close({
-	ClusterApiServerCaCertificateChain!: strings.MaxRunes(2097152) & strings.MinRunes(1) | fn.#StringExpression
+	ClusterApiServerCaCertificateChain!: strings.MaxRunes(2097152) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2097152) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ClusterApiServerEndpointUri!: strings.MaxRunes(255) &
 	strings.MinRunes(0) &
 	=~"^(https|http)://(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) &
+		strings.MinRunes(0) &
+		=~"^(https|http)://(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	ClusterName!:                =~"^[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9]$" | fn.#StringExpression
-	EndpointsResourceName!:      =~"^[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9]$" | fn.#StringExpression
-	EndpointsResourceNamespace!: =~"^[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9]$" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	ClusterName!: =~"^[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9]$" |
+	{
+		number | bool
+		_cfnString: =~"^[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9]$" & "\(self)"
+	} |
+	fn.#StringExpression
+	EndpointsResourceName!: =~"^[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9]$" |
+	{
+		number | bool
+		_cfnString: =~"^[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9]$" & "\(self)"
+	} |
+	fn.#StringExpression
+	EndpointsResourceNamespace!: =~"^[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9]$" |
+	{
+		number | bool
+		_cfnString: =~"^[A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9]$" & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -110,7 +170,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Path!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^/.*$" | fn.#StringExpression
+	Path!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^/.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^/.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Port!: int & <=65535 & >=80 |
 		{
 			string &
@@ -127,8 +192,13 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Protocol?:          #Protocol
-	StatusCodeMatcher?: strings.MaxRunes(2000) & strings.MinRunes(3) & =~"^[0-9,\\-]+$" | fn.#StringExpression
+	Protocol?: #Protocol
+	StatusCodeMatcher?: strings.MaxRunes(2000) & strings.MinRunes(3) & =~"^[0-9,\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2000) & strings.MinRunes(3) & =~"^[0-9,\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	TimeoutMs?: int & <=5000 & >=100 |
 		{
 			string &
@@ -167,7 +237,7 @@ fn.#ObjectExpression
 #ListenerConfig: close({Protocols!: list.MaxItems(2) & list.MinItems(1) & [...#Protocol] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-#ManagedEndpointConfiguration: fn.#Object & {...} & matchN(1, [close(
+#ManagedEndpointConfiguration: fn.#Object & matchN(1, [close(
 	{AutoScalingGroupsConfiguration!: #AutoScalingGroupsConfiguration},
 ), close(
 	{EksEndpointsConfiguration!: #EksEndpointsConfiguration},
@@ -193,25 +263,49 @@ fn.#ObjectExpression
 
 #Protocol: "HTTP" | "HTTPS" | fn.#StringExpression
 
-#SecurityGroupIds: list.MinItems(1) & list.UniqueItems() & [
-	...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#SecurityGroupIds: list.MinItems(1) & list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+string &
+strings.MaxRunes(43) &
+strings.MinRunes(11) &
+=~"^sg-[0-9a-f]{8,40}$" |
+{
+	number | bool
+	_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 	string &
 	strings.MaxRunes(43) &
 	strings.MinRunes(11) &
-	=~"^sg-[0-9a-f]{8,40}$" |
-	fn.#StringExpression
-] |
+	=~"^sg-[0-9a-f]{8,40}$" &
+	"\(self)"
+} |
+fn.#StringExpression] |
 fn.#ListExpression
 
-#SubnetIds: list.MinItems(1) & list.UniqueItems() & [
-	...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-\\w{8,17}$" | fn.#StringExpression
-] |
+#SubnetIds: list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(24) &
+strings.MinRunes(15) &
+=~"^subnet-\\w{8,17}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-\\w{8,17}$" & "\(self)"
+} |
+fn.#StringExpression] |
 fn.#ListExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^(resourceArn|internalId|[a-zA-Z0-9+\\-=._:/@]+)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"^(resourceArn|internalId|[a-zA-Z0-9+\\-=._:/@]+)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -220,8 +314,16 @@ fn.#ObjectExpression
 #TrustStoreConfiguration: close({CertificateAuthorityCertificates!: #CertificateAuthorityCertificates}) |
 	fn.#ObjectExpression
 
-#VpcId: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#VpcId: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
 strings.MaxRunes(50) &
 strings.MinRunes(5) &
 =~"^vpc-[a-f0-9]{8,17}$" |
+{
+	number | bool
+	_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(50) &
+	strings.MinRunes(5) &
+	=~"^vpc-[a-f0-9]{8,17}$" &
+	"\(self)"
+} |
 fn.#StringExpression

@@ -6,26 +6,30 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::Host
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::Host"
-	Properties!: close({
-		AssetId?:          string | fn.#StringExpression
+	let properties = close({
+		AssetId?:          string | number | bool | fn.#StringExpression
 		AutoPlacement?:    "on" | "off" | fn.#StringExpression
-		AvailabilityZone!: string | fn.#StringExpression
+		AvailabilityZone!: string | number | bool | fn.#StringExpression
 		HostMaintenance?:  "on" | "off" | fn.#StringExpression
 		HostRecovery?:     "on" | "off" | fn.#StringExpression
-		InstanceFamily?:   string | fn.#StringExpression
-		InstanceType?:     string | fn.#StringExpression
-		OutpostArn?:       string | fn.#StringExpression
+		InstanceFamily?:   string | number | bool | fn.#StringExpression
+		InstanceType?:     string | number | bool | fn.#StringExpression
+		OutpostArn?:       string | number | bool | fn.#StringExpression
 		Tags?:             [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

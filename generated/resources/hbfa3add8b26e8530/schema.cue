@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ApiGateway::UsagePlanKey`` resource associates an API key with a
@@ -13,9 +15,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // applied to.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::UsagePlanKey"
-	Properties!: close({
-		KeyId!:       string | fn.#StringExpression
+	let properties = close({
+		KeyId!:       string | number | bool | fn.#StringExpression
 		KeyType!:     "API_KEY" | fn.#StringExpression
-		UsagePlanId!: string | fn.#StringExpression
+		UsagePlanId!: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

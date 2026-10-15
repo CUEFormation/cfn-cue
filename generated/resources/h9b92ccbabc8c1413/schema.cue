@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::ClientVpnRoute. Specifies a network
@@ -15,10 +17,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // networks.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::ClientVpnRoute"
-	Properties!: close({
-		ClientVpnEndpointId!:  string | fn.#StringExpression
-		Description?:          string | fn.#StringExpression
-		DestinationCidrBlock!: string | fn.#StringExpression
-		TargetVpcSubnetId?:    string | fn.#StringExpression
+	let properties = close({
+		ClientVpnEndpointId!: string | number | bool | fn.#StringExpression
+		Description?:         string | number | bool | fn.#StringExpression
+		DestinationCidrBlock!: fn.#IPv4Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv4Network & string & "\(self)"
+		} |
+		fn.#StringExpression
+		TargetVpcSubnetId?: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

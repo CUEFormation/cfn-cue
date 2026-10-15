@@ -10,20 +10,32 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::NetworkAclEntry
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::NetworkAclEntry"
-	Properties!: close({
-		CidrBlock?: string | fn.#StringExpression
-		Egress?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	let properties = close({
+		CidrBlock?: fn.#IPv4Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv4Network & string & "\(self)"
+		} |
+		fn.#StringExpression
+		Egress?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 		// The Internet Control Message Protocol (ICMP) code and type. Requirement is
 		// conditional: Required if specifying 1 (ICMP) for the protocol parameter
-		Icmp?:          #Icmp
-		Ipv6CidrBlock?: string | fn.#StringExpression
-		NetworkAclId!:  string | fn.#StringExpression
+		Icmp?: #Icmp
+		Ipv6CidrBlock?: fn.#IPv6Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv6Network & string & "\(self)"
+		} |
+		fn.#StringExpression
+		NetworkAclId!: string | number | bool | fn.#StringExpression
 
 		// The IPv4 network range to allow or deny, in CIDR notation (for example
 		// 172.16.0.0/24). We modify the specified CIDR block to its canonical form;
@@ -45,7 +57,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		RuleAction!: =~"(?i)^(?:allow|deny)$" | fn.#StringExpression
+		RuleAction!: =~"(?i)^(?:allow|deny)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:allow|deny)$" & "\(self)"
+		} |
+		fn.#StringExpression
 		RuleNumber!: int |
 			{
 				string &
@@ -68,6 +85,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			)
 		}
 	}) & matchN(>=1, [{Ipv6CidrBlock!: _}, {CidrBlock!: _}])
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Icmp: close({

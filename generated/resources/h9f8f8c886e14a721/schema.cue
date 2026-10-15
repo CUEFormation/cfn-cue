@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for LookoutEquipment InferenceScheduler.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::LookoutEquipment::InferenceScheduler"
-	Properties!: close({
+	let properties = close({
 		DataDelayOffsetInMinutes?: int & <=60 & >=0 |
 			{
 				string &
@@ -40,41 +42,99 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		DataInputConfiguration!: close({
 			InferenceInputNameConfiguration?: #InputNameConfiguration
-			InputTimeZoneOffset?:             =~"^(\\+|\\-)[0-9]{2}\\:[0-9]{2}$" | fn.#StringExpression
-			S3InputConfiguration!:            #S3InputConfiguration
+			InputTimeZoneOffset?: =~"^(\\+|\\-)[0-9]{2}\\:[0-9]{2}$" |
+			{
+				number | bool
+				_cfnString: =~"^(\\+|\\-)[0-9]{2}\\:[0-9]{2}$" & "\(self)"
+			} |
+			fn.#StringExpression
+			S3InputConfiguration!: #S3InputConfiguration
 		}) |
 		fn.#ObjectExpression
 		DataOutputConfiguration!: close({
-			KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+			KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+				=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+				=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+			{
+				number | bool
+				_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+					=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+					=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+				strings.MaxRunes(2048) &
+				strings.MinRunes(1) &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			S3OutputConfiguration!: #S3OutputConfiguration
 		}) |
 		fn.#ObjectExpression
 		DataUploadFrequency!: "PT5M" | "PT10M" | "PT15M" | "PT30M" | "PT1H" | fn.#StringExpression
 		InferenceSchedulerName?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_-]{1,200}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_-]{1,200}$" & "\(self)"
+		} |
 		fn.#StringExpression
-		ModelName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_-]{1,200}$" | fn.#StringExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		ModelName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_-]{1,200}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_-]{1,200}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"arn:aws(-[^:]+)?:iam::[0-9]{12}:role/.+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		ServerSideKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:               list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		ServerSideKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Bucket: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" | fn.#StringExpression
+#Bucket: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" & "\(self)"
+} |
+fn.#StringExpression
 
 #InputNameConfiguration: close({
 	ComponentTimestampDelimiter?: strings.MaxRunes(1) & strings.MinRunes(0) & =~"^(\\-|\\_|\\s)?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1) & strings.MinRunes(0) & =~"^(\\-|\\_|\\s)?$" & "\(self)"
+	} |
 	fn.#StringExpression
-	TimestampFormat?: =~"^EPOCH|yyyy-MM-dd-HH-mm-ss|yyyyMMddHHmmss$" | fn.#StringExpression
+	TimestampFormat?: =~"^EPOCH|yyyy-MM-dd-HH-mm-ss|yyyyMMddHHmmss$" |
+	{
+		number | bool
+		_cfnString: =~"^EPOCH|yyyy-MM-dd-HH-mm-ss|yyyyMMddHHmmss$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Prefix: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+#Prefix: strings.MaxRunes(1024) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression
 
 #S3InputConfiguration: close({
 	Bucket!: #Bucket
@@ -89,7 +149,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\s\\w+-=\\.:/@]*" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\s\\w+-=\\.:/@]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\s\\w+-=\\.:/@]*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -9,14 +9,29 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecretsManager::ResourcePolicy
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecretsManager::ResourcePolicy"
-	Properties!: close({
+	let properties = close({
 		BlockPublicPolicy?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ResourcePolicy!: fn.#Object & {...} | strings.MaxRunes(20480) & strings.MinRunes(1) | fn.#StringObjectExpression
-		SecretId!:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		ResourcePolicy!: fn.#Object & {...} |
+		strings.MaxRunes(20480) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(20480) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringObjectExpression
+		SecretId!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

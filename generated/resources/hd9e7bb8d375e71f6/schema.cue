@@ -10,16 +10,33 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::QuickSight::KnowledgeBase Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QuickSight::KnowledgeBase"
-	Properties!: close({
+	let properties = close({
 		AccessControlConfiguration?: #AccessControlConfiguration
-		AwsAccountId!:               strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]*$" | fn.#StringExpression
-		DataSourceArn!:              strings.MaxRunes(1284) & strings.MinRunes(0) | fn.#StringExpression
-		Description?:                strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
+		AwsAccountId!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DataSourceArn!: strings.MaxRunes(1284) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1284) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		IsEmailNotificationOptedForIngestionFailures?: bool |
 			"true" |
 			"True" |
@@ -29,14 +46,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"FALSE" |
 			fn.#BooleanExpression
 		KnowledgeBaseConfiguration!: #KnowledgeBaseConfiguration
-		KnowledgeBaseId!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_=.+]+$" | fn.#StringExpression
+		KnowledgeBaseId!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_=.+]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_=.+]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		MediaExtractionConfiguration?: #MediaExtractionConfiguration
 		Name!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[\\p{L}\\p{N}][\\p{L}\\p{N} _\\-\\.]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(0) &
+			=~"^[\\p{L}\\p{N}][\\p{L}\\p{N} _\\-\\.]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Permissions?:     list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
-		PrimaryOwnerArn?: string | fn.#StringExpression
+		PrimaryOwnerArn?: string | number | bool | fn.#StringExpression
 		Tags?:            list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AccessControlConfiguration: close(
@@ -64,15 +95,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #ResourcePermission: close({
-	Actions!:   list.MaxItems(30) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Resource?:  string | fn.#StringExpression
+	Actions!: list.MaxItems(30) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
+	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Resource?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

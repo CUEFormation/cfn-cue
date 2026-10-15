@@ -10,24 +10,43 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::ControlTower::LandingZone Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ControlTower::LandingZone"
-	Properties!: close({
-		Manifest!:         fn.#Object & {...} | string | fn.#StringObjectExpression
+	let properties = close({
+		Manifest!:         fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		RemediationTypes?: #RemediationTypes
 		Tags?:             [...#Tag] | fn.#ListExpression
-		Version!:          strings.MaxRunes(10) & strings.MinRunes(3) & =~"\\d+.\\d+" | fn.#StringExpression
+		Version!: strings.MaxRunes(10) & strings.MinRunes(3) & =~"\\d+.\\d+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(10) & strings.MinRunes(3) & =~"\\d+.\\d+" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #RemediationTypes: list.MaxItems(1) & list.MinItems(1) & [..."INHERITANCE_DRIFT" | fn.#StringExpression] |
 	fn.#ListExpression
 
 #Tag: close({
-	Key?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

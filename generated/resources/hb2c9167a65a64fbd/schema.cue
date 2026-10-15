@@ -10,22 +10,36 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DocDB::DBSubnetGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DocDB::DBSubnetGroup"
-	Properties!: close({
-		DBSubnetGroupDescription!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		DBSubnetGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z][0-9a-zA-Z-:._ ]*" |
+	let properties = close({
+		DBSubnetGroupDescription!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
 		fn.#StringExpression
-		SubnetIds!: list.MaxItems(20) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-		Tags?:      [...#Tag] | fn.#ListExpression
+		DBSubnetGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z][0-9a-zA-Z-:._ ]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z][0-9a-zA-Z-:._ ]*" & "\(self)"
+		} |
+		fn.#StringExpression
+		SubnetIds!: list.MaxItems(20) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
+		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

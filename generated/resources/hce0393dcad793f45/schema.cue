@@ -4,12 +4,18 @@ package schema
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
+import fn "github.com/cueformation/cfn-cue/fn:fn"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Route53::DelegationSet. Creates a reusable
 // delegation set (a group of four name servers) that can be associated with
 // multiple hosted zones.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53::DelegationSet"
-	Properties?: close({})
+	Type!: "AWS::Route53::DelegationSet"
+	let properties = close({})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

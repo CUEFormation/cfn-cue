@@ -10,15 +10,22 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::EC2::TransitGatewayMeteringPolicyEntry Resource Definition
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::TransitGatewayMeteringPolicyEntry"
-	Properties!: close({
-		DestinationCidrBlock?:                  string | fn.#StringExpression
-		DestinationPortRange?:                  string | fn.#StringExpression
-		DestinationTransitGatewayAttachmentId?: string | fn.#StringExpression
+	let properties = close({
+		DestinationCidrBlock?: fn.#IPv4Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv4Network & string & "\(self)"
+		} |
+		fn.#StringExpression
+		DestinationPortRange?:                  string | number | bool | fn.#StringExpression
+		DestinationTransitGatewayAttachmentId?: string | number | bool | fn.#StringExpression
 
 		// The type of the attachment through which traffic leaves a transit gateway
 		DestinationTransitGatewayAttachmentType?: #TransitGatewayAttachmentResourceType
@@ -42,15 +49,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Protocol?:                         string | fn.#StringExpression
-		SourceCidrBlock?:                  string | fn.#StringExpression
-		SourcePortRange?:                  string | fn.#StringExpression
-		SourceTransitGatewayAttachmentId?: string | fn.#StringExpression
+		Protocol?: string | number | bool | fn.#StringExpression
+		SourceCidrBlock?: fn.#IPv4Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv4Network & string & "\(self)"
+		} |
+		fn.#StringExpression
+		SourcePortRange?:                  string | number | bool | fn.#StringExpression
+		SourceTransitGatewayAttachmentId?: string | number | bool | fn.#StringExpression
 
 		// The type of the attachment through which traffic enters a transit gateway
 		SourceTransitGatewayAttachmentType?: #TransitGatewayAttachmentResourceType
-		TransitGatewayMeteringPolicyId!:     string | fn.#StringExpression
+		TransitGatewayMeteringPolicyId!:     string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #TransitGatewayAttachmentResourceType: "vpc" |

@@ -9,13 +9,27 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Inspector::AssessmentTarget
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Inspector::AssessmentTarget"
-	Properties?: close({
-		AssessmentTargetName?: strings.MaxRunes(140) & strings.MinRunes(1) | fn.#StringExpression
-		ResourceGroupArn?:     strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		AssessmentTargetName?: strings.MaxRunes(140) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(140) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ResourceGroupArn?: strings.MaxRunes(300) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(300) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

@@ -11,7 +11,13 @@ import (
 
 // Specifies a listener for an Application Load Balancer, Network Load Balancer,
 // or Gateway Load Balancer.
-#Properties: close({
+#Properties: matchIf({
+	Protocol!: "HTTPS" | "TLS"
+	...
+}, {
+	Certificates!: _
+	...
+}, _) & close({
 	// [TLS listener] The name of the Application-Layer Protocol Negotiation (ALPN) policy.
 	AlpnPolicy?: [...string]
 

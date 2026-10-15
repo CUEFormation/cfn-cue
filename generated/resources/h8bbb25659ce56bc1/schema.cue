@@ -10,34 +10,64 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CertificateManager::AcmeEndpoint
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CertificateManager::AcmeEndpoint"
-	Properties!: close({
+	let properties = close({
 		AuthorizationBehavior!: "PRE_APPROVED" | fn.#StringExpression
 		CertificateAuthority!:  #CertificateAuthority
 		CertificateTags?:       list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 		Contact?:               "NOT_REQUIRED" | "REQUIRED" | fn.#StringExpression
 		Tags?: list.MaxItems(50) & list.MinItems(1) & [...close({
 			Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) &
+				strings.MinRunes(1) &
+				=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) &
+				strings.MinRunes(0) &
+				=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CertificateAuthority: close({PublicCertificateAuthority!: #PublicCertificateAuthority}) | fn.#ObjectExpression
 
-#PublicCertificateAuthority: close({AllowedKeyAlgorithms?: [...string | fn.#StringExpression] | fn.#ListExpression}) |
+#PublicCertificateAuthority: close(
+	{AllowedKeyAlgorithms?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

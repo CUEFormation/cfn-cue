@@ -10,12 +10,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::InAppTemplate
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Pinpoint::InAppTemplate"
-	Properties!: close({
+	let properties = close({
 		Content?:      [...#InAppMessageContent] | fn.#ListExpression
 		CustomConfig?: fn.#Object & {...} | fn.#ObjectExpression
 		Layout?: "BOTTOM_BANNER" |
@@ -25,18 +27,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"MIDDLE_BANNER" |
 			"CAROUSEL" |
 			fn.#StringExpression
-		Tags?:                fn.#Object & {...} | string | fn.#StringObjectExpression
-		TemplateDescription?: string | fn.#StringExpression
-		TemplateName!:        string | fn.#StringExpression
+		Tags?:                fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		TemplateDescription?: string | number | bool | fn.#StringExpression
+		TemplateName!:        string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Alignment: "LEFT" | "CENTER" | "RIGHT" | fn.#StringExpression
 
 #BodyConfig: close({
 	Alignment?: #Alignment
-	Body?:      string | fn.#StringExpression
-	TextColor?: string | fn.#StringExpression
+	Body?:      string | number | bool | fn.#StringExpression
+	TextColor?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -51,7 +55,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DefaultButtonConfiguration: close({
-	BackgroundColor?: string | fn.#StringExpression
+	BackgroundColor?: string | number | bool | fn.#StringExpression
 	BorderRadius?: int |
 		{
 			string &
@@ -67,24 +71,24 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	ButtonAction?: #ButtonAction
-	Link?:         string | fn.#StringExpression
-	Text?:         string | fn.#StringExpression
-	TextColor?:    string | fn.#StringExpression
+	Link?:         string | number | bool | fn.#StringExpression
+	Text?:         string | number | bool | fn.#StringExpression
+	TextColor?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #HeaderConfig: close({
 	Alignment?: #Alignment
-	Header?:    string | fn.#StringExpression
-	TextColor?: string | fn.#StringExpression
+	Header?:    string | number | bool | fn.#StringExpression
+	TextColor?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #InAppMessageContent: close({
-	BackgroundColor?: string | fn.#StringExpression
+	BackgroundColor?: string | number | bool | fn.#StringExpression
 	BodyConfig?:      #BodyConfig
 	HeaderConfig?:    #HeaderConfig
-	ImageUrl?:        string | fn.#StringExpression
+	ImageUrl?:        string | number | bool | fn.#StringExpression
 	PrimaryBtn?:      #ButtonConfig
 	SecondaryBtn?:    #ButtonConfig
 }) |
@@ -92,6 +96,6 @@ fn.#ObjectExpression
 
 #OverrideButtonConfiguration: close({
 	ButtonAction?: #ButtonAction
-	Link?:         string | fn.#StringExpression
+	Link?:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

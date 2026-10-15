@@ -14,20 +14,29 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AppSync Api
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppSync::Api"
-	Properties!: close({
+	let properties = close({
 		EventConfig?:  #EventConfig
 		Name!:         #ApiName
 		OwnerContact?: #OwnerContact
 		Tags?:         #Tags
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ApiName: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[A-Za-z0-9_\\-\\ ]+" | fn.#StringExpression
+#ApiName: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[A-Za-z0-9_\\-\\ ]+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[A-Za-z0-9_\\-\\ ]+" & "\(self)"
+} |
+fn.#StringExpression
 
 #AuthMode: close({AuthType?: #AuthenticationType}) | fn.#ObjectExpression
 
@@ -51,9 +60,9 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #CognitoConfig: close({
-	AppIdClientRegex?: string | fn.#StringExpression
-	AwsRegion!:        string | fn.#StringExpression
-	UserPoolId!:       string | fn.#StringExpression
+	AppIdClientRegex?: string | number | bool | fn.#StringExpression
+	AwsRegion!:        string | number | bool | fn.#StringExpression
+	UserPoolId!:       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -67,8 +76,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #EventLogConfig: close({
-	CloudWatchLogsRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	CloudWatchLogsRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	LogLevel!: #EventLogLevel
 }) |
 fn.#ObjectExpression
@@ -92,8 +105,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	AuthorizerUri!:                string | fn.#StringExpression
-	IdentityValidationExpression?: string | fn.#StringExpression
+	AuthorizerUri!:                string | number | bool | fn.#StringExpression
+	IdentityValidationExpression?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -117,7 +130,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ClientId?: string | fn.#StringExpression
+	ClientId?: string | number | bool | fn.#StringExpression
 	IatTTL?: number |
 		{
 			string &
@@ -137,15 +150,30 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Issuer!: string | fn.#StringExpression
+	Issuer!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#OwnerContact: strings.MaxRunes(250) & strings.MinRunes(1) & =~"[A-Za-z0-9_\\-\\ \\.]+" | fn.#StringExpression
+#OwnerContact: strings.MaxRunes(250) & strings.MinRunes(1) & =~"[A-Za-z0-9_\\-\\ \\.]+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(250) & strings.MinRunes(1) & =~"[A-Za-z0-9_\\-\\ \\.]+" & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\w+-=\\.:/@]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\w+-=\\.:/@]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\w+-=\\.:/@]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

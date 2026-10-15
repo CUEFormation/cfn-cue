@@ -10,19 +10,23 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AmazonMQ::ConfigurationAssociation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AmazonMQ::ConfigurationAssociation"
-	Properties!: close({
-		Broker!:        string | fn.#StringExpression
+	let properties = close({
+		Broker!:        string | number | bool | fn.#StringExpression
 		Configuration!: #ConfigurationId
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ConfigurationId: close({
-	Id!: string | fn.#StringExpression
+	Id!: string | number | bool | fn.#StringExpression
 	Revision!: int |
 		{
 			string &

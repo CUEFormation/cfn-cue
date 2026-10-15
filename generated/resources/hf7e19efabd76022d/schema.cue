@@ -14,23 +14,39 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Express::DirectoryBucket.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3Express::DirectoryBucket"
-	Properties!: close({
-		BucketEncryption?:        #BucketEncryption
-		BucketName?:              strings.MaxRunes(63) & =~"^[a-z0-9][a-z0-9//.//-]*[a-z0-9]$" | fn.#StringExpression
+	let properties = close({
+		BucketEncryption?: #BucketEncryption
+		BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(63) &
+		=~"^[a-z0-9][a-z0-9//.//-]*[a-z0-9]$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+			=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+			strings.MaxRunes(63) &
+			=~"^[a-z0-9][a-z0-9//.//-]*[a-z0-9]$" &
+			"\(self)"
+		} |
+		fn.#StringExpression
 		DataRedundancy!:          "SingleAvailabilityZone" | "SingleLocalZone" | fn.#StringExpression
 		InventoryConfigurations?: list.UniqueItems() & [...#InventoryConfiguration] | fn.#ListExpression
 
 		// Lifecycle rules that define how Amazon S3 Express manages objects during their lifetime.
 		LifecycleConfiguration?: #LifecycleConfiguration
-		LocationName!:           string | fn.#StringExpression
+		LocationName!:           string | number | bool | fn.#StringExpression
 		MetricsConfigurations?:  list.UniqueItems() & [...#MetricsConfiguration] | fn.#ListExpression
 		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AbortIncompleteMultipartUpload: close({
@@ -58,17 +74,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 
 #Destination: close({
-	BucketAccountId?: string | fn.#StringExpression
-	BucketArn!:       string | fn.#StringExpression
+	BucketAccountId?: string | number | bool | fn.#StringExpression
+	BucketArn!:       string | number | bool | fn.#StringExpression
 	Format!:          "CSV" | "ORC" | "Parquet" | fn.#StringExpression
-	Prefix?:          string | fn.#StringExpression
+	Prefix?:          string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #InventoryConfiguration: close({
 	Destination!:            #Destination
 	Enabled!:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Id!:                     string | fn.#StringExpression
+	Id!:                     string | number | bool | fn.#StringExpression
 	IncludedObjectVersions!: "All" | "Current" | fn.#StringExpression
 	OptionalFields?: list.UniqueItems() & [
 		..."Size" |
@@ -83,7 +99,7 @@ fn.#ObjectExpression
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	Prefix?:            string | fn.#StringExpression
+	Prefix?:            string | number | bool | fn.#StringExpression
 	ScheduleFrequency!: "Daily" | "Weekly" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -91,9 +107,9 @@ fn.#ObjectExpression
 #LifecycleConfiguration: close({Rules!: list.UniqueItems() & [...#Rule] | fn.#ListExpression}) | fn.#ObjectExpression
 
 #MetricsConfiguration: close({
-	AccessPointArn?: string | fn.#StringExpression
-	Id!:             string | fn.#StringExpression
-	Prefix?:         string | fn.#StringExpression
+	AccessPointArn?: string | number | bool | fn.#StringExpression
+	Id!:             string | number | bool | fn.#StringExpression
+	Prefix?:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -113,18 +129,47 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Id?:                    strings.MaxRunes(255) | fn.#StringExpression
-	ObjectSizeGreaterThan?: strings.MaxRunes(20) & =~"[0-9]+" | fn.#StringExpression
-	ObjectSizeLessThan?:    strings.MaxRunes(20) & =~"[0-9]+" | fn.#StringExpression
-	Prefix?:                string | fn.#StringExpression
-	Status!:                "Enabled" | "Disabled" | fn.#StringExpression
+	Id?: strings.MaxRunes(255) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & "\(self)"
+	} |
+	fn.#StringExpression
+	ObjectSizeGreaterThan?: strings.MaxRunes(20) & =~"[0-9]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(20) & =~"[0-9]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	ObjectSizeLessThan?: strings.MaxRunes(20) & =~"[0-9]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(20) & =~"[0-9]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	Prefix?: string | number | bool | fn.#StringExpression
+	Status!: "Enabled" | "Disabled" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ServerSideEncryptionByDefault: close({
-	KMSMasterKeyID?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
+	KMSMasterKeyID?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+	} |
+	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+			"\(self)"
+	} |
+	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	SSEAlgorithm!: "aws:kms" | "AES256" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -136,8 +181,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

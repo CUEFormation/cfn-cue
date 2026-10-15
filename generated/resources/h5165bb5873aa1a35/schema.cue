@@ -13,6 +13,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ACMPCA::Certificate`` resource is used to issue a certificate
@@ -21,16 +23,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // action.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ACMPCA::Certificate"
-	Properties!: close({
+	let properties = close({
 		// Specifies X.509 certificate information to be included in the issued
 		// certificate. An ``APIPassthrough`` or ``APICSRPassthrough`` template variant
 		// must be selected, or else this parameter is ignored.
 		ApiPassthrough?: #ApiPassthrough
 
 		// The Amazon Resource Name (ARN) for the private CA issues the certificate.
-		CertificateAuthorityArn!:   #Arn
-		CertificateSigningRequest!: strings.MinRunes(1) | fn.#StringExpression
-		SigningAlgorithm!:          string | fn.#StringExpression
+		CertificateAuthorityArn!: #Arn
+		CertificateSigningRequest!: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		SigningAlgorithm!: string | number | bool | fn.#StringExpression
 
 		// Specifies a custom configuration template to use when issuing a certificate.
 		// If this parameter is not provided, PCAshort defaults to the
@@ -53,6 +60,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// using the ``Validity`` type value ``ABSOLUTE``.
 		ValidityNotBefore?: #Validity
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ApiPassthrough: close({
@@ -69,7 +78,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#Arn: string | fn.#StringExpression
+#Arn: string | number | bool | fn.#StringExpression
 
 #CertificatePolicyList: [...#PolicyInformation] | fn.#ListExpression
 
@@ -77,7 +86,7 @@ fn.#ObjectExpression
 	// Specifies the object identifier (OID) of the attribute type of the relative
 	// distinguished name (RDN).
 	ObjectIdentifier!: #CustomObjectIdentifier
-	Value!:            string | fn.#StringExpression
+	Value!:            string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -90,26 +99,26 @@ fn.#ObjectExpression
 	// information, see the [Global OID reference
 	// database.](https://docs.aws.amazon.com/https://oidref.com/2.5.29)
 	ObjectIdentifier!: #CustomObjectIdentifier
-	Value!:            string | fn.#StringExpression
+	Value!:            string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CustomExtensionList: [...#CustomExtension] | fn.#ListExpression
 
-#CustomObjectIdentifier: string | fn.#StringExpression
+#CustomObjectIdentifier: string | number | bool | fn.#StringExpression
 
-#DnsName: string | fn.#StringExpression
+#DnsName: string | number | bool | fn.#StringExpression
 
 #EdiPartyName: close({
-	NameAssigner!: string | fn.#StringExpression
-	PartyName!:    string | fn.#StringExpression
+	NameAssigner!: string | number | bool | fn.#StringExpression
+	PartyName!:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ExtendedKeyUsage: close({
 	// Specifies a custom ``ExtendedKeyUsage`` with an object identifier (OID).
 	ExtendedKeyUsageObjectIdentifier?: #CustomObjectIdentifier
-	ExtendedKeyUsageType?:             string | fn.#StringExpression
+	ExtendedKeyUsageType?:             string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -186,7 +195,7 @@ fn.#ObjectExpression
 
 #GeneralNameList: [...#GeneralName] | fn.#ListExpression
 
-#IpAddress: string | fn.#StringExpression
+#IpAddress: string | number | bool | fn.#StringExpression
 
 #KeyUsage: close({
 	CRLSign?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -204,7 +213,7 @@ fn.#ObjectExpression
 #OtherName: close({
 	// Specifies an OID.
 	TypeId!: #CustomObjectIdentifier
-	Value!:  string | fn.#StringExpression
+	Value!:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -222,7 +231,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PolicyQualifierInfo: close({
-	PolicyQualifierId!: string | fn.#StringExpression
+	PolicyQualifierId!: string | number | bool | fn.#StringExpression
 
 	// Defines the qualifier type. AWS Private CA supports the use of a URI for a
 	// CPS qualifier in this field.
@@ -232,13 +241,13 @@ fn.#ObjectExpression
 
 #PolicyQualifierInfoList: [...#PolicyQualifierInfo] | fn.#ListExpression
 
-#Qualifier: close({CpsUri!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Qualifier: close({CpsUri!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
-#Rfc822Name: string | fn.#StringExpression
+#Rfc822Name: string | number | bool | fn.#StringExpression
 
 #Subject: close({
-	CommonName?: string | fn.#StringExpression
-	Country?:    string | fn.#StringExpression
+	CommonName?: string | number | bool | fn.#StringExpression
+	Country?:    string | number | bool | fn.#StringExpression
 
 	// Contains a sequence of one or more X.500 relative distinguished names (RDNs),
 	// each of which consists of an object identifier (OID) and a value. For more
@@ -246,25 +255,25 @@ fn.#ObjectExpression
 	// (OID)](https://docs.aws.amazon.com/https://csrc.nist.gov/glossary/term/Object_Identifier).
 	// Custom attributes cannot be used in combination with standard attributes.
 	CustomAttributes?:           #CustomAttributeList
-	DistinguishedNameQualifier?: string | fn.#StringExpression
-	GenerationQualifier?:        string | fn.#StringExpression
-	GivenName?:                  string | fn.#StringExpression
-	Initials?:                   string | fn.#StringExpression
-	Locality?:                   string | fn.#StringExpression
-	Organization?:               string | fn.#StringExpression
-	OrganizationalUnit?:         string | fn.#StringExpression
-	Pseudonym?:                  string | fn.#StringExpression
-	SerialNumber?:               string | fn.#StringExpression
-	State?:                      string | fn.#StringExpression
-	Surname?:                    string | fn.#StringExpression
-	Title?:                      string | fn.#StringExpression
+	DistinguishedNameQualifier?: string | number | bool | fn.#StringExpression
+	GenerationQualifier?:        string | number | bool | fn.#StringExpression
+	GivenName?:                  string | number | bool | fn.#StringExpression
+	Initials?:                   string | number | bool | fn.#StringExpression
+	Locality?:                   string | number | bool | fn.#StringExpression
+	Organization?:               string | number | bool | fn.#StringExpression
+	OrganizationalUnit?:         string | number | bool | fn.#StringExpression
+	Pseudonym?:                  string | number | bool | fn.#StringExpression
+	SerialNumber?:               string | number | bool | fn.#StringExpression
+	State?:                      string | number | bool | fn.#StringExpression
+	Surname?:                    string | number | bool | fn.#StringExpression
+	Title?:                      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#UniformResourceIdentifier: string | fn.#StringExpression
+#UniformResourceIdentifier: string | number | bool | fn.#StringExpression
 
 #Validity: close({
-	Type!: string | fn.#StringExpression
+	Type!: string | number | bool | fn.#StringExpression
 	Value!: number |
 		{
 			string &

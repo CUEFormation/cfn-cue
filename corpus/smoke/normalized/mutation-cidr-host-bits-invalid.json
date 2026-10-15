@@ -1,0 +1,14 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "CidrIp": "10.0.1.0/16",
+        "FromPort": "443",
+        "GroupId": "sg-12345678",
+        "IpProtocol": "tcp",
+        "ToPort": "443"
+      },
+      "Type": "AWS::EC2::SecurityGroupEgress"
+    }
+  }
+}

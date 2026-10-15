@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::SecurityHub::Hub resource represents the implementation of the AWS
@@ -13,12 +15,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Region in which you enable Security Hub.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityHub::Hub"
-	Properties?: close({
-		AutoEnableControls?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ControlFindingGenerator?: =~"^(SECURITY_CONTROL|STANDARD_CONTROL)$" | fn.#StringExpression
-		EnableDefaultStandards?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Tags?:                    #Tags
+	let properties = close({
+		AutoEnableControls?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ControlFindingGenerator?: =~"^(SECURITY_CONTROL|STANDARD_CONTROL)$" |
+		{
+			number | bool
+			_cfnString: =~"^(SECURITY_CONTROL|STANDARD_CONTROL)$" & "\(self)"
+		} |
+		fn.#StringExpression
+		EnableDefaultStandards?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:                   #Tags
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tags: {...} | fn.#ObjectExpression

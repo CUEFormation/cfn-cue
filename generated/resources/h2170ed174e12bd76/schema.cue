@@ -14,22 +14,43 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::KnowledgeBase Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Bedrock::KnowledgeBase"
-	Properties!: close({
-		Description?:                strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		KnowledgeBaseConfiguration!: #KnowledgeBaseConfiguration
-		Name!:                       =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		Name!: =~"^([0-9a-zA-Z][_-]?){1,100}$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-zA-Z][_-]?){1,100}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			=~"^arn:aws(-[^:]+)?:iam::([0-9]{12})?:role/.+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		StorageConfiguration?: #StorageConfiguration
 		Tags?:                 #TagsMap
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AudioConfiguration: close({SegmentationConfiguration!: #AudioSegmentationConfiguration}) | fn.#ObjectExpression
@@ -38,7 +59,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #AudioSegmentationConfiguration: close({FixedLengthDuration!: #FixedLengthDuration}) | fn.#ObjectExpression
 
-#AwsDataCatalogTableName: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.*\\.*$" | fn.#StringExpression
+#AwsDataCatalogTableName: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.*\\.*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.*\\.*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #AwsDataCatalogTableNames: list.MaxItems(1000) & list.MinItems(1) & [...#AwsDataCatalogTableName] | fn.#ListExpression
 
@@ -74,7 +100,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DescriptionString: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+#DescriptionString: strings.MaxRunes(200) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #EmbeddingModelConfiguration: close({BedrockEmbeddingModelConfiguration?: #BedrockEmbeddingModelConfiguration}) |
 	fn.#ObjectExpression
@@ -101,7 +132,12 @@ fn.#ObjectExpression
 #InclusionType: "INCLUDE" | "EXCLUDE" | fn.#StringExpression
 
 #KendraIndexArn: =~"^arn:aws(|-cn|-us-gov):kendra:[a-z0-9-]{1,20}:([0-9]{12}|):index/([a-zA-Z0-9][a-zA-Z0-9-]{35}|[a-zA-Z0-9][a-zA-Z0-9-]{35}-[a-zA-Z0-9][a-zA-Z0-9-]{35})$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^arn:aws(|-cn|-us-gov):kendra:[a-z0-9-]{1,20}:([0-9]{12}|):index/([a-zA-Z0-9][a-zA-Z0-9-]{35}|[a-zA-Z0-9][a-zA-Z0-9-]{35}-[a-zA-Z0-9][a-zA-Z0-9-]{35})$" &
+		"\(self)"
+} |
+fn.#StringExpression
 
 #KendraKnowledgeBaseConfiguration: close({KendraIndexArn!: #KendraIndexArn}) | fn.#ObjectExpression
 
@@ -129,6 +165,13 @@ fn.#ObjectExpression
 	EmbeddingModelArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^(arn:aws(-[^:]+)?:[a-z0-9-]+:[a-z0-9-]{1,20}:[0-9]{0,12}:[a-zA-Z0-9-:/._+]+)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^(arn:aws(-[^:]+)?:[a-z0-9-]+:[a-z0-9-]{1,20}:[0-9]{0,12}:[a-zA-Z0-9-:/._+]+)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	EmbeddingModelConfiguration?:          #EmbeddingModelConfiguration
 	EmbeddingModelType?:                   #EmbeddingModelType
@@ -138,98 +181,261 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ManagedKnowledgeBaseServerSideEncryptionConfiguration: close({
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-cn|-us-gov|-eusc|-iso(-[b-f])?)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-cn|-us-gov|-eusc|-iso(-[b-f])?)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MongoDbAtlasConfiguration: close({
-	CollectionName!: strings.MaxRunes(63) & =~"^.*$" | fn.#StringExpression
+	CollectionName!: strings.MaxRunes(63) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	CredentialsSecretArn!: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$" |
-		fn.#StringExpression
-	DatabaseName!: strings.MaxRunes(63) & =~"^.*$" | fn.#StringExpression
-	Endpoint!:     strings.MaxRunes(2048) & =~"^[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+\\.mongodb\\.net$" | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
+	DatabaseName!: strings.MaxRunes(63) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Endpoint!: strings.MaxRunes(2048) & =~"^[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+\\.mongodb\\.net$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^[a-zA-Z0-9_-]+\\.[a-zA-Z0-9_-]+\\.mongodb\\.net$" & "\(self)"
+	} |
+	fn.#StringExpression
 	EndpointServiceName?: strings.MaxRunes(255) &
 	=~"^(?:arn:aws(?:-us-gov|-cn|-iso|-iso-[a-z])*:.+:.*:\\d+:.+/.+$|[a-zA-Z0-9*]+[a-zA-Z0-9._-]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) &
+		=~"^(?:arn:aws(?:-us-gov|-cn|-iso|-iso-[a-z])*:.+:.*:\\d+:.+/.+$|[a-zA-Z0-9*]+[a-zA-Z0-9._-]*)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	FieldMapping!:    #MongoDbAtlasFieldMapping
-	TextIndexName?:   strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
-	VectorIndexName!: strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
+	FieldMapping!: #MongoDbAtlasFieldMapping
+	TextIndexName?: strings.MaxRunes(2048) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	VectorIndexName!: strings.MaxRunes(2048) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MongoDbAtlasFieldMapping: close({
-	MetadataField!: strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
-	TextField!:     strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
-	VectorField!:   strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
+	MetadataField!: strings.MaxRunes(2048) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TextField!: strings.MaxRunes(2048) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	VectorField!: strings.MaxRunes(2048) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#NaturalLanguageString: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+#NaturalLanguageString: strings.MaxRunes(1000) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #NeptuneAnalyticsConfiguration: close({
 	FieldMapping!: #NeptuneAnalyticsFieldMapping
 	GraphArn!: strings.MaxRunes(255) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(|-cn|-us-gov):neptune-graph:[a-zA-Z0-9-]*:[0-9]{12}:graph\\/g-[a-zA-Z0-9]{10}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(|-cn|-us-gov):neptune-graph:[a-zA-Z0-9-]*:[0-9]{12}:graph\\/g-[a-zA-Z0-9]{10}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #NeptuneAnalyticsFieldMapping: close({
-	MetadataField!: strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
-	TextField!:     strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
+	MetadataField!: strings.MaxRunes(2048) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TextField!: strings.MaxRunes(2048) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OpenSearchManagedClusterConfiguration: close({
 	DomainArn!: strings.MaxRunes(2048) &
 	=~"^arn:aws(-cn|-us-gov|-eusc|-iso(-[b-f])?)?:es:([a-z]{2,}-){2,}\\d:\\d{12}:domain/[a-z][a-z0-9-]{3,28}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		=~"^arn:aws(-cn|-us-gov|-eusc|-iso(-[b-f])?)?:es:([a-z]{2,}-){2,}\\d:\\d{12}:domain/[a-z][a-z0-9-]{3,28}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	DomainEndpoint!:  strings.MaxRunes(2048) & =~"^https://.*$" | fn.#StringExpression
-	FieldMapping!:    #OpenSearchManagedClusterFieldMapping
-	VectorIndexName!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	DomainEndpoint!: strings.MaxRunes(2048) & =~"^https://.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^https://.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	FieldMapping!: #OpenSearchManagedClusterFieldMapping
+	VectorIndexName!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OpenSearchManagedClusterFieldMapping: close({
-	MetadataField!: strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
-	TextField!:     strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
-	VectorField!:   strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
+	MetadataField!: strings.MaxRunes(2048) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TextField!: strings.MaxRunes(2048) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	VectorField!: strings.MaxRunes(2048) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OpenSearchServerlessConfiguration: close({
 	CollectionArn!: strings.MaxRunes(2048) &
 	=~"^arn:aws(|-cn|-us-gov|-iso):aoss:[a-z]{2}(-gov)?-[a-z]+-\\d{1}:\\d{12}:collection/[a-z0-9-]{3,32}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		=~"^arn:aws(|-cn|-us-gov|-iso):aoss:[a-z]{2}(-gov)?-[a-z]+-\\d{1}:\\d{12}:collection/[a-z0-9-]{3,32}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	FieldMapping!:    #OpenSearchServerlessFieldMapping
-	VectorIndexName!: strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
+	FieldMapping!: #OpenSearchServerlessFieldMapping
+	VectorIndexName!: strings.MaxRunes(2048) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OpenSearchServerlessFieldMapping: close({
-	MetadataField!: strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
-	TextField!:     strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
-	VectorField!:   strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
+	MetadataField!: strings.MaxRunes(2048) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TextField!: strings.MaxRunes(2048) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	VectorField!: strings.MaxRunes(2048) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PineconeConfiguration: close({
-	ConnectionString!: strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
+	ConnectionString!: strings.MaxRunes(2048) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	CredentialsSecretArn!: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	FieldMapping!: #PineconeFieldMapping
-	Namespace?:    strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
+	Namespace?: strings.MaxRunes(2048) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PineconeFieldMapping: close({
-	MetadataField!: strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
-	TextField!:     strings.MaxRunes(2048) & =~"^.*$" | fn.#StringExpression
+	MetadataField!: strings.MaxRunes(2048) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TextField!: strings.MaxRunes(2048) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -259,7 +465,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#QueryGenerationColumnName: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+#QueryGenerationColumnName: strings.MaxRunes(127) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #QueryGenerationColumns: [...#QueryGenerationColumn] | fn.#ListExpression
 
@@ -283,31 +494,85 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#QueryGenerationTableName: =~"^.*\\..*\\..*$" | fn.#StringExpression
+#QueryGenerationTableName: =~"^.*\\..*\\..*$" |
+{
+	number | bool
+	_cfnString: =~"^.*\\..*\\..*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #QueryGenerationTables: list.MaxItems(50) & [...#QueryGenerationTable] | fn.#ListExpression
 
 #RdsConfiguration: close({
 	CredentialsSecretArn!: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$" |
-		fn.#StringExpression
-	DatabaseName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\-]+$" | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
+	DatabaseName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	FieldMapping!: #RdsFieldMapping
 	ResourceArn!: =~"^arn:aws(|-cn|-us-gov):rds:[a-zA-Z0-9-]*:[0-9]{12}:cluster:[a-zA-Z0-9-]{1,63}$" |
-		fn.#StringExpression
-	TableName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\.\\-]+$" | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws(|-cn|-us-gov):rds:[a-zA-Z0-9-]*:[0-9]{12}:cluster:[a-zA-Z0-9-]{1,63}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TableName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\.\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\.\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RdsFieldMapping: close({
-	CustomMetadataField?: strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\-]+$" | fn.#StringExpression
-	MetadataField!:       strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\-]+$" | fn.#StringExpression
-	PrimaryKeyField!:     strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\-]+$" | fn.#StringExpression
-	TextField!:           strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\-]+$" | fn.#StringExpression
-	VectorField!:         strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\-]+$" | fn.#StringExpression
+	CustomMetadataField?: strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	MetadataField!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	PrimaryKeyField!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TextField!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	VectorField!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#RedshiftClusterIdentifier: strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
+#RedshiftClusterIdentifier: strings.MaxRunes(63) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #RedshiftConfiguration: close({
 	QueryEngineConfiguration!:     #RedshiftQueryEngineConfiguration
@@ -316,10 +581,15 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#RedshiftDatabase: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+#RedshiftDatabase: strings.MaxRunes(200) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #RedshiftProvisionedAuthConfiguration: close({
-	DatabaseUser?:              string | fn.#StringExpression
+	DatabaseUser?:              string | number | bool | fn.#StringExpression
 	Type!:                      #RedshiftProvisionedAuthType
 	UsernamePasswordSecretArn?: #SecretArn
 }) |
@@ -375,7 +645,14 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#S3Location: close({URI!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^s3://.{1,128}$" | fn.#StringExpression}) |
+#S3Location: close({
+	URI!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^s3://.{1,128}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^s3://.{1,128}$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #S3VectorsConfiguration: matchN(1, [{
@@ -386,14 +663,24 @@ fn.#ObjectExpression
 	IndexName!:       _
 	...
 }]) & close({
-	IndexArn?:        string | fn.#StringExpression
-	IndexName?:       strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	VectorBucketArn?: string | fn.#StringExpression
+	IndexArn?: string | number | bool | fn.#StringExpression
+	IndexName?: strings.MaxRunes(63) & strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & "\(self)"
+	} |
+	fn.#StringExpression
+	VectorBucketArn?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SecretArn: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$" &
+		"\(self)"
+} |
+fn.#StringExpression
 
 #SqlKnowledgeBaseConfiguration: close({
 	RedshiftConfiguration?: #RedshiftConfiguration
@@ -401,7 +688,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#SqlString: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+#SqlString: strings.MaxRunes(1000) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #StorageConfiguration: close({
 	MongoDbAtlasConfiguration?:             #MongoDbAtlasConfiguration
@@ -523,14 +815,32 @@ fn.#ObjectExpression
 
 #TagsMap: close({
 
-	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
-	fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #VectorKnowledgeBaseConfiguration: close({
 	EmbeddingModelArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^(arn:aws(-[^:]+)?:[a-z0-9-]+:[a-z0-9-]{1,20}:[0-9]{0,12}:[a-zA-Z0-9-:/._+]+)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^(arn:aws(-[^:]+)?:[a-z0-9-]+:[a-z0-9-]{1,20}:[0-9]{0,12}:[a-zA-Z0-9-:/._+]+)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	EmbeddingModelConfiguration?:          #EmbeddingModelConfiguration
 	SupplementalDataStorageConfiguration?: #SupplementalDataStorageConfiguration
@@ -544,4 +854,9 @@ fn.#ObjectExpression
 #VideoSegmentationConfiguration: close({FixedLengthDuration!: #FixedLengthDuration}) | fn.#ObjectExpression
 
 #WorkgroupArn: =~"^(arn:(aws(-[a-z]+)*):redshift-serverless:[a-z]{2}(-gov)?-[a-z]+-\\d{1}:\\d{12}:workgroup/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^(arn:(aws(-[a-z]+)*):redshift-serverless:[a-z]{2}(-gov)?-[a-z]+-\\d{1}:\\d{12}:workgroup/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$" &
+		"\(self)"
+} |
+fn.#StringExpression

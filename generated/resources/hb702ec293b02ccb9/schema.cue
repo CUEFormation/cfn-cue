@@ -10,35 +10,40 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppMesh::GatewayRoute
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppMesh::GatewayRoute"
-	Properties!: close({
-		GatewayRouteName?:   string | fn.#StringExpression
-		MeshName!:           string | fn.#StringExpression
-		MeshOwner?:          string | fn.#StringExpression
+	let properties = close({
+		GatewayRouteName?:   string | number | bool | fn.#StringExpression
+		MeshName!:           string | number | bool | fn.#StringExpression
+		MeshOwner?:          string | number | bool | fn.#StringExpression
 		Spec!:               #GatewayRouteSpec
 		Tags?:               [...#Tag] | fn.#ListExpression
-		VirtualGatewayName!: string | fn.#StringExpression
+		VirtualGatewayName!: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #GatewayRouteHostnameMatch: close({
-	Exact?:  string | fn.#StringExpression
-	Suffix?: string | fn.#StringExpression
+	Exact?:  string | number | bool | fn.#StringExpression
+	Suffix?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#GatewayRouteHostnameRewrite: close({DefaultTargetHostname?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#GatewayRouteHostnameRewrite: close({DefaultTargetHostname?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #GatewayRouteMetadataMatch: close({
-	Exact?:  string | fn.#StringExpression
-	Prefix?: string | fn.#StringExpression
+	Exact?:  string | number | bool | fn.#StringExpression
+	Prefix?: string | number | bool | fn.#StringExpression
 	Range?:  #GatewayRouteRangeMatch
-	Regex?:  string | fn.#StringExpression
-	Suffix?: string | fn.#StringExpression
+	Regex?:  string | number | bool | fn.#StringExpression
+	Suffix?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -114,7 +119,8 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#GatewayRouteVirtualService: close({VirtualServiceName!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#GatewayRouteVirtualService: close({VirtualServiceName!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #GrpcGatewayRoute: close({
 	Action!: #GrpcGatewayRouteAction
@@ -145,14 +151,14 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ServiceName?: string | fn.#StringExpression
+	ServiceName?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GrpcGatewayRouteMetadata: close({
 	Invert?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Match?:  #GatewayRouteMetadataMatch
-	Name!:   string | fn.#StringExpression
+	Name!:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -173,23 +179,23 @@ fn.#ObjectExpression
 #HttpGatewayRouteHeader: close({
 	Invert?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Match?:  #HttpGatewayRouteHeaderMatch
-	Name!:   string | fn.#StringExpression
+	Name!:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #HttpGatewayRouteHeaderMatch: close({
-	Exact?:  string | fn.#StringExpression
-	Prefix?: string | fn.#StringExpression
+	Exact?:  string | number | bool | fn.#StringExpression
+	Prefix?: string | number | bool | fn.#StringExpression
 	Range?:  #GatewayRouteRangeMatch
-	Regex?:  string | fn.#StringExpression
-	Suffix?: string | fn.#StringExpression
+	Regex?:  string | number | bool | fn.#StringExpression
+	Suffix?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #HttpGatewayRouteMatch: close({
 	Headers?:  [...#HttpGatewayRouteHeader] | fn.#ListExpression
 	Hostname?: #GatewayRouteHostnameMatch
-	Method?:   string | fn.#StringExpression
+	Method?:   string | number | bool | fn.#StringExpression
 	Path?:     #HttpPathMatch
 	Port?: int |
 		{
@@ -205,16 +211,16 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Prefix?:          string | fn.#StringExpression
+	Prefix?:          string | number | bool | fn.#StringExpression
 	QueryParameters?: [...#QueryParameter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#HttpGatewayRoutePathRewrite: close({Exact?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#HttpGatewayRoutePathRewrite: close({Exact?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #HttpGatewayRoutePrefixRewrite: close({
-	DefaultPrefix?: string | fn.#StringExpression
-	Value?:         string | fn.#StringExpression
+	DefaultPrefix?: string | number | bool | fn.#StringExpression
+	Value?:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -226,21 +232,21 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #HttpPathMatch: close({
-	Exact?: string | fn.#StringExpression
-	Regex?: string | fn.#StringExpression
+	Exact?: string | number | bool | fn.#StringExpression
+	Regex?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#HttpQueryParameterMatch: close({Exact?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#HttpQueryParameterMatch: close({Exact?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #QueryParameter: close({
 	Match?: #HttpQueryParameterMatch
-	Name!:  string | fn.#StringExpression
+	Name!:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

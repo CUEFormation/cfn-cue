@@ -7,7 +7,24 @@ import "list"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::NetworkInterface resource creates network interface
-#Properties: close({
+#Properties: matchIf({
+	PrivateIpAddress!: _
+	...
+}, {
+	NetworkInterfaces?: [...null | bool | number | string | [...] | {
+		PrivateIpAddress?: error("disallowed")
+		PrivateIpAddresses?: [...null | bool | number | string | [...] | {
+			Primary?: false | "false" | "False" | "FALSE"
+			...
+		}]
+		...
+	}]
+	PrivateIpAddresses?: [...null | bool | number | string | [...] | {
+		Primary?: false | "false" | "False" | "FALSE"
+		...
+	}]
+	...
+}, _) & close({
 	ConnectionTrackingSpecification?: #ConnectionTrackingSpecification
 
 	// A description for the network interface.
@@ -116,7 +133,7 @@ import "list"
 	SourceDestCheck?: bool
 
 	// The ID of the subnet to associate with the network interface.
-	SubnetId!: string
+	SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 
 	// An arbitrary set of tags (key-value pairs) for this network interface.
 	Tags?: [...#Tag]

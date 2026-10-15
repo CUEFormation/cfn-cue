@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Applies an Amazon S3 bucket policy to an Amazon S3 bucket. If you are using
@@ -46,8 +48,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // + [DeleteBucket](https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteBucket.html)
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3::BucketPolicy"
-	Properties!: close({
-		Bucket!:         string | fn.#StringExpression
+	let properties = close({
+		Bucket!:         string | number | bool | fn.#StringExpression
 		PolicyDocument!: iam.#S3BucketPolicyValue
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

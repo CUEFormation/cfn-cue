@@ -13,13 +13,15 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DMS::ReplicationTask
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DMS::ReplicationTask"
-	Properties!: close({
-		CdcStartPosition?: string | fn.#StringExpression
+	let properties = close({
+		CdcStartPosition?: string | number | bool | fn.#StringExpression
 		CdcStartTime?: number |
 			{
 				string &
@@ -39,22 +41,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		CdcStopPosition?:           string | fn.#StringExpression
-		MigrationType!:             "full-load" | "cdc" | "full-load-and-cdc" | fn.#StringExpression
-		ReplicationInstanceArn!:    string | fn.#StringExpression
-		ReplicationTaskIdentifier?: =~"^[a-zA-Z][a-zA-Z0-9]*(?:-[a-zA-Z0-9]+)*$" | fn.#StringExpression
-		ReplicationTaskSettings?:   string | fn.#StringExpression
-		ResourceIdentifier?:        string | fn.#StringExpression
-		SourceEndpointArn!:         string | fn.#StringExpression
-		TableMappings!:             string | fn.#StringExpression
-		Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TargetEndpointArn!:         string | fn.#StringExpression
-		TaskData?:                  string | fn.#StringExpression
+		CdcStopPosition?:        string | number | bool | fn.#StringExpression
+		MigrationType!:          "full-load" | "cdc" | "full-load-and-cdc" | fn.#StringExpression
+		ReplicationInstanceArn!: string | number | bool | fn.#StringExpression
+		ReplicationTaskIdentifier?: =~"^[a-zA-Z][a-zA-Z0-9]*(?:-[a-zA-Z0-9]+)*$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z][a-zA-Z0-9]*(?:-[a-zA-Z0-9]+)*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ReplicationTaskSettings?: string | number | bool | fn.#StringExpression
+		ResourceIdentifier?:      string | number | bool | fn.#StringExpression
+		SourceEndpointArn!:       string | number | bool | fn.#StringExpression
+		TableMappings!:           string | number | bool | fn.#StringExpression
+		Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetEndpointArn!:       string | number | bool | fn.#StringExpression
+		TaskData?:                string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

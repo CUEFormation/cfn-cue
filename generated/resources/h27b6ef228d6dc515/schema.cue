@@ -9,18 +9,27 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for a resource policy with specified policy
 // statements that attaches to a Lex bot or bot alias.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lex::ResourcePolicy"
-	Properties!: close({
+	let properties = close({
 		Policy!:      #Policy
 		ResourceArn!: #ResourceArn
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Policy: fn.#Object & {...} | string | fn.#StringObjectExpression
+#Policy: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
-#ResourceArn: strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression
+#ResourceArn: strings.MaxRunes(1011) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1011) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression

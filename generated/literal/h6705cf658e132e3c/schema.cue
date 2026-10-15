@@ -2,6 +2,8 @@
 
 package schema
 
+import "github.com/cueformation/cfn-cue/fn:fn"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::EC2::TransitGatewayPolicyTableEntry Resource Definition
@@ -24,7 +26,7 @@ package schema
 
 #TransitGatewayPolicyRule: close({
 	// The destination CIDR block for the transit gateway policy rule.
-	DestinationCidrBlock?: string
+	DestinationCidrBlock?: fn.#IPv4Network & string
 
 	// The destination port range for the transit gateway policy rule.
 	DestinationPortRange?: string
@@ -33,7 +35,7 @@ package schema
 	Protocol?: string
 
 	// The source CIDR block for the transit gateway policy rule.
-	SourceCidrBlock?: string
+	SourceCidrBlock?: fn.#IPv4Network & string
 
 	// The source port range for the transit gateway policy rule.
 	SourcePortRange?: string

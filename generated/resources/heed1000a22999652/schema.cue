@@ -10,15 +10,27 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A resource that represents the infrastructure where a third-party provider is
 // installed. You create one host for all connections to that provider.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodeConnections::Host"
-	Properties!: close({
-		Name!:             strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-		ProviderEndpoint!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ProviderEndpoint!: strings.MaxRunes(512) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ProviderType!: "Bitbucket" |
 			"GitHub" |
 			"GitHubEnterpriseServer" |
@@ -29,32 +41,68 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:             list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 		VpcConfiguration?: #VpcConfiguration
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VpcConfiguration: close({
-	SecurityGroupIds!: list.MaxItems(10) & list.MinItems(1) & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroupIds!: list.MaxItems(10) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(20) &
+	strings.MinRunes(11) &
+	=~"^sg-\\w{8}(\\w{9})?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(20) &
 		strings.MinRunes(11) &
-		=~"^sg-\\w{8}(\\w{9})?$" |
-		fn.#StringExpression
-	] |
+		=~"^sg-\\w{8}(\\w{9})?$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	SubnetIds!: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-\\w{8}(\\w{9})?$" | fn.#StringExpression
-	] |
+	SubnetIds!: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(24) &
+	strings.MinRunes(15) &
+	=~"^subnet-\\w{8}(\\w{9})?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-\\w{8}(\\w{9})?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	TlsCertificate?: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	TlsCertificate?: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"^[\\s\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"^[\\s\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
 	strings.MaxRunes(21) &
 	strings.MinRunes(12) &
 	=~"^vpc-\\w{8}(\\w{9})?$" |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(21) &
+		strings.MinRunes(12) &
+		=~"^vpc-\\w{8}(\\w{9})?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

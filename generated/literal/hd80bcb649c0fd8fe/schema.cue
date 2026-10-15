@@ -160,6 +160,9 @@ import (
 
 	// The ID for each subnet being used in your private VPC.
 	Subnets!: list.MaxItems(16) & list.MinItems(1) & [
-		...strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[-0-9a-zA-Z]+$"
+		...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(1) &
+		=~"^[-0-9a-zA-Z]+$"
 	]
 })

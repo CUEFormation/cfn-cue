@@ -31,7 +31,7 @@ import "strings"
 	RouteServerId?: string
 
 	// Subnet ID
-	SubnetId?: string
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 
 	// An array of key-value pairs to apply to this resource.
 	Tags?: [...#Tag]

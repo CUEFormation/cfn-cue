@@ -6,18 +6,22 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MSK::Configuration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MSK::Configuration"
-	Properties!: close({
-		Description?:       string | fn.#StringExpression
+	let properties = close({
+		Description?:       string | number | bool | fn.#StringExpression
 		KafkaVersionsList?: #KafkaVersionsList
 		LatestRevision?:    close({}) | fn.#ObjectExpression
-		Name!:              string | fn.#StringExpression
-		ServerProperties!:  string | fn.#StringExpression
+		Name!:              string | number | bool | fn.#StringExpression
+		ServerProperties!:  string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#KafkaVersionsList: [...string | fn.#StringExpression] | fn.#ListExpression
+#KafkaVersionsList: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression

@@ -14,21 +14,35 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::SSMIncidents::ResponsePlan
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSMIncidents::ResponsePlan"
-	Properties!: close({
-		Actions?:          list.MaxItems(1) & list.UniqueItems() & [...#Action] | fn.#ListExpression
-		ChatChannel?:      #ChatChannel
-		DisplayName?:      strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Actions?:     list.MaxItems(1) & list.UniqueItems() & [...#Action] | fn.#ListExpression
+		ChatChannel?: #ChatChannel
+		DisplayName?: strings.MaxRunes(200) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Engagements?:      list.MaxItems(5) & list.UniqueItems() & [...#SSMContact] | fn.#ListExpression
 		IncidentTemplate!: #IncidentTemplate
 		Integrations?:     list.MaxItems(1) & list.UniqueItems() & [...#Integration] | fn.#ListExpression
-		Name!:             strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]*$" | fn.#StringExpression
-		Tags?:             list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Name!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Action: close({SsmAutomation?: #SsmAutomation}) | fn.#ObjectExpression
@@ -38,7 +52,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #ChatbotSns: list.UniqueItems() & [...#SnsArn] | fn.#ListExpression
 
 #DynamicSsmParameter: close({
-	Key!:   strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(50) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Value!: #DynamicSsmParameterValue
 }) |
 fn.#ObjectExpression
@@ -46,7 +65,12 @@ fn.#ObjectExpression
 #DynamicSsmParameterValue: close({Variable?: #VariableType}) | fn.#ObjectExpression
 
 #IncidentTemplate: close({
-	DedupeString?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+	DedupeString?: strings.MaxRunes(1000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Impact!: int & <=5 & >=1 |
 		{
 			string &
@@ -65,8 +89,18 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	IncidentTags?:        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	NotificationTargets?: list.MaxItems(10) & [...] & [...#NotificationTargetItem] | fn.#ListExpression
-	Summary?:             strings.MaxRunes(4000) & strings.MinRunes(1) | fn.#StringExpression
-	Title!:               strings.MaxRunes(200) | fn.#StringExpression
+	Summary?: strings.MaxRunes(4000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Title!: strings.MaxRunes(200) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -76,47 +110,114 @@ fn.#ObjectExpression
 #NotificationTargetItem: close({SnsTopicArn?: #SnsArn}) | fn.#ObjectExpression
 
 #PagerDutyConfiguration: close({
-	Name!:                           strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+	Name!: strings.MaxRunes(200) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	PagerDutyIncidentConfiguration!: #PagerDutyIncidentConfiguration
-	SecretId!:                       strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	SecretId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#PagerDutyIncidentConfiguration: close({ServiceId!: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression}) |
+#PagerDutyIncidentConfiguration: close({
+	ServiceId!: strings.MaxRunes(200) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #SSMContact: strings.MaxRunes(1000) & =~"^arn:aws(-(cn|us-gov))?:ssm-contacts:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000) &
+	=~"^arn:aws(-(cn|us-gov))?:ssm-contacts:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#SnsArn: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#SnsArn: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" &
 strings.MaxRunes(1000) &
 =~"^arn:aws(-(cn|us-gov))?:sns:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" &
+	strings.MaxRunes(1000) &
+	=~"^arn:aws(-(cn|us-gov))?:sns:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #SsmAutomation: close({
-	DocumentName!:      strings.MaxRunes(128) | fn.#StringExpression
-	DocumentVersion?:   strings.MaxRunes(128) | fn.#StringExpression
+	DocumentName!: strings.MaxRunes(128) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & "\(self)"
+	} |
+	fn.#StringExpression
+	DocumentVersion?: strings.MaxRunes(128) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & "\(self)"
+	} |
+	fn.#StringExpression
 	DynamicParameters?: list.MaxItems(200) & list.UniqueItems() & [...#DynamicSsmParameter] | fn.#ListExpression
 	Parameters?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#SsmParameter] | fn.#ListExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(1000) &
 	=~"^arn:aws(-(cn|us-gov))?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(1000) &
+		=~"^arn:aws(-(cn|us-gov))?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	TargetAccount?: "IMPACTED_ACCOUNT" | "RESPONSE_PLAN_OWNER_ACCOUNT" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SsmParameter: close({
-	Key!:    strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(50) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Values!: list.MaxItems(10) & list.UniqueItems() & [...#SsmParameterValue] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#SsmParameterValue: strings.MaxRunes(10000) | fn.#StringExpression
+#SsmParameterValue: strings.MaxRunes(10000) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(10000) & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

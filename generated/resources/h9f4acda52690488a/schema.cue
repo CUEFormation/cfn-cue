@@ -14,34 +14,50 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ECS::ExpressGatewayService
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ECS::ExpressGatewayService"
-	Properties!: close({
-		Cluster?: string | fn.#StringExpression
-		Cpu?:     string | fn.#StringExpression
-		ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		HealthCheckPath?: string | fn.#StringExpression
-		InfrastructureRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		Memory?:               string | fn.#StringExpression
+	let properties = close({
+		Cluster?: string | number | bool | fn.#StringExpression
+		Cpu?:     string | number | bool | fn.#StringExpression
+		ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		HealthCheckPath?: string | number | bool | fn.#StringExpression
+		InfrastructureRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Memory?:               string | number | bool | fn.#StringExpression
 		NetworkConfiguration?: #ExpressGatewayServiceNetworkConfiguration
 		PrimaryContainer?:     #ExpressGatewayContainer
 		ScalingTarget?:        #ExpressGatewayScalingTarget
-		ServiceName?:          string | fn.#StringExpression
+		ServiceName?:          string | number | bool | fn.#StringExpression
 		Tags?:                 list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-		TaskDefinitionArn?:    string | fn.#StringExpression
-		TaskRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		TaskDefinitionArn?:    string | number | bool | fn.#StringExpression
+		TaskRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ExpressGatewayContainer: close({
 	AwsLogsConfiguration?: #ExpressGatewayServiceAwsLogsConfiguration
-	Command?:              [...string | fn.#StringExpression] | fn.#ListExpression
+	Command?:              [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	ContainerPort?: int |
 		{
 			string &
@@ -57,13 +73,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	Environment?:           [...#KeyValuePair] | fn.#ListExpression
-	Image!:                 string | fn.#StringExpression
+	Image!:                 string | number | bool | fn.#StringExpression
 	RepositoryCredentials?: #ExpressGatewayRepositoryCredentials
 	Secrets?:               [...#Secret] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#ExpressGatewayRepositoryCredentials: close({CredentialsParameter!: string | fn.#StringExpression}) |
+#ExpressGatewayRepositoryCredentials: close({CredentialsParameter!: string | number | bool | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
 #ExpressGatewayScalingTarget: close({
@@ -114,18 +130,26 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ExpressGatewayServiceAwsLogsConfiguration: close({
-	LogGroup!:        string | fn.#StringExpression
-	LogStreamPrefix!: string | fn.#StringExpression
+	LogGroup!:        string | number | bool | fn.#StringExpression
+	LogStreamPrefix!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ExpressGatewayServiceNetworkConfiguration: close({
-	SecurityGroups?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Subnets?: [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroups?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Subnets?: [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -135,19 +159,29 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #KeyValuePair: close({
-	Name!:  string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Name!:  string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Secret: close({
-	Name!:      string | fn.#StringExpression
-	ValueFrom!: string | fn.#StringExpression
+	Name!:      string | number | bool | fn.#StringExpression
+	ValueFrom!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::DataBrew::Dataset.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataBrew::Dataset"
-	Properties!: close({
+	let properties = close({
 		Format?: "CSV" | "JSON" | "PARQUET" | "EXCEL" | "ORC" | fn.#StringExpression
 
 		// Format options for dataset
@@ -27,36 +29,83 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		// Input
 		Input!: #Input
-		Name!:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// PathOptions
 		PathOptions?: #PathOptions
 		Source?:      "S3" | "DATA-CATALOG" | "DATABASE" | fn.#StringExpression
 		Tags?:        [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#BucketOwner: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+#BucketOwner: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #CsvOptions: close({
-	Delimiter?: strings.MaxRunes(1) & strings.MinRunes(1) | fn.#StringExpression
+	Delimiter?: strings.MaxRunes(1) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	HeaderRow?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #DataCatalogInputDefinition: close({
-	CatalogId?:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	DatabaseName?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	TableName?:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	CatalogId?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	DatabaseName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TableName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	TempDirectory?: #S3Location
 }) |
 fn.#ObjectExpression
 
 #DatabaseInputDefinition: close({
-	DatabaseTableName?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	GlueConnectionName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	QueryString?:        strings.MaxRunes(10000) & strings.MinRunes(1) | fn.#StringExpression
-	TempDirectory?:      #S3Location
+	DatabaseTableName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	GlueConnectionName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	QueryString?: strings.MaxRunes(10000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TempDirectory?: #S3Location
 }) |
 fn.#ObjectExpression
 
@@ -70,9 +119,23 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DatetimeOptions: close({
-	Format!:     strings.MaxRunes(100) & strings.MinRunes(2) | fn.#StringExpression
-	LocaleCode?: strings.MaxRunes(100) & strings.MinRunes(2) & =~"^[A-Za-z0-9_\\.#@\\-]+$" | fn.#StringExpression
+	Format!: strings.MaxRunes(100) & strings.MinRunes(2) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(2) & "\(self)"
+	} |
+	fn.#StringExpression
+	LocaleCode?: strings.MaxRunes(100) & strings.MinRunes(2) & =~"^[A-Za-z0-9_\\.#@\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(2) & =~"^[A-Za-z0-9_\\.#@\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	TimezoneOffset?: strings.MaxRunes(6) & strings.MinRunes(1) & =~"^(Z|[-+](\\d|\\d{2}|\\d{2}:?\\d{2}))$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(6) & strings.MinRunes(1) & =~"^(Z|[-+](\\d|\\d{2}|\\d{2}:?\\d{2}))$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -100,9 +163,12 @@ fn.#ObjectExpression
 			fn.#NumberExpression
 	] |
 		fn.#ListExpression
-	SheetNames?: list.MaxItems(1) & list.MinItems(1) & [
-		...strings.MaxRunes(31) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	SheetNames?: list.MaxItems(1) & list.MinItems(1) & [...strings.MaxRunes(31) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(31) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	if SheetNames != _|_ if SheetNames."Fn::If" == _|_ {
 		SheetIndexes?: close({"Fn::If": _}) | error(
@@ -134,14 +200,29 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #FilterExpression: close({
-	Expression!: strings.MaxRunes(1024) & strings.MinRunes(4) & =~"^[><0-9A-Za-z_.,:)(!= ]+$" | fn.#StringExpression
-	ValuesMap!:  [...#FilterValue] | fn.#ListExpression
+	Expression!: strings.MaxRunes(1024) & strings.MinRunes(4) & =~"^[><0-9A-Za-z_.,:)(!= ]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(4) & =~"^[><0-9A-Za-z_.,:)(!= ]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ValuesMap!: [...#FilterValue] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #FilterValue: close({
-	Value!:          strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	ValueReference!: strings.MaxRunes(128) & strings.MinRunes(2) & =~"^:[A-Za-z0-9_]+$" | fn.#StringExpression
+	Value!: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	ValueReference!: strings.MaxRunes(128) & strings.MinRunes(2) & =~"^:[A-Za-z0-9_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(2) & =~"^:[A-Za-z0-9_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -163,7 +244,14 @@ fn.#ObjectExpression
 #JsonOptions: close({MultiLine?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
 	fn.#ObjectExpression
 
-#Metadata: close({SourceArn?: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression}) |
+#Metadata: close({
+	SourceArn?: strings.MaxRunes(2048) & strings.MinRunes(20) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #PathOptions: close({
@@ -179,17 +267,42 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#PathParameterName: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#PathParameterName: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #S3Location: close({
-	Bucket!:      strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+	Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & "\(self)"
+	} |
+	fn.#StringExpression
 	BucketOwner?: #BucketOwner
-	Key?:         strings.MaxRunes(1280) & strings.MinRunes(1) | fn.#StringExpression
+	Key?: strings.MaxRunes(1280) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1280) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

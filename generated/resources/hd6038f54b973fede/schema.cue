@@ -10,30 +10,33 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::QLDB::Stream.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QLDB::Stream"
-	Properties!: close({
-		ExclusiveEndTime?:     string | fn.#StringExpression
-		InclusiveStartTime!:   string | fn.#StringExpression
+	let properties = close({
+		ExclusiveEndTime?:     string | number | bool | fn.#StringExpression
+		InclusiveStartTime!:   string | number | bool | fn.#StringExpression
 		KinesisConfiguration!: #KinesisConfiguration
-		LedgerName!:           string | fn.#StringExpression
-		RoleArn!: #Arn &
-		(null |
-		bool |
-		number |
-		=~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		[...] |
-		{...}) |
+		LedgerName!:           string | number | bool | fn.#StringExpression
+		RoleArn!: #Arn & (null | bool | number | =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" | [...] | {...}) |
 		fn.#StringExpression
-		StreamName!: string | fn.#StringExpression
+		StreamName!: string | number | bool | fn.#StringExpression
 		Tags?:       list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" | fn.#StringExpression
+#Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" |
+{
+	number | bool
+	_cfnString: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" & "\(self)"
+} |
+fn.#StringExpression
 
 #KinesisConfiguration: close({
 	AggregationEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -42,7 +45,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

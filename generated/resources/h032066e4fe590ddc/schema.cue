@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An invoice unit is a set of mutually exclusive accounts that correspond to
@@ -17,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // and configures your invoice for each business entity.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Invoicing::InvoiceUnit"
-	Properties!: close({
+	let properties = close({
 		Description?:            #Description
 		InvoiceReceiver!:        #InvoiceReceiver
 		Name!:                   #Name
@@ -25,26 +27,56 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Rule!:                   #Rule
 		TaxInheritanceDisabled?: #TaxInheritanceDisabled
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Description: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
+#Description: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\S\\s]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\S\\s]*$" & "\(self)"
+} |
+fn.#StringExpression
 
-#InvoiceReceiver: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" | fn.#StringExpression
+#InvoiceReceiver: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" & "\(self)"
+} |
+fn.#StringExpression
 
-#Name: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+#Name: strings.MaxRunes(50) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #ResourceTag: close({
-	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(200) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ResourceTags: list.MaxItems(200) & [...] & [...#ResourceTag] | fn.#ListExpression
 
 #Rule: close({
-	LinkedAccounts!: list.MaxItems(1000) & [...] & [
-		...strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" | fn.#StringExpression
-	] |
+	LinkedAccounts!: list.MaxItems(1000) & [...] & [...strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression

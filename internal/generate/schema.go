@@ -32,6 +32,7 @@ type converter struct {
 	iam              bool
 	iamHits          map[string]bool
 	hoisted          map[string]bool
+	cfnLintRules     bool
 }
 
 func (c *converter) warn(path, key, detail string) {
@@ -80,13 +81,17 @@ func (c *converter) normalize(v any, path string, lift bool, root map[string]any
 		}
 		return v
 	}
+	if s[literalMarker] == true {
+		// A cfn-lint condition: intrinsics must not satisfy it.
+		lift = false
+	}
 	m := map[string]any{}
 	rules := &fieldRules{}
 	for _, k := range keys(s) {
 		x := s[k]
 		p := path + "/" + pointer(k)
 		switch {
-		case includes(annotations, k):
+		case includes(annotations, k) || k == literalMarker:
 			continue
 		case k == "requiredXor" && ruleNames(s, stringsOf(x)):
 			rules.exactlyOne(stringsOf(x))
@@ -200,6 +205,16 @@ func (c *converter) normalize(v any, path string, lift bool, root map[string]any
 			}
 		case k == "format":
 			c.normalizeFormat(m, p, x)
+		case k == "type" && includes(schemaTypes(s), "integer") && includes(schemaTypes(s), "number"):
+			// CUE's extractor reads ["integer", "number"] as int. Every
+			// integer is a number, so the integer type adds nothing.
+			var types []any
+			for _, typ := range schemaTypes(s) {
+				if typ != "integer" {
+					types = append(types, typ)
+				}
+			}
+			m[k] = types
 		case includes(standard, k):
 			m[k] = x
 		default:
@@ -236,6 +251,7 @@ func (c *converter) normalize(v any, path string, lift bool, root map[string]any
 		}
 		classes = []string{name + "Expression"}
 	}
+	reserveIntrinsicKeys(m)
 	alternatives := []any{m}
 	if includes(schemaTypes(s), "object") && s["additionalProperties"] == nil && s["properties"] == nil && s["patternProperties"] == nil {
 		// Generic objects must use the same literal/expression distinction as
@@ -247,7 +263,7 @@ func (c *converter) normalize(v any, path string, lift bool, root map[string]any
 		object["allOf"] = append(asArray(object["allOf"]), map[string]any{"$ref": "cue://intrinsics/Object"})
 		alternatives = []any{object}
 		var otherTypes []any
-		for _, typ := range schemaTypes(s) {
+		for _, typ := range schemaTypes(m) {
 			if typ != "object" {
 				otherTypes = append(otherTypes, typ)
 			}
@@ -262,6 +278,32 @@ func (c *converter) normalize(v any, path string, lift bool, root map[string]any
 		alternatives = append(alternatives, map[string]any{"$ref": "cue://intrinsics/" + class})
 	}
 	return map[string]any{"anyOf": alternatives}
+}
+
+// intrinsicKeys are the keys an expression alternative accepts as functions.
+var intrinsicKeys = strings.Fields("Ref Fn::Base64 Fn::Cidr Fn::FindInMap Fn::GetAZs Fn::GetAtt Fn::GetStackOutput Fn::If Fn::ImportValue Fn::Join Fn::Length Fn::Select Fn::Split Fn::Sub Fn::ToJsonString Fn::Transform")
+
+// reserveIntrinsicKeys rejects function keys in a map whose key pattern would
+// otherwise admit them. Stack Parameters, for example, uses the unanchored
+// [a-zA-Z0-9]+, so {"Fn::If": [...]} matched both the map and the expression
+// alternative and was left ambiguous. Generic objects reserve the same keys.
+func reserveIntrinsicKeys(m map[string]any) {
+	patterns, ok := m["patternProperties"].(map[string]any)
+	if !ok {
+		return
+	}
+	var reserved []string
+	for _, key := range intrinsicKeys {
+		for pattern := range patterns {
+			if re, err := regexp.Compile(pattern); err == nil && re.MatchString(key) {
+				reserved = append(reserved, regexp.QuoteMeta(key))
+				break
+			}
+		}
+	}
+	if len(reserved) > 0 {
+		patterns["^(?:"+strings.Join(reserved, "|")+")$"] = false
+	}
 }
 func isArray(v any) bool                { _, ok := v.([]any); return ok }
 func asArray(v any) []any               { a, _ := v.([]any); return a }
@@ -310,6 +352,11 @@ func (c *converter) extract(root map[string]any, template bool) (*ast.File, erro
 	if template {
 		c.removeReadOnly(s)
 	}
+	if c.cfnLintRules {
+		if e := c.applyExtensions(s); e != nil {
+			return nil, e
+		}
+	}
 	preservePatternReferences(s)
 	c.iamHits, c.rules, c.hoisted = map[string]bool{}, nil, hoistable(s)
 	n := c.normalize(s, "#", false, s, map[string]bool{})
@@ -355,6 +402,7 @@ func (c *converter) extract(root map[string]any, template bool) (*ast.File, erro
 	if e == nil {
 		propertiesFirst(f)
 		simplifyApplicators(f)
+		dropValidatorStructs(f)
 		if e = c.applyRules(f); e != nil {
 			return nil, e
 		}

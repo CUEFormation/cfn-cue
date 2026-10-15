@@ -9,20 +9,43 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::ViewVersion
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::ViewVersion"
-	Properties!: close({
+	let properties = close({
 		VersionDescription?: strings.MaxRunes(4096) &
 		strings.MinRunes(1) &
 		=~"^([\\p{L}\\p{N}_.:\\/=+\\-@,()']+[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@,()']*)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4096) &
+			strings.MinRunes(1) &
+			=~"^([\\p{L}\\p{N}_.:\\/=+\\-@,()']+[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@,()']*)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ViewArn!: strings.MaxRunes(255) &
 		strings.MinRunes(1) &
 		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/view/[-:a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/view/[-:a-zA-Z0-9]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		ViewContentSha256?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]{64}$" | fn.#StringExpression
+		ViewContentSha256?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]{64}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]{64}$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

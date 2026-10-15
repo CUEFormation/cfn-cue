@@ -13,12 +13,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS Ground Station DataflowEndpointGroupV2
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GroundStation::DataflowEndpointGroupV2"
-	Properties?: close({
+	let properties = close({
 		ContactPostPassDurationSeconds?: int & <=480 & >=30 |
 			{
 				string &
@@ -58,6 +60,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Endpoints?: list.MaxItems(12) & list.MinItems(1) & [...#CreateEndpointDetails] | fn.#ListExpression
 		Tags?:      [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ConnectionDetails: close({
@@ -94,7 +98,12 @@ fn.#ObjectExpression
 
 #DownlinkAwsGroundStationAgentEndpoint: close({
 	DataflowDetails!: #DownlinkDataflowDetails
-	Name!:            =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
+	Name!: =~"^[ a-zA-Z0-9_:-]{1,256}$" |
+	{
+		number | bool
+		_cfnString: =~"^[ a-zA-Z0-9_:-]{1,256}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -164,7 +173,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RangedSocketAddress: close({
-	Name!: =~"^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$" | fn.#StringExpression
+	Name!: =~"^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$" & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// Port range of a socket address.
 	PortRange!: #IntegerRange
@@ -172,7 +186,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SocketAddress: close({
-	Name!: string | fn.#StringExpression
+	Name!: string | number | bool | fn.#StringExpression
 	Port!: int |
 		{
 			string &
@@ -191,14 +205,29 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$" | fn.#StringExpression
-	Value!: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$" | fn.#StringExpression
+	Key!: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$" |
+	{
+		number | bool
+		_cfnString: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$" |
+	{
+		number | bool
+		_cfnString: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #UplinkAwsGroundStationAgentEndpoint: close({
 	DataflowDetails!: #UplinkDataflowDetails
-	Name!:            =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
+	Name!: =~"^[ a-zA-Z0-9_:-]{1,256}$" |
+	{
+		number | bool
+		_cfnString: =~"^[ a-zA-Z0-9_:-]{1,256}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

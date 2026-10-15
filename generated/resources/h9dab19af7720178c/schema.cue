@@ -9,14 +9,23 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAFRegional::RegexPatternSet
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WAFRegional::RegexPatternSet"
-	Properties!: close({
-		Name!: string | fn.#StringExpression
-		RegexPatternStrings!: [...strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression] |
+	let properties = close({
+		Name!: string | number | bool | fn.#StringExpression
+		RegexPatternStrings!: [...strings.MaxRunes(200) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

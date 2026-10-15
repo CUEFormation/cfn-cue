@@ -101,6 +101,16 @@ class CorpusTests(unittest.TestCase):
         self.assertEqual(corpus.classify({"status": "valid"}, {"status": "invalid"}), "cue-accepts-lint-rejects")
         self.assertEqual(corpus.classify({"status": "timeout"}, {"status": "valid"}), "cue-timeout")
 
+    def test_lifecycle_only_lint_errors_are_separate(self):
+        def lint(*rules):
+            return {"status": "invalid", "matches": [{"Level": level, "Rule": {"Id": rule}} for level, rule in rules]}
+        runtime = lint(("Error", "E2533"), ("Error", "E2531"), ("Warning", "W2531"))
+        self.assertEqual(corpus.classify({"status": "valid"}, runtime), "cue-accepts-lint-lifecycle-only")
+        mixed = lint(("Error", "E2533"), ("Error", "E3045"))
+        self.assertEqual(corpus.classify({"status": "valid"}, mixed), "cue-accepts-lint-rejects")
+        # CUE rejecting the template is still a shared rejection.
+        self.assertEqual(corpus.classify({"status": "invalid"}, runtime), "both-reject")
+
 
 if __name__ == "__main__":
     unittest.main()

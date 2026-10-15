@@ -15,6 +15,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::SecurityHub::AutomationRule`` resource specifies an automation
@@ -23,7 +25,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityHub::AutomationRule"
-	Properties!: close({
+	let properties = close({
 		Actions!: list.MaxItems(1) & list.MinItems(1) & [...#AutomationRulesAction] | fn.#ListExpression
 
 		// A set of [Security Finding Format
@@ -31,10 +33,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// finding field attributes and corresponding expected values that ASH uses to
 		// filter findings. If a rule is enabled and a finding matches the criteria
 		// specified in this parameter, ASH applies the rule action to the finding.
-		Criteria!:    #AutomationRulesFindingFilters
-		Description!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-		IsTerminal?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		RuleName!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+		Criteria!: #AutomationRulesFindingFilters
+		Description!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+		} |
+		fn.#StringExpression
+		IsTerminal?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		RuleName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+		} |
+		fn.#StringExpression
 		RuleOrder!: int & <=1000 & >=1 |
 			{
 				string &
@@ -58,6 +70,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// User-defined tags associated with an automation rule.
 		Tags?: #Tags
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AutomationRulesAction: {
@@ -76,8 +90,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	Note?:            #NoteUpdate & fn.#Object & {...} | fn.#ObjectExpression
 	RelatedFindings?: list.MaxItems(10) & list.MinItems(1) & [...#RelatedFinding] | fn.#ListExpression
 	Severity?:        #SeverityUpdate & fn.#Object & {...} | fn.#ObjectExpression
-	Types?: list.MaxItems(50) & list.UniqueItems() & [...=~"^([^/]+)(/[^/]+){0,2}$" | fn.#StringExpression] |
-		fn.#ListExpression
+	Types?: list.MaxItems(50) & list.UniqueItems() & [...=~"^([^/]+)(/[^/]+){0,2}$" |
+	{
+		number | bool
+		_cfnString: =~"^([^/]+)(/[^/]+){0,2}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 
 	// The rule action updates the ``UserDefinedFields`` field of a finding.
 	UserDefinedFields?: #map
@@ -180,17 +199,32 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ISO8601DateString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" &
+		"\(self)"
+} |
+fn.#StringExpression
 
 #MapFilter: close({
 	Comparison!: "EQUALS" | "NOT_EQUALS" | "CONTAINS" | "NOT_CONTAINS" | fn.#StringExpression
-	Key!:        =~"\\S" | fn.#StringExpression
-	Value!:      string | fn.#StringExpression
+	Key!: =~"\\S" |
+	{
+		number | bool
+		_cfnString: =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #NoteUpdate: close({
-	Text!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+	Text!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"\\S" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// The principal that updated the note.
 	UpdatedBy!: #arnOrId
@@ -378,7 +412,12 @@ fn.#ObjectExpression
 	// rules](https://docs.aws.amazon.com/securityhub/latest/userguide/automation-rules.html)
 	// in the *User Guide*.
 	Comparison!: #StringFilterComparison
-	Value!:      =~"\\S" | fn.#StringExpression
+	Value!: =~"\\S" |
+	{
+		number | bool
+		_cfnString: =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -392,7 +431,17 @@ fn.#ObjectExpression
 
 #Tags: close({
 
-	{[=~"^[a-zA-Z0-9]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{
+		[=~"^[a-zA-Z0-9]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #WorkflowUpdate: close({Status!: "NEW" | "NOTIFIED" | "RESOLVED" | "SUPPRESSED" | fn.#StringExpression}) |
@@ -401,6 +450,13 @@ fn.#ObjectExpression
 #arn: strings.MaxRunes(2048) &
 strings.MinRunes(12) &
 =~"^arn:(aws|aws-cn|aws-us-gov|aws-iso-?[a-z]{0,2}):[A-Za-z0-9]{1,63}:[a-z]+-([a-z]{1,10}-)?[a-z]+-[0-9]+:([0-9]{12})?:.+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) &
+	strings.MinRunes(12) &
+	=~"^arn:(aws|aws-cn|aws-us-gov|aws-iso-?[a-z]{0,2}):[A-Za-z0-9]{1,63}:[a-z]+-([a-z]{1,10}-)?[a-z]+-[0-9]+:([0-9]{12})?:.+$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #arnOrId: (strings.MaxRunes(512) & strings.MinRunes(1) | #arn) & (null | bool | number | =~"\\S" | [...] | {...}) |
@@ -425,5 +481,17 @@ fn.#ValueExpression
 
 #map: struct.MaxFields(50) & struct.MinFields(1) & close({
 
-	{[=~"^[-_+=.:/@\\w\\s]{1,128}$"]: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[-_+=.:/@\\w\\s]{1,128}$"]: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression

@@ -65,7 +65,34 @@ import (
 // The ``MethodSetting`` property type configures settings for all methods in a stage.
 // The ``MethodSettings`` property of the ``AWS::ApiGateway::Stage`` resource
 // contains a list of ``MethodSetting`` property types.
-#MethodSetting: close({
+#MethodSetting: matchIf(matchN(0, [matchN(0, [null | bool | number | string | [...] | {
+	CacheDataEncrypted!: _
+	...
+}]) & matchN(0, [null | bool | number | string | [...] | {
+	CacheTtlInSeconds!: _
+	...
+}]) & matchN(0, [null | bool | number | string | [...] | {
+	CachingEnabled!: _
+	...
+}]) & matchN(0, [null | bool | number | string | [...] | {
+	DataTraceEnabled!: _
+	...
+}]) & matchN(0, [null | bool | number | string | [...] | {
+	LoggingLevel!: _
+	...
+}]) & matchN(0, [null | bool | number | string | [...] | {
+	MetricsEnabled!: _
+	...
+}]) & matchN(0, [null | bool | number | string | [...] | {
+	ThrottlingBurstLimit!: _
+	...
+}]) & matchN(0, [null | bool | number | string | [...] | {
+	ThrottlingRateLimit!: _
+	...
+}])]), {
+	ResourcePath?: null | bool | number | =~"^/.*$" | [...] | {...}
+	...
+}, _) & close({
 	CacheDataEncrypted?: bool
 	CacheTtlInSeconds?:  int
 	CachingEnabled?:     bool

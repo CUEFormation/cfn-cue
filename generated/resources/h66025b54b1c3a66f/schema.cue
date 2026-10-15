@@ -10,18 +10,35 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppIntegrations::DataIntegration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppIntegrations::DataIntegration"
-	Properties!: close({
-		Description?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The configuration for what files should be pulled from the source.
 		FileConfiguration?: #FileConfiguration
-		KmsKey!:            strings.MaxRunes(255) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" | fn.#StringExpression
+		KmsKey!: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*\\S.*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The configuration for what data should be pulled from the source.
 		ObjectConfiguration?: #ObjectConfiguration
@@ -31,48 +48,110 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		SourceURI!: strings.MaxRunes(1000) &
 		strings.MinRunes(1) &
 		=~"^(\\w+\\:\\/\\/[\\w.-]+[\\w/!@#+=.-]+$)|(\\w+\\:\\/\\/[\\w.-]+[\\w/!@#+=.-]+[\\w/!@#+=.-]+[\\w/!@#+=.,-]+$)" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) &
+			strings.MinRunes(1) &
+			=~"^(\\w+\\:\\/\\/[\\w.-]+[\\w/!@#+=.-]+$)|(\\w+\\:\\/\\/[\\w.-]+[\\w/!@#+=.-]+[\\w/!@#+=.-]+[\\w/!@#+=.,-]+$)" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #FileConfiguration: close({
 	Filters?: close({
 
-		{[=~"^[A-Za-z]"]: list.MaxItems(2048) & list.MinItems(1) & [
-			...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		] |
-		fn.#ListExpression}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{
+			[=~"^[A-Za-z]"]: list.MaxItems(2048) & list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression] |
+			fn.#ListExpression
+		}
+	}) |
 	fn.#ObjectExpression
-	Folders!: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(200) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	] |
+	Folders!: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(200) & strings.MinRunes(1) & =~".*\\S.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #ObjectConfiguration: close({
 
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
 	{
 		[=~"^.+$"]: close({
 
-			{[=~"^[A-Za-z]"]: list.MaxItems(2048) & list.MinItems(1) & [
-				...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-			] |
-			fn.#ListExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{
+				[=~"^[A-Za-z]"]: list.MaxItems(2048) & list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+				} |
+				fn.#StringExpression] |
+				fn.#ListExpression
+			}
+		}) |
 		fn.#ObjectExpression
-	}}) |
+	}
+}) |
 fn.#ObjectExpression
 
 #ScheduleConfig: close({
-	FirstExecutionFrom?: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	Object?:             strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" | fn.#StringExpression
-	ScheduleExpression!: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+	FirstExecutionFrom?: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*\\S.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
+	} |
+	fn.#StringExpression
+	Object?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/\\._\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ScheduleExpression!: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*\\S.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

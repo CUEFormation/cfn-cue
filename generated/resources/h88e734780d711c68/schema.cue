@@ -15,6 +15,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::KMS::Key`` resource specifies an [KMS
@@ -71,7 +73,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // manage all KMS key types that are supported in a Region.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::KMS::Key"
-	Properties?: close({
+	let properties = close({
 		BypassPolicyLockoutSafetyCheck?: bool |
 			"true" |
 			"True" |
@@ -80,7 +82,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		Description?:       strings.MaxRunes(8192) & strings.MinRunes(0) | fn.#StringExpression
+		Description?: strings.MaxRunes(8192) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(8192) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		EnableKeyRotation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Enabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		KeyPolicy?:         iam.#KMSKeyPolicyValue
@@ -143,10 +150,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

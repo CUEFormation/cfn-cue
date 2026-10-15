@@ -14,9 +14,12 @@ Normalized copies retain those licenses. Exact commit IDs, paths, URLs, and
 content hashes are recorded in `corpus/smoke/index.json` and
 `corpus/sources.lock.json`. Project-authored mutation cases are Apache-2.0.
 
-The eight AWS identifier-format patterns in `internal/generate/formats.go`
-are derived from cfn-lint's MIT-0 format rules at the commit pinned by the corpus
-source lock. They retain AWS's attribution in that source file. The upstream
-license is reproduced in `corpus/smoke/licenses/cfn-lint-good/LICENSE`.
+The AWS identifier-format patterns in `internal/generate/formats.go` are
+derived from cfn-lint's MIT-0 format rules at the commit pinned by the corpus
+source lock. They retain AWS's attribution in that source file. The JSON files
+in `internal/generate/cfnlint/extensions/` are unmodified copies of cfn-lint's
+MIT-0 extension schemas from the same commit; `internal/generate/extensions.go`
+records their source and attribution. The upstream license is reproduced in
+`corpus/smoke/licenses/cfn-lint-good/LICENSE`.
 
 The `unslop` skill in `.agents/skills/unslop/` comes from [cursor/plugins](https://github.com/cursor/plugins/tree/837067b75aa20ab58d7b2a2f6c0531e37118c596/pstack/skills/unslop). It is copyright (c) 2026 Lauren Tan and distributed under the MIT license, reproduced in [.agents/skills/unslop/LICENSE](.agents/skills/unslop/LICENSE).

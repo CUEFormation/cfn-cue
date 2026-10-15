@@ -10,24 +10,34 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::EC2::NetworkInsightsAnalysis
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::NetworkInsightsAnalysis"
-	Properties!: close({
-		AdditionalAccounts?:    list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		AdditionalAccounts?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
 		FilterInArns?:          [...#ResourceArn] | fn.#ListExpression
 		FilterOutArns?:         [...#ResourceArn] | fn.#ListExpression
-		NetworkInsightsPathId!: string | fn.#StringExpression
+		NetworkInsightsPathId!: string | number | bool | fn.#StringExpression
 		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ResourceArn: strings.MaxRunes(1283) & strings.MinRunes(1) | fn.#StringExpression
+#ResourceArn: strings.MaxRunes(1283) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1283) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

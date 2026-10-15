@@ -10,23 +10,49 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ObservabilityAdmin::TelemetryPipelines
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ObservabilityAdmin::TelemetryPipelines"
-	Properties!: close({
+	let properties = close({
 		Configuration!: #TelemetryPipelineConfiguration
-		Name?:          strings.MaxRunes(28) & strings.MinRunes(3) & =~"[a-z][a-z0-9\\-]+" | fn.#StringExpression
-		Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Name?: strings.MaxRunes(28) & strings.MinRunes(3) & =~"[a-z][a-z0-9\\-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(28) & strings.MinRunes(3) & =~"[a-z][a-z0-9\\-]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#TelemetryPipelineConfiguration: close({Body!: strings.MaxRunes(24000) & strings.MinRunes(1) | fn.#StringExpression}) |
+#TelemetryPipelineConfiguration: close({
+	Body!: strings.MaxRunes(24000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(24000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression

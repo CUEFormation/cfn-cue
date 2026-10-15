@@ -6,13 +6,17 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::EC2::TransitGatewayPolicyTableAssociation Resource Definition
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::TransitGatewayPolicyTableAssociation"
-	Properties!: close({
-		TransitGatewayAttachmentId!:  string | fn.#StringExpression
-		TransitGatewayPolicyTableId!: string | fn.#StringExpression
+	let properties = close({
+		TransitGatewayAttachmentId!:  string | number | bool | fn.#StringExpression
+		TransitGatewayPolicyTableId!: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

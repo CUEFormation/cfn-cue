@@ -10,12 +10,14 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::IdentityPool
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cognito::IdentityPool"
-	Properties!: close({
+	let properties = close({
 		AllowClassicFlow?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		AllowUnauthenticatedIdentities!: bool |
 			"true" |
@@ -25,45 +27,95 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		CognitoEvents?:            fn.#Object & {...} | string | fn.#StringObjectExpression
+		CognitoEvents?:            fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		CognitoIdentityProviders?: [...#CognitoIdentityProvider] | fn.#ListExpression
 		CognitoStreams?:           #CognitoStreams
-		DeveloperProviderName?:    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w._-]+$" | fn.#StringExpression
-		IdentityPoolName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$" | fn.#StringExpression
+		DeveloperProviderName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w._-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w._-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		IdentityPoolName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\s+=,.@-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		IdentityPoolTags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		OpenIdConnectProviderARNs?: [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] |
+		OpenIdConnectProviderARNs?: [...strings.MaxRunes(2048) & strings.MinRunes(20) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		PushSync?: #PushSync
-		SamlProviderARNs?: [...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression] |
+		SamlProviderARNs?: [...strings.MaxRunes(2048) & strings.MinRunes(20) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		SupportedLoginProviders?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		SupportedLoginProviders?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CognitoIdentityProvider: close({
-	ClientId!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w_]+$" | fn.#StringExpression
-	ProviderName!:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w._:/-]+$" | fn.#StringExpression
+	ClientId!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ProviderName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w._:/-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w._:/-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ServerSideTokenCheck?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #CognitoStreams: close({
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	StreamName?:      string | fn.#StringExpression
-	StreamingStatus?: string | fn.#StringExpression
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	StreamName?:      string | number | bool | fn.#StringExpression
+	StreamingStatus?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PushSync: close({
-	ApplicationArns?: [...string | fn.#StringExpression] | fn.#ListExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	ApplicationArns?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

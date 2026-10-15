@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::DataZone::ProjectProfile Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataZone::ProjectProfile"
-	Properties!: close({
+	let properties = close({
 		AllowCustomProjectResourceTags?: bool |
 			"true" |
 			"True" |
@@ -28,15 +30,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		Description?:          strings.MaxRunes(2048) | fn.#StringExpression
-		DomainIdentifier?:     =~"^dzd[_-][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-		DomainUnitIdentifier?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" | fn.#StringExpression
+		Description?: strings.MaxRunes(2048) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainIdentifier?: =~"^dzd[_-][a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^dzd[_-][a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainUnitIdentifier?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_\\-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		EnvironmentConfigurations?: [...close({
 			AwsAccount?: #AwsAccount
 			AwsRegion!:  #Region
 			ConfigurationParameters?: close({
 				ParameterOverrides?: [...#EnvironmentConfigurationParameter] | fn.#ListExpression
-				SsmPath?:            strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+				SsmPath?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+				} |
+				fn.#StringExpression
 			}) |
 			fn.#ObjectExpression
 			DeploymentMode?: #DeploymentMode
@@ -60,41 +82,98 @@ import base "github.com/cueformation/cfn-cue/template:template"
 						)
 				} |
 				fn.#NumberExpression
-			Description?:            strings.MaxRunes(2048) | fn.#StringExpression
-			EnvironmentBlueprintId!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-			Name!:                   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
+			Description?: strings.MaxRunes(2048) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(2048) & "\(self)"
+			} |
+			fn.#StringExpression
+			EnvironmentBlueprintId!: =~"^[a-zA-Z0-9_-]{1,36}$" |
+			{
+				number | bool
+				_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+			} |
+			fn.#StringExpression
+			Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-		Name!:                strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w -]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ProjectResourceTags?: list.MaxItems(25) & [...#ResourceTagParameter] | fn.#ListExpression
-		ProjectResourceTagsDescription?: strings.MaxRunes(2048) | fn.#StringExpression
-		Status?:                         #Status
+		ProjectResourceTagsDescription?: strings.MaxRunes(2048) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & "\(self)"
+		} |
+		fn.#StringExpression
+		Status?:                   #Status
 		UseDefaultConfigurations?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AwsAccount: close({AwsAccountId!: =~"^\\d{12}$" | fn.#StringExpression}) | fn.#ObjectExpression
+#AwsAccount: close({
+	AwsAccountId!: =~"^\\d{12}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\d{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #DeploymentMode: "ON_CREATE" | "ON_DEMAND" | fn.#StringExpression
 
 #EnvironmentConfigurationParameter: close({
 	IsEditable?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name?:       =~"^[a-zA-Z_][a-zA-Z0-9_]*$" | fn.#StringExpression
-	Value?:      string | fn.#StringExpression
+	Name?: =~"^[a-zA-Z_][a-zA-Z0-9_]*$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z_][a-zA-Z0-9_]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Region: close({
 	RegionName!: strings.MaxRunes(16) & strings.MinRunes(4) & =~"^[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(16) &
+		strings.MinRunes(4) &
+		=~"^[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ResourceTagParameter: close({
 	IsValueEditable!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Key!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w \\.:/=+@-]+$" | fn.#StringExpression
-	Value!:           strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w \\.:/=+@-]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w \\.:/=+@-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w \\.:/=+@-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w \\.:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w \\.:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

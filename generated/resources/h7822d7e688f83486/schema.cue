@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS Ground Station Mission Profile resource type for CloudFormation.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GroundStation::MissionProfile"
-	Properties!: close({
+	let properties = close({
 		ContactPostPassDurationSeconds?: int & <=21600 & >=0 |
 			{
 				string &
@@ -75,7 +77,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name!: =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
+		Name!: =~"^[ a-zA-Z0-9_:-]{1,256}$" |
+		{
+			number | bool
+			_cfnString: =~"^[ a-zA-Z0-9_:-]{1,256}$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The ARN of a KMS Key used for encrypting data during transmission from the
 		// source to destination locations.
@@ -83,31 +90,70 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		StreamsKmsRole?: strings.MaxRunes(165) &
 		strings.MinRunes(30) &
 		=~"^arn:[a-z0-9-.]{1,63}:iam::[0-9]{12}:role/[\\w+=,.@-]{1,64}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(165) &
+			strings.MinRunes(30) &
+			=~"^arn:[a-z0-9-.]{1,63}:iam::[0-9]{12}:role/[\\w+=,.@-]{1,64}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: [...#Tag] | fn.#ListExpression
 		TelemetrySinkConfigArn?: strings.MaxRunes(424) &
 		strings.MinRunes(82) &
 		=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(424) &
+			strings.MinRunes(82) &
+			=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		TrackingConfigArn!: strings.MaxRunes(424) &
 		strings.MinRunes(82) &
 		=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(424) &
+			strings.MinRunes(82) &
+			=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DataflowEdge: close({
-	Destination?: string | fn.#StringExpression
-	Source?:      string | fn.#StringExpression
+	Destination?: string | number | bool | fn.#StringExpression
+	Source?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #StreamsKmsKey: close({
-	KmsAliasArn?:  =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" | fn.#StringExpression
-	KmsAliasName?: =~"^alias/[a-zA-Z0-9:/_-]+$" | fn.#StringExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	KmsAliasArn?: =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
+	{
+		number | bool
+		_cfnString: =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" & "\(self)"
+	} |
+	fn.#StringExpression
+	KmsAliasName?: =~"^alias/[a-zA-Z0-9:/_-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+			=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	if KmsKeyArn != _|_ if KmsKeyArn."Fn::If" == _|_ {
 		KmsAliasArn?: close({"Fn::If": _}) | error(
 			"KmsAliasArn cannot be used with KmsKeyArn; set exactly one of KmsKeyArn, KmsAliasArn, KmsAliasName",
@@ -125,7 +171,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$" | fn.#StringExpression
-	Value!: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$" | fn.#StringExpression
+	Key!: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$" |
+	{
+		number | bool
+		_cfnString: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$" |
+	{
+		number | bool
+		_cfnString: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

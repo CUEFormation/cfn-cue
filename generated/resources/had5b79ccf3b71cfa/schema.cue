@@ -10,26 +10,69 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::NetworkManager::Connection. Describes a
 // connection between two devices in a global network.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::NetworkManager::Connection"
-	Properties!: close({
-		ConnectedDeviceId!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^device-[a-z0-9-]*$" | fn.#StringExpression
-		ConnectedLinkId?:   strings.MaxRunes(50) & strings.MinRunes(1) & =~"^link-[a-z0-9-]*$" | fn.#StringExpression
-		Description?:       strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		DeviceId!:          strings.MaxRunes(50) & strings.MinRunes(1) & =~"^device-[a-z0-9-]*$" | fn.#StringExpression
-		GlobalNetworkId!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^global-network-[a-z0-9-]*$" |
+	let properties = close({
+		ConnectedDeviceId!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^device-[a-z0-9-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^device-[a-z0-9-]*$" & "\(self)"
+		} |
 		fn.#StringExpression
-		LinkId?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^link-[a-z0-9-]*$" | fn.#StringExpression
-		Tags?:   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		ConnectedLinkId?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^link-[a-z0-9-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^link-[a-z0-9-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		DeviceId!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^device-[a-z0-9-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^device-[a-z0-9-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		GlobalNetworkId!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^global-network-[a-z0-9-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^global-network-[a-z0-9-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		LinkId?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^link-[a-z0-9-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^link-[a-z0-9-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[!-~]([ -~]*[!-~])?$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[!-~]([ -~]*[!-~])?$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[!-~]([ -~]*[!-~])?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[!-~]([ -~]*[!-~])?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[!-~]([ -~]*[!-~])?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[!-~]([ -~]*[!-~])?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

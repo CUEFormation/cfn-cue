@@ -14,39 +14,79 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Events::Rule
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Events::Rule"
-	Properties?: close({
-		Description?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(512) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		EventBusName?: strings.MaxRunes(1600) &
 		strings.MinRunes(1) &
 		=~"^(arn:aws[\\w-]*:events:[a-z]{2}-[a-z]+-[\\w-]+:[0-9]{12}:event-bus\\/)?[/\\.\\-_A-Za-z0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1600) &
+			strings.MinRunes(1) &
+			=~"^(arn:aws[\\w-]*:events:[a-z]{2}-[a-z]+-[\\w-]+:[0-9]{12}:event-bus\\/)?[/\\.\\-_A-Za-z0-9]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		EventPattern?: fn.#Object & {...} | string | fn.#StringObjectExpression
-		Name?:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$" | fn.#StringExpression
-		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1600) & strings.MinRunes(1)) |
+		EventPattern?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1600) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(1600) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ScheduleExpression?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^(rate\\(.+\\)|cron\\(.+\\))?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^(rate\\(.+\\)|cron\\(.+\\))?$" & "\(self)"
+		} |
 		fn.#StringExpression
 		State?:   "DISABLED" | "ENABLED" | "ENABLED_WITH_ALL_CLOUDTRAIL_MANAGEMENT_EVENTS" | fn.#StringExpression
 		Tags?:    [...#Tag] | fn.#ListExpression
 		Targets?: list.MaxItems(5) & list.UniqueItems() & [...#Target] | fn.#ListExpression
 	}) & matchN(>=1, [{EventPattern!: _}, {ScheduleExpression!: _}])
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AppSyncParameters: close({GraphQLOperation!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#AppSyncParameters: close({GraphQLOperation!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #AwsVpcConfiguration: close({
 	AssignPublicIp?: "DISABLED" | "ENABLED" | fn.#StringExpression
-	SecurityGroups?: list.UniqueItems() & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Subnets!: [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroups?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Subnets!: [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -70,8 +110,8 @@ fn.#ObjectExpression
 
 #BatchParameters: close({
 	ArrayProperties?: #BatchArrayProperties
-	JobDefinition!:   string | fn.#StringExpression
-	JobName!:         string | fn.#StringExpression
+	JobDefinition!:   string | number | bool | fn.#StringExpression
+	JobName!:         string | number | bool | fn.#StringExpression
 	RetryStrategy?:   #BatchRetryStrategy
 }) |
 fn.#ObjectExpression
@@ -111,7 +151,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	CapacityProvider!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	CapacityProvider!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Weight?: int & <=1000 & >=0 |
 		{
 			string &
@@ -131,7 +176,14 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DeadLetterConfig: close({Arn?: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression}) |
+#DeadLetterConfig: close({
+	Arn?: strings.MaxRunes(1600) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1600) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #EcsParameters: close({
@@ -139,16 +191,21 @@ fn.#ObjectExpression
 		fn.#ListExpression
 	EnableECSManagedTags?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnableExecuteCommand?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Group?:                string | fn.#StringExpression
+	Group?:                string | number | bool | fn.#StringExpression
 	LaunchType?:           "EC2" | "EXTERNAL" | "FARGATE" | fn.#StringExpression
 	NetworkConfiguration?: #NetworkConfiguration
 	PlacementConstraints?: list.MaxItems(10) & list.UniqueItems() & [...] & [...#PlacementConstraint] |
 		fn.#ListExpression
 	PlacementStrategies?: list.UniqueItems() & [...#PlacementStrategy] | fn.#ListExpression
-	PlatformVersion?:     string | fn.#StringExpression
+	PlatformVersion?:     string | number | bool | fn.#StringExpression
 	PropagateTags?:       "TASK_DEFINITION" | fn.#StringExpression
-	ReferenceId?:         strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	TagList?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	ReferenceId?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	TagList?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	TaskCount?: int & >=1 |
 		{
 			string &
@@ -164,19 +221,34 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TaskDefinitionArn!: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
+	TaskDefinitionArn!: strings.MaxRunes(1600) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1600) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #HttpParameters: close({
 	HeaderParameters?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
-	PathParameterValues?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	PathParameterValues?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	QueryStringParameters?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
@@ -184,40 +256,89 @@ fn.#ObjectExpression
 #InputTransformer: close({
 	InputPathsMap?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
-	InputTemplate!: strings.MaxRunes(8192) & strings.MinRunes(1) | fn.#StringExpression
+	InputTemplate!: strings.MaxRunes(8192) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(8192) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#KinesisParameters: close({PartitionKeyPath!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}) |
+#KinesisParameters: close({
+	PartitionKeyPath!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #NetworkConfiguration: close({AwsVpcConfiguration?: #AwsVpcConfiguration}) | fn.#ObjectExpression
 
 #PlacementConstraint: close({
-	Expression?: strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
-	Type?:       "distinctInstance" | "memberOf" | fn.#StringExpression
+	Expression?: strings.MaxRunes(2000) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2000) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type?: "distinctInstance" | "memberOf" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PlacementStrategy: close({
-	Field?: string | fn.#StringExpression
-	Type?:  string | fn.#StringExpression
+	Field?: string | number | bool | fn.#StringExpression
+	Type?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RedshiftDataParameters: close({
-	Database!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	DbUser?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Database!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	DbUser?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	SecretManagerArn?: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^(^arn:aws([a-z]|\\-)*:secretsmanager:[a-z0-9-.]+:.*)|(\\$(\\.[\\w_-]+(\\[(\\d+|\\*)\\])*)*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1600) &
+		strings.MinRunes(1) &
+		=~"^(^arn:aws([a-z]|\\-)*:secretsmanager:[a-z0-9-.]+:.*)|(\\$(\\.[\\w_-]+(\\[(\\d+|\\*)\\])*)*)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Sql?:           strings.MaxRunes(100000) & strings.MinRunes(1) | fn.#StringExpression
-	Sqls?:          [...string | fn.#StringExpression] | fn.#ListExpression
-	StatementName?: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	WithEvent?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Sql?: strings.MaxRunes(100000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Sqls?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	StatementName?: strings.MaxRunes(500) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	WithEvent?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -264,18 +385,38 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #RunCommandTarget: close({
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" | fn.#StringExpression
-	Values!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Values!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #SageMakerPipelineParameter: close({
 	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9_-]*[a-zA-Z0-9])?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9]([a-zA-Z0-9_-]*[a-zA-Z0-9])?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Value!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	Value!: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -285,29 +426,66 @@ fn.#ObjectExpression
 }) |
 	fn.#ObjectExpression
 
-#SqsParameters: close({MessageGroupId!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#SqsParameters: close({MessageGroupId!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Target: close({
 	AppSyncParameters?: #AppSyncParameters
-	Arn!:               strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
-	BatchParameters?:   #BatchParameters
-	DeadLetterConfig?:  #DeadLetterConfig
-	EcsParameters?:     #EcsParameters
-	HttpParameters?:    #HttpParameters
-	Id!:                strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$" | fn.#StringExpression
-	Input?:             strings.MaxRunes(8192) & strings.MinRunes(0) | fn.#StringExpression
-	InputPath?:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	InputTransformer?:  #InputTransformer
-	KinesisParameters?: #KinesisParameters
+	Arn!: strings.MaxRunes(1600) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1600) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	BatchParameters?:  #BatchParameters
+	DeadLetterConfig?: #DeadLetterConfig
+	EcsParameters?:    #EcsParameters
+	HttpParameters?:   #HttpParameters
+	Id!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Input?: strings.MaxRunes(8192) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(8192) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	InputPath?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	InputTransformer?:       #InputTransformer
+	KinesisParameters?:      #KinesisParameters
 	RedshiftDataParameters?: #RedshiftDataParameters
 	RetryPolicy?:            #RetryPolicy
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1600) & strings.MinRunes(1)) |
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1600) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(1600) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	RunCommandParameters?:        #RunCommandParameters
 	SageMakerPipelineParameters?: #SageMakerPipelineParameters

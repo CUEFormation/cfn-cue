@@ -10,24 +10,45 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::Amplify::Domain resource allows you to connect a custom domain to your app.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Amplify::Domain"
-	Properties!: close({
-		AppId!: strings.MaxRunes(20) & strings.MinRunes(1) & =~"d[a-z0-9]+" | fn.#StringExpression
-		AutoSubDomainCreationPatterns?: [
-			...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
-		] |
+	let properties = close({
+		AppId!: strings.MaxRunes(20) & strings.MinRunes(1) & =~"d[a-z0-9]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(20) & strings.MinRunes(1) & =~"d[a-z0-9]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		AutoSubDomainCreationPatterns?: [...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(?s).+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(?s).+" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		AutoSubDomainIAMRole?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^$|^arn:.+:iam::\\d{12}:role.+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^$|^arn:.+:iam::\\d{12}:role.+" & "\(self)"
+		} |
 		fn.#StringExpression
 		CertificateSettings?: #CertificateSettings
-		DomainName!:          strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		DomainName!: strings.MaxRunes(255) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		EnableAutoSubDomain?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		SubDomainSettings!:   list.MaxItems(255) & [...] & [...#SubDomainSetting] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CertificateSettings: close({
@@ -35,12 +56,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CustomCertificateArn?: strings.MaxRunes(1000) &
 	strings.MinRunes(0) &
 	=~"^arn:aws:acm:[a-z0-9-]+:\\d{12}:certificate\\/.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) &
+		strings.MinRunes(0) &
+		=~"^arn:aws:acm:[a-z0-9-]+:\\d{12}:certificate\\/.+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SubDomainSetting: close({
-	BranchName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
-	Prefix!:     strings.MaxRunes(255) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
+	BranchName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"(?s).+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"(?s).+" & "\(self)"
+	} |
+	fn.#StringExpression
+	Prefix!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"(?s).*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"(?s).*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

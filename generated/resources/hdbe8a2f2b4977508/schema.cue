@@ -15,6 +15,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Session. Sessions provide an
@@ -22,16 +24,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // testing, and running data preparation and analytics applications.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::Session"
-	Properties!: close({
+	let properties = close({
 		Command!:     #SessionCommand
 		Connections?: #ConnectionsList
 		DefaultArguments?: struct.MaxFields(75) & close({
 
-			{[=~"^[.\\-_A-Za-z0-9]+$"]: strings.MaxRunes(4096) & strings.MinRunes(0) | fn.#StringExpression}}) |
+			{[=~"^(?:Ref)$"]: error("disallowed")}
+
+			{
+				[=~"^[.\\-_A-Za-z0-9]+$"]: strings.MaxRunes(4096) & strings.MinRunes(0) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(4096) & strings.MinRunes(0) & "\(self)"
+				} |
+				fn.#StringExpression
+			}
+		}) |
 		fn.#ObjectExpression
-		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-		GlueVersion?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" | fn.#StringExpression
-		Id!:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		GlueVersion?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Id!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		IdleTimeout?: int & >=1 |
 			{
 				string &
@@ -84,11 +111,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		RequestOrigin?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[.\\-_A-Za-z0-9]+$" | fn.#StringExpression
-		Role!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[^:]*:iam::[0-9]*:role/.+$" |
+		RequestOrigin?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[.\\-_A-Za-z0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[.\\-_A-Za-z0-9]+$" & "\(self)"
+		} |
 		fn.#StringExpression
-		SecurityConfiguration?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:                  list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		Role!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:aws[^:]*:iam::[0-9]*:role/.+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:aws[^:]*:iam::[0-9]*:role/.+$" &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		SecurityConfiguration?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 		Timeout?: int & >=1 |
 			{
 				string &
@@ -108,22 +152,49 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		WorkerType?: "Standard" | "G.1X" | "G.2X" | "G.025X" | "G.4X" | "G.8X" | "Z.2X" | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ConnectionsList: close({
-	Connections?: list.MaxItems(1000) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression] |
+	Connections?: list.MaxItems(1000) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #SessionCommand: close({
-	Name?:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	PythonVersion?: =~"^([2-3]|3[.]9)$" | fn.#StringExpression
+	Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	PythonVersion?: =~"^([2-3]|3[.]9)$" |
+	{
+		number | bool
+		_cfnString: =~"^([2-3]|3[.]9)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

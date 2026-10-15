@@ -10,23 +10,29 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DAX::Cluster
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DAX::Cluster"
-	Properties!: close({
-		AvailabilityZones?:             [...string | fn.#StringExpression] | fn.#ListExpression
-		ClusterEndpointEncryptionType?: string | fn.#StringExpression
-		ClusterName?:                   string | fn.#StringExpression
-		Description?:                   string | fn.#StringExpression
-		IAMRoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		NetworkType?:                string | fn.#StringExpression
-		NodeType!:                   string | fn.#StringExpression
-		NotificationTopicARN?:       string | fn.#StringExpression
-		ParameterGroupName?:         string | fn.#StringExpression
-		PreferredMaintenanceWindow?: string | fn.#StringExpression
+	let properties = close({
+		AvailabilityZones?:             [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		ClusterEndpointEncryptionType?: string | number | bool | fn.#StringExpression
+		ClusterName?:                   string | number | bool | fn.#StringExpression
+		Description?:                   string | number | bool | fn.#StringExpression
+		IAMRoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		NetworkType?:                string | number | bool | fn.#StringExpression
+		NodeType!:                   string | number | bool | fn.#StringExpression
+		NotificationTopicARN?:       string | number | bool | fn.#StringExpression
+		ParameterGroupName?:         string | number | bool | fn.#StringExpression
+		PreferredMaintenanceWindow?: string | number | bool | fn.#StringExpression
 		ReplicationFactor!: int |
 			{
 				string &
@@ -44,14 +50,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		SSESpecification?: #SSESpecification
-		SecurityGroupIds?: [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
-		SubnetGroupName?: string | fn.#StringExpression
-		Tags?:            fn.#Object & {...} | string | fn.#StringObjectExpression
+		SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		SubnetGroupName?: string | number | bool | fn.#StringExpression
+		Tags?:            fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #SSESpecification: close(

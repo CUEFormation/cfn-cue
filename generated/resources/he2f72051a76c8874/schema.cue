@@ -6,16 +6,20 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::GCMChannel
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Pinpoint::GCMChannel"
-	Properties!: close({
-		ApiKey?:                      string | fn.#StringExpression
-		ApplicationId!:               string | fn.#StringExpression
-		DefaultAuthenticationMethod?: string | fn.#StringExpression
+	let properties = close({
+		ApiKey?:                      string | number | bool | fn.#StringExpression
+		ApplicationId!:               string | number | bool | fn.#StringExpression
+		DefaultAuthenticationMethod?: string | number | bool | fn.#StringExpression
 		Enabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ServiceJson?: string | fn.#StringExpression
+		ServiceJson?: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

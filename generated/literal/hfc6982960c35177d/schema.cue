@@ -5,6 +5,7 @@ package schema
 import (
 	"time"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -77,7 +78,7 @@ import (
 // pool, and associated Anycast IP address.
 #IpamCidrConfig: close({
 	// The CIDR that specifies the IP address range for this IPAM configuration.
-	Cidr!: string
+	Cidr!: fn.#IPv4Network & string
 
 	// The Amazon Resource Name (ARN) of the IPAM pool that the CIDR block is assigned to.
 	IpamPoolArn!: string
@@ -90,7 +91,7 @@ import (
 	AnycastIp?: string
 
 	// The CIDR that specifies the IP address range for this IPAM configuration.
-	Cidr?: string
+	Cidr?: fn.#IPv4Network & string
 
 	// The Amazon Resource Name (ARN) of the IPAM pool that the CIDR block is assigned to.
 	IpamPoolArn?: string

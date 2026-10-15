@@ -9,30 +9,55 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type Definition for AWS:IdentityStore::GroupMembership
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IdentityStore::GroupMembership"
-	Properties!: close({
+	let properties = close({
 		GroupId!: strings.MaxRunes(47) &
 		strings.MinRunes(1) &
 		=~"^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(47) &
+			strings.MinRunes(1) &
+			=~"^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		IdentityStoreId!: strings.MaxRunes(36) &
 		strings.MinRunes(1) &
 		=~"^d-[0-9a-f]{10}$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) &
+			strings.MinRunes(1) &
+			=~"^d-[0-9a-f]{10}$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 
 		// An object containing the identifier of a group member.
 		MemberId!: #MemberId
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #MemberId: close({
 	UserId!: strings.MaxRunes(47) &
 	strings.MinRunes(1) &
 	=~"^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(47) &
+		strings.MinRunes(1) &
+		=~"^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

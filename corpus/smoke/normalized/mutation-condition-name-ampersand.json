@@ -1,0 +1,23 @@
+{
+  "Conditions": {
+    "NATGateway&3AZCondition": {
+      "Fn::Equals": [
+        {
+          "Ref": "Zones"
+        },
+        "3"
+      ]
+    }
+  },
+  "Parameters": {
+    "Zones": {
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "Queue": {
+      "Condition": "NATGateway&3AZCondition",
+      "Type": "AWS::SQS::Queue"
+    }
+  }
+}

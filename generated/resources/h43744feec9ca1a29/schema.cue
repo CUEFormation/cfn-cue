@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::IoTManagedIntegrations::AccountAssociation.
@@ -18,23 +20,54 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // discovered and controlled.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTManagedIntegrations::AccountAssociation"
-	Properties!: close({
+	let properties = close({
 		ConnectorDestinationId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" & "\(self)"
+		} |
 		fn.#StringExpression
-		Description?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
+		Description?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		GeneralAuthorization?: #GeneralAuthorization
-		Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
+		Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#GeneralAuthorization: close(
-	{AuthMaterialName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9=_+/-]+$" | fn.#StringExpression},
-) |
+#GeneralAuthorization: close({
+	AuthMaterialName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9=_+/-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9=_+/-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

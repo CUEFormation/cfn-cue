@@ -9,10 +9,21 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for EKS CertificateAuthority.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EKS::CertificateAuthority"
-	Properties!: close({ClusterName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression})
+	Type!: "AWS::EKS::CertificateAuthority"
+	let properties = close({
+		ClusterName!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

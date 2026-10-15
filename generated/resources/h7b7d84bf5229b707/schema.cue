@@ -6,27 +6,35 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::Group
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Greengrass::Group"
-	Properties!: close({
+	let properties = close({
 		InitialVersion?: #GroupVersion
-		Name!:           string | fn.#StringExpression
-		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Name!:           string | number | bool | fn.#StringExpression
+		RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #GroupVersion: close({
-	ConnectorDefinitionVersionArn?:    string | fn.#StringExpression
-	CoreDefinitionVersionArn?:         string | fn.#StringExpression
-	DeviceDefinitionVersionArn?:       string | fn.#StringExpression
-	FunctionDefinitionVersionArn?:     string | fn.#StringExpression
-	LoggerDefinitionVersionArn?:       string | fn.#StringExpression
-	ResourceDefinitionVersionArn?:     string | fn.#StringExpression
-	SubscriptionDefinitionVersionArn?: string | fn.#StringExpression
+	ConnectorDefinitionVersionArn?:    string | number | bool | fn.#StringExpression
+	CoreDefinitionVersionArn?:         string | number | bool | fn.#StringExpression
+	DeviceDefinitionVersionArn?:       string | number | bool | fn.#StringExpression
+	FunctionDefinitionVersionArn?:     string | number | bool | fn.#StringExpression
+	LoggerDefinitionVersionArn?:       string | number | bool | fn.#StringExpression
+	ResourceDefinitionVersionArn?:     string | number | bool | fn.#StringExpression
+	SubscriptionDefinitionVersionArn?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

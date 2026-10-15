@@ -10,40 +10,80 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::Workspace
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::Workspace"
-	Properties!: close({
-		Associations?: list.UniqueItems() & [...strings.MaxRunes(2048) | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		Associations?: list.UniqueItems() & [...strings.MaxRunes(2048) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		Description?: strings.MaxRunes(500) &
 		strings.MinRunes(0) &
 		=~"""
 			^[\\P{C}\r
 			\t]*$
 			""" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) &
+			strings.MinRunes(0) &
+			=~"""
+				^[\\P{C}\r
+				\t]*$
+				""" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-		Media?:       list.MaxItems(4) & list.UniqueItems() & [...#MediaItem] | fn.#ListExpression
-		Name!:        strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-		Pages?:       list.UniqueItems() & [...#WorkspacePage] | fn.#ListExpression
-		Tags?:        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Media?: list.MaxItems(4) & list.UniqueItems() & [...#MediaItem] | fn.#ListExpression
+		Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
+		} |
+		fn.#StringExpression
+		Pages?: list.UniqueItems() & [...#WorkspacePage] | fn.#ListExpression
+		Tags?:  list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 
 		// The theme configuration for the workspace
 		Theme?: #WorkspaceTheme
-		Title?: strings.MaxRunes(127) & strings.MinRunes(0) & =~"^[\\P{C}]*$" | fn.#StringExpression
+		Title?: strings.MaxRunes(127) & strings.MinRunes(0) & =~"^[\\P{C}]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(127) & strings.MinRunes(0) & =~"^[\\P{C}]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The visibility of the workspace. Will always be set to ASSIGNED oninitial creation.
 		Visibility?: #Visibility
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #FontFamily: close({Default?: #WorkspaceFontFamily}) | fn.#ObjectExpression
 
 #MediaItem: close({
-	Source?: strings.MaxRunes(533333) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	Type!:   #MediaType
+	Source?: strings.MaxRunes(533333) & strings.MinRunes(1) & =~".*\\S.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(533333) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: #MediaType
 }) |
 fn.#ObjectExpression
 
@@ -87,12 +127,27 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ThemeString: strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+#ThemeString: strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
+} |
+fn.#StringExpression
 
 #Visibility: "ALL" | "ASSIGNED" | "NONE" | fn.#StringExpression
 
@@ -105,10 +160,29 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #WorkspacePage: close({
-	InputData?:   strings.MaxRunes(4096) & strings.MinRunes(0) | fn.#StringExpression
-	Page!:        strings.MaxRunes(25) & strings.MinRunes(1) | fn.#StringExpression
-	ResourceArn!: strings.MaxRunes(2048) | fn.#StringExpression
+	InputData?: strings.MaxRunes(4096) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Page!: strings.MaxRunes(25) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(25) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ResourceArn!: strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression
 	Slug?: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^$|^[\\p{L}\\p{Z}\\p{N}\\-_.:=@'|]{3,}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^$|^[\\p{L}\\p{Z}\\p{N}\\-_.:=@'|]{3,}$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

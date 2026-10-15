@@ -13,25 +13,29 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaTailor::PrefetchSchedule Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaTailor::PrefetchSchedule"
-	Properties!: close({
+	let properties = close({
 		Consumption?:                    #PrefetchConsumption
-		Name!:                           string | fn.#StringExpression
-		PlaybackConfigurationName!:      string | fn.#StringExpression
+		Name!:                           string | number | bool | fn.#StringExpression
+		PlaybackConfigurationName!:      string | number | bool | fn.#StringExpression
 		RecurringPrefetchConfiguration?: #RecurringPrefetchConfiguration
 		Retrieval?:                      #PrefetchRetrieval
 		ScheduleType?:                   "SINGLE" | "RECURRING" | fn.#StringExpression
-		StreamId?:                       string | fn.#StringExpression
+		StreamId?:                       string | number | bool | fn.#StringExpression
 		Tags?:                           [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AvailMatchingCriteria: close({
-	DynamicVariable!: string | fn.#StringExpression
+	DynamicVariable!: string | number | bool | fn.#StringExpression
 	Operator!:        "EQUALS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -46,7 +50,12 @@ fn.#ObjectExpression
 #PrefetchRetrieval: close({
 	DynamicVariables?: close({
 
-		{[=~".+"]: string | fn.#StringExpression}}) |
+		{[=~".+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	EndTime!:                        time.Time | fn.#StringExpression
 	StartTime?:                      time.Time | fn.#StringExpression
@@ -100,7 +109,12 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	DynamicVariables?: close({
 
-		{[=~".+"]: string | fn.#StringExpression}}) |
+		{[=~".+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	TrafficShapingRetrievalWindow?:  #TrafficShapingRetrievalWindow
 	TrafficShapingTpsConfiguration?: #TrafficShapingTpsConfiguration
@@ -109,8 +123,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

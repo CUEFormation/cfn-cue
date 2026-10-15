@@ -14,14 +14,23 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::NeptuneGraph::Graph resource creates an Amazon NeptuneGraph Graph.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::NeptuneGraph::Graph"
-	Properties!: close({
+	let properties = close({
 		DeletionProtection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		GraphName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 
 		// The details of the import task to use to create the graph. When specified,
@@ -31,6 +40,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		KmsKeyIdentifier?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"arn:aws(|-cn|-us-gov|-iso|-iso-b|-iso-e|-iso-f|-eusc):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"arn:aws(|-cn|-us-gov|-iso|-iso-b|-iso-e|-iso-f|-eusc):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ProvisionedMemory!: int & <=24576 & >=16 |
 			{
@@ -74,6 +90,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Vector Search Configuration
 		VectorSearchConfiguration?: #VectorSearchConfiguration
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ImportOptions: close({
@@ -126,26 +144,54 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	ParquetType?: "COLUMNAR" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(1024) &
 	strings.MinRunes(1) &
 	=~"arn:aws[^:]*:iam::[0-9]{12}:(role|role/service-role)(/[\\w+=,.@-]+)+" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"arn:aws[^:]*:iam::[0-9]{12}:(role|role/service-role)(/[\\w+=,.@-]+)+" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Source!: string | fn.#StringExpression
+	Source!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #NeptuneImportOptions: close({
 	PreserveDefaultVertexLabels?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PreserveEdgeIds?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	S3ExportKmsKeyId!:            strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	S3ExportPath!:                strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	S3ExportKmsKeyId!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	S3ExportPath!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

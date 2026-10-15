@@ -9,35 +9,89 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::SSMQuickSetup::ConfigurationManager Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSMQuickSetup::ConfigurationManager"
-	Properties!: close({
+	let properties = close({
 		ConfigurationDefinitions!: [...close({
-			LocalDeploymentAdministrationRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-			LocalDeploymentExecutionRoleName?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-			Parameters!:                       #ConfigurationParametersMap
-			Type!:                             =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" | fn.#StringExpression
-			TypeVersion?:                      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+			LocalDeploymentAdministrationRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+			{
+				number | bool
+				_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+			} |
+			fn.#StringExpression
+			LocalDeploymentExecutionRoleName?: strings.MaxRunes(256) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
+			Parameters!: #ConfigurationParametersMap
+			Type!: =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" |
+			{
+				number | bool
+				_cfnString: =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" & "\(self)"
+			} |
+			fn.#StringExpression
+			TypeVersion?: strings.MaxRunes(128) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-		Description?: =~"^.{0,512}$" | fn.#StringExpression
-		Name?:        =~"^[ A-Za-z0-9_-]{1,50}$" | fn.#StringExpression
-		Tags?:        #TagsMap
+		Description?: =~"^.{0,512}$" |
+		{
+			number | bool
+			_cfnString: =~"^.{0,512}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name?: =~"^[ A-Za-z0-9_-]{1,50}$" |
+		{
+			number | bool
+			_cfnString: =~"^[ A-Za-z0-9_-]{1,50}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: #TagsMap
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ConfigurationParametersMap: close({
 
-	{[=~"^[A-Za-z0-9+=@_\\/\\s-]+$"]: strings.MaxRunes(40960) | fn.#StringExpression}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{
+		[=~"^[A-Za-z0-9+=@_\\/\\s-]+$"]: strings.MaxRunes(40960) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(40960) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #TagsMap: close({
 
-	{[=~"^[A-Za-z0-9 +=@_\\/:.-]+$"]: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9 +=@_\\/:.-]+$" |
-	fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[A-Za-z0-9 +=@_\\/:.-]+$"]: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9 +=@_\\/:.-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9 +=@_\\/:.-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression

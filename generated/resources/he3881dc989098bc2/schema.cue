@@ -10,43 +10,95 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a metric attribution for reporting on recommendation impact in Amazon Personalize.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Personalize::MetricAttribution"
-	Properties!: close({
+	let properties = close({
 		DatasetGroupArn!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^arn:([a-z\\d-]+):personalize:.*:.*:.+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(0) &
+			=~"^arn:([a-z\\d-]+):personalize:.*:.*:.+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Metrics!:             list.MaxItems(10) & [...] & [...#MetricAttribute] | fn.#ListExpression
 		MetricsOutputConfig!: #MetricsOutputConfig
-		Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*$" | fn.#StringExpression
+		Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #MetricAttribute: close({
-	EventType!:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Expression!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	MetricName!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	EventType!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Expression!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	MetricName!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MetricsOutputConfig: close({
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^arn:([a-z\\d-]+):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^arn:([a-z\\d-]+):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	S3DataDestination?: #S3DataDestination
 }) |
 fn.#ObjectExpression
 
 #S3DataDestination: close({
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^arn:aws.*:kms:.*:[0-9]{12}:key/" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^arn:aws.*:kms:.*:[0-9]{12}:key/" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Path!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^(s3|http|https)://.+$" | fn.#StringExpression
+	Path!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^(s3|http|https)://.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^(s3|http|https)://.+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

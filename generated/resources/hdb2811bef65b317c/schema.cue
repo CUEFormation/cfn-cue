@@ -10,15 +10,55 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::SecurityGroupIngress
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::SecurityGroupIngress"
-	Properties!: close({
-		CidrIp?:      string | fn.#StringExpression
-		CidrIpv6?:    string | fn.#StringExpression
-		Description?: string | fn.#StringExpression
+	let properties = matchN(2, [matchIf({
+		IpProtocol!: "1" | ==1 | "icmp"
+		...
+	}, matchIf({
+		FromPort!: ==-1 | "-1"
+		...
+	}, {
+		ToPort!: ==-1 | "-1" | fn.#ValueExpression
+		...
+	}, _), matchIf({
+		ToPort!: ==-1 | "-1"
+		...
+	}, {
+		FromPort!: ==-1 | "-1" | fn.#ValueExpression
+		...
+	}, _) & matchIf({
+		FromPort!: ==-1 | "-1"
+		...
+	}, {
+		ToPort!: ==-1 | "-1" | fn.#ValueExpression
+		...
+	}, _)), matchIf({
+		IpProtocol!: (==1 | "1" | "icmp" | ==6 | "6" | "tcp" | ==17 | "17" | "udp") & (int | string)
+		...
+	}, {
+		FromPort!: _
+		ToPort!:   _
+		...
+	}, _)]) & (close({
+		CidrIp?: fn.#IPv4Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv4Network & string & "\(self)"
+		} |
+		fn.#StringExpression
+		CidrIpv6?: fn.#IPv6Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv6Network & string & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: string | number | bool | fn.#StringExpression
 		FromPort?: int & >=-1 |
 			{
 				string &
@@ -36,15 +76,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		GroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		GroupName?:          string | fn.#StringExpression
-		IpProtocol!:         string | fn.#StringExpression
-		SourcePrefixListId?: string | fn.#StringExpression
-		SourceSecurityGroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		SourceSecurityGroupName?:    string | fn.#StringExpression
-		SourceSecurityGroupOwnerId?: string | fn.#StringExpression
+		GroupId?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		GroupName?:          string | number | bool | fn.#StringExpression
+		IpProtocol!:         string | number | bool | fn.#StringExpression
+		SourcePrefixListId?: string | number | bool | fn.#StringExpression
+		SourceSecurityGroupId?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SourceSecurityGroupName?: =~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SourceSecurityGroupOwnerId?: string | number | bool | fn.#StringExpression
 		ToPort?: int & >=-1 |
 			{
 				string &
@@ -113,5 +166,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		}, {
 			SourceSecurityGroupName!: _
 		}],
-	)
+	))
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

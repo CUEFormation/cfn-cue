@@ -31,7 +31,11 @@ import (
 // Configuration settings for exporting workflow execution data and logs to Amazon S3.
 #WorkflowExportConfig: close({
 	// The name of the Amazon S3 bucket for exporting workflow data.
-	S3BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9.-]*[a-z0-9]$"
+	S3BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"^[a-z0-9][a-z0-9.-]*[a-z0-9]$"
 
 	// An optional prefix for Amazon S3 object keys to organize exported data.
 	S3KeyPrefix?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!\\-_.*'()]+(?:/[a-zA-Z0-9!\\-_.*'()]+)*$"

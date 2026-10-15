@@ -101,7 +101,7 @@ import "list"
 	SecondaryPrivateIpAddresses?: list.UniqueItems() & [...string]
 
 	// The ID of the subnet in which the NAT gateway is located.
-	SubnetId?: string
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 
 	// The tags for the NAT gateway.
 	Tags?: [...#Tag]

@@ -9,24 +9,55 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A Source Network resource represents a VPC that is protected by AWS Elastic Disaster Recovery.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DRS::SourceNetwork"
-	Properties!: close({
-		OriginAccountID!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"[0-9]{12,}" | fn.#StringExpression
+	let properties = close({
+		OriginAccountID!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"[0-9]{12,}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"[0-9]{12,}" & "\(self)"
+		} |
+		fn.#StringExpression
 		OriginRegion!: strings.MaxRunes(255) &
 		strings.MinRunes(0) &
 		=~"^(us(-gov)?|ap|ca|cn|eu|eusc|sa|af|me|il)-([a-z]{2}-)?(central|north|(north(?:east|west))|south|south(?:east|west)|east|west)-[0-9]$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) &
+			strings.MinRunes(0) &
+			=~"^(us(-gov)?|ap|ca|cn|eu|eusc|sa|af|me|il)-([a-z]{2}-)?(central|north|(north(?:east|west))|south|south(?:east|west)|east|west)-[0-9]$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Tags?:  [...#Tag] | fn.#ListExpression
-		VpcID!: strings.MaxRunes(21) & strings.MinRunes(12) & =~"^vpc-[0-9a-fA-F]{8,}$" | fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+		VpcID!: strings.MaxRunes(21) & strings.MinRunes(12) & =~"^vpc-[0-9a-fA-F]{8,}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(21) & strings.MinRunes(12) & =~"^vpc-[0-9a-fA-F]{8,}$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

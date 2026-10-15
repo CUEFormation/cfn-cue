@@ -9,30 +9,57 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a Connector that allows certificate issuance through Simple
 // Certificate Enrollment Protocol (SCEP)
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::PCAConnectorSCEP::Connector"
-	Properties!: close({
+	let properties = close({
 		CertificateAuthorityArn!: strings.MaxRunes(200) &
 		strings.MinRunes(5) &
 		=~"^arn:aws(-[a-z]+)*:acm-pca:[a-z]+(-[a-z]+)+-[1-9]\\d*:\\d{12}:certificate-authority\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) &
+			strings.MinRunes(5) &
+			=~"^arn:aws(-[a-z]+)*:acm-pca:[a-z]+(-[a-z]+)+-[1-9]\\d*:\\d{12}:certificate-authority\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		MobileDeviceManagement?: #MobileDeviceManagement
 		Tags?:                   #Tags
 		VpcEndpointId?: strings.MaxRunes(200) & strings.MinRunes(5) & =~"^vpce-[0-9a-f]{8}([0-9a-f]{9})?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(5) & =~"^vpce-[0-9a-f]{8}([0-9a-f]{9})?$" & "\(self)"
+		} |
 		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #IntuneConfiguration: close({
 	AzureApplicationId!: strings.MaxRunes(100) &
 	strings.MinRunes(15) &
 	=~"^[a-zA-Z0-9]{2,15}-[a-zA-Z0-9]{2,15}-[a-zA-Z0-9]{2,15}-[a-zA-Z0-9]{2,15}-[a-zA-Z0-9]{2,15}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) &
+		strings.MinRunes(15) &
+		=~"^[a-zA-Z0-9]{2,15}-[a-zA-Z0-9]{2,15}-[a-zA-Z0-9]{2,15}-[a-zA-Z0-9]{2,15}-[a-zA-Z0-9]{2,15}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Domain!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$" | fn.#StringExpression
+	Domain!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -40,5 +67,10 @@ fn.#ObjectExpression
 
 #Tags: close({
 
-	{[=~".+"]: string | fn.#StringExpression}}) |
+	{[=~".+"]: string | number | bool | fn.#StringExpression}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression

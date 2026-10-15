@@ -9,19 +9,51 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Create and manage form types in Amazon Datazone
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataZone::FormType"
-	Properties!: close({
-		Description?:             strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-		DomainIdentifier!:        =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-		Model!:                   #Model & fn.#Object & {...} | fn.#ObjectExpression
-		Name!:                    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		OwningProjectIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-		Status?:                  "ENABLED" | "DISABLED" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Model!: #Model & fn.#Object & {...} | fn.#ObjectExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		OwningProjectIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Status?: "ENABLED" | "DISABLED" | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Model: close({Smithy?: strings.MaxRunes(100000) & strings.MinRunes(1) | fn.#StringExpression}) | fn.#ObjectExpression
+#Model: close({
+	Smithy?: strings.MaxRunes(100000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression

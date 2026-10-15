@@ -9,15 +9,30 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Location::TrackerConsumer Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Location::TrackerConsumer"
-	Properties!: close({
+	let properties = close({
 		ConsumerArn!: strings.MaxRunes(1600) &
 		=~"^arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:([^/].*)?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1600) &
+			=~"^arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:([^/].*)?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		TrackerName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" | fn.#StringExpression
+		TrackerName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

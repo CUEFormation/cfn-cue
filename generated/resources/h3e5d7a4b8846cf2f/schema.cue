@@ -13,14 +13,26 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::MLTransform
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::MLTransform"
-	Properties!: close({
-		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-		GlueVersion?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		GlueVersion?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// A list of AWS Glue table definitions used by the transform.
 		InputRecordTables!: #InputRecordTables
@@ -60,7 +72,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		NumberOfWorkers?: int |
 			{
 				string &
@@ -77,8 +94,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Role!: string | fn.#StringExpression
-		Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Role!: string | number | bool | fn.#StringExpression
+		Tags?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		Timeout?: int & >=1 |
 			{
 				string &
@@ -104,6 +121,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		TransformParameters!: #TransformParameters
 		WorkerType?:          "G.025X" | "G.1X" | "G.2X" | "G.4X" | "G.8X" | "Standard" | "Z.2X" | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #FindMatchesParameters: close({
@@ -146,36 +165,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	PrimaryKeyColumnName!: string | fn.#StringExpression
+	PrimaryKeyColumnName!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GlueTables: close({
-	CatalogId?:      string | fn.#StringExpression
-	ConnectionName?: string | fn.#StringExpression
-	DatabaseName!:   string | fn.#StringExpression
-	TableName!:      string | fn.#StringExpression
+	CatalogId?:      string | number | bool | fn.#StringExpression
+	ConnectionName?: string | number | bool | fn.#StringExpression
+	DatabaseName!:   string | number | bool | fn.#StringExpression
+	TableName!:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #InputRecordTables: close({GlueTables?: [...#GlueTables] | fn.#ListExpression}) | fn.#ObjectExpression
 
 #MLUserDataEncryption: close({
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	MLUserDataEncryptionMode!: "DISABLED" | "SSE-KMS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TransformEncryption: close({
-	MLUserDataEncryption?:             #MLUserDataEncryption
-	TaskRunSecurityConfigurationName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	MLUserDataEncryption?: #MLUserDataEncryption
+	TaskRunSecurityConfigurationName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TransformParameters: close({
 	FindMatchesParameters?: #FindMatchesParameters
-	TransformType!:         string | fn.#StringExpression
+	TransformType!:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

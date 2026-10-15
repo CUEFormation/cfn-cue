@@ -6,13 +6,22 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A module that has been registered in the CloudFormation registry.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFormation::ModuleVersion"
-	Properties!: close({
-		ModuleName!:    =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::MODULE" | fn.#StringExpression
-		ModulePackage!: string | fn.#StringExpression
+	let properties = close({
+		ModuleName!: =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::MODULE" |
+		{
+			number | bool
+			_cfnString: =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::MODULE" & "\(self)"
+		} |
+		fn.#StringExpression
+		ModulePackage!: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

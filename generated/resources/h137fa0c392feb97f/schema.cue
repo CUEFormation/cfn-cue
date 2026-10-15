@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::Lambda::Function`` resource creates a Lambda function. To create a
@@ -67,7 +69,66 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Lambda developer guide.*
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lambda::Function"
-	Properties!: close({
+	let properties = matchN(5, [matchIf({
+		CapacityProviderConfig?: error("disallowed")
+		...
+	}, {
+		Timeout?: null | bool | <=900 | string | [...] | {...} | fn.#ValueExpression
+		...
+	}, _), matchIf({
+		LoggingConfig!: null | bool | number | string | [...] | {
+			LogFormat!: "Text"
+			...
+		}
+		...
+	}, {
+		LoggingConfig?: null |
+		bool |
+		number |
+		string |
+		[...] |
+		{
+			SystemLogLevel?: error("disallowed")
+			...
+		} |
+		fn.#ValueExpression
+		...
+	}, _), matchIf({
+		PackageType!: "Image"
+		...
+	}, matchN(0, [null | bool | number | string | [...] | {
+		PackageType!: _
+		Handler!:     _
+		...
+	}]) & matchN(0, [null | bool | number | string | [...] | {
+		PackageType!: _
+		Runtime!:     _
+		...
+	}]) & matchN(0, [null | bool | number | string | [...] | {
+		PackageType!: _
+		Layers!:      _
+		...
+	}]), _), matchIf({
+		Code!: {
+			ZipFile!: _
+			...
+		}
+		Runtime!: string
+		...
+	}, {
+		Runtime?:  null | bool | number | =~"^(nodejs.*|python.*)$" | [...] | {...} | fn.#ValueExpression
+		required?: _
+		...
+	}, _), matchIf({
+		Code!: {
+			ZipFile!: _
+			...
+		}
+		...
+	}, {
+		Runtime!: _
+		...
+	}, _)]) & close({
 		Architectures?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
 			..."x86_64" | "arm64" | fn.#StringExpression
 		] |
@@ -88,6 +149,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		CodeSigningConfigArn?: strings.MaxRunes(200) &
 		strings.MinRunes(0) &
 		=~"arn:(aws[a-zA-Z-]*)?:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:code-signing-config:csc-[a-z0-9]{17}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) &
+			strings.MinRunes(0) &
+			=~"arn:(aws[a-zA-Z-]*)?:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:code-signing-config:csc-[a-z0-9]{17}" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 
 		// A dead-letter queue configuration that specifies the queue or topic where
@@ -95,7 +163,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// information, see [Dead-letter
 		// queues](https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html#invocation-dlq).
 		DeadLetterConfig?: #DeadLetterConfig
-		Description?:      strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Configuration settings for [durable
 		// functions](https://docs.aws.amazon.com/lambda/latest/dg/durable-functions.html),
@@ -114,28 +187,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		FileSystemConfigs?: list.MaxItems(1) & [...] & [...#FileSystemConfig] | fn.#ListExpression
 		FunctionName?: strings.MinRunes(1) &
 		=~"^([a-zA-Z0-9_-]{1,64}|arn:[a-zA-Z0-9-]+:lambda:[a-zA-Z0-9-]+:\\d{12}:function:[a-zA-Z0-9_-]{1,64})$" |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) &
+			=~"^([a-zA-Z0-9_-]{1,64}|arn:[a-zA-Z0-9-]+:lambda:[a-zA-Z0-9-]+:\\d{12}:function:[a-zA-Z0-9_-]{1,64})$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 
 		// Configuration that defines the scaling behavior for a Lambda Managed
 		// Instances function, including the minimum and maximum number of execution
 		// environments that can be provisioned.
 		FunctionScalingConfig?: #FunctionScalingConfig
-		Handler?:               strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[^\\s]+$" | fn.#StringExpression
+		Handler?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[^\\s]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[^\\s]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Configuration values that override the container image Dockerfile settings.
 		// For more information, see [Container image
 		// settings](https://docs.aws.amazon.com/lambda/latest/dg/images-create.html#images-parms).
 		ImageConfig?: #ImageConfig
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		strings.MaxRunes(10000) &
 		strings.MinRunes(0) &
 		=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+			strings.MaxRunes(10000) &
+			strings.MinRunes(0) &
+			=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Layers?: list.MaxItems(5) & list.UniqueItems() & [
-			...strings.MinRunes(1) &
-			=~"^(arn:[a-zA-Z0-9-]+:lambda:[a-zA-Z0-9-]+:\\d{12}:layer:[a-zA-Z0-9-_]+:[0-9]+|arn:[a-zA-Z0-9-]+:lambda:::awslayer:[a-zA-Z0-9-_]+)$" |
-			fn.#StringExpression
-		] |
+		Layers?: list.MaxItems(5) & list.UniqueItems() & [...strings.MinRunes(1) &
+		=~"^(arn:[a-zA-Z0-9-]+:lambda:[a-zA-Z0-9-]+:\\d{12}:layer:[a-zA-Z0-9-_]+:[0-9]+|arn:[a-zA-Z0-9-]+:lambda:::awslayer:[a-zA-Z0-9-_]+)$" |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) &
+			=~"^(arn:[a-zA-Z0-9-]+:lambda:[a-zA-Z0-9-]+:\\d{12}:layer:[a-zA-Z0-9-_]+:[0-9]+|arn:[a-zA-Z0-9-]+:lambda:::awslayer:[a-zA-Z0-9-_]+)$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 
 		// The function's Amazon CloudWatch Logs configuration settings.
@@ -188,6 +284,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Role!: strings.MaxRunes(10000) &
 		strings.MinRunes(0) &
 		=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(10000) &
+			strings.MinRunes(0) &
+			=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Runtime?: "dotnet10" |
 			"dotnet6" |
@@ -286,6 +389,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// a VPC](https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc.html).
 		VpcConfig?: #VpcConfig
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CapacityProviderConfig: close({
@@ -295,19 +400,55 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Code: close({
-	ImageUri?:            string | fn.#StringExpression
-	S3Bucket?:            strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	S3Key?:               strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	S3ObjectStorageMode?: "COPY" | "REFERENCE" | fn.#StringExpression
-	S3ObjectVersion?:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	SourceKMSKeyArn?: strings.MaxRunes(10000) & strings.MinRunes(0) & =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
+	ImageUri?: string | number | bool | fn.#StringExpression
+	S3Bucket?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	ZipFile?: string | fn.#StringExpression
+	S3Key?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	S3ObjectStorageMode?: "COPY" | "REFERENCE" | fn.#StringExpression
+	S3ObjectVersion?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	SourceKMSKeyArn?: strings.MaxRunes(10000) & strings.MinRunes(0) & =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000) &
+		strings.MinRunes(0) &
+		=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	ZipFile?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DeadLetterConfig: close({
 	TargetArn?: strings.MaxRunes(10000) & strings.MinRunes(0) & =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000) &
+		strings.MinRunes(0) &
+		=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -329,10 +470,18 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	KMSKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	KMSKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(10000) &
 	strings.MinRunes(0) &
 	=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+		strings.MaxRunes(10000) &
+		strings.MinRunes(0) &
+		=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	RetentionPeriodInDays?: int & <=90 & >=1 |
 		{
@@ -358,10 +507,15 @@ fn.#ObjectExpression
 
 		{[=~"[a-zA-Z][a-zA-Z0-9_]+"]: fn.#Object & {...} |
 		bool |
-		int |
+		number |
 		string |
 		[...] |
-		fn.#StringNumberBooleanListObjectExpression}}) |
+		fn.#StringNumberBooleanListObjectExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
@@ -389,8 +543,19 @@ fn.#ObjectExpression
 #FileSystemConfig: close({
 	Arn!: strings.MaxRunes(200) &
 	=~"^arn:aws[a-zA-Z-]*:elasticfilesystem:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:access-point/fsap-[a-f0-9]{17}$|^arn:aws[-a-z]*:s3files:[0-9a-z-:]+:file-system/fs-[0-9a-f]{17,40}/access-point/fsap-[0-9a-f]{17,40}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) &
+		=~"^arn:aws[a-zA-Z-]*:elasticfilesystem:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:access-point/fsap-[a-f0-9]{17}$|^arn:aws[-a-z]*:s3files:[0-9a-z-:]+:file-system/fs-[0-9a-f]{17,40}/access-point/fsap-[0-9a-f]{17,40}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	LocalMountPath!: strings.MaxRunes(160) & strings.MinRunes(0) & =~"^/mnt/[a-zA-Z0-9-_.]+$" | fn.#StringExpression
+	LocalMountPath!: strings.MaxRunes(160) & strings.MinRunes(0) & =~"^/mnt/[a-zA-Z0-9-_.]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(160) & strings.MinRunes(0) & =~"^/mnt/[a-zA-Z0-9-_.]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// The configuration for how your function accesses data on an Amazon S3 file
 	// system. Valid only when the file system access point ARN is an Amazon S3
@@ -438,10 +603,16 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ImageConfig: close({
-	Command?: list.MaxItems(1500) & list.UniqueItems() & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	EntryPoint?: list.MaxItems(1500) & list.UniqueItems() & [...] & [...string | fn.#StringExpression] |
+	Command?: list.MaxItems(1500) & list.UniqueItems() & [...] & [...string | number | bool | fn.#StringExpression] |
 		fn.#ListExpression
-	WorkingDirectory?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
+	EntryPoint?: list.MaxItems(1500) & list.UniqueItems() & [...] & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
+	WorkingDirectory?: strings.MaxRunes(1000) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -449,6 +620,13 @@ fn.#ObjectExpression
 	CapacityProviderArn!: strings.MaxRunes(140) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:capacity-provider:[a-zA-Z0-9-_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(140) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:capacity-provider:[a-zA-Z0-9-_]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	ExecutionEnvironmentMemoryGiBPerVCpu?: <=8 & >=2 |
 		{
@@ -492,15 +670,20 @@ fn.#ObjectExpression
 #LoggingConfig: close({
 	ApplicationLogLevel?: "TRACE" | "DEBUG" | "INFO" | "WARN" | "ERROR" | "FATAL" | fn.#StringExpression
 	LogFormat?:           "Text" | "JSON" | fn.#StringExpression
-	LogGroup?:            strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
-	SystemLogLevel?:      "DEBUG" | "INFO" | "WARN" | fn.#StringExpression
+	LogGroup?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	SystemLogLevel?: "DEBUG" | "INFO" | "WARN" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RecursiveLoop: "Allow" | "Terminate" | fn.#StringExpression
 
 #RuntimeManagementConfig: close({
-	RuntimeVersionArn?: string | fn.#StringExpression
+	RuntimeVersionArn?: string | number | bool | fn.#StringExpression
 	UpdateRuntimeOn!:   "Auto" | "FunctionUpdate" | "Manual" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -510,8 +693,18 @@ fn.#ObjectExpression
 #SnapStart: close({ApplyOn!: "PublishedVersions" | "None" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -521,17 +714,26 @@ fn.#ObjectExpression
 
 #VpcConfig: close({
 	Ipv6AllowedForDualStack?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SecurityGroupIds?: list.MaxItems(5) & [...] & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroupIds?: list.MaxItems(5) & [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(0) &
+	=~"^sg-[0-9a-zA-Z]*$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(1024) &
 		strings.MinRunes(0) &
-		=~"^sg-[0-9a-zA-Z]*$" |
-		fn.#StringExpression
-	] |
+		=~"^sg-[0-9a-zA-Z]*$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	SubnetIds?: list.MaxItems(16) & [...] & [
-		...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^subnet-[0-9a-z]*$" | fn.#StringExpression
-	] |
+	SubnetIds?: list.MaxItems(16) & [...] & [...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^subnet-[0-9a-z]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^subnet-[0-9a-z]*$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression

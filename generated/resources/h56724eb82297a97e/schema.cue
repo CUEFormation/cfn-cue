@@ -6,13 +6,15 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::IdentityPoolRoleAttachment
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cognito::IdentityPoolRoleAttachment"
-	Properties!: close({
-		IdentityPoolId!: string | fn.#StringExpression
+	let properties = close({
+		IdentityPoolId!: string | number | bool | fn.#StringExpression
 		RoleMappings?: null |
 		bool |
 		number |
@@ -20,7 +22,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		[...] |
 		close({
 
-			{[=~"^.+$"]: #RoleMapping}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^.+$"]: #RoleMapping}
+		}) |
 		fn.#ValueExpression
 		Roles?: null |
 		bool |
@@ -29,25 +36,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		[...] |
 		close({
 
-			{[=~"^.+$"]: string | fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+		}) |
 		fn.#ValueExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #MappingRule: close({
-	Claim!:     string | fn.#StringExpression
-	MatchType!: string | fn.#StringExpression
-	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Claim!:     string | number | bool | fn.#StringExpression
+	MatchType!: string | number | bool | fn.#StringExpression
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RoleMapping: close({
-	AmbiguousRoleResolution?: string | fn.#StringExpression
-	IdentityProvider?:        string | fn.#StringExpression
+	AmbiguousRoleResolution?: string | number | bool | fn.#StringExpression
+	IdentityProvider?:        string | number | bool | fn.#StringExpression
 	RulesConfiguration?:      #RulesConfigurationType
-	Type!:                    string | fn.#StringExpression
+	Type!:                    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

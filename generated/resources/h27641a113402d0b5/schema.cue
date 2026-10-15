@@ -10,55 +10,116 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::DataZone::EnvironmentBlueprintConfiguration Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataZone::EnvironmentBlueprintConfiguration"
-	Properties!: close({
-		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-		EnabledRegions!: [...] & [
-			...strings.MaxRunes(16) & strings.MinRunes(4) & =~"^[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]$" |
-			fn.#StringExpression
-		] |
+	let properties = close({
+		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		EnabledRegions!: [...] & [...strings.MaxRunes(16) &
+		strings.MinRunes(4) &
+		=~"^[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(16) &
+			strings.MinRunes(4) &
+			=~"^[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		EnvironmentBlueprintIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+		EnvironmentBlueprintIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		EnvironmentRolePermissionBoundary?: =~"^arn:aws[^:]*:iam::(aws|\\d{12}):policy/[\\w+=,.@-]*$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[^:]*:iam::(aws|\\d{12}):policy/[\\w+=,.@-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		GlobalParameters?: close({
 
-			{[=~".+"]: string | fn.#StringExpression}}) |
+			{[=~".+"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
-		ManageAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		ManageAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 			=~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+				=~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		ProvisioningConfigurations?: [...#ProvisioningConfiguration] | fn.#ListExpression
-		ProvisioningRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		ProvisioningRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 			=~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+				=~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		RegionalParameters?: list.UniqueItems() & [...#RegionalParameter] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #LakeFormationConfiguration: close({
-	LocationRegistrationExcludeS3Locations?: list.MaxItems(20) & [...] & [
-		...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^s3://.+$" | fn.#StringExpression
-	] |
+	LocationRegistrationExcludeS3Locations?: list.MaxItems(20) & [...] & [...strings.MaxRunes(1024) &
+	strings.MinRunes(1) &
+	=~"^s3://.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^s3://.+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	LocationRegistrationRole?: =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Parameter: close({
 
-	{[=~".+"]: string | fn.#StringExpression}}) |
+	{[=~".+"]: string | number | bool | fn.#StringExpression}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #ProvisioningConfiguration: close({LakeFormationConfiguration!: #LakeFormationConfiguration}) | fn.#ValueExpression
 
 #RegionalParameter: close({
 	Parameters?: #Parameter
-	Region?:     =~"^[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]$" | fn.#StringExpression
+	Region?: =~"^[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

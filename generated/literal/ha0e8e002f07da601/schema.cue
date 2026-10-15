@@ -2,14 +2,16 @@
 
 package schema
 
+import "github.com/cueformation/cfn-cue/fn:fn"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RDS::DBSecurityGroupIngress
 #Properties: close({
-	CIDRIP?:                  string
+	CIDRIP?:                  fn.#IPv4Network & string
 	DBSecurityGroupName!:     string
 	EC2SecurityGroupId?:      =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
-	EC2SecurityGroupName?:    string
+	EC2SecurityGroupName?:    =~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$"
 	EC2SecurityGroupOwnerId?: string
 	Id?:                      string
 })

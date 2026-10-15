@@ -10,42 +10,74 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CertificateManager::AcmeDomainValidation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CertificateManager::AcmeDomainValidation"
-	Properties!: close({
+	let properties = close({
 		AcmeEndpointArn!: strings.MaxRunes(200) &
 		strings.MinRunes(1) &
 		=~"^arn:aws[a-z-]*:acm:[a-z0-9-]+:[0-9]{12}:acme-endpoint/[a-zA-Z0-9-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) &
+			strings.MinRunes(1) &
+			=~"^arn:aws[a-z-]*:acm:[a-z0-9-]+:[0-9]{12}:acme-endpoint/[a-zA-Z0-9-]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		DomainName!: strings.MaxRunes(253) &
 		strings.MinRunes(1) &
 		=~"^([a-z0-9]([a-z0-9-]*[a-z0-9])?\\.)*[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(253) &
+			strings.MinRunes(1) &
+			=~"^([a-z0-9]([a-z0-9-]*[a-z0-9])?\\.)*[a-z0-9]([a-z0-9-]*[a-z0-9])?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		PrevalidationOptions!: #PrevalidationOptions
 		Tags?: list.MaxItems(50) & list.MinItems(1) & [...close({
 			Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) &
+				strings.MinRunes(1) &
+				=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) &
+				strings.MinRunes(0) &
+				=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DnsPrevalidationOptions: close({
 	DomainScope?:  #DomainScope
-	HostedZoneId?: string | fn.#StringExpression
+	HostedZoneId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DomainScope: close({
-	ExactDomain?: string | fn.#StringExpression
-	Subdomains?:  string | fn.#StringExpression
-	Wildcards?:   string | fn.#StringExpression
+	ExactDomain?: string | number | bool | fn.#StringExpression
+	Subdomains?:  string | number | bool | fn.#StringExpression
+	Wildcards?:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

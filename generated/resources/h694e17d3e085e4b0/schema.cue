@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ApiGatewayV2::RouteResponse`` resource creates a route response
@@ -15,16 +17,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *API Gateway Developer Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGatewayV2::RouteResponse"
-	Properties!: close({
-		ApiId!:                    string | fn.#StringExpression
-		ModelSelectionExpression?: string | fn.#StringExpression
-		ResponseModels?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+	let properties = close({
+		ApiId!:                    string | number | bool | fn.#StringExpression
+		ModelSelectionExpression?: string | number | bool | fn.#StringExpression
+		ResponseModels?:           fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 		// The route response parameters.
 		ResponseParameters?: #RouteParameters
-		RouteId!:            string | fn.#StringExpression
-		RouteResponseKey!:   string | fn.#StringExpression
+		RouteId!:            string | number | bool | fn.#StringExpression
+		RouteResponseKey!:   string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ParameterConstraints: close(
@@ -39,5 +43,10 @@ string |
 [...] |
 close({
 
-	{[=~"^.+$"]: #ParameterConstraints}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^.+$"]: #ParameterConstraints}
+}) |
 fn.#ValueExpression

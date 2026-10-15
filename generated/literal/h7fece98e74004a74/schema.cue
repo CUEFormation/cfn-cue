@@ -54,7 +54,11 @@ import (
 // S3 destination configuration for IVS Chat logging.
 #S3DestinationConfiguration: close({
 	// Name of the Amazon S3 bucket where chat activity will be logged.
-	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9-.]+$"
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"^[a-z0-9-.]+$"
 })
 
 // A key-value pair to associate with a resource.

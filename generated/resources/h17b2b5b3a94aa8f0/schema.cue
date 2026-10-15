@@ -13,22 +13,26 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::EC2::NetworkInsightsPath
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::NetworkInsightsPath"
-	Properties!: close({
-		Destination?:         string | fn.#StringExpression
+	let properties = close({
+		Destination?:         string | number | bool | fn.#StringExpression
 		DestinationIp?:       #IpAddress
 		DestinationPort?:     #Port
 		FilterAtDestination?: #PathFilter
 		FilterAtSource?:      #PathFilter
 		Protocol!:            #Protocol
-		Source!:              string | fn.#StringExpression
+		Source!:              string | number | bool | fn.#StringExpression
 		SourceIp?:            #IpAddress
 		Tags?:                [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #FilterPortRange: close({
@@ -67,7 +71,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#IpAddress: strings.MaxRunes(15) & strings.MinRunes(0) & =~"^([0-9]{1,3}.){3}[0-9]{1,3}$" | fn.#StringExpression
+#IpAddress: strings.MaxRunes(15) & strings.MinRunes(0) & =~"^([0-9]{1,3}.){3}[0-9]{1,3}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(15) & strings.MinRunes(0) & =~"^([0-9]{1,3}.){3}[0-9]{1,3}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #PathFilter: close({
 	DestinationAddress?:   #IpAddress
@@ -97,7 +106,7 @@ fn.#ObjectExpression
 #Protocol: "tcp" | "udp" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

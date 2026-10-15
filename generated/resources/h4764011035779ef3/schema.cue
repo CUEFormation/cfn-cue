@@ -6,14 +6,18 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Metadata resource automatically added by the AWS CDK to track construct
 // library versions used in the application.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CDK::Metadata"
-	Properties?: close({
-		Analytics?: string | fn.#StringExpression
-		Modules?:   string | fn.#StringExpression
+	let properties = close({
+		Analytics?: string | number | bool | fn.#StringExpression
+		Modules?:   string | number | bool | fn.#StringExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

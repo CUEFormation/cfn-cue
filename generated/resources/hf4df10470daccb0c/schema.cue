@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RTBFabric::Link Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RTBFabric::Link"
-	Properties!: close({
+	let properties = close({
 		GatewayId!:               #GatewayId
 		HttpResponderAllowed?:    #HttpResponderAllowed
 		LinkAttributes?:          #LinkAttributes
@@ -28,28 +30,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		PeerGatewayId!:           #GatewayId
 		Tags?:                    #Tags
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Filter: close({Criteria!: [...#FilterCriterion] | fn.#ListExpression}) | fn.#ObjectExpression
 
 #FilterCriterion: close({
-	Path!:   string | fn.#StringExpression
-	Values!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+	Path!:   string | number | bool | fn.#StringExpression
+	Values!: list.MinItems(1) & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#GatewayId: =~"^rtb-gw-[a-z0-9-]{1,25}$" | fn.#StringExpression
+#GatewayId: =~"^rtb-gw-[a-z0-9-]{1,25}$" |
+{
+	number | bool
+	_cfnString: =~"^rtb-gw-[a-z0-9-]{1,25}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #HeaderTagAction: close({
-	Name!:  string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Name!:  string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #HttpResponderAllowed: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 #LinkAttributes: close({
-	CustomerProvidedId?: string | fn.#StringExpression
+	CustomerProvidedId?: string | number | bool | fn.#StringExpression
 	ResponderErrorMasking?: list.MaxItems(200) & list.MinItems(1) & [...#ResponderErrorMaskingForHttpCode] |
 		fn.#ListExpression
 }) |
@@ -106,16 +115,32 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ModuleConfiguration: close({
-	DependsOn?:        [...=~"^[A-Za-z0-9 -]+$" | fn.#StringExpression] | fn.#ListExpression
+	DependsOn?: [...=~"^[A-Za-z0-9 -]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[A-Za-z0-9 -]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	ModuleParameters?: #ModuleParameters
-	Name!:             =~"^[A-Za-z0-9 -]+$" | fn.#StringExpression
-	Version?:          =~"^[a-z0-9]{1,25}$" | fn.#StringExpression
+	Name!: =~"^[A-Za-z0-9 -]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[A-Za-z0-9 -]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Version?: =~"^[a-z0-9]{1,25}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9]{1,25}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ModuleConfigurationList: [...#ModuleConfiguration] | fn.#ListExpression
 
-#ModuleParameters: fn.#Object & {...} & matchN(1, [
+#ModuleParameters: fn.#Object & matchN(1, [
 	close({NoBid!: #NoBidModuleParameters}), close({OpenRtbAttribute!: #OpenRtbAttributeModuleParameters}),
 ]) |
 fn.#ObjectExpression
@@ -160,7 +185,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Reason?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$" | fn.#StringExpression
+	Reason?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ReasonCode?: int & <=10 & >=0 |
 		{
 			string &
@@ -181,7 +211,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #OpenRtbAttributeModuleParameters: close({
-	Action!: fn.#Object & {...} & matchN(1, [close({NoBid!: #NoBidAction}), close({HeaderTag!: #HeaderTagAction})]) |
+	Action!: fn.#Object & matchN(1, [close({NoBid!: #NoBidAction}), close({HeaderTag!: #HeaderTagAction})]) |
 	fn.#ObjectExpression
 	FilterConfiguration!: [...#Filter] | fn.#ListExpression
 	FilterType!:          "INCLUDE" | "EXCLUDE" | fn.#StringExpression
@@ -209,8 +239,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ResponderErrorMaskingForHttpCode: close({
-	Action!:   "NO_BID" | "PASSTHROUGH" | fn.#StringExpression
-	HttpCode!: strings.MaxRunes(7) & strings.MinRunes(3) & =~"^DEFAULT|4XX|5XX|\\d{3}$" | fn.#StringExpression
+	Action!: "NO_BID" | "PASSTHROUGH" | fn.#StringExpression
+	HttpCode!: strings.MaxRunes(7) & strings.MinRunes(3) & =~"^DEFAULT|4XX|5XX|\\d{3}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(7) & strings.MinRunes(3) & =~"^DEFAULT|4XX|5XX|\\d{3}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	LoggingTypes!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...#ResponderErrorMaskingLoggingType] |
 		fn.#ListExpression
 	ResponseLoggingPercentage?: <=100 & >=0 |
@@ -240,8 +275,20 @@ fn.#ObjectExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^(resourceArn|internalId|[a-zA-Z0-9+\\-=._:/@]+)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"^(resourceArn|internalId|[a-zA-Z0-9+\\-=._:/@]+)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

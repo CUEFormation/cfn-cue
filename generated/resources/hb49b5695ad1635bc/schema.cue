@@ -10,16 +10,33 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::S3Express::AccessPoint resource is an Amazon S3 resource type that
 // you can use to access buckets.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3Express::AccessPoint"
-	Properties!: close({
-		Bucket!:          strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
-		BucketAccountId?: strings.MaxRunes(64) & =~"^\\d{12}$" | fn.#StringExpression
-		Name?: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" | fn.#StringExpression
+	let properties = close({
+		Bucket!: strings.MaxRunes(255) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression
+		BucketAccountId?: strings.MaxRunes(64) & =~"^\\d{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & =~"^\\d{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Policy?: fn.#Object & {...} | fn.#ObjectExpression
 
 		// The PublicAccessBlock configuration that you want to apply to this Access Point.
@@ -34,6 +51,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// requests from the specified Virtual Private Cloud (VPC).
 		VpcConfiguration?: #VpcConfiguration
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #PublicAccessBlockConfiguration: {
@@ -57,19 +76,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	Prefixes?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Prefixes?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	...
 } | fn.#ObjectExpression
 
 #Tag: close({
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VpcConfiguration: {
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	...
 } | fn.#ObjectExpression

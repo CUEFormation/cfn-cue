@@ -9,30 +9,63 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type Definition for AWS::S3Outposts::Endpoint
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3Outposts::Endpoint"
-	Properties!: close({
-		AccessType?:            "CustomerOwnedIp" | "Private" | fn.#StringExpression
-		CustomerOwnedIpv4Pool?: =~"^ipv4pool-coip-([0-9a-f]{17})$" | fn.#StringExpression
+	let properties = close({
+		AccessType?: "CustomerOwnedIp" | "Private" | fn.#StringExpression
+		CustomerOwnedIpv4Pool?: =~"^ipv4pool-coip-([0-9a-f]{17})$" |
+		{
+			number | bool
+			_cfnString: =~"^ipv4pool-coip-([0-9a-f]{17})$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The failure reason, if any, for a create or delete endpoint operation.
 		FailedReason?: #FailedReason
-		OutpostId!:    =~"^(op-[a-f0-9]{17}|\\d{12}|ec2)$" | fn.#StringExpression
-		SecurityGroupId!: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		OutpostId!: =~"^(op-[a-f0-9]{17}|\\d{12}|ec2)$" |
+		{
+			number | bool
+			_cfnString: =~"^(op-[a-f0-9]{17}|\\d{12}|ec2)$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SecurityGroupId!: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(100) &
 		strings.MinRunes(1) &
 		=~"^sg-([0-9a-f]{8}|[0-9a-f]{17})$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+			strings.MaxRunes(100) &
+			strings.MinRunes(1) &
+			=~"^sg-([0-9a-f]{8}|[0-9a-f]{17})$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		SubnetId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^subnet-([0-9a-f]{8}|[0-9a-f]{17})$" |
+		SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(100) &
+		strings.MinRunes(1) &
+		=~"^subnet-([0-9a-f]{8}|[0-9a-f]{17})$" |
+		{
+			number | bool
+			_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+			strings.MaxRunes(100) &
+			strings.MinRunes(1) &
+			=~"^subnet-([0-9a-f]{8}|[0-9a-f]{17})$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #FailedReason: close({
-	ErrorCode?: string | fn.#StringExpression
-	Message?:   string | fn.#StringExpression
+	ErrorCode?: string | number | bool | fn.#StringExpression
+	Message?:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

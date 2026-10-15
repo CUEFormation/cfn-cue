@@ -14,15 +14,32 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DirectConnect::Lag
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DirectConnect::Lag"
-	Properties!: close({
-		ConnectionsBandwidth!: =~"^[1-9][0-9]*(M|G)bps$" | fn.#StringExpression
-		LagName!:              =~"^[\\w \\-_,\\/]{1,200}$" | fn.#StringExpression
-		Location!:             =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+	let properties = close({
+		ConnectionsBandwidth!: =~"^[1-9][0-9]*(M|G)bps$" |
+		{
+			number | bool
+			_cfnString: =~"^[1-9][0-9]*(M|G)bps$" & "\(self)"
+		} |
+		fn.#StringExpression
+		LagName!: =~"^[\\w \\-_,\\/]{1,200}$" |
+		{
+			number | bool
+			_cfnString: =~"^[\\w \\-_,\\/]{1,200}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Location!: =~"^[a-zA-Z0-9-]+$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		MinimumLinks?: int |
 			{
 				string &
@@ -39,14 +56,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		ProviderName?:  string | fn.#StringExpression
+		ProviderName?:  string | number | bool | fn.#StringExpression
 		RequestMACSec?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Tags?:          list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -10,17 +10,19 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::Campaign
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Pinpoint::Campaign"
-	Properties!: close({
+	let properties = close({
 		AdditionalTreatments?:        [...#WriteTreatmentResource] | fn.#ListExpression
-		ApplicationId!:               string | fn.#StringExpression
+		ApplicationId!:               string | number | bool | fn.#StringExpression
 		CampaignHook?:                #CampaignHook
 		CustomDeliveryConfiguration?: #CustomDeliveryConfiguration
-		Description?:                 string | fn.#StringExpression
+		Description?:                 string | number | bool | fn.#StringExpression
 		HoldoutPercent?: int |
 			{
 				string &
@@ -40,7 +42,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		IsPaused?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Limits?:               #Limits
 		MessageConfiguration?: #MessageConfiguration
-		Name!:                 string | fn.#StringExpression
+		Name!:                 string | number | bool | fn.#StringExpression
 		Priority?: int |
 			{
 				string &
@@ -58,7 +60,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		Schedule!:  #Schedule
-		SegmentId!: string | fn.#StringExpression
+		SegmentId!: string | number | bool | fn.#StringExpression
 		SegmentVersion?: int |
 			{
 				string &
@@ -75,61 +77,63 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Tags?:                  fn.#Object & {...} | string | fn.#StringObjectExpression
+		Tags?:                  fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		TemplateConfiguration?: #TemplateConfiguration
-		TreatmentDescription?:  string | fn.#StringExpression
-		TreatmentName?:         string | fn.#StringExpression
+		TreatmentDescription?:  string | number | bool | fn.#StringExpression
+		TreatmentName?:         string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CampaignCustomMessage: close({Data?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#CampaignCustomMessage: close({Data?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #CampaignEmailMessage: close({
-	Body?:        string | fn.#StringExpression
-	FromAddress?: string | fn.#StringExpression
-	HtmlBody?:    string | fn.#StringExpression
-	Title?:       string | fn.#StringExpression
+	Body?:        string | number | bool | fn.#StringExpression
+	FromAddress?: string | number | bool | fn.#StringExpression
+	HtmlBody?:    string | number | bool | fn.#StringExpression
+	Title?:       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CampaignEventFilter: close({
 	Dimensions?: #EventDimensions
-	FilterType?: string | fn.#StringExpression
+	FilterType?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CampaignHook: close({
-	LambdaFunctionName?: string | fn.#StringExpression
-	Mode?:               string | fn.#StringExpression
-	WebUrl?:             string | fn.#StringExpression
+	LambdaFunctionName?: string | number | bool | fn.#StringExpression
+	Mode?:               string | number | bool | fn.#StringExpression
+	WebUrl?:             string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CampaignInAppMessage: close({
 	Content?:      [...#InAppMessageContent] | fn.#ListExpression
-	CustomConfig?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	Layout?:       string | fn.#StringExpression
+	CustomConfig?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+	Layout?:       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CampaignSmsMessage: close({
-	Body?:              string | fn.#StringExpression
-	EntityId?:          string | fn.#StringExpression
-	MessageType?:       string | fn.#StringExpression
-	OriginationNumber?: string | fn.#StringExpression
-	SenderId?:          string | fn.#StringExpression
-	TemplateId?:        string | fn.#StringExpression
+	Body?:              string | number | bool | fn.#StringExpression
+	EntityId?:          string | number | bool | fn.#StringExpression
+	MessageType?:       string | number | bool | fn.#StringExpression
+	OriginationNumber?: string | number | bool | fn.#StringExpression
+	SenderId?:          string | number | bool | fn.#StringExpression
+	TemplateId?:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CustomDeliveryConfiguration: close({
-	DeliveryUri?:   string | fn.#StringExpression
-	EndpointTypes?: [...string | fn.#StringExpression] | fn.#ListExpression
+	DeliveryUri?:   string | number | bool | fn.#StringExpression
+	EndpointTypes?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #DefaultButtonConfiguration: close({
-	BackgroundColor?: string | fn.#StringExpression
+	BackgroundColor?: string | number | bool | fn.#StringExpression
 	BorderRadius?: int |
 		{
 			string &
@@ -144,24 +148,24 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ButtonAction?: string | fn.#StringExpression
-	Link?:         string | fn.#StringExpression
-	Text?:         string | fn.#StringExpression
-	TextColor?:    string | fn.#StringExpression
+	ButtonAction?: string | number | bool | fn.#StringExpression
+	Link?:         string | number | bool | fn.#StringExpression
+	Text?:         string | number | bool | fn.#StringExpression
+	TextColor?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EventDimensions: close({
-	Attributes?: fn.#Object & {...} | string | fn.#StringObjectExpression
+	Attributes?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	EventType?:  #SetDimension
-	Metrics?:    fn.#Object & {...} | string | fn.#StringObjectExpression
+	Metrics?:    fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 
 #InAppMessageBodyConfig: close({
-	Alignment?: string | fn.#StringExpression
-	Body?:      string | fn.#StringExpression
-	TextColor?: string | fn.#StringExpression
+	Alignment?: string | number | bool | fn.#StringExpression
+	Body?:      string | number | bool | fn.#StringExpression
+	TextColor?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -174,19 +178,19 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #InAppMessageContent: close({
-	BackgroundColor?: string | fn.#StringExpression
+	BackgroundColor?: string | number | bool | fn.#StringExpression
 	BodyConfig?:      #InAppMessageBodyConfig
 	HeaderConfig?:    #InAppMessageHeaderConfig
-	ImageUrl?:        string | fn.#StringExpression
+	ImageUrl?:        string | number | bool | fn.#StringExpression
 	PrimaryBtn?:      #InAppMessageButton
 	SecondaryBtn?:    #InAppMessageButton
 }) |
 fn.#ObjectExpression
 
 #InAppMessageHeaderConfig: close({
-	Alignment?: string | fn.#StringExpression
-	Header?:    string | fn.#StringExpression
-	TextColor?: string | fn.#StringExpression
+	Alignment?: string | number | bool | fn.#StringExpression
+	Header?:    string | number | bool | fn.#StringExpression
+	TextColor?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -265,14 +269,14 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Message: close({
-	Action?:            string | fn.#StringExpression
-	Body?:              string | fn.#StringExpression
-	ImageIconUrl?:      string | fn.#StringExpression
-	ImageSmallIconUrl?: string | fn.#StringExpression
-	ImageUrl?:          string | fn.#StringExpression
-	JsonBody?:          string | fn.#StringExpression
-	MediaUrl?:          string | fn.#StringExpression
-	RawContent?:        string | fn.#StringExpression
+	Action?:            string | number | bool | fn.#StringExpression
+	Body?:              string | number | bool | fn.#StringExpression
+	ImageIconUrl?:      string | number | bool | fn.#StringExpression
+	ImageSmallIconUrl?: string | number | bool | fn.#StringExpression
+	ImageUrl?:          string | number | bool | fn.#StringExpression
+	JsonBody?:          string | number | bool | fn.#StringExpression
+	MediaUrl?:          string | number | bool | fn.#StringExpression
+	RawContent?:        string | number | bool | fn.#StringExpression
 	SilentPush?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	TimeToLive?: int |
 		{
@@ -288,8 +292,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Title?: string | fn.#StringExpression
-	Url?:   string | fn.#StringExpression
+	Title?: string | number | bool | fn.#StringExpression
+	Url?:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -307,37 +311,37 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #OverrideButtonConfiguration: close({
-	ButtonAction?: string | fn.#StringExpression
-	Link?:         string | fn.#StringExpression
+	ButtonAction?: string | number | bool | fn.#StringExpression
+	Link?:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #QuietTime: close({
-	End!:   string | fn.#StringExpression
-	Start!: string | fn.#StringExpression
+	End!:   string | number | bool | fn.#StringExpression
+	Start!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Schedule: close({
-	EndTime?:     string | fn.#StringExpression
+	EndTime?:     string | number | bool | fn.#StringExpression
 	EventFilter?: #CampaignEventFilter
-	Frequency?:   string | fn.#StringExpression
+	Frequency?:   string | number | bool | fn.#StringExpression
 	IsLocalTime?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	QuietTime?:   #QuietTime
-	StartTime?:   string | fn.#StringExpression
-	TimeZone?:    string | fn.#StringExpression
+	StartTime?:   string | number | bool | fn.#StringExpression
+	TimeZone?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SetDimension: close({
-	DimensionType?: string | fn.#StringExpression
-	Values?:        [...string | fn.#StringExpression] | fn.#ListExpression
+	DimensionType?: string | number | bool | fn.#StringExpression
+	Values?:        [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #Template: close({
-	Name?:    string | fn.#StringExpression
-	Version?: string | fn.#StringExpression
+	Name?:    string | number | bool | fn.#StringExpression
+	Version?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -368,7 +372,7 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	TemplateConfiguration?: #TemplateConfiguration
-	TreatmentDescription?:  string | fn.#StringExpression
-	TreatmentName?:         string | fn.#StringExpression
+	TreatmentDescription?:  string | number | bool | fn.#StringExpression
+	TreatmentName?:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

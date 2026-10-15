@@ -10,21 +10,45 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::GameLift::MatchmakingRuleSet resource creates an Amazon GameLift
 // (GameLift) matchmaking rule set.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GameLift::MatchmakingRuleSet"
-	Properties!: close({
-		Name!:        strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9-\\.]*" | fn.#StringExpression
-		RuleSetBody!: strings.MaxRunes(65535) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:        list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	let properties = close({
+		Name!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9-\\.]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9-\\.]*" & "\(self)"
+		} |
+		fn.#StringExpression
+		RuleSetBody!: strings.MaxRunes(65535) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(65535) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

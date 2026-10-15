@@ -14,15 +14,17 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Specifies a VPC flow log, which enables you to capture IP traffic for a
 // specific network interface, subnet, or VPC.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::FlowLog"
-	Properties!: close({
-		DeliverCrossAccountRole?:  string | fn.#StringExpression
-		DeliverLogsPermissionArn?: string | fn.#StringExpression
+	let properties = close({
+		DeliverCrossAccountRole?:  string | number | bool | fn.#StringExpression
+		DeliverLogsPermissionArn?: string | number | bool | fn.#StringExpression
 		DestinationOptions?: close({
 			FileFormat!: "plain-text" | "parquet" | fn.#StringExpression
 			HiveCompatiblePartitions!: bool |
@@ -36,10 +38,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			PerHourPartition!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		}) |
 		fn.#ObjectExpression
-		LogDestination?:     string | fn.#StringExpression
+		LogDestination?:     string | number | bool | fn.#StringExpression
 		LogDestinationType?: "cloud-watch-logs" | "s3" | "kinesis-data-firehose" | fn.#StringExpression
-		LogFormat?:          string | fn.#StringExpression
-		LogGroupName?:       string | fn.#StringExpression
+		LogFormat?:          string | number | bool | fn.#StringExpression
+		LogGroupName?:       string | number | bool | fn.#StringExpression
 		MaxAggregationInterval?: int |
 			{
 				string &
@@ -56,7 +58,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		ResourceId!: string | fn.#StringExpression
+		ResourceId!: string | number | bool | fn.#StringExpression
 		ResourceType!: "NetworkInterface" |
 			"Subnet" |
 			"VPC" |
@@ -69,19 +71,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:        [...#Tag] | fn.#ListExpression
 		TrafficType?: "ACCEPT" | "ALL" | "REJECT" | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TagFieldSpecification: close({
 	ResourceType!: "auto-scaling-group" | "instance" | "network-interface" | fn.#StringExpression
-	TagKeys!: list.MaxItems(2) & list.MinItems(1) & [
-		...strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	TagKeys!: list.MaxItems(2) & list.MinItems(1) & [...strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression

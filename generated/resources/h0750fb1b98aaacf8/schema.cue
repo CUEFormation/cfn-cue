@@ -14,13 +14,15 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::GameLift::GameServerGroup resource creates an Amazon GameLift
 // (GameLift) GameServerGroup.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GameLift::GameServerGroup"
-	Properties!: close({
+	let properties = close({
 		// Configuration settings to define a scaling policy for the Auto Scaling group
 		// that is optimized for game hosting. Updating this game server group property
 		// will not take effect for the created EC2 Auto Scaling group, please update
@@ -78,6 +80,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Scaling group directly after creating the resource.
 		VpcSubnets?: #VpcSubnets
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AutoScalingPolicy: close({
@@ -110,7 +114,12 @@ fn.#ObjectExpression
 	} |
 	fn.#NumberExpression
 
-#GameServerGroupName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\.]+" | fn.#StringExpression
+#GameServerGroupName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\.]+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\.]+" & "\(self)"
+} |
+fn.#StringExpression
 
 #GameServerProtectionPolicy: "NO_PROTECTION" | "FULL_PROTECTION" | fn.#StringExpression
 
@@ -122,7 +131,7 @@ fn.#ObjectExpression
 
 #InstanceDefinitions: list.MaxItems(20) & list.MinItems(2) & [...#InstanceDefinition] | fn.#ListExpression
 
-#InstanceType: string | fn.#StringExpression
+#InstanceType: string | number | bool | fn.#StringExpression
 
 #LaunchTemplate: close({
 	LaunchTemplateId?:   #LaunchTemplateId
@@ -131,9 +140,18 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#LaunchTemplateId: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#LaunchTemplateId: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #LaunchTemplateName: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9\\(\\)\\.\\-/_]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9\\(\\)\\.\\-/_]+$" & "\(self)"
+} |
 fn.#StringExpression
 
 #MaxSize: >=1 |
@@ -176,15 +194,33 @@ fn.#StringExpression
 	} |
 	fn.#NumberExpression
 
-#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^arn:.*:role\\/[\\w+=,.@-]+" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(256) &
+	strings.MinRunes(1) &
+	=~"^arn:.*:role\\/[\\w+=,.@-]+" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -212,11 +248,26 @@ fn.#ObjectExpression
 	} |
 	fn.#NumberExpression
 
-#Version: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#Version: strings.MaxRunes(128) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#VpcSubnets: list.MaxItems(20) & list.MinItems(1) & [
-	...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-[0-9a-z]+$" | fn.#StringExpression
-] |
+#VpcSubnets: list.MaxItems(20) & list.MinItems(1) & [...strings.MaxRunes(24) &
+strings.MinRunes(15) &
+=~"^subnet-[0-9a-z]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-[0-9a-z]+$" & "\(self)"
+} |
+fn.#StringExpression] |
 fn.#ListExpression
 
-#WeightedCapacity: =~"^[\\x{0031}-\\x{0039}][\\x{0030}-\\x{0039}]{0,2}$" | fn.#StringExpression
+#WeightedCapacity: =~"^[\\x{0031}-\\x{0039}][\\x{0030}-\\x{0039}]{0,2}$" |
+{
+	number | bool
+	_cfnString: =~"^[\\x{0031}-\\x{0039}][\\x{0030}-\\x{0039}]{0,2}$" & "\(self)"
+} |
+fn.#StringExpression

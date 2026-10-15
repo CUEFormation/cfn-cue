@@ -55,7 +55,9 @@ import (
 	// CloudTrail. The value can be an alias name prefixed by 'alias/', a fully
 	// specified ARN to an alias, a fully specified ARN to a key, or a globally
 	// unique identifier.
-	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 	strings.MaxRunes(350) &
 	strings.MinRunes(1) &
 	=~"^[a-zA-Z0-9._/\\-:]+$"

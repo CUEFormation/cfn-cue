@@ -9,17 +9,27 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Tables::TablePolicy
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3Tables::TablePolicy"
-	Properties!: close({
+	let properties = close({
 		ResourcePolicy!: #ResourcePolicy
 		TableARN!:       #TableARN
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ResourcePolicy: fn.#Object & {...} | strings.MaxRunes(20480) & strings.MinRunes(1) | fn.#StringObjectExpression
+#ResourcePolicy: fn.#Object & {...} |
+strings.MaxRunes(20480) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(20480) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringObjectExpression
 
-#TableARN: string | fn.#StringExpression
+#TableARN: string | number | bool | fn.#StringExpression

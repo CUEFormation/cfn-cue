@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Create a task set in the specified cluster and service. This is used when a
@@ -23,33 +25,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // the Amazon Elastic Container Service Developer Guide.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ECS::TaskSet"
-	Properties!: close({
+	let properties = close({
 		CapacityProviderStrategy?: [...#CapacityProviderStrategyItem] | fn.#ListExpression
-		Cluster!:                  string | fn.#StringExpression
-		ExternalId?:               string | fn.#StringExpression
+		Cluster!:                  string | number | bool | fn.#StringExpression
+		ExternalId?:               string | number | bool | fn.#StringExpression
 		LaunchType?:               "EC2" | "FARGATE" | fn.#StringExpression
 		LoadBalancers?:            [...#LoadBalancer] | fn.#ListExpression
 		NetworkConfiguration?:     #NetworkConfiguration
-		PlatformVersion?:          string | fn.#StringExpression
+		PlatformVersion?:          string | number | bool | fn.#StringExpression
 
 		// A floating-point percentage of the desired number of tasks to place and keep
 		// running in the task set.
 		Scale?:             #Scale
-		Service!:           string | fn.#StringExpression
+		Service!:           string | number | bool | fn.#StringExpression
 		ServiceRegistries?: [...#ServiceRegistry] | fn.#ListExpression
 		Tags?:              list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-		TaskDefinition!:    string | fn.#StringExpression
+		TaskDefinition!:    string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AwsVpcConfiguration: close({
 	AssignPublicIp?: "DISABLED" | "ENABLED" | fn.#StringExpression
-	SecurityGroups?: list.MaxItems(5) & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Subnets!: list.MaxItems(16) & [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroups?: list.MaxItems(5) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Subnets!: list.MaxItems(16) & [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -70,7 +82,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	CapacityProvider?: string | fn.#StringExpression
+	CapacityProvider?: string | number | bool | fn.#StringExpression
 	Weight?: int & <=1000 & >=0 |
 		{
 			string &
@@ -91,7 +103,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #LoadBalancer: close({
-	ContainerName?: string | fn.#StringExpression
+	ContainerName?: string | number | bool | fn.#StringExpression
 	ContainerPort?: int |
 		{
 			string &
@@ -106,7 +118,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TargetGroupArn?: string | fn.#StringExpression
+	TargetGroupArn?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -138,7 +150,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ServiceRegistry: close({
-	ContainerName?: string | fn.#StringExpression
+	ContainerName?: string | number | bool | fn.#StringExpression
 	ContainerPort?: int |
 		{
 			string &
@@ -167,12 +179,22 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	RegistryArn?: string | fn.#StringExpression
+	RegistryArn?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

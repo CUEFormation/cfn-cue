@@ -14,16 +14,25 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a privacy budget within a collaboration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CleanRooms::PrivacyBudgetTemplate"
-	Properties!: close({
+	let properties = close({
 		AutoRefresh!: "CALENDAR_MONTH" | "NONE" | fn.#StringExpression
 		MembershipIdentifier!: strings.MaxRunes(36) &
 		strings.MinRunes(36) &
 		=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) &
+			strings.MinRunes(36) &
+			=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Parameters!: close({
 			BudgetParameters?: list.MaxItems(2) & list.MinItems(1) & [...#BudgetParameter] | fn.#ListExpression
@@ -45,7 +54,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 						)
 				} |
 				fn.#NumberExpression
-			ResourceArn?: strings.MaxRunes(200) | fn.#StringExpression
+			ResourceArn?: strings.MaxRunes(200) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(200) & "\(self)"
+			} |
+			fn.#StringExpression
 			UsersNoisePerQuery?: int & <=100 & >=10 |
 				{
 					string &
@@ -69,6 +83,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		PrivacyBudgetType!: "DIFFERENTIAL_PRIVACY" | "ACCESS_BUDGET" | fn.#StringExpression
 		Tags?:              [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #BudgetParameter: close({
@@ -93,7 +109,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

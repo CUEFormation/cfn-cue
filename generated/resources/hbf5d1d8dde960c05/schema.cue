@@ -10,24 +10,45 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTSiteWise::Dataset.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTSiteWise::Dataset"
-	Properties!: close({
+	let properties = close({
 		// The configuration for the dataset.
 		DatasetConfig?: #DatasetConfig
 		DatasetDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		DatasetName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@.]+$" | fn.#StringExpression
+		DatasetName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@.]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 _\\-#$*!@.]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The data source for the dataset.
 		DatasetSource?: #DatasetSource
 		DatasetType?:   "SESSION" | "CURATED" | "EXTERNAL" | fn.#StringExpression
 		Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		WorkspaceName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		WorkspaceName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DatasetConfig: close({
@@ -46,18 +67,33 @@ fn.#ObjectExpression
 
 #KendraSourceDetail: close({
 	KnowledgeBaseArn!: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1600) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(1600) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SessionConfig: close({
-	SessionEndTime!:   string | fn.#StringExpression
-	SessionStartTime!: string | fn.#StringExpression
+	SessionEndTime!:   string | number | bool | fn.#StringExpression
+	SessionStartTime!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -68,7 +104,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

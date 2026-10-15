@@ -14,45 +14,104 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A security profile defines a set of expected behaviors for devices in your account.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::SecurityProfile"
-	Properties?: close({
+	let properties = close({
 		AdditionalMetricsToRetainV2?: list.UniqueItems() & [...#MetricToRetain] | fn.#ListExpression
 		AlertTargets?: close({
 
-			{[=~"[a-zA-Z0-9:_-]+"]: #AlertTarget}}) |
+			{[=~"[a-zA-Z0-9:_-]+"]: #AlertTarget}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 		Behaviors?: list.MaxItems(100) & list.UniqueItems() & [...] & [...#Behavior] | fn.#ListExpression
 		MetricsExportConfig?: close({
-			MqttTopic!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-			RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+			MqttTopic!: strings.MaxRunes(512) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
+			RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+			{
+				number | bool
+				_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+				strings.MaxRunes(2048) &
+				strings.MinRunes(20) &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
-		SecurityProfileDescription?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-		SecurityProfileName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
-		Tags?:                list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TargetArns?: list.UniqueItems() & [...strings.MaxRunes(2048) | fn.#StringExpression] | fn.#ListExpression
+		SecurityProfileDescription?: strings.MaxRunes(1000) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		SecurityProfileName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetArns?: list.UniqueItems() & [...strings.MaxRunes(2048) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AlertTarget: close({
-	AlertTargetArn!: strings.MaxRunes(2048) | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	AlertTargetArn!: strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Behavior: close({
-	Criteria?:        #BehaviorCriteria
-	ExportMetric?:    #ExportMetric
-	Metric?:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
+	Criteria?:     #BehaviorCriteria
+	ExportMetric?: #ExportMetric
+	Metric?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" & "\(self)"
+	} |
+	fn.#StringExpression
 	MetricDimension?: #MetricDimension
-	Name!:            strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
-	SuppressAlerts?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	SuppressAlerts?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -126,24 +185,46 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #MetricDimension: close({
-	DimensionName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
-	Operator?:      "IN" | "NOT_IN" | fn.#StringExpression
+	DimensionName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	Operator?: "IN" | "NOT_IN" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MetricToRetain: close({
-	ExportMetric?:    #ExportMetric
-	Metric!:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
+	ExportMetric?: #ExportMetric
+	Metric!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" & "\(self)"
+	} |
+	fn.#StringExpression
 	MetricDimension?: #MetricDimension
 }) |
 fn.#ObjectExpression
 
 #MetricValue: close({
-	Cidrs?: list.UniqueItems() & [
-		...strings.MaxRunes(43) & strings.MinRunes(2) & =~"^[a-fA-F0-9:\\.\\/]+$" | fn.#StringExpression
-	] |
+	Cidrs?: list.UniqueItems() & [...fn.#IPv4Network &
+	string &
+	strings.MaxRunes(43) &
+	strings.MinRunes(2) &
+	=~"^[a-fA-F0-9:\\.\\/]+$" |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network &
+		string &
+		strings.MaxRunes(43) &
+		strings.MinRunes(2) &
+		=~"^[a-fA-F0-9:\\.\\/]+$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Count?: string | fn.#StringExpression
+	Count?: string | number | bool | fn.#StringExpression
 	Number?: number |
 		{
 			string &
@@ -206,7 +287,7 @@ fn.#ObjectExpression
 			fn.#NumberExpression
 	] |
 		fn.#ListExpression
-	Strings?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	Strings?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -228,7 +309,17 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

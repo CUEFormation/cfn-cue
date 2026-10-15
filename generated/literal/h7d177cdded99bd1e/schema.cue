@@ -203,7 +203,9 @@ import (
 // The details of the execute command configuration.
 #ExecuteCommandConfiguration: close({
 	// Specify an KMSlong key ID to encrypt the data between the local client and the container.
-	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 
 	// The log configuration for the results of the execute command actions. The
 	// logs can be sent to CloudWatch Logs or an Amazon S3 bucket. When
@@ -236,7 +238,7 @@ import (
 
 	// The name of the S3 bucket to send logs to.
 	// The S3 bucket must already be created.
-	S3BucketName?: string
+	S3BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$"
 
 	// Determines whether to use encryption on the S3 logs. If not specified, encryption is not used.
 	S3EncryptionEnabled?: bool
@@ -266,7 +268,9 @@ import (
 	// ECS](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ebs-kms-encryption.html)
 	// in the *Amazon Elastic Container Service Developer Guide*.
 	// The key must be a single Region key.
-	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 })
 
 // Use this parameter to set a default Service Connect namespace. After you set

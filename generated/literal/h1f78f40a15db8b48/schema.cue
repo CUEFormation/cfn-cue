@@ -44,7 +44,10 @@ import (
 	Repositories?: [...#Repository]
 
 	// The ID of the subnet in Amazon VPC that AWS Cloud9 will use.
-	SubnetId?: strings.MaxRunes(24) & strings.MinRunes(15) & =~"^(subnet-[0-9a-f]{8}|subnet-[0-9a-f]{17})$"
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(24) &
+	strings.MinRunes(15) &
+	=~"^(subnet-[0-9a-f]{8}|subnet-[0-9a-f]{17})$"
 
 	// An array of key-value pairs that will be associated with the new AWS Cloud9
 	// development environment.

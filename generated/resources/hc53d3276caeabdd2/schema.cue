@@ -10,17 +10,29 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Batch::ConsumableResource
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Batch::ConsumableResource"
-	Properties!: close({
-		ConsumableResourceName?: =~"" | fn.#StringExpression
-		ResourceType!:           #ResourceType
+	let properties = close({
+		ConsumableResourceName?: =~"" |
+		{
+			number | bool
+			_cfnString: =~"" & "\(self)"
+		} |
+		fn.#StringExpression
+		ResourceType!: #ResourceType
 		Tags?: close({
 
-			{[=~".*"]: string | fn.#StringExpression}}) |
+			{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 		TotalQuantity!: int |
 			{
@@ -39,6 +51,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ResourceType: "REPLENISHABLE" | "NON_REPLENISHABLE" | fn.#StringExpression

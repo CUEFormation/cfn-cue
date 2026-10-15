@@ -14,36 +14,77 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CloudWatch::AnomalyDetector
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudWatch::AnomalyDetector"
-	Properties?: close({
-		Configuration?:               #MetricConfiguration
-		Dimensions?:                  list.MaxItems(30) & [...] & [...#Dimension] | fn.#ListExpression
-		MetricCharacteristics?:       #MetricCharacteristics
-		MetricMathAnomalyDetector?:   #MetricMathAnomalyDetector
-		MetricName?:                  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Namespace?:                   strings.MaxRunes(255) & strings.MinRunes(1) & =~"[^:].*" | fn.#StringExpression
+	let properties = close({
+		Configuration?:             #MetricConfiguration
+		Dimensions?:                list.MaxItems(30) & [...] & [...#Dimension] | fn.#ListExpression
+		MetricCharacteristics?:     #MetricCharacteristics
+		MetricMathAnomalyDetector?: #MetricMathAnomalyDetector
+		MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Namespace?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[^:].*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[^:].*" & "\(self)"
+		} |
+		fn.#StringExpression
 		SingleMetricAnomalyDetector?: #SingleMetricAnomalyDetector
 		Stat?: strings.MaxRunes(50) &
 		strings.MinRunes(0) &
 		=~"^(Minimum|Maximum|Sum|Average|SampleCount|(p|tm)[0-9]{1,2}|(p|tm)[0-9]{1,2}\\.[0-9]{1,2}|(p|tm)100)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) &
+			strings.MinRunes(0) &
+			=~"^(Minimum|Maximum|Sum|Average|SampleCount|(p|tm)[0-9]{1,2}|(p|tm)[0-9]{1,2}\\.[0-9]{1,2}|(p|tm)100)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Dimension: close({
-	Name!:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Name!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Metric: close({
 	Dimensions?: list.MaxItems(30) & [...] & [...#Dimension] | fn.#ListExpression
-	MetricName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Namespace!:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"[^:].*" | fn.#StringExpression
+	MetricName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Namespace!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[^:].*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[^:].*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -54,15 +95,35 @@ fn.#ObjectExpression
 
 #MetricConfiguration: close({
 	ExcludedTimeRanges?: [...#Range] | fn.#ListExpression
-	MetricTimeZone?:     strings.MaxRunes(50) & strings.MinRunes(0) | fn.#StringExpression
+	MetricTimeZone?: strings.MaxRunes(50) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MetricDataQuery: close({
-	AccountId?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Expression?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Id!:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Label?:      string | fn.#StringExpression
+	AccountId?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Expression?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Id!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Label?:      string | number | bool | fn.#StringExpression
 	MetricStat?: #MetricStat
 	Period?: int & >=1 |
 		{
@@ -104,28 +165,70 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	Stat!: =~"^(Minimum|Maximum|Sum|Average|SampleCount|(p|tm)[0-9]{1,2}|(p|tm)[0-9]{1,2}\\.[0-9]{1,2}|(p|tm)100)$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^(Minimum|Maximum|Sum|Average|SampleCount|(p|tm)[0-9]{1,2}|(p|tm)[0-9]{1,2}\\.[0-9]{1,2}|(p|tm)100)$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	Unit?: =~"^(Seconds|Microseconds|Milliseconds|Bytes|Kilobytes|Megabytes|Gigabytes|Terabytes|Bits|Kilobits|Megabits|Gigabits|Terabits|Percent|Count|Bytes/Second|Kilobytes/Second|Megabytes/Second|Gigabytes/Second|Terabytes/Second|Bits/Second|Kilobits/Second|Megabits/Second|Gigabits/Second|Terabits/Second|Count/Second|None)$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^(Seconds|Microseconds|Milliseconds|Bytes|Kilobytes|Megabytes|Gigabytes|Terabytes|Bits|Kilobits|Megabits|Gigabits|Terabits|Percent|Count|Bytes/Second|Kilobytes/Second|Megabytes/Second|Gigabytes/Second|Terabytes/Second|Bits/Second|Kilobits/Second|Megabits/Second|Gigabits/Second|Terabits/Second|Count/Second|None)$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Range: close({
 	EndTime!: =~"^([0-9]{4})-([0-1][0-9])-([0-3][0-9])T([0-1][0-9]|[2][0-3]):([0-5][0-9]):([0-5][0-9])$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^([0-9]{4})-([0-1][0-9])-([0-3][0-9])T([0-1][0-9]|[2][0-3]):([0-5][0-9]):([0-5][0-9])$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	StartTime!: =~"^([0-9]{4})-([0-1][0-9])-([0-3][0-9])T([0-1][0-9]|[2][0-3]):([0-5][0-9]):([0-5][0-9])$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^([0-9]{4})-([0-1][0-9])-([0-3][0-9])T([0-1][0-9]|[2][0-3]):([0-5][0-9]):([0-5][0-9])$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SingleMetricAnomalyDetector: close({
-	AccountId?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	AccountId?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Dimensions?: list.MaxItems(30) & [...] & [...#Dimension] | fn.#ListExpression
-	MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Namespace?:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"[^:].*" | fn.#StringExpression
+	MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Namespace?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[^:].*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[^:].*" & "\(self)"
+	} |
+	fn.#StringExpression
 	Stat?: strings.MaxRunes(50) &
 	strings.MinRunes(0) &
 	=~"^(Minimum|Maximum|Sum|Average|SampleCount|(p|tm)[0-9]{1,2}|(p|tm)[0-9]{1,2}\\.[0-9]{1,2}|(p|tm)100)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) &
+		strings.MinRunes(0) &
+		=~"^(Minimum|Maximum|Sum|Average|SampleCount|(p|tm)[0-9]{1,2}|(p|tm)[0-9]{1,2}\\.[0-9]{1,2}|(p|tm)100)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

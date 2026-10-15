@@ -14,19 +14,36 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates an evaluation form for the specified CON instance.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::EvaluationForm"
-	Properties!: close({
-		AIVersion?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		AIVersion?: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The automatic evaluation configuration of an evaluation form.
 		AutoEvaluationConfiguration?: #AutoEvaluationConfiguration
-		Description?:                 strings.MaxRunes(1024) | fn.#StringExpression
-		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-		Items!:       list.MaxItems(200) & list.MinItems(1) & [...#EvaluationFormBaseItem] | fn.#ListExpression
+		Description?: strings.MaxRunes(1024) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & "\(self)"
+		} |
+		fn.#StringExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Items!: list.MaxItems(200) & list.MinItems(1) & [...#EvaluationFormBaseItem] | fn.#ListExpression
 
 		// Configuration for language settings of this evaluation form.
 		LanguageConfiguration?: #EvaluationFormLanguageConfiguration
@@ -41,8 +58,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		// Configuration that specifies the target for this evaluation form.
 		TargetConfiguration?: #EvaluationFormTargetConfiguration
-		Title!:               strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		Title!: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AutoEvaluationConfiguration: close(
@@ -50,8 +74,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 ) |
 	fn.#ObjectExpression
 
-#AutomaticFailConfiguration: close({TargetSection?: =~"^[a-zA-Z0-9._-]{1,40}$" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#AutomaticFailConfiguration: close({
+	TargetSection?: =~"^[a-zA-Z0-9._-]{1,40}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9._-]{1,40}$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #EvaluationFormBaseItem: close({
 	// A subsection or inner section of an item.
@@ -128,7 +159,12 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #EvaluationFormMetricConfiguration: close({
-	MetricName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\p{C}]*$" | fn.#StringExpression
+	MetricName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\p{C}]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\p{C}]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	MetricType!: "BUSINESS_OUTCOME" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -161,7 +197,12 @@ fn.#ObjectExpression
 
 	// The score assigned to the answer option.
 	Score?: #Score
-	Text!:  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Text!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -263,8 +304,13 @@ fn.#ObjectExpression
 
 #EvaluationFormQuestion: close({
 	// A question conditional enablement.
-	Enablement?:   #EvaluationFormItemEnablementConfiguration
-	Instructions?: strings.MaxRunes(1024) | fn.#StringExpression
+	Enablement?: #EvaluationFormItemEnablementConfiguration
+	Instructions?: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// The metric configuration for the question. Use this to associate a business
 	// outcome metric with the question.
@@ -282,7 +328,12 @@ fn.#ObjectExpression
 
 	// The scoring configuration of the question.
 	ScoringConfiguration?: #EvaluationFormQuestionScoringConfiguration
-	Title!:                strings.MaxRunes(350) & strings.MinRunes(1) | fn.#StringExpression
+	Title!: strings.MaxRunes(350) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(350) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// The scoring weight of the section.
 	// *Minimum*: 0
@@ -366,7 +417,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #EvaluationFormSection: close({
-	Instructions?:          strings.MaxRunes(1024) | fn.#StringExpression
+	Instructions?: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
 	IsExcludedFromScoring?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Items?:                 list.MaxItems(200) & list.MinItems(1) & [...#EvaluationFormItem] | fn.#ListExpression
 
@@ -374,7 +430,12 @@ fn.#ObjectExpression
 	// *Length Constraints*: Minimum length of 1. Maximum length of 40.
 	RefId!:           #RefId
 	ScoreThresholds?: [...#EvaluationFormScoreThreshold] | fn.#ListExpression
-	Title!:           strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Title!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// The scoring weight of the section.
 	// *Minimum*: 0
@@ -419,7 +480,12 @@ fn.#ObjectExpression
 	// *Minimum*: 0
 	// *Maximum*: 10
 	Score?: #Score
-	Text!:  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Text!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -478,13 +544,23 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#EvaluationReviewNotificationRecipientValue: close(
-	{UserId?: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#EvaluationReviewNotificationRecipientValue: close({
+	UserId?: strings.MaxRunes(500) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #MultiSelectQuestionRuleCategoryAutomation: close({
-	Category!:  strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+	Category!: strings.MaxRunes(50) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Condition!: "PRESENT" | "NOT_PRESENT" | fn.#StringExpression
 
 	// Reference IDs of options for this automation rule.
@@ -546,7 +622,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#RefId: =~"^[a-zA-Z0-9._-]{1,40}$" | fn.#StringExpression
+#RefId: =~"^[a-zA-Z0-9._-]{1,40}$" |
+{
+	number | bool
+	_cfnString: =~"^[a-zA-Z0-9._-]{1,40}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #ReferenceIdList: [...#RefId] | fn.#ListExpression
 
@@ -575,7 +656,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SingleSelectQuestionRuleCategoryAutomation: close({
-	Category!:  strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+	Category!: strings.MaxRunes(50) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Condition!: "PRESENT" | "NOT_PRESENT" | fn.#StringExpression
 
 	// The identifier of the answer option. An identifier must be unique within the question.
@@ -585,8 +671,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

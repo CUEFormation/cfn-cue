@@ -11,19 +11,33 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpenSearchServerless::CollectionGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::OpenSearchServerless::CollectionGroup"
-	Properties!: close({
-		CapacityLimits?:  #CapacityLimits
-		Description?:     strings.MaxRunes(1000) | fn.#StringExpression
-		Generation?:      "CLASSIC" | "NEXTGEN" | fn.#StringExpression
-		Name!:            strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,31}$" | fn.#StringExpression
+	let properties = close({
+		CapacityLimits?: #CapacityLimits
+		Description?: strings.MaxRunes(1000) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & "\(self)"
+		} |
+		fn.#StringExpression
+		Generation?: "CLASSIC" | "NEXTGEN" | fn.#StringExpression
+		Name!: strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,31}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,31}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		StandbyReplicas!: "ENABLED" | "DISABLED" | fn.#StringExpression
 		Tags?:            list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CapacityLimits: close({
@@ -35,7 +49,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

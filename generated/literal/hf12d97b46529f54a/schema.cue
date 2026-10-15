@@ -62,7 +62,11 @@ import "strings"
 // The API version that the connector will use.
 #ApiVersion: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+"
 
-#BucketName: strings.MaxRunes(63) & strings.MinRunes(3) & =~"\\S+"
+#BucketName: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+strings.MaxRunes(63) &
+strings.MinRunes(3) &
+=~"\\S+"
 
 #BucketPrefix: strings.MaxRunes(512) & strings.MinRunes(0)
 
@@ -725,7 +729,11 @@ import "strings"
 
 #TriggerType: "Scheduled" | "Event" | "OnDemand"
 
-#UpsolverBucketName: strings.MaxRunes(63) & strings.MinRunes(16) & =~"^(upsolver-appflow)\\S*"
+#UpsolverBucketName: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+strings.MaxRunes(63) &
+strings.MinRunes(16) &
+=~"^(upsolver-appflow)\\S*"
 
 #UpsolverDestinationProperties: close({
 	BucketName!:           #UpsolverBucketName

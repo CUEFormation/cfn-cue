@@ -14,15 +14,32 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::DMS::DataProvider
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DMS::DataProvider"
-	Properties!: close({
-		DataProviderIdentifier?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		DataProviderName?:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Description?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		DataProviderIdentifier?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		DataProviderName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Engine!: "aurora" |
 			"aurora_postgresql" |
 			"mysql" |
@@ -40,8 +57,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ExactSettings?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Settings?: close({
 			DocDbSettings?: close({
-				CertificateArn?: string | fn.#StringExpression
-				DatabaseName!:   string | fn.#StringExpression
+				CertificateArn?: string | number | bool | fn.#StringExpression
+				DatabaseName!:   string | number | bool | fn.#StringExpression
 				Port!: int |
 					{
 						string &
@@ -58,13 +75,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 							)
 					} |
 					fn.#NumberExpression
-				ServerName!: string | fn.#StringExpression
+				ServerName!: string | number | bool | fn.#StringExpression
 				SslMode?:    #MongoDbSslModeValue
 			}) |
 			fn.#ObjectExpression
 			IbmDb2LuwSettings?: close({
-				CertificateArn?: string | fn.#StringExpression
-				DatabaseName!:   string | fn.#StringExpression
+				CertificateArn?: string | number | bool | fn.#StringExpression
+				DatabaseName!:   string | number | bool | fn.#StringExpression
 				EncryptionAlgorithm?: int |
 					{
 						string &
@@ -113,13 +130,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 							)
 					} |
 					fn.#NumberExpression
-				ServerName!: string | fn.#StringExpression
+				ServerName!: string | number | bool | fn.#StringExpression
 				SslMode!:    #Db2SslModeValue
 			}) |
 			fn.#ObjectExpression
 			IbmDb2zOsSettings?: close({
-				CertificateArn?: string | fn.#StringExpression
-				DatabaseName!:   string | fn.#StringExpression
+				CertificateArn?: string | number | bool | fn.#StringExpression
+				DatabaseName!:   string | number | bool | fn.#StringExpression
 				Port!: int |
 					{
 						string &
@@ -136,12 +153,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 							)
 					} |
 					fn.#NumberExpression
-				ServerName!: string | fn.#StringExpression
+				ServerName!: string | number | bool | fn.#StringExpression
 				SslMode!:    #Db2SslModeValue
 			}) |
 			fn.#ObjectExpression
 			MariaDbSettings?: close({
-				CertificateArn?: string | fn.#StringExpression
+				CertificateArn?: string | number | bool | fn.#StringExpression
 				Port!: int |
 					{
 						string &
@@ -158,13 +175,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 							)
 					} |
 					fn.#NumberExpression
-				ServerName!: string | fn.#StringExpression
+				ServerName!: string | number | bool | fn.#StringExpression
 				SslMode!:    #DmsSslModeValue
 			}) |
 			fn.#ObjectExpression
 			MicrosoftSqlServerSettings?: close({
-				CertificateArn?: string | fn.#StringExpression
-				DatabaseName!:   string | fn.#StringExpression
+				CertificateArn?: string | number | bool | fn.#StringExpression
+				DatabaseName!:   string | number | bool | fn.#StringExpression
 				Port!: int |
 					{
 						string &
@@ -181,18 +198,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 							)
 					} |
 					fn.#NumberExpression
-				S3AccessRoleArn?: string | fn.#StringExpression
-				S3Path?:          string | fn.#StringExpression
-				ServerName!:      string | fn.#StringExpression
+				S3AccessRoleArn?: string | number | bool | fn.#StringExpression
+				S3Path?:          string | number | bool | fn.#StringExpression
+				ServerName!:      string | number | bool | fn.#StringExpression
 				SslMode!:         #DmsSslModeValue
 			}) |
 			fn.#ObjectExpression
 			MongoDbSettings?: close({
 				AuthMechanism?:  #MongoDbAuthMechanism
-				AuthSource?:     string | fn.#StringExpression
+				AuthSource?:     string | number | bool | fn.#StringExpression
 				AuthType?:       #MongoDbAuthType
-				CertificateArn?: string | fn.#StringExpression
-				DatabaseName?:   string | fn.#StringExpression
+				CertificateArn?: string | number | bool | fn.#StringExpression
+				DatabaseName?:   string | number | bool | fn.#StringExpression
 				Port!: int |
 					{
 						string &
@@ -209,12 +226,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 							)
 					} |
 					fn.#NumberExpression
-				ServerName!: string | fn.#StringExpression
+				ServerName!: string | number | bool | fn.#StringExpression
 				SslMode?:    #MongoDbSslModeValue
 			}) |
 			fn.#ObjectExpression
 			MySqlSettings?: close({
-				CertificateArn?: string | fn.#StringExpression
+				CertificateArn?: string | number | bool | fn.#StringExpression
 				Port!: int |
 					{
 						string &
@@ -231,14 +248,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 							)
 					} |
 					fn.#NumberExpression
-				ServerName!: string | fn.#StringExpression
+				ServerName!: string | number | bool | fn.#StringExpression
 				SslMode!:    #DmsSslModeValue
 			}) |
 			fn.#ObjectExpression
 			OracleSettings?: close({
-				AsmServer?:      string | fn.#StringExpression
-				CertificateArn?: string | fn.#StringExpression
-				DatabaseName!:   string | fn.#StringExpression
+				AsmServer?:      string | number | bool | fn.#StringExpression
+				CertificateArn?: string | number | bool | fn.#StringExpression
+				DatabaseName!:   string | number | bool | fn.#StringExpression
 				Port!: int |
 					{
 						string &
@@ -255,17 +272,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 							)
 					} |
 					fn.#NumberExpression
-				SecretsManagerOracleAsmAccessRoleArn?:            string | fn.#StringExpression
-				SecretsManagerOracleAsmSecretId?:                 string | fn.#StringExpression
-				SecretsManagerSecurityDbEncryptionAccessRoleArn?: string | fn.#StringExpression
-				SecretsManagerSecurityDbEncryptionSecretId?:      string | fn.#StringExpression
-				ServerName!:                                      string | fn.#StringExpression
+				SecretsManagerOracleAsmAccessRoleArn?:            string | number | bool | fn.#StringExpression
+				SecretsManagerOracleAsmSecretId?:                 string | number | bool | fn.#StringExpression
+				SecretsManagerSecurityDbEncryptionAccessRoleArn?: string | number | bool | fn.#StringExpression
+				SecretsManagerSecurityDbEncryptionSecretId?:      string | number | bool | fn.#StringExpression
+				ServerName!:                                      string | number | bool | fn.#StringExpression
 				SslMode!:                                         #DmsSslModeValue
 			}) |
 			fn.#ObjectExpression
 			PostgreSqlSettings?: close({
-				CertificateArn?: string | fn.#StringExpression
-				DatabaseName!:   string | fn.#StringExpression
+				CertificateArn?: string | number | bool | fn.#StringExpression
+				DatabaseName!:   string | number | bool | fn.#StringExpression
 				Port!: int |
 					{
 						string &
@@ -282,12 +299,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 							)
 					} |
 					fn.#NumberExpression
-				ServerName!: string | fn.#StringExpression
+				ServerName!: string | number | bool | fn.#StringExpression
 				SslMode!:    #DmsSslModeValue
 			}) |
 			fn.#ObjectExpression
 			RedshiftSettings?: close({
-				DatabaseName!: string | fn.#StringExpression
+				DatabaseName!: string | number | bool | fn.#StringExpression
 				Port!: int |
 					{
 						string &
@@ -304,12 +321,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 							)
 					} |
 					fn.#NumberExpression
-				ServerName!: string | fn.#StringExpression
+				ServerName!: string | number | bool | fn.#StringExpression
 			}) |
 			fn.#ObjectExpression
 			SybaseAseSettings?: close({
-				CertificateArn?:  string | fn.#StringExpression
-				DatabaseName?:    string | fn.#StringExpression
+				CertificateArn?:  string | number | bool | fn.#StringExpression
+				DatabaseName?:    string | number | bool | fn.#StringExpression
 				EncryptPassword?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 				Port!: int |
 					{
@@ -327,7 +344,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 							)
 					} |
 					fn.#NumberExpression
-				ServerName!: string | fn.#StringExpression
+				ServerName!: string | number | bool | fn.#StringExpression
 				SslMode!:    #SybaseSslModeValue
 			}) |
 			fn.#ObjectExpression
@@ -361,6 +378,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:    list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		Virtual?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Db2SslModeValue: "none" | "verify-ca" | fn.#StringExpression
@@ -376,7 +395,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #SybaseSslModeValue: "none" | "require" | "verify-ca" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

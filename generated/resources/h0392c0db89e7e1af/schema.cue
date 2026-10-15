@@ -10,13 +10,20 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Transfer::Server Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Transfer::Server"
-	Properties?: close({
-		Certificate?:             strings.MaxRunes(1600) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		Certificate?: strings.MaxRunes(1600) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1600) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		CreateWithHostKey?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Domain?:                  #Domain
 		EndpointDetails?:         #EndpointDetails
@@ -24,23 +31,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		IdentityProviderDetails?: #IdentityProviderDetails
 		IdentityProviderType?:    #IdentityProviderType
 		IpAddressType?:           #IpAddressType
-		LoggingRole?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^(|arn:.*role/\\S+)$" | fn.#StringExpression
+		LoggingRole?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^(|arn:.*role/\\S+)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^(|arn:.*role/\\S+)$" & "\(self)"
+		} |
+		fn.#StringExpression
 		PostAuthenticationLoginBanner?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[\\x09-\\x0D\\x20-\\x7E]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[\\x09-\\x0D\\x20-\\x7E]*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		PreAuthenticationLoginBanner?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[\\x09-\\x0D\\x20-\\x7E]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[\\x09-\\x0D\\x20-\\x7E]*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		ProtocolDetails?:  #ProtocolDetails
 		Protocols?:        list.MaxItems(4) & list.MinItems(1) & [...#Protocol] | fn.#ListExpression
 		S3StorageOptions?: #S3StorageOptions
 		SecurityPolicyName?: strings.MaxRunes(100) & strings.MinRunes(0) & =~"^TransferSecurityPolicy-.+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & =~"^TransferSecurityPolicy-.+$" & "\(self)"
+		} |
 		fn.#StringExpression
-		StructuredLogDestinations?: list.MaxItems(1) & [...] & [
-			...strings.MaxRunes(1600) & strings.MinRunes(20) & =~"^arn:\\S+$" | fn.#StringExpression
-		] |
+		StructuredLogDestinations?: list.MaxItems(1) & [...] & [...strings.MaxRunes(1600) &
+		strings.MinRunes(20) &
+		=~"^arn:\\S+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1600) & strings.MinRunes(20) & =~"^arn:\\S+$" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		Tags?:            list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 		WorkflowDetails?: #WorkflowDetails
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #As2Transport: "HTTP" | fn.#StringExpression
@@ -50,30 +81,65 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Domain: "S3" | "EFS" | fn.#StringExpression
 
 #EndpointDetails: close({
-	AddressAllocationIds?: [...string | fn.#StringExpression] | fn.#ListExpression
-	SecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	AddressAllocationIds?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(20) &
+	strings.MinRunes(11) &
+	=~"^sg-[0-9a-f]{8,17}$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(20) &
 		strings.MinRunes(11) &
-		=~"^sg-[0-9a-f]{8,17}$" |
-		fn.#StringExpression
-	] |
+		=~"^sg-[0-9a-f]{8,17}$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	SubnetIds?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	VpcEndpointId?: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^vpce-[0-9a-f]{17}$" | fn.#StringExpression
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	SubnetIds?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	VpcEndpointId?: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^vpce-[0-9a-f]{17}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^vpce-[0-9a-f]{17}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EndpointType: "PUBLIC" | "VPC" | "VPC_ENDPOINT" | fn.#StringExpression
 
 #IdentityProviderDetails: close({
-	DirectoryId?:    strings.MaxRunes(12) & strings.MinRunes(12) & =~"^d-[0-9a-f]{10}$" | fn.#StringExpression
-	Function?:       strings.MaxRunes(170) & strings.MinRunes(1) & =~"^arn:[a-z-]+:lambda:.*$" | fn.#StringExpression
-	InvocationRole?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*role/\\S+$" | fn.#StringExpression
+	DirectoryId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^d-[0-9a-f]{10}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^d-[0-9a-f]{10}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Function?: strings.MaxRunes(170) & strings.MinRunes(1) & =~"^arn:[a-z-]+:lambda:.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(170) & strings.MinRunes(1) & =~"^arn:[a-z-]+:lambda:.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	InvocationRole?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*role/\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*role/\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	SftpAuthenticationMethods?: #SftpAuthenticationMethods
-	Url?:                       strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	Url?: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -84,8 +150,13 @@ fn.#ObjectExpression
 #Protocol: "SFTP" | "FTP" | "FTPS" | "AS2" | fn.#StringExpression
 
 #ProtocolDetails: close({
-	As2Transports?:            list.MaxItems(1) & list.MinItems(1) & [...#As2Transport] | fn.#ListExpression
-	PassiveIp?:                strings.MaxRunes(15) & strings.MinRunes(0) | fn.#StringExpression
+	As2Transports?: list.MaxItems(1) & list.MinItems(1) & [...#As2Transport] | fn.#ListExpression
+	PassiveIp?: strings.MaxRunes(15) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(15) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	ProxyConfig?:              #ProxyConfig
 	SetStatOption?:            #SetStatOption
 	TlsSessionResumptionMode?: #TlsSessionResumptionMode
@@ -107,16 +178,36 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TlsSessionResumptionMode: "DISABLED" | "ENABLED" | "ENFORCED" | fn.#StringExpression
 
 #WorkflowDetail: close({
-	ExecutionRole!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*role/\\S+$" | fn.#StringExpression
-	WorkflowId!:    strings.MaxRunes(19) & strings.MinRunes(19) & =~"^w-([a-z0-9]{17})$" | fn.#StringExpression
+	ExecutionRole!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*role/\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*role/\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	WorkflowId!: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^w-([a-z0-9]{17})$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^w-([a-z0-9]{17})$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

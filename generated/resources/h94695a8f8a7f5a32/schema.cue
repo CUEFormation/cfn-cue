@@ -13,13 +13,20 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpenSearchServerless::SecurityConfig
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::OpenSearchServerless::SecurityConfig"
-	Properties?: close({
-		Description?:          strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		IamFederationOptions?: #IamFederationConfigOptions
 		IamIdentityCenterOptions?: close({
 			GroupAttribute?: #IamIdentityCenterGroupAttribute
@@ -27,36 +34,74 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			UserAttribute?:  #IamIdentityCenterUserAttribute
 		}) |
 		fn.#ObjectExpression
-		Name?:        strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,31}$" | fn.#StringExpression
+		Name?: strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,31}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32) & strings.MinRunes(3) & =~"^[a-z][a-z0-9-]{2,31}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		SamlOptions?: #SamlConfigOptions
 		Type?:        #SecurityConfigType
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #IamFederationConfigOptions: close({
 	GroupAttribute?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_.:/=+\\-@]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_.:/=+\\-@]*$" & "\(self)"
+	} |
 	fn.#StringExpression
 	UserAttribute?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_.:/=+\\-@]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_.:/=+\\-@]*$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#IamIdentityCenterGroupAttribute: string | fn.#StringExpression
+#IamIdentityCenterGroupAttribute: string | number | bool | fn.#StringExpression
 
 #IamIdentityCenterInstanceArn: strings.MaxRunes(1224) &
 strings.MinRunes(10) &
 =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1224) &
+	strings.MinRunes(10) &
+	=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#IamIdentityCenterUserAttribute: string | fn.#StringExpression
+#IamIdentityCenterUserAttribute: string | number | bool | fn.#StringExpression
 
 #SamlConfigOptions: close({
-	GroupAttribute?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" | fn.#StringExpression
+	GroupAttribute?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" & "\(self)"
+	} |
+	fn.#StringExpression
 	Metadata!: strings.MaxRunes(51200) &
 	strings.MinRunes(1) &
 	=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(51200) &
+		strings.MinRunes(1) &
+		=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]+" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	OpenSearchServerlessEntityId?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^aws:opensearch:[0-9]{12}:*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^aws:opensearch:[0-9]{12}:*" & "\(self)"
+	} |
 	fn.#StringExpression
 	SessionTimeout?: int |
 		{
@@ -72,7 +117,12 @@ fn.#StringExpression
 				)
 		} |
 		fn.#NumberExpression
-	UserAttribute?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" | fn.#StringExpression
+	UserAttribute?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

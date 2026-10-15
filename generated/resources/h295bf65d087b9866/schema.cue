@@ -13,21 +13,42 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Events::ApiDestination.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Events::ApiDestination"
-	Properties!: close({
+	let properties = close({
 		ConnectionArn!: strings.MaxRunes(1600) &
 		strings.MinRunes(1) &
 		=~"^arn:aws([a-z]|\\-)*:events:([a-z]|\\d|\\-)*:([0-9]{12})?:connection/[\\.\\-_A-Za-z0-9]+/[\\-A-Za-z0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1600) &
+			strings.MinRunes(1) &
+			=~"^arn:aws([a-z]|\\-)*:events:([a-z]|\\d|\\-)*:([0-9]{12})?:connection/[\\.\\-_A-Za-z0-9]+/[\\-A-Za-z0-9]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Description?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-		HttpMethod!:  "GET" | "HEAD" | "POST" | "OPTIONS" | "PUT" | "DELETE" | "PATCH" | fn.#StringExpression
+		Description?: strings.MaxRunes(512) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		HttpMethod!: "GET" | "HEAD" | "POST" | "OPTIONS" | "PUT" | "DELETE" | "PATCH" | fn.#StringExpression
 		InvocationEndpoint!: strings.MaxRunes(2048) &
 		strings.MinRunes(1) &
 		=~"^((%[0-9A-Fa-f]{2}|[-()_.!~*';/?:@\\x26=+$,A-Za-z0-9])+)([).!';/?:,])?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^((%[0-9A-Fa-f]{2}|[-()_.!~*';/?:@\\x26=+$,A-Za-z0-9])+)([).!';/?:,])?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		InvocationRateLimitPerSecond?: int & >=1 |
 			{
@@ -46,6 +67,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\.\\-_A-Za-z0-9]+" | fn.#StringExpression
+		Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\.\\-_A-Za-z0-9]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\.\\-_A-Za-z0-9]+" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

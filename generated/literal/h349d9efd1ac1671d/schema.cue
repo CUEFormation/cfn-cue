@@ -17,7 +17,7 @@ import (
 	AttributeDefinitions?: null | bool | number | string | list.MinItems(2) | {...}
 	KeySchema?:            null | bool | number | string | list.MinItems(2) | {...}
 	...
-}, _) & {...} & close({
+}, _) & close({
 	Arn?:                            string
 	AttributeDefinitions?:           list.MinItems(1) & list.UniqueItems() & [...#AttributeDefinition]
 	BillingMode?:                    "PAY_PER_REQUEST" | "PROVISIONED"

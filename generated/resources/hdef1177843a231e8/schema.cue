@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ApiGateway::DocumentationVersion`` resource creates a snapshot of
@@ -18,9 +20,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *API Gateway Developer Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::DocumentationVersion"
-	Properties!: close({
-		Description?:          string | fn.#StringExpression
-		DocumentationVersion!: strings.MinRunes(1) | fn.#StringExpression
-		RestApiId!:            strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Description?: string | number | bool | fn.#StringExpression
+		DocumentationVersion!: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		RestApiId!: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

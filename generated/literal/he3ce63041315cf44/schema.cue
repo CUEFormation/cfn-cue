@@ -5,6 +5,7 @@ package schema
 import (
 	"strings"
 	"list"
+	"math"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -16,7 +17,17 @@ import (
 // appropriately. Any actions associated with the new state are then executed.
 // When you update an existing alarm, its state is left unchanged, but the
 // update completely overwrites the previous configuration of the alarm.
-#Properties: close({
+#Properties: matchIf({
+	Period!: int | string
+	...
+}, {
+	Period?: matchIf(
+		matchN(0, [matchN(0, [<=60])]),
+		==10 | "10" | ==30 | "30" | ==60 | "60",
+		null | bool | math.MultipleOf(60) | string | [...] | {...}
+	)
+	...
+}, _) & (close({
 	// Indicates whether actions should be executed during any changes to the alarm
 	// state. The default is TRUE.
 	ActionsEnabled?: bool
@@ -246,7 +257,7 @@ import (
 			"EvaluationCriteria cannot be used with MetricName; set exactly one of Metrics, MetricName, EvaluationCriteria",
 		)
 	}
-}) & matchN(>=1, [{Metrics!: _}, {MetricName!: _}, {EvaluationCriteria!: _}])
+}) & matchN(>=1, [{Metrics!: _}, {MetricName!: _}, {EvaluationCriteria!: _}]))
 
 // Contains the configuration that determines how a PromQL alarm evaluates its
 // contributors, including the query to run and the durations that define when

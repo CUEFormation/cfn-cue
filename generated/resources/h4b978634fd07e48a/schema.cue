@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates an ingestion destination, which specifies how an application's
@@ -17,13 +19,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // delivered.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppFabric::IngestionDestination"
-	Properties!: close({
-		AppBundleArn!:             strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:.+$" | fn.#StringExpression
+	let properties = close({
+		AppBundleArn!: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:.+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:.+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		DestinationConfiguration!: #DestinationConfiguration
-		IngestionArn!:             strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:.+$" | fn.#StringExpression
-		ProcessingConfiguration!:  #ProcessingConfiguration
-		Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		IngestionArn!: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:.+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:.+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ProcessingConfiguration!: #ProcessingConfiguration
+		Tags?:                    list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AuditLogDestinationConfiguration: close({Destination!: #Destination}) | fn.#ObjectExpression
@@ -47,19 +61,53 @@ fn.#ObjectExpression
 
 #DestinationConfiguration: close({AuditLog!: #AuditLogDestinationConfiguration}) | fn.#ObjectExpression
 
-#FirehoseStream: close({StreamName!: strings.MaxRunes(64) & strings.MinRunes(3) | fn.#StringExpression}) |
+#FirehoseStream: close({
+	StreamName!: strings.MaxRunes(64) & strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(3) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #ProcessingConfiguration: close({AuditLog!: #AuditLogProcessingConfiguration}) | fn.#ObjectExpression
 
-#S3Bucket: close({
-	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	Prefix?:     strings.MaxRunes(120) & strings.MinRunes(1) | fn.#StringExpression
+#S3Bucket: matchN(2, [{...}, {...}]) & close({
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Prefix?: strings.MaxRunes(120) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(120) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

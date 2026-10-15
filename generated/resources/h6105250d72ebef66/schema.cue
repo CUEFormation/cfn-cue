@@ -14,49 +14,114 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a runtime environment that can run migrated mainframe applications.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::M2::Environment"
-	Properties!: close({
-		Description?:            strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-		EngineType!:             #EngineType
-		EngineVersion?:          =~"^\\S{1,10}$" | fn.#StringExpression
-		HighAvailabilityConfig?: #HighAvailabilityConfig
-		InstanceType!:           =~"^\\S{1,20}$" | fn.#StringExpression
-		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string) & strings.MaxRunes(2048) |
+	let properties = close({
+		Description?: strings.MaxRunes(500) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & "\(self)"
+		} |
 		fn.#StringExpression
-		Name!:                       =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
-		NetworkType?:                #NetworkType
-		PreferredMaintenanceWindow?: =~"^\\S{1,50}$" | fn.#StringExpression
+		EngineType!: #EngineType
+		EngineVersion?: =~"^\\S{1,10}$" |
+		{
+			number | bool
+			_cfnString: =~"^\\S{1,10}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		HighAvailabilityConfig?: #HighAvailabilityConfig
+		InstanceType!: =~"^\\S{1,20}$" |
+		{
+			number | bool
+			_cfnString: =~"^\\S{1,20}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & strings.MaxRunes(2048) |
+		{
+			number | bool
+			_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+				=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+				=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+			strings.MaxRunes(2048) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		Name!: =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" |
+		{
+			number | bool
+			_cfnString: =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		NetworkType?: #NetworkType
+		PreferredMaintenanceWindow?: =~"^\\S{1,50}$" |
+		{
+			number | bool
+			_cfnString: =~"^\\S{1,50}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		PubliclyAccessible?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		SecurityGroupIds?: [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-				=~"^\\S{1,50}$" |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
+		SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^\\S{1,50}$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^\\S{1,50}$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		StorageConfigurations?: [...#StorageConfiguration] | fn.#ListExpression
-		SubnetIds?:             [...=~"^\\S{1,50}$" | fn.#StringExpression] | fn.#ListExpression
+		SubnetIds?: [...=~"^\\S{1,50}$" |
+		{
+			number | bool
+			_cfnString: =~"^\\S{1,50}$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 
 		// Tags associated to this environment.
 		Tags?: #TagMap
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #EfsStorageConfiguration: close({
-	FileSystemId!: =~"^\\S{1,200}$" | fn.#StringExpression
-	MountPoint!:   =~"^\\S{1,200}$" | fn.#StringExpression
+	FileSystemId!: =~"^\\S{1,200}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\S{1,200}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	MountPoint!: =~"^\\S{1,200}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\S{1,200}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EngineType: "microfocus" | "bluage" | fn.#StringExpression
 
 #FsxStorageConfiguration: close({
-	FileSystemId!: =~"^\\S{1,200}$" | fn.#StringExpression
-	MountPoint!:   =~"^\\S{1,200}$" | fn.#StringExpression
+	FileSystemId!: =~"^\\S{1,200}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\S{1,200}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	MountPoint!: =~"^\\S{1,200}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\S{1,200}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -82,7 +147,7 @@ fn.#ObjectExpression
 
 #NetworkType: "ipv4" | "dual" | fn.#StringExpression
 
-#StorageConfiguration: fn.#Object & {...} & matchN(1, [
+#StorageConfiguration: fn.#Object & matchN(1, [
 	close({Efs!: #EfsStorageConfiguration}), close({Fsx!: #FsxStorageConfiguration}),
 ]) |
 fn.#ObjectExpression

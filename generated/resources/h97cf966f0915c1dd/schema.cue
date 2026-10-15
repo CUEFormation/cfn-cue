@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::PricingPlanManager::Subscription. Deleting
@@ -19,12 +21,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // status) removes it immediately with no further charges.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::PricingPlanManager::Subscription"
-	Properties!: close({
-		PlanFamily!:   "CloudFront" | fn.#StringExpression
-		PlanTier!:     string | fn.#StringExpression
-		ResourceArns!: list.MaxItems(10) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-		UsageLevel?:   #UsageLevel
+	let properties = close({
+		PlanFamily!: "CloudFront" | fn.#StringExpression
+		PlanTier!:   string | number | bool | fn.#StringExpression
+		ResourceArns!: list.MaxItems(10) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
+		UsageLevel?: #UsageLevel
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #UsageLevel: "DEFAULT" |

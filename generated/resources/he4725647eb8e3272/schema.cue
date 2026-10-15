@@ -14,36 +14,80 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Transfer::User Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Transfer::User"
-	Properties!: close({
-		HomeDirectory?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(|/.*)$" | fn.#StringExpression
+	let properties = close({
+		HomeDirectory?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(|/.*)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(|/.*)$" & "\(self)"
+		} |
+		fn.#StringExpression
 		HomeDirectoryMappings?: list.MaxItems(50000) & list.MinItems(1) & [...#HomeDirectoryMapEntry] |
 			fn.#ListExpression
 		HomeDirectoryType?: #HomeDirectoryType
-		Policy?:            strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-		PosixProfile?:      #PosixProfile
-		Role!:              strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*role/\\S+$" | fn.#StringExpression
-		ServerId!:          strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$" | fn.#StringExpression
-		SshPublicKeys?: [
-			...strings.MaxRunes(2048) &
+		Policy?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		PosixProfile?: #PosixProfile
+		Role!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*role/\\S+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*role/\\S+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ServerId!: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SshPublicKeys?: [...strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^\\s*(ssh|ecdsa)-[a-z0-9-]+[ \\t]+(([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{1,3})?(={0,3})?)(\\s*|[ \\t]+[\\S \\t]*\\s*)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
 			strings.MinRunes(0) &
-			=~"^\\s*(ssh|ecdsa)-[a-z0-9-]+[ \\t]+(([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{1,3})?(={0,3})?)(\\s*|[ \\t]+[\\S \\t]*\\s*)$" |
-			fn.#StringExpression
-		] |
+			=~"^\\s*(ssh|ecdsa)-[a-z0-9-]+[ \\t]+(([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{1,3})?(={0,3})?)(\\s*|[ \\t]+[\\S \\t]*\\s*)$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		Tags?:     list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-		UserName!: strings.MaxRunes(100) & strings.MinRunes(3) & =~"^[\\w][\\w@.-]{2,99}$" | fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		UserName!: strings.MaxRunes(100) & strings.MinRunes(3) & =~"^[\\w][\\w@.-]{2,99}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(3) & =~"^[\\w][\\w@.-]{2,99}$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #HomeDirectoryMapEntry: close({
-	Entry!:  strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^/.*$" | fn.#StringExpression
-	Target!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^/.*$" | fn.#StringExpression
-	Type?:   #MapType
+	Entry!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^/.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^/.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Target!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^/.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^/.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Type?: #MapType
 }) |
 fn.#ObjectExpression
 
@@ -119,7 +163,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

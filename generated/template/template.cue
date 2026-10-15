@@ -10,7 +10,10 @@ import cfnScalarStrings "strings"
 
 import cfnScalarStrconv "strconv"
 
-#LogicalID: =~"^[A-Za-z][A-Za-z0-9]{0,254}$"
+#LogicalID: =~"^[A-Za-z0-9]{1,255}$"
+#Policy: fn.#Object |
+	close({[=~"^Fn::If$"]: [string, #Policy | fn.#NoValue, #Policy | fn.#NoValue]}) & structs.MinFields(1)
+#ConditionName: =~"^[A-Za-z0-9&_]{1,255}$"
 #ResourceAttributes: {
 	Type!:                string
 	Properties?:          _
@@ -19,8 +22,8 @@ import cfnScalarStrconv "strconv"
 	Metadata?:            fn.#Object
 	DeletionPolicy?:      "Delete" | "Retain" | "Snapshot" | "RetainExceptOnCreate" | fn.#StringExpression
 	UpdateReplacePolicy?: "Delete" | "Retain" | "Snapshot" | fn.#StringExpression
-	CreationPolicy?:      fn.#Object
-	UpdatePolicy?:        fn.#Object
+	CreationPolicy?:      #Policy
+	UpdatePolicy?:        #Policy
 	Version?:             string | int
 }
 #Parameter: {
@@ -32,8 +35,8 @@ import cfnScalarStrconv "strconv"
 	AllowedPattern?:        string
 	ConstraintDescription?: string
 	Description?:           string
-	Default?:               string | number
-	AllowedValues?:         [...string | number]
+	Default?:               string | number | bool
+	AllowedValues?:         [...string | number | bool]
 	NoEcho?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE"
 	MaxLength?: int & >=0 | {
 		string &
@@ -114,9 +117,9 @@ import cfnScalarStrconv "strconv"
 	Description?:              string
 	Metadata?:                 fn.#Object
 	Parameters?: [#LogicalID]: #Parameter
-	Mappings?: [#LogicalID]: [string]: [string]: string | number | [...string]
-	Conditions?: [#LogicalID]: fn.#ConditionExpression
-	Rules?: [#LogicalID]:      #Rule
+	Mappings?: [#LogicalID]: [string]: [string]: string | number | bool | [...string | number | bool]
+	Conditions?: [#ConditionName]: fn.#ConditionExpression
+	Rules?: [#LogicalID]:          #Rule
 	Resources!: {...} & structs.MinFields(1)
 	Outputs?: [#LogicalID]: #Output
 	Transform?: string | [...string]

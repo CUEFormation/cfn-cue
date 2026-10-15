@@ -10,12 +10,14 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SMSVOICE::ProtectConfiguration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SMSVOICE::ProtectConfiguration"
-	Properties?: close({
+	let properties = close({
 		// An array of CountryRule containing the rules for the NumberCapability.
 		CountryRuleSet?: #CountryRuleSet
 		DeletionProtectionEnabled?: bool |
@@ -28,10 +30,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#BooleanExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CountryRule: close({
-	CountryCode!:   =~"^[A-Z]{2}$" | fn.#StringExpression
+	CountryCode!: =~"^[A-Z]{2}$" |
+	{
+		number | bool
+		_cfnString: =~"^[A-Z]{2}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ProtectStatus!: "ALLOW" | "BLOCK" | "MONITOR" | "FILTER" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -44,7 +53,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

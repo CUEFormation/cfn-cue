@@ -13,14 +13,21 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::AutoScaling::WarmPool.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AutoScaling::WarmPool"
-	Properties!: close({
-		AutoScalingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		InstanceReusePolicy?:  #InstanceReusePolicy
+	let properties = close({
+		AutoScalingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		InstanceReusePolicy?: #InstanceReusePolicy
 		MaxGroupPreparedCapacity?: int & >=-1 |
 			{
 				string &
@@ -57,6 +64,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		PoolState?: "Hibernated" | "Running" | "Stopped" | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #InstanceReusePolicy: close(

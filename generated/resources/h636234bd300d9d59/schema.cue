@@ -6,10 +6,14 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SES::ReceiptRuleSet
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SES::ReceiptRuleSet"
-	Properties?: close({RuleSetName?: string | fn.#StringExpression})
+	Type!: "AWS::SES::ReceiptRuleSet"
+	let properties = close({RuleSetName?: string | number | bool | fn.#StringExpression})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

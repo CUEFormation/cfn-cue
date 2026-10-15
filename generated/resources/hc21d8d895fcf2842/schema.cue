@@ -9,48 +9,99 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTSiteWise::Portal
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTSiteWise::Portal"
-	Properties!: close({
+	let properties = close({
 		Alarms?: close({
 			AlarmRoleArn?: strings.MaxRunes(1600) &
 			strings.MinRunes(1) &
 			=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1600) &
+				strings.MinRunes(1) &
+				=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			NotificationLambdaArn?: strings.MaxRunes(1600) &
 			strings.MinRunes(1) &
 			=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1600) &
+				strings.MinRunes(1) &
+				=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		NotificationSenderEmail?: strings.MaxRunes(255) &
 		strings.MinRunes(1) &
 		=~"^[a-zA-Z0-9_\\-\\.\\+]+@[a-zA-Z0-9_\\-\\.\\+]+\\.[a-zA-Z]{2,}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z0-9_\\-\\.\\+]+@[a-zA-Z0-9_\\-\\.\\+]+\\.[a-zA-Z]{2,}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		PortalAuthMode?: "IAM" | "SSO" | fn.#StringExpression
 		PortalContactEmail!: strings.MaxRunes(255) &
 		strings.MinRunes(1) &
 		=~"^[a-zA-Z0-9_\\-\\.\\+]+@[a-zA-Z0-9_\\-\\.\\+]+\\.[a-zA-Z]{2,}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z0-9_\\-\\.\\+]+@[a-zA-Z0-9_\\-\\.\\+]+\\.[a-zA-Z]{2,}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		PortalDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		PortalName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 		PortalType?:              "SITEWISE_PORTAL_V1" | "SITEWISE_PORTAL_V2" | fn.#StringExpression
 		PortalTypeConfiguration?: #PortalTypeConfiguration
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(1600) &
 		strings.MinRunes(1) &
 		=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(1600) &
+			strings.MinRunes(1) &
+			=~"^arn:aws(-cn|-us-gov)?:[a-zA-Z0-9-:\\/_\\.\\+=,@]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#PortalTools: [...string | fn.#StringExpression] | fn.#ListExpression
+#PortalTools: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 
 #PortalTypeConfiguration: close({
 
@@ -60,7 +111,7 @@ fn.#ObjectExpression
 #PortalTypeEntry: close({PortalTools!: #PortalTools}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

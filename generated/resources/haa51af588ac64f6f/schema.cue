@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a channel in an Amazon Chime SDK Messaging AppInstance. Members of a
@@ -22,32 +24,69 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // ChimeBearer and forms part of the channel's CloudFormation identifier.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Chime::Channel"
-	Properties!: close({
-		AppInstanceArn!: strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
+	let properties = close({
+		AppInstanceArn!: strings.MaxRunes(1600) & strings.MinRunes(5) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1600) & strings.MinRunes(5) & "\(self)"
+		} |
+		fn.#StringExpression
 		ChannelId?: strings.MaxRunes(64) &
 		strings.MinRunes(1) &
 		=~"^[A-Za-z0-9]([A-Za-z0-9\\:\\-\\_\\.\\@]{0,62}[A-Za-z0-9])?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) &
+			strings.MinRunes(1) &
+			=~"^[A-Za-z0-9]([A-Za-z0-9\\:\\-\\_\\.\\@]{0,62}[A-Za-z0-9])?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		ChimeBearer!:                 strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
+		ChimeBearer!: strings.MaxRunes(1600) & strings.MinRunes(5) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1600) & strings.MinRunes(5) & "\(self)"
+		} |
+		fn.#StringExpression
 		ElasticChannelConfiguration?: #ElasticChannelConfiguration
 		ExpirationSettings?:          #ExpirationSettings
-		MemberArns?: list.MaxItems(10) & list.MinItems(1) & [
-			...strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
-		] |
+		MemberArns?: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(1600) & strings.MinRunes(5) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1600) & strings.MinRunes(5) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		Metadata?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		Mode?:     "UNRESTRICTED" | "RESTRICTED" | fn.#StringExpression
-		ModeratorArns?: list.MaxItems(10) & list.MinItems(1) & [
-			...strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
-		] |
+		Metadata?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Mode?: "UNRESTRICTED" | "RESTRICTED" | fn.#StringExpression
+		ModeratorArns?: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(1600) & strings.MinRunes(5) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1600) & strings.MinRunes(5) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		Name!: strings.MaxRunes(256) &
 		strings.MinRunes(1) &
 		=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{0085}\\x{00A0}-\\x{D7FF}\\x{E000}-\\x{FFFD}𐀀-\U0010ffff]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(1) &
+			=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{0085}\\x{00A0}-\\x{D7FF}\\x{E000}-\\x{FFFD}𐀀-\U0010ffff]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Privacy?: "PUBLIC" | "PRIVATE" | fn.#StringExpression
 		Tags?:    list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ElasticChannelConfiguration: close({
@@ -122,7 +161,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

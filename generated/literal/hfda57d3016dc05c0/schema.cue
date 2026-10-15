@@ -29,7 +29,19 @@ import (
 // source](https://docs.aws.amazon.com/lambda/latest/dg/kafka-smaa.html)
 // + [Configuring Amazon DocumentDB as an event
 // source](https://docs.aws.amazon.com/lambda/latest/dg/with-documentdb.html)
-#Properties: close({
+#Properties: matchN(2, [matchIf({
+	EventSourceArn!: =~"^arn:(aws[a-zA-Z0-9-]*):sqs:([a-z]{2}(-gov)?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)$"
+	...
+}, {
+	StartingPosition?: error("disallowed")
+	...
+}, _), matchIf({
+	EventSourceArn!: =~"arn:aws.*:(kinesis|kafka|dynamodb):.*"
+	...
+}, {
+	StartingPosition!: _
+	...
+}, _)]) & close({
 	// Specific configuration settings for an Amazon Managed Streaming for Apache
 	// Kafka (Amazon MSK) event source.
 	AmazonManagedKafkaEventSourceConfig?: #AmazonManagedKafkaEventSourceConfig

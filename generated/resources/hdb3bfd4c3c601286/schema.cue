@@ -14,38 +14,72 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Trigger
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::Trigger"
-	Properties!: close({
-		Actions!:     [...#Action] | fn.#ListExpression
-		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		Actions!: [...#Action] | fn.#ListExpression
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Batch condition that must be met (specified number of events received or
 		// batch time window expired) before EventBridge event trigger fires.
 		EventBatchingCondition?: #EventBatchingCondition
-		Name?:                   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The predicate of this trigger, which defines when it will fire.
 		Predicate?:       #Predicate
-		Schedule?:        string | fn.#StringExpression
+		Schedule?:        string | number | bool | fn.#StringExpression
 		StartOnCreation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Tags?:            fn.#Object & {...} | string | fn.#StringObjectExpression
+		Tags?:            fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		Type!:            "CONDITIONAL" | "EVENT" | "ON_DEMAND" | "SCHEDULED" | fn.#StringExpression
-		WorkflowName?:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		WorkflowName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Action: close({
-	Arguments?:   fn.#Object & {...} | string | fn.#StringObjectExpression
-	CrawlerName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	JobName?:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Arguments?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+	CrawlerName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	JobName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// Specifies configuration properties of a job run notification.
-	NotificationProperty?:  #NotificationProperty
-	SecurityConfiguration?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	NotificationProperty?: #NotificationProperty
+	SecurityConfiguration?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Timeout?: int & >=1 |
 		{
 			string &
@@ -65,9 +99,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Condition: close({
-	CrawlState?:      "CANCELLED" | "CANCELLING" | "ERROR" | "FAILED" | "RUNNING" | "SUCCEEDED" | fn.#StringExpression
-	CrawlerName?:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	JobName?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	CrawlState?: "CANCELLED" | "CANCELLING" | "ERROR" | "FAILED" | "RUNNING" | "SUCCEEDED" | fn.#StringExpression
+	CrawlerName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	JobName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	LogicalOperator?: "EQUALS" | fn.#StringExpression
 	State?:           "SUCCEEDED" | "STOPPED" | "TIMEOUT" | "FAILED" | fn.#StringExpression
 }) |

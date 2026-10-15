@@ -3,6 +3,7 @@
 package schema
 
 import (
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
 )
@@ -27,7 +28,7 @@ import (
 
 #CRResourceStatus: "CREATING" | "OPERATIONAL" | "UPDATING" | "DELETING"
 
-#Cidr: strings.MaxRunes(42) & strings.MinRunes(1)
+#Cidr: fn.#IPv4Network & string & strings.MaxRunes(42) & strings.MinRunes(1)
 
 #DnsProtocol: "DO53" | "DOH" | "DOT"
 

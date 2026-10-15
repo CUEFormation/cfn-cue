@@ -6,14 +6,33 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Deadline::QueueLimitAssociation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Deadline::QueueLimitAssociation"
-	Properties!: close({
-		FarmId!:  =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
-		LimitId!: =~"^limit-[0-9a-f]{32}$" | fn.#StringExpression
-		QueueId!: =~"^queue-[0-9a-f]{32}$" | fn.#StringExpression
+	let properties = close({
+		FarmId!: =~"^farm-[0-9a-f]{32}$" |
+		{
+			number | bool
+			_cfnString: =~"^farm-[0-9a-f]{32}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		LimitId!: =~"^limit-[0-9a-f]{32}$" |
+		{
+			number | bool
+			_cfnString: =~"^limit-[0-9a-f]{32}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		QueueId!: =~"^queue-[0-9a-f]{32}$" |
+		{
+			number | bool
+			_cfnString: =~"^queue-[0-9a-f]{32}$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

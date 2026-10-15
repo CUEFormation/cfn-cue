@@ -6,6 +6,7 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
+	"math"
 )
 
 import cfnScalarStrings "strings"
@@ -13,6 +14,8 @@ import cfnScalarStrings "strings"
 import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
+
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -25,12 +28,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // update completely overwrites the previous configuration of the alarm.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudWatch::Alarm"
-	Properties?: close({
+	let properties = matchIf({
+		Period!: int | string | bool
+		...
+	}, {
+		Period?: matchIf(
+			matchN(0, [matchN(0, [<=60])]),
+			==10 | "10" | 10 | ==30 | "30" | 30 | ==60 | "60" | 60,
+			null | bool | math.MultipleOf(60) | string | number | [...] | {...}
+		) |
+		fn.#ValueExpression
+		...
+	}, _) & (close({
 		ActionsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		AlarmActions?: [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
+		AlarmActions?: [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		AlarmDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		AlarmName?:        strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		AlarmDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		AlarmName?: strings.MaxRunes(255) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		ComparisonOperator?: "GreaterThanOrEqualToThreshold" |
 			"GreaterThanThreshold" |
 			"GreaterThanUpperThreshold" |
@@ -56,8 +85,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Dimensions?:                       list.MaxItems(30) & [...] & [...#Dimension] | fn.#ListExpression
-		EvaluateLowSampleCountPercentile?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Dimensions?: list.MaxItems(30) & [...] & [...#Dimension] | fn.#ListExpression
+		EvaluateLowSampleCountPercentile?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The evaluation criteria for the alarm.
 		EvaluationCriteria?: #EvaluationCriteria
@@ -103,13 +137,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// windows](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/alarm-evaluation-window.html)
 		// in the *CloudWatch User Guide*.
 		EvaluationWindow?:  #EvaluationWindow
-		ExtendedStatistic?: string | fn.#StringExpression
-		InsufficientDataActions?: [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
+		ExtendedStatistic?: string | number | bool | fn.#StringExpression
+		InsufficientDataActions?: [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Metrics?:    list.UniqueItems() & [...#MetricDataQuery] | fn.#ListExpression
-		Namespace?:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" | fn.#StringExpression
-		OKActions?: [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
+		MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Metrics?: list.UniqueItems() & [...#MetricDataQuery] | fn.#ListExpression
+		Namespace?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" & "\(self)"
+		} |
+		fn.#StringExpression
+		OKActions?: [...] & [...strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		Period?: int & >=1 |
 			{
@@ -149,8 +203,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		ThresholdMetricId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		ThresholdMetricId?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		TreatMissingData?: ("breaching" | "ignore" | "missing" | "notBreaching") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: ("breaching" | "ignore" | "missing" | "notBreaching") &
+			strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Unit?: "Bits" |
 			"Bits/Second" |
@@ -216,7 +282,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				"EvaluationCriteria cannot be used with MetricName; set exactly one of Metrics, MetricName, EvaluationCriteria",
 			)
 		}
-	}) & matchN(>=1, [{Metrics!: _}, {MetricName!: _}, {EvaluationCriteria!: _}])
+	}) & matchN(>=1, [{Metrics!: _}, {MetricName!: _}, {EvaluationCriteria!: _}]))
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AlarmPromQLCriteria: close({
@@ -234,7 +302,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Query?: string | fn.#StringExpression
+	Query?: string | number | bool | fn.#StringExpression
 	RecoveryPeriod?: int |
 		{
 			string &
@@ -253,8 +321,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Dimension: close({
-	Name!:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Name!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -281,16 +359,41 @@ fn.#ObjectExpression
 
 #Metric: close({
 	Dimensions?: list.MaxItems(30) & [...] & [...#Dimension] | fn.#ListExpression
-	MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Namespace?:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" | fn.#StringExpression
+	MetricName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Namespace?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MetricDataQuery: close({
-	AccountId?:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Expression?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Id!:         strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([a-z])([A-Za-z0-9\\_]*)$" | fn.#StringExpression
-	Label?:      string | fn.#StringExpression
+	AccountId?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Expression?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Id!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([a-z])([A-Za-z0-9\\_]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([a-z])([A-Za-z0-9\\_]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Label?: string | number | bool | fn.#StringExpression
 
 	// The metric to be returned, along with statistics, period, and units. Use this
 	// parameter only if this object is retrieving a metric and not performing a
@@ -335,7 +438,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Stat!: string | fn.#StringExpression
+	Stat!: string | number | bool | fn.#StringExpression
 	Unit?: "Bits" |
 		"Bits/Second" |
 		"Bytes" |
@@ -368,12 +471,22 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#WallClockWindow: close({Timezone?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#WallClockWindow: close({Timezone?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #WarmUpConfiguration: close({
 	OnlyStartEvaluatingAfterWarmUpPeriodEnds?: bool |

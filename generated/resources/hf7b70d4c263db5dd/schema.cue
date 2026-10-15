@@ -9,17 +9,21 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SES::ConfigurationSetEventDestination
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SES::ConfigurationSetEventDestination"
-	Properties!: close({
-		ConfigurationSetName!: string | fn.#StringExpression
+	let properties = close({
+		ConfigurationSetName!: string | number | bool | fn.#StringExpression
 
 		// The event destination object.
 		EventDestination!: #EventDestination
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CloudWatchDestination: close({DimensionConfigurations?: [...#DimensionConfiguration] | fn.#ListExpression}) |
@@ -27,8 +31,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #DimensionConfiguration: close({
 	DefaultDimensionValue!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,256}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{1,256}$" & "\(self)"
+	} |
 	fn.#StringExpression
-	DimensionName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
+	DimensionName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_:-]{1,256}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_:-]{1,256}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	DimensionValueSource!: "EMAIL_HEADER" |
 		"LINK_TAG" |
 		"MESSAGE_TAG" |
@@ -43,6 +56,13 @@ fn.#ObjectExpression
 	EventBusArn!: strings.MaxRunes(1024) &
 	strings.MinRunes(36) &
 	=~"^arn:aws[a-z0-9-]*:events:[a-z0-9-]+:\\d{12}:event-bus/[^:]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) &
+		strings.MinRunes(36) &
+		=~"^arn:aws[a-z0-9-]*:events:[a-z0-9-]+:\\d{12}:event-bus/[^:]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -59,8 +79,13 @@ fn.#ObjectExpression
 	// An object that contains the delivery stream ARN and the IAM role ARN
 	// associated with an Amazon Kinesis Firehose event destination.
 	KinesisFirehoseDestination?: #KinesisFirehoseDestination
-	MatchingEventTypes!:         [...string | fn.#StringExpression] | fn.#ListExpression
-	Name?:                       =~"^[a-zA-Z0-9_-]{0,64}$" | fn.#StringExpression
+	MatchingEventTypes!:         [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Name?: =~"^[a-zA-Z0-9_-]{0,64}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9_-]{0,64}$" & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// An object that contains SNS topic ARN associated event destination.
 	SnsDestination?: #SnsDestination
@@ -68,17 +93,29 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #KinesisFirehoseDestination: close({
-	DeliveryStreamARN!: string | fn.#StringExpression
-	IAMRoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	DeliveryStreamARN!: string | number | bool | fn.#StringExpression
+	IAMRoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SnsDestination: close({
-	TopicARN!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	TopicARN!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" &
 	strings.MaxRunes(1024) &
 	strings.MinRunes(36) &
 	=~"^arn:aws[a-z0-9-]*:sns:[a-z0-9-]+:\\d{12}:[^:]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(36) &
+		=~"^arn:aws[a-z0-9-]*:sns:[a-z0-9-]+:\\d{12}:[^:]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

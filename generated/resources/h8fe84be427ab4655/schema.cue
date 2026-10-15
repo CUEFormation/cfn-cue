@@ -14,13 +14,20 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Rbin::Rule
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Rbin::Rule"
-	Properties!: close({
-		Description?:         strings.MaxRunes(255) & =~"^[\\S ]{0,255}$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(255) & =~"^[\\S ]{0,255}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & =~"^[\\S ]{0,255}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ExcludeResourceTags?: list.MaxItems(5) & list.UniqueItems() & [...] & [...#ResourceTag] | fn.#ListExpression
 
 		// Information about the retention rule lock configuration.
@@ -30,14 +37,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		// Information about the retention period for which the retention rule is to retain resources.
 		RetentionPeriod!: #RetentionPeriod
-		Status?:          =~"pending|available" | fn.#StringExpression
-		Tags?:            list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		Status?: =~"pending|available" |
+		{
+			number | bool
+			_cfnString: =~"pending|available" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ResourceTag: close({
-	ResourceTagKey!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S\\s]{1,128}$" | fn.#StringExpression
-	ResourceTagValue!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\S\\s]{0,256}$" | fn.#StringExpression
+	ResourceTagKey!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S\\s]{1,128}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S\\s]{1,128}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ResourceTagValue!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\S\\s]{0,256}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\S\\s]{0,256}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -63,8 +87,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

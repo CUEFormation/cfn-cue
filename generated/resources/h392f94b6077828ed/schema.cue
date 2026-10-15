@@ -9,6 +9,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SSM::ServiceSetting. ServiceSetting is an
@@ -16,8 +18,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // with or uses a service or feature.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSM::ServiceSetting"
-	Properties!: close({
-		SettingId!:    strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-		SettingValue!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		SettingId!: strings.MaxRunes(1000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		SettingValue!: strings.MaxRunes(4096) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

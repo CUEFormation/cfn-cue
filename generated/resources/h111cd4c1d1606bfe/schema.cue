@@ -10,31 +10,62 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::LicenseManager::LicenseAssetGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::LicenseManager::LicenseAssetGroup"
-	Properties!: close({
-		AssociatedLicenseAssetRulesetARNs!: [...strings.MaxRunes(2048) | fn.#StringExpression] | fn.#ListExpression
-		Description?:                       strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		LicenseAssetGroupConfigurations!:   [...#LicenseAssetGroupConfiguration] | fn.#ListExpression
-		Name!:                              strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-		Properties?:                        [...#LicenseAssetGroupProperty] | fn.#ListExpression
-		Tags?:                              list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	let properties = close({
+		AssociatedLicenseAssetRulesetARNs!: [...strings.MaxRunes(2048) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		LicenseAssetGroupConfigurations!: [...#LicenseAssetGroupConfiguration] | fn.#ListExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Properties?: [...#LicenseAssetGroupProperty] | fn.#ListExpression
+		Tags?:       list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#LicenseAssetGroupConfiguration: close({UsageDimension?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#LicenseAssetGroupConfiguration: close({UsageDimension?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #LicenseAssetGroupProperty: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

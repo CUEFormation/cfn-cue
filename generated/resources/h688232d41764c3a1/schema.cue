@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::Neptune::DBParameterGroup creates a new DB parameter group. This type
@@ -13,17 +15,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // parameter of AWS::Neptune::DBInstance
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Neptune::DBParameterGroup"
-	Properties!: close({
-		Description!: string | fn.#StringExpression
-		Family!:      string | fn.#StringExpression
-		Name?:        string | fn.#StringExpression
-		Parameters!:  fn.#Object & {...} | string | fn.#StringObjectExpression
+	let properties = close({
+		Description!: string | number | bool | fn.#StringExpression
+		Family!:      string | number | bool | fn.#StringExpression
+		Name?:        string | number | bool | fn.#StringExpression
+		Parameters!:  fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		Tags?:        [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

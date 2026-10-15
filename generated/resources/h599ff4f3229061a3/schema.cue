@@ -13,14 +13,20 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CodeDeploy::DeploymentConfig
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodeDeploy::DeploymentConfig"
-	Properties?: close({
+	let properties = close({
 		ComputePlatform?: "ECS" | "Lambda" | "Server" | fn.#StringExpression
 		DeploymentConfigName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" & "\(self)"
+		} |
 		fn.#StringExpression
 
 		// The minimum number of healthy instances that should be available at any time
@@ -34,6 +40,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// The zonal deployment config that specifies how the zonal deployment behaves
 		ZonalConfig?: #ZonalConfig
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #MinimumHealthyHosts: close({

@@ -10,23 +10,27 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaConnect::BridgeOutput
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaConnect::BridgeOutput"
-	Properties!: close({
-		BridgeArn!: string | fn.#StringExpression
-		Name!:      string | fn.#StringExpression
+	let properties = close({
+		BridgeArn!: string | number | bool | fn.#StringExpression
+		Name!:      string | number | bool | fn.#StringExpression
 
 		// The output of the bridge.
 		NetworkOutput!: #BridgeNetworkOutput
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #BridgeNetworkOutput: close({
-	IpAddress!:   string | fn.#StringExpression
-	NetworkName!: string | fn.#StringExpression
+	IpAddress!:   string | number | bool | fn.#StringExpression
+	NetworkName!: string | number | bool | fn.#StringExpression
 	Port!: int |
 		{
 			string &

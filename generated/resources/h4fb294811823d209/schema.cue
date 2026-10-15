@@ -14,24 +14,36 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::CloudFormation::Stack resource nests a stack as a resource in a top-level template.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFormation::Stack"
-	Properties!: close({
-		NotificationARNs?: list.MaxItems(5) & [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		NotificationARNs?: list.MaxItems(5) & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Parameters?: close({
 
 			{[=~"[a-zA-Z0-9]+"]: fn.#Object & {...} |
 			bool |
-			int |
+			number |
 			string |
 			[...] |
-			fn.#StringNumberBooleanListObjectExpression}}) |
+			fn.#StringNumberBooleanListObjectExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
-		Tags?:        list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-		TemplateURL!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		TemplateURL!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		TimeoutInMinutes?: int & >=1 |
 			{
 				string &
@@ -50,10 +62,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

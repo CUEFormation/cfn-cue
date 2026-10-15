@@ -13,39 +13,49 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpsWorks::Layer
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::OpsWorks::Layer"
-	Properties!: close({
+	let properties = close({
 		Attributes?: {
-			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
+			{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
 			...
 		} | fn.#ObjectExpression
 		AutoAssignElasticIps!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		AutoAssignPublicIps!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		CustomInstanceProfileArn?: string | fn.#StringExpression
-		CustomJson?:               fn.#Object & {...} | string | fn.#StringObjectExpression
+		CustomInstanceProfileArn?: string | number | bool | fn.#StringExpression
+		CustomJson?:               fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		CustomRecipes?:            #Recipes
-		CustomSecurityGroupIds?: [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
+		CustomSecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		EnableAutoHealing!:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		InstallUpdatesOnBoot?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		LifecycleEventConfiguration?: #LifecycleEventConfiguration
 		LoadBasedAutoScaling?:        #LoadBasedAutoScaling
-		Name!:                        string | fn.#StringExpression
-		Packages?:                    [...string | fn.#StringExpression] | fn.#ListExpression
-		Shortname!:                   string | fn.#StringExpression
-		StackId!:                     string | fn.#StringExpression
+		Name!:                        string | number | bool | fn.#StringExpression
+		Packages?:                    [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		Shortname!:                   string | number | bool | fn.#StringExpression
+		StackId!:                     string | number | bool | fn.#StringExpression
 		Tags?:                        [...#Tag] | fn.#ListExpression
-		Type!:                        string | fn.#StringExpression
+		Type!:                        string | number | bool | fn.#StringExpression
 		UseEbsOptimizedInstances?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		VolumeConfigurations?:     [...#VolumeConfiguration] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AutoScalingThresholds: close({
@@ -161,11 +171,11 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Recipes: close({
-	Configure?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Deploy?:    list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Setup?:     list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Shutdown?:  list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Undeploy?:  list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	Configure?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Deploy?:    list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Setup?:     list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Shutdown?:  list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Undeploy?:  list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -196,8 +206,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -217,7 +227,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	MountPoint?: string | fn.#StringExpression
+	MountPoint?: string | number | bool | fn.#StringExpression
 	NumberOfDisks?: int |
 		{
 			string &
@@ -260,6 +270,6 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	VolumeType?: string | fn.#StringExpression
+	VolumeType?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

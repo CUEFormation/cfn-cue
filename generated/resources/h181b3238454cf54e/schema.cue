@@ -11,6 +11,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates and manages a scheduled report for an AWS Billing and Cost Management
@@ -19,27 +21,54 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // underlying cost and usage data.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BCM::ScheduledReport"
-	Properties!: close({
+	let properties = close({
 		DashboardArn!: strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:aws[-a-z0-9]*:bcm-dashboards::[0-9]{12}:dashboard/(\\*|[-a-z0-9]+)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:aws[-a-z0-9]*:bcm-dashboards::[0-9]{12}:dashboard/(\\*|[-a-z0-9]+)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-		Name!:        strings.MaxRunes(50) & strings.MinRunes(2) | fn.#StringExpression
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(50) & strings.MinRunes(2) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(2) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The schedule configuration that defines when and how often the report is generated.
 		ScheduleConfig!: #ScheduleConfig
-		ScheduledReportExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		ScheduledReportExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:aws[-a-z0-9]*:iam::[0-9]{12}:role/[a-zA-Z0-9+=,.@_/-]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:aws[-a-z0-9]*:iam::[0-9]{12}:role/[a-zA-Z0-9+=,.@_/-]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(200) & [...#Tag] | fn.#ListExpression
 
 		// The date range override applied to widgets in the scheduled report.
 		WidgetDateRangeOverride?: #DateTimeRange
-		WidgetIds?:               list.MaxItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+		WidgetIds?: list.MaxItems(1) & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #DateTimeRange: close({
@@ -55,14 +84,29 @@ fn.#ObjectExpression
 
 #DateTimeValue: close({
 	// Whether Value is an absolute date or a duration relative to now.
-	Type!:  #DateTimeType
-	Value!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
+	Type!: #DateTimeType
+	Value!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ScheduleConfig: close({
-	ScheduleExpression?:         strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
-	ScheduleExpressionTimeZone?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
+	ScheduleExpression?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ScheduleExpressionTimeZone?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\S\\s]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// The time period during which the schedule is active.
 	SchedulePeriod?: #SchedulePeriod
@@ -83,7 +127,17 @@ fn.#ObjectExpression
 #ScheduleState: "ENABLED" | "DISABLED" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S\\s]*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S\\s]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\S\\s]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\S\\s]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\S\\s]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

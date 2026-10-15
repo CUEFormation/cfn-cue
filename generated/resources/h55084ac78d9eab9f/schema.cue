@@ -15,16 +15,25 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoT::TopicRule
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::TopicRule"
-	Properties!: close({
-		RuleName?:         strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" | fn.#StringExpression
+	let properties = close({
+		RuleName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?:             [...#Tag] | fn.#ListExpression
 		TopicRulePayload!: #TopicRulePayload
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Action: close({
@@ -55,23 +64,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #AssetPropertyTimestamp: close({
-	OffsetInNanos?: string | fn.#StringExpression
-	TimeInSeconds!: string | fn.#StringExpression
+	OffsetInNanos?: string | number | bool | fn.#StringExpression
+	TimeInSeconds!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AssetPropertyValue: close({
-	Quality?:   string | fn.#StringExpression
+	Quality?:   string | number | bool | fn.#StringExpression
 	Timestamp!: #AssetPropertyTimestamp
 	Value!:     #AssetPropertyVariant
 }) |
 fn.#ObjectExpression
 
 #AssetPropertyVariant: close({
-	BooleanValue?: string | fn.#StringExpression
-	DoubleValue?:  string | fn.#StringExpression
-	IntegerValue?: string | fn.#StringExpression
-	StringValue?:  string | fn.#StringExpression
+	BooleanValue?: string | number | bool | fn.#StringExpression
+	DoubleValue?:  string | number | bool | fn.#StringExpression
+	IntegerValue?: string | number | bool | fn.#StringExpression
+	StringValue?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -139,102 +148,179 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #CloudwatchAlarmAction: close({
-	AlarmName!: string | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	StateReason!: string | fn.#StringExpression
-	StateValue!:  string | fn.#StringExpression
+	AlarmName!: string | number | bool | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	StateReason!: string | number | bool | fn.#StringExpression
+	StateValue!:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CloudwatchLogsAction: close({
 	BatchMode?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LogGroupName!: string | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	LogGroupName!: string | number | bool | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CloudwatchMetricAction: close({
-	MetricName!:      string | fn.#StringExpression
-	MetricNamespace!: string | fn.#StringExpression
-	MetricTimestamp?: string | fn.#StringExpression
-	MetricUnit!:      string | fn.#StringExpression
-	MetricValue!:     string | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	MetricName!:      string | number | bool | fn.#StringExpression
+	MetricNamespace!: string | number | bool | fn.#StringExpression
+	MetricTimestamp?: string | number | bool | fn.#StringExpression
+	MetricUnit!:      string | number | bool | fn.#StringExpression
+	MetricValue!:     string | number | bool | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DynamoDBAction: close({
-	HashKeyField!:  string | fn.#StringExpression
+	HashKeyField!:  string | number | bool | fn.#StringExpression
 	HashKeyType?:   "NUMBER" | "STRING" | fn.#StringExpression
-	HashKeyValue!:  string | fn.#StringExpression
-	PayloadField?:  string | fn.#StringExpression
-	RangeKeyField?: string | fn.#StringExpression
+	HashKeyValue!:  string | number | bool | fn.#StringExpression
+	PayloadField?:  string | number | bool | fn.#StringExpression
+	RangeKeyField?: string | number | bool | fn.#StringExpression
 	RangeKeyType?:  "NUMBER" | "STRING" | fn.#StringExpression
-	RangeKeyValue?: string | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	TableName!: string | fn.#StringExpression
+	RangeKeyValue?: string | number | bool | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TableName!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DynamoDBv2Action: close({
 	PutItem?: #PutItemInput
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ElasticsearchAction: close({
-	Endpoint!: =~"^https?://" | fn.#StringExpression
-	Id!:       string | fn.#StringExpression
-	Index!:    string | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Type!: string | fn.#StringExpression
+	Endpoint!: =~"^https?://" |
+	{
+		number | bool
+		_cfnString: =~"^https?://" & "\(self)"
+	} |
+	fn.#StringExpression
+	Id!:    string | number | bool | fn.#StringExpression
+	Index!: string | number | bool | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FirehoseAction: close({
 	BatchMode?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DeliveryStreamName!: string | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Separator?: =~"^([\\n\\t])|(\\r\\n)|(,)$" | fn.#StringExpression
+	DeliveryStreamName!: string | number | bool | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Separator?: =~"^([\\n\\t])|(\\r\\n)|(,)$" |
+	{
+		number | bool
+		_cfnString: =~"^([\\n\\t])|(\\r\\n)|(,)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #HttpAction: close({
-	Auth?:            #HttpAuthorization
-	BatchConfig?:     #BatchConfig
-	ConfirmationUrl?: strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
-	EnableBatching?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Headers?:         list.MaxItems(100) & list.UniqueItems() & [...] & [...#HttpActionHeader] | fn.#ListExpression
-	Url!:             strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
+	Auth?:        #HttpAuthorization
+	BatchConfig?: #BatchConfig
+	ConfirmationUrl?: strings.MaxRunes(2000) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2000) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	EnableBatching?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Headers?:        list.MaxItems(100) & list.UniqueItems() & [...] & [...#HttpActionHeader] | fn.#ListExpression
+	Url!: strings.MaxRunes(2000) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2000) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #HttpActionHeader: close({
-	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #HttpAuthorization: close({Sigv4?: #SigV4Authorization}) | fn.#ObjectExpression
 
 #InfluxDBAction: close({
-	BatchConfig?:    #InfluxDBBatchConfig
-	DatabaseName!:   strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[^_\\\"][^\\\"]+$" | fn.#StringExpression
-	DestinationArn!: string | fn.#StringExpression
-	Organization?:   strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	TableName!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[^_].*$" | fn.#StringExpression
+	BatchConfig?: #InfluxDBBatchConfig
+	DatabaseName!: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[^_\\\"][^\\\"]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[^_\\\"][^\\\"]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	DestinationArn!: string | number | bool | fn.#StringExpression
+	Organization?: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TableName!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[^_].*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[^_].*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Tags?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
+		{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	TimestampUnit?: "ms" | "ns" | "s" | "us" | fn.#StringExpression
 }) |
@@ -295,93 +381,156 @@ fn.#ObjectExpression
 
 #IotAnalyticsAction: close({
 	BatchMode?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ChannelName!: string | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	ChannelName!: string | number | bool | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #IotEventsAction: close({
 	BatchMode?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InputName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	MessageId?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	InputName!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	MessageId?: strings.MaxRunes(128) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #IotSiteWiseAction: close({
 	PutAssetPropertyValueEntries!: list.MinItems(1) & list.UniqueItems() & [...#PutAssetPropertyValueEntry] |
 		fn.#ListExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #KafkaAction: close({
 	ClientProperties!: struct.MinFields(1) & close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
+		{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
-	DestinationArn!: string | fn.#StringExpression
+	DestinationArn!: string | number | bool | fn.#StringExpression
 	Headers?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...#KafkaActionHeader] | fn.#ListExpression
-	Key?:     string | fn.#StringExpression
-	Partition?: string | fn.#StringExpression
-	Topic!:     string | fn.#StringExpression
+	Key?:     string | number | bool | fn.#StringExpression
+	Partition?: string | number | bool | fn.#StringExpression
+	Topic!:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #KafkaActionHeader: close({
-	Key!:   strings.MaxRunes(16384) & strings.MinRunes(0) | fn.#StringExpression
-	Value!: strings.MaxRunes(16384) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(16384) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(16384) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(16384) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(16384) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #KinesisAction: close({
-	PartitionKey?: string | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	StreamName!: string | fn.#StringExpression
+	PartitionKey?: string | number | bool | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	StreamName!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LambdaAction: close({
-	FunctionArn?: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	FunctionArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
 #LocationAction: close({
-	DeviceId!:  string | fn.#StringExpression
-	Latitude!:  string | fn.#StringExpression
-	Longitude!: string | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	DeviceId!:  string | number | bool | fn.#StringExpression
+	Latitude!:  string | number | bool | fn.#StringExpression
+	Longitude!: string | number | bool | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Timestamp?:   #Timestamp
-	TrackerName!: string | fn.#StringExpression
+	TrackerName!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OpenSearchAction: close({
-	Endpoint!: =~"^https?://" | fn.#StringExpression
-	Id!:       string | fn.#StringExpression
-	Index!:    string | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Type!: string | fn.#StringExpression
+	Endpoint!: =~"^https?://" |
+	{
+		number | bool
+		_cfnString: =~"^https?://" & "\(self)"
+	} |
+	fn.#StringExpression
+	Id!:    string | number | bool | fn.#StringExpression
+	Index!: string | number | bool | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PutAssetPropertyValueEntry: close({
-	AssetId?:        string | fn.#StringExpression
-	EntryId?:        string | fn.#StringExpression
-	PropertyAlias?:  strings.MinRunes(1) | fn.#StringExpression
-	PropertyId?:     string | fn.#StringExpression
+	AssetId?: string | number | bool | fn.#StringExpression
+	EntryId?: string | number | bool | fn.#StringExpression
+	PropertyAlias?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	PropertyId?:     string | number | bool | fn.#StringExpression
 	PropertyValues!: list.MinItems(1) & list.UniqueItems() & [...#AssetPropertyValue] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#PutItemInput: close({TableName!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#PutItemInput: close({TableName!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #RepublishAction: close({
 	Headers?: #RepublishActionHeaders
@@ -401,113 +550,181 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Topic!: string | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Topic!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RepublishActionHeaders: close({
-	ContentType?:            strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	CorrelationData?:        strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	MessageExpiry?:          strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	PayloadFormatIndicator?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	ResponseTopic?:          strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	UserProperties?:         #UserProperties
+	ContentType?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	CorrelationData?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	MessageExpiry?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	PayloadFormatIndicator?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	ResponseTopic?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	UserProperties?: #UserProperties
 }) |
 fn.#ObjectExpression
 
 #S3Action: close({
-	BucketName!: string | fn.#StringExpression
-	CannedAcl?:  #CannedAccessControlList
-	Key!:        string | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	CannedAcl?: #CannedAccessControlList
+	Key!:       string | number | bool | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SigV4Authorization: close({
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	ServiceName!:   string | fn.#StringExpression
-	SigningRegion!: string | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ServiceName!:   string | number | bool | fn.#StringExpression
+	SigningRegion!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SnsAction: close({
 	MessageFormat?: "JSON" | "RAW" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	TargetArn!: string | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TargetArn!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SqsAction: close({
-	QueueUrl!: string | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	QueueUrl!: string | number | bool | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	UseBase64?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #StepFunctionsAction: close({
-	ExecutionNamePrefix?: string | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	StateMachineName!: string | fn.#StringExpression
+	ExecutionNamePrefix?: string | number | bool | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	StateMachineName!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Timestamp: close({
-	Unit?:  string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Unit?:  string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TimestreamAction: close({
-	DatabaseName!: string | fn.#StringExpression
+	DatabaseName!: string | number | bool | fn.#StringExpression
 	Dimensions!:   #TimestreamDimensionsList
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	TableName!: string | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TableName!: string | number | bool | fn.#StringExpression
 	Timestamp?: #TimestreamTimestamp
 }) |
 fn.#ObjectExpression
 
 #TimestreamDimension: close({
-	Name!:  string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Name!:  string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TimestreamDimensionsList: list.MaxItems(128) & list.MinItems(1) & [...#TimestreamDimension] | fn.#ListExpression
 
 #TimestreamTimestamp: close({
-	Unit!:  string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Unit!:  string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TopicRulePayload: close({
 	Actions!:          list.MaxItems(10) & [...] & [...#Action] | fn.#ListExpression
-	AwsIotSqlVersion?: string | fn.#StringExpression
-	Description?:      string | fn.#StringExpression
+	AwsIotSqlVersion?: string | number | bool | fn.#StringExpression
+	Description?:      string | number | bool | fn.#StringExpression
 	ErrorAction?:      #Action
 	RuleDisabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Sql!:              string | fn.#StringExpression
+	Sql!:              string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #UserProperties: list.MaxItems(100) & list.MinItems(1) & [...#UserProperty] | fn.#ListExpression
 
 #UserProperty: close({
-	Key!:   strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Value!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

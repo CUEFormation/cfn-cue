@@ -11,6 +11,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::Workforce. Use to create a
@@ -18,76 +20,191 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // SageMaker Ground Truth.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::Workforce"
-	Properties!: close({
+	let properties = close({
 		CognitoConfig?:  #CognitoConfig
 		IpAddressType?:  "ipv4" | "dualstack" | fn.#StringExpression
 		OidcConfig?:     #OidcConfig
 		SourceIpConfig?: #SourceIpConfig
 		Tags?:           list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 		WorkforceName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9\\-]){0,62}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([a-zA-Z0-9\\-]){0,62}$" & "\(self)"
+		} |
 		fn.#StringExpression
 		WorkforceVpcConfig?: #WorkforceVpcConfigRequest
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CognitoConfig: close({
-	ClientId!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[ -~]+$" | fn.#StringExpression
-	UserPool!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
+	ClientId!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[ -~]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[ -~]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	UserPool!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OidcConfig: close({
 	AuthenticationRequestExtraParams?: struct.MaxFields(10) & close({
 
-		{[=~"^.+$"]: strings.MaxRunes(512) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" | fn.#StringExpression}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{
+			[=~"^.+$"]: strings.MaxRunes(512) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(512) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" & "\(self)"
+			} |
+			fn.#StringExpression
+		}
+	}) |
 	fn.#ObjectExpression
-	AuthorizationEndpoint!: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^https://.*$" | fn.#StringExpression
-	ClientId!:              strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\w+]+$" | fn.#StringExpression
-	ClientSecret?:          strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\w+]+$" | fn.#StringExpression
-	Issuer!:                strings.MaxRunes(500) & strings.MinRunes(0) & =~"^https://.*$" | fn.#StringExpression
-	JwksUri!:               strings.MaxRunes(500) & strings.MinRunes(0) & =~"^https://.*$" | fn.#StringExpression
-	LogoutEndpoint!:        strings.MaxRunes(500) & strings.MinRunes(0) & =~"^https://.*$" | fn.#StringExpression
-	Scope?: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s]+$" |
+	AuthorizationEndpoint!: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^https://.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^https://.*$" & "\(self)"
+	} |
 	fn.#StringExpression
-	TokenEndpoint!:    strings.MaxRunes(500) & strings.MinRunes(0) & =~"^https://.*$" | fn.#StringExpression
-	UserInfoEndpoint!: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^https://.*$" | fn.#StringExpression
+	ClientId!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\w+]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\w+]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ClientSecret?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\w+]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\w+]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Issuer!: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^https://.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^https://.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	JwksUri!: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^https://.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^https://.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LogoutEndpoint!: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^https://.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^https://.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Scope?: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TokenEndpoint!: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^https://.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^https://.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	UserInfoEndpoint!: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^https://.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^https://.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SourceIpConfig: close({
-	Cidrs!: list.MaxItems(10) & [
-		...strings.MaxRunes(64) &
+	Cidrs!: list.MaxItems(10) & [...fn.#IPv4Network &
+	string &
+	strings.MaxRunes(64) &
+	strings.MinRunes(4) &
+	=~"^(^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(3[0-2]|[1-2][0-9]|[0-9]))$)|(^s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:)))(%.+)?s*(\\/(12[0-8]|1[0-1][0-9]|[1-9][0-9]|[0-9]))$)$" |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network &
+		string &
+		strings.MaxRunes(64) &
 		strings.MinRunes(4) &
-		=~"^(^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(3[0-2]|[1-2][0-9]|[0-9]))$)|(^s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:)))(%.+)?s*(\\/(12[0-8]|1[0-1][0-9]|[1-9][0-9]|[0-9]))$)$" |
-		fn.#StringExpression
-	] |
+		=~"^(^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/(3[0-2]|[1-2][0-9]|[0-9]))$)|(^s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]d|1dd|[1-9]?d)(.(25[0-5]|2[0-4]d|1dd|[1-9]?d)){3}))|:)))(%.+)?s*(\\/(12[0-8]|1[0-1][0-9]|[1-9][0-9]|[0-9]))$)$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #WorkforceVpcConfigRequest: close({
-	SecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(0) &
+	=~"^sg-[0-9a-z]*$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(32) &
 		strings.MinRunes(0) &
-		=~"^sg-[0-9a-z]*$" |
-		fn.#StringExpression
-	] |
+		=~"^sg-[0-9a-z]*$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Subnets?: list.MaxItems(16) & list.MinItems(1) & [
-		...strings.MaxRunes(32) & strings.MinRunes(0) & =~"^subnet-[0-9a-z]*$" | fn.#StringExpression
-	] |
+	Subnets?: list.MaxItems(16) & list.MinItems(1) & [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(0) &
+	=~"^subnet-[0-9a-z]*$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"^subnet-[0-9a-z]*$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
 	strings.MaxRunes(32) &
 	strings.MinRunes(0) &
 	=~"^vpc-[0-9a-z]*$" |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"^vpc-[0-9a-z]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

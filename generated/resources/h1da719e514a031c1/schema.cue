@@ -14,34 +14,71 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppFlow::ConnectorProfile
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppFlow::ConnectorProfile"
-	Properties!: close({
+	let properties = close({
 		ConnectionMode!: "Public" | "Private" | fn.#StringExpression
-		ConnectorLabel?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w!@#.-]+" | fn.#StringExpression
+		ConnectorLabel?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w!@#.-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w!@#.-]+" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Connector specific configurations needed to create connector profile
 		ConnectorProfileConfig?: #ConnectorProfileConfig
-		ConnectorProfileName!:   strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w/!@#+=.-]+" | fn.#StringExpression
+		ConnectorProfileName!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w/!@#+=.-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w/!@#+=.-]+" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// List of Saas providers that need connector profile to be created
 		ConnectorType!: #ConnectorType
-		KMSArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		KMSArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"arn:aws:kms:.*:[0-9]+:.*" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"arn:aws:kms:.*:[0-9]+:.*" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AccessKeyId: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#AccessKeyId: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
-#AccessToken: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#AccessToken: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
-#AccountName: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#AccountName: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
 #AmplitudeConnectorProfileCredentials: {
 	// A unique alphanumeric identiﬁer used to authenticate a user, developer, or
@@ -51,7 +88,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	...
 } | fn.#ObjectExpression
 
-#ApiKey: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#ApiKey: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
 #ApiKeyCredentials: close({
 	ApiKey!:       #ApiKey
@@ -59,18 +101,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#ApiSecretKey: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#ApiSecretKey: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
-#ApiToken: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#ApiToken: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
 #ApplicationHostUrl: strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"^(https?)://[-a-zA-Z0-9+&amp;@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_|]" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) &
+	strings.MinRunes(0) &
+	=~"^(https?)://[-a-zA-Z0-9+&amp;@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_|]" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#ApplicationKey: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#ApplicationKey: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
-#ApplicationServicePath: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#ApplicationServicePath: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
 #AuthenticationType: "OAUTH2" | "APIKEY" | "BASIC" | "CUSTOM" | fn.#StringExpression
 
@@ -80,26 +149,84 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#BucketName: strings.MaxRunes(63) & strings.MinRunes(3) & =~"\\S+" | fn.#StringExpression
-
-#BucketPrefix: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-
-#BusinessUnitId: strings.MaxRunes(18) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
-
-#ClientCredentialsArn: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:aws:secretsmanager:.*:[0-9]+:.*" |
+#BucketName: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+strings.MaxRunes(63) &
+strings.MinRunes(3) &
+=~"\\S+" |
+{
+	number | bool
+	_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"\\S+" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#ClientId: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#BucketPrefix: strings.MaxRunes(128) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression
 
-#ClientNumber: strings.MaxRunes(3) & strings.MinRunes(3) & =~"^\\d{3}$" | fn.#StringExpression
+#BusinessUnitId: strings.MaxRunes(18) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(18) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
-#ClientSecret: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#ClientCredentialsArn: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:aws:secretsmanager:.*:[0-9]+:.*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:aws:secretsmanager:.*:[0-9]+:.*" & "\(self)"
+} |
+fn.#StringExpression
 
-#ClusterIdentifier: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#ClientId: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
+
+#ClientNumber: strings.MaxRunes(3) & strings.MinRunes(3) & =~"^\\d{3}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(3) & strings.MinRunes(3) & =~"^\\d{3}$" & "\(self)"
+} |
+fn.#StringExpression
+
+#ClientSecret: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
+
+#ClusterIdentifier: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
 #ConnectorOAuthRequest: {
-	AuthCode?:    strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
-	RedirectUri?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
+	AuthCode?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	RedirectUri?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 
@@ -171,7 +298,17 @@ fn.#StringExpression
 
 #CredentialsMap: close({
 
-	{[=~"^[\\w]{1,128}$"]: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"\\S+" | fn.#StringExpression}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{
+		[=~"^[\\w]{1,128}$"]: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"\\S+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"\\S+" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #CustomAuthCredentials: close({
@@ -180,7 +317,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#CustomAuthenticationType: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#CustomAuthenticationType: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
 #CustomConnectorProfileCredentials: close({
 	ApiKey?:             #ApiKeyCredentials
@@ -197,15 +339,33 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DataApiRoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#DataApiRoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(512) &
 strings.MinRunes(0) &
 =~"arn:aws:iam:.*:[0-9]+:.*" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(0) &
+	=~"arn:aws:iam:.*:[0-9]+:.*" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#DatabaseName: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#DatabaseName: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
-#DatabaseUrl: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#DatabaseUrl: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
 #DatadogConnectorProfileCredentials: {
 	// A unique alphanumeric identiﬁer used to authenticate a user, developer, or
@@ -277,14 +437,36 @@ fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 
-#InstanceUrl: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
-
-#JwtToken: strings.MaxRunes(8000) & strings.MinRunes(0) & =~"^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$" |
+#InstanceUrl: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
 fn.#StringExpression
 
-#Key: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#JwtToken: strings.MaxRunes(8000) & strings.MinRunes(0) & =~"^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(8000) &
+	strings.MinRunes(0) &
+	=~"^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$" &
+	"\(self)"
+} |
+fn.#StringExpression
 
-#LogonLanguage: strings.MaxRunes(2) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_]*$" | fn.#StringExpression
+#Key: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
+
+#LogonLanguage: strings.MaxRunes(2) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_]*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #MarketoConnectorProfileCredentials: {
 	// The credentials used to access protected resources.
@@ -323,6 +505,13 @@ fn.#ObjectExpression
 	TokenUrl?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^(https?)://[-a-zA-Z0-9+&amp;@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_|]" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^(https?)://[-a-zA-Z0-9+&amp;@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_|]" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	TokenUrlCustomProperties?: #TokenUrlCustomProperties
 }) |
@@ -332,14 +521,31 @@ fn.#ObjectExpression
 	AuthCodeUrl?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^(https?)://[-a-zA-Z0-9+&amp;@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_|]" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^(https?)://[-a-zA-Z0-9+&amp;@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_|]" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	OAuthScopes?: list.UniqueItems() & [
-		...strings.MaxRunes(128) & strings.MinRunes(0) & =~"[/\\w]*" | fn.#StringExpression
-	] |
+	OAuthScopes?: list.UniqueItems() & [...strings.MaxRunes(128) & strings.MinRunes(0) & =~"[/\\w]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[/\\w]*" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	TokenUrl?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^(https?)://[-a-zA-Z0-9+&amp;@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_|]" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^(https?)://[-a-zA-Z0-9+&amp;@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_|]" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	...
 } | fn.#ObjectExpression
@@ -369,7 +575,12 @@ fn.#ObjectExpression
 	...
 } | fn.#ObjectExpression
 
-#Password: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#Password: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
 #PortNumber: int & <=65535 & >=1 |
 	{
@@ -388,11 +599,26 @@ fn.#ObjectExpression
 	} |
 	fn.#NumberExpression
 
-#PrivateLinkServiceName: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#PrivateLinkServiceName: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
 #ProfileProperties: close({
 
-	{[=~"^[\\w]{1,256}$"]: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"\\S+" | fn.#StringExpression}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{
+		[=~"^[\\w]{1,256}$"]: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"\\S+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"\\S+" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #RedshiftConnectorProfileCredentials: {
@@ -433,14 +659,32 @@ fn.#ObjectExpression
 	...
 } | fn.#ObjectExpression
 
-#RefreshToken: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#RefreshToken: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
-#Region: strings.MaxRunes(64) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#Region: strings.MaxRunes(64) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
-#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(512) &
 strings.MinRunes(0) &
 =~"arn:aws:iam:.*:[0-9]+:.*" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(0) &
+	=~"arn:aws:iam:.*:[0-9]+:.*" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #SAPODataConnectorProfileCredentials: {
@@ -504,7 +748,12 @@ fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 
-#SecretKey: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#SecretKey: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
 #ServiceNowConnectorProfileCredentials: {
 	// The OAuth 2.0 credentials required to authenticate the user.
@@ -586,11 +835,26 @@ fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 
-#Stage: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#Stage: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
 #TokenUrlCustomProperties: close({
 
-	{[=~"^[\\w]{1,128}$"]: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"\\S+" | fn.#StringExpression}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{
+		[=~"^[\\w]{1,128}$"]: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"\\S+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"\\S+" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #TrendmicroConnectorProfileCredentials: {
@@ -599,7 +863,12 @@ fn.#ObjectExpression
 	...
 } | fn.#ObjectExpression
 
-#Username: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#Username: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
 #VeevaConnectorProfileCredentials: {
 	// The password that corresponds to the username.
@@ -616,9 +885,19 @@ fn.#ObjectExpression
 	...
 } | fn.#ObjectExpression
 
-#Warehouse: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[\\s\\w/!@#+=.-]*" | fn.#StringExpression
+#Warehouse: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[\\s\\w/!@#+=.-]*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[\\s\\w/!@#+=.-]*" & "\(self)"
+} |
+fn.#StringExpression
 
-#WorkgroupName: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" | fn.#StringExpression
+#WorkgroupName: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" & "\(self)"
+} |
+fn.#StringExpression
 
 #ZendeskConnectorProfileCredentials: {
 	// The credentials used to access protected resources.

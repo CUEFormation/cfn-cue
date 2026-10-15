@@ -13,19 +13,26 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EMR::InstanceFleetConfig
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EMR::InstanceFleetConfig"
-	Properties!: close({
-		ClusterId!:           strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		InstanceFleetType!:   string | fn.#StringExpression
+	let properties = close({
+		ClusterId!: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		InstanceFleetType!:   string | number | bool | fn.#StringExpression
 		InstanceTypeConfigs?: [...#InstanceTypeConfig] | fn.#ListExpression
 
 		// The launch specification for the instance fleet.
 		LaunchSpecifications?: #InstanceFleetProvisioningSpecifications
-		Name?:                 string | fn.#StringExpression
+		Name?:                 string | number | bool | fn.#StringExpression
 
 		// The resize specification for the instance fleet.
 		ResizeSpecifications?: #InstanceFleetResizingSpecifications
@@ -62,13 +69,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ApplicationConfiguration: close({
-	Classification?: string | fn.#StringExpression
+	Classification?: string | number | bool | fn.#StringExpression
 	ConfigurationProperties?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	Configurations?: [...#ApplicationConfiguration] | fn.#ListExpression
 }) |
@@ -127,7 +141,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #InstanceTypeConfig: close({
-	BidPrice?: string | fn.#StringExpression
+	BidPrice?: string | number | bool | fn.#StringExpression
 	BidPriceAsPercentageOfOnDemandPrice?: number |
 		{
 			string &
@@ -148,12 +162,12 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	Configurations?: [...#ApplicationConfiguration] | fn.#ListExpression
-	CustomAmiId?:    string | fn.#StringExpression
+	CustomAmiId?:    string | number | bool | fn.#StringExpression
 
 	// The configuration of Amazon Elastic Block Store (Amazon EBS) attached to each
 	// instance as defined by InstanceType.
 	EbsConfiguration?: #EbsConfiguration
-	InstanceType!:     string | fn.#StringExpression
+	InstanceType!:     string | number | bool | fn.#StringExpression
 	Priority?: number |
 		{
 			string &
@@ -191,20 +205,20 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #OnDemandCapacityReservationOptions: close({
-	CapacityReservationPreference?:       string | fn.#StringExpression
-	CapacityReservationResourceGroupArn?: string | fn.#StringExpression
-	UsageStrategy?:                       string | fn.#StringExpression
+	CapacityReservationPreference?:       string | number | bool | fn.#StringExpression
+	CapacityReservationResourceGroupArn?: string | number | bool | fn.#StringExpression
+	UsageStrategy?:                       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OnDemandProvisioningSpecification: close({
-	AllocationStrategy!:         string | fn.#StringExpression
+	AllocationStrategy!:         string | number | bool | fn.#StringExpression
 	CapacityReservationOptions?: #OnDemandCapacityReservationOptions
 }) |
 fn.#ObjectExpression
 
 #OnDemandResizingSpecification: close({
-	AllocationStrategy?: string | fn.#StringExpression
+	AllocationStrategy?: string | number | bool | fn.#StringExpression
 
 	// Describes the strategy for using unused Capacity Reservations for fulfilling On-Demand capacity.
 	CapacityReservationOptions?: #OnDemandCapacityReservationOptions
@@ -226,7 +240,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SpotProvisioningSpecification: close({
-	AllocationStrategy?: string | fn.#StringExpression
+	AllocationStrategy?: string | number | bool | fn.#StringExpression
 	BlockDurationMinutes?: int |
 		{
 			string &
@@ -241,7 +255,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TimeoutAction!: string | fn.#StringExpression
+	TimeoutAction!: string | number | bool | fn.#StringExpression
 	TimeoutDurationMinutes!: int |
 		{
 			string &
@@ -260,7 +274,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SpotResizingSpecification: close({
-	AllocationStrategy?: string | fn.#StringExpression
+	AllocationStrategy?: string | number | bool | fn.#StringExpression
 	TimeoutDurationMinutes?: int |
 		{
 			string &
@@ -321,6 +335,6 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	VolumeType!: string | fn.#StringExpression
+	VolumeType!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

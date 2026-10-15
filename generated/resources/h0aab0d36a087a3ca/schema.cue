@@ -10,12 +10,14 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::LicenseManager::Grant"
-	Properties?: close({
+	let properties = close({
 		AllowedOperations?: list.MaxItems(8) & list.MinItems(1) & list.UniqueItems() & [
 			..."CheckInLicense" |
 				"CheckoutBorrowLicense" |
@@ -27,8 +29,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				fn.#StringExpression
 		] |
 			fn.#ListExpression
-		GrantName?:  string | fn.#StringExpression
-		HomeRegion?: string | fn.#StringExpression
+		GrantName?:  string | number | bool | fn.#StringExpression
+		HomeRegion?: string | number | bool | fn.#StringExpression
 
 		// License Arn for the grant.
 		LicenseArn?: #Arn
@@ -45,12 +47,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#StringExpression
 		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

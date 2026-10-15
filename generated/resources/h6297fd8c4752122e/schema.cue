@@ -9,20 +9,39 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for a Redshift-managed VPC endpoint.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Redshift::EndpointAccess"
-	Properties!: close({
-		ClusterIdentifier!: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-		EndpointName!:      string | fn.#StringExpression
-		ResourceOwner?:     strings.MaxRunes(2147483647) & strings.MinRunes(0) & =~"^\\d{12}$" | fn.#StringExpression
-		SubnetGroupName!:   string | fn.#StringExpression
-		VpcSecurityGroupIds!: [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
-			fn.#StringExpression
-		] |
+	let properties = close({
+		ClusterIdentifier!: strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		EndpointName!: string | number | bool | fn.#StringExpression
+		ResourceOwner?: strings.MaxRunes(2147483647) & strings.MinRunes(0) & =~"^\\d{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & =~"^\\d{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SubnetGroupName!: string | number | bool | fn.#StringExpression
+		VpcSecurityGroupIds!: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+			strings.MaxRunes(2147483647) &
+			strings.MinRunes(0) &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

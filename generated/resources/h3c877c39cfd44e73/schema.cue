@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::SES::MailManagerTrafficPolicy Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SES::MailManagerTrafficPolicy"
-	Properties!: close({
+	let properties = close({
 		DefaultAction!: #AcceptAction
 		MaxMessageSizeBytes?: >=1 |
 			{
@@ -40,10 +42,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		PolicyStatements!:  [...#PolicyStatement] | fn.#ListExpression
-		Tags?:              list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-		TrafficPolicyName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[A-Za-z0-9_\\-]+$" | fn.#StringExpression
+		PolicyStatements!: [...#PolicyStatement] | fn.#ListExpression
+		Tags?:             list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		TrafficPolicyName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[A-Za-z0-9_\\-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[A-Za-z0-9_\\-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AcceptAction: "ALLOW" | "DENY" | fn.#StringExpression
@@ -51,8 +60,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #IngressAddressListEmailAttribute: "RECIPIENT" | fn.#StringExpression
 
 #IngressAnalysis: close({
-	Analyzer!:    =~"^[a-zA-Z0-9:_/+=,@.#-]+$" | fn.#StringExpression
-	ResultField!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(addon\\.)?[\\sa-zA-Z0-9_]+$" | fn.#StringExpression
+	Analyzer!: =~"^[a-zA-Z0-9:_/+=,@.#-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9:_/+=,@.#-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ResultField!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(addon\\.)?[\\sa-zA-Z0-9_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(addon\\.)?[\\sa-zA-Z0-9_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -78,11 +97,14 @@ fn.#ValueExpression
 #IngressIpv4Expression: close({
 	Evaluate!: #IngressIpToEvaluate
 	Operator!: #IngressIpOperator
-	Values!: [
-		...=~"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/([0-9]|[12][0-9]|3[0-2])$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
+	Values!: [...=~"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/([0-9]|[12][0-9]|3[0-2])$" |
+	{
+		number | bool
+		_cfnString: =~"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/([0-9]|[12][0-9]|3[0-2])$" &
+			"\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -91,11 +113,15 @@ fn.#ObjectExpression
 #IngressIpv6Expression: close({
 	Evaluate!: #IngressIpv6ToEvaluate
 	Operator!: #IngressIpOperator
-	Values!: [
-		...strings.MaxRunes(49) &
-		=~"^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:))\\/(12[0-8]|1[0-1][0-9]|[1-9][0-9]|[0-9])$" |
-		fn.#StringExpression
-	] |
+	Values!: [...strings.MaxRunes(49) &
+	=~"^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:))\\/(12[0-8]|1[0-1][0-9]|[1-9][0-9]|[0-9])$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(49) &
+		=~"^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:))\\/(12[0-8]|1[0-1][0-9]|[1-9][0-9]|[0-9])$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -103,7 +129,9 @@ fn.#ObjectExpression
 #IngressIpv6ToEvaluate: close({Attribute!: #IngressIpv6Attribute}) | fn.#ValueExpression
 
 #IngressIsInAddressList: close({
-	AddressLists!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] |
+	AddressLists!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
+		...string | number | bool | fn.#StringExpression
+	] |
 		fn.#ListExpression
 	Attribute!: #IngressAddressListEmailAttribute
 }) |
@@ -114,7 +142,7 @@ fn.#ObjectExpression
 #IngressStringExpression: close({
 	Evaluate!: #IngressStringToEvaluate
 	Operator!: #IngressStringOperator
-	Values!:   [...string | fn.#StringExpression] | fn.#ListExpression
+	Values!:   [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -160,7 +188,17 @@ fn.#ValueExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

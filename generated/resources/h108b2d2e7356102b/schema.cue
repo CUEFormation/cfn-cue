@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::Macie::Session resource specifies a new Amazon Macie session. A
@@ -13,8 +15,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // required for Amazon Macie to become operational.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Macie::Session"
-	Properties?: close({
+	let properties = close({
 		FindingPublishingFrequency?: "FIFTEEN_MINUTES" | "ONE_HOUR" | "SIX_HOURS" | fn.#StringExpression
 		Status?:                     "ENABLED" | "PAUSED" | fn.#StringExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

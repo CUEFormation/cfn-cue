@@ -14,15 +14,17 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaTailor::PlaybackConfiguration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaTailor::PlaybackConfiguration"
-	Properties!: close({
+	let properties = close({
 		AdConditioningConfiguration?:   #AdConditioningConfiguration
 		AdDecisionServerConfiguration?: #AdDecisionServerConfiguration
-		AdDecisionServerUrl!:           string | fn.#StringExpression
+		AdDecisionServerUrl!:           string | number | bool | fn.#StringExpression
 
 		// The settings that control how many concurrent requests MediaTailor makes to
 		// the ad decision server (ADS).
@@ -51,13 +53,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// initialization. For more information, see Domain Variables.
 		ConfigurationAliases?: #ConfigurationAliases
 		DashConfiguration?: close({
-			MpdLocation?:        string | fn.#StringExpression
+			MpdLocation?:        string | number | bool | fn.#StringExpression
 			OriginManifestType?: "SINGLE_PERIOD" | "MULTI_PERIOD" | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		FunctionMapping?: close({
 
-			{[=~".*"]: string | fn.#StringExpression}}) |
+			{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 		HlsConfiguration?: close({}) | fn.#ObjectExpression
 
@@ -79,7 +86,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// The configuration for manifest processing rules. Manifest processing rules
 		// enable customization of the personalized manifests created by MediaTailor.
 		ManifestProcessingRules?: #ManifestProcessingRules
-		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		PersonalizationThresholdSeconds?: int & >=1 |
 			{
 				string &
@@ -97,11 +109,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		SlateAdUrl?:            string | fn.#StringExpression
+		SlateAdUrl?:            string | number | bool | fn.#StringExpression
 		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TranscodeProfileName?:  string | fn.#StringExpression
-		VideoContentSourceUrl!: string | fn.#StringExpression
+		TranscodeProfileName?:  string | number | bool | fn.#StringExpression
+		VideoContentSourceUrl!: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AdConditioningConfiguration: close({StreamingMediaFileConditioning!: #StreamingMediaFileConditioning}) |
@@ -115,7 +129,12 @@ fn.#ObjectExpression
 
 #AdDecisionServerConfigurationHttpHeaders: close({
 
-	{[=~".*"]: string | fn.#StringExpression}}) |
+	{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #AdMarkerPassthrough: close(
@@ -124,8 +143,8 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #AdsInteractionLog: close({
-	ExcludeEventTypes?:      [...string | fn.#StringExpression] | fn.#ListExpression
-	PublishOptInEventTypes?: [...string | fn.#StringExpression] | fn.#ListExpression
+	ExcludeEventTypes?:      [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	PublishOptInEventTypes?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -225,26 +244,26 @@ fn.#ObjectExpression
 #AvailSuppression: close({
 	FillPolicy?: "PARTIAL_AVAIL" | "FULL_AVAIL_ONLY" | fn.#StringExpression
 	Mode?:       "OFF" | "BEHIND_LIVE_EDGE" | "AFTER_LIVE_EDGE" | fn.#StringExpression
-	Value?:      string | fn.#StringExpression
+	Value?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Bumper: close({
-	EndUrl?:   string | fn.#StringExpression
-	StartUrl?: string | fn.#StringExpression
+	EndUrl?:   string | number | bool | fn.#StringExpression
+	StartUrl?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CdnConfiguration: close({
-	AdSegmentUrlPrefix?:      string | fn.#StringExpression
-	ContentSegmentUrlPrefix?: string | fn.#StringExpression
+	AdSegmentUrlPrefix?:      string | number | bool | fn.#StringExpression
+	ContentSegmentUrlPrefix?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ConfigurationAliases: null | bool | number | string | [...] | {...} | fn.#ValueExpression
 
 #HttpRequest: close({
-	Body?:            string | fn.#StringExpression
+	Body?:            string | number | bool | fn.#StringExpression
 	CompressRequest?: "NONE" | "GZIP" | fn.#StringExpression
 	Headers?:         #AdDecisionServerConfigurationHttpHeaders
 	HttpMethod?:      "GET" | "POST" | fn.#StringExpression
@@ -255,7 +274,7 @@ fn.#ObjectExpression
 
 #LivePreRollConfiguration: close({
 	AdDecisionServerConfiguration?: #PreRollAdDecisionServerConfiguration
-	AdDecisionServerUrl?:           string | fn.#StringExpression
+	AdDecisionServerUrl?:           string | number | bool | fn.#StringExpression
 	MaxDurationSeconds?: int |
 		{
 			string &
@@ -276,7 +295,7 @@ fn.#ObjectExpression
 #LogConfiguration: close({
 	// The event types that MediaTailor emits in logs for interactions with the ADS.
 	AdsInteractionLog?:        #AdsInteractionLog
-	EnabledLoggingStrategies?: [...string | fn.#StringExpression] | fn.#ListExpression
+	EnabledLoggingStrategies?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 
 	// The event types that MediaTailor emits in logs for interactions with the origin server.
 	ManifestServiceInteractionLog?: #ManifestServiceInteractionLog
@@ -309,7 +328,9 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ManifestServiceInteractionLog: close({ExcludeEventTypes?: [...string | fn.#StringExpression] | fn.#ListExpression}) |
+#ManifestServiceInteractionLog: close(
+	{ExcludeEventTypes?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 #PreRollAdDecisionServerConfiguration: close({VastResponse?: #PreRollVastResponse}) | fn.#ObjectExpression
@@ -320,8 +341,8 @@ fn.#ObjectExpression
 #StreamingMediaFileConditioning: "TRANSCODE" | "NONE" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

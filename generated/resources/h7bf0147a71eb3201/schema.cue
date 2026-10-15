@@ -6,15 +6,19 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::VPCEndpointConnectionNotification
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::VPCEndpointConnectionNotification"
-	Properties!: close({
-		ConnectionEvents!:          [...string | fn.#StringExpression] | fn.#ListExpression
-		ConnectionNotificationArn!: string | fn.#StringExpression
-		ServiceId?:                 string | fn.#StringExpression
-		VPCEndpointId?:             string | fn.#StringExpression
+	let properties = close({
+		ConnectionEvents!:          [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		ConnectionNotificationArn!: string | number | bool | fn.#StringExpression
+		ServiceId?:                 string | number | bool | fn.#StringExpression
+		VPCEndpointId?:             string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

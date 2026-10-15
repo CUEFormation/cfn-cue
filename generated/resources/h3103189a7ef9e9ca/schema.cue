@@ -10,41 +10,91 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Redshift::RedshiftIdcApplication. Creates
 // an Amazon Redshift application for use with IAM Identity Center.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Redshift::RedshiftIdcApplication"
-	Properties!: close({
+	let properties = close({
 		ApplicationType?:           "None" | "Lakehouse" | fn.#StringExpression
 		AuthorizedTokenIssuerList?: [...#AuthorizedTokenIssuer] | fn.#ListExpression
-		IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		IamRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2147483647) &
 		strings.MinRunes(0) &
 		=~"^arn:aws[a-zA-Z-]*:[a-zA-Z0-9-]+:[a-z0-9-]*:[0-9]*:.+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2147483647) &
+			strings.MinRunes(0) &
+			=~"^arn:aws[a-zA-Z-]*:[a-zA-Z0-9-]+:[a-z0-9-]*:[0-9]*:.+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		IdcDisplayName!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
+		IdcDisplayName!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		IdcInstanceArn!: strings.MaxRunes(2147483647) &
 		strings.MinRunes(0) &
 		=~"^arn:aws[a-zA-Z-]*:[a-zA-Z0-9-]+:[a-z0-9-]*:[0-9]*:.+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) &
+			strings.MinRunes(0) &
+			=~"^arn:aws[a-zA-Z-]*:[a-zA-Z0-9-]+:[a-z0-9-]*:[0-9]*:.+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		IdentityNamespace?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_+.#@$-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_+.#@$-]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 		RedshiftIdcApplicationName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		ServiceIntegrations?: [...#ServiceIntegrationsUnion] | fn.#ListExpression
-		SsoTagKeys?: [...strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
-		Tags?:       list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		SsoTagKeys?: [...strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AuthorizedTokenIssuer: close({
-	AuthorizedAudiencesList?: [...strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression] |
+	AuthorizedAudiencesList?: [...strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	TrustedTokenIssuerArn?: strings.MaxRunes(2147483647) &
 	strings.MinRunes(0) &
 	=~"^arn:aws[a-zA-Z-]*:[a-zA-Z0-9-]+:[a-z0-9-]*:[0-9]*:.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2147483647) &
+		strings.MinRunes(0) &
+		=~"^arn:aws[a-zA-Z-]*:[a-zA-Z0-9-]+:[a-z0-9-]*:[0-9]*:.+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -69,7 +119,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

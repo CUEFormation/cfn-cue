@@ -658,5 +658,7 @@ import (
 	SecurityGroups!: list.MaxItems(16) & list.MinItems(1) & [
 		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-[0-9a-zA-Z]{8,17}$"
 	]
-	Subnets!: list.MaxItems(16) & list.MinItems(1) & [...=~"^subnet-[0-9a-zA-Z]{8,17}$"]
+	Subnets!: list.MaxItems(16) & list.MinItems(1) & [
+		...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & =~"^subnet-[0-9a-zA-Z]{8,17}$"
+	]
 })

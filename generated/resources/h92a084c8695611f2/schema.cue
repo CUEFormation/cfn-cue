@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A resource schema representing a Lake Formation Tag Association. While tag
@@ -17,18 +19,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // resource can be used to associate tags with Lake Formation entities.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::LakeFormation::TagAssociation"
-	Properties!: close({
+	let properties = close({
 		// List of Lake Formation Tags to associate with the Lake Formation Resource
 		LFTags!: #LFTagsList
 
 		// Resource to tag with the Lake Formation Tags
 		Resource!: _#defs."/$defs/Properties/definitions/Resource"
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CatalogIdString: strings.MaxRunes(12) & strings.MinRunes(12) | fn.#StringExpression
+#CatalogIdString: strings.MaxRunes(12) & strings.MinRunes(12) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & "\(self)"
+} |
+fn.#StringExpression
 
-#CatalogResource: string | fn.#StringExpression
+#CatalogResource: string | number | bool | fn.#StringExpression
 
 #ColumnNames: [...#NameString] | fn.#ListExpression
 
@@ -39,6 +48,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #LFTagKey: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@%]*)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@%]*)$" & "\(self)"
+} |
 fn.#StringExpression
 
 #LFTagPair: close({
@@ -49,11 +62,20 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #LFTagValue: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:\\*\\/=+\\-@%]*)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:\\*\\/=+\\-@%]*)$" & "\(self)"
+} |
 fn.#StringExpression
 
 #LFTagsList: list.MaxItems(50) & list.MinItems(1) & [...#LFTagPair] | fn.#ListExpression
 
-#NameString: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#NameString: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #TableResource: close({
 	CatalogId!:     #CatalogIdString
@@ -63,7 +85,7 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#TableWildcard: fn.#Object & {...} | string | fn.#StringObjectExpression
+#TableWildcard: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 #TableWithColumnsResource: close({
 	CatalogId!:    #CatalogIdString

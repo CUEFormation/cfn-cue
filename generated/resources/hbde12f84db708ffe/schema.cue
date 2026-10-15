@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::AutoScaling::ScalingPolicy resource specifies an Amazon EC2 Auto
@@ -21,11 +23,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // of instances available for your application.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AutoScaling::ScalingPolicy"
-	Properties!: close({
+	let properties = close({
 		AdjustmentType?: ("ChangeInCapacity" | "ExactCapacity" | "PercentChangeInCapacity") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: ("ChangeInCapacity" | "ExactCapacity" | "PercentChangeInCapacity") &
+			strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		AutoScalingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Cooldown?:             string | fn.#StringExpression
+		AutoScalingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Cooldown?: string | number | bool | fn.#StringExpression
 		EstimatedInstanceWarmup?: int |
 			{
 				string &
@@ -43,6 +57,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		MetricAggregationType?: ("Average" | "Maximum" | "Minimum") & (strings.MaxRunes(32) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: ("Average" | "Maximum" | "Minimum") & strings.MaxRunes(32) & strings.MinRunes(1) & "\(self)"
+		} |
 		fn.#StringExpression
 		MinAdjustmentMagnitude?: int |
 			{
@@ -61,6 +79,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		PolicyType?: ("PredictiveScaling" | "SimpleScaling" | "StepScaling" | "TargetTrackingScaling") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: ("PredictiveScaling" | "SimpleScaling" | "StepScaling" | "TargetTrackingScaling") &
+			strings.MaxRunes(64) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 
 		// A predictive scaling policy. Includes support for predefined metrics only.
@@ -86,13 +111,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// A target tracking scaling policy. Includes support for predefined or customized metrics.
 		TargetTrackingConfiguration?: #TargetTrackingConfiguration
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CustomizedMetricSpecification: close({
 	Dimensions?: list.UniqueItems() & [...#MetricDimension] | fn.#ListExpression
-	MetricName?: string | fn.#StringExpression
+	MetricName?: string | number | bool | fn.#StringExpression
 	Metrics?:    list.UniqueItems() & [...#TargetTrackingMetricDataQuery] | fn.#ListExpression
-	Namespace?:  string | fn.#StringExpression
+	Namespace?:  string | number | bool | fn.#StringExpression
 	Period?: int & >=1 |
 		{
 			string &
@@ -109,36 +136,56 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	Statistic?: "Average" | "Maximum" | "Minimum" | "SampleCount" | "Sum" | fn.#StringExpression
-	Unit?:      string | fn.#StringExpression
+	Unit?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Metric: close({
 	Dimensions?: list.UniqueItems() & [...#MetricDimension] | fn.#ListExpression
-	MetricName!: string | fn.#StringExpression
-	Namespace!:  string | fn.#StringExpression
+	MetricName!: string | number | bool | fn.#StringExpression
+	Namespace!:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MetricDataQuery: close({
-	Expression?: strings.MaxRunes(1023) & strings.MinRunes(1) | fn.#StringExpression
-	Id!:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Label?:      strings.MaxRunes(2047) & strings.MinRunes(0) | fn.#StringExpression
+	Expression?: strings.MaxRunes(1023) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1023) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Id!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Label?: strings.MaxRunes(2047) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2047) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	MetricStat?: #MetricStat
 	ReturnData?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #MetricDimension: close({
-	Name!:  string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Name!:  string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MetricStat: close({
 	Metric!: #Metric
-	Stat!:   strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Unit?:   string | fn.#StringExpression
+	Stat!: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Unit?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -148,7 +195,12 @@ fn.#ObjectExpression
 		"ASGAverageNetworkIn" |
 		"ASGAverageNetworkOut" |
 		fn.#StringExpression
-	ResourceLabel?: strings.MaxRunes(1023) & strings.MinRunes(1) | fn.#StringExpression
+	ResourceLabel?: strings.MaxRunes(1023) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1023) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -240,7 +292,12 @@ fn.#ObjectExpression
 		"ASGTotalNetworkIn" |
 		"ASGTotalNetworkOut" |
 		fn.#StringExpression
-	ResourceLabel?: strings.MaxRunes(1023) & strings.MinRunes(1) | fn.#StringExpression
+	ResourceLabel?: strings.MaxRunes(1023) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1023) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -250,7 +307,12 @@ fn.#ObjectExpression
 		"ASGNetworkIn" |
 		"ASGNetworkOut" |
 		fn.#StringExpression
-	ResourceLabel?: strings.MaxRunes(1023) & strings.MinRunes(1) | fn.#StringExpression
+	ResourceLabel?: strings.MaxRunes(1023) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1023) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -260,7 +322,12 @@ fn.#ObjectExpression
 		"ASGAverageNetworkIn" |
 		"ASGAverageNetworkOut" |
 		fn.#StringExpression
-	ResourceLabel?: strings.MaxRunes(1023) & strings.MinRunes(1) | fn.#StringExpression
+	ResourceLabel?: strings.MaxRunes(1023) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1023) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -347,9 +414,24 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TargetTrackingMetricDataQuery: close({
-	Expression?: strings.MaxRunes(2047) & strings.MinRunes(1) | fn.#StringExpression
-	Id!:         strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Label?:      strings.MaxRunes(2047) & strings.MinRunes(0) | fn.#StringExpression
+	Expression?: strings.MaxRunes(2047) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2047) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Id!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Label?: strings.MaxRunes(2047) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2047) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	MetricStat?: #TargetTrackingMetricStat
 	Period?: int & >=1 |
 		{
@@ -387,7 +469,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Stat!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Unit?: string | fn.#StringExpression
+	Stat!: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Unit?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

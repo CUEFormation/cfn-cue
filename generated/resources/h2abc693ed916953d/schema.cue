@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Contains detailed information about a framework. Frameworks contain controls,
@@ -17,26 +19,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // generate daily compliance results.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Backup::Framework"
-	Properties!: close({
-		FrameworkControls!:    list.UniqueItems() & [...#FrameworkControl] | fn.#ListExpression
-		FrameworkDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"\\S" | fn.#StringExpression
-		FrameworkName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z][_a-zA-Z0-9]*" | fn.#StringExpression
+	let properties = close({
+		FrameworkControls!: list.UniqueItems() & [...#FrameworkControl] | fn.#ListExpression
+		FrameworkDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"\\S" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"\\S" & "\(self)"
+		} |
+		fn.#StringExpression
+		FrameworkName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z][_a-zA-Z0-9]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z][_a-zA-Z0-9]*" & "\(self)"
+		} |
+		fn.#StringExpression
 		FrameworkTags?: [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ControlInputParameter: close({
-	ParameterName!:  string | fn.#StringExpression
-	ParameterValue!: string | fn.#StringExpression
+	ParameterName!:  string | number | bool | fn.#StringExpression
+	ParameterValue!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FrameworkControl: close({
 	ControlInputParameters?: list.UniqueItems() & [...#ControlInputParameter] | fn.#ListExpression
-	ControlName!:            string | fn.#StringExpression
+	ControlName!:            string | number | bool | fn.#StringExpression
 	ControlScope?: close({
-		ComplianceResourceIds?:   list.MaxItems(100) & [...string | fn.#StringExpression] | fn.#ListExpression
-		ComplianceResourceTypes?: [...string | fn.#StringExpression] | fn.#ListExpression
+		ComplianceResourceIds?: list.MaxItems(100) & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
+		ComplianceResourceTypes?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Tags?:                    [...#Tag] | fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
@@ -44,7 +59,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

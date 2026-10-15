@@ -9,16 +9,31 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The resource schema for AWSLogs ResourcePolicy
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Logs::ResourcePolicy"
-	Properties!: close({
+	let properties = close({
 		PolicyDocument!: fn.#Object & {...} |
 		strings.MaxRunes(51200) & strings.MinRunes(1) & =~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(51200) &
+			strings.MinRunes(1) &
+			=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" &
+			"\(self)"
+		} |
 		fn.#StringObjectExpression
 		PolicyName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([^:*\\/]+\\/?)*[^:*\\/]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([^:*\\/]+\\/?)*[^:*\\/]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

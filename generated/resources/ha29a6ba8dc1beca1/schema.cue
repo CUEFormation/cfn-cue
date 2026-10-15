@@ -6,21 +6,25 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::CoreDefinitionVersion
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Greengrass::CoreDefinitionVersion"
-	Properties!: close({
-		CoreDefinitionId!: string | fn.#StringExpression
+	let properties = close({
+		CoreDefinitionId!: string | number | bool | fn.#StringExpression
 		Cores!:            [...#Core] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Core: close({
-	CertificateArn!: string | fn.#StringExpression
-	Id!:             string | fn.#StringExpression
+	CertificateArn!: string | number | bool | fn.#StringExpression
+	Id!:             string | number | bool | fn.#StringExpression
 	SyncShadow?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ThingArn!:       string | fn.#StringExpression
+	ThingArn!:       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

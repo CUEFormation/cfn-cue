@@ -10,14 +10,26 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Config::OrganizationConfigRule
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Config::OrganizationConfigRule"
-	Properties!: close({
-		ExcludedAccounts?: list.MaxItems(1000) & [...] & [...=~"^\\d{12}$" | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		ExcludedAccounts?: list.MaxItems(1000) & [...] & [...=~"^\\d{12}$" |
+		{
+			number | bool
+			_cfnString: =~"^\\d{12}$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		OrganizationConfigRuleName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 
 		// This object specifies metadata for your organization's AWS Config Custom Policy rule.
@@ -33,33 +45,90 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// type and ID of AWS resource along with the rule identifier.
 		OrganizationManagedRuleMetadata?: #OrganizationManagedRuleMetadata
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #OrganizationCustomPolicyRuleMetadata: close({
-	DebugLogDeliveryAccounts?: list.MaxItems(1000) & [...] & [...=~"^\\d{12}$" | fn.#StringExpression] |
-		fn.#ListExpression
-	Description?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	InputParameters?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	DebugLogDeliveryAccounts?: list.MaxItems(1000) & [...] & [...=~"^\\d{12}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\d{12}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Description?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	InputParameters?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	OrganizationConfigRuleTriggerTypes?: [
 		..."ConfigurationItemChangeNotification" | "OversizedConfigurationItemChangeNotification" | fn.#StringExpression
 	] |
 		fn.#ListExpression
-	PolicyText!:      strings.MaxRunes(10000) & strings.MinRunes(0) | fn.#StringExpression
-	ResourceIdScope?: strings.MaxRunes(768) & strings.MinRunes(1) | fn.#StringExpression
-	ResourceTypesScope?: list.MaxItems(100) & [...] & [
-		...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	PolicyText!: strings.MaxRunes(10000) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	ResourceIdScope?: strings.MaxRunes(768) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(768) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ResourceTypesScope?: list.MaxItems(100) & [...] & [...strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Runtime!:       string | fn.#StringExpression
-	TagKeyScope?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	TagValueScope?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Runtime!: string | number | bool | fn.#StringExpression
+	TagKeyScope?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TagValueScope?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OrganizationCustomRuleMetadata: close({
-	Description?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	InputParameters?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	LambdaFunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(256) & strings.MinRunes(1)) |
+	Description?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	InputParameters?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	LambdaFunctionArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" & (strings.MaxRunes(256) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+		strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	MaximumExecutionFrequency?: "One_Hour" |
 		"Six_Hours" |
@@ -74,32 +143,83 @@ fn.#ObjectExpression
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	ResourceIdScope?: strings.MaxRunes(768) & strings.MinRunes(1) | fn.#StringExpression
-	ResourceTypesScope?: list.MaxItems(100) & [...] & [
-		...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	ResourceIdScope?: strings.MaxRunes(768) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(768) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ResourceTypesScope?: list.MaxItems(100) & [...] & [...strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	TagKeyScope?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	TagValueScope?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	TagKeyScope?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TagValueScope?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OrganizationManagedRuleMetadata: close({
-	Description?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	InputParameters?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Description?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	InputParameters?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	MaximumExecutionFrequency?: "One_Hour" |
 		"Six_Hours" |
 		"Three_Hours" |
 		"Twelve_Hours" |
 		"TwentyFour_Hours" |
 		fn.#StringExpression
-	ResourceIdScope?: strings.MaxRunes(768) & strings.MinRunes(1) | fn.#StringExpression
-	ResourceTypesScope?: list.MaxItems(100) & [...] & [
-		...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	ResourceIdScope?: strings.MaxRunes(768) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(768) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ResourceTypesScope?: list.MaxItems(100) & [...] & [...strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	RuleIdentifier!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	TagKeyScope?:    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	TagValueScope?:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	RuleIdentifier!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TagKeyScope?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TagValueScope?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -10,33 +10,71 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A parallel data resource in Amazon Translate used to customize machine translation output.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Translate::ParallelData"
-	Properties!: close({
-		Description?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\P{M}\\p{M}]{0,256}$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\P{M}\\p{M}]{0,256}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\P{M}\\p{M}]{0,256}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		EncryptionKey?: close({
 			Id!: strings.MaxRunes(400) &
 			strings.MinRunes(1) &
 			=~"^(arn:aws((-us-gov)|(-iso)|(-iso-b)|(-cn))?:kms:)?([a-z]{2}-[a-z]+(-[a-z]+)?-\\d:)?(\\d{12}:)?(((key/)?[a-zA-Z0-9-_]+)|(alias/[a-zA-Z0-9:/_-]+))$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(400) &
+				strings.MinRunes(1) &
+				=~"^(arn:aws((-us-gov)|(-iso)|(-iso-b)|(-cn))?:kms:)?([a-z]{2}-[a-z]+(-[a-z]+)?-\\d:)?(\\d{12}:)?(((key/)?[a-zA-Z0-9-_]+)|(alias/[a-zA-Z0-9:/_-]+))$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			Type!: "KMS" | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
-		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([A-Za-z0-9-]_?)+$" | fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([A-Za-z0-9-]_?)+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([A-Za-z0-9-]_?)+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ParallelDataConfig!: close({
 			Format!: "TSV" | "CSV" | "TMX" | fn.#StringExpression
 			S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) &
+				strings.MinRunes(0) &
+				=~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		Tags?: list.MaxItems(200) & [...] & [...close({
-			Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-			Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+			Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

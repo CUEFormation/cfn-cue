@@ -10,33 +10,37 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppMesh::VirtualNode
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppMesh::VirtualNode"
-	Properties!: close({
-		MeshName!:        string | fn.#StringExpression
-		MeshOwner?:       string | fn.#StringExpression
+	let properties = close({
+		MeshName!:        string | number | bool | fn.#StringExpression
+		MeshOwner?:       string | number | bool | fn.#StringExpression
 		Spec!:            #VirtualNodeSpec
 		Tags?:            [...#Tag] | fn.#ListExpression
-		VirtualNodeName?: string | fn.#StringExpression
+		VirtualNodeName?: string | number | bool | fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AccessLog: close({File?: #FileAccessLog}) | fn.#ObjectExpression
 
 #AwsCloudMapInstanceAttribute: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AwsCloudMapServiceDiscovery: close({
 	Attributes?:    [...#AwsCloudMapInstanceAttribute] | fn.#ListExpression
-	IpPreference?:  string | fn.#StringExpression
-	NamespaceName!: string | fn.#StringExpression
-	ServiceName!:   string | fn.#StringExpression
+	IpPreference?:  string | number | bool | fn.#StringExpression
+	NamespaceName!: string | number | bool | fn.#StringExpression
+	ServiceName!:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -79,14 +83,14 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DnsServiceDiscovery: close({
-	Hostname!:     string | fn.#StringExpression
-	IpPreference?: string | fn.#StringExpression
-	ResponseType?: string | fn.#StringExpression
+	Hostname!:     string | number | bool | fn.#StringExpression
+	IpPreference?: string | number | bool | fn.#StringExpression
+	ResponseType?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Duration: close({
-	Unit!: string | fn.#StringExpression
+	Unit!: string | number | bool | fn.#StringExpression
 	Value!: int |
 		{
 			string &
@@ -106,7 +110,7 @@ fn.#ObjectExpression
 
 #FileAccessLog: close({
 	Format?: #LoggingFormat
-	Path!:   string | fn.#StringExpression
+	Path!:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -145,7 +149,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Path?: string | fn.#StringExpression
+	Path?: string | number | bool | fn.#StringExpression
 	Port?: int |
 		{
 			string &
@@ -160,7 +164,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Protocol!: string | fn.#StringExpression
+	Protocol!: string | number | bool | fn.#StringExpression
 	TimeoutMillis!: int |
 		{
 			string &
@@ -199,8 +203,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #JsonFormatRef: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -224,16 +228,20 @@ fn.#ObjectExpression
 
 #ListenerTls: close({
 	Certificate!: #ListenerTlsCertificate
-	Mode!:        string | fn.#StringExpression
+	Mode!:        string | number | bool | fn.#StringExpression
 	Validation?:  #ListenerTlsValidationContext
 }) |
 fn.#ObjectExpression
 
 #ListenerTlsAcmCertificate: close({
-	CertificateArn!: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	CertificateArn!: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
 #ListenerTlsCertificate: close({
 	ACM?:  #ListenerTlsAcmCertificate
@@ -243,12 +251,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ListenerTlsFileCertificate: close({
-	CertificateChain!: string | fn.#StringExpression
-	PrivateKey!:       string | fn.#StringExpression
+	CertificateChain!: string | number | bool | fn.#StringExpression
+	PrivateKey!:       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ListenerTlsSdsCertificate: close({SecretName!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#ListenerTlsSdsCertificate: close({SecretName!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #ListenerTlsValidationContext: close({
 	SubjectAlternativeNames?: #SubjectAlternativeNames
@@ -266,7 +274,7 @@ fn.#ObjectExpression
 
 #LoggingFormat: close({
 	Json?: [...#JsonFormatRef] | fn.#ListExpression
-	Text?: string | fn.#StringExpression
+	Text?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -319,7 +327,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Protocol!: string | fn.#StringExpression
+	Protocol!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -329,14 +337,16 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#SubjectAlternativeNameMatchers: close({Exact?: [...string | fn.#StringExpression] | fn.#ListExpression}) |
+#SubjectAlternativeNameMatchers: close(
+	{Exact?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 #SubjectAlternativeNames: close({Match!: #SubjectAlternativeNameMatchers}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -349,13 +359,15 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TlsValidationContextAcmTrust: close(
-	{CertificateAuthorityArns!: [...string | fn.#StringExpression] | fn.#ListExpression},
+	{CertificateAuthorityArns!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
-#TlsValidationContextFileTrust: close({CertificateChain!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#TlsValidationContextFileTrust: close({CertificateChain!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
-#TlsValidationContextSdsTrust: close({SecretName!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#TlsValidationContextSdsTrust: close({SecretName!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #TlsValidationContextTrust: close({
 	ACM?:  #TlsValidationContextAcmTrust
@@ -469,6 +481,6 @@ fn.#ObjectExpression
 
 #VirtualServiceBackend: close({
 	ClientPolicy?:       #ClientPolicy
-	VirtualServiceName!: string | fn.#StringExpression
+	VirtualServiceName!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

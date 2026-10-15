@@ -14,6 +14,8 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a virtual tape with a user-defined barcode on a Tape Gateway (VTL). A
@@ -21,16 +23,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Glacier Deep Archive.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::StorageGateway::Tape"
-	Properties!: close({
-		GatewayARN!:   strings.MaxRunes(500) & strings.MinRunes(50) | fn.#StringExpression
+	let properties = close({
+		GatewayARN!: strings.MaxRunes(500) & strings.MinRunes(50) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(50) & "\(self)"
+		} |
+		fn.#StringExpression
 		KMSEncrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		KMSKey?: strings.MaxRunes(2048) &
 		strings.MinRunes(7) &
 		=~"^(^arn:(aws(|-cn|-us-gov|-iso[A-Za-z0-9_-]*|-eusc)):kms:([a-zA-Z0-9-]+):([0-9]+):(key|alias)/(\\S+)$)|(^alias/(\\S+)$)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(7) &
+			=~"^(^arn:(aws(|-cn|-us-gov|-iso[A-Za-z0-9_-]*|-eusc)):kms:([a-zA-Z0-9-]+):([0-9]+):(key|alias)/(\\S+)$)|(^alias/(\\S+)$)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		PoolId?:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:        list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TapeBarcode?: strings.MaxRunes(16) & strings.MinRunes(5) & =~"^[A-Z0-9]*$" | fn.#StringExpression
+		PoolId?: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TapeBarcode?: strings.MaxRunes(16) & strings.MinRunes(5) & =~"^[A-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(16) & strings.MinRunes(5) & =~"^[A-Z0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		TapeSizeInBytes!: >=1 |
 			{
 				string &
@@ -52,10 +76,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		Worm?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -13,41 +13,45 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::UserPoolDomain
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cognito::UserPoolDomain"
-	Properties!: matchN(2, [
-		matchIf({
-			CustomDomainConfig!: _
-			...
-		}, {
-			Domain?: null |
-			bool |
-			number |
-			=~"^[a-z0-9](?:[a-z0-9\\-]*[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9\\-]*[a-z0-9])?)+$" |
-			[...] |
-			{...} |
-			fn.#ValueExpression
-			...
-		}, _) & {...},
-		matchIf(matchN(0, [null | bool | number | string | [...] | {
-			CustomDomainConfig!: _
-			...
-		}]) & {...}, {
-			Domain?: null |
-			bool |
-			number |
-			=~"^[a-z0-9](?:[a-z0-9\\-]{0,61}[a-z0-9])?$" |
-			[...] |
-			{...} |
-			fn.#ValueExpression
-			...
-		}, _) & {...}
-	]) & close({
+	let properties = matchN(2, [matchIf({
+		CustomDomainConfig!: _
+		...
+	}, {
+		Domain?: null |
+		bool |
+		number |
+		=~"^[a-z0-9](?:[a-z0-9\\-]*[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9\\-]*[a-z0-9])?)+$" |
+		[...] |
+		{...} |
+		fn.#ValueExpression
+		...
+	}, _), matchIf(matchN(0, [null | bool | number | string | [...] | {
+		CustomDomainConfig!: _
+		...
+	}]), {
+		Domain?: null |
+		bool |
+		number |
+		=~"^[a-z0-9](?:[a-z0-9\\-]{0,61}[a-z0-9])?$" |
+		[...] |
+		{...} |
+		fn.#ValueExpression
+		...
+	}, _)]) & close({
 		CustomDomainConfig?: #CustomDomainConfigType
-		Domain!:             strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
+		Domain!: strings.MaxRunes(63) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ManagedLoginVersion?: int |
 			{
 				string &
@@ -64,24 +68,49 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Routing?:    #RoutingType
-		UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
+		Routing?: #RoutingType
+		UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CustomDomainConfigType: close({
-	CertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	CertificateArn?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	SecurityPolicy?: "TLS_V1" | "TLS_V1_2_2021" | "TLS_V1_3_2025" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FailoverType: close({
-	PrimaryRoute53HealthCheckId!: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-	SecondaryRegion!:             strings.MaxRunes(32) & strings.MinRunes(5) | fn.#StringExpression
+	PrimaryRoute53HealthCheckId!: strings.MaxRunes(64) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	SecondaryRegion!: strings.MaxRunes(32) & strings.MinRunes(5) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(5) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

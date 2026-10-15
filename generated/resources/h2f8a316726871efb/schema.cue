@@ -15,19 +15,38 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a plan that specifies Regions, IAM roles, and workflows of logic
 // required to perform the desired change to your multi-Region application
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ARCRegionSwitch::Plan"
-	Properties!: close({
+	let properties = close({
 		AssociatedAlarms?: #AssociatedAlarmMap
-		Description?:      string | fn.#StringExpression
-		ExecutionRole!:    =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-		Name!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,30}[a-zA-Z0-9])?$" |
+		Description?:      string | number | bool | fn.#StringExpression
+		ExecutionRole!: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" & "\(self)"
+		} |
 		fn.#StringExpression
-		PrimaryRegion?:    =~"^[a-z]{2}-[a-z-]+-\\d+$" | fn.#StringExpression
+		Name!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,30}[a-zA-Z0-9])?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,30}[a-zA-Z0-9])?$" &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		PrimaryRegion?: =~"^[a-z]{2}-[a-z-]+-\\d+$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-z]{2}-[a-z-]+-\\d+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		RecoveryApproach!: #RecoveryApproach
 		RecoveryTimeObjectiveMinutes?: <=10080 & >=1 |
 			{
@@ -49,8 +68,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Regions!: list.MaxItems(2) & list.MinItems(2) & [...=~"^[a-z]{2}-[a-z-]+-\\d+$" | fn.#StringExpression] |
-			fn.#ListExpression
+		Regions!: list.MaxItems(2) & list.MinItems(2) & [...=~"^[a-z]{2}-[a-z-]+-\\d+$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-z]{2}-[a-z-]+-\\d+$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		ReportConfiguration?: #ReportConfiguration
 		ServiceQuotaChecksEnabled?: bool |
 			"true" |
@@ -64,6 +88,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Triggers?:  [...#Trigger] | fn.#ListExpression
 		Workflows!: [...#Workflow] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AlarmCondition: "red" | "green" | fn.#StringExpression
@@ -71,8 +97,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #AlarmType: "applicationHealth" | "trigger" | fn.#StringExpression
 
 #ArcRoutingControlConfiguration: close({
-	CrossAccountRole?:         =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-	ExternalId?:               string | fn.#StringExpression
+	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ExternalId?:               string | number | bool | fn.#StringExpression
 	RegionAndRoutingControls!: #RegionAndRoutingControls
 	TimeoutMinutes?: >=1 |
 		{
@@ -97,36 +128,65 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #ArcRoutingControlState: close({
-	RoutingControlArn!: string | fn.#StringExpression
+	RoutingControlArn!: string | number | bool | fn.#StringExpression
 	State!:             #RoutingControlStateChange
 }) |
 fn.#ObjectExpression
 
 #Asg: close({
 	Arn?: =~"^arn:aws[a-zA-Z-]*:autoscaling:[a-z0-9-]+:\\d{12}:autoScalingGroup:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:autoScalingGroupName/[\\S\\s]{1,255}$" |
-		fn.#StringExpression
-	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-	ExternalId?:       string | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:autoscaling:[a-z0-9-]+:\\d{12}:autoScalingGroup:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}:autoScalingGroupName/[\\S\\s]{1,255}$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
+	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ExternalId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AssociatedAlarm: close({
-	AlarmType!:          #AlarmType
-	CrossAccountRole?:   =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-	ExternalId?:         string | fn.#StringExpression
-	ResourceIdentifier!: string | fn.#StringExpression
+	AlarmType!: #AlarmType
+	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ExternalId?:         string | number | bool | fn.#StringExpression
+	ResourceIdentifier!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AssociatedAlarmMap: close({
 
-	{[=~".+"]: #AssociatedAlarm}}) |
+	{[=~".+"]: #AssociatedAlarm}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #AuroraProvisionedScalingConfiguration: close({
-	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-	ExternalId?:       string | fn.#StringExpression
+	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ExternalId?: string | number | bool | fn.#StringExpression
 	GlobalClusterIdentifier!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][0-9A-Za-z-:._]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][0-9A-Za-z-:._]*$" & "\(self)"
+	} |
 	fn.#StringExpression
 	InstanceArns!:              #RegionAuroraInstanceArnMap
 	RegionDatabaseClusterArns!: #RegionAuroraClusterMap
@@ -153,9 +213,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #AuroraServerlessScalingConfiguration: close({
-	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-	ExternalId?:       string | fn.#StringExpression
+	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ExternalId?: string | number | bool | fn.#StringExpression
 	GlobalClusterIdentifier!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][0-9A-Za-z-:._]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][0-9A-Za-z-:._]*$" & "\(self)"
+	} |
 	fn.#StringExpression
 	RegionDatabaseClusterArns!: #RegionAuroraClusterMap
 	TargetPercent?: number |
@@ -245,14 +314,27 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DocumentDbConfiguration: close({
-	Behavior!:         #DocumentDbDefaultBehavior | fn.#ValueExpression
-	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-	DatabaseClusterArns!: [
-		...=~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:cluster:[a-zA-Z0-9][a-zA-Z0-9-_]{0,99}$" | fn.#StringExpression
-	] |
-		fn.#ListExpression
-	ExternalId?:              string | fn.#StringExpression
-	GlobalClusterIdentifier!: =~"^[A-Za-z][0-9A-Za-z-:._]*$" | fn.#StringExpression
+	Behavior!: #DocumentDbDefaultBehavior | fn.#ValueExpression
+	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	DatabaseClusterArns!: [...=~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:cluster:[a-zA-Z0-9][a-zA-Z0-9-_]{0,99}$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:cluster:[a-zA-Z0-9][a-zA-Z0-9-_]{0,99}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	ExternalId?: string | number | bool | fn.#StringExpression
+	GlobalClusterIdentifier!: =~"^[A-Za-z][0-9A-Za-z-:._]*$" |
+	{
+		number | bool
+		_cfnString: =~"^[A-Za-z][0-9A-Za-z-:._]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	TimeoutMinutes?: >=1 |
 		{
 			string &
@@ -430,9 +512,18 @@ fn.#ObjectExpression
 
 #EksCluster: close({
 	ClusterArn!: =~"^arn:aws[a-zA-Z-]*:eks:[a-z0-9-]+:\\d{12}:cluster/[a-zA-Z0-9][a-zA-Z0-9-_]{0,99}$" |
-		fn.#StringExpression
-	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-	ExternalId?:       string | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:eks:[a-z0-9-]+:\\d{12}:cluster/[a-zA-Z0-9][a-zA-Z0-9-_]{0,99}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ExternalId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -509,14 +600,24 @@ fn.#ObjectExpression
 
 #EventSourceMapping: close({
 	Arn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\d{12}:event-source-mapping:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" |
-		fn.#StringExpression
-	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-	ExternalId?:       string | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\d{12}:event-source-mapping:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
+	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ExternalId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ExecutionApprovalConfiguration: close({
-	ApprovalRole!: string | fn.#StringExpression
+	ApprovalRole!: string | number | bool | fn.#StringExpression
 	TimeoutMinutes?: >=1 |
 		{
 			string &
@@ -599,11 +700,16 @@ fn.#ValueExpression
 	fn.#StringExpression
 
 #GlobalAuroraConfiguration: close({
-	Behavior!:                #GlobalAuroraDefaultBehavior | fn.#ValueExpression
-	CrossAccountRole?:        =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-	DatabaseClusterArns!:     [...string | fn.#StringExpression] | fn.#ListExpression
-	ExternalId?:              string | fn.#StringExpression
-	GlobalClusterIdentifier!: string | fn.#StringExpression
+	Behavior!: #GlobalAuroraDefaultBehavior | fn.#ValueExpression
+	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	DatabaseClusterArns!:     [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	ExternalId?:              string | number | bool | fn.#StringExpression
+	GlobalClusterIdentifier!: string | number | bool | fn.#StringExpression
 	TimeoutMinutes?: >=1 |
 		{
 			string &
@@ -634,20 +740,30 @@ fn.#ObjectExpression
 #GlobalAuroraUngracefulBehavior: "failover" | fn.#StringExpression
 
 #KubernetesResourceType: close({
-	ApiVersion!: string | fn.#StringExpression
-	Kind!:       string | fn.#StringExpression
+	ApiVersion!: string | number | bool | fn.#StringExpression
+	Kind!:       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #KubernetesScalingApplication: close({
 
-	{[=~".+"]: #RegionalScalingResource}}) |
+	{[=~".+"]: #RegionalScalingResource}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #KubernetesScalingResource: close({
-	HpaName?:   string | fn.#StringExpression
-	Name!:      string | fn.#StringExpression
-	Namespace!: =~"^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$" | fn.#StringExpression
+	HpaName?: string | number | bool | fn.#StringExpression
+	Name!:    string | number | bool | fn.#StringExpression
+	Namespace!: =~"^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -684,19 +800,33 @@ fn.#ObjectExpression
 #LambdaUngracefulBehavior: "skip" | fn.#StringExpression
 
 #Lambdas: close({
-	Arn?:              string | fn.#StringExpression
-	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-	ExternalId?:       string | fn.#StringExpression
+	Arn?: string | number | bool | fn.#StringExpression
+	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ExternalId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #NeptuneDefaultBehavior: "failover" | "switchoverOnly" | fn.#StringExpression
 
 #NeptuneGlobalDatabaseConfiguration: close({
-	Behavior!:         #NeptuneDefaultBehavior | fn.#ValueExpression
-	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-	ExternalId?:       string | fn.#StringExpression
+	Behavior!: #NeptuneDefaultBehavior | fn.#ValueExpression
+	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ExternalId?: string | number | bool | fn.#StringExpression
 	GlobalClusterIdentifier!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[A-Za-z][0-9A-Za-z-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[A-Za-z][0-9A-Za-z-]*$" & "\(self)"
+	} |
 	fn.#StringExpression
 	RegionDatabaseClusterArns!: #RegionNeptuneClusterArnMap
 	TimeoutMinutes?: >=1 |
@@ -729,9 +859,14 @@ fn.#ObjectExpression
 #ParallelExecutionBlockConfiguration: close({Steps!: [...#Step] | fn.#ListExpression}) | fn.#ObjectExpression
 
 #RdsCreateCrossRegionReplicaConfiguration: close({
-	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
+	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	DbInstanceArnMap!: #RdsDbInstanceArnMap
-	ExternalId?:       string | fn.#StringExpression
+	ExternalId?:       string | number | bool | fn.#StringExpression
 	TimeoutMinutes?: >=1 |
 		{
 			string &
@@ -756,14 +891,26 @@ fn.#ObjectExpression
 
 #RdsDbInstanceArnMap: close({
 
-	{[=~"^[a-z]{2}-[a-z-]+-\\d+$"]: =~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:db:[a-zA-Z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$" |
-		fn.#StringExpression}}) |
+	{
+		[=~"^[a-z]{2}-[a-z-]+-\\d+$"]: =~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:db:[a-zA-Z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:db:[a-zA-Z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+	}}) |
 fn.#ObjectExpression
 
 #RdsPromoteReadReplicaConfiguration: close({
-	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
+	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	DbInstanceArnMap!: #RdsDbInstanceArnMap
-	ExternalId?:       string | fn.#StringExpression
+	ExternalId?:       string | number | bool | fn.#StringExpression
 	TimeoutMinutes?: >=1 |
 		{
 			string &
@@ -787,9 +934,14 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RdsSwitchoverReadReplicaConfiguration: close({
-	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
+	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	DbInstanceArnMap!: #RdsDbInstanceArnMap
-	ExternalId?:       string | fn.#StringExpression
+	ExternalId?:       string | number | bool | fn.#StringExpression
 	TimeoutMinutes?: >=1 |
 		{
 			string &
@@ -821,37 +973,75 @@ fn.#ObjectExpression
 
 #RegionAndRoutingControls: close({
 
-	{[=~".+"]: [...#ArcRoutingControlState] | fn.#ListExpression}}) |
+	{[=~".+"]: [...#ArcRoutingControlState] | fn.#ListExpression}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #RegionAuroraClusterMap: struct.MaxFields(2) & struct.MinFields(2) & close({
 
-	{[=~"^[a-z]{2}-[a-z-]+-\\d+$"]: =~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:cluster:[A-Za-z][0-9A-Za-z-:._]*$" |
-		fn.#StringExpression}}) |
+	{
+		[=~"^[a-z]{2}-[a-z-]+-\\d+$"]: =~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:cluster:[A-Za-z][0-9A-Za-z-:._]*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:cluster:[A-Za-z][0-9A-Za-z-:._]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}}) |
 fn.#ObjectExpression
 
 #RegionAuroraInstanceArnMap: struct.MaxFields(2) & struct.MinFields(1) & close({
 
-	{[=~"^[a-z]{2}-[a-z-]+-\\d+$"]: =~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:db:[A-Za-z][0-9A-Za-z-]*$" |
-		fn.#StringExpression}}) |
+	{
+		[=~"^[a-z]{2}-[a-z-]+-\\d+$"]: =~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:db:[A-Za-z][0-9A-Za-z-]*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:db:[A-Za-z][0-9A-Za-z-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}}) |
 fn.#ObjectExpression
 
 #RegionEventSourceMappingMap: close({
 
-	{[=~".+"]: #EventSourceMapping}}) |
+	{[=~".+"]: #EventSourceMapping}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #RegionNeptuneClusterArnMap: struct.MaxFields(2) & struct.MinFields(2) & close({
 
-	{[=~"^[a-z]{2}-[a-z-]+-\\d+$"]: =~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:cluster:[A-Za-z][0-9A-Za-z-]*$" |
-		fn.#StringExpression}}) |
+	{
+		[=~"^[a-z]{2}-[a-z-]+-\\d+$"]: =~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:cluster:[A-Za-z][0-9A-Za-z-]*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:rds:[a-z0-9-]+:\\d{12}:cluster:[A-Za-z][0-9A-Za-z-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}}) |
 fn.#ObjectExpression
 
 #RegionSwitchPlanConfiguration: close({
 	Arn!: =~"^arn:aws[a-zA-Z-]*:arc-region-switch::[0-9]{12}:plan/([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,30}[a-zA-Z0-9])?):([a-z0-9]{6})$" |
-		fn.#StringExpression
-	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-	ExternalId?:       string | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:arc-region-switch::[0-9]{12}:plan/([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,30}[a-zA-Z0-9])?):([a-z0-9]{6})$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
+	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ExternalId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -870,11 +1060,26 @@ fn.#ObjectExpression
 #ReportOutputConfiguration: close({S3Configuration!: #S3ReportOutputConfiguration}) | fn.#ValueExpression
 
 #Route53HealthCheckConfiguration: close({
-	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-	ExternalId?:       string | fn.#StringExpression
-	HostedZoneId!:     strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
-	RecordName!:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	RecordSets?:       [...#Route53ResourceRecordSet] | fn.#ListExpression
+	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ExternalId?: string | number | bool | fn.#StringExpression
+	HostedZoneId!: strings.MaxRunes(32) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	RecordName!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	RecordSets?: [...#Route53ResourceRecordSet] | fn.#ListExpression
 	TimeoutMinutes?: >=1 |
 		{
 			string &
@@ -898,48 +1103,97 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Route53ResourceRecordSet: close({
-	RecordSetIdentifier?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Region?:              =~"^[a-z]{2}-[a-z-]+-\\d+$" | fn.#StringExpression
+	RecordSetIdentifier?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Region?: =~"^[a-z]{2}-[a-z-]+-\\d+$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z]{2}-[a-z-]+-\\d+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RoutingControlStateChange: "On" | "Off" | fn.#StringExpression
 
 #S3ReportOutputConfiguration: close({
-	BucketOwner?: =~"^\\d{12}$" | fn.#StringExpression
+	BucketOwner?: =~"^\\d{12}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\d{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	BucketPath?: strings.MaxRunes(512) &
 	strings.MinRunes(3) &
 	=~"^(?:s3://)?[a-z0-9][a-z0-9-]{1,61}[a-z0-9](?:/[^/ ][^/]*)*/?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) &
+		strings.MinRunes(3) &
+		=~"^(?:s3://)?[a-z0-9][a-z0-9-]{1,61}[a-z0-9](?:/[^/ ][^/]*)*/?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Service: close({
-	ClusterArn?: =~"^arn:aws[a-zA-Z-]*:ecs:[a-z0-9-]+:\\d{12}:cluster/[a-zA-Z0-9_-]{1,255}$" | fn.#StringExpression
-	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" | fn.#StringExpression
-	ExternalId?:       string | fn.#StringExpression
+	ClusterArn?: =~"^arn:aws[a-zA-Z-]*:ecs:[a-z0-9-]+:\\d{12}:cluster/[a-zA-Z0-9_-]{1,255}$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:ecs:[a-z0-9-]+:\\d{12}:cluster/[a-zA-Z0-9_-]{1,255}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	CrossAccountRole?: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ExternalId?: string | number | bool | fn.#StringExpression
 	ServiceArn?: =~"^arn:aws[a-zA-Z-]*:ecs:[a-z0-9-]+:\\d{12}:service/[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]{1,255}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:ecs:[a-z0-9-]+:\\d{12}:service/[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]{1,255}$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Step: close({
-	Description?:                 string | fn.#StringExpression
+	Description?:                 string | number | bool | fn.#StringExpression
 	ExecutionBlockConfiguration!: #ExecutionBlockConfiguration
 	ExecutionBlockType!:          #ExecutionBlockType
-	Name!:                        string | fn.#StringExpression
+	Name!:                        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tags: struct.MaxFields(200) & struct.MinFields(0) & close({
 
-	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
+	{
+		[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #Trigger: close({
 	Action!:      #WorkflowTargetAction
 	Conditions!:  list.MaxItems(10) & list.MinItems(1) & [...#TriggerCondition] | fn.#ListExpression
-	Description?: string | fn.#StringExpression
+	Description?: string | number | bool | fn.#StringExpression
 	MinDelayMinutesBetweenExecutions!: number |
 		{
 			string &
@@ -959,12 +1213,17 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TargetRegion!: =~"^[a-z]{2}-[a-z-]+-\\d+$" | fn.#StringExpression
+	TargetRegion!: =~"^[a-z]{2}-[a-z-]+-\\d+$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z]{2}-[a-z-]+-\\d+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TriggerCondition: close({
-	AssociatedAlarmName!: string | fn.#StringExpression
+	AssociatedAlarmName!: string | number | bool | fn.#StringExpression
 	Condition!:           #AlarmCondition
 }) |
 fn.#ObjectExpression
@@ -973,9 +1232,14 @@ fn.#ObjectExpression
 
 #Workflow: close({
 	Steps?:                [...#Step] | fn.#ListExpression
-	WorkflowDescription?:  string | fn.#StringExpression
+	WorkflowDescription?:  string | number | bool | fn.#StringExpression
 	WorkflowTargetAction!: #WorkflowTargetAction
-	WorkflowTargetRegion?: =~"^[a-z]{2}-[a-z-]+-\\d+$" | fn.#StringExpression
+	WorkflowTargetRegion?: =~"^[a-z]{2}-[a-z-]+-\\d+$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z]{2}-[a-z-]+-\\d+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

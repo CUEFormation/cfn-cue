@@ -10,26 +10,56 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The resource schema to create a CodeArtifact repository.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodeArtifact::Repository"
-	Properties!: close({
-		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
-		DomainName!: strings.MaxRunes(50) & strings.MinRunes(2) & =~"^([a-z][a-z0-9\\-]{0,48}[a-z0-9])$" |
+	let properties = close({
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" & "\(self)"
+		} |
 		fn.#StringExpression
-		ExternalConnections?:       [...string | fn.#StringExpression] | fn.#ListExpression
+		DomainName!: strings.MaxRunes(50) & strings.MinRunes(2) & =~"^([a-z][a-z0-9\\-]{0,48}[a-z0-9])$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(2) & =~"^([a-z][a-z0-9\\-]{0,48}[a-z0-9])$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ExternalConnections?:       [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		PermissionsPolicyDocument?: fn.#Object & {...} | fn.#ObjectExpression
 		RepositoryName!: strings.MaxRunes(100) & strings.MinRunes(2) & =~"^([A-Za-z0-9][A-Za-z0-9._\\-]{1,99})$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) &
+			strings.MinRunes(2) &
+			=~"^([A-Za-z0-9][A-Za-z0-9._\\-]{1,99})$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?:      list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-		Upstreams?: [...string | fn.#StringExpression] | fn.#ListExpression
+		Upstreams?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\P{C}+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\P{C}*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\P{C}+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\P{C}+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\P{C}*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\P{C}*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

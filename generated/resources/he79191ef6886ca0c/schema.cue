@@ -10,22 +10,46 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Deadline::StorageProfile
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Deadline::StorageProfile"
-	Properties!: close({
-		DisplayName!:         strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		FarmId!:              =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
+	let properties = close({
+		DisplayName!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		FarmId!: =~"^farm-[0-9a-f]{32}$" |
+		{
+			number | bool
+			_cfnString: =~"^farm-[0-9a-f]{32}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		FileSystemLocations?: list.MaxItems(20) & [...] & [...#FileSystemLocation] | fn.#ListExpression
 		OsFamily!:            #StorageProfileOperatingSystemFamily
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #FileSystemLocation: close({
-	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z ]*$" | fn.#StringExpression
-	Path!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z ]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z ]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Path!: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	Type!: #FileSystemLocationType
 }) |
 fn.#ObjectExpression

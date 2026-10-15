@@ -10,15 +10,17 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Macie CustomDataIdentifier resource schema
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Macie::CustomDataIdentifier"
-	Properties!: close({
-		Description?: string | fn.#StringExpression
-		IgnoreWords?: [...string | fn.#StringExpression] | fn.#ListExpression
-		Keywords?:    [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		Description?: string | number | bool | fn.#StringExpression
+		IgnoreWords?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		Keywords?:    [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		MaximumMatchDistance?: int |
 			{
 				string &
@@ -35,14 +37,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name!:  string | fn.#StringExpression
-		Regex!: string | fn.#StringExpression
+		Name!:  string | number | bool | fn.#StringExpression
+		Regex!: string | number | bool | fn.#StringExpression
 		Tags?:  [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

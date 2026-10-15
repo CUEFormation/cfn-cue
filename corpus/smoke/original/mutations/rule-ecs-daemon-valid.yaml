@@ -1,0 +1,6 @@
+Resources:
+  Thing:
+    Type: AWS::ECS::Service
+    Properties:
+      SchedulingStrategy: DAEMON
+      TaskDefinition: task

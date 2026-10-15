@@ -6,21 +6,23 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecurityAgent::Pentest
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityAgent::Pentest"
-	Properties!: close({
-		AgentSpaceId!: string | fn.#StringExpression
+	let properties = close({
+		AgentSpaceId!: string | number | bool | fn.#StringExpression
 		Assets!: close({
 			Actors?: [...close({
 				// Authentication credentials for this actor
 				Authentication?: #Authentication
-				Description?:    string | fn.#StringExpression
+				Description?:    string | number | bool | fn.#StringExpression
 				EnableEmailMfa?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-				Identifier?:     string | fn.#StringExpression
-				Uris?:           [...string | fn.#StringExpression] | fn.#ListExpression
+				Identifier?:     string | number | bool | fn.#StringExpression
+				Uris?:           [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 			}) |
 			fn.#ObjectExpression] |
 			fn.#ListExpression
@@ -45,24 +47,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		// Configuration for network traffic filtering
 		NetworkTrafficConfig?: #NetworkTrafficConfig
-		ServiceRole!:          string | fn.#StringExpression
-		Title?:                string | fn.#StringExpression
+		ServiceRole!:          string | number | bool | fn.#StringExpression
+		Title?:                string | number | bool | fn.#StringExpression
 
 		// VPC configuration that the security testing environment accesses
 		VpcConfig?: #VpcConfig
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Authentication: close({
 	ProviderType?: "SECRETS_MANAGER" | "AWS_LAMBDA" | "AWS_IAM_ROLE" | "AWS_INTERNAL" | fn.#StringExpression
-	Value?:        string | fn.#StringExpression
+	Value?:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CaCertificateSource: close({
-	ArtifactId?: string | fn.#StringExpression
-	InlinePem?:  string | fn.#StringExpression
-	S3Location?: string | fn.#StringExpression
+	ArtifactId?: string | number | bool | fn.#StringExpression
+	InlinePem?:  string | number | bool | fn.#StringExpression
+	S3Location?: string | number | bool | fn.#StringExpression
 	if InlinePem != _|_ if InlinePem."Fn::If" == _|_ {
 		ArtifactId?: close({"Fn::If": _}) | error(
 			"ArtifactId cannot be used with InlinePem; set exactly one of InlinePem, ArtifactId, S3Location",
@@ -82,31 +86,31 @@ fn.#ObjectExpression
 #CleanUpStrategy: "BEST_EFFORT_DELETE" | "RETAIN_ALL" | fn.#StringExpression
 
 #CloudWatchLog: close({
-	LogGroup?:  string | fn.#StringExpression
-	LogStream?: string | fn.#StringExpression
+	LogGroup?:  string | number | bool | fn.#StringExpression
+	LogStream?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CodeRemediationStrategy: "AUTOMATIC" | "DISABLED" | fn.#StringExpression
 
 #CustomHeader: close({
-	Name?:  string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Name?:  string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DocumentInfo: close({
-	ArtifactId?: string | fn.#StringExpression
-	S3Location?: string | fn.#StringExpression
+	ArtifactId?: string | number | bool | fn.#StringExpression
+	S3Location?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Endpoint: close({Uri?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Endpoint: close({Uri?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #IntegratedRepository: close({
-	Branch?:             string | fn.#StringExpression
-	IntegrationId!:      string | fn.#StringExpression
-	ProviderResourceId!: string | fn.#StringExpression
+	Branch?:             string | number | bool | fn.#StringExpression
+	IntegrationId!:      string | number | bool | fn.#StringExpression
+	ProviderResourceId!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -119,7 +123,7 @@ fn.#ObjectExpression
 #NetworkTrafficRule: close({
 	Effect?:                 "ALLOW" | "DENY" | fn.#StringExpression
 	NetworkTrafficRuleType?: "URL" | fn.#StringExpression
-	Pattern?:                string | fn.#StringExpression
+	Pattern?:                string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -155,7 +159,7 @@ fn.#ObjectExpression
 
 #SkillType: "FINDING_PERSONALIZATION" | "LOGIN_OPTIMIZATION" | fn.#StringExpression
 
-#SourceCodeRepository: close({S3Location?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#SourceCodeRepository: close({S3Location?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #TrustedCaCertificate: close({
 	// Where to read the certificate from
@@ -164,8 +168,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VpcConfig: close({
-	SecurityGroupArns?: [...string | fn.#StringExpression] | fn.#ListExpression
-	SubnetArns?:        [...string | fn.#StringExpression] | fn.#ListExpression
-	VpcArn?:            string | fn.#StringExpression
+	SecurityGroupArns?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	SubnetArns?:        [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	VpcArn?:            string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

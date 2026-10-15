@@ -13,12 +13,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaLive::CloudWatchAlarmTemplate Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaLive::CloudWatchAlarmTemplate"
-	Properties!: close({
+	let properties = close({
 		ComparisonOperator!: #CloudWatchAlarmTemplateComparisonOperator
 		DatapointsToAlarm?: >=1 |
 			{
@@ -39,7 +41,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		EvaluationPeriods!: >=1 |
 			{
 				string &
@@ -59,9 +66,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		GroupIdentifier?: =~"^[^\\s]+$" | fn.#StringExpression
-		MetricName!:      strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-		Name!:            strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
+		GroupIdentifier?: =~"^[^\\s]+$" |
+		{
+			number | bool
+			_cfnString: =~"^[^\\s]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		MetricName!: strings.MaxRunes(64) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Period!: <=86400 & >=10 |
 			{
 				string &
@@ -106,6 +128,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		TreatMissingData!: #CloudWatchAlarmTemplateTreatMissingData
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #CloudWatchAlarmTemplateComparisonOperator: "GreaterThanOrEqualToThreshold" |
@@ -131,5 +155,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #TagMap: close({
 
-	{[=~".+"]: string | fn.#StringExpression}}) |
+	{[=~".+"]: string | number | bool | fn.#StringExpression}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression

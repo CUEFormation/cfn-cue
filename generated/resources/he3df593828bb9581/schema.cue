@@ -10,19 +10,33 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Oam::Link Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Oam::Link"
-	Properties!: close({
-		LabelTemplate?:     strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		LabelTemplate?: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		LinkConfiguration?: #LinkConfiguration
 		ResourceTypes!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#ResourceType] |
 			fn.#ListExpression
-		SinkIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:           {...} | fn.#ObjectExpression
+		SinkIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: {...} | fn.#ObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #LinkConfiguration: close({
@@ -31,7 +45,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#LinkFilter: close({Filter!: strings.MaxRunes(2000) & strings.MinRunes(1) | fn.#StringExpression}) |
+#LinkFilter: close({
+	Filter!: strings.MaxRunes(2000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #ResourceType: "AWS::CloudWatch::Metric" |

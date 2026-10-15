@@ -6,6 +6,8 @@ import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ApiGateway::DomainName`` resource specifies a public custom domain
@@ -19,41 +21,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *API Gateway Developer Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::DomainName"
-	Properties?: close({
-		CertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		DomainName?:         string | fn.#StringExpression
-		EndpointAccessMode?: string | fn.#StringExpression
+	let properties = close({
+		CertificateArn?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainName?:         string | number | bool | fn.#StringExpression
+		EndpointAccessMode?: string | number | bool | fn.#StringExpression
 
 		// The endpoint configuration of this DomainName showing the endpoint types and
 		// IP address types of the domain name.
 		EndpointConfiguration?:               #EndpointConfiguration
 		MutualTlsAuthentication?:             #MutualTlsAuthentication
-		OwnershipVerificationCertificateArn?: string | fn.#StringExpression
-		RegionalCertificateArn?:              string | fn.#StringExpression
+		OwnershipVerificationCertificateArn?: string | number | bool | fn.#StringExpression
+		RegionalCertificateArn?:              string | number | bool | fn.#StringExpression
 		RoutingMode?: "BASE_PATH_MAPPING_ONLY" |
 			"ROUTING_RULE_THEN_BASE_PATH_MAPPING" |
 			"ROUTING_RULE_ONLY" |
 			fn.#StringExpression
-		SecurityPolicy?: string | fn.#StringExpression
+		SecurityPolicy?: string | number | bool | fn.#StringExpression
 		Tags?:           [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #EndpointConfiguration: close({
-	IpAddressType?: string | fn.#StringExpression
-	Types?:         [...string | fn.#StringExpression] | fn.#ListExpression
+	IpAddressType?: string | number | bool | fn.#StringExpression
+	Types?:         [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #MutualTlsAuthentication: close({
-	TruststoreUri?:     string | fn.#StringExpression
-	TruststoreVersion?: string | fn.#StringExpression
+	TruststoreUri?:     string | number | bool | fn.#StringExpression
+	TruststoreVersion?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

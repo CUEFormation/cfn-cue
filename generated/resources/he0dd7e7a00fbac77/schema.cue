@@ -10,6 +10,8 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CloudWatch::InsightRule. Creates a
@@ -17,17 +19,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // contributors and usage patterns.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudWatch::InsightRule"
-	Properties!: close({
+	let properties = close({
 		ApplyOnTransformedLogs?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		RuleBody!:               string | fn.#StringExpression
-		RuleName!:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\x20-\\x7E]+$" | fn.#StringExpression
-		RuleState!: ("ENABLED" | "DISABLED") & (strings.MaxRunes(32) & strings.MinRunes(1)) | fn.#StringExpression
-		Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		RuleBody!:               string | number | bool | fn.#StringExpression
+		RuleName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\x20-\\x7E]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\x20-\\x7E]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		RuleState!: ("ENABLED" | "DISABLED") & (strings.MaxRunes(32) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: ("ENABLED" | "DISABLED") & strings.MaxRunes(32) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

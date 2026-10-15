@@ -11,33 +11,74 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IAM::SAMLProvider
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IAM::SAMLProvider"
-	Properties?: close({
+	let properties = close({
 		AddPrivateKey?: strings.MaxRunes(16384) &
 		strings.MinRunes(1) &
 		=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(16384) &
+			strings.MinRunes(1) &
+			=~"[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		AssertionEncryptionMode?: "Allowed" | "Required" | fn.#StringExpression
-		Name?:                    strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w._-]+" | fn.#StringExpression
-		PrivateKeyList?:          list.MaxItems(2) & [...#SAMLPrivateKey] | fn.#ListExpression
-		RemovePrivateKey?:        strings.MaxRunes(64) & strings.MinRunes(22) & =~"[A-Z0-9]+" | fn.#StringExpression
-		SamlMetadataDocument?:    strings.MaxRunes(10000000) & strings.MinRunes(1000) | fn.#StringExpression
-		Tags?:                    list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w._-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w._-]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		PrivateKeyList?: list.MaxItems(2) & [...#SAMLPrivateKey] | fn.#ListExpression
+		RemovePrivateKey?: strings.MaxRunes(64) & strings.MinRunes(22) & =~"[A-Z0-9]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(22) & =~"[A-Z0-9]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		SamlMetadataDocument?: strings.MaxRunes(10000000) & strings.MinRunes(1000) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(10000000) & strings.MinRunes(1000) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #SAMLPrivateKey: close({
-	KeyId!:     strings.MaxRunes(64) & strings.MinRunes(22) & =~"[A-Z0-9]+" | fn.#StringExpression
+	KeyId!: strings.MaxRunes(64) & strings.MinRunes(22) & =~"[A-Z0-9]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(22) & =~"[A-Z0-9]+" & "\(self)"
+	} |
+	fn.#StringExpression
 	Timestamp!: time.Time | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

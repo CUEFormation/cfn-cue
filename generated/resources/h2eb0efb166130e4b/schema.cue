@@ -9,28 +9,38 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::Config::ConfigurationRecorder
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Config::ConfigurationRecorder"
-	Properties!: close({
-		Name?: string | fn.#StringExpression
+	let properties = close({
+		Name?: string | number | bool | fn.#StringExpression
 
 		// Specifies which resource types are in scope for the configuration recorder to record.
 		RecordingGroup?: #RecordingGroup
 
 		// Specifies the default recording frequency for the configuration recorder.
 		RecordingMode?: #RecordingMode
-		RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 			=~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role)\\/.*" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+				=~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role)\\/.*" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		StartedOnCreate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #ExclusionByResourceTypes: close(
-	{ResourceTypes!: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression},
+	{ResourceTypes!: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
@@ -44,21 +54,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 	// An object that specifies the recording strategy for the configuration recorder.
 	RecordingStrategy?: #RecordingStrategy
-	ResourceTypes?:     list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	ResourceTypes?:     list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #RecordingMode: close({
-	RecordingFrequency!:     string | fn.#StringExpression
+	RecordingFrequency!:     string | number | bool | fn.#StringExpression
 	RecordingModeOverrides?: list.UniqueItems() & [...#RecordingModeOverride] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #RecordingModeOverride: close({
-	Description?:        string | fn.#StringExpression
-	RecordingFrequency!: string | fn.#StringExpression
-	ResourceTypes!:      list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	Description?:        string | number | bool | fn.#StringExpression
+	RecordingFrequency!: string | number | bool | fn.#StringExpression
+	ResourceTypes!:      list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#RecordingStrategy: close({UseOnly!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#RecordingStrategy: close({UseOnly!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression

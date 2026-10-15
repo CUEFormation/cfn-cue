@@ -14,28 +14,48 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::IoTFleetWise::SignalCatalog Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTFleetWise::SignalCatalog"
-	Properties?: close({
+	let properties = close({
 		Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name?:       strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
+		Name?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		NodeCounts?: close({}) | fn.#ObjectExpression
 		Nodes?:      list.MaxItems(5000) & list.MinItems(1) & list.UniqueItems() & [...#Node] | fn.#ListExpression
 		Tags?:       list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	Properties?: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Actuator: close({
 	AllowedValues?: #AllowedValues
-	AssignedValue?: string | fn.#StringExpression
+	AssignedValue?: string | number | bool | fn.#StringExpression
 	DataType!:      #NodeDataType
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" & "\(self)"
+	} |
 	fn.#StringExpression
-	FullyQualifiedName!: string | fn.#StringExpression
+	FullyQualifiedName!: string | number | bool | fn.#StringExpression
 	Max?: number |
 		{
 			string &
@@ -74,20 +94,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Unit?: string | fn.#StringExpression
+	Unit?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#AllowedValues: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+#AllowedValues: list.MinItems(1) & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 
 #Attribute: close({
 	AllowedValues?: #AllowedValues
-	AssignedValue?: string | fn.#StringExpression
+	AssignedValue?: string | number | bool | fn.#StringExpression
 	DataType!:      #NodeDataType
-	DefaultValue?:  string | fn.#StringExpression
+	DefaultValue?:  string | number | bool | fn.#StringExpression
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" & "\(self)"
+	} |
 	fn.#StringExpression
-	FullyQualifiedName!: string | fn.#StringExpression
+	FullyQualifiedName!: string | number | bool | fn.#StringExpression
 	Max?: number |
 		{
 			string &
@@ -126,14 +150,18 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Unit?: string | fn.#StringExpression
+	Unit?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Branch: close({
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" & "\(self)"
+	} |
 	fn.#StringExpression
-	FullyQualifiedName!: string | fn.#StringExpression
+	FullyQualifiedName!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -175,8 +203,12 @@ fn.#ValueExpression
 	AllowedValues?: #AllowedValues
 	DataType!:      #NodeDataType
 	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" & "\(self)"
+	} |
 	fn.#StringExpression
-	FullyQualifiedName!: string | fn.#StringExpression
+	FullyQualifiedName!: string | number | bool | fn.#StringExpression
 	Max?: number |
 		{
 			string &
@@ -215,12 +247,22 @@ fn.#ValueExpression
 				)
 		} |
 		fn.#NumberExpression
-	Unit?: string | fn.#StringExpression
+	Unit?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

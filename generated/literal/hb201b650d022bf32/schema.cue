@@ -46,7 +46,13 @@ import (
 })
 
 // Recording S3 Destination Configuration.
-#S3DestinationConfiguration: close({BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9-.]+$"})
+#S3DestinationConfiguration: close({
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"^[a-z0-9-.]+$"
+})
 
 #Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode

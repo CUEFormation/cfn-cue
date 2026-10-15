@@ -15,81 +15,195 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoTManagedIntegrations::ManagedThing Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTManagedIntegrations::ManagedThing"
-	Properties!: close({
+	let properties = close({
 		AuthenticationMaterial?: strings.MaxRunes(512) &
 		strings.MinRunes(1) &
 		=~"^[0-9A-Za-z!#$%&()*\\+\\-;<=>?@^_`{|}~\\/: ]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) &
+			strings.MinRunes(1) &
+			=~"^[0-9A-Za-z!#$%&()*\\+\\-;<=>?@^_`{|}~\\/: ]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		AuthenticationMaterialType?: #AuthMaterialType
-		Brand?:              strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
-		CapabilityReport?:   #CapabilityReport
-		Classification?:     strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-		CredentialLockerId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$" | fn.#StringExpression
-		MetaData?:           #MetaData
-		Model?:              strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
-		Name?:               strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z]+$" | fn.#StringExpression
-		Owner?:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.,@-]+$" | fn.#StringExpression
-		Role!:               #Role
-		SerialNumber?:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" | fn.#StringExpression
-		Tags?:               #TagsMap
+		Brand?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		CapabilityReport?: #CapabilityReport
+		Classification?: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		CredentialLockerId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		MetaData?: #MetaData
+		Model?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Owner?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.,@-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.,@-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Role!: #Role
+		SerialNumber?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_ ]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?:                         #TagsMap
 		WiFiSimpleSetupConfiguration?: #WiFiSimpleSetupConfiguration
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AuthMaterialType: "WIFI_SETUP_QR_BAR_CODE" | "ZWAVE_QR_BAR_CODE" | "ZIGBEE_QR_BAR_CODE" | fn.#StringExpression
 
 #CapabilityReport: close({
 	Endpoints!: list.MaxItems(50) & [...] & [...#CapabilityReportEndpoint] | fn.#ListExpression
-	NodeId?:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9=_.,@\\+\\-/]+$" | fn.#StringExpression
-	Version!:   strings.MaxRunes(10) & strings.MinRunes(1) & =~"^1\\.0\\.0$" | fn.#StringExpression
+	NodeId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9=_.,@\\+\\-/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9=_.,@\\+\\-/]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Version!: strings.MaxRunes(10) & strings.MinRunes(1) & =~"^1\\.0\\.0$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10) & strings.MinRunes(1) & =~"^1\\.0\\.0$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CapabilityReportCapability: close({
-	Actions!: list.MaxItems(100) & [...] & [
-		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[/a-zA-Z0-9\\._ ]+$" | fn.#StringExpression
-	] |
+	Actions!: list.MaxItems(100) & [...] & [...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[/a-zA-Z0-9\\._ ]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[/a-zA-Z0-9\\._ ]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Events!: list.MaxItems(100) & [...] & [
-		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[/a-zA-Z0-9\\._ ]+$" | fn.#StringExpression
-	] |
+	Events!: list.MaxItems(100) & [...] & [...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[/a-zA-Z0-9\\._ ]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[/a-zA-Z0-9\\._ ]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	Id!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9.\\/]+(@(\\d+\\.\\d+|\\$latest))?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9.\\/]+(@(\\d+\\.\\d+|\\$latest))?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[/a-zA-Z0-9\\._ ]+$" | fn.#StringExpression
-	Properties!: list.MaxItems(100) & [...] & [
-		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[/a-zA-Z0-9\\._ ]+$" | fn.#StringExpression
-	] |
+	Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[/a-zA-Z0-9\\._ ]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[/a-zA-Z0-9\\._ ]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Properties!: list.MaxItems(100) & [...] & [...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[/a-zA-Z0-9\\._ ]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[/a-zA-Z0-9\\._ ]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Version!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^(0|[1-9][0-9]*)$" | fn.#StringExpression
+	Version!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^(0|[1-9][0-9]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^(0|[1-9][0-9]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CapabilityReportEndpoint: close({
 	Capabilities!: list.MaxItems(50) & [...] & [...#CapabilityReportCapability] | fn.#ListExpression
-	DeviceTypes!: list.MaxItems(50) & [...] & [
-		...strings.MaxRunes(256) & =~"^[a-zA-Z0-9=_. ,@\\+\\-/]+$" | fn.#StringExpression
-	] |
+	DeviceTypes!: list.MaxItems(50) & [...] & [...strings.MaxRunes(256) & =~"^[a-zA-Z0-9=_. ,@\\+\\-/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & =~"^[a-zA-Z0-9=_. ,@\\+\\-/]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Id!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z]+$" | fn.#StringExpression
+	Id!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MetaData: struct.MaxFields(50) & struct.MinFields(1) & close({
 
-	{[=~"[a-zA-Z0-9_.,@/:#-]+"]: strings.MaxRunes(800) & =~"[a-zA-Z0-9_.,@/:#-]*" | fn.#StringExpression}}) |
+	{
+		[=~"[a-zA-Z0-9_.,@/:#-]+"]: strings.MaxRunes(800) & =~"[a-zA-Z0-9_.,@/:#-]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(800) & =~"[a-zA-Z0-9_.,@/:#-]*" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #Role: "CONTROLLER" | "DEVICE" | fn.#StringExpression
 
 #TagsMap: struct.MaxFields(50) & struct.MinFields(0) & close({
 
-	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
+	{
+		[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #WiFiSimpleSetupConfiguration: close({

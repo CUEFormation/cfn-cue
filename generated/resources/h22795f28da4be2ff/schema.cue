@@ -10,35 +10,104 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Transfer::Agreement
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Transfer::Agreement"
-	Properties!: close({
-		AccessRole!:    strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:.*role/.*" | fn.#StringExpression
-		BaseDirectory?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(|/.*)$" | fn.#StringExpression
+	let properties = close({
+		AccessRole!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:.*role/.*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"arn:.*role/.*" & "\(self)"
+		} |
+		fn.#StringExpression
+		BaseDirectory?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(|/.*)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(|/.*)$" & "\(self)"
+		} |
+		fn.#StringExpression
 		CustomDirectories?: close({
-			FailedFilesDirectory!:    strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" | fn.#StringExpression
-			MdnFilesDirectory!:       strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" | fn.#StringExpression
-			PayloadFilesDirectory!:   strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" | fn.#StringExpression
-			StatusFilesDirectory!:    strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" | fn.#StringExpression
-			TemporaryFilesDirectory!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" | fn.#StringExpression
+			FailedFilesDirectory!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" & "\(self)"
+			} |
+			fn.#StringExpression
+			MdnFilesDirectory!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" & "\(self)"
+			} |
+			fn.#StringExpression
+			PayloadFilesDirectory!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" & "\(self)"
+			} |
+			fn.#StringExpression
+			StatusFilesDirectory!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" & "\(self)"
+			} |
+			fn.#StringExpression
+			TemporaryFilesDirectory!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(|/.*)" & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
-		Description?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[\\x{0021}-\\x{007E}]+$" | fn.#StringExpression
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[\\x{0021}-\\x{007E}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[\\x{0021}-\\x{007E}]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		EnforceMessageSigning?: "ENABLED" | "DISABLED" | fn.#StringExpression
-		LocalProfileId!:   strings.MaxRunes(19) & strings.MinRunes(19) & =~"^p-([0-9a-f]{17})$" | fn.#StringExpression
-		PartnerProfileId!: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^p-([0-9a-f]{17})$" | fn.#StringExpression
+		LocalProfileId!: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^p-([0-9a-f]{17})$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^p-([0-9a-f]{17})$" & "\(self)"
+		} |
+		fn.#StringExpression
+		PartnerProfileId!: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^p-([0-9a-f]{17})$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^p-([0-9a-f]{17})$" & "\(self)"
+		} |
+		fn.#StringExpression
 		PreserveFilename?: "ENABLED" | "DISABLED" | fn.#StringExpression
-		ServerId!:         strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$" | fn.#StringExpression
-		Status?:           "ACTIVE" | "INACTIVE" | fn.#StringExpression
-		Tags?:             list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		ServerId!: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(19) & strings.MinRunes(19) & =~"^s-([0-9a-f]{17})$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Status?: "ACTIVE" | "INACTIVE" | fn.#StringExpression
+		Tags?:   list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -9,14 +9,23 @@ import (
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Use a SecurityConfiguration resource to configure data encryption, Kerberos
 // authentication, and Amazon S3 authorization for EMRFS.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EMR::SecurityConfiguration"
-	Properties!: close({
-		Name?:                  strings.MaxRunes(10280) & strings.MinRunes(0) | fn.#StringExpression
-		SecurityConfiguration!: fn.#Object & {...} | string | fn.#StringObjectExpression
+	let properties = close({
+		Name?: strings.MaxRunes(10280) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(10280) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		SecurityConfiguration!: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }

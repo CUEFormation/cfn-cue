@@ -14,12 +14,14 @@ import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
+import structs "struct"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Kendra DataSource
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Kendra::DataSource"
-	Properties!: close({
+	let properties = close({
 		CustomDocumentEnrichmentConfiguration?: #CustomDocumentEnrichmentConfiguration
 		DataSourceConfiguration?:               #DataSourceConfiguration
 		Description?:                           #Description
@@ -33,6 +35,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?: #TagList
 		Type!: #Type
 	})
+	Properties!: properties |
+		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
 #AccessControlListConfiguration: close({KeyPath?: #S3ObjectKey}) | fn.#ObjectExpression
@@ -50,7 +54,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#ColumnName: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+#ColumnName: strings.MaxRunes(100) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #ConditionOperator: "GreaterThan" |
 	"GreaterThanOrEquals" |
@@ -173,7 +182,12 @@ fn.#ObjectExpression
 
 #ConfluenceSpaceFieldName: "DISPLAY_URL" | "ITEM_TYPE" | "SPACE_KEY" | "URL" | fn.#StringExpression
 
-#ConfluenceSpaceIdentifier: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#ConfluenceSpaceIdentifier: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #ConfluenceSpaceList: list.MinItems(1) & [...#ConfluenceSpaceIdentifier] | fn.#ListExpression
 
@@ -428,11 +442,19 @@ fn.#ObjectExpression
 ) |
 fn.#ObjectExpression
 
-#DataSourceFieldName: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+#DataSourceFieldName: strings.MaxRunes(100) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#DataSourceInclusionsExclusionsStrings: list.MaxItems(100) & [
-	...strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-] |
+#DataSourceInclusionsExclusionsStrings: list.MaxItems(100) & [...strings.MaxRunes(50) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression] |
 fn.#ListExpression
 
 #DataSourceToIndexFieldMapping: close({
@@ -445,17 +467,26 @@ fn.#ObjectExpression
 #DataSourceToIndexFieldMappingList: list.MaxItems(100) & [...#DataSourceToIndexFieldMapping] | fn.#ListExpression
 
 #DataSourceVpcConfiguration: close({
-	SecurityGroupIds!: list.MaxItems(10) & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroupIds!: list.MaxItems(10) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(200) &
+	strings.MinRunes(1) &
+	=~"[\\-0-9a-zA-Z]+" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(200) &
 		strings.MinRunes(1) &
-		=~"[\\-0-9a-zA-Z]+" |
-		fn.#StringExpression
-	] |
+		=~"[\\-0-9a-zA-Z]+" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	SubnetIds!: list.MaxItems(6) & [
-		...strings.MaxRunes(200) & strings.MinRunes(1) & =~"[\\-0-9a-zA-Z]+" | fn.#StringExpression
-	] |
+	SubnetIds!: list.MaxItems(6) & [...strings.MaxRunes(200) & strings.MinRunes(1) & =~"[\\-0-9a-zA-Z]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"[\\-0-9a-zA-Z]+" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -476,9 +507,19 @@ fn.#ObjectExpression
 	"RDS_POSTGRESQL" |
 	fn.#StringExpression
 
-#DatabaseHost: strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
+#DatabaseHost: strings.MaxRunes(253) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(253) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#DatabaseName: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+#DatabaseName: strings.MaxRunes(100) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #DatabasePort: int & <=65535 & >=1 |
 	{
@@ -497,9 +538,19 @@ fn.#ObjectExpression
 	} |
 	fn.#NumberExpression
 
-#DateFieldFormat: strings.MaxRunes(40) & strings.MinRunes(4) | fn.#StringExpression
+#DateFieldFormat: strings.MaxRunes(40) & strings.MinRunes(4) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(40) & strings.MinRunes(4) & "\(self)"
+} |
+fn.#StringExpression
 
-#Description: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\P{C}*$" | fn.#StringExpression
+#Description: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\P{C}*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^\\P{C}*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #DisableLocalGroups: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
@@ -511,6 +562,10 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DocumentAttributeKey: strings.MaxRunes(200) & strings.MinRunes(1) & =~"[a-zA-Z0-9_][a-zA-Z0-9_-]*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"[a-zA-Z0-9_][a-zA-Z0-9_-]*" & "\(self)"
+} |
 fn.#StringExpression
 
 #DocumentAttributeTarget: close({
@@ -528,10 +583,21 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #DocumentAttributeValue: close({
-	DateValue?:       #Timestamp
-	LongValue?:       #Long
-	StringListValue?: [...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	StringValue?:     strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	DateValue?: #Timestamp
+	LongValue?: #Long
+	StringListValue?: [...strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	StringValue?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -561,9 +627,19 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#IndexFieldName: strings.MaxRunes(30) & strings.MinRunes(1) | fn.#StringExpression
+#IndexFieldName: strings.MaxRunes(30) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(30) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#IndexId: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]*$" | fn.#StringExpression
+#IndexId: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #InlineConfigurations: list.MaxItems(100) & [...] & [...#InlineCustomDocumentEnrichmentConfiguration] |
 	fn.#ListExpression
@@ -575,13 +651,26 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#LambdaArn: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#LambdaArn: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^/arn:aws[a-zA-Z-]*:lambda:[a-z]+-[a-z]+-[0-9]:[0-9]{12}:function:[a-zA-Z0-9-_]+(\\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})?(:[a-zA-Z0-9-_]+)?/$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^/arn:aws[a-zA-Z-]*:lambda:[a-z]+-[a-z]+-[0-9]:[0-9]{12}:function:[a-zA-Z0-9-_]+(\\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})?(:[a-zA-Z0-9-_]+)?/$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#LanguageCode: strings.MaxRunes(10) & strings.MinRunes(2) & =~"[a-zA-Z-]*" | fn.#StringExpression
+#LanguageCode: strings.MaxRunes(10) & strings.MinRunes(2) & =~"[a-zA-Z-]*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(10) & strings.MinRunes(2) & =~"[a-zA-Z-]*" & "\(self)"
+} |
+fn.#StringExpression
 
 #Long: int |
 	{
@@ -597,9 +686,19 @@ fn.#StringExpression
 	} |
 	fn.#NumberExpression
 
-#MimeType: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+#MimeType: strings.MaxRunes(256) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#Name: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
+#Name: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #OneDriveConfiguration: close({
 	DisableLocalGroups?: #DisableLocalGroups
@@ -612,7 +711,12 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#OneDriveUser: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+#OneDriveUser: strings.MaxRunes(256) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #OneDriveUserList: list.MaxItems(100) & list.MinItems(1) & [...#OneDriveUser] | fn.#ListExpression
 
@@ -629,7 +733,12 @@ fn.#ObjectExpression
 
 #ProxyConfiguration: close({
 	Credentials?: #SecretArn
-	Host!:        strings.MaxRunes(253) & strings.MinRunes(1) & =~"([^\\s]*)" | fn.#StringExpression
+	Host!: strings.MaxRunes(253) & strings.MinRunes(1) & =~"([^\\s]*)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(253) & strings.MinRunes(1) & =~"([^\\s]*)" & "\(self)"
+	} |
+	fn.#StringExpression
 	Port!: int & <=65535 & >=1 |
 		{
 			string &
@@ -651,10 +760,30 @@ fn.#ObjectExpression
 
 #QueryIdentifiersEnclosingOption: "DOUBLE_QUOTES" | "NONE" | fn.#StringExpression
 
-#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(1)) |
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(1)) |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(1284) &
+	strings.MinRunes(1) &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#S3BucketName: strings.MaxRunes(63) & strings.MinRunes(3) & =~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]" |
+#S3BucketName: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+strings.MaxRunes(63) &
+strings.MinRunes(3) &
+=~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]" |
+{
+	number | bool
+	_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #S3DataSourceConfiguration: close({
@@ -667,7 +796,12 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#S3ObjectKey: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+#S3ObjectKey: strings.MaxRunes(1024) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #S3Path: close({
 	Bucket!: #S3BucketName
@@ -716,7 +850,12 @@ fn.#ObjectExpression
 ] |
 	fn.#ListExpression
 
-#SalesforceCustomKnowledgeArticleTypeName: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+#SalesforceCustomKnowledgeArticleTypeName: strings.MaxRunes(100) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #SalesforceKnowledgeArticleConfiguration: close({
 	CustomKnowledgeArticleTypeConfigurations?:  #SalesforceCustomKnowledgeArticleTypeConfigurationList
@@ -775,9 +914,19 @@ fn.#ObjectExpression
 	"USER" |
 	fn.#StringExpression
 
-#Schedule: strings.MaxRunes(1000) | fn.#StringExpression
+#Schedule: strings.MaxRunes(1000) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000) & "\(self)"
+} |
+fn.#StringExpression
 
-#SecretArn: strings.MaxRunes(1284) & strings.MinRunes(1) | fn.#StringExpression
+#SecretArn: strings.MaxRunes(1284) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1284) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #ServiceNowAuthenticationType: "HTTP_BASIC" | "OAUTH2" | fn.#StringExpression
 
@@ -793,7 +942,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ServiceNowHostUrl: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+#ServiceNowHostUrl: strings.MaxRunes(2048) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #ServiceNowKnowledgeArticleConfiguration: close({
 	CrawlAttachments?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -806,7 +960,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ServiceNowKnowledgeArticleFilterQuery: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+#ServiceNowKnowledgeArticleFilterQuery: strings.MaxRunes(2048) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #ServiceNowServiceCatalogConfiguration: close({
 	CrawlAttachments?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -834,15 +993,35 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#SharedDriveId: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+#SharedDriveId: strings.MaxRunes(256) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #SqlConfiguration: close({QueryIdentifiersEnclosingOption?: #QueryIdentifiersEnclosingOption}) | fn.#ObjectExpression
 
-#TableName: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+#TableName: strings.MaxRunes(100) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -851,9 +1030,16 @@ fn.#ObjectExpression
 #TemplateConfiguration: close({Template!: fn.#Object & {...} | fn.#ObjectExpression}) | fn.#ObjectExpression
 
 #TenantDomain: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*\\.)+[a-z]{2,}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) &
+	strings.MinRunes(1) &
+	=~"^([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*\\.)+[a-z]{2,}$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#Timestamp: string | fn.#StringExpression
+#Timestamp: string | number | bool | fn.#StringExpression
 
 #Type: "S3" |
 	"SHAREPOINT" |
@@ -869,16 +1055,31 @@ fn.#StringExpression
 	"TEMPLATE" |
 	fn.#StringExpression
 
-#Url: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)" | fn.#StringExpression
+#Url: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)" & "\(self)"
+} |
+fn.#StringExpression
 
-#UserAccount: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+#UserAccount: strings.MaxRunes(256) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #WebCrawlerAuthenticationConfiguration: close({BasicAuthentication?: #WebCrawlerBasicAuthenticationList}) |
 	fn.#ObjectExpression
 
 #WebCrawlerBasicAuthentication: close({
 	Credentials!: #SecretArn
-	Host!:        strings.MaxRunes(253) & strings.MinRunes(1) & =~"([^\\s]*)" | fn.#StringExpression
+	Host!: strings.MaxRunes(253) & strings.MinRunes(1) & =~"([^\\s]*)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(253) & strings.MinRunes(1) & =~"([^\\s]*)" & "\(self)"
+	} |
+	fn.#StringExpression
 	Port!: int & <=65535 & >=1 |
 		{
 			string &
@@ -977,7 +1178,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#WebCrawlerSeedUrl: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?)://([^\\s]*)" | fn.#StringExpression
+#WebCrawlerSeedUrl: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?)://([^\\s]*)" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?)://([^\\s]*)" & "\(self)"
+} |
+fn.#StringExpression
 
 #WebCrawlerSeedUrlConfiguration: close({
 	SeedUrls!:       #WebCrawlerSeedUrlList
@@ -987,7 +1193,12 @@ fn.#ObjectExpression
 
 #WebCrawlerSeedUrlList: list.MaxItems(100) & [...] & [...#WebCrawlerSeedUrl] | fn.#ListExpression
 
-#WebCrawlerSiteMap: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?):\\/\\/([^\\s]*)" | fn.#StringExpression
+#WebCrawlerSiteMap: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?):\\/\\/([^\\s]*)" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?):\\/\\/([^\\s]*)" & "\(self)"
+} |
+fn.#StringExpression
 
 #WebCrawlerSiteMaps: list.MaxItems(3) & [...] & [...#WebCrawlerSiteMap] | fn.#ListExpression
 
@@ -1004,7 +1215,12 @@ fn.#ObjectExpression
 	ExclusionPatterns?: #DataSourceInclusionsExclusionsStrings
 	FieldMappings?:     #DataSourceToIndexFieldMappingList
 	InclusionPatterns?: #DataSourceInclusionsExclusionsStrings
-	OrganizationId!:    strings.MaxRunes(12) & strings.MinRunes(12) & =~"d-[0-9a-fA-F]{10}" | fn.#StringExpression
-	UseChangeLog?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	OrganizationId!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"d-[0-9a-fA-F]{10}" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"d-[0-9a-fA-F]{10}" & "\(self)"
+	} |
+	fn.#StringExpression
+	UseChangeLog?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
