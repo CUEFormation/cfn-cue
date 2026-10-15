@@ -107,6 +107,15 @@ property also has a numeric or boolean branch, numbers or booleans must satisfy
 that branch instead. Parameter `Default` and `AllowedValues` accept booleans;
 other parameter fields keep their string type.
 
+`Fn::If` branches for a string result accept any number or boolean, so `Name:
+{"Fn::If": ["C", 2, "x"]}` passes an unconstrained string property, as `Name: 2`
+does. Lists, objects and `null` remain invalid string branches, and numeric or
+boolean results keep their own branch types. Branches are not checked against
+the property's enum or pattern, so a number branch is accepted for an enum
+property just as a non-member string branch is; cfn-lint checks each branch.
+Function arguments such as `Fn::Join` items and `Fn::Sub` variables keep their
+string type, although cfn-lint accepts numbers there.
+
 Inside the generated module, an authored CUE template can import a regional package:
 
 ```cue
@@ -156,7 +165,7 @@ timeout interpretation, and the manual GitHub performance workflow.
 
 The generator emits a finite graph of named CUE definitions. It does not recursively expand function definitions in Go and does not impose a nesting-depth cutoff.
 
-A shared function table has optional function keys and enforces exactly one key in a concrete expression. Result-type views select the permitted keys for strings, numbers, booleans, lists and objects. Multi-type properties use a combined view so shared functions such as `Ref` do not leave competing alternatives. Generic objects reserve intrinsic keys, which prevents malformed functions from passing as ordinary objects. Common input types keep the recursive graph small. `Fn::If` branches use the expected result type; `Ref: "AWS::NoValue"` works through the dynamic reference alternative. Logical functions enforce their argument counts without constructing an eagerly expanded recursive tuple.
+A shared function table has optional function keys and enforces exactly one key in a concrete expression. Result-type views select the permitted keys for strings, numbers, booleans, lists and objects. Multi-type properties use a combined view so shared functions such as `Ref` do not leave competing alternatives. Generic objects reserve intrinsic keys, which prevents malformed functions from passing as ordinary objects. Common input types keep the recursive graph small. `Fn::If` branches use the expected result type, with the scalar compatibility described above for strings; `Ref: "AWS::NoValue"` works through the dynamic reference alternative. Logical functions enforce their argument counts without constructing an eagerly expanded recursive tuple.
 
 `Fn::If` can also choose a resource's whole `Properties`, `UpdatePolicy` or `CreationPolicy`. Each `Properties` branch must match the resource's properties schema or be `Ref: "AWS::NoValue"`; nested `Fn::If` is not accepted there. Policy branches are objects, `AWS::NoValue` or another `Fn::If`. Other intrinsics, such as `UpdatePolicy: {Ref: P}`, are rejected, as in cfn-lint. Required properties are not checked against the branch CloudFormation will pick, because conditions are not evaluated.
 

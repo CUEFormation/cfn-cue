@@ -556,19 +556,41 @@ import net "net"
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
 #IfObject: close({[=~"^Fn::If$"]: [string, #ObjectValue, #ObjectValue]}) & structs.MinFields(1) & structs.MaxFields(1)
-#IfString: close({[=~"^Fn::If$"]: [string, #StringValue, #StringValue]}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfString: close(
+	{[=~"^Fn::If$"]: [string, string | number | bool | #StringExpression, string | number | bool | #StringExpression]},
+) & structs.MinFields(1) & structs.MaxFields(1)
 #IfStringBoolean: close({
 	[=~"^Fn::If$"]: [
 		string,
-		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #StringBooleanExpression,
-		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #StringBooleanExpression,
+		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | number | #StringBooleanExpression,
+		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | number | #StringBooleanExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
 #IfStringBooleanList: close({
 	[=~"^Fn::If$"]: [
 		string,
-		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #StringBooleanListExpression,
-		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #StringBooleanListExpression,
+		string |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			number |
+			#StringBooleanListExpression,
+		string |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			number |
+			#StringBooleanListExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
 #IfStringBooleanListObject: close({
@@ -584,6 +606,7 @@ import net "net"
 			"FALSE" |
 			#List |
 			#Object |
+			number |
 			#StringBooleanListObjectExpression,
 		string |
 			bool |
@@ -595,6 +618,7 @@ import net "net"
 			"FALSE" |
 			#List |
 			#Object |
+			number |
 			#StringBooleanListObjectExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
@@ -610,6 +634,7 @@ import net "net"
 			"False" |
 			"FALSE" |
 			#Object |
+			number |
 			#StringBooleanObjectExpression,
 		string |
 			bool |
@@ -620,17 +645,22 @@ import net "net"
 			"False" |
 			"FALSE" |
 			#Object |
+			number |
 			#StringBooleanObjectExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
-#IfStringList: close(
-	{[=~"^Fn::If$"]: [string, string | #List | #StringListExpression, string | #List | #StringListExpression]},
-) & structs.MinFields(1) & structs.MaxFields(1)
+#IfStringList: close({
+	[=~"^Fn::If$"]: [
+		string,
+		string | #List | number | bool | #StringListExpression,
+		string | #List | number | bool | #StringListExpression,
+	]
+}) & structs.MinFields(1) & structs.MaxFields(1)
 #IfStringListObject: close({
 	[=~"^Fn::If$"]: [
 		string,
-		string | #List | #Object | #StringListObjectExpression,
-		string | #List | #Object | #StringListObjectExpression,
+		string | #List | #Object | number | bool | #StringListObjectExpression,
+		string | #List | #Object | number | bool | #StringListObjectExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
 #IfStringNumber: close({
@@ -655,6 +685,7 @@ import net "net"
 						))*0 + 1,
 					)
 			} |
+			bool |
 			#StringNumberExpression,
 		string |
 			number |
@@ -675,6 +706,7 @@ import net "net"
 						))*0 + 1,
 					)
 			} |
+			bool |
 			#StringNumberExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
@@ -945,6 +977,7 @@ import net "net"
 					)
 			} |
 			#List |
+			bool |
 			#StringNumberListExpression,
 		string |
 			number |
@@ -966,6 +999,7 @@ import net "net"
 					)
 			} |
 			#List |
+			bool |
 			#StringNumberListExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
@@ -993,6 +1027,7 @@ import net "net"
 			} |
 			#List |
 			#Object |
+			bool |
 			#StringNumberListObjectExpression,
 		string |
 			number |
@@ -1015,6 +1050,7 @@ import net "net"
 			} |
 			#List |
 			#Object |
+			bool |
 			#StringNumberListObjectExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
@@ -1041,6 +1077,7 @@ import net "net"
 					)
 			} |
 			#Object |
+			bool |
 			#StringNumberObjectExpression,
 		string |
 			number |
@@ -1062,12 +1099,17 @@ import net "net"
 					)
 			} |
 			#Object |
+			bool |
 			#StringNumberObjectExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
-#IfStringObject: close(
-	{[=~"^Fn::If$"]: [string, string | #Object | #StringObjectExpression, string | #Object | #StringObjectExpression]},
-) & structs.MinFields(1) & structs.MaxFields(1)
+#IfStringObject: close({
+	[=~"^Fn::If$"]: [
+		string,
+		string | #Object | number | bool | #StringObjectExpression,
+		string | #Object | number | bool | #StringObjectExpression,
+	]
+}) & structs.MinFields(1) & structs.MaxFields(1)
 #ImportValue: close({[=~"^Fn::ImportValue$"]: #String}) & structs.MinFields(1) & structs.MaxFields(1)
 #Join: close({[=~"^Fn::Join$"]: [string, [...#String] | #ListExpression]}) & structs.MinFields(1) & structs.MaxFields(1)
 #NoValue: close({[=~"^Ref$"]: "AWS::NoValue"}) & structs.MinFields(1) & structs.MaxFields(1)
@@ -1132,7 +1174,7 @@ import net "net"
 		Region?:     #String
 		RoleArn?:    #String
 	}
-	[=~"^Fn::If$"]: [string, #StringValue, #StringValue]
+	[=~"^Fn::If$"]: [string, string | number | bool | #StringExpression, string | number | bool | #StringExpression]
 }) & structs.MinFields(1) & structs.MaxFields(1)
 #Choice5: close({
 	[=~"^Ref$"]:           string
@@ -1233,6 +1275,7 @@ import net "net"
 						))*0 + 1,
 					)
 			} |
+			bool |
 			#StringNumberExpression,
 		string |
 			number |
@@ -1253,6 +1296,7 @@ import net "net"
 						))*0 + 1,
 					)
 			} |
+			bool |
 			#StringNumberExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
@@ -1277,8 +1321,8 @@ import net "net"
 	}
 	[=~"^Fn::If$"]: [
 		string,
-		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #StringBooleanExpression,
-		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #StringBooleanExpression,
+		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | number | #StringBooleanExpression,
+		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | number | #StringBooleanExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
 #Choice11: close({
@@ -1451,7 +1495,11 @@ import net "net"
 	[=~"^Fn::Cidr$"]:   [#String, int & >=1 & <=256 | #NumberExpression, int & >=0 & <=128 | #NumberExpression]
 	[=~"^Fn::GetAZs$"]: string | #Ref
 	[=~"^Fn::Split$"]:  [string, #String]
-	[=~"^Fn::If$"]:     [string, string | #List | #StringListExpression, string | #List | #StringListExpression]
+	[=~"^Fn::If$"]: [
+		string,
+		string | #List | number | bool | #StringListExpression,
+		string | #List | number | bool | #StringListExpression,
+	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
 #Choice14: close({
 	[=~"^Ref$"]:           string
@@ -1559,6 +1607,7 @@ import net "net"
 					)
 			} |
 			#List |
+			bool |
 			#StringNumberListExpression,
 		string |
 			number |
@@ -1580,6 +1629,7 @@ import net "net"
 					)
 			} |
 			#List |
+			bool |
 			#StringNumberListExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
@@ -1631,8 +1681,28 @@ import net "net"
 	[=~"^Fn::Split$"]:  [string, #String]
 	[=~"^Fn::If$"]: [
 		string,
-		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #StringBooleanListExpression,
-		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #StringBooleanListExpression,
+		string |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			number |
+			#StringBooleanListExpression,
+		string |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			number |
+			#StringBooleanListExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
 #Choice18: close({
@@ -1812,7 +1882,11 @@ import net "net"
 		Region?:     #String
 		RoleArn?:    #String
 	}
-	[=~"^Fn::If$"]: [string, string | #Object | #StringObjectExpression, string | #Object | #StringObjectExpression]
+	[=~"^Fn::If$"]: [
+		string,
+		string | #Object | number | bool | #StringObjectExpression,
+		string | #Object | number | bool | #StringObjectExpression,
+	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
 #Choice21: close({
 	[=~"^Ref$"]:           string
@@ -1914,6 +1988,7 @@ import net "net"
 					)
 			} |
 			#Object |
+			bool |
 			#StringNumberObjectExpression,
 		string |
 			number |
@@ -1935,6 +2010,7 @@ import net "net"
 					)
 			} |
 			#Object |
+			bool |
 			#StringNumberObjectExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
@@ -1989,6 +2065,7 @@ import net "net"
 			"False" |
 			"FALSE" |
 			#Object |
+			number |
 			#StringBooleanObjectExpression,
 		string |
 			bool |
@@ -1999,6 +2076,7 @@ import net "net"
 			"False" |
 			"FALSE" |
 			#Object |
+			number |
 			#StringBooleanObjectExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
@@ -2192,8 +2270,8 @@ import net "net"
 	[=~"^Fn::Split$"]:  [string, #String]
 	[=~"^Fn::If$"]: [
 		string,
-		string | #List | #Object | #StringListObjectExpression,
-		string | #List | #Object | #StringListObjectExpression,
+		string | #List | #Object | number | bool | #StringListObjectExpression,
+		string | #List | #Object | number | bool | #StringListObjectExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
 #Choice29: close({
@@ -2305,6 +2383,7 @@ import net "net"
 			} |
 			#List |
 			#Object |
+			bool |
 			#StringNumberListObjectExpression,
 		string |
 			number |
@@ -2327,6 +2406,7 @@ import net "net"
 			} |
 			#List |
 			#Object |
+			bool |
 			#StringNumberListObjectExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
@@ -2388,6 +2468,7 @@ import net "net"
 			"FALSE" |
 			#List |
 			#Object |
+			number |
 			#StringBooleanListObjectExpression,
 		string |
 			bool |
@@ -2399,6 +2480,7 @@ import net "net"
 			"FALSE" |
 			#List |
 			#Object |
+			number |
 			#StringBooleanListObjectExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
