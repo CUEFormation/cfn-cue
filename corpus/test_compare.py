@@ -23,6 +23,13 @@ class ComparisonTests(unittest.TestCase):
         self.assertEqual(result["changes"][0]["after"], "both-accept")
         self.assertEqual(result["after"], {"both-accept": 1})
 
+    def test_checks_are_reported(self):
+        after = copy.deepcopy(self.report)
+        after["summary"]["checks"] = "all"
+        result = compare.compare(self.report, after, self.state, self.state)
+        self.assertEqual((result["before_checks"], result["after_checks"]), ("structural", "all"))
+        self.assertIn("checks structural before and all after", compare.markdown(result))
+
     def test_changed_inputs_or_budget_refused(self):
         for key, value in (("corpus_index_sha256", "other"), ("timeout", 15), ("memory", "4GiB")):
             with self.subTest(key=key), self.assertRaisesRegex(ValueError, key):

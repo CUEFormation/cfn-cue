@@ -47,8 +47,9 @@ Requires Go 1.26+ and Python 3.12+. These are the same entry points used in CI:
 ./scripts/corpus.sh test
 ```
 
-`test` runs Go checks, the pinned S3/IAM integration, parser tests, and all 176
-offline corpus expectations. To repeat the downloaded-example investigation:
+`test` runs Go checks, the pinned S3/IAM integration, parser tests, all 176
+offline corpus expectations, and the 68 semantic reference expectations. To
+repeat the downloaded-example investigation:
 
 ```sh
 ./scripts/corpus.sh fetch
@@ -184,7 +185,19 @@ The schema checks call shapes and known result categories. Dynamic functions suc
 
 ## Validation boundary
 
-This is a structural schema generator, not a replacement for cfn-lint. Keep cfn-lint in the validation workflow for reference existence, attribute names and return types, `Sub` variables, function-specific nesting permissions, function placement, transform execution, condition evaluation beyond [conditional removal](#conditional-removal-with-awsnovalue), cross-resource relationships, and the AWS service rules not listed under [Service rules from cfn-lint](#service-rules-from-cfn-lint).
+This is a structural schema generator, not a replacement for cfn-lint. Keep cfn-lint in the validation workflow for reference return types, function-specific nesting permissions, function placement, transform execution, condition evaluation beyond [conditional removal](#conditional-removal-with-awsnovalue), cross-resource service relationships, and the AWS service rules not listed under [Service rules from cfn-lint](#service-rules-from-cfn-lint).
+
+A separate semantic pass checks what the schemas leave unresolved: `Ref`
+targets, `Fn::GetAtt` resources and attribute names, `Fn::Sub` variables,
+`DependsOn`, condition and mapping names, and dependency cycles. It runs
+without CUE and never substitutes deployment-time values; a cycle or missing
+resource that occurs only for some parameter values is a warning. Select it
+with `cfn-cue-validate -checks semantic` or `-checks all`; the default,
+`structural`, runs the CUE schemas alone. The generator records each
+resource type's GetAtt names in `manifest.json` for this pass. See
+[semantic validation](docs/semantic-validation.md) for the rules, the
+treatment of conditions and unknown values, and known differences from
+cfn-lint.
 
 Literal property constraints apply directly to literal values. Intrinsic values receive argument and result-type checks; this version does not evaluate them or specialize their branches with the complete target property's enum, pattern, or nested object schema. Parameter type names and SAM Globals have structural coverage. Listed IAM policy properties use the profiles described below; other policy objects have structural coverage. ForEach expansion and ForEach in Conditions/Outputs remain future work.
 

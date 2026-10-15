@@ -1,0 +1,342 @@
+{
+  "semantic-condition-cycle:us-east-1": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Known divergence: Prod and Dev refer to each other. cfn-lint has no circular-condition check."
+  },
+  "semantic-condition-cycle:us-west-2": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Known divergence: Prod and Dev refer to each other. cfn-lint has no circular-condition check."
+  },
+  "semantic-condition-undefined:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: condition-undefined."
+  },
+  "semantic-condition-undefined:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: condition-undefined."
+  },
+  "semantic-conditional-dependency:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "semantic-conditional-dependency:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "semantic-conditional-target-dependson:us-east-1": {
+    "cue": "valid",
+    "lint": "invalid",
+    "note": "Known divergence: Topic is absent when Dev is false, which depends on a parameter. The validator warns; cfn-lint reports E3005."
+  },
+  "semantic-conditional-target-dependson:us-west-2": {
+    "cue": "valid",
+    "lint": "invalid",
+    "note": "Known divergence: Topic is absent when Dev is false, which depends on a parameter. The validator warns; cfn-lint reports E3005."
+  },
+  "semantic-conditional-target-excluded:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "The branch is taken only when Topic is absent. Deployment fails for those Env values, so the validator warns; cfn-lint warns with W1001."
+  },
+  "semantic-conditional-target-excluded:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "The branch is taken only when Topic is absent. Deployment fails for those Env values, so the validator warns; cfn-lint warns with W1001."
+  },
+  "semantic-conditional-target-guarded:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "semantic-conditional-target-guarded:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "semantic-conditional-target-never:us-east-1": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Known divergence: the Never condition compares two different literals, so Topic never exists and the unconditional Ref fails for every parameter value. cfn-lint warns with W1001."
+  },
+  "semantic-conditional-target-never:us-west-2": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Known divergence: the Never condition compares two different literals, so Topic never exists and the unconditional Ref fails for every parameter value. cfn-lint warns with W1001."
+  },
+  "semantic-conditional-target-ref:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Topic exists only when Dev holds. The validator and cfn-lint (W1001) both warn without rejecting."
+  },
+  "semantic-conditional-target-ref:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Topic exists only when Dev holds. The validator and cfn-lint (W1001) both warn without rejecting."
+  },
+  "semantic-cycle-both-branches:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Both branches refer to B, so the cycle exists for every Env."
+  },
+  "semantic-cycle-both-branches:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Both branches refer to B, so the cycle exists for every Env."
+  },
+  "semantic-cycle-conditional:us-east-1": {
+    "cue": "valid",
+    "lint": "invalid",
+    "note": "Known divergence: the cycle exists only when Prod holds, which depends on a parameter. The validator reports a warning; cfn-lint ignores conditions and reports E3004."
+  },
+  "semantic-cycle-conditional:us-west-2": {
+    "cue": "valid",
+    "lint": "invalid",
+    "note": "Known divergence: the cycle exists only when Prod holds, which depends on a parameter. The validator reports a warning; cfn-lint ignores conditions and reports E3004."
+  },
+  "semantic-cycle-dependson:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: cycle-dependson."
+  },
+  "semantic-cycle-dependson:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: cycle-dependson."
+  },
+  "semantic-cycle-exclusive-conditions:us-east-1": {
+    "cue": "valid",
+    "lint": "invalid",
+    "note": "Known divergence: Prod and Dev compare Env with different values, so the resources never exist together and no cycle forms. Each DependsOn names a resource absent whenever its dependent exists; the validator warns because that depends on Env. cfn-lint reports E3004 and E3005."
+  },
+  "semantic-cycle-exclusive-conditions:us-west-2": {
+    "cue": "valid",
+    "lint": "invalid",
+    "note": "Known divergence: Prod and Dev compare Env with different values, so the resources never exist together and no cycle forms. Each DependsOn names a resource absent whenever its dependent exists; the validator warns because that depends on Env. cfn-lint reports E3004 and E3005."
+  },
+  "semantic-cycle-references:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: cycle-references."
+  },
+  "semantic-cycle-references:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: cycle-references."
+  },
+  "semantic-cycle-self:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: cycle-self."
+  },
+  "semantic-cycle-self:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: cycle-self."
+  },
+  "semantic-dependson-undefined:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: dependson-undefined."
+  },
+  "semantic-dependson-undefined:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: dependson-undefined."
+  },
+  "semantic-getatt-attribute-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: getatt-attribute-invalid."
+  },
+  "semantic-getatt-attribute-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: getatt-attribute-invalid."
+  },
+  "semantic-getatt-custom-resource:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Custom resources return provider-defined attributes."
+  },
+  "semantic-getatt-custom-resource:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Custom resources return provider-defined attributes."
+  },
+  "semantic-getatt-parameter:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: getatt-parameter."
+  },
+  "semantic-getatt-parameter:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: getatt-parameter."
+  },
+  "semantic-getatt-stack-attribute-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: getatt-stack-attribute-invalid."
+  },
+  "semantic-getatt-stack-attribute-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: getatt-stack-attribute-invalid."
+  },
+  "semantic-getatt-stack-output:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Nested stack outputs are any Outputs.<name>."
+  },
+  "semantic-getatt-stack-output:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Nested stack outputs are any Outputs.<name>."
+  },
+  "semantic-getatt-string-attribute-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: getatt-string-attribute-invalid."
+  },
+  "semantic-getatt-string-attribute-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: getatt-string-attribute-invalid."
+  },
+  "semantic-getatt-undefined-resource:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: getatt-undefined-resource."
+  },
+  "semantic-getatt-undefined-resource:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: getatt-undefined-resource."
+  },
+  "semantic-getatt-unresolved-attribute:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "An attribute name computed by Ref stays unresolved; it is not checked."
+  },
+  "semantic-getatt-unresolved-attribute:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "An attribute name computed by Ref stays unresolved; it is not checked."
+  },
+  "semantic-getatt-writable-property:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "cfn-lint's attribute list lets EC2 instances return every property path."
+  },
+  "semantic-getatt-writable-property:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "cfn-lint's attribute list lets EC2 instances return every property path."
+  },
+  "semantic-if-condition-undefined:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: if-condition-undefined."
+  },
+  "semantic-if-condition-undefined:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: if-condition-undefined."
+  },
+  "semantic-mapping-key-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: mapping-key-invalid."
+  },
+  "semantic-mapping-key-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: mapping-key-invalid."
+  },
+  "semantic-mapping-undefined:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: mapping-undefined."
+  },
+  "semantic-mapping-undefined:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: mapping-undefined."
+  },
+  "semantic-ref-duplicate-logical-id:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: ref-duplicate-logical-id."
+  },
+  "semantic-ref-duplicate-logical-id:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: ref-duplicate-logical-id."
+  },
+  "semantic-ref-resource-in-condition:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: ref-resource-in-condition."
+  },
+  "semantic-ref-resource-in-condition:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: ref-resource-in-condition."
+  },
+  "semantic-ref-undefined:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: ref-undefined."
+  },
+  "semantic-ref-undefined:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: ref-undefined."
+  },
+  "semantic-references-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "semantic-references-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "semantic-sub-attribute-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: sub-attribute-invalid."
+  },
+  "semantic-sub-attribute-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: sub-attribute-invalid."
+  },
+  "semantic-sub-unbound-list-variable:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: sub-unbound-list-variable."
+  },
+  "semantic-sub-unbound-list-variable:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: sub-unbound-list-variable."
+  },
+  "semantic-sub-undefined-variable:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: sub-undefined-variable."
+  },
+  "semantic-sub-undefined-variable:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: sub-undefined-variable."
+  }
+}

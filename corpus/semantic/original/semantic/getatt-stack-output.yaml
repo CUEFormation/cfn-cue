@@ -1,0 +1,14 @@
+Resources:
+  Child:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://example.com/child.yaml
+  Queue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName:
+        Fn::GetAtt:
+        - Child
+        - Outputs.QueueName
+      KmsMasterKeyId:
+        Fn::Sub: ${Child.Outputs.KeyId}

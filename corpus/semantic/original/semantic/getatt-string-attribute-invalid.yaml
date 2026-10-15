@@ -1,0 +1,83 @@
+Parameters:
+  Env:
+    Type: String
+    AllowedValues:
+    - prod
+    - dev
+  Prefix:
+    Type: String
+Conditions:
+  Prod:
+    Fn::Equals:
+    - Ref: Env
+    - prod
+  Dev:
+    Fn::Equals:
+    - Ref: Env
+    - dev
+Mappings:
+  Sizes:
+    prod:
+      Delay: '5'
+    dev:
+      Delay: '0'
+Resources:
+  Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName:
+        Fn::Sub: ${Prefix}-${AWS::Region}-${AWS::AccountId}
+  Queue:
+    Type: AWS::SQS::Queue
+    DependsOn: Bucket
+    Properties:
+      QueueName:
+        Fn::Sub:
+        - ${Name}-queue
+        - Name:
+            Ref: Prefix
+      DelaySeconds:
+        Fn::FindInMap:
+        - Sizes
+        - Ref: Env
+        - Delay
+      Tags:
+      - Key: bucket
+        Value:
+          Fn::GetAtt:
+          - Bucket
+          - Arn
+      - Key: domain
+        Value:
+          Fn::Sub: ${Bucket.DomainName}/${!Literal}
+      - Fn::If:
+        - Prod
+        - Key: env
+          Value:
+            Ref: Bucket
+        - Ref: AWS::NoValue
+  Topic:
+    Type: AWS::SNS::Topic
+    Condition: Dev
+    Properties:
+      TopicName:
+        Fn::Sub: ${Prefix}-topic
+Outputs:
+  QueueUrl:
+    Value:
+      Ref: Queue
+  QueueName:
+    Value:
+      Fn::GetAtt: Queue.Name
+  QueueArn:
+    Value:
+      Fn::GetAtt:
+      - Queue
+      - Arn
+    Export:
+      Name:
+        Fn::Sub: ${AWS::StackName}-queue
+  Topic:
+    Condition: Dev
+    Value:
+      Ref: Topic

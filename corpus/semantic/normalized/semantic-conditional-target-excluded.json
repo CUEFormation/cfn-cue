@@ -1,0 +1,162 @@
+{
+  "Conditions": {
+    "Dev": {
+      "Fn::Equals": [
+        {
+          "Ref": "Env"
+        },
+        "dev"
+      ]
+    },
+    "Prod": {
+      "Fn::Equals": [
+        {
+          "Ref": "Env"
+        },
+        "prod"
+      ]
+    }
+  },
+  "Mappings": {
+    "Sizes": {
+      "dev": {
+        "Delay": "0"
+      },
+      "prod": {
+        "Delay": "5"
+      }
+    }
+  },
+  "Outputs": {
+    "QueueArn": {
+      "Export": {
+        "Name": {
+          "Fn::Sub": "${AWS::StackName}-queue"
+        }
+      },
+      "Value": {
+        "Fn::GetAtt": [
+          "Queue",
+          "Arn"
+        ]
+      }
+    },
+    "QueueName": {
+      "Value": {
+        "Fn::GetAtt": "Queue.QueueName"
+      }
+    },
+    "QueueUrl": {
+      "Value": {
+        "Ref": "Queue"
+      }
+    },
+    "Topic": {
+      "Condition": "Dev",
+      "Value": {
+        "Ref": "Topic"
+      }
+    }
+  },
+  "Parameters": {
+    "Env": {
+      "AllowedValues": [
+        "prod",
+        "dev"
+      ],
+      "Type": "String"
+    },
+    "Prefix": {
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "Bucket": {
+      "Properties": {
+        "BucketName": {
+          "Fn::Sub": "${Prefix}-${AWS::Region}-${AWS::AccountId}"
+        }
+      },
+      "Type": "AWS::S3::Bucket"
+    },
+    "Queue": {
+      "DependsOn": "Bucket",
+      "Properties": {
+        "DelaySeconds": {
+          "Fn::FindInMap": [
+            "Sizes",
+            {
+              "Ref": "Env"
+            },
+            "Delay"
+          ]
+        },
+        "QueueName": {
+          "Fn::Sub": [
+            "${Name}-queue",
+            {
+              "Name": {
+                "Ref": "Prefix"
+              }
+            }
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "bucket",
+            "Value": {
+              "Fn::GetAtt": [
+                "Bucket",
+                "Arn"
+              ]
+            }
+          },
+          {
+            "Key": "domain",
+            "Value": {
+              "Fn::Sub": "${Bucket.DomainName}/${!Literal}"
+            }
+          },
+          {
+            "Fn::If": [
+              "Prod",
+              {
+                "Key": "env",
+                "Value": {
+                  "Ref": "Bucket"
+                }
+              },
+              {
+                "Ref": "AWS::NoValue"
+              }
+            ]
+          },
+          {
+            "Fn::If": [
+              "Dev",
+              {
+                "Ref": "AWS::NoValue"
+              },
+              {
+                "Key": "topic",
+                "Value": {
+                  "Ref": "Topic"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "Type": "AWS::SQS::Queue"
+    },
+    "Topic": {
+      "Condition": "Dev",
+      "Properties": {
+        "TopicName": {
+          "Fn::Sub": "${Prefix}-topic"
+        }
+      },
+      "Type": "AWS::SNS::Topic"
+    }
+  }
+}

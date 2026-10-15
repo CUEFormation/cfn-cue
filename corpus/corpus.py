@@ -272,7 +272,10 @@ def cue(args, path, region, resource=None):
     command = [str(args.validator.resolve()), "-schemas", str(args.schemas.resolve()),
                "-template", str(path.resolve()), "-region", region, "-timeout", f"{args.timeout}s"]
     if resource is not None:
-        command += ["-resource", resource]
+        # Isolated resource checks are structural; semantic checks need the whole template.
+        command += ["-resource", resource, "-checks", "structural"]
+    else:
+        command += ["-checks", args.checks]
     env = os.environ.copy()
     env["GOMEMLIMIT"] = args.memory
     code, stdout, stderr = execute(command, args.timeout + 3, env)
@@ -367,6 +370,9 @@ def run(args):
                  validator_sha256=validator_sha, driver_sha256=driver_sha, runtime=versions(),
                  selected_ids=[r["id"] for r in records], regions=regions, timeout=args.timeout,
                  memory=args.memory, resources=args.resources, max_resource_checks=args.max_resource_checks, expected=expected)
+    if args.checks != "structural":
+        # Recorded only when it differs so earlier structural runs can resume.
+        state["checks"] = args.checks
     state_path = args.report / "run.json"
     completed = {}
     if args.resume:
@@ -487,7 +493,7 @@ def summarize(results, index, manifest, sha, args):
                 unique_resource_types=len(types), resource_types=types, accepted_resource_types=accepted,
                 intrinsics=intrinsic_names, schema_manifest_sha256=sha, schema_source_sha256=manifest["sourceSHA256"],
                 normalizer=index["normalizer"], lint_runtime=versions(), source_lock_sha256=index["source_lock_sha256"],
-                timeout_seconds=args.timeout, memory_soft_target=args.memory,
+                timeout_seconds=args.timeout, memory_soft_target=args.memory, checks=args.checks,
                 resource_checks=sum(len(r.get("resources", {})) for r in results),
                 resource_checks_skipped=sum(len(r.get("resource_checks_skipped", [])) for r in results),
                 sources=index.get("sources", []))
@@ -496,7 +502,7 @@ def summarize(results, index, manifest, sha, args):
 def markdown(path, summary, results):
     lines = ["# CloudFormation corpus validation", "", f"{summary['templates']} templates; {summary['evaluations']} region evaluations; {summary['unique_resource_types']} resource types encountered; {len(summary['accepted_resource_types'])} types in CUE-accepted templates; {summary['resource_checks']} individual resource checks ({summary['resource_checks_skipped']} omitted by the resource check cap).", "",
              "Original YAML was compared with cfn-lint. CUE received JSON with expanded intrinsic tags and unchanged scalar types. No stacks were deployed or custom macros executed.", "",
-             f"CUE process deadline: {summary['timeout_seconds']}s. GOMEMLIMIT soft target: {summary['memory_soft_target']} (not a hard memory limit or a peak measurement).", "",
+             f"Validator checks: {summary['checks']}. CUE process deadline: {summary['timeout_seconds']}s. GOMEMLIMIT soft target: {summary['memory_soft_target']} (not a hard memory limit or a peak measurement).", "",
              "| Result | Evaluations |", "| --- | ---: |"]
     lines += [f"| {key} | {count} |" for key, count in sorted(summary["classifications"].items())]
     lines += ["", "## Scale", "", "| Resources per template | Accepted by both | CUE timeouts | Other results |", "| --- | ---: | ---: | ---: |"]
@@ -536,6 +542,8 @@ def main():
     p.add_argument("--memory", default="2GiB", help="Go memory soft target, not a hard limit")
     p.add_argument("--resources", choices=["none", "failures", "all"], default="failures")
     p.add_argument("--max-resource-checks", type=int, default=10, help="per-template resource check cap; 0 checks every resource")
+    p.add_argument("--checks", choices=["structural", "semantic", "all"], default="structural",
+                   help="validator checks: CUE schemas, semantic references, or both")
     p.add_argument("--expect", type=Path, help="exact expected CUE and lint statuses for every selected case/region")
     p.add_argument("--fail-on-disagreement", action="store_true")
     p.add_argument("--resume", action="store_true", help="resume a journal only when all inputs, tools, and options match")

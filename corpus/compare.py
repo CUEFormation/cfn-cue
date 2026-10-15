@@ -50,6 +50,8 @@ def compare(before, after, before_state, after_state):
                 transitions=[dict(before=a, after=b, count=n)
                              for (a, b), n in sorted(transitions.items())],
                 timeout_seconds=after["summary"]["timeout_seconds"],
+                before_checks=before["summary"].get("checks", "structural"),
+                after_checks=after["summary"].get("checks", "structural"),
                 memory_soft_target=after["summary"]["memory_soft_target"],
                 before_validator_sha256=before["summary"]["validator_sha256"],
                 after_validator_sha256=after["summary"]["validator_sha256"],
@@ -61,7 +63,8 @@ def markdown(result):
     lines = ["# Corpus comparison", "",
              f"{result['evaluations']} identical template/region cases; "
              f"{result['timeout_seconds']}s deadline; "
-             f"{result['memory_soft_target']} memory soft target.", "",
+             f"{result['memory_soft_target']} memory soft target; "
+             f"checks {result['before_checks']} before and {result['after_checks']} after.", "",
              "Input checksums, schema source, harness, lint runtime, and run settings match. "
              "Machine load can still affect timing and timeout outcomes.", "",
              "| Result | Before | After |", "| --- | ---: | ---: |"]

@@ -1,0 +1,14 @@
+Resources:
+  Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-12345678
+      InstanceType: t3.micro
+  Volume:
+    Type: AWS::EC2::Volume
+    Properties:
+      Size: 10
+      AvailabilityZone:
+        Fn::GetAtt:
+        - Instance
+        - AvailabilityZone

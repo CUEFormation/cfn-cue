@@ -1,0 +1,24 @@
+{
+  "Resources": {
+    "Child": {
+      "Properties": {
+        "TemplateURL": "https://example.com/child.yaml"
+      },
+      "Type": "AWS::CloudFormation::Stack"
+    },
+    "Queue": {
+      "Properties": {
+        "KmsMasterKeyId": {
+          "Fn::Sub": "${Child.Outputs.KeyId}"
+        },
+        "QueueName": {
+          "Fn::GetAtt": [
+            "Child",
+            "Outputs.QueueName"
+          ]
+        }
+      },
+      "Type": "AWS::SQS::Queue"
+    }
+  }
+}
