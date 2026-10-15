@@ -17,7 +17,8 @@ func fixture(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
 	for name, data := range map[string]string{
-		"providers/us-east-1.json": `{"AWS::Test::Thing":"thing","AWS::CloudFormation::CustomResource":"custom"}`,
+		"providers/us-east-1.json": `{"AWS::Test::Thing":"thing","AWS::Test::Nested":"nested","AWS::CloudFormation::CustomResource":"custom"}`,
+		"resources/nested.json":    `{"typeName":"AWS::Test::Nested","type":"object","additionalProperties":false,"definitions":{"Setting":{"type":"object","additionalProperties":false,"properties":{"Key":{"type":"string"},"Value":{"type":"string"}},"required":["Key"]}},"properties":{"Settings":{"type":"array","minItems":1,"items":{"$ref":"#/definitions/Setting"}},"Primary":{"type":"string"},"Secondary":{"type":"string"}},"anyOf":[{"required":["Primary"]},{"required":["Secondary"]}]}`,
 		"resources/custom.json":    `{"typeName":"AWS::CloudFormation::CustomResource","type":"object","properties":{"ServiceToken":{"type":"string"},"ServiceTimeout":{"type":"integer","minimum":1,"maximum":3600}},"required":["ServiceToken"],"patternProperties":{".*":{"type":["string","integer","number","array","object"]}},"additionalProperties":false}`,
 		"resources/thing.json":     `{"typeName":"AWS::Test::Thing","type":"object","additionalProperties":false,"properties":{"Name":{"type":"string","enum":["one","two"]},"Count":{"type":"integer","minimum":1},"Names":{"type":"array","items":{"type":"string"}},"Status":{"type":"string"}},"required":["Name"],"readOnlyProperties":["/properties/Status"]}`,
 	} {
@@ -64,7 +65,8 @@ func TestConcreteValidation(t *testing.T) {
 		{"empty", `{"Resources":{}}`, "invalid"},
 		{"logical-id", `{"Resources":{"Bad-Name":{"Type":"AWS::Test::Thing","Properties":{"Name":"one"}}}}`, "invalid"},
 		{"logical-id-digit", `{"Resources":{"5xxAlarm":{"Type":"AWS::Test::Thing","Properties":{"Name":"one"}}}}`, "valid"},
-		{"if-properties", `{"Resources":{"Thing":{"Type":"AWS::Test::Thing","Properties":{"Fn::If":["Yes",{"Name":"one"},{"Ref":"AWS::NoValue"}]}}}}`, "valid"},
+		{"if-properties", `{"Resources":{"Thing":{"Type":"AWS::Test::Thing","Condition":"Yes","Properties":{"Fn::If":["Yes",{"Name":"one"},{"Ref":"AWS::NoValue"}]}}}}`, "valid"},
+		{"if-properties-removed", `{"Resources":{"Thing":{"Type":"AWS::Test::Thing","Properties":{"Fn::If":["Yes",{"Name":"one"},{"Ref":"AWS::NoValue"}]}}}}`, "invalid"},
 		{"if-properties-branch", `{"Resources":{"Thing":{"Type":"AWS::Test::Thing","Properties":{"Fn::If":["Yes",{"Name":"bad"},{"Ref":"AWS::NoValue"}]}}}}`, "invalid"},
 		{"template-field", `{"Unexpected":true,"Resources":{"Thing":{"Type":"AWS::Test::Thing","Properties":{"Name":"one"}}}}`, "invalid"},
 		{"unknown-type", `{"Resources":{"Thing":{"Type":"AWS::Absent::Thing"}}}`, "unsupported"},
@@ -136,7 +138,7 @@ func TestManyConcreteResources(t *testing.T) {
 	for i := 0; i < 50; i++ {
 		name := "Thing" + strings.Repeat("A", i)
 		resources[name] = map[string]any{"Type": "AWS::Test::Thing", "Properties": map[string]any{
-			"Name": map[string]any{"Fn::If": []any{"Create", "one", map[string]any{"Ref": "AWS::NoValue"}}}, "Count": "2"}}
+			"Name": map[string]any{"Fn::If": []any{"Create", "one", "two"}}, "Count": map[string]any{"Fn::If": []any{"Create", "2", map[string]any{"Ref": "AWS::NoValue"}}}}}
 	}
 	data, _ := json.Marshal(map[string]any{"Resources": resources})
 	if result := Check(data, Options{Schemas: dir, Region: "us-east-1"}); result.Status != "valid" {

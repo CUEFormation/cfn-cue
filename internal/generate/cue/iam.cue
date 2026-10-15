@@ -190,10 +190,14 @@ _#RCPActions: _#RCPAction | [..._#RCPAction] | _#ListIntrinsic
 // A statement entry may be Fn::If (with AWS::NoValue branches) or
 // AWS::NoValue, and Statement itself may be Fn::If over two statement lists.
 //
-// A property value may be the document, a conditional document (either
-// branch may be AWS::NoValue), a literal JSON string, or a string intrinsic. Inside json.Validate, CUE v0.18 does
-// not enforce matchN's required-field alternatives, so JSON strings get
-// every check except the exactly-one rules.
+// A property value may be the document, a conditional document, a literal
+// JSON string, or a string intrinsic. A conditional document's branches are
+// documents, AWS::NoValue or nested conditional documents, and at least one
+// branch is not AWS::NoValue. The string intrinsic form already accepts
+// Fn::If with only AWS::NoValue branches; matching both forms left the
+// disjunction ambiguous. Inside json.Validate, CUE v0.18 does not enforce
+// matchN's required-field alternatives, so JSON strings get every check
+// except the exactly-one rules.
 
 #IdentityPolicy: close({
 	Version?:   _#Version
@@ -201,7 +205,9 @@ _#RCPActions: _#RCPAction | [..._#RCPAction] | _#ListIntrinsic
 	Statement!: [..._#IdentityEntry] | _#IdentityEntry | close({"Fn::If": [string, [..._#IdentityEntry] | fn.#NoValue, [..._#IdentityEntry] | fn.#NoValue]})
 })
 _#IdentityEntry:      #IdentityStatement | fn.#NoValue | close({"Fn::If": [string, #IdentityStatement | fn.#NoValue, #IdentityStatement | fn.#NoValue]})
-#IdentityPolicyValue: #IdentityPolicy | close({"Fn::If": [string, #IdentityPolicy | fn.#NoValue, #IdentityPolicy | fn.#NoValue]}) | string & json.Validate(#IdentityPolicy) | fn.#StringExpression
+#IdentityPolicyValue: #IdentityPolicy | _#IdentityPolicyIf | string & json.Validate(#IdentityPolicy) | fn.#StringExpression
+_#IdentityPolicyIf: close({"Fn::If": [string, #IdentityPolicy | _#IdentityPolicyIf, #IdentityPolicy | fn.#NoValue | _#IdentityPolicyIf]}) |
+	close({"Fn::If": [string, fn.#NoValue, #IdentityPolicy | _#IdentityPolicyIf]})
 
 #TrustPolicy: close({
 	Version?:   _#Version
@@ -209,7 +215,9 @@ _#IdentityEntry:      #IdentityStatement | fn.#NoValue | close({"Fn::If": [strin
 	Statement!: [..._#TrustEntry] | _#TrustEntry | close({"Fn::If": [string, [..._#TrustEntry] | fn.#NoValue, [..._#TrustEntry] | fn.#NoValue]})
 })
 _#TrustEntry:      #TrustStatement | fn.#NoValue | close({"Fn::If": [string, #TrustStatement | fn.#NoValue, #TrustStatement | fn.#NoValue]})
-#TrustPolicyValue: #TrustPolicy | close({"Fn::If": [string, #TrustPolicy | fn.#NoValue, #TrustPolicy | fn.#NoValue]}) | string & json.Validate(#TrustPolicy) | fn.#StringExpression
+#TrustPolicyValue: #TrustPolicy | _#TrustPolicyIf | string & json.Validate(#TrustPolicy) | fn.#StringExpression
+_#TrustPolicyIf: close({"Fn::If": [string, #TrustPolicy | _#TrustPolicyIf, #TrustPolicy | fn.#NoValue | _#TrustPolicyIf]}) |
+	close({"Fn::If": [string, fn.#NoValue, #TrustPolicy | _#TrustPolicyIf]})
 
 #ResourcePolicy: close({
 	Version?:   _#Version
@@ -217,7 +225,9 @@ _#TrustEntry:      #TrustStatement | fn.#NoValue | close({"Fn::If": [string, #Tr
 	Statement!: [..._#ResourceEntry] | _#ResourceEntry | close({"Fn::If": [string, [..._#ResourceEntry] | fn.#NoValue, [..._#ResourceEntry] | fn.#NoValue]})
 })
 _#ResourceEntry:      #ResourceStatement | fn.#NoValue | close({"Fn::If": [string, #ResourceStatement | fn.#NoValue, #ResourceStatement | fn.#NoValue]})
-#ResourcePolicyValue: #ResourcePolicy | close({"Fn::If": [string, #ResourcePolicy | fn.#NoValue, #ResourcePolicy | fn.#NoValue]}) | string & json.Validate(#ResourcePolicy) | fn.#StringExpression
+#ResourcePolicyValue: #ResourcePolicy | _#ResourcePolicyIf | string & json.Validate(#ResourcePolicy) | fn.#StringExpression
+_#ResourcePolicyIf: close({"Fn::If": [string, #ResourcePolicy | _#ResourcePolicyIf, #ResourcePolicy | fn.#NoValue | _#ResourcePolicyIf]}) |
+	close({"Fn::If": [string, fn.#NoValue, #ResourcePolicy | _#ResourcePolicyIf]})
 
 #S3BucketPolicy: close({
 	Version?:   _#Version
@@ -225,7 +235,9 @@ _#ResourceEntry:      #ResourceStatement | fn.#NoValue | close({"Fn::If": [strin
 	Statement!: [..._#S3BucketEntry] | _#S3BucketEntry | close({"Fn::If": [string, [..._#S3BucketEntry] | fn.#NoValue, [..._#S3BucketEntry] | fn.#NoValue]})
 })
 _#S3BucketEntry:      #S3BucketStatement | fn.#NoValue | close({"Fn::If": [string, #S3BucketStatement | fn.#NoValue, #S3BucketStatement | fn.#NoValue]})
-#S3BucketPolicyValue: #S3BucketPolicy | close({"Fn::If": [string, #S3BucketPolicy | fn.#NoValue, #S3BucketPolicy | fn.#NoValue]}) | string & json.Validate(#S3BucketPolicy) | fn.#StringExpression
+#S3BucketPolicyValue: #S3BucketPolicy | _#S3BucketPolicyIf | string & json.Validate(#S3BucketPolicy) | fn.#StringExpression
+_#S3BucketPolicyIf: close({"Fn::If": [string, #S3BucketPolicy | _#S3BucketPolicyIf, #S3BucketPolicy | fn.#NoValue | _#S3BucketPolicyIf]}) |
+	close({"Fn::If": [string, fn.#NoValue, #S3BucketPolicy | _#S3BucketPolicyIf]})
 
 #KMSKeyPolicy: close({
 	Version?:   _#Version
@@ -233,7 +245,9 @@ _#S3BucketEntry:      #S3BucketStatement | fn.#NoValue | close({"Fn::If": [strin
 	Statement!: [..._#KMSKeyEntry] | _#KMSKeyEntry | close({"Fn::If": [string, [..._#KMSKeyEntry] | fn.#NoValue, [..._#KMSKeyEntry] | fn.#NoValue]})
 })
 _#KMSKeyEntry:      #KMSKeyStatement | fn.#NoValue | close({"Fn::If": [string, #KMSKeyStatement | fn.#NoValue, #KMSKeyStatement | fn.#NoValue]})
-#KMSKeyPolicyValue: #KMSKeyPolicy | close({"Fn::If": [string, #KMSKeyPolicy | fn.#NoValue, #KMSKeyPolicy | fn.#NoValue]}) | string & json.Validate(#KMSKeyPolicy) | fn.#StringExpression
+#KMSKeyPolicyValue: #KMSKeyPolicy | _#KMSKeyPolicyIf | string & json.Validate(#KMSKeyPolicy) | fn.#StringExpression
+_#KMSKeyPolicyIf: close({"Fn::If": [string, #KMSKeyPolicy | _#KMSKeyPolicyIf, #KMSKeyPolicy | fn.#NoValue | _#KMSKeyPolicyIf]}) |
+	close({"Fn::If": [string, fn.#NoValue, #KMSKeyPolicy | _#KMSKeyPolicyIf]})
 
 #ServiceControlPolicy: close({
 	Version?:   "2012-10-17" | fn.#StringExpression
@@ -241,7 +255,9 @@ _#KMSKeyEntry:      #KMSKeyStatement | fn.#NoValue | close({"Fn::If": [string, #
 	Statement!: [..._#ServiceControlEntry] | _#ServiceControlEntry | close({"Fn::If": [string, [..._#ServiceControlEntry] | fn.#NoValue, [..._#ServiceControlEntry] | fn.#NoValue]})
 })
 _#ServiceControlEntry:      #ServiceControlStatement | fn.#NoValue | close({"Fn::If": [string, #ServiceControlStatement | fn.#NoValue, #ServiceControlStatement | fn.#NoValue]})
-#ServiceControlPolicyValue: #ServiceControlPolicy | close({"Fn::If": [string, #ServiceControlPolicy | fn.#NoValue, #ServiceControlPolicy | fn.#NoValue]}) | string & json.Validate(#ServiceControlPolicy) | fn.#StringExpression
+#ServiceControlPolicyValue: #ServiceControlPolicy | _#ServiceControlPolicyIf | string & json.Validate(#ServiceControlPolicy) | fn.#StringExpression
+_#ServiceControlPolicyIf: close({"Fn::If": [string, #ServiceControlPolicy | _#ServiceControlPolicyIf, #ServiceControlPolicy | fn.#NoValue | _#ServiceControlPolicyIf]}) |
+	close({"Fn::If": [string, fn.#NoValue, #ServiceControlPolicy | _#ServiceControlPolicyIf]})
 
 #ResourceControlPolicy: close({
 	Version?:   "2012-10-17" | fn.#StringExpression
@@ -249,4 +265,6 @@ _#ServiceControlEntry:      #ServiceControlStatement | fn.#NoValue | close({"Fn:
 	Statement!: [..._#ResourceControlEntry] | _#ResourceControlEntry | close({"Fn::If": [string, [..._#ResourceControlEntry] | fn.#NoValue, [..._#ResourceControlEntry] | fn.#NoValue]})
 })
 _#ResourceControlEntry:      #ResourceControlStatement | fn.#NoValue | close({"Fn::If": [string, #ResourceControlStatement | fn.#NoValue, #ResourceControlStatement | fn.#NoValue]})
-#ResourceControlPolicyValue: #ResourceControlPolicy | close({"Fn::If": [string, #ResourceControlPolicy | fn.#NoValue, #ResourceControlPolicy | fn.#NoValue]}) | string & json.Validate(#ResourceControlPolicy) | fn.#StringExpression
+#ResourceControlPolicyValue: #ResourceControlPolicy | _#ResourceControlPolicyIf | string & json.Validate(#ResourceControlPolicy) | fn.#StringExpression
+_#ResourceControlPolicyIf: close({"Fn::If": [string, #ResourceControlPolicy | _#ResourceControlPolicyIf, #ResourceControlPolicy | fn.#NoValue | _#ResourceControlPolicyIf]}) |
+	close({"Fn::If": [string, fn.#NoValue, #ResourceControlPolicy | _#ResourceControlPolicyIf]})

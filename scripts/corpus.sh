@@ -126,8 +126,8 @@ case "$corpus_command" in
         go vet ./...
         printf '%s\n' 'Checking the pinned S3/IAM schema integration...'
         CFN_CUE_INTEGRATION=1 go test ./internal/generate -run '^TestCurrentResources$' -v -timeout 3m
-        printf '%s\n' 'Checking the corpus against the complete regional templates...'
-        CFN_CUE_INTEGRATION=1 go test ./internal/validate -run '^TestCorpusRegionalTemplates$' -v -timeout 3m
+        printf '%s\n' 'Checking IAM Role AWS::NoValue removals and the corpus against the complete regional templates...'
+        CFN_CUE_INTEGRATION=1 go test ./internal/validate -run '^(TestIAMRoleNoValue|TestCorpusRegionalTemplates)$' -v -timeout 3m
         printf '%s\n' 'Checking parser behavior and the offline corpus contract...'
         "$corpus_python" -m unittest discover -s corpus -v
         "$corpus_python" -m unittest discover -s scripts -p 'test_*.py' -v

@@ -3,6 +3,7 @@
 package validate
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -22,6 +23,7 @@ import (
 	"cuelang.org/go/cue/token"
 	cuejson "cuelang.org/go/encoding/json"
 	"github.com/cueformation/cfn-cue/internal/cfn"
+	"github.com/cueformation/cfn-cue/internal/conditions"
 	"github.com/cueformation/cfn-cue/internal/generate"
 )
 
@@ -231,6 +233,24 @@ func Check(data []byte, opt Options) (result Result) {
 		value = ast.NewBinExpr(token.AND, ast.NewSel(ast.NewIdent("base"), "#Template"), constraints, expr)
 	}
 	f.Decls = append(f.Decls, &ast.Field{Label: ast.NewIdent("value"), Value: value})
+	// Each variant is a resource with a reachable set of AWS::NoValue
+	// removals applied. They are checked only after the template passes.
+	variants, err := removalVariants(data, names)
+	if err != nil {
+		return fail("invalid", err.Error())
+	}
+	for i, v := range variants {
+		expr, err := cuejson.Extract("input.json", v.data)
+		if err != nil {
+			return fail("error", err.Error())
+		}
+		constraint := ast.NewBinExpr(token.AND, ast.NewSel(ast.NewIdent(aliases[schemaTypes[v.name]]), "#Resource"), expr)
+		f.Decls = append(f.Decls, &ast.Field{Label: ast.NewIdent(variantLabel(i)), Value: &ast.StructLit{Elts: []ast.Decl{
+			&ast.Field{Label: ast.NewIdent("Resources"), Value: &ast.StructLit{Elts: []ast.Decl{
+				&ast.Field{Label: ast.NewString(v.name), Value: constraint},
+			}}},
+		}}})
+	}
 	source, err := format.Node(f)
 	if err != nil {
 		return fail("error", err.Error())
@@ -248,11 +268,35 @@ func Check(data []byte, opt Options) (result Result) {
 	}
 	result.Phase = "evaluate"
 	v := cuecontext.New().BuildInstance(instances[0])
-	if err := v.Err(); err != nil {
-		return fail("invalid", classify(detail(err), unsupported))
-	}
+	// The root error also includes failing variants, so it is examined after
+	// them. Each stage keeps every diagnostic it finds; see classify.
+	rootErr := v.Err()
 	if err := v.LookupPath(cue.MakePath(cue.Str("value"))).Validate(cue.Concrete(true)); err != nil {
 		return fail("invalid", classify(detail(err), unsupported))
+	}
+	// Variants follow resource and removal order, so the message is stable.
+	var removals []string
+	for i, variant := range variants {
+		label := variantLabel(i)
+		err := v.LookupPath(cue.MakePath(cue.Str(label))).Validate(cue.Concrete(true))
+		if missing := missingRemoved(err, label, variant); missing != nil {
+			message := strings.ReplaceAll(detail(missing), label+".", "")
+			removals = append(removals, fmt.Sprintf("Resources.%s: %s:\n%s", variant.name, variant.reason, strings.TrimSuffix(message, "\n")))
+		}
+	}
+	// Root errors inside variants were either collected above or are not
+	// removal failures.
+	var other errors.Error
+	for _, e := range errors.Errors(rootErr) {
+		if path := e.Path(); len(path) == 0 || !strings.HasPrefix(path[0], "noValueVariant") {
+			other = errors.Append(other, e)
+		}
+	}
+	if other != nil {
+		removals = append(removals, strings.TrimSuffix(detail(other), "\n"))
+	}
+	if len(removals) > 0 {
+		return fail("invalid", classify(strings.Join(removals, "\n"), unsupported))
 	}
 	if len(unsupported) > 0 {
 		return fail("unsupported", strings.Join(unsupported, "\n"))
@@ -270,6 +314,74 @@ func classify(message string, unsupported []string) string {
 		message += "\nnot checked: " + line
 	}
 	return message
+}
+
+type resourceVariant struct {
+	name, reason string
+	data         []byte
+	removed      [][]string
+}
+
+// missingRemoved keeps the errors that report a removed position as a
+// required field. A copy can fail other rules because the Fn::If values it
+// keeps count as present, which no single condition assignment may produce;
+// those failures are not reported.
+func missingRemoved(err error, label string, variant resourceVariant) error {
+	if err == nil {
+		return nil
+	}
+	var kept errors.Error
+	for _, e := range errors.Errors(err) {
+		if !strings.Contains(e.Error(), "field is required but not present") {
+			continue
+		}
+		path := e.Path()
+		for _, removed := range variant.removed {
+			want := append([]string{label, "Resources", variant.name}, removed...)
+			if len(path) != len(want) {
+				continue
+			}
+			match := true
+			for i := range want {
+				match = match && strings.Trim(path[i], `"`) == want[i]
+			}
+			if match {
+				kept = errors.Append(kept, e)
+				break
+			}
+		}
+	}
+	if kept == nil {
+		return nil
+	}
+	return kept
+}
+
+func variantLabel(i int) string { return fmt.Sprintf("noValueVariant%d", i) }
+
+// removalVariants decodes the template again with numbers kept as written and
+// returns the AWS::NoValue variants of the named resources.
+func removalVariants(data []byte, names []string) ([]resourceVariant, error) {
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.UseNumber()
+	var template map[string]any
+	if err := decoder.Decode(&template); err != nil {
+		return nil, err
+	}
+	resources, _ := template["Resources"].(map[string]any)
+	model := conditions.New(template)
+	var out []resourceVariant
+	for _, name := range names {
+		resource, _ := resources[name].(map[string]any)
+		for _, v := range noValueVariants(model, resource) {
+			b, err := json.Marshal(v.resource)
+			if err != nil {
+				return nil, err
+			}
+			out = append(out, resourceVariant{name: name, reason: v.reason, data: b, removed: v.removed})
+		}
+	}
+	return out, nil
 }
 
 func detail(err error) string {
