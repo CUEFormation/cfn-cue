@@ -69,7 +69,7 @@ publish output that has them.
 | key pattern with a positive lookahead | EventBridge `Subscriber` header parameter names | 1 key |
 
 In the pinned snapshot this leaves 31 diagnostics, across 22 unique patterns
-and one key pattern. Translating patterns removed 341, of 1,119 in total.
+and one key pattern. Translating patterns removed 341, of 1,092 in total.
 
 ## Service-rule conditions
 
