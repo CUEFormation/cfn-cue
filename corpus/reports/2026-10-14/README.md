@@ -23,5 +23,5 @@ Seven costly rules remain disabled: E3042, E3047, E3048, E3638, E3639, E3690 and
 - Encode the seven disabled rules more cheaply before enabling them.
 - Support nested Fn::If around whole Properties blocks.
 - Add semantic/reference resolution and condition-aware required-property checks separately.
-- The previously observed GroundStation DataflowEndpointGroupV2 extraction failure was investigated in [issue-12-field-rule-placement.md](issue-12-field-rule-placement.md). It was not reproduced from committed source; the report records the evidence and the regression test.
+- Investigate the previously observed GroundStation DataflowEndpointGroupV2 extraction failure if it recurs. Subsequent investigation and the landing regeneration did not reproduce it.
 - Upstream CUE issue drafts are parked separately in draft PR #6 and remain on hold.
