@@ -44,7 +44,7 @@ import (
 	// Sets a custom AWS CloudWatch log group name for egress logs. If a log group
 	// name isn't specified, the default name is used:
 	// /aws/MediaPackage/VodEgressAccessLogs.
-	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1)
+	LogGroupName?: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" & (strings.MaxRunes(512) & strings.MinRunes(1))
 })
 
 #Tag: close({

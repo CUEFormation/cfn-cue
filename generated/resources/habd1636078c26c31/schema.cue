@@ -172,10 +172,17 @@ import structs "struct"
 fn.#ObjectExpression
 
 #ImageLoggingConfiguration: close({
-	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_/\\.]{1,512}$" |
+	LogGroupName?: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9\\-_/\\.]{1,512}$" |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_/\\.]{1,512}$" & "\(self)"
+		_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9\\-_/\\.]{1,512}$" &
+		"\(self)"
 	} |
 	fn.#StringExpression
 }) |

@@ -322,6 +322,97 @@ func TestListIdentifierFormatsUnenforced(t *testing.T) {
 	}
 }
 
+func TestLogGroupNameFormat(t *testing.T) {
+	// cfn-lint's E1155 pattern ends in \Z, so unlike the other formats a
+	// final newline is rejected.
+	good := []string{"MyLogGroup", "/aws/lambda/my-function", "a.b_c-d/e#f", "0", strings.Repeat("a", 512)}
+	bad := []string{"", strings.Repeat("a", 513), "my log group", "group:name", "caf\u00e9", "MyLogGroup\n", "${Name}", "arn:aws:logs:us-east-1:123456789012:log-group:MyLogGroup"}
+	for _, tt := range []struct {
+		resource, path string
+		skipped        bool
+		alsoGood       []string
+	}{
+		{"AWS::Logs::SubscriptionFilter", "#/properties/LogGroupName/format", false, nil},
+		{"AWS::EC2::FlowLog", "#/properties/LogGroupName/format", false, nil},
+		{"AWS::KinesisFirehose::DeliveryStream", "#/definitions/CloudWatchLoggingOptions/properties/LogGroupName/format", false, []string{""}},
+		{"AWS::EMRContainers::JobTemplate", "#/definitions/ParametricCloudWatchMonitoringConfiguration/properties/LogGroupName/format", true, nil},
+		// Exceptions are scoped to the property, not the resource.
+		{"AWS::KinesisFirehose::DeliveryStream", "#/definitions/Other/properties/LogGroupName/format", false, nil},
+	} {
+		c := &converter{resource: tt.resource}
+		m := map[string]any{}
+		c.normalizeFormat(m, tt.path, "AWS::Logs::LogGroup.Name")
+		if len(c.diagnostics) != 0 {
+			t.Fatalf("unexpected diagnostics: %v", c.diagnostics)
+		}
+		if tt.skipped {
+			if len(m) != 0 {
+				t.Errorf("exempt property gained a constraint: %+v %v", tt, m)
+			}
+			continue
+		}
+		re := regexp.MustCompile(m["_extra"].([]any)[0].(map[string]any)["pattern"].(string))
+		for _, value := range append(append([]string{}, good...), tt.alsoGood...) {
+			if !re.MatchString(value) {
+				t.Errorf("%s rejected valid log group name %q", tt.resource, value)
+			}
+		}
+		for _, value := range bad {
+			if re.MatchString(value) && !includes(tt.alsoGood, value) {
+				t.Errorf("%s accepted invalid log group name %q", tt.resource, value)
+			}
+		}
+	}
+}
+
+func TestGeneratedLogGroupNameFormat(t *testing.T) {
+	source := fixture(t)
+	var root map[string]any
+	if err := json.Unmarshal(source.files["resources/test.json"], &root); err != nil {
+		t.Fatal(err)
+	}
+	properties := root["properties"].(map[string]any)
+	properties["LogGroupName"] = map[string]any{"type": "string", "format": "AWS::Logs::LogGroup.Name"}
+	source.files["resources/test.json"], _ = json.Marshal(root)
+	out := filepath.Join(t.TempDir(), "generated")
+	manifest, err := Generate(source, Options{Out: out, Regions: []string{"us-east-1"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, d := range manifest.Diagnostics {
+		if d.Keyword == "format" {
+			t.Fatalf("LogGroup.Name still diagnosed: %v", d)
+		}
+	}
+	template := propertiesSchema(t, out, "./resources/htest")
+	literal := propertiesSchema(t, out, "./literal/htest")
+	for _, data := range []string{
+		`{Name:"one",LogGroupName:"/aws/lambda/my-function"}`,
+		`{Name:"one",LogGroupName:"a.b_c-d#e"}`,
+	} {
+		validate(t, literal, data, true)
+		validate(t, template, data, true)
+	}
+	for _, data := range []string{
+		`{Name:"one",LogGroupName:""}`,
+		`{Name:"one",LogGroupName:"my log group"}`,
+		`{Name:"one",LogGroupName:"arn:aws:logs:us-east-1:123456789012:log-group:MyLogGroup"}`,
+		`{Name:"one",LogGroupName:"MyLogGroup\n"}`,
+	} {
+		validate(t, literal, data, false)
+		validate(t, template, data, false)
+	}
+	for _, data := range []string{
+		`{Name:"one",LogGroupName:{Ref:"LogGroup"}}`,
+		`{Name:"one",LogGroupName:{"Fn::Sub":"/aws/lambda/${Function}"}}`,
+		`{Name:"one",LogGroupName:{"Fn::ImportValue":"Shared:LogGroup"}}`,
+		`{Name:"one",LogGroupName:"{{resolve:ssm:/log-group}}"}`,
+	} {
+		validate(t, template, data, true)
+		validate(t, literal, data, false)
+	}
+}
+
 func TestNetworkFormats(t *testing.T) {
 	source := fixture(t)
 	var root map[string]any

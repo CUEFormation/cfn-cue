@@ -104,7 +104,10 @@ import (
 #LoggingConfig: close({
 	// The Amazon CloudWatch Logs group to which CloudFormation sends error logging
 	// information when invoking the extension's handlers.
-	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$"
+	LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"^[\\.\\-_/#A-Za-z0-9]+$"
 
 	// The ARN of the role that CloudFormation should assume when sending log
 	// entries to CloudWatch Logs.

@@ -46,7 +46,7 @@ import (
 	// publishes your flow logs. If you specify LogDestinationType as s3 or
 	// kinesis-data-firehose, do not specify DeliverLogsPermissionArn or
 	// LogGroupName.
-	LogGroupName?: string
+	LogGroupName?: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$"
 
 	// The maximum interval of time during which a flow of packets is captured and
 	// aggregated into a flow log record. You can specify 60 seconds (1 minute) or

@@ -43,10 +43,17 @@ import structs "struct"
 			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
 		} |
 		fn.#StringExpression
-		LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]{1,512}" |
+		LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^[.\\-_/#A-Za-z0-9]{1,512}" |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]{1,512}" & "\(self)"
+			_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+			strings.MaxRunes(512) &
+			strings.MinRunes(1) &
+			=~"^[.\\-_/#A-Za-z0-9]{1,512}" &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		MetricTransformations!: list.MaxItems(1) & list.MinItems(1) & [...#MetricTransformation] | fn.#ListExpression

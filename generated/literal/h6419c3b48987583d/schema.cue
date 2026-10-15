@@ -59,7 +59,7 @@ import (
 	// name isn't specified, the defaults are used:
 	// /aws/MediaPackage/EgressAccessLogs for egress access logs and
 	// /aws/MediaPackage/IngressAccessLogs for ingress access logs.
-	LogGroupName?: strings.MaxRunes(256) & strings.MinRunes(1)
+	LogGroupName?: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" & (strings.MaxRunes(256) & strings.MinRunes(1))
 })
 
 #Tag: close({

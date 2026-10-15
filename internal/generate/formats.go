@@ -21,6 +21,13 @@ import (
 // Subnet.Id against its LogGroup.Name pattern, which it registers under the
 // same format name; every subnet ID matches that pattern, so it is omitted.
 // cfn-lint has no rule for the .Ids and .Names list formats.
+//
+// AWS::Logs::LogGroup.Name is stricter than the pinned cfn-lint, whose E1155
+// rule registers its pattern under AWS::EC2::Subnet.Id by mistake and so never
+// checks a log group name. The pattern is that rule's, and it matches the
+// CloudWatch Logs API's log group name: 1 to 512 of [.-_/#A-Za-z0-9]. Python's
+// \Z permits no final newline. Properties whose provider schemas admit other
+// values are exempt; see logGroupNameExceptions.
 var cloudFormationFormatPatterns = map[string][]string{
 	"AWS::EC2::VPC.Id":             {`^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))$`},
 	"AWS::EC2::SecurityGroup.Id":   {`^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})$`},
@@ -35,6 +42,17 @@ var cloudFormationFormatPatterns = map[string][]string{
 	"AWS::SNS::Topic.Arn":          {`^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\d{12}:.+$`},
 	"AWS::ACM::Certificate.Arn":    {`^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\d{12}:certificate/.+$`},
 	"AWS::Lambda::Function.Arn":    {`^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\d{12}:function:.+(:.+)?$`},
+	"AWS::Logs::LogGroup.Name":     {`^[\.\-_\/#A-Za-z0-9]{1,512}\Z`},
+}
+
+// logGroupNameExceptions lists LogGroup.Name properties whose provider
+// schemas deliberately admit values the CloudWatch Logs pattern rejects. An
+// empty pattern skips the format; otherwise it is an extra alternative.
+var logGroupNameExceptions = map[string]map[string]string{
+	// Firehose's own pattern and minLength 0 allow an empty name.
+	"AWS::KinesisFirehose::DeliveryStream": {"#/definitions/CloudWatchLoggingOptions/properties/LogGroupName/format": `^$`},
+	// Job templates accept ${parameter} placeholders, resolved at job start.
+	"AWS::EMRContainers::JobTemplate": {"#/definitions/ParametricCloudWatchMonitoringConfiguration/properties/LogGroupName/format": ""},
 }
 
 // These formats are checked by CUE definitions in the fn package, because a
@@ -64,13 +82,22 @@ func (c *converter) normalizeFormat(m map[string]any, path string, value any) {
 		return
 	}
 	if patterns, found := cloudFormationFormatPatterns[name]; found {
+		exception, exempt := logGroupNameExceptions[c.resource][path]
+		if name == "AWS::Logs::LogGroup.Name" && exempt && exception == "" {
+			return
+		}
 		for _, pattern := range patterns {
 			// Python's \d matches Unicode decimal digits; RE2's \d only
 			// matches ASCII. Nd is the equivalent Unicode category in RE2.
 			pattern = strings.ReplaceAll(pattern, `\d`, `\p{Nd}`)
 			// Python's regular-expression $ also matches just before a final
 			// newline; CUE/RE2's $ only matches at the end of the string.
-			pattern = strings.TrimSuffix(pattern, "$") + `\n?$`
+			// \Z, by contrast, matches only at the end.
+			if strings.HasSuffix(pattern, `\Z`) {
+				pattern = strings.TrimSuffix(pattern, `\Z`) + "$"
+			} else {
+				pattern = strings.TrimSuffix(pattern, "$") + `\n?$`
+			}
 			if name == "AWS::EC2::Image.Id" && c.resource == "AWS::EC2::LaunchTemplate" && path == "#/definitions/LaunchTemplateData/properties/ImageId/format" {
 				// The format rule exempts any resolve:ssm-prefixed value at
 				// this particular LaunchTemplate property. It is not an AMI
@@ -81,6 +108,9 @@ func (c *converter) normalizeFormat(m map[string]any, path string, value any) {
 				// cfn-lint accepts an empty BucketName, which CloudFormation
 				// treats as absent and replaces with a generated name.
 				pattern = "(?:" + pattern + ")|^$"
+			}
+			if name == "AWS::Logs::LogGroup.Name" && exempt {
+				pattern = "(?:" + pattern + ")|" + exception
 			}
 			appendAll(m, map[string]any{"pattern": pattern})
 		}

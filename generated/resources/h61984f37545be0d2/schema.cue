@@ -85,10 +85,10 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #LoggingConfiguration: close({
-	LogGroupName!: strings.MinRunes(1) |
+	LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" & strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" & strings.MinRunes(1) & "\(self)"
 	} |
 	fn.#StringExpression
 }) |

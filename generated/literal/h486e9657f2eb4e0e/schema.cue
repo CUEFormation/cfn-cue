@@ -42,7 +42,10 @@ import (
 	FilterPattern!: strings.MaxRunes(1024) & strings.MinRunes(0)
 
 	// The name of an existing log group that you want to associate with this metric filter.
-	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]{1,512}"
+	LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"^[.\\-_/#A-Za-z0-9]{1,512}"
 
 	// The metric transformations.
 	MetricTransformations!: list.MaxItems(1) & list.MinItems(1) & [...#MetricTransformation]

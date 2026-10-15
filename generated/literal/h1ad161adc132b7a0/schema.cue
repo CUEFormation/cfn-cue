@@ -75,7 +75,10 @@ import (
 	// The CloudWatch log group name. When Enabled is true and LogGroupName is
 	// omitted, the service uses the default
 	// '/aws/kinesis/<channelName>/<channelId>'.
-	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$"
+	LogGroupName?: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"^[\\.\\-_/#A-Za-z0-9]+$"
 
 	// The CloudWatch log stream name. Defaults to the literal string
 	// 'DestinationDelivery' when omitted.

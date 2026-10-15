@@ -75,7 +75,7 @@ import (
 
 	// The name of the log group. If you don't specify a name, CFNlong generates a
 	// unique ID for the log group.
-	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1)
+	LogGroupName?: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" & (strings.MaxRunes(512) & strings.MinRunes(1))
 
 	// Creates or updates a resource policy for the specified log group that allows
 	// other services to put log events to this account. A LogGroup can have 1

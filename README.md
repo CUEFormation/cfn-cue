@@ -181,10 +181,10 @@ Literal property constraints apply directly to literal values. Intrinsic values 
 
 The conversion report in generated/manifest.json lists every remaining approximation. Unsupported Python/ECMAScript regex features are reported; Unicode `\uXXXX` escapes are translated to RE2 notation. Selected-key uniqueness degrades to whole-item uniqueness. Other unsupported constraints are reported rather than silently presented as enforced. AWS provider annotations and defaults are not emitted as deployable values.
 
-Thirteen cfn-lint identifier formats are enforced as additional literal
+Fourteen cfn-lint identifier formats are enforced as additional literal
 patterns: VPC, subnet, security group, AMI and KMS key IDs, KMS alias, security
-group and S3 bucket names, plus IAM role, KMS key, SNS topic, ACM certificate,
-and Lambda function ARNs. cfn-lint's bucket name pattern uses lookarounds, which
+group, S3 bucket and CloudWatch Logs log group names, plus IAM role, KMS key,
+SNS topic, ACM certificate, and Lambda function ARNs. cfn-lint's bucket name pattern uses lookarounds, which
 RE2 lacks, so it is checked as two equivalent patterns. `ipv4-network` and
 `ipv6-network` use `fn.#IPv4Network` and `fn.#IPv6Network`, which reject a
 network with host bits set, such as `192.168.1.0/0`, as Python's `ipaddress`
@@ -194,8 +194,10 @@ address must have no host bits set for it. A prefix length with leading zeros,
 such as `/08`, is still rejected. See the [format policy](docs/format-policy.md).
 The `.Ids` and `.Names` list formats annotate arrays; they remain unenforced
 and listed in the manifest, while their item formats apply. cfn-lint has no
-rule for them or, because of a registration bug, for
-`AWS::Logs::LogGroup.Name`, which also remains unenforced. Existing provider patterns still apply.
+rule for them. cfn-lint never checks `AWS::Logs::LogGroup.Name` because of a
+registration bug; it is enforced here with cfn-lint's intended pattern, which
+matches the CloudWatch Logs API, except where a provider schema admits other
+names. Existing provider patterns still apply.
 Unresolved intrinsic values defer their result format checks.
 LaunchTemplate's `resolve:ssm` ImageId exception is scoped to that property.
 

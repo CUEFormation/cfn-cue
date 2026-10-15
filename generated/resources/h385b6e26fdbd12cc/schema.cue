@@ -88,10 +88,17 @@ fn.#ObjectExpression
 #InvocationPoint: "PRE_PROVISION" | fn.#StringExpression
 
 #LoggingConfig: close({
-	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" |
+	LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"^[\\.\\-_/#A-Za-z0-9]+$" |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" & "\(self)"
+		_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^[\\.\\-_/#A-Za-z0-9]+$" &
+		"\(self)"
 	} |
 	fn.#StringExpression
 	LogRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
