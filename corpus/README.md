@@ -211,6 +211,19 @@ schema import. The provider's required properties and intrinsic rules still
 apply. Missing provider schemas remain unsupported, while malformed custom names
 and null/non-string Transform entries are invalid.
 
+When resources fail in different ways, the result doesn't depend on map order.
+The validator checks every resource in logical-ID order and keeps all problems.
+Status precedence is `error`, then `invalid`, then `unsupported`. A malformed
+logical ID, a missing or non-string `Type`, or a malformed custom name makes
+the template invalid without schema evaluation. Otherwise the supported
+resources and template sections are evaluated even when other resource types
+have no schema; unsupported resources still get the generic resource attribute
+checks. A failure there is `invalid`, and the message ends with one
+`not checked: resource ...` line per unsupported resource. The result is
+`unsupported` only when everything checkable passes; its message lists each
+missing type. Transform and unexpanded-construct checks run first and are
+unchanged.
+
 Tool SHA-256 fingerprints are checked at startup and completion. Between engine
 calls, the harness checks file identity, size, nanosecond mtime and ctime to detect
 rebuilds without repeatedly reading the validator binary. Each original and

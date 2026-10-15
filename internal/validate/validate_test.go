@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -193,5 +194,63 @@ func TestResourceAliasCollision(t *testing.T) {
 		if !strings.Contains(result.Message, detail) {
 			t.Fatalf("collision error omits %q: %s", detail, result.Message)
 		}
+	}
+}
+
+// TestMixedFailures covers templates whose resources fail in different ways.
+// Go randomizes map iteration per range statement and per process, so each case
+// runs repeatedly in this process and in fresh processes.
+func TestMixedFailures(t *testing.T) {
+	if os.Getenv("CFN_CUE_VALIDATE_CHILD") != "" {
+		result := Check([]byte(os.Getenv("CFN_CUE_VALIDATE_DATA")), Options{Schemas: os.Getenv("CFN_CUE_VALIDATE_CHILD"), Region: "us-east-1"})
+		os.Stdout.WriteString("\n" + result.Status + "\n" + result.Message)
+		os.Exit(0)
+	}
+	dir := fixture(t)
+	absent := "is absent from us-east-1"
+	for _, tc := range []struct {
+		name, data, status string
+		message            []string
+	}{
+		// SAM's tests/translator/output/unsupported_resources.json.
+		{"missing-type-and-unknown", `{"Resources":{"Missing":{"Properties":{}},"Unknown":{"Type":"AWS::Other::ABCD","Properties":{}}}}`, "invalid",
+			[]string{"resource Missing must have a string Type", "not checked: resource Unknown: AWS::Other::ABCD " + absent}},
+		{"schema-invalid-and-unknown", `{"Resources":{"Bad":{"Type":"AWS::Test::Thing","Properties":{"Name":"bad"}},"Good":{"Type":"AWS::Test::Thing","Properties":{"Name":"one"}},"Unknown":{"Type":"AWS::Other::ABCD"}}}`, "invalid",
+			[]string{"Resources.Bad.Properties.Name", "not checked: resource Unknown: AWS::Other::ABCD " + absent}},
+		{"invalid-envelope-on-unknown", `{"Resources":{"Good":{"Type":"AWS::Test::Thing","Properties":{"Name":"one"}},"Unknown":{"Type":"AWS::Other::ABCD","DeletionPolicy":"Never"}}}`, "invalid",
+			[]string{"Resources.Unknown.DeletionPolicy", "not checked: resource Unknown"}},
+		{"valid-and-unknown", `{"Resources":{"Good":{"Type":"AWS::Test::Thing","Properties":{"Name":"one"}},"Zed":{"Type":"AWS::Other::Zed"},"Alpha":{"Type":"AWS::Other::Alpha"}}}`, "unsupported",
+			[]string{"resource Alpha: AWS::Other::Alpha " + absent + "\nresource Zed: AWS::Other::Zed " + absent}},
+		{"invalid-ids-and-types", `{"Resources":{"B-1":{"Type":"AWS::Test::Thing"},"A-1":{"Type":"AWS::Test::Thing"},"C":{"Type":"Custom::bad!"},"D":{"Type":"AWS::Other::D"}}}`, "invalid",
+			[]string{"invalid resource logical ID: A-1\ninvalid resource logical ID: B-1\nresource C has an invalid custom resource Type\nnot checked: resource D"}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			first := Check([]byte(tc.data), Options{Schemas: dir, Region: "us-east-1"})
+			if first.Status != tc.status {
+				t.Fatalf("%s want %s: %s", first.Status, tc.status, first.Message)
+			}
+			for _, part := range tc.message {
+				if !strings.Contains(first.Message, part) {
+					t.Fatalf("message omits %q:\n%s", part, first.Message)
+				}
+			}
+			for i := 0; i < 20; i++ {
+				if result := Check([]byte(tc.data), Options{Schemas: dir, Region: "us-east-1"}); result.Status != first.Status || result.Message != first.Message {
+					t.Fatalf("run %d changed: %s: %s", i, result.Status, result.Message)
+				}
+			}
+			want := "\n" + first.Status + "\n" + first.Message
+			for i := 0; i < 3; i++ {
+				cmd := exec.Command(os.Args[0], "-test.run=^TestMixedFailures$")
+				cmd.Env = append(os.Environ(), "CFN_CUE_VALIDATE_CHILD="+dir, "CFN_CUE_VALIDATE_DATA="+tc.data)
+				out, err := cmd.Output()
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !strings.HasSuffix(string(out), want) {
+					t.Fatalf("process %d changed:\n%s", i, out)
+				}
+			}
+		})
 	}
 }
