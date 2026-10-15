@@ -33,6 +33,9 @@ type SchemaInfo struct {
 	Type               string `json:"type"`
 	SHA256             string `json:"sha256"`
 	PropertiesRequired bool   `json:"propertiesRequired"`
+	// Attributes lists the Fn::GetAtt names (see Attributes). Manifests from
+	// earlier generators omit it, which a reader must treat as unknown.
+	Attributes []string `json:"attributes"`
 }
 type Manifest struct {
 	Generator          string                       `json:"generator"`
@@ -219,7 +222,7 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 			return nil, fmt.Errorf("schema %s typeName %q does not match %q", hash, typ, hashTypes[hash])
 		}
 		sum := sha256.Sum256(b)
-		m.Schemas[hash] = SchemaInfo{typ, hex.EncodeToString(sum[:]), len(asArray(root["required"])) > 0}
+		m.Schemas[hash] = SchemaInfo{typ, hex.EncodeToString(sum[:]), len(asArray(root["required"])) > 0, Attributes(root)}
 		c := &converter{module: opt.Module, resource: typ, extensions: opt.LanguageExtensions, iam: !opt.NoIAMPolicies, cfnLintRules: !opt.NoCfnLintRules}
 		f, e := c.extract(root, false)
 		if e != nil {

@@ -44,7 +44,8 @@ or newer dependencies. An offline version check rejects stale or manually
 upgraded Python packages and points back to setup.
 
 `test` runs formatting checks, Go tests and vet, the pinned S3/IAM integration,
-Python parser/provenance tests, and the 88-template contract in two regions. The
+Python parser/provenance tests, the 88-template contract in two regions, and
+the semantic reference contract. The 88-template
 contract runs twice: through `cfn-cue-validate`, which loads only the resource
 packages a template uses, and against each region's complete `#Template`.
 Expected failures remain explicit. The final report is
@@ -236,7 +237,8 @@ mandatory error rules. It disables source-provided cfn-lint configuration, so
 downloaded metadata cannot load custom rule code or hide errors. cfn-lint may
 perform its built-in SAM/LanguageExtensions processing. Custom macros,
 `Fn::ForEach` expansion in CUE, SAM expansion in CUE, nested stack content,
-reference resolution, and deployment behavior remain outside this CUE check.
+and deployment behavior remain outside this CUE check. Reference resolution
+is a separate, opt-in semantic pass (`--checks`).
 Missing types, transforms, and loops are reported as unsupported. No AWS
 credentials are needed; nothing is deployed or fetched from `TemplateURL`.
 
@@ -291,6 +293,26 @@ remain documented. Expected failures are explicit and annotated.
   --regions us-east-1,us-west-2 --resources none --timeout 15 \
   --expect corpus/smoke/expectations.json --report .corpus-smoke-report
 ```
+
+The checked-in `semantic/` corpus contains 34 project-authored reference cases,
+with 68 expectations across two regions. It runs with `--checks all`, so the
+validator applies the CUE schemas and the [semantic pass](../docs/semantic-validation.md).
+Cases cover undefined `Ref`, `GetAtt` and `Sub` names, attribute names
+(including nested stack outputs and custom resources), `DependsOn`, condition
+and mapping names, dependency cycles, and references to conditional resources.
+Five cases record deliberate differences from cfn-lint, which ignores conditions
+when it reports cycles and `DependsOn` targets. `corpus/make_semantic.py`
+generates the cases without downloads (`./scripts/corpus.sh regenerate-semantic`).
+
+```sh
+.venv/bin/python corpus/corpus.py run --corpus corpus/semantic --limit 0 \
+  --regions us-east-1,us-west-2 --resources none --timeout 15 --checks all \
+  --expect corpus/semantic/expectations.json --report .corpus-semantic-report
+```
+
+`--checks` (`structural`, `semantic` or `all`) applies to any run, including
+the full survey. The default is `structural`. Isolated resource checks are
+always structural, because semantic checks need the whole template.
 
 CI runs this small offline corpus after installing pinned dependencies, rather
 than relying on network downloads of moving examples. To rebuild it, fetch the

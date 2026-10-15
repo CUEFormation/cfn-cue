@@ -24,6 +24,7 @@ Usage: ./scripts/corpus.sh COMMAND [harness options]
   diagnose    Reproduce the four-template, 13-resource investigation
   schemas     Regenerate all schemas from the checked-in snapshot into scratch
   regenerate  Rebuild the checked-in smoke fixtures and expectations
+  regenerate-semantic  Rebuild the semantic reference cases (no downloads)
   setup-flip  Install the optional, hash-locked CFN Flip comparison tools
   flip        Fetch examples with both parsers and report normalization differences
   compare     Compare two report directories with identical inputs and budgets
@@ -135,6 +136,12 @@ case "$corpus_command" in
             --schemas generated --validator bin/cfn-cue-validate --limit 0 \
             --regions us-east-1,us-west-2 --resources none --timeout 15 --memory 2GiB \
             --expect corpus/smoke/expectations.json --report .corpus-smoke-report "$@"
+        printf '%s\n' 'Checking the semantic reference corpus with structural and semantic checks...'
+        "$corpus_python" corpus/corpus.py run --corpus corpus/semantic \
+            --schemas generated --validator bin/cfn-cue-validate --limit 0 \
+            --regions us-east-1,us-west-2 --resources none --timeout 15 --memory 2GiB \
+            --checks all --expect corpus/semantic/expectations.json \
+            --report .corpus-semantic-report "$@"
         ;;
     fetch)
         require_environment
@@ -180,6 +187,10 @@ case "$corpus_command" in
         require_environment
         require_downloads "$@"
         "$corpus_python" corpus/make_smoke.py --corpus "$corpus_data" "$@"
+        ;;
+    regenerate-semantic)
+        require_environment
+        "$corpus_python" corpus/make_semantic.py "$@"
         ;;
     flip)
         require_environment

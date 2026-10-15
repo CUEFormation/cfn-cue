@@ -1,0 +1,27 @@
+Parameters:
+  Env:
+    Type: String
+    AllowedValues:
+    - prod
+    - dev
+Conditions:
+  Prod:
+    Fn::Equals:
+    - Ref: Env
+    - prod
+  Dev:
+    Fn::Equals:
+    - Ref: Env
+    - dev
+Resources:
+  A:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName:
+        Fn::If:
+        - Prod
+        - Ref: B
+        - Fn::Sub: ${B}-dev
+  B:
+    Type: AWS::SQS::Queue
+    DependsOn: A

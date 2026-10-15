@@ -25,10 +25,22 @@ import (
 	"github.com/cueformation/cfn-cue/internal/cfn"
 	"github.com/cueformation/cfn-cue/internal/conditions"
 	"github.com/cueformation/cfn-cue/internal/generate"
+	"github.com/cueformation/cfn-cue/internal/semantic"
+)
+
+// Check selections. Structural checks evaluate the generated CUE schemas;
+// semantic checks resolve references without CUE (see internal/semantic).
+const (
+	ChecksStructural = "structural"
+	ChecksSemantic   = "semantic"
+	ChecksAll        = "all"
 )
 
 type Options struct {
 	Schemas, Region, Resource string
+	// Checks selects ChecksStructural (the default when empty),
+	// ChecksSemantic or ChecksAll.
+	Checks string
 }
 
 type Result struct {
@@ -40,16 +52,31 @@ type Result struct {
 	ResourceTypes []string `json:"resourceTypes,omitempty"`
 	ElapsedMS     int64    `json:"elapsedMs"`
 	HeapMiB       float64  `json:"heapMiB"`
+	Checks        string   `json:"checks"`
+	// Diagnostics lists semantic findings, including warnings that do not
+	// make the template invalid.
+	Diagnostics []semantic.Diagnostic `json:"diagnostics,omitempty"`
 }
 
 var logicalID = regexp.MustCompile(`^[A-Za-z0-9]{1,255}$`)
 var schemaID = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
 
+func truncate(message string) string {
+	if len(message) > 8000 {
+		message = message[:8000] + "\n[diagnostics truncated]"
+	}
+	return message
+}
+
 // Check has no cancellation point inside CUE's evaluator. Call it in a process
 // with a deadline; the CLI and corpus runner enforce that boundary.
 func Check(data []byte, opt Options) (result Result) {
 	start := time.Now()
-	result = Result{Status: "error", Phase: "input", Region: opt.Region, Resource: opt.Resource}
+	checks := opt.Checks
+	if checks == "" {
+		checks = ChecksStructural
+	}
+	result = Result{Status: "error", Phase: "input", Region: opt.Region, Resource: opt.Resource, Checks: checks}
 	defer func() {
 		result.ElapsedMS = time.Since(start).Milliseconds()
 		var mem runtime.MemStats
@@ -59,6 +86,12 @@ func Check(data []byte, opt Options) (result Result) {
 	fail := func(status, message string) Result {
 		result.Status, result.Message = status, message
 		return result
+	}
+	if checks != ChecksStructural && checks != ChecksSemantic && checks != ChecksAll {
+		return fail("error", "unknown checks selection: "+checks)
+	}
+	if checks != ChecksStructural && opt.Resource != "" {
+		return fail("error", "semantic checks need the whole template; omit the resource selection")
 	}
 	var template map[string]json.RawMessage
 	if err := json.Unmarshal(data, &template); err != nil || template == nil {
@@ -174,11 +207,28 @@ func Check(data []byte, opt Options) (result Result) {
 		result.ResourceTypes = append(result.ResourceTypes, typ)
 	}
 	sort.Strings(result.ResourceTypes)
-	if len(invalid) > 0 {
-		return fail("invalid", classify(strings.Join(invalid, "\n"), unsupported))
+	// Semantic checks need only the decoded template and the manifest, so they
+	// run even when some resource types are unsupported. Their errors are
+	// invalid results and take precedence over unsupported ones (see classify).
+	var semanticErrors []string
+	if checks != ChecksStructural {
+		semanticErrors = checkSemantic(decoded, manifest, mapping, &result)
 	}
-	if len(names) == 0 {
-		return fail("unsupported", strings.Join(unsupported, "\n"))
+	if len(invalid) > 0 {
+		return fail("invalid", classify(withSemantic(strings.Join(invalid, "\n"), semanticErrors), unsupported))
+	}
+	if checks == ChecksSemantic || len(names) == 0 {
+		if checks != ChecksStructural {
+			result.Phase = "semantic"
+		}
+		if len(semanticErrors) > 0 {
+			return fail("invalid", classify(truncate(strings.Join(semanticErrors, "\n")), unsupported))
+		}
+		if len(unsupported) > 0 {
+			return fail("unsupported", strings.Join(unsupported, "\n"))
+		}
+		result.Status = "valid"
+		return result
 	}
 	f := &ast.File{Decls: []ast.Decl{&ast.Package{Name: ast.NewIdent("validation")}}}
 	imports := &ast.ImportDecl{}
@@ -272,7 +322,7 @@ func Check(data []byte, opt Options) (result Result) {
 	// them. Each stage keeps every diagnostic it finds; see classify.
 	rootErr := v.Err()
 	if err := v.LookupPath(cue.MakePath(cue.Str("value"))).Validate(cue.Concrete(true)); err != nil {
-		return fail("invalid", classify(detail(err), unsupported))
+		return fail("invalid", classify(withSemantic(detail(err), semanticErrors), unsupported))
 	}
 	// Variants follow resource and removal order, so the message is stable.
 	var removals []string
@@ -296,7 +346,12 @@ func Check(data []byte, opt Options) (result Result) {
 		removals = append(removals, strings.TrimSuffix(detail(other), "\n"))
 	}
 	if len(removals) > 0 {
-		return fail("invalid", classify(strings.Join(removals, "\n"), unsupported))
+		return fail("invalid", classify(withSemantic(strings.Join(removals, "\n"), semanticErrors), unsupported))
+	}
+	// Semantic errors are invalid results, so they come before unsupported.
+	if len(semanticErrors) > 0 {
+		result.Phase = "semantic"
+		return fail("invalid", classify(truncate(strings.Join(semanticErrors, "\n")), unsupported))
 	}
 	if len(unsupported) > 0 {
 		return fail("unsupported", strings.Join(unsupported, "\n"))
@@ -384,12 +439,40 @@ func removalVariants(data []byte, names []string) ([]resourceVariant, error) {
 	return out, nil
 }
 
-func detail(err error) string {
-	message := errors.Details(err, nil)
-	if len(message) > 8000 {
-		message = message[:8000] + "\n[diagnostics truncated]"
+// withSemantic appends semantic errors to another invalid result's message,
+// so a template with both kinds of problem reports both.
+func withSemantic(message string, semanticErrors []string) string {
+	if len(semanticErrors) == 0 {
+		return message
 	}
-	return message
+	return message + "\n" + truncate(strings.Join(semanticErrors, "\n"))
+}
+
+// checkSemantic records semantic diagnostics and returns the error messages.
+// GetAtt names come from the manifest; a manifest without them leaves
+// attribute names unchecked rather than rejecting every GetAtt.
+func checkSemantic(decoded any, manifest generate.Manifest, mapping map[string]string, result *Result) []string {
+	template, _ := decoded.(map[string]any)
+	diagnostics := semantic.Check(template, semantic.Options{Attributes: func(typ string) ([]string, bool) {
+		hash, ok := mapping[cfn.SchemaType(typ)]
+		if !ok {
+			return nil, false
+		}
+		names := manifest.Schemas[hash].Attributes
+		return names, names != nil
+	}})
+	result.Diagnostics = diagnostics
+	var messages []string
+	for _, d := range diagnostics {
+		if d.Severity == semantic.Error {
+			messages = append(messages, d.Path+": "+d.Message)
+		}
+	}
+	return messages
+}
+
+func detail(err error) string {
+	return truncate(errors.Details(err, nil))
 }
 
 func unexpanded(value any) string {

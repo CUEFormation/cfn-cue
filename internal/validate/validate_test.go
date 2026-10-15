@@ -3,6 +3,7 @@ package validate
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -251,6 +252,112 @@ func TestMixedFailures(t *testing.T) {
 				}
 				if !strings.HasSuffix(string(out), want) {
 					t.Fatalf("process %d changed:\n%s", i, out)
+				}
+			}
+		})
+	}
+}
+
+func TestSemanticChecks(t *testing.T) {
+	dir := fixture(t)
+	const (
+		undefinedRef = `{"Resources":{"Thing":{"Type":"AWS::Test::Thing","Properties":{"Name":{"Ref":"Missing"}}}}}`
+		badEnum      = `{"Resources":{"Thing":{"Type":"AWS::Test::Thing","Properties":{"Name":"bad"}}}}`
+		bothBad      = `{"Resources":{"Thing":{"Type":"AWS::Test::Thing","Properties":{"Name":"bad","Names":[{"Ref":"Missing"}]}}}}`
+		attribute    = `{"Resources":{"Thing":{"Type":"AWS::Test::Thing","Properties":{"Name":"one"}},"Other":{"Type":"AWS::Test::Thing","Properties":{"Name":"two","Names":[{"Fn::GetAtt":["Thing","%s"]}]}}}}`
+		conditional  = `{"Parameters":{"Env":{"Type":"String"}},"Conditions":{"Prod":{"Fn::Equals":[{"Ref":"Env"},"prod"]}},"Resources":{"A":{"Type":"AWS::Test::Thing","Properties":{"Name":{"Fn::If":["Prod",{"Ref":"B"},"one"]}}},"B":{"Type":"AWS::Test::Thing","DependsOn":"A","Properties":{"Name":"one"}}}}`
+	)
+	for _, tc := range []struct{ data, checks, status, phase string }{
+		// Structural checks alone keep their existing results.
+		{undefinedRef, "", "valid", "evaluate"},
+		{undefinedRef, ChecksStructural, "valid", "evaluate"},
+		{undefinedRef, ChecksSemantic, "invalid", "semantic"},
+		{undefinedRef, ChecksAll, "invalid", "semantic"},
+		// Semantic checks alone do not evaluate CUE.
+		{badEnum, ChecksSemantic, "valid", "semantic"},
+		{badEnum, ChecksAll, "invalid", "evaluate"},
+		{bothBad, ChecksAll, "invalid", "evaluate"},
+		{fmt.Sprintf(attribute, "Status"), ChecksAll, "valid", "evaluate"},
+		{fmt.Sprintf(attribute, "Missing"), ChecksAll, "invalid", "semantic"},
+		{conditional, ChecksAll, "valid", "evaluate"},
+		{undefinedRef, "everything", "error", "input"},
+	} {
+		result := Check([]byte(tc.data), Options{Schemas: dir, Region: "us-east-1", Checks: tc.checks})
+		if result.Status != tc.status || result.Phase != tc.phase {
+			t.Fatalf("%s %s: got %s/%s: %s", tc.checks, tc.data, result.Status, result.Phase, result.Message)
+		}
+	}
+	result := Check([]byte(bothBad), Options{Schemas: dir, Region: "us-east-1", Checks: ChecksAll})
+	if len(result.Diagnostics) != 1 || result.Diagnostics[0].Rule != "ref-undefined" || !strings.Contains(result.Message, "Name") {
+		t.Fatalf("structural failure should keep semantic diagnostics: %+v", result)
+	}
+	result = Check([]byte(conditional), Options{Schemas: dir, Region: "us-east-1", Checks: ChecksAll})
+	if len(result.Diagnostics) != 1 || result.Diagnostics[0].Severity != "warning" {
+		t.Fatalf("conditional cycle should be a warning: %+v", result)
+	}
+	if result := Check([]byte(undefinedRef), Options{Schemas: dir, Region: "us-east-1", Resource: "Thing", Checks: ChecksAll}); result.Status != "error" {
+		t.Fatalf("semantic checks need the whole template: %+v", result)
+	}
+	// A manifest from an earlier generator has no attribute names; they are
+	// unknown, so GetAtt names are not checked.
+	path := filepath.Join(dir, "manifest.json")
+	data, _ := os.ReadFile(path)
+	var manifest map[string]any
+	if err := json.Unmarshal(data, &manifest); err != nil {
+		t.Fatal(err)
+	}
+	for _, info := range manifest["schemas"].(map[string]any) {
+		delete(info.(map[string]any), "attributes")
+	}
+	data, _ = json.Marshal(manifest)
+	if err := os.WriteFile(path, data, 0644); err != nil {
+		t.Fatal(err)
+	}
+	if result := Check([]byte(fmt.Sprintf(attribute, "Missing")), Options{Schemas: dir, Region: "us-east-1", Checks: ChecksSemantic}); result.Status != "valid" {
+		t.Fatalf("unknown attribute names must not be rejected: %+v", result)
+	}
+}
+
+// TestSemanticWithMixedFailures checks that semantic results follow the same
+// precedence as other results: error, then invalid, then unsupported.
+func TestSemanticWithMixedFailures(t *testing.T) {
+	dir := fixture(t)
+	absent := `"Absent":{"Type":"AWS::Absent::Thing"}`
+	for _, tc := range []struct {
+		name, data, checks, status, phase string
+		message                           []string
+	}{
+		{"semantic-over-unsupported", `{"Resources":{` + absent + `,"Thing":{"Type":"AWS::Test::Thing","Properties":{"Name":{"Ref":"Missing"}}}}}`,
+			ChecksAll, "invalid", "semantic", []string{"Ref target Missing", "not checked: resource Absent"}},
+		{"semantic-only-over-unsupported", `{"Resources":{` + absent + `,"Thing":{"Type":"AWS::Test::Thing","Properties":{"Name":{"Ref":"Missing"}}}}}`,
+			ChecksSemantic, "invalid", "semantic", []string{"Ref target Missing", "not checked: resource Absent"}},
+		{"all-unsupported-semantic", `{"Resources":{` + absent + `,"Other":{"Type":"AWS::Absent::Thing","DependsOn":"Missing"}}}`,
+			ChecksAll, "invalid", "semantic", []string{"DependsOn target Missing", "not checked: resource Absent", "not checked: resource Other"}},
+		{"unsupported-without-semantic-errors", `{"Resources":{` + absent + `,"Thing":{"Type":"AWS::Test::Thing","Properties":{"Name":"one"}}}}`,
+			ChecksAll, "unsupported", "evaluate", []string{"resource Absent"}},
+		{"schema-and-semantic", `{"Resources":{` + absent + `,"Thing":{"Type":"AWS::Test::Thing","Properties":{"Name":"bad","Names":[{"Ref":"Missing"}]}}}}`,
+			ChecksAll, "invalid", "evaluate", []string{"Name", "Ref target Missing", "not checked: resource Absent"}},
+		{"removal-and-semantic", `{"Parameters":{"Env":{"Type":"String"}},"Conditions":{"IsProd":{"Fn::Equals":[{"Ref":"Env"},"prod"]}},"Resources":{` + absent + `,"Thing":{"Type":"AWS::Test::Thing","DependsOn":"Missing","Properties":{"Name":{"Fn::If":["IsProd","one",{"Ref":"AWS::NoValue"}]}}}}}`,
+			ChecksAll, "invalid", "evaluate", []string{"removes Properties.Name when condition IsProd is false", "DependsOn target Missing", "not checked: resource Absent"}},
+		{"input-and-semantic", `{"Resources":{"Bad-Name":{"Type":"AWS::Test::Thing"},"Thing":{"Type":"AWS::Test::Thing","DependsOn":"Missing","Properties":{"Name":"one"}}}}`,
+			ChecksAll, "invalid", "input", []string{"invalid resource logical ID: Bad-Name", "DependsOn target Missing"}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var first string
+			for i := 0; i < 5; i++ {
+				result := Check([]byte(tc.data), Options{Schemas: dir, Region: "us-east-1", Checks: tc.checks})
+				if result.Status != tc.status || result.Phase != tc.phase {
+					t.Fatalf("got %s/%s, want %s/%s: %s", result.Status, result.Phase, tc.status, tc.phase, result.Message)
+				}
+				for _, part := range tc.message {
+					if !strings.Contains(result.Message, part) {
+						t.Fatalf("message omits %q: %s", part, result.Message)
+					}
+				}
+				if i == 0 {
+					first = result.Message
+				} else if result.Message != first {
+					t.Fatalf("message changed between runs:\n%s\n---\n%s", first, result.Message)
 				}
 			}
 		})

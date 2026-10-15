@@ -1,0 +1,950 @@
+{
+  "normalizer": {
+    "PyYAML": "6.0.3",
+    "cfn-lint": "1.57.2"
+  },
+  "skipped": [],
+  "source_lock_sha256": "a99e5af96ec8ea3734bbb5406e129d6a217160dd02b02fba4b7ee1184b1a96ac",
+  "sources": [],
+  "templates": [
+    {
+      "depth": 9,
+      "id": "semantic-condition-cycle",
+      "intrinsic_depth": 3,
+      "intrinsics": {
+        "Condition": 2,
+        "Fn::And": 1,
+        "Fn::Equals": 1,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 1,
+        "Fn::Not": 1,
+        "Fn::Sub": 5,
+        "Ref": 7
+      },
+      "license": "Apache-2.0",
+      "nodes": 96,
+      "normalized": "normalized/semantic-condition-cycle.json",
+      "normalized_sha256": "90581f43e03694cba78c943ccfb3bfb6a6e4a1dd6f5490d36bc64e2e7419d524",
+      "original": "original/semantic/condition-cycle.yaml",
+      "original_sha256": "2e727e6896c9625cf485c4cd77eca193cb43bf063db78b33156bb9250571d7ab",
+      "path": "condition-cycle",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-condition-undefined",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 1,
+        "Fn::Sub": 5,
+        "Ref": 8
+      },
+      "license": "Apache-2.0",
+      "nodes": 93,
+      "normalized": "normalized/semantic-condition-undefined.json",
+      "normalized_sha256": "916a048ebb559d60f1ccefde078fdad18965487c4042ad9c4f16f24d0b5e4fef",
+      "original": "original/semantic/condition-undefined.yaml",
+      "original_sha256": "b6eb94e6bbed7b5d32dd0c31256c231dc55f43a45657fb6b48a90c29fcd0b961",
+      "path": "condition-undefined",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 7,
+      "id": "semantic-conditional-dependency",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::If": 1,
+        "Ref": 3
+      },
+      "license": "Apache-2.0",
+      "nodes": 30,
+      "normalized": "normalized/semantic-conditional-dependency.json",
+      "normalized_sha256": "ec625999c81146afcbf4f9c5a02d38ab97434fa8a1771c8177e13e41c5cc2dfc",
+      "original": "original/semantic/conditional-dependency.yaml",
+      "original_sha256": "cfab7530bb0095461512f7b8e99d211d274ca856163ffd732ad6b25a013a6173",
+      "path": "conditional-dependency",
+      "resource_count": 2,
+      "resource_types": [
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-conditional-target-dependson",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 1,
+        "Fn::Sub": 5,
+        "Ref": 8
+      },
+      "license": "Apache-2.0",
+      "nodes": 94,
+      "normalized": "normalized/semantic-conditional-target-dependson.json",
+      "normalized_sha256": "7a5bc80021110a98b225449f6c25406243b0ff3cae55d7280836da93948fe5e8",
+      "original": "original/semantic/conditional-target-dependson.yaml",
+      "original_sha256": "e5a0ad66e0806374df2299cb213bb1a08879e6e542b63908520ac8329002b84b",
+      "path": "conditional-target-dependson",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-conditional-target-excluded",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 2,
+        "Fn::Sub": 5,
+        "Ref": 10
+      },
+      "license": "Apache-2.0",
+      "nodes": 102,
+      "normalized": "normalized/semantic-conditional-target-excluded.json",
+      "normalized_sha256": "bcdf54b6fc498ec7cff76509a4782d6e6e6aa69912c217a33fae2e3fea75ba03",
+      "original": "original/semantic/conditional-target-excluded.yaml",
+      "original_sha256": "93bdba4bedb1e6e20df19b610720f446558bc267be649f5fcbc00b1ed0d8ebcc",
+      "path": "conditional-target-excluded",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-conditional-target-guarded",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 2,
+        "Fn::Sub": 5,
+        "Ref": 10
+      },
+      "license": "Apache-2.0",
+      "nodes": 102,
+      "normalized": "normalized/semantic-conditional-target-guarded.json",
+      "normalized_sha256": "cec227ce99fa77fd8490763deeb7d5d4efc238305694a08a26f8b5fecde3a4d4",
+      "original": "original/semantic/conditional-target-guarded.yaml",
+      "original_sha256": "91b4fac311713c875ffe7ffd98eea19b7e484f369f65e7273b33a9f363e7634d",
+      "path": "conditional-target-guarded",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-conditional-target-never",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 3,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 1,
+        "Fn::Sub": 5,
+        "Ref": 9
+      },
+      "license": "Apache-2.0",
+      "nodes": 102,
+      "normalized": "normalized/semantic-conditional-target-never.json",
+      "normalized_sha256": "03824e5054a2104c589bed40e5a5f25fbfa5b834716e03ba68b1c929bb2266a6",
+      "original": "original/semantic/conditional-target-never.yaml",
+      "original_sha256": "cc2eea8626c4110095890a30beac5316ff379ea834e3674dbf1c98571d7b555e",
+      "path": "conditional-target-never",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-conditional-target-ref",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 1,
+        "Fn::Sub": 5,
+        "Ref": 9
+      },
+      "license": "Apache-2.0",
+      "nodes": 97,
+      "normalized": "normalized/semantic-conditional-target-ref.json",
+      "normalized_sha256": "2106fe4455c105a60b134f6ee23981ecf1a5c5a76e756b51dee24fe91fbc226a",
+      "original": "original/semantic/conditional-target-ref.yaml",
+      "original_sha256": "54ef1764cbde627afbb8ca5bd907a8beeee154d9b164c529bce0baa285376062",
+      "path": "conditional-target-ref",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 7,
+      "id": "semantic-cycle-both-branches",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::If": 1,
+        "Fn::Sub": 1,
+        "Ref": 3
+      },
+      "license": "Apache-2.0",
+      "nodes": 32,
+      "normalized": "normalized/semantic-cycle-both-branches.json",
+      "normalized_sha256": "b30695410c7ca5001c2b9f9d6398ae61de2b8fd315d3ea3f1113821b73a86d8c",
+      "original": "original/semantic/cycle-both-branches.yaml",
+      "original_sha256": "1c86d9ad6122024850ea60beb08a68c56228345bfcf5a892eda1174badb797ee",
+      "path": "cycle-both-branches",
+      "resource_count": 2,
+      "resource_types": [
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 7,
+      "id": "semantic-cycle-conditional",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::If": 1,
+        "Ref": 3
+      },
+      "license": "Apache-2.0",
+      "nodes": 31,
+      "normalized": "normalized/semantic-cycle-conditional.json",
+      "normalized_sha256": "8ceeeb21e61c1ad09df48a17227a1a9e6401bc12953bdfb76112db185e23f964",
+      "original": "original/semantic/cycle-conditional.yaml",
+      "original_sha256": "2b7efa1326a66de2806a67ecc206e0ade2dd5303700cf638a6698eb14ac5f56e",
+      "path": "cycle-conditional",
+      "resource_count": 2,
+      "resource_types": [
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 5,
+      "id": "semantic-cycle-dependson",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Ref": 2
+      },
+      "license": "Apache-2.0",
+      "nodes": 25,
+      "normalized": "normalized/semantic-cycle-dependson.json",
+      "normalized_sha256": "854e6b48a2ce3a0c157f29cd2fb2f03d498583d52ef07a6f14b3b1f1fb504018",
+      "original": "original/semantic/cycle-dependson.yaml",
+      "original_sha256": "c223970704cd8c3d6cec1540acc81fa0dfd682243366e8e99430e3dec66c1cbe",
+      "path": "cycle-dependson",
+      "resource_count": 2,
+      "resource_types": [
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 5,
+      "id": "semantic-cycle-exclusive-conditions",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Ref": 2
+      },
+      "license": "Apache-2.0",
+      "nodes": 27,
+      "normalized": "normalized/semantic-cycle-exclusive-conditions.json",
+      "normalized_sha256": "04a393af22b618c973c36741a422147de758913c25297231b9c9b92d86509eee",
+      "original": "original/semantic/cycle-exclusive-conditions.yaml",
+      "original_sha256": "2fe8b8090356986c5f8b87035af43b8cbb8358334564506d71203ac3aecc591b",
+      "path": "cycle-exclusive-conditions",
+      "resource_count": 2,
+      "resource_types": [
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 6,
+      "id": "semantic-cycle-references",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::GetAtt": 1,
+        "Fn::Sub": 1,
+        "Ref": 3
+      },
+      "license": "Apache-2.0",
+      "nodes": 36,
+      "normalized": "normalized/semantic-cycle-references.json",
+      "normalized_sha256": "5a5274ef27625405365601778ae751fc2dcd0dd264d195848c3669527bb06207",
+      "original": "original/semantic/cycle-references.yaml",
+      "original_sha256": "d33cf77e89a4a575db7808f89e2d77c04f923fd6535742a3d4e5e2fe4474f602",
+      "path": "cycle-references",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 5,
+      "id": "semantic-cycle-self",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Ref": 2
+      },
+      "license": "Apache-2.0",
+      "nodes": 22,
+      "normalized": "normalized/semantic-cycle-self.json",
+      "normalized_sha256": "c6333246d3bf84df7ac00d7828eaa609dd56f3dc63836e9a989db03a4b6188b3",
+      "original": "original/semantic/cycle-self.yaml",
+      "original_sha256": "6568ffcf6ff43692fbef326a96ecd6fbdd913654133ce4070a8b839e85082cbd",
+      "path": "cycle-self",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-dependson-undefined",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 1,
+        "Fn::Sub": 5,
+        "Ref": 8
+      },
+      "license": "Apache-2.0",
+      "nodes": 95,
+      "normalized": "normalized/semantic-dependson-undefined.json",
+      "normalized_sha256": "311dd15ddbd04aa3b5151bf9d72529e895888cf74fd39e2886fced2a6ba1a66a",
+      "original": "original/semantic/dependson-undefined.yaml",
+      "original_sha256": "377856482a274c17791e60bce48557d732892c68bce13ee64737744a3d26c6bb",
+      "path": "dependson-undefined",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-getatt-attribute-invalid",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 1,
+        "Fn::Sub": 5,
+        "Ref": 8
+      },
+      "license": "Apache-2.0",
+      "nodes": 93,
+      "normalized": "normalized/semantic-getatt-attribute-invalid.json",
+      "normalized_sha256": "8c897a753a7e5fb7e30862f2b8774e6be662d5b1d13c9ff00d96866c2dc82bfc",
+      "original": "original/semantic/getatt-attribute-invalid.yaml",
+      "original_sha256": "faa684230887f8730620e05416ae9bd3a03033636c36e0f30467cf9a948411f2",
+      "path": "getatt-attribute-invalid",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 6,
+      "id": "semantic-getatt-custom-resource",
+      "intrinsic_depth": 1,
+      "intrinsics": {
+        "Fn::GetAtt": 1,
+        "Fn::Sub": 1
+      },
+      "license": "Apache-2.0",
+      "nodes": 14,
+      "normalized": "normalized/semantic-getatt-custom-resource.json",
+      "normalized_sha256": "8ea71982d66b86a1788aff464ef552160b137c717e27be990d07b3b8d2eb4e5d",
+      "original": "original/semantic/getatt-custom-resource.yaml",
+      "original_sha256": "5d9a69b152a97bcbc830ef667bd723cbfa77ca2ca969d5590095695079d33105",
+      "path": "getatt-custom-resource",
+      "resource_count": 2,
+      "resource_types": [
+        "AWS::SQS::Queue",
+        "Custom::Provider"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-getatt-parameter",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 1,
+        "Fn::Sub": 5,
+        "Ref": 8
+      },
+      "license": "Apache-2.0",
+      "nodes": 93,
+      "normalized": "normalized/semantic-getatt-parameter.json",
+      "normalized_sha256": "fa06bcf5e89242cc2e20b8d11b5aa5889e29887b2a0683a25e9b875d68c31484",
+      "original": "original/semantic/getatt-parameter.yaml",
+      "original_sha256": "e6b41242a42b6ed2ca9bdb6c5ce75b48a76a3d72a987474aa1ce133e664f6a19",
+      "path": "getatt-parameter",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-getatt-stack-attribute-invalid",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 5,
+        "Fn::If": 1,
+        "Fn::Sub": 5,
+        "Ref": 8
+      },
+      "license": "Apache-2.0",
+      "nodes": 107,
+      "normalized": "normalized/semantic-getatt-stack-attribute-invalid.json",
+      "normalized_sha256": "7c7652948e0c27defd231e224328a3cac36939c7202f3483718abaa61d43e290",
+      "original": "original/semantic/getatt-stack-attribute-invalid.yaml",
+      "original_sha256": "9ed34d8fc80cef121ea3c87178147501a4e09353a3aef4989d6faa135c7acdb7",
+      "path": "getatt-stack-attribute-invalid",
+      "resource_count": 5,
+      "resource_types": [
+        "AWS::CloudFormation::Stack",
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 6,
+      "id": "semantic-getatt-stack-output",
+      "intrinsic_depth": 1,
+      "intrinsics": {
+        "Fn::GetAtt": 1,
+        "Fn::Sub": 1
+      },
+      "license": "Apache-2.0",
+      "nodes": 15,
+      "normalized": "normalized/semantic-getatt-stack-output.json",
+      "normalized_sha256": "7ca77b83317b57570c6de05299ecbe3b32b637663130bdc5903c78fa89a3187d",
+      "original": "original/semantic/getatt-stack-output.yaml",
+      "original_sha256": "403a5e3b99f039cbaa9b55bce1f4c4d0fb5963f87b9c8bc3437853e2f29e9417",
+      "path": "getatt-stack-output",
+      "resource_count": 2,
+      "resource_types": [
+        "AWS::CloudFormation::Stack",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-getatt-string-attribute-invalid",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 1,
+        "Fn::Sub": 5,
+        "Ref": 8
+      },
+      "license": "Apache-2.0",
+      "nodes": 93,
+      "normalized": "normalized/semantic-getatt-string-attribute-invalid.json",
+      "normalized_sha256": "3fd30947ef6a6087b976cc3dd2ce807caa84ace59ae75cb5a18d0e82167d3dba",
+      "original": "original/semantic/getatt-string-attribute-invalid.yaml",
+      "original_sha256": "1a84bc0e165130c9ad272643e1944676600a19044a4343d8ee10ca96006c05de",
+      "path": "getatt-string-attribute-invalid",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-getatt-undefined-resource",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 1,
+        "Fn::Sub": 5,
+        "Ref": 8
+      },
+      "license": "Apache-2.0",
+      "nodes": 93,
+      "normalized": "normalized/semantic-getatt-undefined-resource.json",
+      "normalized_sha256": "c88a891149dbf5a3615e99bb5bba6469e1c87f540eb90afb1462e0c55c6e7027",
+      "original": "original/semantic/getatt-undefined-resource.yaml",
+      "original_sha256": "9f3140599a37dc767c6270354f392d487be83d5a8be309ac6f17a531bb3f35bf",
+      "path": "getatt-undefined-resource",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-getatt-unresolved-attribute",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 4,
+        "Fn::If": 1,
+        "Fn::Sub": 5,
+        "Ref": 9
+      },
+      "license": "Apache-2.0",
+      "nodes": 104,
+      "normalized": "normalized/semantic-getatt-unresolved-attribute.json",
+      "normalized_sha256": "4fd1a86f22353d3685ac9c92c20762f695e4f0bc5505adbbde03c32e1f4373a5",
+      "original": "original/semantic/getatt-unresolved-attribute.yaml",
+      "original_sha256": "5c66eae127246013349971d80058631ac53621d04d5ab6133a4b85b9e7a097a7",
+      "path": "getatt-unresolved-attribute",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 6,
+      "id": "semantic-getatt-writable-property",
+      "intrinsic_depth": 1,
+      "intrinsics": {
+        "Fn::GetAtt": 1
+      },
+      "license": "Apache-2.0",
+      "nodes": 15,
+      "normalized": "normalized/semantic-getatt-writable-property.json",
+      "normalized_sha256": "4a64d938fab667659946651c1a0f166db24c87d948bbcd5a962801f1aec14b12",
+      "original": "original/semantic/getatt-writable-property.yaml",
+      "original_sha256": "7a3cf7d0b175d225901d26989ff891fe66d9d1061816fa6137f6bd2d1d6bbebd",
+      "path": "getatt-writable-property",
+      "resource_count": 2,
+      "resource_types": [
+        "AWS::EC2::Instance",
+        "AWS::EC2::Volume"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-if-condition-undefined",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 1,
+        "Fn::Sub": 5,
+        "Ref": 8
+      },
+      "license": "Apache-2.0",
+      "nodes": 93,
+      "normalized": "normalized/semantic-if-condition-undefined.json",
+      "normalized_sha256": "36153183cc3ff7cf73549d731c7de7b8cb5f054fbd3664a752e3d7f862ab2a71",
+      "original": "original/semantic/if-condition-undefined.yaml",
+      "original_sha256": "969aef48473b7563c863ec3f3842b52658a64a19c971f10877d5a5a0d5a886d6",
+      "path": "if-condition-undefined",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-mapping-key-invalid",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 1,
+        "Fn::Sub": 5,
+        "Ref": 7
+      },
+      "license": "Apache-2.0",
+      "nodes": 92,
+      "normalized": "normalized/semantic-mapping-key-invalid.json",
+      "normalized_sha256": "afdf886a8941b6f7946836d1f52c3578b071c8acdb69532509d62ff468976f0e",
+      "original": "original/semantic/mapping-key-invalid.yaml",
+      "original_sha256": "ac64e6fa3cb3052485d906620d93c14ea7acb1a512edad016ff1f1844a31bf03",
+      "path": "mapping-key-invalid",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-mapping-undefined",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 1,
+        "Fn::Sub": 5,
+        "Ref": 8
+      },
+      "license": "Apache-2.0",
+      "nodes": 93,
+      "normalized": "normalized/semantic-mapping-undefined.json",
+      "normalized_sha256": "78773a89a4b980cdfd18cafd6ceb7ea4a4f7df330fd037e528504e5e96c890d6",
+      "original": "original/semantic/mapping-undefined.yaml",
+      "original_sha256": "677db08d14c14b991bf35fc4b8832fc31a7c5e78e76c2f8c27c73b4f77469257",
+      "path": "mapping-undefined",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-ref-duplicate-logical-id",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 1,
+        "Fn::Sub": 5,
+        "Ref": 8
+      },
+      "license": "Apache-2.0",
+      "nodes": 95,
+      "normalized": "normalized/semantic-ref-duplicate-logical-id.json",
+      "normalized_sha256": "df70612b3b3b1f4a4aeb1b53f348a255105793abdb35b03d42334c66bd10b9e0",
+      "original": "original/semantic/ref-duplicate-logical-id.yaml",
+      "original_sha256": "69716c7803d7bf271ab1d3d27e9f631e5fbb7041702303065cafb4e4d072b408",
+      "path": "ref-duplicate-logical-id",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-ref-resource-in-condition",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 3,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 1,
+        "Fn::Sub": 5,
+        "Ref": 9
+      },
+      "license": "Apache-2.0",
+      "nodes": 98,
+      "normalized": "normalized/semantic-ref-resource-in-condition.json",
+      "normalized_sha256": "7f7d17288703c2889b0efa09c0cb92d0eb30ca0651383376b254a08896e5969f",
+      "original": "original/semantic/ref-resource-in-condition.yaml",
+      "original_sha256": "1659e11592ea78c5381a627c0667428cfd58cab80abc976642c563dd64fcf766",
+      "path": "ref-resource-in-condition",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-ref-undefined",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 1,
+        "Fn::Sub": 4,
+        "Ref": 8
+      },
+      "license": "Apache-2.0",
+      "nodes": 89,
+      "normalized": "normalized/semantic-ref-undefined.json",
+      "normalized_sha256": "c6bfff60c83712068d7216a24c17c5048fb26d9bf0ef71a4ecba81833de15d33",
+      "original": "original/semantic/ref-undefined.yaml",
+      "original_sha256": "b48f80a79f418a80491dfc3a8a2e6fb6fecca77802b7d57c0ee5674308373ef1",
+      "path": "ref-undefined",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-references-valid",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 1,
+        "Fn::Sub": 5,
+        "Ref": 8
+      },
+      "license": "Apache-2.0",
+      "nodes": 93,
+      "normalized": "normalized/semantic-references-valid.json",
+      "normalized_sha256": "8389bb5035a465f56d67c84b932de849f0c71cd2e949a68b13a1faba839239ca",
+      "original": "original/semantic/references-valid.yaml",
+      "original_sha256": "288dacae05653c18ef0ee08b8df86a20b7bba254980d77277d7c7d3c8deb7ca5",
+      "path": "references-valid",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-sub-attribute-invalid",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 1,
+        "Fn::Sub": 6,
+        "Ref": 7
+      },
+      "license": "Apache-2.0",
+      "nodes": 93,
+      "normalized": "normalized/semantic-sub-attribute-invalid.json",
+      "normalized_sha256": "90516fed914e41689ee37402eb6bf6331c84064ad114d2b58de2c1344d137891",
+      "original": "original/semantic/sub-attribute-invalid.yaml",
+      "original_sha256": "8d52dce86092193b174a29d9cbe2d1924d37a49c747c10558f4594ae737b5038",
+      "path": "sub-attribute-invalid",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-sub-unbound-list-variable",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 1,
+        "Fn::Sub": 5,
+        "Ref": 7
+      },
+      "license": "Apache-2.0",
+      "nodes": 92,
+      "normalized": "normalized/semantic-sub-unbound-list-variable.json",
+      "normalized_sha256": "c08e5d550d860c22f6e58ee2ffd2333cd1b7a1c2a813da5ca4f481e171e326fd",
+      "original": "original/semantic/sub-unbound-list-variable.yaml",
+      "original_sha256": "ba8fa0f4fb002785ae66cee6f506a77947a41a2e396bc7898547c0660c9b5261",
+      "path": "sub-unbound-list-variable",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-sub-undefined-variable",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Fn::FindInMap": 1,
+        "Fn::GetAtt": 3,
+        "Fn::If": 1,
+        "Fn::Sub": 5,
+        "Ref": 8
+      },
+      "license": "Apache-2.0",
+      "nodes": 93,
+      "normalized": "normalized/semantic-sub-undefined-variable.json",
+      "normalized_sha256": "8aeeec0b52fe445f3a80c75cbbce366937aa2e0529bd6fd26e55833dc8776db2",
+      "original": "original/semantic/sub-undefined-variable.yaml",
+      "original_sha256": "1ecf75d360a9a1fbe75d7ee86f247b2dd7b3d48ca8d27f224b60b939038fddf9",
+      "path": "sub-undefined-variable",
+      "resource_count": 3,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::SNS::Topic",
+        "AWS::SQS::Queue"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    }
+  ],
+  "version": 1
+}
