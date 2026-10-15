@@ -37,7 +37,12 @@ import structs "struct"
 		LogDestination?:     string | number | bool | fn.#StringExpression
 		LogDestinationType?: "cloud-watch-logs" | "s3" | "kinesis-data-firehose" | fn.#StringExpression
 		LogFormat?:          string | number | bool | fn.#StringExpression
-		LogGroupName?:       string | number | bool | fn.#StringExpression
+		LogGroupName?: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" |
+		{
+			number | bool
+			_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		MaxAggregationInterval?: int |
 			{
 				string &

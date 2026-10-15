@@ -87,7 +87,7 @@ import (
 
 #CloudwatchLogsAction: close({
 	BatchMode?:    bool
-	LogGroupName!: string
+	LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$"
 	RoleArn!:      =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 

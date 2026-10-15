@@ -1364,7 +1364,12 @@ fn.#ObjectExpression
 			"mode"]:
 				_
 	} & {
-		"awslogs-group"!:  string | number | bool | fn.#StringExpression
+		"awslogs-group"!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" |
+		{
+			number | bool
+			_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		"awslogs-region"!: _
 		...
 	} |

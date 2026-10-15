@@ -101,8 +101,11 @@ import (
 })
 
 #CloudWatchLoggingOptions: close({
-	Enabled?:       bool
-	LogGroupName?:  strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\.\\-_/#A-Za-z0-9]*$"
+	Enabled?: bool
+	LogGroupName?: =~"(?:^[\\.\\-_\\/#A-Za-z0-9]{1,512}$)|^$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(0) &
+	=~"^[\\.\\-_/#A-Za-z0-9]*$"
 	LogStreamName?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[^:*]*$"
 })
 

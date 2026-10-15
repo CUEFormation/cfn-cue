@@ -15,10 +15,17 @@ import structs "struct"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Logs::LogStream"
 	let properties = close({
-		LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" |
+		LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^[\\.\\-_/#A-Za-z0-9]+$" |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" & "\(self)"
+			_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+			strings.MaxRunes(512) &
+			strings.MinRunes(1) &
+			=~"^[\\.\\-_/#A-Za-z0-9]+$" &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		LogStreamName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]*$" |

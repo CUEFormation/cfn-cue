@@ -188,10 +188,17 @@ fn.#ObjectExpression
 
 #Log: close({
 	Encoding?: "utf-8" | "utf-16" | "ascii" | fn.#StringExpression
-	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" |
+	LogGroupName?: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"[\\.\\-_/#A-Za-z0-9]+" |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" & "\(self)"
+		_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"[\\.\\-_/#A-Za-z0-9]+" &
+		"\(self)"
 	} |
 	fn.#StringExpression
 	LogPath?: strings.MaxRunes(260) & strings.MinRunes(1) & =~"^([a-zA-Z]:\\\\[\\\\\\S|*\\S]?.*|/[^\"']*)$" |
@@ -328,10 +335,17 @@ fn.#ObjectExpression
 		_cfnString: strings.MaxRunes(260) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_ \\\\/-]+$" & "\(self)"
 	} |
 	fn.#StringExpression
-	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" |
+	LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"[\\.\\-_/#A-Za-z0-9]+" |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" & "\(self)"
+		_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"[\\.\\-_/#A-Za-z0-9]+" &
+		"\(self)"
 	} |
 	fn.#StringExpression
 	PatternSet?: strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" |

@@ -55,10 +55,17 @@ import structs "struct"
 			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
 		} |
 		fn.#StringExpression
-		LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" |
+		LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^[\\.\\-_/#A-Za-z0-9]+$" |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" & "\(self)"
+			_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+			strings.MaxRunes(512) &
+			strings.MinRunes(1) &
+			=~"^[\\.\\-_/#A-Za-z0-9]+$" &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MinRunes(1) |

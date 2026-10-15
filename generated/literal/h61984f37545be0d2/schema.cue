@@ -55,7 +55,7 @@ strings.MinRunes(1) &
 	Type!: "AWS_MANAGED_KEY" | "CUSTOMER_MANAGED_KEY"
 })
 
-#LoggingConfiguration: close({LogGroupName!: strings.MinRunes(1)})
+#LoggingConfiguration: close({LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" & strings.MinRunes(1)})
 
 #Name: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+[a-zA-Z0-9\\.\\-_]*$"
 

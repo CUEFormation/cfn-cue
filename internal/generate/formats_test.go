@@ -2,6 +2,7 @@ package generate
 
 import (
 	"encoding/json"
+	"fmt"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -256,6 +257,162 @@ func TestEmptyBucketNameException(t *testing.T) {
 	}
 }
 
+func TestListIdentifierFormatsUnenforced(t *testing.T) {
+	source := fixture(t)
+	var root map[string]any
+	if err := json.Unmarshal(source.files["resources/test.json"], &root); err != nil {
+		t.Fatal(err)
+	}
+	properties := root["properties"].(map[string]any)
+	// The list formats annotate arrays, which formats do not constrain.
+	// Item formats, where present, are enforced on their own.
+	properties["SecurityGroupIds"] = map[string]any{"type": "array", "format": "AWS::EC2::SecurityGroup.Ids", "items": map[string]any{"type": "string", "format": "AWS::EC2::SecurityGroup.Id"}}
+	// EC2 Instance and AutoScaling LaunchConfiguration use this shape.
+	properties["SecurityGroups"] = map[string]any{"type": "array", "items": map[string]any{"type": "string"}, "anyOf": []any{
+		map[string]any{"format": "AWS::EC2::SecurityGroup.Ids"},
+		map[string]any{"format": "AWS::EC2::SecurityGroup.Names"},
+	}}
+	// SpotFleet's .Ids list holds GroupIdentifier objects, not strings.
+	properties["GroupSet"] = map[string]any{"type": "array", "format": "AWS::EC2::SecurityGroup.Ids", "items": map[string]any{
+		"type": "object", "properties": map[string]any{"GroupId": map[string]any{"type": "string"}}, "additionalProperties": false,
+	}}
+	properties["Subnets"] = map[string]any{"type": "array", "format": "AWS::EC2::Subnet.Ids", "items": map[string]any{"type": "string"}}
+	source.files["resources/test.json"], _ = json.Marshal(root)
+	out := filepath.Join(t.TempDir(), "generated")
+	manifest, err := Generate(source, Options{Out: out, Regions: []string{"us-east-1"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	diagnosed := map[string]bool{}
+	for _, d := range manifest.Diagnostics {
+		if d.Keyword == "format" {
+			diagnosed[strings.TrimPrefix(d.Detail, "format annotation not enforced: ")] = true
+		}
+	}
+	for _, format := range []string{"AWS::EC2::SecurityGroup.Ids", "AWS::EC2::SecurityGroup.Names", "AWS::EC2::Subnet.Ids"} {
+		if !diagnosed[format] {
+			t.Errorf("unenforced list format %s is not reported: %v", format, manifest.Diagnostics)
+		}
+	}
+	template := propertiesSchema(t, out, "./resources/htest")
+	literal := propertiesSchema(t, out, "./literal/htest")
+	for _, data := range []string{
+		`{Name:"one",SecurityGroupIds:["sg-1234abcd","sg-1234567890abcdef0"]}`,
+		`{Name:"one",SecurityGroups:["sg-1234abcd","default","My Group"]}`,
+		`{Name:"one",GroupSet:[{GroupId:"sg-1234abcd"}]}`,
+		`{Name:"one",Subnets:["subnet-1234abcd","not-a-subnet-id"]}`,
+	} {
+		validate(t, literal, data, true)
+		validate(t, template, data, true)
+	}
+	for _, data := range []string{
+		`{Name:"one",SecurityGroupIds:["sg-1234abcd","sg-test"]}`, // item format
+		`{Name:"one",GroupSet:["sg-1234abcd"]}`,                   // item type
+	} {
+		validate(t, literal, data, false)
+		validate(t, template, data, false)
+	}
+	for _, data := range []string{
+		`{Name:"one",SecurityGroupIds:{Ref:"SecurityGroupIdsParameter"}}`,
+		`{Name:"one",SecurityGroupIds:[{"Fn::GetAtt":["SecurityGroup","GroupId"]}]}`,
+		`{Name:"one",Subnets:{"Fn::Split":[",",{"Fn::ImportValue":"Subnets"}]}}`,
+	} {
+		validate(t, template, data, true)
+		validate(t, literal, data, false)
+	}
+}
+
+func TestLogGroupNameFormat(t *testing.T) {
+	// cfn-lint's E1155 pattern ends in \Z, so unlike the other formats a
+	// final newline is rejected.
+	good := []string{"MyLogGroup", "/aws/lambda/my-function", "a.b_c-d/e#f", "0", strings.Repeat("a", 512)}
+	bad := []string{"", strings.Repeat("a", 513), "my log group", "group:name", "caf\u00e9", "MyLogGroup\n", "${Name}", "arn:aws:logs:us-east-1:123456789012:log-group:MyLogGroup"}
+	for _, tt := range []struct {
+		resource, path string
+		skipped        bool
+		alsoGood       []string
+	}{
+		{"AWS::Logs::SubscriptionFilter", "#/properties/LogGroupName/format", false, nil},
+		{"AWS::EC2::FlowLog", "#/properties/LogGroupName/format", false, nil},
+		{"AWS::KinesisFirehose::DeliveryStream", "#/definitions/CloudWatchLoggingOptions/properties/LogGroupName/format", false, []string{""}},
+		{"AWS::EMRContainers::JobTemplate", "#/definitions/ParametricCloudWatchMonitoringConfiguration/properties/LogGroupName/format", true, nil},
+		// Exceptions are scoped to the property, not the resource.
+		{"AWS::KinesisFirehose::DeliveryStream", "#/definitions/Other/properties/LogGroupName/format", false, nil},
+	} {
+		c := &converter{resource: tt.resource}
+		m := map[string]any{}
+		c.normalizeFormat(m, tt.path, "AWS::Logs::LogGroup.Name")
+		if len(c.diagnostics) != 0 {
+			t.Fatalf("unexpected diagnostics: %v", c.diagnostics)
+		}
+		if tt.skipped {
+			if len(m) != 0 {
+				t.Errorf("exempt property gained a constraint: %+v %v", tt, m)
+			}
+			continue
+		}
+		re := regexp.MustCompile(m["_extra"].([]any)[0].(map[string]any)["pattern"].(string))
+		for _, value := range append(append([]string{}, good...), tt.alsoGood...) {
+			if !re.MatchString(value) {
+				t.Errorf("%s rejected valid log group name %q", tt.resource, value)
+			}
+		}
+		for _, value := range bad {
+			if re.MatchString(value) && !includes(tt.alsoGood, value) {
+				t.Errorf("%s accepted invalid log group name %q", tt.resource, value)
+			}
+		}
+	}
+}
+
+func TestGeneratedLogGroupNameFormat(t *testing.T) {
+	source := fixture(t)
+	var root map[string]any
+	if err := json.Unmarshal(source.files["resources/test.json"], &root); err != nil {
+		t.Fatal(err)
+	}
+	properties := root["properties"].(map[string]any)
+	properties["LogGroupName"] = map[string]any{"type": "string", "format": "AWS::Logs::LogGroup.Name"}
+	source.files["resources/test.json"], _ = json.Marshal(root)
+	out := filepath.Join(t.TempDir(), "generated")
+	manifest, err := Generate(source, Options{Out: out, Regions: []string{"us-east-1"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, d := range manifest.Diagnostics {
+		if d.Keyword == "format" {
+			t.Fatalf("LogGroup.Name still diagnosed: %v", d)
+		}
+	}
+	template := propertiesSchema(t, out, "./resources/htest")
+	literal := propertiesSchema(t, out, "./literal/htest")
+	for _, data := range []string{
+		`{Name:"one",LogGroupName:"/aws/lambda/my-function"}`,
+		`{Name:"one",LogGroupName:"a.b_c-d#e"}`,
+	} {
+		validate(t, literal, data, true)
+		validate(t, template, data, true)
+	}
+	for _, data := range []string{
+		`{Name:"one",LogGroupName:""}`,
+		`{Name:"one",LogGroupName:"my log group"}`,
+		`{Name:"one",LogGroupName:"arn:aws:logs:us-east-1:123456789012:log-group:MyLogGroup"}`,
+		`{Name:"one",LogGroupName:"MyLogGroup\n"}`,
+	} {
+		validate(t, literal, data, false)
+		validate(t, template, data, false)
+	}
+	for _, data := range []string{
+		`{Name:"one",LogGroupName:{Ref:"LogGroup"}}`,
+		`{Name:"one",LogGroupName:{"Fn::Sub":"/aws/lambda/${Function}"}}`,
+		`{Name:"one",LogGroupName:{"Fn::ImportValue":"Shared:LogGroup"}}`,
+		`{Name:"one",LogGroupName:"{{resolve:ssm:/log-group}}"}`,
+	} {
+		validate(t, template, data, true)
+		validate(t, literal, data, false)
+	}
+}
+
 func TestNetworkFormats(t *testing.T) {
 	source := fixture(t)
 	var root map[string]any
@@ -284,7 +441,15 @@ func TestNetworkFormats(t *testing.T) {
 		`{Name:"one",Cidr:"0.0.0.0/0"}`,
 		`{Name:"one",Cidr:"10.0.0.1/32"}`,
 		`{Name:"one",Cidr:"10.0.0.1"}`, // Python reads a bare address as /32.
+		// Python also accepts a contiguous dotted netmask or hostmask.
 		`{Name:"one",Cidr:"10.0.0.0/255.0.0.0"}`,
+		`{Name:"one",Cidr:"10.0.0.0/0.255.255.255"}`,
+		`{Name:"one",Cidr:"0.0.0.0/0.0.0.0"}`,
+		`{Name:"one",Cidr:"10.0.0.1/255.255.255.255"}`,
+		`{Name:"one",Cidr:"192.168.1.0/0.0.0.255"}`,
+		`{Name:"one",Cidr:"172.16.0.0/255.240.0.0"}`,
+		`{Name:"one",Cidr:"10.0.0.0/0.0.0.1"}`,
+		`{Name:"one",Cidr:"192.168.1.128/255.255.255.128"}`,
 		`{Name:"one",Ipv6Cidr:"2001:db8::/32"}`,
 		`{Name:"one",Ipv6Cidr:"2001:DB8::/32"}`,
 		`{Name:"one",Ipv6Cidr:"2001:0db8:0000::/48"}`,
@@ -299,6 +464,17 @@ func TestNetworkFormats(t *testing.T) {
 		`{Name:"one",Cidr:"10.0.1.0/16"}`,
 		`{Name:"one",Cidr:"10.0.0.0/33"}`,
 		`{Name:"one",Cidr:"010.0.0.0/8"}`,
+		`{Name:"one",Cidr:"10.0.0.1/255.0.0.0"}`,      // host bits set
+		`{Name:"one",Cidr:"10.0.0.1/0.0.0.0"}`,        // 0.0.0.0 is a /0 netmask
+		`{Name:"one",Cidr:"192.168.1.0/0.0.1.255"}`,   // host bits set for /23
+		`{Name:"one",Cidr:"10.0.0.0/255.0.255.0"}`,    // not contiguous
+		`{Name:"one",Cidr:"10.0.0.0/254.0.0.1"}`,      // neither netmask nor hostmask
+		`{Name:"one",Cidr:"10.0.0.0/255.00.0.0"}`,     // leading zero in the mask
+		`{Name:"one",Cidr:"10.0.0.0/255.0.0.256"}`,    // octet out of range
+		`{Name:"one",Cidr:"10.0.0.256/255.0.0.0"}`,    // address out of range
+		`{Name:"one",Cidr:"010.0.0.0/255.0.0.0"}`,     // leading zero in the address
+		`{Name:"one",Cidr:"10.0.0.0/255.0.0.0\n"}`,    // no final newline, as in Python
+		`{Name:"one",Untyped:"10.0.0.1/255.255.0.0"}`, // format alone still checks strings
 		`{Name:"one",Cidr:"2001:db8::/32"}`,
 		`{Name:"one",Cidr:"not-a-cidr"}`,
 		`{Name:"one",Ipv6Cidr:"2001:db8::1/32"}`,
@@ -312,7 +488,26 @@ func TestNetworkFormats(t *testing.T) {
 		`{Name:"one",Cidr:{Ref:"VpcCidr"}}`,
 		`{Name:"one",Cidr:{"Fn::Select":[0,{"Fn::Cidr":["10.0.0.0/16",4,8]}]}}`,
 		`{Name:"one",Cidr:"{{resolve:ssm:/vpc/cidr}}"}`,
+		`{Name:"one",Cidr:{"Fn::Join":["/",[{Ref:"Address"},"255.255.0.0"]]}}`,
+		`{Name:"one",Cidr:{"Fn::Sub":"${Address}/255.255.0.0"}}`,
 	} {
 		validate(t, template, data, true)
+		validate(t, literal, data, false)
+	}
+}
+
+func TestIPv4NetworkMasks(t *testing.T) {
+	masks := ipv4NetworkMasks()
+	for mask, prefix := range map[string]string{
+		"0.0.0.0": "0", "128.0.0.0": "1", "255.0.0.0": "8", "255.255.255.254": "31",
+		"255.255.255.255": "32", "127.255.255.255": "1", "0.255.255.255": "8", "0.0.0.1": "31",
+	} {
+		if !strings.Contains(masks, fmt.Sprintf("%q: %q\n", mask, prefix)) {
+			t.Errorf("mask %s should map to /%s:\n%s", mask, prefix, masks)
+		}
+	}
+	// 33 netmasks and 33 hostmasks, two of which are spelled as netmasks.
+	if n := strings.Count(masks, ":"); n != 64 {
+		t.Fatalf("got %d masks, want 64", n)
 	}
 }

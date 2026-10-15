@@ -35,7 +35,10 @@ import (
 // CloudWatch destination configuration for IVS Chat logging.
 #CloudWatchLogsDestinationConfiguration: close({
 	// Name of the Amazon CloudWatch Logs log group where chat activity will be logged.
-	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$"
+	LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"^[\\.\\-_/#A-Za-z0-9]+$"
 })
 
 // Destination configuration for IVS Chat logging.

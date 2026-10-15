@@ -74,7 +74,7 @@ import "list"
 })
 
 #CloudWatchLogConfiguration: null | bool | number | string | [...] | {
-	LogGroupName?: _
+	LogGroupName?: null | bool | number | =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" | [...] | {...}
 	...
 }
 

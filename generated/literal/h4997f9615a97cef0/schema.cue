@@ -9,7 +9,7 @@ package schema
 	Description?:  string
 	FunctionName!: string
 	Id?:           string
-	LogGroupName?: string
+	LogGroupName?: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$"
 	LogRoleARN?:   =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	Name!:         string
 })

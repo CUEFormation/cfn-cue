@@ -15,7 +15,7 @@ import (
 	BusinessName!: strings.MaxRunes(254) & strings.MinRunes(1)
 	CreatedAt?:    time.Time
 	Email?:        strings.MaxRunes(254) & strings.MinRunes(5) & =~"^[\\w\\.\\-]+@[\\w\\.\\-]+$"
-	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1)
+	LogGroupName?: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" & (strings.MaxRunes(512) & strings.MinRunes(1))
 	Logging!:      #Logging
 	ModifiedAt?:   time.Time
 	Name!:         strings.MaxRunes(254) & strings.MinRunes(1)

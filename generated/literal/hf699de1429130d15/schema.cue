@@ -59,7 +59,10 @@ import "strings"
 	// The log group to associate with the subscription filter. All log events that
 	// are uploaded to this log group are filtered and delivered to the specified
 	// AWS resource if the filter pattern matches the log events.
-	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$"
+	LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"^[\\.\\-_/#A-Za-z0-9]+$"
 
 	// The ARN of an IAM role that grants CWL permissions to deliver ingested log
 	// events to the destination stream. You don't need to provide the ARN when you

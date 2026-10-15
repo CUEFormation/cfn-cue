@@ -1657,7 +1657,7 @@ import (
 			"mode"]:
 				_
 	} & {
-		"awslogs-group"!:  string
+		"awslogs-group"!:  =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$"
 		"awslogs-region"!: _
 		...
 	}

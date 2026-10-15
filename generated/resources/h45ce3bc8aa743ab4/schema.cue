@@ -45,10 +45,10 @@ import structs "struct"
 fn.#ObjectExpression
 
 #LogConfiguration: close({
-	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) |
+	LogGroupName?: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" & (strings.MaxRunes(512) & strings.MinRunes(1)) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" & strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
 	} |
 	fn.#StringExpression
 }) |

@@ -68675,18 +68675,6 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid character class range: `\\p{Print}`"
     },
     {
-      "resource": "AWS::ApplicationInsights::Application",
-      "path": "#/definitions/Log/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
-    },
-    {
-      "resource": "AWS::ApplicationInsights::Application",
-      "path": "#/definitions/WindowsEvent/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
-    },
-    {
       "resource": "AWS::ApplicationSignals::ServiceLevelObjective",
       "path": "#/definitions/Tag/properties/Key/pattern",
       "keyword": "pattern",
@@ -68727,12 +68715,6 @@
       "path": "#/properties/SecurityGroups/anyOf/1/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Names"
-    },
-    {
-      "resource": "AWS::B2BI::Profile",
-      "path": "#/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
     },
     {
       "resource": "AWS::BCM::Dashboard",
@@ -68997,12 +68979,6 @@
       "path": "#/definitions/ManagedVpcResource/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::BedrockAgentCore::OnlineEvaluationConfig",
-      "path": "#/definitions/CloudWatchOutputConfig/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
     },
     {
       "resource": "AWS::BedrockAgentCore::OnlineEvaluationConfig",
@@ -69311,18 +69287,6 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
-      "resource": "AWS::CloudFormation::HookVersion",
-      "path": "#/definitions/LoggingConfig/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
-    },
-    {
-      "resource": "AWS::CloudFormation::LambdaHook",
-      "path": "#/definitions/LoggingConfig/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
-    },
-    {
       "resource": "AWS::CloudFormation::LambdaHook",
       "path": "#/definitions/StackRole/anyOf/1/pattern",
       "keyword": "pattern",
@@ -69341,28 +69305,10 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
-      "resource": "AWS::CloudFormation::Macro",
-      "path": "#/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
-    },
-    {
-      "resource": "AWS::CloudFormation::ResourceVersion",
-      "path": "#/definitions/LoggingConfig/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
-    },
-    {
       "resource": "AWS::CloudFormation::StackSet",
       "path": "#/definitions/Tag/properties/Key/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::CloudFormation::TypeActivation",
-      "path": "#/definitions/LoggingConfig/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
     },
     {
       "resource": "AWS::CloudFront::CachePolicy",
@@ -70199,12 +70145,6 @@
       "detail": "format annotation not enforced: password"
     },
     {
-      "resource": "AWS::EC2::FlowLog",
-      "path": "#/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
-    },
-    {
       "resource": "AWS::EC2::IPAMPrefixListResolverTarget",
       "path": "#/properties/DesiredVersion/format",
       "keyword": "format",
@@ -70463,12 +70403,6 @@
       "detail": "only whole-item uniqueness enforced; uniqueness by selected keys needs semantic validation"
     },
     {
-      "resource": "AWS::ECS::TaskDefinition",
-      "path": "#/definitions/LogConfiguration/allOf/0/then/properties/Options/properties/awslogs-group/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
-    },
-    {
       "resource": "AWS::ECS::TaskSet",
       "path": "#/definitions/AwsVpcConfiguration/properties/SecurityGroups/format",
       "keyword": "format",
@@ -70524,12 +70458,6 @@
     },
     {
       "resource": "AWS::EMR::Cluster",
-      "path": "#/definitions/CloudWatchLogConfiguration/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
-    },
-    {
-      "resource": "AWS::EMR::Cluster",
       "path": "#/properties/AdditionalInfo/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
@@ -70547,28 +70475,10 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
     },
     {
-      "resource": "AWS::EMRContainers::Endpoint",
-      "path": "#/definitions/CloudWatchMonitoringConfiguration/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
-    },
-    {
-      "resource": "AWS::EMRContainers::JobTemplate",
-      "path": "#/definitions/ParametricCloudWatchMonitoringConfiguration/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
-    },
-    {
       "resource": "AWS::EMRServerless::Application",
       "path": "#/definitions/InitialCapacityConfig/properties/WorkerCount/format",
       "keyword": "format",
       "detail": "format annotation not enforced: int64"
-    },
-    {
-      "resource": "AWS::EMRServerless::Application",
-      "path": "#/definitions/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
     },
     {
       "resource": "AWS::EMRServerless::Application",
@@ -71321,22 +71231,10 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::IVSChat::LoggingConfiguration",
-      "path": "#/definitions/CloudWatchLogsDestinationConfiguration/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
-    },
-    {
       "resource": "AWS::ImageBuilder::Image",
       "path": "#",
       "keyword": "scalarCompatibility",
       "detail": "quoted scalar coercion not applied to 1 composed scalar constraints; exact constraints retained"
-    },
-    {
-      "resource": "AWS::ImageBuilder::Image",
-      "path": "#/definitions/ImageLoggingConfiguration/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
     },
     {
       "resource": "AWS::ImageBuilder::InfrastructureConfiguration",
@@ -71421,12 +71319,6 @@
       "path": "#/properties/ThingTypeProperties/properties/ThingTypeDescription/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid character class range: `\\p{Graph}`"
-    },
-    {
-      "resource": "AWS::IoT::TopicRule",
-      "path": "#/definitions/CloudwatchLogsAction/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
     },
     {
       "resource": "AWS::IoT::TopicRuleDestination",
@@ -71651,12 +71543,6 @@
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{0,1023}`"
     },
     {
-      "resource": "AWS::Kinesis::Channel",
-      "path": "#/definitions/CloudWatchLogsConfiguration/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
-    },
-    {
       "resource": "AWS::KinesisAnalyticsV2::Application",
       "path": "#/definitions/CheckpointConfiguration/properties/CheckpointInterval/format",
       "keyword": "format",
@@ -71685,12 +71571,6 @@
       "path": "#/definitions/VpcConfiguration/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::KinesisFirehose::DeliveryStream",
-      "path": "#/definitions/CloudWatchLoggingOptions/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
     },
     {
       "resource": "AWS::KinesisFirehose::DeliveryStream",
@@ -71928,39 +71808,15 @@
     },
     {
       "resource": "AWS::Logs::LogGroup",
-      "path": "#/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
-    },
-    {
-      "resource": "AWS::Logs::LogGroup",
       "path": "#/properties/LogGroupName/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid escape sequence: `\\Z`"
-    },
-    {
-      "resource": "AWS::Logs::LogStream",
-      "path": "#/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
     },
     {
       "resource": "AWS::Logs::MetricFilter",
       "path": "#/definitions/MetricTransformation/properties/MetricName/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`"
-    },
-    {
-      "resource": "AWS::Logs::MetricFilter",
-      "path": "#/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
-    },
-    {
-      "resource": "AWS::Logs::SubscriptionFilter",
-      "path": "#/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
     },
     {
       "resource": "AWS::LookoutEquipment::InferenceScheduler",
@@ -72180,12 +72036,6 @@
     },
     {
       "resource": "AWS::MWAAServerless::Workflow",
-      "path": "#/definitions/LoggingConfiguration/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
-    },
-    {
-      "resource": "AWS::MWAAServerless::Workflow",
       "path": "#/definitions/NetworkConfiguration/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
@@ -72318,12 +72168,6 @@
     },
     {
       "resource": "AWS::MediaPackage::Channel",
-      "path": "#/definitions/LogConfiguration/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
-    },
-    {
-      "resource": "AWS::MediaPackage::Channel",
       "path": "#/definitions/LogConfiguration/properties/LogGroupName/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid escape sequence: `\\Z`"
@@ -72345,12 +72189,6 @@
       "path": "#/properties/Id/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid escape sequence: `\\Z`"
-    },
-    {
-      "resource": "AWS::MediaPackage::PackagingGroup",
-      "path": "#/definitions/LogConfiguration/properties/LogGroupName/format",
-      "keyword": "format",
-      "detail": "format annotation not enforced: AWS::Logs::LogGroup.Name"
     },
     {
       "resource": "AWS::MediaPackage::PackagingGroup",

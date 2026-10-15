@@ -135,7 +135,7 @@ func Intrinsics(extensions bool) *ast.File {
 	// of its literal constraints, as cfn-lint does. The value is a string.
 	add("DynamicReference", and(id("string"), &ast.UnaryExpr{Op: token.MAT, X: str(dynamicReferencePattern)}))
 	addImport(f, "net", "net")
-	for _, name := range []string{"IPv4Address", "IPv6Address", "IPv4Network", "IPv6Network"} {
+	for _, name := range []string{"IPv4Address", "IPv6Address", "IPv4Network", "IPv4NetworkMasks", "IPv6Network"} {
 		x, err := parser.ParseExpr(name, networkFormats[name])
 		if err != nil {
 			panic(err)
@@ -244,8 +244,15 @@ func Intrinsics(extensions bool) *ast.File {
 // networkFormats check the ipv4, ipv6, ipv4-network and ipv6-network formats
 // as cfn-lint does with Python's ipaddress module. A network is an address
 // with an optional prefix length and no host bits set. Like any format, they
-// constrain only strings. Python also accepts an IPv4 netmask or hostmask,
-// such as 10.0.0.0/255.0.0.0; those are accepted without checking host bits.
+// constrain only strings.
+//
+// Python's IPv4Network also accepts a dotted netmask or hostmask in place of
+// the prefix length, such as 10.0.0.0/255.0.0.0 or 10.0.0.0/0.255.255.255.
+// Only a contiguous mask is valid, and Python rejects leading zeros in its
+// octets, so each valid mask has one spelling: #IPv4NetworkMasks maps all of
+// them to their prefix lengths. The address is then checked with that prefix,
+// including its host bits. As in Python, a mask that reads as both a netmask
+// and a hostmask (0.0.0.0 and 255.255.255.255) is a netmask.
 var networkFormats = map[string]string{
 	// Like Python's IPv4Address, Go's netip rejects IPv4 leading zeros.
 	"IPv4Address": `string & =~"^[0-9.]+$" & net.IPv4 | number | bool | null | [...] | {...}`,
@@ -253,9 +260,45 @@ var networkFormats = map[string]string{
 	"IPv4Network": `{
 	string & =~"^[0-9.]+/[0-9]+$" & net.IPCIDR
 	_hostBits: net.IPString(cfnScalarStrings.SplitN(self, "/", 2)[0]) & net.ParseCIDR(self).prefix_addr
-} | string & =~"^[0-9.]+$" & net.IPv4 | =~"^[0-9]{1,3}(\\.[0-9]{1,3}){3}/[0-9]{1,3}(\\.[0-9]{1,3}){3}$" | number | bool | null | [...] | {...}`,
+} | {
+	string & =~"^[0-9.]+/[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$"
+	_cidr: cfnScalarStrings.SplitN(self, "/", 2)[0] + "/" + #IPv4NetworkMasks[cfnScalarStrings.SplitN(self, "/", 2)[1]]
+	_cidr: net.IPCIDR
+	_hostBits: net.IPString(cfnScalarStrings.SplitN(_cidr, "/", 2)[0]) & net.ParseCIDR(_cidr).prefix_addr
+} | string & =~"^[0-9.]+$" & net.IPv4 | number | bool | null | [...] | {...}`,
+	"IPv4NetworkMasks": ipv4NetworkMasks(),
 	"IPv6Network": `{
 	string & =~":" & =~"/[0-9]+$" & net.IPCIDR
 	_hostBits: net.IPString(cfnScalarStrings.SplitN(self, "/", 2)[0]) & net.ParseCIDR(self).prefix_addr
 } | string & =~":" & !~"/" & net.IPv6 | number | bool | null | [...] | {...}`,
+}
+
+// ipv4NetworkMasks returns a closed CUE struct from each valid dotted IPv4
+// netmask and hostmask to its prefix length, as Python's IPv4Network reads
+// them: a netmask first, then a hostmask.
+func ipv4NetworkMasks() string {
+	dotted := func(x uint32) string {
+		return fmt.Sprintf("%d.%d.%d.%d", x>>24, x>>16&0xff, x>>8&0xff, x&0xff)
+	}
+	prefixes := map[string]int{}
+	var order []string
+	for _, hostmask := range []bool{false, true} {
+		for prefix := 0; prefix <= 32; prefix++ {
+			mask := uint32(0xffffffff) << (32 - prefix) // Go shifts of 32 give 0.
+			if hostmask {
+				mask = ^mask
+			}
+			if _, found := prefixes[dotted(mask)]; !found {
+				prefixes[dotted(mask)] = prefix
+				order = append(order, dotted(mask))
+			}
+		}
+	}
+	var b strings.Builder
+	b.WriteString("close({\n")
+	for _, mask := range order {
+		fmt.Fprintf(&b, "\t%q: %q\n", mask, fmt.Sprint(prefixes[mask]))
+	}
+	b.WriteString("})")
+	return b.String()
 }

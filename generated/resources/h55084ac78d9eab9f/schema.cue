@@ -157,8 +157,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CloudwatchLogsAction: close({
-	BatchMode?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LogGroupName!: string | number | bool | fn.#StringExpression
+	BatchMode?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" |
+	{
+		number | bool
+		_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
 	{
 		number | bool
