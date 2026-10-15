@@ -66,7 +66,11 @@ import (
 	Description?: string
 
 	// The display name of the Autonomous VM cluster.
-	DisplayName?: strings.MaxRunes(255) & strings.MinRunes(1)
+	DisplayName?: =~"^[a-zA-Z_][a-zA-Z0-9_-]*$" &
+	matchN(0, [=~"^(?s:.){1}(?:.*--)"]) &
+	string &
+	strings.MaxRunes(255) &
+	strings.MinRunes(1)
 
 	// The domain name for the Autonomous VM cluster.
 	Domain?: string

@@ -22,7 +22,33 @@ import structs "struct"
 		} |
 		fn.#StringExpression
 		Policy?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
-		Tags?:   {...} | fn.#ObjectExpression
+		Tags?: close({
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^(?:aws:.*)"]: error("disallowed")}
+
+			{
+				[=~"^.{1,128}$"]: =~"^.{0,256}$" &
+				matchN(0, [=~"^(?:aws:.*)"]) &
+				string &
+				strings.MaxRunes(256) &
+				strings.MinRunes(0) |
+				{
+					number | bool
+					_cfnString: =~"^.{0,256}$" &
+					matchN(0, [=~"^(?:aws:.*)"]) &
+					string &
+					strings.MaxRunes(256) &
+					strings.MinRunes(0) &
+					"\(self)"
+				} |
+				fn.#StringExpression
+			}
+		}) |
+		fn.#ObjectExpression
 	})
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)

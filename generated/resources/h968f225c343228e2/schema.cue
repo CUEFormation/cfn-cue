@@ -22,10 +22,19 @@ import structs "struct"
 			_cfnString: =~"^g-[a-z0-9]{10}$" & "\(self)"
 		} |
 		fn.#StringExpression
-		SnapshotName!: strings.MaxRunes(63) & strings.MinRunes(1) |
+		SnapshotName!: =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$" &
+		matchN(0, [=~"^(?:gs-)"]) &
+		string &
+		strings.MaxRunes(63) &
+		strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$" &
+			matchN(0, [=~"^(?:gs-)"]) &
+			string &
+			strings.MaxRunes(63) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression

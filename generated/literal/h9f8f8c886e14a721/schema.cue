@@ -94,7 +94,7 @@ import (
 // A tag is a key-value pair that can be added to a resource as metadata.
 #Tag: close({
 	// The key for the specified tag.
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// The value for the specified tag.
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\s\\w+-=\\.:/@]*"

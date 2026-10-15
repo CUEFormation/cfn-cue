@@ -181,4 +181,9 @@ import (
 	Text!: strings.MinRunes(1)
 })
 
-#Tags: {...}
+#Tags: close({
+
+	{[=~"^(?:aws:)"]: error("disallowed")}
+
+	{[=~"^[a-zA-Z+-=._:/]+$"]: strings.MaxRunes(256) & strings.MinRunes(1)}
+})

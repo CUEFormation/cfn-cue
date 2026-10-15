@@ -135,7 +135,24 @@ fn.#ObjectExpression
 #FavoritePages: list.MaxItems(50) & [...] & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 
 #MetricDefinition: close({
-	DimensionKeys?: {...} | fn.#ObjectExpression
+	DimensionKeys?: close({
+
+		{[=~"^(?::)"]: error("disallowed")}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{
+			[=~"^.*[^\\s].*"]: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*[^\\s].*" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*[^\\s].*" & "\(self)"
+			} |
+			fn.#StringExpression
+		}
+	}) |
+	fn.#ObjectExpression
 	EventPattern?: strings.MaxRunes(4000) & strings.MinRunes(1) |
 	{
 		number | bool
@@ -203,10 +220,15 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |

@@ -48,6 +48,11 @@ import "strings"
 	"NOTE_TAKING" |
 	"CASE_SUMMARIZATION"
 
-#Tags: {...}
+#Tags: close({
+
+	{[=~"^(?:aws:)"]: error("disallowed")}
+
+	{[=~"^[a-zA-Z+-=._:/]+$"]: strings.MaxRunes(256) & strings.MinRunes(1)}
+})
 
 #TextFullAIPromptEditTemplateConfiguration: close({Text!: strings.MaxRunes(200000) & strings.MinRunes(1)})

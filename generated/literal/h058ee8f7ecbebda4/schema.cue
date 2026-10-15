@@ -136,7 +136,7 @@ strings.MaxRunes(1000) &
 
 // A key-value pair to tag a resource.
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!:   =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
 })
 

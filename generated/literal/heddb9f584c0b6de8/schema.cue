@@ -33,7 +33,9 @@ import (
 	}
 }) & matchN(>=1, [{Specification!: _}, {Specifications!: _}])
 
-#Alarm: close({AlarmName!: strings.MaxRunes(255) & strings.MinRunes(1)})
+#Alarm: close(
+	{AlarmName!: =~"^.+" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(255) & strings.MinRunes(1)},
+)
 
 #AutoRollbackConfiguration: close({Alarms!: list.MaxItems(10) & list.MinItems(1) & [...#Alarm]})
 
@@ -243,7 +245,10 @@ import (
 	MetricPublishFrequencyInSeconds?: int & <=300 & >=10
 
 	// The path to the Prometheus formatted metrics endpoint exposed by the container
-	MetricsEndpointPath!: strings.MaxRunes(256)
+	MetricsEndpointPath!: =~"^/[a-zA-Z0-9/_.\\-]+$" &
+	matchN(0, [=~"^(?s:.){1}(?:.*\\.\\.)"]) &
+	string &
+	strings.MaxRunes(256)
 })
 
 // The name of the model to use with the inference component

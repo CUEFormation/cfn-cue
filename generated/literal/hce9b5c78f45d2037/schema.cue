@@ -15,8 +15,12 @@ import (
 	ActionThreshold!: #ActionThreshold
 	ActionType!:      "APPLY_IAM_POLICY" | "APPLY_SCP_POLICY" | "RUN_SSM_DOCUMENTS"
 	ApprovalModel?:   "AUTOMATIC" | "MANUAL"
-	BudgetName!:      strings.MaxRunes(100) & strings.MinRunes(1)
-	Definition!:      #Definition
+	BudgetName!: =~"^[^:\\\\]+$" &
+	matchN(0, [=~"^(?:[^:\\\\]*/action/|(?i).*<script>.*</script>.*)"]) &
+	string &
+	strings.MaxRunes(100) &
+	strings.MinRunes(1)
+	Definition!: #Definition
 	ExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(618) &
 	strings.MinRunes(32) &

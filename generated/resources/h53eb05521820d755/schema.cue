@@ -36,10 +36,19 @@ import structs "struct"
 			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" & "\(self)"
 		} |
 		fn.#StringExpression
-		ProjectId?: strings.MaxRunes(36) & strings.MinRunes(36) |
+		ProjectId?: =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+		matchN(0, [=~"^(?:00000000-0000-0000-0000-000000000000)"]) &
+		string &
+		strings.MaxRunes(36) &
+		strings.MinRunes(36) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(36) & strings.MinRunes(36) & "\(self)"
+			_cfnString: =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+			matchN(0, [=~"^(?:00000000-0000-0000-0000-000000000000)"]) &
+			string &
+			strings.MaxRunes(36) &
+			strings.MinRunes(36) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		Tags?: [...#Tag] | fn.#ListExpression

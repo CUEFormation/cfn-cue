@@ -28,7 +28,7 @@ import (
 	MaxCapacity?: int
 
 	// The namespace the workgroup is associated with.
-	NamespaceName?: strings.MaxRunes(64) & strings.MinRunes(3)
+	NamespaceName?: =~"^.{3,64}$" & =~"^(?:^[a-z0-9-]+$)" & strings.MaxRunes(64) & strings.MinRunes(3)
 
 	// The custom port to use when connecting to a workgroup. Valid port ranges are
 	// 5431-5455 and 8191-8215. The default is 5439.
@@ -94,7 +94,7 @@ import (
 	Workgroup?: #Workgroup
 
 	// The name of the workgroup.
-	WorkgroupName!: strings.MaxRunes(64) & strings.MinRunes(3)
+	WorkgroupName!: =~"^.{3,64}$" & =~"^(?:^[a-z0-9-]+$)" & strings.MaxRunes(64) & strings.MinRunes(3)
 })
 
 #ConfigParameter: close({

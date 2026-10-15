@@ -22,7 +22,11 @@ import (
 	DomainName?: strings.MaxRunes(256) & strings.MinRunes(1)
 
 	// The name for the Resolver rule
-	Name?: strings.MaxRunes(64) & strings.MinRunes(0)
+	Name?: =~"^([a-zA-Z0-9\\-_' ']+)$" &
+	matchN(0, [=~"^(?:^[0-9]+$)"]) &
+	string &
+	strings.MaxRunes(64) &
+	strings.MinRunes(0)
 
 	// The ID of the endpoint that the rule is associated with.
 	ResolverEndpointId?: strings.MaxRunes(64) & strings.MinRunes(1)

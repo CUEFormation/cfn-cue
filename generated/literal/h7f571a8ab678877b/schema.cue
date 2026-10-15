@@ -11,9 +11,13 @@ import (
 
 // Resource Type definition for AWS::IoTAnalytics::Dataset
 #Properties: close({
-	Actions!:                 list.MaxItems(1) & list.MinItems(1) & [...#Action]
-	ContentDeliveryRules?:    list.MaxItems(20) & [...] & [...#DatasetContentDeliveryRule]
-	DatasetName?:             strings.MaxRunes(128) & strings.MinRunes(1)
+	Actions!:              list.MaxItems(1) & list.MinItems(1) & [...#Action]
+	ContentDeliveryRules?: list.MaxItems(20) & [...] & [...#DatasetContentDeliveryRule]
+	DatasetName?: =~"^(^[a-zA-Z0-9_]+$)" &
+	matchN(0, [=~"^(?:_{2})"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1)
 	Id?:                      string
 	LateDataRules?:           list.MaxItems(1) & list.MinItems(1) & [...#LateDataRule]
 	RetentionPeriod?:         #RetentionPeriod
@@ -46,7 +50,13 @@ import (
 	S3DestinationConfiguration?:        #S3DestinationConfiguration
 })
 
-#DatasetContentVersionValue: close({DatasetName!: strings.MaxRunes(128) & strings.MinRunes(1)})
+#DatasetContentVersionValue: close({
+	DatasetName!: =~"^(^[a-zA-Z0-9_]+$)" &
+	matchN(0, [=~"^(?:_{2})"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1)
+})
 
 #DeltaTime: close({
 	OffsetSeconds!:  int
@@ -110,7 +120,13 @@ import (
 	TriggeringDataset?: #TriggeringDataset
 })
 
-#TriggeringDataset: close({DatasetName!: strings.MaxRunes(128) & strings.MinRunes(1)})
+#TriggeringDataset: close({
+	DatasetName!: =~"^(^[a-zA-Z0-9_]+$)" &
+	matchN(0, [=~"^(?:_{2})"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1)
+})
 
 #Variable: close({
 	DatasetContentVersionValue?: #DatasetContentVersionValue

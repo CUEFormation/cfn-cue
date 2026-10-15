@@ -106,10 +106,19 @@ fn.#ObjectExpression
 
 	// The name of the metadata form.
 	FormName!: #FormName
-	TypeIdentifier?: strings.MaxRunes(385) & strings.MinRunes(1) |
+	TypeIdentifier?: =~"^[\\w\\.]*\\w$" &
+	matchN(0, [=~"^(?:\\.)"]) &
+	string &
+	strings.MaxRunes(385) &
+	strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(385) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^[\\w\\.]*\\w$" &
+		matchN(0, [=~"^(?:\\.)"]) &
+		string &
+		strings.MaxRunes(385) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 
@@ -118,10 +127,13 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#FormName: strings.MaxRunes(128) & strings.MinRunes(1) |
+#FormName: (=~"^_\\w*[a-zA-Z0-9]\\w*$" | =~"^\\w+$" & matchN(0, [=~"^(?:[0-9_])"]) & string) & (strings.MaxRunes(128) & strings.MinRunes(1)) |
 {
 	number | bool
-	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	_cfnString: (=~"^_\\w*[a-zA-Z0-9]\\w*$" | =~"^\\w+$" & matchN(0, [=~"^(?:[0-9_])"]) & string) &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1) &
+	"\(self)"
 } |
 fn.#StringExpression
 

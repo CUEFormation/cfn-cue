@@ -28,10 +28,13 @@ import structs "struct"
 		} |
 		fn.#StringExpression
 		Model!: #Model & fn.#Object & {...} | fn.#ObjectExpression
-		Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+		Name!: (=~"^_\\w*[a-zA-Z0-9]\\w*$" | =~"^\\w+$" & matchN(0, [=~"^(?:[0-9_])"]) & string) & (strings.MaxRunes(128) & strings.MinRunes(1)) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+			_cfnString: (=~"^_\\w*[a-zA-Z0-9]\\w*$" | =~"^\\w+$" & matchN(0, [=~"^(?:[0-9_])"]) & string) &
+			strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		OwningProjectIdentifier!: =~"^[a-zA-Z0-9_-]{1,36}$" |

@@ -41,7 +41,10 @@ import (
 	// If you specify a name, you cannot perform updates that require replacement of
 	// this resource. You can perform updates that require no or some interruption.
 	// If you must replace the resource, specify a new name.
-	RepositoryName?: strings.MaxRunes(256) & strings.MinRunes(2)
+	RepositoryName?: =~"^((?:[a-z0-9]+(?:[._-][a-z0-9]+)*/)*[a-z0-9]+(?:[._-][a-z0-9]+)*)$" &
+	=~"^(?:.{2,256}$)" &
+	strings.MaxRunes(256) &
+	strings.MinRunes(2)
 
 	// The JSON repository policy text to apply to the public repository. For more
 	// information, see [Amazon ECR Public repository

@@ -560,8 +560,19 @@ fn.#ObjectExpression
 #OnPartialBatchItemFailureStreams: "AUTOMATIC_BISECT" | fn.#StringExpression
 
 #PipeEnrichmentHttpParameters: close({
-	HeaderParameters?:      #HeaderParametersMap
-	PathParameterValues?:   [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	HeaderParameters?: #HeaderParametersMap
+	PathParameterValues?: [...=~"(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$" |
+	{
+		number | bool
+		_cfnString: =~"(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$" & "\(self)"
+	} |
+	=~"^.+" & matchN(0, [=~"^(?:\\s*$)"]) & string |
+	{
+		number | bool
+		_cfnString: =~"^.+" & matchN(0, [=~"^(?:\\s*$)"]) & string & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	QueryStringParameters?: #QueryStringParametersMap
 }) |
 fn.#ObjectExpression
@@ -1144,8 +1155,19 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PipeTargetHttpParameters: close({
-	HeaderParameters?:      #HeaderParametersMap
-	PathParameterValues?:   [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	HeaderParameters?: #HeaderParametersMap
+	PathParameterValues?: [...=~"(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$" |
+	{
+		number | bool
+		_cfnString: =~"(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$" & "\(self)"
+	} |
+	=~"^.+" & matchN(0, [=~"^(?:\\s*$)"]) & string |
+	{
+		number | bool
+		_cfnString: =~"^.+" & matchN(0, [=~"^(?:\\s*$)"]) & string & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	QueryStringParameters?: #QueryStringParametersMap
 }) |
 fn.#ObjectExpression

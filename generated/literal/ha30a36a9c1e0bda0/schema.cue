@@ -23,12 +23,20 @@ import (
 	CreatorMemberAbilities?:      #MemberAbilities
 	CreatorPaymentConfiguration?: #PaymentConfiguration
 	DataEncryptionMetadata?:      #DataEncryptionMetadata
-	Description!:                 strings.MaxRunes(255) & strings.MinRunes(1)
-	IsMetricsEnabled?:            bool
-	JobLogStatus?:                #CollaborationJobLogStatus
-	Members?:                     list.MaxItems(9) & [...] & [...#MemberSpecification]
-	Name!:                        strings.MaxRunes(100) & strings.MinRunes(1)
-	QueryLogStatus!:              #CollaborationQueryLogStatus
+	Description!: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" &
+	matchN(0, [=~"^(?:\\s*$)"]) &
+	string &
+	strings.MaxRunes(255) &
+	strings.MinRunes(1)
+	IsMetricsEnabled?: bool
+	JobLogStatus?:     #CollaborationJobLogStatus
+	Members?:          list.MaxItems(9) & [...] & [...#MemberSpecification]
+	Name!: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t]*$" &
+	matchN(0, [=~"^(?:\\s*$)"]) &
+	string &
+	strings.MaxRunes(100) &
+	strings.MinRunes(1)
+	QueryLogStatus!: #CollaborationQueryLogStatus
 
 	// An arbitrary set of tags (key-value pairs) for this cleanrooms collaboration.
 	Tags?: list.UniqueItems() & [...#Tag]
@@ -85,7 +93,11 @@ import (
 
 #ModelTrainingPaymentConfig: close({IsResponsible!: bool})
 
-#Name: strings.MaxRunes(100) & strings.MinRunes(1)
+#Name: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t]*$" &
+matchN(0, [=~"^(?:\\s*$)"]) &
+string &
+strings.MaxRunes(100) &
+strings.MinRunes(1)
 
 #PaymentConfiguration: close({
 	JobCompute?:      #JobComputePaymentConfig

@@ -21,10 +21,19 @@ import structs "struct"
 			_cfnString: strings.MaxRunes(40) & strings.MinRunes(3) & =~"^[a-z0-9]{3,40}$" & "\(self)"
 		} |
 		fn.#StringExpression
-		IndexName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		IndexName!: =~"^[a-z][a-z0-9_-]*$" &
+		matchN(0, [=~"^(?:[_-])"]) &
+		string &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^[a-z][a-z0-9_-]*$" &
+			matchN(0, [=~"^(?:[_-])"]) &
+			string &
+			strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		IndexSchema?: strings.MaxRunes(2480) &

@@ -32,7 +32,9 @@ import (
 	Id?: string
 
 	// The name of the service.
-	Name?: string
+	Name?: =~"(^\\.$)$" |
+		=~"^^([a-zA-Z0-9_][a-zA-Z0-9-_]{0,61}[a-zA-Z0-9_]|[a-zA-Z0-9])(\\.([a-zA-Z0-9_][a-zA-Z0-9-_]{0,61}[a-zA-Z0-9_]|[a-zA-Z0-9]))*$" &
+			=~"^(?:^.{1,127}$)"
 
 	// The ID of the namespace in which the service is created.
 	NamespaceId?: strings.MaxRunes(255) & strings.MinRunes(0)

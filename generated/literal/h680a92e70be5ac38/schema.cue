@@ -26,7 +26,7 @@ import "strings"
 })
 
 // The alias of the image version.
-#Alias: strings.MaxRunes(128) & strings.MinRunes(1)
+#Alias: =~"^([a-zA-Z0-9-_.]+)$" & matchN(0, [=~"^(?:^[.-])"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 
 // List of aliases for the image version.
 #Aliases: [...#Alias]

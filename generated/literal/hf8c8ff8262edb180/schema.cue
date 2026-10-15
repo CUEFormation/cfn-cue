@@ -536,7 +536,11 @@ strings.MinRunes(1) &
 	TenantDomain!:       #TenantDomain
 })
 
-#OneDriveUser: strings.MaxRunes(256) & strings.MinRunes(1)
+#OneDriveUser: =~"^.+@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$" &
+matchN(0, [=~"^(?:\\s)"]) &
+string &
+strings.MaxRunes(256) &
+strings.MinRunes(1)
 
 #OneDriveUserList: list.MaxItems(100) & list.MinItems(1) & [...#OneDriveUser]
 
@@ -690,7 +694,11 @@ strings.MinRunes(3) &
 	ServiceNowBuildVersion!:        #ServiceNowBuildVersionType
 })
 
-#ServiceNowHostUrl: strings.MaxRunes(2048) & strings.MinRunes(1)
+#ServiceNowHostUrl: =~"^[a-z0-9-]+(\\.service-now\\.com)$" &
+matchN(0, [=~"^(?:(^(https?|ftp|file):\\/\\/))"]) &
+string &
+strings.MaxRunes(2048) &
+strings.MinRunes(1)
 
 #ServiceNowKnowledgeArticleConfiguration: close({
 	CrawlAttachments?:              bool

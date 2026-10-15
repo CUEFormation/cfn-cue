@@ -48,7 +48,13 @@ import (
 	{EntityTypes?: list.MaxItems(25) & list.MinItems(1) & list.UniqueItems() & [...#EntityTypesListItem]},
 )
 
-#EntityTypesListItem: close({Type!: strings.MaxRunes(64) & strings.MinRunes(1)})
+#EntityTypesListItem: close({
+	Type!: =~"^[^\\n\\r\\t,]+$" &
+	matchN(0, [=~"^(?:[^\\n\\r\\t,]*\\\\n|\\\\r|\\\\t)"]) &
+	string &
+	strings.MaxRunes(64) &
+	strings.MinRunes(1)
+})
 
 #KmsKeyId: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^\\p{ASCII}+$"
 

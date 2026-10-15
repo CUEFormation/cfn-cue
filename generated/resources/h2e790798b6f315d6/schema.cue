@@ -89,10 +89,15 @@ import structs "struct"
 		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-		Tier!: strings.MaxRunes(64) & strings.MinRunes(1) |
+		Tier!: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(64) & strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^.+$" &
+			matchN(0, [=~"^(?:\\s*$)"]) &
+			string &
+			strings.MaxRunes(64) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		Type!: "lakera-guard" | "comet" | "deepchecks-llm-evaluation" | "fiddler" | fn.#StringExpression
@@ -101,16 +106,38 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#PartnerAppAdminUserList: strings.MaxRunes(256) & strings.MinRunes(1) |
+#PartnerAppAdminUserList: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(256) & strings.MinRunes(1) |
 {
 	number | bool
-	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	_cfnString: =~"^.+$" &
+	matchN(0, [=~"^(?:\\s*$)"]) &
+	string &
+	strings.MaxRunes(256) &
+	strings.MinRunes(1) &
+	"\(self)"
 } |
 fn.#StringExpression
 
 #PartnerAppConfig: close({
 	AdminUsers?: list.MaxItems(5) & list.UniqueItems() & [...] & [...#PartnerAppAdminUserList] | fn.#ListExpression
-	Arguments?:  struct.MaxFields(5) & {...} | fn.#ObjectExpression
+	Arguments?: struct.MaxFields(5) & close({
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{[=~"^(?:\\s*$)"]: error("disallowed")}
+
+		{
+			[=~"^.{1,256}$"]: strings.MaxRunes(1024) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) & "\(self)"
+			} |
+			fn.#StringExpression
+		}
+	}) |
+	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 

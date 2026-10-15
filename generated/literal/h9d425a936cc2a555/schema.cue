@@ -15,7 +15,7 @@ import (
 	Lifecycle?: "AVAILABLE" | "CREATING" | "DELETING" | "FAILED" | "MISCONFIGURED" | "UPDATING"
 
 	// The name of the S3 access point attachment; also used for the name of the S3 access point.
-	Name!: strings.MaxRunes(50) & strings.MinRunes(3)
+	Name!: =~"^[a-z0-9-]{1,48}[a-z0-9]$" & =~"^(?:[a-z0-9])" & strings.MaxRunes(50) & strings.MinRunes(3)
 
 	// The OntapConfiguration of the S3 access point attachment.
 	OntapConfiguration?: #S3AccessPointOntapConfiguration

@@ -20,11 +20,21 @@ import (
 	CreatedAt?:     string
 	Id?:            strings.MaxRunes(20) & strings.MinRunes(20) & =~"^tg-[0-9a-z]{17}$"
 	LastUpdatedAt?: string
-	Name?:          strings.MaxRunes(128) & strings.MinRunes(3)
-	Status?:        "CREATE_IN_PROGRESS" | "ACTIVE" | "DELETE_IN_PROGRESS" | "CREATE_FAILED" | "DELETE_FAILED"
-	Tags?:          list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
-	Targets?:       list.MaxItems(100) & [...] & [...#Target]
-	Type!:          "IP" | "LAMBDA" | "INSTANCE" | "ALB"
+	Name?: =~"^[a-z0-9-]+$" &
+	matchN(0, [=~"^(?:tg-)"]) &
+	string &
+	matchN(0, [=~"^(?:[-])"]) &
+	string &
+	matchN(0, [=~"^(?:.*[-]$)"]) &
+	string &
+	matchN(0, [=~"^(?:.*[-]{2})"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(3)
+	Status?:  "CREATE_IN_PROGRESS" | "ACTIVE" | "DELETE_IN_PROGRESS" | "CREATE_FAILED" | "DELETE_FAILED"
+	Tags?:    list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
+	Targets?: list.MaxItems(100) & [...] & [...#Target]
+	Type!:    "IP" | "LAMBDA" | "INSTANCE" | "ALB"
 })
 
 #HealthCheckConfig: close({

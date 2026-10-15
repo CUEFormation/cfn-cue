@@ -56,10 +56,19 @@ import structs "struct"
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-		AssetModelId!: strings.MaxRunes(139) & strings.MinRunes(13) |
+		AssetModelId!: (=~"^externalId:[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+$" |
+		=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+		matchN(0, [=~"^(?:00000000-0000-0000-0000-000000000000)"]) &
+		string) & (strings.MaxRunes(139) & strings.MinRunes(13)) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(139) & strings.MinRunes(13) & "\(self)"
+			_cfnString: (=~"^externalId:[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+$" |
+			=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+			matchN(0, [=~"^(?:00000000-0000-0000-0000-000000000000)"]) &
+			string) &
+			strings.MaxRunes(139) &
+			strings.MinRunes(13) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		AssetName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |

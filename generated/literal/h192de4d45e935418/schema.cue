@@ -30,7 +30,7 @@ import (
 
 	// The alias qualifier for the target function. If TargetFunctionArn is
 	// unqualified then Qualifier must be passed.
-	Qualifier?: strings.MaxRunes(128) & strings.MinRunes(1)
+	Qualifier?: (=~"^(?:([a-zA-Z0-9-_]+))" & matchN(0, [=~"^(?:^[0-9]+$)"]) & string | =~"^(?s:.)+(?:([a-zA-Z0-9-_]+))") & (strings.MaxRunes(128) & strings.MinRunes(1))
 
 	// The Amazon Resource Name (ARN) of the function associated with the Function URL.
 	TargetFunctionArn!: string

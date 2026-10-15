@@ -20,17 +20,47 @@ import structs "struct"
 	let properties = close({
 		AdditionalEncryptionContext?: #EncryptionContextMap
 		BrandingConfiguration?: close({
-			ColorTheme?:       #ColorTheme
-			Favicon?:          string | number | bool | fn.#StringExpression
+			ColorTheme?: #ColorTheme
+			Favicon?: =~"(^s3://[a-z0-9][a-z0-9\\.\\-]{1,61}[a-z0-9]/.+$)" |
+			{
+				number | bool
+				_cfnString: =~"(^s3://[a-z0-9][a-z0-9\\.\\-]{1,61}[a-z0-9]/.+$)" & "\(self)"
+			} |
+			=~"^[A-Za-z0-9+/]*={0,2}$" & =~"^(?:(.{4})*$)" |
+			{
+				number | bool
+				_cfnString: =~"^[A-Za-z0-9+/]*={0,2}$" & =~"^(?:(.{4})*$)" & "\(self)"
+			} |
+			fn.#StringExpression
 			LocalizedStrings?: #LocalizedBrandingStringMap
-			Logo?:             string | number | bool | fn.#StringExpression
+			Logo?: =~"(^s3://[a-z0-9][a-z0-9\\.\\-]{1,61}[a-z0-9]/.+$)" |
+			{
+				number | bool
+				_cfnString: =~"(^s3://[a-z0-9][a-z0-9\\.\\-]{1,61}[a-z0-9]/.+$)" & "\(self)"
+			} |
+			=~"^[A-Za-z0-9+/]*={0,2}$" & =~"^(?:(.{4})*$)" |
+			{
+				number | bool
+				_cfnString: =~"^[A-Za-z0-9+/]*={0,2}$" & =~"^(?:(.{4})*$)" & "\(self)"
+			} |
+			fn.#StringExpression
 			TermsOfService?: strings.MaxRunes(153600) |
 			{
 				number | bool
 				_cfnString: strings.MaxRunes(153600) & "\(self)"
 			} |
 			fn.#StringExpression
-			Wallpaper?: string | number | bool | fn.#StringExpression
+			Wallpaper?: =~"(^s3://[a-z0-9][a-z0-9\\.\\-]{1,61}[a-z0-9]/.+$)" |
+			{
+				number | bool
+				_cfnString: =~"(^s3://[a-z0-9][a-z0-9\\.\\-]{1,61}[a-z0-9]/.+$)" & "\(self)"
+			} |
+			=~"^[A-Za-z0-9+/]*={0,2}$" & =~"^(?:(.{4})*$)" |
+			{
+				number | bool
+				_cfnString: =~"^[A-Za-z0-9+/]*={0,2}$" & =~"^(?:(.{4})*$)" & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		CookieSynchronizationConfiguration?: #CookieSynchronizationConfiguration

@@ -67,20 +67,38 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Portal: close({
-	id?: strings.MaxRunes(36) & strings.MinRunes(36) |
+	id?: =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+	matchN(0, [=~"^(?:00000000-0000-0000-0000-000000000000)"]) &
+	string &
+	strings.MaxRunes(36) &
+	strings.MinRunes(36) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(36) & strings.MinRunes(36) & "\(self)"
+		_cfnString: =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+		matchN(0, [=~"^(?:00000000-0000-0000-0000-000000000000)"]) &
+		string &
+		strings.MaxRunes(36) &
+		strings.MinRunes(36) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Project: close({
-	id?: strings.MaxRunes(36) & strings.MinRunes(36) |
+	id?: =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+	matchN(0, [=~"^(?:00000000-0000-0000-0000-000000000000)"]) &
+	string &
+	strings.MaxRunes(36) &
+	strings.MinRunes(36) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(36) & strings.MinRunes(36) & "\(self)"
+		_cfnString: =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+		matchN(0, [=~"^(?:00000000-0000-0000-0000-000000000000)"]) &
+		string &
+		strings.MaxRunes(36) &
+		strings.MinRunes(36) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 }) |

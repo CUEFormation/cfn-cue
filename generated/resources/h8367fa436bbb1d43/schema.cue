@@ -102,10 +102,15 @@ import structs "struct"
 			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
 		} |
 		fn.#StringExpression
-		Name!: strings.MaxRunes(64) & strings.MinRunes(1) |
+		Name!: =~"^.{1,64}$" & matchN(0, [=~"^(?:AWS\\.)"]) & string & strings.MaxRunes(64) & strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^.{1,64}$" &
+			matchN(0, [=~"^(?:AWS\\.)"]) &
+			string &
+			strings.MaxRunes(64) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression

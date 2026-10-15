@@ -44,10 +44,15 @@ import structs "struct"
 			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
 		} |
 		fn.#StringExpression
-		Name!: strings.MaxRunes(50) & strings.MinRunes(1) |
+		Name!: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(50) & strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^.+$" &
+			matchN(0, [=~"^(?:\\s*$)"]) &
+			string &
+			strings.MaxRunes(50) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		Spaces?: list.MaxItems(10) & [...] & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression

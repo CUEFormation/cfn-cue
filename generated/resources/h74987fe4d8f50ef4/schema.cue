@@ -34,10 +34,19 @@ import structs "struct"
 			"\(self)"
 		} |
 		fn.#StringExpression
-		Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+		Name!: =~"^([a-zA-Z0-9-_]+)$" &
+		matchN(0, [=~"^(?:^[0-9]+$)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^([a-zA-Z0-9-_]+)$" &
+			matchN(0, [=~"^(?:^[0-9]+$)"]) &
+			string &
+			strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 

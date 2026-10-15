@@ -15,7 +15,11 @@ import (
 	AdditionalPeerNetworkCidrs?: [...string]
 
 	// The name of the ODB peering connection.
-	DisplayName?: strings.MaxRunes(255) & strings.MinRunes(1)
+	DisplayName?: =~"^[a-zA-Z_][a-zA-Z0-9_-]*$" &
+	matchN(0, [=~"^(?s:.){1}(?:.*--)"]) &
+	string &
+	strings.MaxRunes(255) &
+	strings.MinRunes(1)
 
 	// The Amazon Resource Name (ARN) of the ODB network.
 	OdbNetworkArn?: string

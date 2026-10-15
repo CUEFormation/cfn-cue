@@ -65,10 +65,13 @@ import structs "struct"
 
 #SubscriptionTargetForm: close({
 	Content!: string | number | bool | fn.#StringExpression
-	FormName!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	FormName!: (=~"^_\\w*[a-zA-Z0-9]\\w*$" | =~"^\\w+$" & matchN(0, [=~"^(?:[0-9_])"]) & string) & (strings.MaxRunes(128) & strings.MinRunes(1)) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		_cfnString: (=~"^_\\w*[a-zA-Z0-9]\\w*$" | =~"^\\w+$" & matchN(0, [=~"^(?:[0-9_])"]) & string) &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 }) |

@@ -15,13 +15,21 @@ import (
 	Arn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[-a-z0-9]*:bcm-dashboards::[0-9]{12}:dashboard/(\\*|[-a-z0-9]+)$"
-	CreatedAt?:   time.Time
-	Description?: strings.MaxRunes(200) & strings.MinRunes(1)
-	Name!:        strings.MaxRunes(50) & strings.MinRunes(2)
-	Tags?:        list.MaxItems(200) & [...#Tag]
-	Type?:        #DashboardType
-	UpdatedAt?:   time.Time
-	Widgets!:     list.MaxItems(20) & [...] & [...#Widget]
+	CreatedAt?: time.Time
+	Description?: =~"^[ a-zA-Z0-9.,!?;:@#$%&\\-_/\\\\]*$" &
+	matchN(0, [=~"^(?:.* {2})"]) &
+	string &
+	strings.MaxRunes(200) &
+	strings.MinRunes(1)
+	Name!: =~"^[a-zA-Z][a-zA-Z0-9 _-]{0,48}[a-zA-Z0-9_-]$" &
+	matchN(0, [=~"^(?:.* {2})"]) &
+	string &
+	strings.MaxRunes(50) &
+	strings.MinRunes(2)
+	Tags?:      list.MaxItems(200) & [...#Tag]
+	Type?:      #DashboardType
+	UpdatedAt?: time.Time
+	Widgets!:   list.MaxItems(20) & [...] & [...#Widget]
 })
 
 #CostAndUsageExpression: close({
@@ -196,12 +204,20 @@ import (
 #VisualType: "LINE" | "BAR" | "STACK"
 
 #Widget: close({
-	Configs!:          list.MaxItems(2) & list.MinItems(1) & [...#WidgetConfig]
-	Description?:      strings.MaxRunes(200) & strings.MinRunes(1)
+	Configs!: list.MaxItems(2) & list.MinItems(1) & [...#WidgetConfig]
+	Description?: =~"^[ a-zA-Z0-9.,!?;:@#$%&\\-_/\\\\]*$" &
+	matchN(0, [=~"^(?:.* {2})"]) &
+	string &
+	strings.MaxRunes(200) &
+	strings.MinRunes(1)
 	Height?:           int & <=10 & >=4
 	HorizontalOffset?: int
-	Title!:            strings.MaxRunes(50) & strings.MinRunes(2)
-	Width?:            int & <=6 & >=2
+	Title!: =~"^[a-zA-Z0-9_-][ a-zA-Z0-9_-]*[a-zA-Z0-9_-]$" &
+	matchN(0, [=~"^(?:.* {2})"]) &
+	string &
+	strings.MaxRunes(50) &
+	strings.MinRunes(2)
+	Width?: int & <=6 & >=2
 })
 
 #WidgetConfig: close({

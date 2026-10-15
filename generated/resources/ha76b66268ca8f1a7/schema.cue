@@ -142,10 +142,19 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CustomDecodingSignal: close({
-	Id!: strings.MaxRunes(150) & strings.MinRunes(1) |
+	Id!: =~"^[a-zA-Z0-9_\\-#:.]+$" &
+	matchN(0, [=~"^(?:.*\\.\\.)"]) &
+	string &
+	strings.MaxRunes(150) &
+	strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(150) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^[a-zA-Z0-9_\\-#:.]+$" &
+		matchN(0, [=~"^(?:.*\\.\\.)"]) &
+		string &
+		strings.MaxRunes(150) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 }) |

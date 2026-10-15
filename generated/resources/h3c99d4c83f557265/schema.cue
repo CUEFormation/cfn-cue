@@ -18,10 +18,19 @@ import structs "struct"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTAnalytics::Channel"
 	let properties = close({
-		ChannelName?: strings.MaxRunes(128) & strings.MinRunes(1) |
+		ChannelName?: =~"^(^[a-zA-Z0-9_]+$)" &
+		matchN(0, [=~"^(?:_{2})"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^(^[a-zA-Z0-9_]+$)" &
+			matchN(0, [=~"^(?:_{2})"]) &
+			string &
+			strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		ChannelStorage?:  #ChannelStorage

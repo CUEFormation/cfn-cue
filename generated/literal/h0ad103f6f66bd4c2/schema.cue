@@ -52,7 +52,7 @@ import (
 // A key-value pair to associate with a resource.
 #Tag: close({
 	// The key name of the tag. You can specify a value that is 1 to 128 Unicode characters
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// The value for the tag. . You can specify a value that is maximum of 256 Unicode characters
 	Value!: strings.MaxRunes(256)

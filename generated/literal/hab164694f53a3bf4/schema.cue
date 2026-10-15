@@ -20,7 +20,7 @@ package schema
 	AuthorizeTime?: string
 
 	// The cluster identifier.
-	ClusterIdentifier!: string
+	ClusterIdentifier!: =~"^.{1,63}$" & =~"^(?:^[a-z][a-z0-9]*(-[a-z0-9]+)*$)"
 
 	// The status of the cluster.
 	ClusterStatus?: string

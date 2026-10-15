@@ -16,7 +16,12 @@ import (
 	ComponentVersion?: string
 	InlineRecipe?:     string
 	LambdaFunction?:   #LambdaFunctionRecipeSource
-	Tags?:             struct.MaxFields(50) & {...}
+	Tags?: struct.MaxFields(50) & close({
+
+		{[=~"^(?:aws:)"]: error("disallowed")}
+
+		{[=~"^[a-zA-Z+-=._:/]{1,128}$"]: strings.MaxRunes(256)}
+	})
 })
 
 #ComponentDependencyRequirement: close({

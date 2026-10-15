@@ -123,9 +123,16 @@ func (c *converter) normalize(v any, path string, lift bool, root map[string]any
 				if k == "patternProperties" {
 					outName = re2Pattern(name)
 					if _, e := regexp.Compile(outName); e != nil {
-						c.warn(p+"/"+pointer(name), k, "pattern is incompatible with RE2; object opened for unmatched keys: "+e.Error())
-						m["additionalProperties"] = true
-						continue
+						wider, excluded, err := lookaroundKeys(s, name)
+						if err != nil {
+							c.warn(p+"/"+pointer(name), k, "pattern is incompatible with RE2; object opened for unmatched keys: "+e.Error()+lookaroundDetail(err))
+							m["additionalProperties"] = true
+							continue
+						}
+						outName = wider
+						for _, key := range excluded {
+							n[key] = false
+						}
 					}
 				}
 				n[outName] = c.normalize(x.(map[string]any)[name], p+"/"+pointer(name), k != "dependentSchemas", root, visiting)
@@ -197,11 +204,13 @@ func (c *converter) normalize(v any, path string, lift bool, root map[string]any
 				m[k] = x
 				continue
 			}
-			pat = re2Pattern(pat)
-			if _, e := regexp.Compile(pat); e != nil {
-				c.warn(p, k, "pattern is incompatible with RE2: "+e.Error())
+			re2 := re2Pattern(pat)
+			if _, e := regexp.Compile(re2); e == nil {
+				m[k] = re2
+			} else if schema, _, err := decomposeLookarounds(pat); err == nil {
+				appendAll(m, schema)
 			} else {
-				m[k] = pat
+				c.warn(p, k, "pattern is incompatible with RE2: "+e.Error()+lookaroundDetail(err))
 			}
 		case k == "format":
 			c.normalizeFormat(m, p, x)

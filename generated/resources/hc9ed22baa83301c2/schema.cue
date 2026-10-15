@@ -52,10 +52,10 @@ import structs "struct"
 					)
 			} |
 			fn.#NumberExpression
-		NamespaceName?: strings.MaxRunes(64) & strings.MinRunes(3) |
+		NamespaceName?: =~"^.{3,64}$" & =~"^(?:^[a-z0-9-]+$)" & strings.MaxRunes(64) & strings.MinRunes(3) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(64) & strings.MinRunes(3) & "\(self)"
+			_cfnString: =~"^.{3,64}$" & =~"^(?:^[a-z0-9-]+$)" & strings.MaxRunes(64) & strings.MinRunes(3) & "\(self)"
 		} |
 		fn.#StringExpression
 		Port?: int |
@@ -122,10 +122,10 @@ import structs "struct"
 			PricePerformanceTarget?: #PerformanceTarget
 		}) |
 		fn.#ObjectExpression
-		WorkgroupName!: strings.MaxRunes(64) & strings.MinRunes(3) |
+		WorkgroupName!: =~"^.{3,64}$" & =~"^(?:^[a-z0-9-]+$)" & strings.MaxRunes(64) & strings.MinRunes(3) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(64) & strings.MinRunes(3) & "\(self)"
+			_cfnString: =~"^.{3,64}$" & =~"^(?:^[a-z0-9-]+$)" & strings.MaxRunes(64) & strings.MinRunes(3) & "\(self)"
 		} |
 		fn.#StringExpression
 	})

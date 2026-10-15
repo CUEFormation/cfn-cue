@@ -34,7 +34,20 @@ import structs "struct"
 
 		// Settings for custom health checks.
 		HealthCheckCustomConfig?: #HealthCheckCustomConfig
-		Name?:                    string | number | bool | fn.#StringExpression
+		Name?: =~"(^\\.$)$" |
+		{
+			number | bool
+			_cfnString: =~"(^\\.$)$" & "\(self)"
+		} |
+		=~"^^([a-zA-Z0-9_][a-zA-Z0-9-_]{0,61}[a-zA-Z0-9_]|[a-zA-Z0-9])(\\.([a-zA-Z0-9_][a-zA-Z0-9-_]{0,61}[a-zA-Z0-9_]|[a-zA-Z0-9]))*$" &
+			=~"^(?:^.{1,127}$)" |
+		{
+			number | bool
+			_cfnString: =~"^^([a-zA-Z0-9_][a-zA-Z0-9-_]{0,61}[a-zA-Z0-9_]|[a-zA-Z0-9])(\\.([a-zA-Z0-9_][a-zA-Z0-9-_]{0,61}[a-zA-Z0-9_]|[a-zA-Z0-9]))*$" &
+				=~"^(?:^.{1,127}$)" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		NamespaceId?: strings.MaxRunes(255) & strings.MinRunes(0) |
 		{
 			number | bool

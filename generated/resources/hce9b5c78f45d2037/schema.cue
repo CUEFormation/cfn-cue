@@ -21,10 +21,19 @@ import structs "struct"
 		ActionThreshold!: #ActionThreshold
 		ActionType!:      "APPLY_IAM_POLICY" | "APPLY_SCP_POLICY" | "RUN_SSM_DOCUMENTS" | fn.#StringExpression
 		ApprovalModel?:   "AUTOMATIC" | "MANUAL" | fn.#StringExpression
-		BudgetName!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		BudgetName!: =~"^[^:\\\\]+$" &
+		matchN(0, [=~"^(?:[^:\\\\]*/action/|(?i).*<script>.*</script>.*)"]) &
+		string &
+		strings.MaxRunes(100) &
+		strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^[^:\\\\]+$" &
+			matchN(0, [=~"^(?:[^:\\\\]*/action/|(?i).*<script>.*</script>.*)"]) &
+			string &
+			strings.MaxRunes(100) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		Definition!: #Definition

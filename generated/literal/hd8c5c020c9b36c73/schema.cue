@@ -12,7 +12,11 @@ import "strings"
 	Id!: strings.MaxRunes(40) & strings.MinRunes(3) & =~"^[a-z0-9]{3,40}$"
 
 	// The name of the collection index
-	IndexName!: strings.MaxRunes(255) & strings.MinRunes(1)
+	IndexName!: =~"^[a-z][a-z0-9_-]*$" &
+	matchN(0, [=~"^(?:[_-])"]) &
+	string &
+	strings.MaxRunes(255) &
+	strings.MinRunes(1)
 
 	// The Mappings for the collection index
 	IndexSchema?: strings.MaxRunes(2480) &

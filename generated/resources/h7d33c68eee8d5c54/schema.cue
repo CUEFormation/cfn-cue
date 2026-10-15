@@ -70,8 +70,13 @@ import structs "struct"
 			"\(self)"
 		} |
 		fn.#StringExpression
-		SubscriptionName!: string | number | bool | fn.#StringExpression
-		Tags?:             [...#Tag] | fn.#ListExpression
+		SubscriptionName!: =~"^.{1,255}$" & =~"^(?:^[a-zA-Z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$)" |
+		{
+			number | bool
+			_cfnString: =~"^.{1,255}$" & =~"^(?:^[a-zA-Z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$)" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
 	})
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)

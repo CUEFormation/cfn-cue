@@ -31,10 +31,15 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Alias: strings.MaxRunes(128) & strings.MinRunes(1) |
+#Alias: =~"^([a-zA-Z0-9-_.]+)$" & matchN(0, [=~"^(?:^[.-])"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
 {
 	number | bool
-	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	_cfnString: =~"^([a-zA-Z0-9-_.]+)$" &
+	matchN(0, [=~"^(?:^[.-])"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1) &
+	"\(self)"
 } |
 fn.#StringExpression
 

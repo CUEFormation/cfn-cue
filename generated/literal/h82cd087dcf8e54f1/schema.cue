@@ -20,8 +20,18 @@ import (
 	IpAddressType?: "IPV4" | "IPV6" | "DUALSTACK"
 
 	// The number of IPv4 addresses to allocate per ENI for the resource gateway
-	Ipv4AddressesPerEni?:         int & <=62 & >=1
-	Name!:                        strings.MaxRunes(40) & strings.MinRunes(3)
+	Ipv4AddressesPerEni?: int & <=62 & >=1
+	Name!: =~"^[a-z0-9-]+$" &
+	matchN(0, [=~"^(?:rgw-)"]) &
+	string &
+	matchN(0, [=~"^(?:[-])"]) &
+	string &
+	matchN(0, [=~"^(?:.*[-]$)"]) &
+	string &
+	matchN(0, [=~"^(?:.*[-]{2})"]) &
+	string &
+	strings.MaxRunes(40) &
+	strings.MinRunes(3)
 	ResourceConfigDnsResolution?: "IN_VPC" | "PUBLIC"
 
 	// The ID of one or more security groups to associate with the endpoint network interface.

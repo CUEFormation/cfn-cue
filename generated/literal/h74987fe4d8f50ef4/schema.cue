@@ -24,7 +24,11 @@ import (
 	FunctionVersion!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(\\$LATEST(\\.PUBLISHED)?|[0-9]*)$"
 
 	// The name of the alias.
-	Name!: strings.MaxRunes(128) & strings.MinRunes(1)
+	Name!: =~"^([a-zA-Z0-9-_]+)$" &
+	matchN(0, [=~"^(?:^[0-9]+$)"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1)
 
 	// Specifies a provisioned concurrency configuration for a function's alias.
 	ProvisionedConcurrencyConfig?: #ProvisionedConcurrencyConfiguration

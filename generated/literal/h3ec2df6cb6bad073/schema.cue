@@ -13,7 +13,7 @@ import (
 // This is a CloudFormation resource for activating the first-party AWS::Hooks::GuardHook.
 #Properties: close({
 	// The typename alias for the hook.
-	Alias!: string
+	Alias!: =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}$" & matchN(0, [=~"^(?:(?i)aws)"]) & string
 
 	// The execution role ARN assumed by hooks to read Guard rules from S3 and write
 	// Guard outputs to S3.
@@ -122,7 +122,7 @@ import (
 #StackRole: (=~"arn:.+:iam::[0-9]{12}:role/.+" | string) & strings.MaxRunes(256)
 
 // Type name of hook target. Hook targets are the destination where hooks will be invoked against.
-#TargetName: strings.MaxRunes(256) & strings.MinRunes(1)
+#TargetName: =~"^.*$" & matchN(0, [=~"^(?:.*\\*\\?)"]) & string & strings.MaxRunes(256) & strings.MinRunes(1)
 
 // Which operations should this Hook run against? Resource changes, stacks or change sets.
 #TargetOperation: "RESOURCE" | "STACK" | "CHANGE_SET" | "CLOUD_CONTROL"

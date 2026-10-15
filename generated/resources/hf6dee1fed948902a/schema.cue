@@ -96,10 +96,19 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #EntityTypesListItem: close({
-	Type!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	Type!: =~"^[^\\n\\r\\t,]+$" &
+	matchN(0, [=~"^(?:[^\\n\\r\\t,]*\\\\n|\\\\r|\\\\t)"]) &
+	string &
+	strings.MaxRunes(64) &
+	strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^[^\\n\\r\\t,]+$" &
+		matchN(0, [=~"^(?:[^\\n\\r\\t,]*\\\\n|\\\\r|\\\\t)"]) &
+		string &
+		strings.MaxRunes(64) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 }) |

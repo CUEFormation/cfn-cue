@@ -12,7 +12,11 @@ import (
 // Resource Type definition for AWS::DirectoryService::MicrosoftAD
 #Properties: close({
 	// The alias for a directory
-	Alias?: strings.MaxRunes(62) & strings.MinRunes(1)
+	Alias?: =~"^([\\da-zA-Z]+)([-]*[\\da-zA-Z])*$" &
+	matchN(0, [=~"^(?:D-|d-)"]) &
+	string &
+	strings.MaxRunes(62) &
+	strings.MinRunes(1)
 
 	// Specifies an alias for a directory and assigns the alias to the directory.
 	// The alias is used to construct the access URL for the directory, such as
@@ -45,7 +49,10 @@ import (
 	// The password for the default administrative user named Admin. If you need to
 	// change the password for the administrator account, see the ResetUserPassword
 	// API call in the AWS Directory Service API Reference.
-	Password?: string
+	Password?: =~"^(?:^.{8,64}$)" & =~"^(?:.*\\d)" & =~"^(?:.*[A-Z])" & =~"^(?:.*[a-z])" |
+		=~"^(?:^.{8,64}$)" & =~"^(?:.*\\d)" & =~"^(?:.*[^A-Za-z0-9\\s])" & =~"^(?:.*[a-z])" |
+		=~"^(?:^.{8,64}$)" & =~"^(?:.*[^A-Za-z0-9\\s])" & =~"^(?:.*[A-Z])" & =~"^(?:.*[a-z])" |
+		=~"^(?:^.{8,64}$)" & =~"^(?:.*\\d)" & =~"^(?:.*[A-Z])" & =~"^(?:.*[^A-Za-z0-9\\s])"
 
 	// The NetBIOS name for your domain, such as CORP. If you don't specify a
 	// NetBIOS name, it will default to the first part of your directory DNS. For

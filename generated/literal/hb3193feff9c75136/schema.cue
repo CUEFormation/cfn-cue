@@ -73,13 +73,16 @@ import (
 #S3Location: close({
 	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
 	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	=~"^[0-9a-z\\.\\-]*$" &
+	matchN(0, [=~"(?:\\.)$"]) &
+	string &
 	strings.MaxRunes(63) &
 	strings.MinRunes(3)
 	S3Key!: strings.MaxRunes(1024) & strings.MinRunes(1)
 })
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!:   =~"^[\\S\\s]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & =~"^[\\S\\s]*$"
 })
 

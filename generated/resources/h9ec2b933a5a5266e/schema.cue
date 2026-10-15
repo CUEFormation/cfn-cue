@@ -25,10 +25,14 @@ import structs "struct"
 			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
 		} |
 		fn.#StringExpression
-		Name?: strings.MaxRunes(80) & strings.MinRunes(1) |
+		Name?: =~"^[a-zA-Z0-9_\\-\\.]+$" & =~"^(?:.*[a-zA-Z_\\-\\.])" & strings.MaxRunes(80) & strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(80) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^[a-zA-Z0-9_\\-\\.]+$" &
+			=~"^(?:.*[a-zA-Z_\\-\\.])" &
+			strings.MaxRunes(80) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		RoutingConfiguration?: #RoutingConfiguration

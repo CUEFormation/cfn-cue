@@ -46,7 +46,7 @@ import (
 	// The key of the tag. Amazon EC2 reserves keys beginning with 'aws:' for
 	// internal use and rejects them for this resource. Amazon EC2 accepts a
 	// maximum of 128 Unicode characters.
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!: =~"^.+$" & matchN(0, [=~"^(?:[aA][wW][sS]:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// The value of the tag. Amazon EC2 accepts a maximum of 256 Unicode characters.
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)

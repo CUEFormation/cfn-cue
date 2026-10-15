@@ -226,6 +226,6 @@ strings.MinRunes(29) &
 })
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1)
+	Key?:   =~"^.+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0)
 })

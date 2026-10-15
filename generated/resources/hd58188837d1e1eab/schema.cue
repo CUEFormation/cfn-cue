@@ -42,10 +42,31 @@ import structs "struct"
 			_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & "\(self)"
 		} |
 		fn.#StringExpression
-		Name!: strings.MaxRunes(40) & strings.MinRunes(3) |
+		Name!: =~"^[a-z0-9-]+$" &
+		matchN(0, [=~"^(?:rcfg-)"]) &
+		string &
+		matchN(0, [=~"^(?:[-])"]) &
+		string &
+		matchN(0, [=~"^(?:.*[-]$)"]) &
+		string &
+		matchN(0, [=~"^(?:.*[-]{2})"]) &
+		string &
+		strings.MaxRunes(40) &
+		strings.MinRunes(3) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(40) & strings.MinRunes(3) & "\(self)"
+			_cfnString: =~"^[a-z0-9-]+$" &
+			matchN(0, [=~"^(?:rcfg-)"]) &
+			string &
+			matchN(0, [=~"^(?:[-])"]) &
+			string &
+			matchN(0, [=~"^(?:.*[-]$)"]) &
+			string &
+			matchN(0, [=~"^(?:.*[-]{2})"]) &
+			string &
+			strings.MaxRunes(40) &
+			strings.MinRunes(3) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		PortRanges?:                    [...#PortRange] | fn.#ListExpression

@@ -28,10 +28,19 @@ import structs "struct"
 			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
 		} |
 		fn.#StringExpression
-		Name?: strings.MaxRunes(64) & strings.MinRunes(0) |
+		Name?: =~"^([a-zA-Z0-9\\-_' ']+)$" &
+		matchN(0, [=~"^(?:^[0-9]+$)"]) &
+		string &
+		strings.MaxRunes(64) &
+		strings.MinRunes(0) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
+			_cfnString: =~"^([a-zA-Z0-9\\-_' ']+)$" &
+			matchN(0, [=~"^(?:^[0-9]+$)"]) &
+			string &
+			strings.MaxRunes(64) &
+			strings.MinRunes(0) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		ResolverEndpointId?: strings.MaxRunes(64) & strings.MinRunes(1) |

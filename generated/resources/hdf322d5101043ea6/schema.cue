@@ -69,8 +69,18 @@ import structs "struct"
 
 #Credential: close({
 	CredentialType?: "ADMIN" | fn.#StringExpression
-	DatabaseName?:   string | number | bool | fn.#StringExpression
-	SecretId?:       string | number | bool | fn.#StringExpression
+	DatabaseName?: =~"^(?:.{1,100}$)" |
+	{
+		number | bool
+		_cfnString: =~"^(?:.{1,100}$)" & "\(self)"
+	} |
+	fn.#StringExpression
+	SecretId?: =~"^(?:.{1,100}$)" |
+	{
+		number | bool
+		_cfnString: =~"^(?:.{1,100}$)" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

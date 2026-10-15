@@ -322,10 +322,19 @@ fn.#ObjectExpression
 	} |
 	fn.#StringExpression
 	FieldMapping!: #OpenSearchManagedClusterFieldMapping
-	VectorIndexName!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	VectorIndexName!: =~"^[a-z0-9][a-z0-9\\-_\\.]*$" &
+	matchN(0, [=~"^(?:[\\-_+.])"]) &
+	string &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^[a-z0-9][a-z0-9\\-_\\.]*$" &
+		matchN(0, [=~"^(?:[\\-_+.])"]) &
+		string &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 }) |

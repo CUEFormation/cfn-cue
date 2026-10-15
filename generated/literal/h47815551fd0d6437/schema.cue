@@ -22,7 +22,11 @@ import (
 	=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
 	Description?: strings.MaxRunes(255) &
 	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$"
-	Name!:                    strings.MaxRunes(100) & strings.MinRunes(1)
+	Name!: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t]*$" &
+	matchN(0, [=~"^(?:\\s*$)"]) &
+	string &
+	strings.MaxRunes(100) &
+	strings.MinRunes(1)
 	SelectedAnalysisMethods?: #SelectedAnalysisMethods
 	TableReference!:          #TableReference
 

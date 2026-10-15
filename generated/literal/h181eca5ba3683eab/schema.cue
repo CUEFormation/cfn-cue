@@ -43,13 +43,23 @@ import (
 	TargetAllocatedStorage?: int
 
 	// The DB cluster parameter group for the target Aurora DB cluster.
-	TargetDBClusterParameterGroupName?: strings.MaxRunes(255) & strings.MinRunes(1)
+	TargetDBClusterParameterGroupName?: (=~"^[A-Za-z][0-9A-Za-z-]*[^-]" & matchN(0, [=~"^(?s:.){1}(?:.*--)"]) & string |
+	=~"^default[0-9A-Za-z-.]*[^-]$" &
+	matchN(0, [=~"^(?s:.){7}(?:.*--)"]) &
+	string &
+	matchN(0, [=~"^(?s:.){7}(?:.*\\.\\.)"]) &
+	string) & (strings.MaxRunes(255) & strings.MinRunes(1))
 
 	// The DB instance class for target RDS DB instances.
 	TargetDBInstanceClass?: strings.MaxRunes(20) & strings.MinRunes(5) & =~"^db\\.[0-9a-z]{2,6}\\.[0-9a-z]{4,9}$"
 
 	// The DB parameter group for the target DB instance.
-	TargetDBParameterGroupName?: strings.MaxRunes(255) & strings.MinRunes(1)
+	TargetDBParameterGroupName?: (=~"^[A-Za-z][0-9A-Za-z-]*[^-]" & matchN(0, [=~"^(?s:.){1}(?:.*--)"]) & string |
+	=~"^default[0-9A-Za-z-.]*[^-]$" &
+	matchN(0, [=~"^(?s:.){7}(?:.*--)"]) &
+	string &
+	matchN(0, [=~"^(?s:.){7}(?:.*\\.\\.)"]) &
+	string) & (strings.MaxRunes(255) & strings.MinRunes(1))
 
 	// The DB engine version for the target database.
 	TargetEngineVersion?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z-_.]+$"

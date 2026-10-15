@@ -44,10 +44,19 @@ import structs "struct"
 			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
 		} |
 		fn.#StringExpression
-		RepositoryName!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		RepositoryName!: =~"^[a-zA-Z0-9._\\-]+$" &
+		matchN(0, [=~"(?:\\.git)$"]) &
+		string &
+		strings.MaxRunes(100) &
+		strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^[a-zA-Z0-9._\\-]+$" &
+			matchN(0, [=~"(?:\\.git)$"]) &
+			string &
+			strings.MaxRunes(100) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression

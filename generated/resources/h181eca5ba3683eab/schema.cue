@@ -47,10 +47,25 @@ import structs "struct"
 					)
 			} |
 			fn.#NumberExpression
-		TargetDBClusterParameterGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		TargetDBClusterParameterGroupName?: (=~"^[A-Za-z][0-9A-Za-z-]*[^-]" &
+		matchN(0, [=~"^(?s:.){1}(?:.*--)"]) &
+		string |
+		=~"^default[0-9A-Za-z-.]*[^-]$" &
+		matchN(0, [=~"^(?s:.){7}(?:.*--)"]) &
+		string &
+		matchN(0, [=~"^(?s:.){7}(?:.*\\.\\.)"]) &
+		string) & (strings.MaxRunes(255) & strings.MinRunes(1)) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+			_cfnString: (=~"^[A-Za-z][0-9A-Za-z-]*[^-]" & matchN(0, [=~"^(?s:.){1}(?:.*--)"]) & string |
+			=~"^default[0-9A-Za-z-.]*[^-]$" &
+			matchN(0, [=~"^(?s:.){7}(?:.*--)"]) &
+			string &
+			matchN(0, [=~"^(?s:.){7}(?:.*\\.\\.)"]) &
+			string) &
+			strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		TargetDBInstanceClass?: strings.MaxRunes(20) & strings.MinRunes(5) & =~"^db\\.[0-9a-z]{2,6}\\.[0-9a-z]{4,9}$" |
@@ -62,10 +77,23 @@ import structs "struct"
 			"\(self)"
 		} |
 		fn.#StringExpression
-		TargetDBParameterGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		TargetDBParameterGroupName?: (=~"^[A-Za-z][0-9A-Za-z-]*[^-]" & matchN(0, [=~"^(?s:.){1}(?:.*--)"]) & string |
+		=~"^default[0-9A-Za-z-.]*[^-]$" &
+		matchN(0, [=~"^(?s:.){7}(?:.*--)"]) &
+		string &
+		matchN(0, [=~"^(?s:.){7}(?:.*\\.\\.)"]) &
+		string) & (strings.MaxRunes(255) & strings.MinRunes(1)) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+			_cfnString: (=~"^[A-Za-z][0-9A-Za-z-]*[^-]" & matchN(0, [=~"^(?s:.){1}(?:.*--)"]) & string |
+			=~"^default[0-9A-Za-z-.]*[^-]$" &
+			matchN(0, [=~"^(?s:.){7}(?:.*--)"]) &
+			string &
+			matchN(0, [=~"^(?s:.){7}(?:.*\\.\\.)"]) &
+			string) &
+			strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		TargetEngineVersion?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z-_.]+$" |

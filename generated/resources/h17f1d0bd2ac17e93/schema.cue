@@ -236,7 +236,13 @@ fn.#ObjectExpression
 		)}
 	}) |
 	fn.#ObjectExpression
-	PathParameterValues?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	PathParameterValues?: list.UniqueItems() & [...=~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string |
+	{
+		number | bool
+		_cfnString: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	QueryStringParameters?: close({
 
 		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}

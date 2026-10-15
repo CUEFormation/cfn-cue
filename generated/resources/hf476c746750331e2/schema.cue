@@ -81,7 +81,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   string | number | bool | fn.#StringExpression
+	Key?: =~"^.+" & matchN(0, [=~"^(?:aws:)"]) & string |
+	{
+		number | bool
+		_cfnString: =~"^.+" & matchN(0, [=~"^(?:aws:)"]) & string & "\(self)"
+	} |
+	fn.#StringExpression
 	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

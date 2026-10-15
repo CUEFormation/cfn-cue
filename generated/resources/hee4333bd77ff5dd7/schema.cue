@@ -22,14 +22,28 @@ import structs "struct"
 			_cfnString: strings.MaxRunes(501) & strings.MinRunes(0) & =~"^([a-zA-Z0-9., _ʼ'%-]){0,500}$" & "\(self)"
 		} |
 		fn.#StringExpression
-		InstanceName?: strings.MaxRunes(63) & strings.MinRunes(0) |
+		InstanceName?: =~"^[a-zA-Z0-9 _ʼ'%-]{0,62}[a-zA-Z0-9]$" &
+		matchN(0, [=~"^(?:[ _ʼ'%-])"]) &
+		string &
+		strings.MaxRunes(63) &
+		strings.MinRunes(0) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(63) & strings.MinRunes(0) & "\(self)"
+			_cfnString: =~"^[a-zA-Z0-9 _ʼ'%-]{0,62}[a-zA-Z0-9]$" &
+			matchN(0, [=~"^(?:[ _ʼ'%-])"]) &
+			string &
+			strings.MaxRunes(63) &
+			strings.MinRunes(0) &
+			"\(self)"
 		} |
 		fn.#StringExpression
-		Tags?:            list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		WebAppDnsDomain?: string | number | bool | fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		WebAppDnsDomain?: =~"^[a-zA-Z0-9-]{1,62}[a-zA-Z0-9]$" & matchN(0, [=~"^(?:[-])"]) & string |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9-]{1,62}[a-zA-Z0-9]$" & matchN(0, [=~"^(?:[-])"]) & string & "\(self)"
+		} |
+		fn.#StringExpression
 	})
 	Properties?: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)

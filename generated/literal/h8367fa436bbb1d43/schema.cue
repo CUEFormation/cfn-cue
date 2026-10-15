@@ -48,7 +48,7 @@ import (
 	LaunchCriteria?: strings.MaxRunes(1024) & strings.MinRunes(0)
 
 	// A name for the experiment definition.
-	Name!: strings.MaxRunes(64) & strings.MinRunes(1)
+	Name!: =~"^.{1,64}$" & matchN(0, [=~"^(?:AWS\\.)"]) & string & strings.MaxRunes(64) & strings.MinRunes(1)
 
 	// Current status.
 	Status?: "ACTIVE" | "IDLE" | "ARCHIVED"

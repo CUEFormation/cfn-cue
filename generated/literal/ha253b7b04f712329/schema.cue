@@ -30,7 +30,8 @@ import (
 	Id?: strings.MaxRunes(64) & strings.MinRunes(1)
 
 	// ResolverQueryLogConfigName
-	Name?: strings.MaxRunes(64) & strings.MinRunes(1)
+	Name?: (=~"^(?:([a-zA-Z0-9\\-_' ']+))" & matchN(0, [=~"^(?:^[0-9]+$)"]) & string |
+	=~"^(?s:.)+(?:([a-zA-Z0-9\\-_' ']+))") & (strings.MaxRunes(64) & strings.MinRunes(1))
 
 	// AccountId
 	OwnerId?: strings.MaxRunes(32) & strings.MinRunes(12)

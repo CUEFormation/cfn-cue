@@ -28,7 +28,11 @@ import (
 	SnapshotCreateTime?: time.Time
 
 	// The snapshot name.
-	SnapshotName!: strings.MaxRunes(63) & strings.MinRunes(1)
+	SnapshotName!: =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$" &
+	matchN(0, [=~"^(?:gs-)"]) &
+	string &
+	strings.MaxRunes(63) &
+	strings.MinRunes(1)
 
 	// The current status of the graph snapshot.
 	Status?: "CREATING" | "AVAILABLE" | "DELETING" | "FAILED"

@@ -18,10 +18,14 @@ import structs "struct"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::FSx::S3AccessPointAttachment"
 	let properties = close({
-		Name!: strings.MaxRunes(50) & strings.MinRunes(3) |
+		Name!: =~"^[a-z0-9-]{1,48}[a-z0-9]$" & =~"^(?:[a-z0-9])" & strings.MaxRunes(50) & strings.MinRunes(3) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(50) & strings.MinRunes(3) & "\(self)"
+			_cfnString: =~"^[a-z0-9-]{1,48}[a-z0-9]$" &
+			=~"^(?:[a-z0-9])" &
+			strings.MaxRunes(50) &
+			strings.MinRunes(3) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 

@@ -37,10 +37,19 @@ import structs "struct"
 		} |
 		fn.#StringExpression
 		FederatedCatalog?: #FederatedCatalog
-		Name!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		Name!: =~"^.*$" &
+		matchN(0, [=~"^(?:(.*[.\\/\\\\]|aws:))"]) &
+		string &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^.*$" &
+			matchN(0, [=~"^(?:(.*[.\\/\\\\]|aws:))"]) &
+			string &
+			strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		OverwriteChildResourcePermissionsWithDefault?: "Accept" | "Deny" | fn.#StringExpression

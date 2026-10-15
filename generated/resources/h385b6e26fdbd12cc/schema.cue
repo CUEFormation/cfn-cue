@@ -17,7 +17,15 @@ import structs "struct"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFormation::LambdaHook"
 	let properties = close({
-		Alias!:      string | number | bool | fn.#StringExpression
+		Alias!: =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}$" & matchN(0, [=~"^(?:(?i)aws)"]) & string |
+		{
+			number | bool
+			_cfnString: =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}$" &
+			matchN(0, [=~"^(?:(?i)aws)"]) &
+			string &
+			"\(self)"
+		} |
+		fn.#StringExpression
 		AutoUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 		// The execution role ARN assumed by Hooks to invoke Lambda.
@@ -138,10 +146,15 @@ fn.#StringExpression
 } |
 fn.#StringExpression
 
-#TargetName: strings.MaxRunes(256) & strings.MinRunes(1) |
+#TargetName: =~"^.*$" & matchN(0, [=~"^(?:.*\\*\\?)"]) & string & strings.MaxRunes(256) & strings.MinRunes(1) |
 {
 	number | bool
-	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	_cfnString: =~"^.*$" &
+	matchN(0, [=~"^(?:.*\\*\\?)"]) &
+	string &
+	strings.MaxRunes(256) &
+	strings.MinRunes(1) &
+	"\(self)"
 } |
 fn.#StringExpression
 

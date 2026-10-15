@@ -22,7 +22,7 @@ import "strings"
 	EndpointCreateTime?: string
 
 	// The name of the endpoint.
-	EndpointName!: string
+	EndpointName!: =~"^.{1,30}$" & =~"^(?:^[a-z][a-z0-9]*(-[a-z0-9]+)*$)"
 
 	// The status of the endpoint.
 	EndpointStatus?: string
@@ -34,7 +34,7 @@ import "strings"
 	ResourceOwner?: strings.MaxRunes(2147483647) & strings.MinRunes(0) & =~"^\\d{12}$"
 
 	// The subnet group name where Amazon Redshift chooses to deploy the endpoint.
-	SubnetGroupName!: string
+	SubnetGroupName!: =~"^.{1,255}$" & =~"^(?:^[a-zA-Z0-9-]+$)"
 
 	// The connection endpoint for connecting to an Amazon Redshift cluster through the proxy.
 	VpcEndpoint?: close({

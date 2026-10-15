@@ -43,10 +43,23 @@ fn.#StringExpression
 } |
 fn.#StringExpression
 
-#Name: strings.MaxRunes(50) & strings.MinRunes(1) |
+#Name: =~"^[\\p{L}\\p{N}\\p{Z}-_]*$" &
+matchN(0, [=~"^(?: )"]) &
+string &
+matchN(0, [=~"(?: )$"]) &
+string &
+strings.MaxRunes(50) &
+strings.MinRunes(1) |
 {
 	number | bool
-	_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+	_cfnString: =~"^[\\p{L}\\p{N}\\p{Z}-_]*$" &
+	matchN(0, [=~"^(?: )"]) &
+	string &
+	matchN(0, [=~"(?: )$"]) &
+	string &
+	strings.MaxRunes(50) &
+	strings.MinRunes(1) &
+	"\(self)"
 } |
 fn.#StringExpression
 

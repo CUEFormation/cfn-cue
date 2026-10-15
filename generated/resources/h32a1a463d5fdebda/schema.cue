@@ -25,10 +25,15 @@ import structs "struct"
 		} |
 		fn.#StringExpression
 		OwnershipSettings?: #OwnershipSettings
-		SpaceDisplayName?: strings.MaxRunes(64) & strings.MinRunes(0) |
+		SpaceDisplayName?: =~"^.+" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(64) & strings.MinRunes(0) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
+			_cfnString: =~"^.+" &
+			matchN(0, [=~"^(?:\\s*$)"]) &
+			string &
+			strings.MaxRunes(64) &
+			strings.MinRunes(0) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		SpaceName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |

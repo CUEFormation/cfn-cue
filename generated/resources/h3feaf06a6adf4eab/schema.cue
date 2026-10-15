@@ -51,10 +51,17 @@ import structs "struct"
 		// syntax, see [Lifecycle policy
 		// template](https://docs.aws.amazon.com/AmazonECR/latest/userguide/LifecyclePolicies.html).
 		LifecyclePolicy?: #LifecyclePolicy
-		RepositoryName?: strings.MaxRunes(256) & strings.MinRunes(2) |
+		RepositoryName?: =~"^([a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*(\\/[a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*)*)$" &
+		=~"^(?:.{2,256}$)" &
+		strings.MaxRunes(256) &
+		strings.MinRunes(2) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(256) & strings.MinRunes(2) & "\(self)"
+			_cfnString: =~"^([a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*(\\/[a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*)*)$" &
+			=~"^(?:.{2,256}$)" &
+			strings.MaxRunes(256) &
+			strings.MinRunes(2) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		RepositoryPolicyText?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression

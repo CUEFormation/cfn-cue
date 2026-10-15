@@ -48,7 +48,11 @@ import (
 
 	// A friendly name that lets you easily find a configuration in the Resolver
 	// dashboard in the Route 53 console.
-	Name?: strings.MaxRunes(64) & strings.MinRunes(0)
+	Name?: =~"^([a-zA-Z0-9\\-_' ']+)$" &
+	matchN(0, [=~"^(?:^[0-9]+$)"]) &
+	string &
+	strings.MaxRunes(64) &
+	strings.MinRunes(0)
 
 	// The ARN (Amazon Resource Name) for the Outpost.
 	OutpostArn?: strings.MaxRunes(255) &

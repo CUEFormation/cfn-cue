@@ -156,10 +156,23 @@ fn.#ObjectExpression
 		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
 	} |
 	fn.#StringExpression
-	RelativePath!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	RelativePath!: (=~"^[a-zA-Z0-9._-][a-zA-Z0-9._/-]*[a-zA-Z0-9._-]$" &
+	matchN(0, [=~"^(?:.*(^|/)\\.\\.?(/|$))"]) &
+	string &
+	matchN(0, [=~"^(?:.*//)"]) &
+	string |
+	=~"^[a-zA-Z0-9_-]$") & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		_cfnString: (=~"^[a-zA-Z0-9._-][a-zA-Z0-9._/-]*[a-zA-Z0-9._-]$" &
+		matchN(0, [=~"^(?:.*(^|/)\\.\\.?(/|$))"]) &
+		string &
+		matchN(0, [=~"^(?:.*//)"]) &
+		string |
+		=~"^[a-zA-Z0-9_-]$") &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 	Source!:      #MountSource

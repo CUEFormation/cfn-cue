@@ -24,10 +24,15 @@ import structs "struct"
 			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
 		} |
 		fn.#StringExpression
-		Name!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		Name!: =~"^[!-~]{1,253}$" & matchN(0, [=~"^(?:arn:)"]) & string & strings.MaxRunes(1024) & strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^[!-~]{1,253}$" &
+			matchN(0, [=~"^(?:arn:)"]) &
+			string &
+			strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 

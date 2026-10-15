@@ -35,7 +35,11 @@ import "strings"
 	// should be sent. The log destination for event-based logging overrides
 	// default Log Group for the specified event type and applies to all resources
 	// associated with that event.
-	LogDestination?: strings.MaxRunes(512) & strings.MinRunes(1)
+	LogDestination?: =~"^[a-zA-Z0-9_\\-/.#]+$" &
+	matchN(0, [=~"^(?:aws/)"]) &
+	string &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1)
 
 	// The logging level for the specified event type. Determines the verbosity of
 	// log messages generated for this event type.

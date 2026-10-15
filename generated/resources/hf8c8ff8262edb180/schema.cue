@@ -707,10 +707,19 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#OneDriveUser: strings.MaxRunes(256) & strings.MinRunes(1) |
+#OneDriveUser: =~"^.+@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$" &
+matchN(0, [=~"^(?:\\s)"]) &
+string &
+strings.MaxRunes(256) &
+strings.MinRunes(1) |
 {
 	number | bool
-	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	_cfnString: =~"^.+@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$" &
+	matchN(0, [=~"^(?:\\s)"]) &
+	string &
+	strings.MaxRunes(256) &
+	strings.MinRunes(1) &
+	"\(self)"
 } |
 fn.#StringExpression
 
@@ -938,10 +947,19 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ServiceNowHostUrl: strings.MaxRunes(2048) & strings.MinRunes(1) |
+#ServiceNowHostUrl: =~"^[a-z0-9-]+(\\.service-now\\.com)$" &
+matchN(0, [=~"^(?:(^(https?|ftp|file):\\/\\/))"]) &
+string &
+strings.MaxRunes(2048) &
+strings.MinRunes(1) |
 {
 	number | bool
-	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	_cfnString: =~"^[a-z0-9-]+(\\.service-now\\.com)$" &
+	matchN(0, [=~"^(?:(^(https?|ftp|file):\\/\\/))"]) &
+	string &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	"\(self)"
 } |
 fn.#StringExpression
 

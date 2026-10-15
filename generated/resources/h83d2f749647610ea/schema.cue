@@ -367,10 +367,15 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #JSONMappingParameters: close({
-	RecordRowPath!: strings.MaxRunes(65535) & strings.MinRunes(1) |
+	RecordRowPath!: =~"^.*$" & =~"^(?:^\\$)" & =~"^(?:^\\S+$)" & strings.MaxRunes(65535) & strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(65535) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^.*$" &
+		=~"^(?:^\\$)" &
+		=~"^(?:^\\S+$)" &
+		strings.MaxRunes(65535) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 }) |

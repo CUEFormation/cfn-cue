@@ -390,7 +390,7 @@ close({
 #Tag: close({
 	// A string that you can use to assign a value. The combination of tag keys and
 	// values can help you organize and categorize your resources.
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// The value for the specified tag key.
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)

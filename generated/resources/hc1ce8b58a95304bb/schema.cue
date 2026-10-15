@@ -39,10 +39,19 @@ import structs "struct"
 			"\(self)"
 		} |
 		fn.#StringExpression
-		Name!: strings.MaxRunes(63) & strings.MinRunes(1) |
+		Name!: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t]*$" &
+		matchN(0, [=~"^(?:\\s*$)"]) &
+		string &
+		strings.MaxRunes(63) &
+		strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t]*$" &
+			matchN(0, [=~"^(?:\\s*$)"]) &
+			string &
+			strings.MaxRunes(63) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &

@@ -13,8 +13,12 @@ import "strings"
 	=~"^arn:(aws[a-zA-Z-]*)?:refactor-spaces:[a-zA-Z0-9\\-]+:\\w{12}:[a-zA-Z_0-9+=,.@\\-_/]+$"
 	Description?:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\s\\.\\!\\*\\#\\@\\']+$"
 	EnvironmentIdentifier?: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^env-([0-9A-Za-z]{10}$)"
-	Name?:                  strings.MaxRunes(63) & strings.MinRunes(3)
-	NetworkFabricType?:     #NetworkFabricType
+	Name?: =~"^[a-zA-Z0-9]+[a-zA-Z0-9-_ ]+$" &
+	matchN(0, [=~"^(?:env-)"]) &
+	string &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3)
+	NetworkFabricType?: #NetworkFabricType
 
 	// Metadata that you can assign to help organize the frameworks that you create.
 	// Each tag is a key-value pair.
@@ -27,7 +31,7 @@ import "strings"
 // A label for tagging Environment resource
 #Tag: close({
 	// A string used to identify this tag
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!: =~"^.+" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// A string containing the value for the tag
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)

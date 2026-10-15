@@ -1,0 +1,735 @@
+{
+  "samples": [
+    "",
+    "a",
+    "A",
+    "z",
+    "ab",
+    "abc",
+    "Abc",
+    "ABC",
+    "abc123",
+    "a1",
+    "Ab1",
+    "x",
+    "my-name",
+    "my_name",
+    "my name",
+    "MyName",
+    "aws:",
+    "aws:abc",
+    "aws:Name",
+    "AWS:abc",
+    "Aws:abc",
+    "aWs:x",
+    "awsx",
+    "aws",
+    "AWS",
+    "aws.x",
+    "AWS.x",
+    "aws/x",
+    "x:aws:y",
+    "abc:aws:",
+    "memorydb:x",
+    "rds:x",
+    "connect:x",
+    "system.x",
+    "custom-x",
+    " ",
+    "  ",
+    "   ",
+    "\t",
+    "\n",
+    " \n",
+    "a\n",
+    "\na",
+    "a\nb",
+    " a",
+    "a ",
+    " a ",
+    "a b",
+    "a  b",
+    "a\tb",
+    "1",
+    "12",
+    "123",
+    "0",
+    "007",
+    "1a",
+    "a1b",
+    "1.2",
+    "1.2.3",
+    "1.2.3.4",
+    "10.0.0.1",
+    "256.1.1.1",
+    "-",
+    "--",
+    "-a",
+    "a-",
+    "a-b",
+    "a--b",
+    "a---b",
+    "_",
+    "__",
+    "_a",
+    "__a",
+    "a_",
+    "a__b",
+    "a_b",
+    ".",
+    "..",
+    "...",
+    ".a",
+    "a.",
+    "a.b",
+    "a..b",
+    "a.-b",
+    "a-.b",
+    "my.bucket",
+    "my-bucket.example.com",
+    "example.com",
+    "sub.example.com",
+    "-example.com",
+    "example-.com",
+    "localhost",
+    "*.example.com",
+    "a/b",
+    "/a",
+    "a/",
+    "/",
+    "//",
+    "a//b",
+    "/a/b",
+    "/a/../b",
+    "../a",
+    "./a",
+    "a/./b",
+    "a/.",
+    "a/..",
+    "repo.git",
+    "a.git",
+    "abc.gitx",
+    "D-123",
+    "d-abc",
+    "d-",
+    "app-x",
+    "env-x",
+    "svc-x",
+    "tg-abc",
+    "listener-x",
+    "rule-x",
+    "rcfg-x",
+    "rgw-x",
+    "servicenetwork-x",
+    "gs-abc",
+    "gcp-abc",
+    "internal-x",
+    "arn:aws:s3:::bucket",
+    "arn:aws:events:::aws-sdk:x",
+    "arn:aws:events:us-east-1:123456789012:rule/x",
+    "arn:x",
+    "00000000-0000-0000-0000-000000000000",
+    "12345678-1234-1234-1234-123456789abc",
+    "externalId:abc_1",
+    "stop",
+    "Stop",
+    "STOP",
+    "help",
+    "stop now",
+    "stopx",
+    "Aws::Foo::Bar",
+    "My::Res::Type",
+    "aws::x::y",
+    "AB::CD::EF",
+    "<script>x</script>",
+    "<SCRIPT>x</SCRIPT>",
+    "a/action/b",
+    "a:b",
+    "a\\b",
+    "abc\\n",
+    "\\r",
+    "a,b",
+    "Password1",
+    "password",
+    "PASSWORD1",
+    "Pass1!",
+    "Abcdefg1",
+    "abcdefg1!",
+    "ABCDEFG!1",
+    "Abcdefgh",
+    "aB3$aB3$",
+    "user@example.com",
+    " user@example.com",
+    "a@b.co",
+    "user@x",
+    "dGVzdA==",
+    "dGVzdA=",
+    "abcd",
+    "abc=",
+    "s3://bucket/key",
+    "s3://b/k",
+    "${aws:x}",
+    "${x}",
+    "$.foo",
+    "$.a[1]",
+    "$",
+    "{%x%}",
+    "{%%}",
+    "é",
+    "名前",
+    "café",
+    "Ünïcödé tag",
+    "x|y",
+    "a=b",
+    "a+b",
+    "a@b",
+    "a%b",
+    "a#b",
+    "a'b",
+    "a\"b",
+    "{a}",
+    "<a>",
+    "jdbc:redshift://host.redshift.amazonaws.com:5439/db",
+    "P1D",
+    "PT1H",
+    "P",
+    "-P1Y",
+    "aaa",
+    "aaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "a--------------------b",
+    "000000000000",
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxarn",
+    "arnxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "arnxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  ],
+  "patterns": [
+    {
+      "pattern": "((?!^[0-9]+$)([a-zA-Z0-9-_]+))"
+    },
+    {
+      "pattern": "(?!^(\\d+\\.)+\\d+$)(^(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)*([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])$)"
+    },
+    {
+      "pattern": "(?!^[.-])^([a-zA-Z0-9-_.]+)$"
+    },
+    {
+      "pattern": "(?!^[0-9]+$)([a-zA-Z0-9-_' ']+)"
+    },
+    {
+      "pattern": "(?!^[0-9]+$)([a-zA-Z0-9\\-_' ']+)"
+    },
+    {
+      "pattern": "(?=^.{0,265}$)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63}",
+      "examples": [
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@example.com"
+      ]
+    },
+    {
+      "pattern": "(?=^.{3,63}$)(?!^(\\d+\\.)+\\d+$)(^(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)*([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])$)"
+    },
+    {
+      "pattern": "(^(?!_{2}))(^[a-zA-Z0-9_]+$)"
+    },
+    {
+      "pattern": "(^s3://[a-z0-9][a-z0-9\\.\\-]{1,61}[a-z0-9]/.+$)|(^(?=(.{4})*$)[A-Za-z0-9+/]*={0,2}$)"
+    },
+    {
+      "pattern": "(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:[a-z\\-]*\\/)?([a-zA-Z0-9]([a-zA-Z0-9-]){0,62})(?<!-)$"
+    },
+    {
+      "pattern": "\\A(?!aws:)[a-zA-Z0-9+\\-=\\._\\:\\/@]+$"
+    },
+    {
+      "pattern": "^((?!.*(^|/)\\.\\.?(/|$))(?!.*//)[a-zA-Z0-9._-][a-zA-Z0-9._/-]*[a-zA-Z0-9._-]|[a-zA-Z0-9_-])$"
+    },
+    {
+      "pattern": "^((?!aws:)[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"
+    },
+    {
+      "pattern": "^((?=^.{1,127}$)^([a-zA-Z0-9_][a-zA-Z0-9-_]{0,61}[a-zA-Z0-9_]|[a-zA-Z0-9])(\\.([a-zA-Z0-9_][a-zA-Z0-9-_]{0,61}[a-zA-Z0-9_]|[a-zA-Z0-9]))*$)|(^\\.$)$",
+      "examples": [
+        "a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a.a"
+      ]
+    },
+    {
+      "pattern": "^(?! )[\\p{L}\\p{N}\\p{Z}-_]*(?<! )$"
+    },
+    {
+      "pattern": "^(?!(.*[.\\/\\\\]|aws:)).*$"
+    },
+    {
+      "pattern": "^(?!(?i)(stop|help)$)[ \\S]+"
+    },
+    {
+      "pattern": "^(?!(?i)aws)[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}$"
+    },
+    {
+      "pattern": "^(?!(^(https?|ftp|file):\\/\\/))[a-z0-9-]+(\\.service-now\\.com)$",
+      "examples": [
+        "acme.service-now.com",
+        "https://acme.service-now.com",
+        "acme.service-now.org"
+      ],
+      "redundant": "the rest of the pattern rejects : and /"
+    },
+    {
+      "pattern": "^(?!.* {2})[ a-zA-Z0-9.,!?;:@#$%&\\-_/\\\\]*$"
+    },
+    {
+      "pattern": "^(?!.* {2})[a-zA-Z0-9_-][ a-zA-Z0-9_-]*[a-zA-Z0-9_-]$"
+    },
+    {
+      "pattern": "^(?!.* {2})[a-zA-Z][a-zA-Z0-9 _-]{0,48}[a-zA-Z0-9_-]$"
+    },
+    {
+      "pattern": "^(?!.*\\*\\?).*$",
+      "examples": [
+        "a*?b",
+        "a*b?"
+      ]
+    },
+    {
+      "pattern": "^(?!.*\\.\\.)[a-zA-Z0-9_\\-#:.]+$"
+    },
+    {
+      "pattern": "^(?!00000000-0000-0000-0000-000000000000)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    {
+      "pattern": "^(?!00000000-0000-0000-0000-000000000000)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$|^externalId:[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+$"
+    },
+    {
+      "pattern": "^(?!:).*[^\\s].*",
+      "examples": [
+        ":a",
+        "a:"
+      ]
+    },
+    {
+      "pattern": "^(?!AWS\\.).{1,64}$"
+    },
+    {
+      "pattern": "^(?!D-|d-)([\\da-zA-Z]+)([-]*[\\da-zA-Z])*$"
+    },
+    {
+      "pattern": "^(?![ _ʼ'%-])[a-zA-Z0-9 _ʼ'%-]{0,62}[a-zA-Z0-9]$"
+    },
+    {
+      "pattern": "^(?![-])[a-zA-Z0-9-]{1,62}[a-zA-Z0-9]$"
+    },
+    {
+      "pattern": "^(?![0-9_])\\w+$|^_\\w*[a-zA-Z0-9]\\w*$"
+    },
+    {
+      "pattern": "^(?![\\-_+.])[a-z0-9][a-z0-9\\-_\\.]*$",
+      "redundant": "the rest of the pattern requires a letter or digit first"
+    },
+    {
+      "pattern": "^(?![^:\\\\]*/action/|(?i).*<script>.*</script>.*)[^:\\\\]+$"
+    },
+    {
+      "pattern": "^(?![^\\n\\r\\t,]*\\\\n|\\\\r|\\\\t)[^\\n\\r\\t,]+$"
+    },
+    {
+      "pattern": "^(?![_-])[a-z][a-z0-9_-]*$",
+      "redundant": "the rest of the pattern requires a letter first"
+    },
+    {
+      "pattern": "^(?![aA][wW][sS]:).+$"
+    },
+    {
+      "pattern": "^(?![aA][wW][sS]:)[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+$"
+    },
+    {
+      "pattern": "^(?![aA][wW][sS]:)[a-zA-Z0-9 _.:/=+\\-@]+$"
+    },
+    {
+      "pattern": "^(?!\\.$)(?!\\.\\.$)[\\p{L}\\p{Z}\\p{N}\\-_.:=@'|]+$"
+    },
+    {
+      "pattern": "^(?!\\.)[\\w\\.]*\\w$"
+    },
+    {
+      "pattern": "^(?!\\s).+@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$"
+    },
+    {
+      "pattern": "^(?!\\s*$).+"
+    },
+    {
+      "pattern": "^(?!\\s*$).+$"
+    },
+    {
+      "pattern": "^(?!\\s*$).+|(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)$"
+    },
+    {
+      "pattern": "^(?!\\s*$).{1,256}$"
+    },
+    {
+      "pattern": "^(?!\\s*$)[\\s\\S]+$"
+    },
+    {
+      "pattern": "^(?!\\s*$)[\\u0020-\\uD7FF\\uE000-\\uFFFD\\uD800\\uDBFF-\\uDC00\\uDFFF\\t\\r\\n]*$"
+    },
+    {
+      "pattern": "^(?!\\s*$)[\\u0020-\\uD7FF\\uE000-\\uFFFD\\uD800\\uDBFF-\\uDC00\\uDFFF\\t]*$"
+    },
+    {
+      "pattern": "^(?!\\s+$)[^{}\"\\\\<>]*$"
+    },
+    {
+      "pattern": "^(?!^[0-9]+$)([a-zA-Z0-9-_]+)$"
+    },
+    {
+      "pattern": "^(?!^[0-9]+$)([a-zA-Z0-9\\-_' ']+)$"
+    },
+    {
+      "pattern": "^(?!app-)[a-zA-Z0-9]+[a-zA-Z0-9-_ ]+$"
+    },
+    {
+      "pattern": "^(?!arn:)[!-~]{1,253}$"
+    },
+    {
+      "pattern": "^(?!arn:[^:]*:events:::aws-sdk:)"
+    },
+    {
+      "pattern": "^(?!aws/)[a-zA-Z0-9_\\-/.#]+$"
+    },
+    {
+      "pattern": "^(?!aws:)(?!memorydb:)[a-zA-Z0-9 _\\.\\/=+:\\-@]{1,128}$"
+    },
+    {
+      "pattern": "^(?!aws:)(?!memorydb:)[a-zA-Z0-9 _\\.\\/=+:\\-@]{1,256}$"
+    },
+    {
+      "pattern": "^(?!aws:)([a-zA-Z\\d\\s_.:/=+\\-@]+)$"
+    },
+    {
+      "pattern": "^(?!aws:).*$"
+    },
+    {
+      "pattern": "^(?!aws:).+"
+    },
+    {
+      "pattern": "^(?!aws:).+$"
+    },
+    {
+      "pattern": "^(?!aws:)[ a-zA-Z+-=._:/]+$"
+    },
+    {
+      "pattern": "^(?!aws:)[\\S\\s]+$"
+    },
+    {
+      "pattern": "^(?!aws:)[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$"
+    },
+    {
+      "pattern": "^(?!aws:)[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@%]*$"
+    },
+    {
+      "pattern": "^(?!aws:)[a-zA-Z+-=._:/]+$"
+    },
+    {
+      "pattern": "^(?!aws:)[a-zA-Z+-=._:/]{1,128}$"
+    },
+    {
+      "pattern": "^(?!aws:)[a-zA-Z0-9 _\\.\\/=+:\\-@]*$"
+    },
+    {
+      "pattern": "^(?!aws:)[a-zA-Z0-9\\s+\\-=._:/@]{1,128}$"
+    },
+    {
+      "pattern": "^(?!aws:.*)"
+    },
+    {
+      "pattern": "^(?!aws:.*)([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$"
+    },
+    {
+      "pattern": "^(?!aws:.*).{0,256}$"
+    },
+    {
+      "pattern": "^(?!aws:.*).{1,128}$"
+    },
+    {
+      "pattern": "^(?!aws:.*)[a-zA-Z0-9\\s\\:\\_\\.\\/\\=\\+\\-]+$"
+    },
+    {
+      "pattern": "^(?!aws:.*)[a-zA-Z0-9\\s\\_\\.\\/\\=\\+\\-\\@\\:]+$"
+    },
+    {
+      "pattern": "^(?!aws:|connect:)[\\p{L}\\p{Z}\\p{N}\\-_.:=@'|]+$"
+    },
+    {
+      "pattern": "^(?!aws:|rds:)[\\p{L}\\p{Z}\\p{N}_. :/=+\\-@]+$"
+    },
+    {
+      "pattern": "^(?!aws\\.)[A-Za-z0-9][\\.\\-_A-Za-z0-9]*$"
+    },
+    {
+      "pattern": "^(?!d-)([\\da-zA-Z]+)([-]*[\\da-zA-Z])*$"
+    },
+    {
+      "pattern": "^(?!env-)[a-zA-Z0-9]+[a-zA-Z0-9-_ ]+$"
+    },
+    {
+      "pattern": "^(?!gcp-)[a-z][a-z0-9-]{2,30}[a-z0-9]$"
+    },
+    {
+      "pattern": "^(?!gs-)[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+    },
+    {
+      "pattern": "^(?!internal-)[a-zA-Z0-9]+[a-zA-Z0-9-_ ]+.*[^-]$"
+    },
+    {
+      "pattern": "^(?!listener-)(?![-])(?!.*[-]$)(?!.*[-]{2})[a-z0-9-]+$"
+    },
+    {
+      "pattern": "^(?!memoryStrategyId$|actorId$|sessionId$)[a-z][a-z0-9]*$",
+      "redundant": "the rest of the pattern rejects uppercase letters"
+    },
+    {
+      "pattern": "^(?!rcfg-)(?![-])(?!.*[-]$)(?!.*[-]{2})[a-z0-9-]+$"
+    },
+    {
+      "pattern": "^(?!rgw-)(?![-])(?!.*[-]$)(?!.*[-]{2})[a-z0-9-]+$"
+    },
+    {
+      "pattern": "^(?!rule-)(?![-])(?!.*[-]$)(?!.*[-]{2})[a-z0-9-]+$"
+    },
+    {
+      "pattern": "^(?!servicenetwork-)(?![-])(?!.*[-]$)(?!.*[-]{2})[a-z0-9-]+$"
+    },
+    {
+      "pattern": "^(?!svc-)(?![-])(?!.*[-]$)(?!.*[-]{2})[a-z0-9-]+$"
+    },
+    {
+      "pattern": "^(?!svc-)[a-zA-Z0-9]+[a-zA-Z0-9-_ ]+$"
+    },
+    {
+      "pattern": "^(?!tg-)(?![-])(?!.*[-]$)(?!.*[-]{2})[a-z0-9-]+$"
+    },
+    {
+      "pattern": "^(?=.*[a-zA-Z_\\-\\.])[a-zA-Z0-9_\\-\\.]+$"
+    },
+    {
+      "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[^\\x00-\\x20\\x22\\x27\\x2f\\x40\\x5c\\x7f-\\uffff]+"
+    },
+    {
+      "pattern": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d\\S]{8,64}$"
+    },
+    {
+      "pattern": "^(?=.{1,100}$).*"
+    },
+    {
+      "pattern": "^(?=.{1,255}$)([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?)(\\.[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?)*$",
+      "examples": [
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaa"
+      ]
+    },
+    {
+      "pattern": "^(?=.{2,256}$)((?:[a-z0-9]+(?:[._-][a-z0-9]+)*/)*[a-z0-9]+(?:[._-][a-z0-9]+)*)$"
+    },
+    {
+      "pattern": "^(?=.{2,256}$)([a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*(\\/[a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*)*)$"
+    },
+    {
+      "pattern": "^(?=.{40,128}$)arn.*"
+    },
+    {
+      "pattern": "^(?=[/\\.\\-_A-Za-z0-9]+)((?!aws\\.).*)|(\\$(\\.[\\w_-]+(\\[(\\d+|\\*)\\])*)*)$"
+    },
+    {
+      "pattern": "^(?=[\\s\\S]{1,512}$)([!#$%&'*+\\-.^_`|~0-9a-zA-Z]+|\\{%[\\s\\S]+?%\\})$",
+      "examples": [
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "{%aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%}"
+      ]
+    },
+    {
+      "pattern": "^(?=[a-z0-9])[a-z0-9-]{1,48}[a-z0-9]$"
+    },
+    {
+      "pattern": "^(?=^.{8,64}$)((?=.*\\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[^A-Za-z0-9\\s])(?=.*[a-z])|(?=.*[^A-Za-z0-9\\s])(?=.*[A-Z])(?=.*[a-z])|(?=.*\\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9\\s]))^"
+    },
+    {
+      "pattern": "^(?=^[a-z0-9-]+$).{3,64}$"
+    },
+    {
+      "pattern": "^(?=^[a-zA-Z0-9-]+$).{1,255}$"
+    },
+    {
+      "pattern": "^(?=^[a-zA-Z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$).{1,255}$"
+    },
+    {
+      "pattern": "^(?=^[a-z][a-z0-9]*(-[a-z0-9]+)*$).{1,30}$"
+    },
+    {
+      "pattern": "^(?=^[a-z][a-z0-9]*(-[a-z0-9]+)*$).{1,63}$"
+    },
+    {
+      "pattern": "^(?=^\\$)(?=^\\S+$).*$"
+    },
+    {
+      "pattern": "^(\\S([\\s\\S]*\\S)?)?(?![\\s\\S])"
+    },
+    {
+      "pattern": "^(^(?!(system\\x2e)))(^[_a-zA-Z0-9])([^$]*)$"
+    },
+    {
+      "pattern": "^/(?!.*\\.\\.)[a-zA-Z0-9/_.\\-]+$"
+    },
+    {
+      "pattern": "^/(?!/)(?!.*/$)[a-zA-Z0-9._-]+(/[a-zA-Z0-9._-]+)*$",
+      "redundant": "the rest of the pattern rejects // and a trailing /"
+    },
+    {
+      "pattern": "^[0-9A-Za-z\\.\\-_]*(?<!\\.)$"
+    },
+    {
+      "pattern": "^[0-9a-z\\.\\-]*(?<!\\.)$"
+    },
+    {
+      "pattern": "^[A-Za-z](?!.*--)[0-9A-Za-z-]*[^-]|^default(?!.*--)(?!.*\\.\\.)[0-9A-Za-z-.]*[^-]$"
+    },
+    {
+      "pattern": "^[^\\u0000-\\u001F\\u007F-\\u009F\\u2028\\u2029]*(?![\\s\\S])"
+    },
+    {
+      "pattern": "^[a-zA-Z0-9._\\-]+(?<!\\.git)$"
+    },
+    {
+      "pattern": "^[a-zA-Z_](?!.*--)[a-zA-Z0-9_-]*$"
+    },
+    {
+      "pattern": "^\\S([\\s\\S]*\\S)?(?![\\s\\S])"
+    },
+    {
+      "pattern": "^\\{%[\\s\\S]+?%\\}(?![\\s\\S])"
+    },
+    {
+      "pattern": "^[a-z]{2}(?<!ab)c$",
+      "examples": [
+        "abc",
+        "xbc",
+        "aac",
+        "ab"
+      ]
+    },
+    {
+      "pattern": "^(?<=ab)x|y"
+    },
+    {
+      "pattern": "^a(?=b)[a-z]+$"
+    },
+    {
+      "pattern": "^(?=.*[0-9])(?!.*  )[a-z0-9 ]+$|^-$"
+    }
+  ],
+  "unsupported": [
+    {
+      "pattern": "^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:[a-z\\-]*\\/)?([a-zA-Z0-9]([a-zA-Z0-9-]){0,62})(?<!-)(\\/[0-9]{1,9})?$",
+      "reason": "lookbehind at a variable position or with variable width"
+    },
+    {
+      "pattern": "(?!\\s*$).+",
+      "reason": "lookahead at a variable position"
+    },
+    {
+      "pattern": "(?=.{1,1024}$)(https)://([^/]+)/(.+)",
+      "reason": "lookaround body is incompatible with RE2: error parsing regexp: invalid repeat count: `{1,1024}`"
+    },
+    {
+      "pattern": "(?=.{1,32}$)[a-zA-Z0-9](-*[a-zA-Z0-9])*",
+      "reason": "lookahead at a variable position"
+    },
+    {
+      "pattern": "(?=[/\\.\\-_A-Za-z0-9]+)((?!aws\\.).*)|(\\$(\\.[\\w/_-]+(\\[(\\d+|\\*)\\])*)*)",
+      "reason": "lookahead at a variable position"
+    },
+    {
+      "pattern": "^(((?!-)[A-Za-z0-9-]{0,62}[A-Za-z0-9])\\.)+((?!-)[A-Za-z0-9-]{1,62}[A-Za-z0-9])(\\.)?$",
+      "reason": "lookaround inside a repeated group"
+    },
+    {
+      "pattern": "^((?![:*$])[\\x00-\\x7F]){1,255}",
+      "reason": "lookaround inside a repeated group"
+    },
+    {
+      "pattern": "^(-?)P(?=\\d|T\\d)(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)([DW]))?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+(?:\\.\\d+)?)S)?)?$",
+      "reason": "lookahead at a variable position"
+    },
+    {
+      "pattern": "^(?!^\\s+$)((?![\\x5c'\\x2b,;<=>#\\x22])([\\x20-\\x7E]))+$",
+      "reason": "lookaround inside a repeated group"
+    },
+    {
+      "pattern": "^(?!arn:)[!-~]{1,1024}$",
+      "reason": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{1,1024}`"
+    },
+    {
+      "pattern": "^(?:(?!\\$\\{[a-zA-Z]+:)[\\P{C}])+$",
+      "reason": "lookaround inside a repeated group"
+    },
+    {
+      "pattern": "^(?=.{20,2048}$)arn:aws[a-z-]*:secretsmanager:[a-z0-9-]+:\\d{12}:secret:[a-zA-Z0-9/_+=.@-]+$",
+      "reason": "lookaround body is incompatible with RE2: error parsing regexp: invalid repeat count: `{20,2048}`"
+    },
+    {
+      "pattern": "^([\\+-]?\\d{4}(?!\\d{2}))((-?)((0[1-9]|1[0-2])(\\3([12]\\d|0[1-9]|3[01]))?|W([0-4]\\d|5[0-2])(-?[1-7])?|(00[1-9]|0[1-9]\\d|[12]\\d{2}|3([0-5]\\d|6[1-6])))([tT]((([01]\\d|2[0-3])((:?)[0-5]\\d)?|24\\:?00)([\\.,]\\d+(?!:))?)?(\\17[0-5]\\d([\\.,]\\d+)?)?([zZ]|([\\+-])([01]\\d|2[0-3]):?([0-5]\\d)?)?)?)?$",
+      "reason": "backreference"
+    },
+    {
+      "pattern": "^(\\/|(\\/(?!\\.)+[^$#<>;;`|&?{}^*/\\n]+){1,4})$",
+      "reason": "quantified assertion \"(?!\\\\.)+\""
+    },
+    {
+      "pattern": "^(\\/|(\\/(?!\\.)+[^$#<>;`|&?{}^*/\\n]+){1,4})$",
+      "reason": "quantified assertion \"(?!\\\\.)+\""
+    },
+    {
+      "pattern": "^(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]{2}((-gov)|(-iso(b?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:((?!\\d+)[0-9a-zA-Z-_]+))?$",
+      "reason": "lookaround inside a repeated group"
+    },
+    {
+      "pattern": "^(arn:.+:iam::((?!\\*|\\?)[0-9]{12}|(?=.*\\*)[0-9*?]{1,12}|[0-9?]{12}):role/.+|\\*)$",
+      "reason": "lookahead at a variable position"
+    },
+    {
+      "pattern": "^(localhost)$|^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|(?=^[a-zA-Z0-9\\.\\*-]{4,253}$)(?!.*\\.-)(?!.*-\\.)(?!.*\\.\\.)(?!.*[^\\.]{64,})^(\\*\\.)?(?![-\\.\\*])[^\\*]{1,}\\.(\\*|(?!.*--)(?=.*[a-zA-Z])[^\\*]{1,}[^\\*-])$",
+      "reason": "lookahead at a variable position"
+    },
+    {
+      "pattern": "^[a-zA-Z0-9]?((?!-)([A-Za-z0-9-]*[A-Za-z0-9])\\.)+[a-zA-Z0-9]+$",
+      "reason": "lookaround inside a repeated group"
+    },
+    {
+      "pattern": "^arn:(?=[^:]+:fsx:[^:]+:\\d{12}:)((|(?=[a-z0-9-.]{1,63})(?!\\d{1,3}(\\.\\d{1,3}){3})(?![^:]*-{2})(?![^:]*-\\.)(?![^:]*\\.-)[a-z0-9]([a-z0-9-\\.]{0,61}[a-z0-9])?):){4}(?!/).{0,1024}$",
+      "reason": "lookaround inside a repeated group"
+    },
+    {
+      "pattern": "^arn:(?=[^:]+:fsx:[^:]+:\\d{12}:)((|(?=[a-z0-9-.]{1,63})(?!\\d{1,3}(\\.\\d{1,3}){3})(?![^:]*-{2})(?![^:]*-\\.)(?![^:]*\\.-)[a-z0-9].*(?<!-)):){4}(?!/).{0,1024}$",
+      "reason": "lookaround inside a repeated group"
+    },
+    {
+      "pattern": "^jdbc:(redshift|postgresql)://((?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.)+(redshift(-serverless)?)\\.([a-zA-Z0-9\\.\\-]+):\\d{1,5}/[a-zA-Z0-9_$-]+$",
+      "reason": "lookaround inside a repeated group"
+    }
+  ]
+}

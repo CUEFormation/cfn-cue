@@ -22,8 +22,12 @@ import (
 	InputReferenceProperties?:         #IdNamespaceAssociationInputReferenceProperties
 	MembershipArn?:                    strings.MaxRunes(100)
 	MembershipIdentifier!:             #UUID
-	Name!:                             strings.MaxRunes(100) & strings.MinRunes(1)
-	Tags?:                             list.UniqueItems() & [...#Tag]
+	Name!: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t]*$" &
+	matchN(0, [=~"^(?:\\s*$)"]) &
+	string &
+	strings.MaxRunes(100) &
+	strings.MinRunes(1)
+	Tags?: list.UniqueItems() & [...#Tag]
 })
 
 #Document: string | {...}

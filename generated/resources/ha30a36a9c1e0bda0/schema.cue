@@ -24,19 +24,37 @@ import structs "struct"
 		CreatorMemberAbilities?:      #MemberAbilities
 		CreatorPaymentConfiguration?: #PaymentConfiguration
 		DataEncryptionMetadata?:      #DataEncryptionMetadata
-		Description!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		Description!: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" &
+		matchN(0, [=~"^(?:\\s*$)"]) &
+		string &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" &
+			matchN(0, [=~"^(?:\\s*$)"]) &
+			string &
+			strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		IsMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		JobLogStatus?:     #CollaborationJobLogStatus
 		Members?:          list.MaxItems(9) & [...] & [...#MemberSpecification] | fn.#ListExpression
-		Name!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		Name!: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t]*$" &
+		matchN(0, [=~"^(?:\\s*$)"]) &
+		string &
+		strings.MaxRunes(100) &
+		strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t]*$" &
+			matchN(0, [=~"^(?:\\s*$)"]) &
+			string &
+			strings.MaxRunes(100) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		QueryLogStatus!: #CollaborationQueryLogStatus
@@ -122,10 +140,19 @@ fn.#ObjectExpression
 ) |
 	fn.#ObjectExpression
 
-#Name: strings.MaxRunes(100) & strings.MinRunes(1) |
+#Name: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t]*$" &
+matchN(0, [=~"^(?:\\s*$)"]) &
+string &
+strings.MaxRunes(100) &
+strings.MinRunes(1) |
 {
 	number | bool
-	_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	_cfnString: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t]*$" &
+	matchN(0, [=~"^(?:\\s*$)"]) &
+	string &
+	strings.MaxRunes(100) &
+	strings.MinRunes(1) &
+	"\(self)"
 } |
 fn.#StringExpression
 

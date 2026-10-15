@@ -51,14 +51,22 @@ import (
 })
 
 // The container image arguments
-#CustomImageContainerArguments: strings.MaxRunes(64) & strings.MinRunes(1)
+#CustomImageContainerArguments: =~"^.+" &
+matchN(0, [=~"^(?:\\s*$)"]) &
+string &
+strings.MaxRunes(64) &
+strings.MinRunes(1)
 
 // The container entry point
-#CustomImageContainerEntrypoint: strings.MaxRunes(256) & strings.MinRunes(1)
+#CustomImageContainerEntrypoint: =~"^.+" &
+matchN(0, [=~"^(?:\\s*$)"]) &
+string &
+strings.MaxRunes(256) &
+strings.MinRunes(1)
 
 #CustomImageContainerEnvironmentVariable: close({
-	Key!:   strings.MaxRunes(256) & strings.MinRunes(1)
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1)
+	Key!:   =~"^.+" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(256) & strings.MinRunes(1)
+	Value!: =~"^.+" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(256) & strings.MinRunes(1)
 })
 
 // The Amazon Elastic File System (EFS) storage configuration for a SageMaker image.
