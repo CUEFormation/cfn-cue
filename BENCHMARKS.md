@@ -64,20 +64,20 @@ Inlining each resource's properties schema into `#Resource` raised the full-regi
 
 ### Nested `Fn::If` around `Properties`
 
-Measured on October 15, 2026, with CUE v0.18.0-rc.1 on the same machine under moderate unrelated load (load average 9 to 13), so absolute times run somewhat above the figures above. Both modules contain all 1,839 us-east-1 types: the generator before nested `Properties` conditionals (`b1c21a8`) and after. `CFN_CUE_PERF_IF_DEPTH` wraps every resource's `Properties` in that many `Fn::If`, with the literal properties innermost and `AWS::NoValue` in each other branch. Each configuration ran three times, interleaved; figures are medians in milliseconds. The earlier generator rejects depth 3, so it has no figure there.
+Measured on October 15, 2026, with CUE v0.18.0-rc.1 on the same machine under moderate unrelated load (load average 7 to 9), so absolute times run somewhat above the figures above. Both modules contain all 1,839 us-east-1 types: the generator before nested `Properties` conditionals (`076ccda`) and after. `CFN_CUE_PERF_IF_DEPTH` wraps every resource's `Properties` in that many `Fn::If`, with the literal properties innermost and `AWS::NoValue` in each other branch. Each configuration ran three times, interleaved; figures are medians in milliseconds. The earlier generator rejects depth 3, so it has no figure there.
 
 | | before | after |
 |---|---:|---:|
-| Load region package | 4,438 | 4,249 |
-| 10 resources, no `Fn::If` | 19 | 17 |
-| 50 resources, no `Fn::If` | 84 | 85 |
-| 10 resources, depth 1 | 33 | 29 |
-| 50 resources, depth 1 | 196 | 144 |
-| 10 resources, depth 3 | — | 56 |
-| 50 resources, depth 3 | — | 288 |
-| 50 resources, depth 3, one broken | — | 285 |
+| Load region package | 5,252 | 4,733 |
+| 10 resources, no `Fn::If` | 20 | 26 |
+| 50 resources, no `Fn::If` | 106 | 125 |
+| 10 resources, depth 1 | 35 | 36 |
+| 50 resources, depth 1 | 167 | 162 |
+| 10 resources, depth 3 | — | 68 |
+| 50 resources, depth 3 | — | 386 |
+| 50 resources, depth 3, one broken | — | 323 |
 
-Load time and unconditional or single-level validation are unchanged within noise. Three levels cost about 5.8 ms per resource, about twice a single level, in the worst case where every resource is nested.
+Load time and single-level validation are unchanged within noise. Validation without `Fn::If` varied from run to run by more than the difference between the generators (50 resources: 91 to 173 ms before, 109 to 386 ms after). Three levels cost about 6.5 to 7.7 ms per resource, two to two and a half times a single level, in the worst case where every resource is nested.
 
 ### Per type, without the region
 
