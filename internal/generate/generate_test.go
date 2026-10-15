@@ -197,6 +197,49 @@ func TestPrunedDefinitions(t *testing.T) {
 	validate(t, resource, `{Type:"AWS::Test::Pruned",Properties:{Wrapper:{Inner:"x",Other:"y"}}}`, false)
 }
 
+// TestReadOnlyRuleDefinitions covers the two pinned schemas whose template
+// input orphans a definition carrying a field rule (issue #12). GroundStation's
+// EndpointDetails, field rule 2 of 4, is reached only by a read-only property.
+// Events::Connection's AuthParameters, field rule 0, is inlined into its
+// property when a read-only path below it is removed. Generation must succeed,
+// the orphaned rule must be dropped with its definition, and the rules either
+// side of it must still apply.
+func TestReadOnlyRuleDefinitions(t *testing.T) {
+	source, e := OpenSource(context.Background(), "../../snapshots/schemas-2026-10-12.zip")
+	if e != nil {
+		t.Fatal(e)
+	}
+	out := filepath.Join(t.TempDir(), "generated")
+	if _, e = Generate(source, Options{Out: out, Regions: []string{"us-east-1"}, Resources: []string{"AWS::GroundStation::DataflowEndpointGroupV2", "AWS::Events::Connection"}}); e != nil {
+		t.Fatal(e)
+	}
+	for _, c := range []struct {
+		pkg, def string
+		exists   bool
+	}{
+		{"./resources/ha3fc2798aeb3e8b6", "EndpointDetails", false},
+		{"./resources/ha3fc2798aeb3e8b6", "CreateEndpointDetails", true},
+		{"./resources/ha3fc2798aeb3e8b6", "DownlinkDataflowDetails", true},
+		{"./resources/ha3fc2798aeb3e8b6", "UplinkDataflowDetails", true},
+		{"./literal/ha3fc2798aeb3e8b6", "EndpointDetails", true},
+		{"./resources/hd0df85968cafb831", "AuthParameters", false},
+		{"./literal/hd0df85968cafb831", "AuthParameters", true},
+	} {
+		def := build(t, out, c.pkg).LookupPath(cue.MakePath(cue.Def(c.def)))
+		if def.Exists() != c.exists {
+			t.Errorf("%s #%s exists=%v want=%v", c.pkg, c.def, def.Exists(), c.exists)
+			continue
+		}
+		if c.exists {
+			// Every field is optional, so only the at-least-one rule rejects {}.
+			validate(t, def, `{}`, false)
+		}
+	}
+	properties := propertiesSchema(t, out, "./resources/hd0df85968cafb831")
+	validate(t, properties, `{AuthorizationType:"API_KEY",AuthParameters:{ApiKeyAuthParameters:{ApiKeyName:"k",ApiKeyValue:"v"},ConnectivityParameters:{Ref:"Config"}}}`, true)
+	validate(t, properties, `{AuthorizationType:"API_KEY",AuthParameters:{ConnectivityParameters:{Ref:"Config"}}}`, false)
+}
+
 // TestRootReferenceKept checks that a definition referenced by the root
 // schema's own $ref survives pruning. Read-only removal inlines a root $ref, so
 // this fixture has no read-only properties.
