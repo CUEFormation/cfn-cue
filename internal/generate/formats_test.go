@@ -2,6 +2,7 @@ package generate
 
 import (
 	"encoding/json"
+	"fmt"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -284,7 +285,15 @@ func TestNetworkFormats(t *testing.T) {
 		`{Name:"one",Cidr:"0.0.0.0/0"}`,
 		`{Name:"one",Cidr:"10.0.0.1/32"}`,
 		`{Name:"one",Cidr:"10.0.0.1"}`, // Python reads a bare address as /32.
+		// Python also accepts a contiguous dotted netmask or hostmask.
 		`{Name:"one",Cidr:"10.0.0.0/255.0.0.0"}`,
+		`{Name:"one",Cidr:"10.0.0.0/0.255.255.255"}`,
+		`{Name:"one",Cidr:"0.0.0.0/0.0.0.0"}`,
+		`{Name:"one",Cidr:"10.0.0.1/255.255.255.255"}`,
+		`{Name:"one",Cidr:"192.168.1.0/0.0.0.255"}`,
+		`{Name:"one",Cidr:"172.16.0.0/255.240.0.0"}`,
+		`{Name:"one",Cidr:"10.0.0.0/0.0.0.1"}`,
+		`{Name:"one",Cidr:"192.168.1.128/255.255.255.128"}`,
 		`{Name:"one",Ipv6Cidr:"2001:db8::/32"}`,
 		`{Name:"one",Ipv6Cidr:"2001:DB8::/32"}`,
 		`{Name:"one",Ipv6Cidr:"2001:0db8:0000::/48"}`,
@@ -299,6 +308,17 @@ func TestNetworkFormats(t *testing.T) {
 		`{Name:"one",Cidr:"10.0.1.0/16"}`,
 		`{Name:"one",Cidr:"10.0.0.0/33"}`,
 		`{Name:"one",Cidr:"010.0.0.0/8"}`,
+		`{Name:"one",Cidr:"10.0.0.1/255.0.0.0"}`,      // host bits set
+		`{Name:"one",Cidr:"10.0.0.1/0.0.0.0"}`,        // 0.0.0.0 is a /0 netmask
+		`{Name:"one",Cidr:"192.168.1.0/0.0.1.255"}`,   // host bits set for /23
+		`{Name:"one",Cidr:"10.0.0.0/255.0.255.0"}`,    // not contiguous
+		`{Name:"one",Cidr:"10.0.0.0/254.0.0.1"}`,      // neither netmask nor hostmask
+		`{Name:"one",Cidr:"10.0.0.0/255.00.0.0"}`,     // leading zero in the mask
+		`{Name:"one",Cidr:"10.0.0.0/255.0.0.256"}`,    // octet out of range
+		`{Name:"one",Cidr:"10.0.0.256/255.0.0.0"}`,    // address out of range
+		`{Name:"one",Cidr:"010.0.0.0/255.0.0.0"}`,     // leading zero in the address
+		`{Name:"one",Cidr:"10.0.0.0/255.0.0.0\n"}`,    // no final newline, as in Python
+		`{Name:"one",Untyped:"10.0.0.1/255.255.0.0"}`, // format alone still checks strings
 		`{Name:"one",Cidr:"2001:db8::/32"}`,
 		`{Name:"one",Cidr:"not-a-cidr"}`,
 		`{Name:"one",Ipv6Cidr:"2001:db8::1/32"}`,
@@ -312,7 +332,26 @@ func TestNetworkFormats(t *testing.T) {
 		`{Name:"one",Cidr:{Ref:"VpcCidr"}}`,
 		`{Name:"one",Cidr:{"Fn::Select":[0,{"Fn::Cidr":["10.0.0.0/16",4,8]}]}}`,
 		`{Name:"one",Cidr:"{{resolve:ssm:/vpc/cidr}}"}`,
+		`{Name:"one",Cidr:{"Fn::Join":["/",[{Ref:"Address"},"255.255.0.0"]]}}`,
+		`{Name:"one",Cidr:{"Fn::Sub":"${Address}/255.255.0.0"}}`,
 	} {
 		validate(t, template, data, true)
+		validate(t, literal, data, false)
+	}
+}
+
+func TestIPv4NetworkMasks(t *testing.T) {
+	masks := ipv4NetworkMasks()
+	for mask, prefix := range map[string]string{
+		"0.0.0.0": "0", "128.0.0.0": "1", "255.0.0.0": "8", "255.255.255.254": "31",
+		"255.255.255.255": "32", "127.255.255.255": "1", "0.255.255.255": "8", "0.0.0.1": "31",
+	} {
+		if !strings.Contains(masks, fmt.Sprintf("%q: %q\n", mask, prefix)) {
+			t.Errorf("mask %s should map to /%s:\n%s", mask, prefix, masks)
+		}
+	}
+	// 33 netmasks and 33 hostmasks, two of which are spelled as netmasks.
+	if n := strings.Count(masks, ":"); n != 64 {
+		t.Fatalf("got %d masks, want 64", n)
 	}
 }
