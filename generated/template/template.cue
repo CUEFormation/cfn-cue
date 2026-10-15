@@ -3,11 +3,8 @@
 package template
 
 import fn "github.com/cueformation/cfn-cue/fn:fn"
-
 import structs "struct"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
 
 #LogicalID: =~"^[A-Za-z0-9]{1,255}$"

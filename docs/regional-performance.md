@@ -38,7 +38,7 @@ template: region.#Template & {
 ```
 
 For direct YAML validation, run from the generated module root with a compatible
-CUE CLI, currently v0.18.0-alpha.3:
+CUE CLI, currently v0.18.0-rc.1:
 
 ```sh
 # Type names and common template structure.

@@ -3,9 +3,7 @@
 package schema
 
 import base "github.com/cueformation/cfn-cue/template:template"
-
 import structs "struct"
-
 import fn "github.com/cueformation/cfn-cue/fn:fn"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
