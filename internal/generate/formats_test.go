@@ -257,6 +257,71 @@ func TestEmptyBucketNameException(t *testing.T) {
 	}
 }
 
+func TestListIdentifierFormatsUnenforced(t *testing.T) {
+	source := fixture(t)
+	var root map[string]any
+	if err := json.Unmarshal(source.files["resources/test.json"], &root); err != nil {
+		t.Fatal(err)
+	}
+	properties := root["properties"].(map[string]any)
+	// The list formats annotate arrays, which formats do not constrain.
+	// Item formats, where present, are enforced on their own.
+	properties["SecurityGroupIds"] = map[string]any{"type": "array", "format": "AWS::EC2::SecurityGroup.Ids", "items": map[string]any{"type": "string", "format": "AWS::EC2::SecurityGroup.Id"}}
+	// EC2 Instance and AutoScaling LaunchConfiguration use this shape.
+	properties["SecurityGroups"] = map[string]any{"type": "array", "items": map[string]any{"type": "string"}, "anyOf": []any{
+		map[string]any{"format": "AWS::EC2::SecurityGroup.Ids"},
+		map[string]any{"format": "AWS::EC2::SecurityGroup.Names"},
+	}}
+	// SpotFleet's .Ids list holds GroupIdentifier objects, not strings.
+	properties["GroupSet"] = map[string]any{"type": "array", "format": "AWS::EC2::SecurityGroup.Ids", "items": map[string]any{
+		"type": "object", "properties": map[string]any{"GroupId": map[string]any{"type": "string"}}, "additionalProperties": false,
+	}}
+	properties["Subnets"] = map[string]any{"type": "array", "format": "AWS::EC2::Subnet.Ids", "items": map[string]any{"type": "string"}}
+	source.files["resources/test.json"], _ = json.Marshal(root)
+	out := filepath.Join(t.TempDir(), "generated")
+	manifest, err := Generate(source, Options{Out: out, Regions: []string{"us-east-1"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	diagnosed := map[string]bool{}
+	for _, d := range manifest.Diagnostics {
+		if d.Keyword == "format" {
+			diagnosed[strings.TrimPrefix(d.Detail, "format annotation not enforced: ")] = true
+		}
+	}
+	for _, format := range []string{"AWS::EC2::SecurityGroup.Ids", "AWS::EC2::SecurityGroup.Names", "AWS::EC2::Subnet.Ids"} {
+		if !diagnosed[format] {
+			t.Errorf("unenforced list format %s is not reported: %v", format, manifest.Diagnostics)
+		}
+	}
+	template := propertiesSchema(t, out, "./resources/htest")
+	literal := propertiesSchema(t, out, "./literal/htest")
+	for _, data := range []string{
+		`{Name:"one",SecurityGroupIds:["sg-1234abcd","sg-1234567890abcdef0"]}`,
+		`{Name:"one",SecurityGroups:["sg-1234abcd","default","My Group"]}`,
+		`{Name:"one",GroupSet:[{GroupId:"sg-1234abcd"}]}`,
+		`{Name:"one",Subnets:["subnet-1234abcd","not-a-subnet-id"]}`,
+	} {
+		validate(t, literal, data, true)
+		validate(t, template, data, true)
+	}
+	for _, data := range []string{
+		`{Name:"one",SecurityGroupIds:["sg-1234abcd","sg-test"]}`, // item format
+		`{Name:"one",GroupSet:["sg-1234abcd"]}`,                   // item type
+	} {
+		validate(t, literal, data, false)
+		validate(t, template, data, false)
+	}
+	for _, data := range []string{
+		`{Name:"one",SecurityGroupIds:{Ref:"SecurityGroupIdsParameter"}}`,
+		`{Name:"one",SecurityGroupIds:[{"Fn::GetAtt":["SecurityGroup","GroupId"]}]}`,
+		`{Name:"one",Subnets:{"Fn::Split":[",",{"Fn::ImportValue":"Subnets"}]}}`,
+	} {
+		validate(t, template, data, true)
+		validate(t, literal, data, false)
+	}
+}
+
 func TestNetworkFormats(t *testing.T) {
 	source := fixture(t)
 	var root map[string]any

@@ -192,9 +192,10 @@ does for cfn-lint. An IPv4 network can also use a dotted netmask or hostmask,
 such as `10.0.0.0/255.0.0.0`, as in Python; the mask must be contiguous and the
 address must have no host bits set for it. A prefix length with leading zeros,
 such as `/08`, is still rejected. See the [format policy](docs/format-policy.md).
-cfn-lint has no rule for the `.Ids` and `.Names` list formats or,
-because of a registration bug, for `AWS::Logs::LogGroup.Name`; those remain
-unenforced and listed in the manifest. Existing provider patterns still apply.
+The `.Ids` and `.Names` list formats annotate arrays; they remain unenforced
+and listed in the manifest, while their item formats apply. cfn-lint has no
+rule for them or, because of a registration bug, for
+`AWS::Logs::LogGroup.Name`, which also remains unenforced. Existing provider patterns still apply.
 Unresolved intrinsic values defer their result format checks.
 LaunchTemplate's `resolve:ssm` ImageId exception is scoped to that property.
 
