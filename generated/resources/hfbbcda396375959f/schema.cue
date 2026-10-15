@@ -18,8 +18,10 @@ import structs "struct"
 		// The ARN of the IAM principal to remove from the pull time update exclusion list.
 		PrincipalArn!: #PrincipalArn
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #PrincipalArn: strings.MaxRunes(200) &

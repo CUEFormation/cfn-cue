@@ -193,8 +193,10 @@ import structs "struct"
 		Tags?:                 [...#Tag] | fn.#ListExpression
 		UriSeparator?:         #UriSeparator
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AdMarkerDash: "BINARY" | "XML" | fn.#StringExpression

@@ -41,8 +41,10 @@ import structs "struct"
 		// The Amazon S3 bucket and key that identify the location of the source bundle for this version.
 		SourceBundle?: #SourceBundle
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #BuildConfiguration: close({

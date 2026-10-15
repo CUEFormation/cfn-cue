@@ -15,8 +15,10 @@ import structs "struct"
 		SubscriptionDefinitionId!: string | number | bool | fn.#StringExpression
 		Subscriptions!:            [...#Subscription] | fn.#ListExpression
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Subscription: close({

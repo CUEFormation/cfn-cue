@@ -33,8 +33,10 @@ import structs "struct"
 		SupportedRegions?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Tags?:             [...#Tag] | fn.#ListExpression
 	})
-	Properties?: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #IpAddressType: "ipv4" | "ipv6" | fn.#StringExpression

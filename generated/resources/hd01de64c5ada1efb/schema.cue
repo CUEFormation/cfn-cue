@@ -68,8 +68,10 @@ import structs "struct"
 		// The visibility of the workspace. Will always be set to ASSIGNED oninitial creation.
 		Visibility?: #Visibility
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #FontFamily: close({Default?: #WorkspaceFontFamily}) | fn.#ObjectExpression

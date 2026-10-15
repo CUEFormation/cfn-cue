@@ -19,8 +19,10 @@ import structs "struct"
 		Policy!:      #Policy
 		ResourceArn!: #ResourceArn
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Policy: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression

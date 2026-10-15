@@ -66,8 +66,10 @@ import structs "struct"
 		TaskMode?:         "BASIC" | "ENHANCED" | fn.#StringExpression
 		TaskReportConfig?: #TaskReportConfig
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #FilterRule: close({

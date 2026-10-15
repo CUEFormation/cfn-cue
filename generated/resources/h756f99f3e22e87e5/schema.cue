@@ -21,8 +21,10 @@ import structs "struct"
 		// The current configuration information for the identity.
 		CloudFrontOriginAccessIdentityConfig!: #CloudFrontOriginAccessIdentityConfig
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CloudFrontOriginAccessIdentityConfig: close({Comment!: string | number | bool | fn.#StringExpression}) |

@@ -1,0 +1,46 @@
+{
+  "Conditions": {
+    "Payload": {
+      "Fn::Equals": [
+        {
+          "Ref": "AWS::Region"
+        },
+        "us-west-2"
+      ]
+    },
+    "Primary": {
+      "Fn::Equals": [
+        {
+          "Ref": "AWS::Region"
+        },
+        "us-east-1"
+      ]
+    }
+  },
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "Fn::If": [
+          "Primary",
+          {
+            "ServiceToken": "arn:aws:lambda:us-east-1:123456789012:function:CustomResourceProvider"
+          },
+          {
+            "Fn::If": [
+              "Payload",
+              {
+                "Payload": [
+                  1
+                ]
+              },
+              {
+                "Ref": "AWS::NoValue"
+              }
+            ]
+          }
+        ]
+      },
+      "Type": "Custom::Thing"
+    }
+  }
+}

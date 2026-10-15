@@ -42,8 +42,10 @@ import structs "struct"
 		// The S3 configuration for storing the target network artifacts.
 		TargetS3Configuration!: #TargetS3Configuration
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ScopeTagsMap: struct.MaxFields(40) & close({

@@ -37,8 +37,10 @@ import structs "struct"
 		Source?:      "S3" | "DATA-CATALOG" | "DATABASE" | fn.#StringExpression
 		Tags?:        [...#Tag] | fn.#ListExpression
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #BucketOwner: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |

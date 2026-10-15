@@ -179,6 +179,26 @@
     "lint": "valid",
     "note": "Project-authored valid template."
   },
+  "mutation-custom-resource-if-properties-missing-token:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: custom-resource-if-properties-missing-token"
+  },
+  "mutation-custom-resource-if-properties-missing-token:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: custom-resource-if-properties-missing-token"
+  },
+  "mutation-custom-resource-if-properties:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-custom-resource-if-properties:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
   "mutation-custom-resource-intrinsic:us-east-1": {
     "cue": "valid",
     "lint": "valid",
@@ -295,6 +315,46 @@
     "note": "Project-authored valid template."
   },
   "mutation-if-properties-empty-branch:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-if-properties-nested-arity-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: if-properties-nested-arity-invalid"
+  },
+  "mutation-if-properties-nested-arity-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: if-properties-nested-arity-invalid"
+  },
+  "mutation-if-properties-nested-deep:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-if-properties-nested-deep:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-if-properties-nested-leaf-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: if-properties-nested-leaf-invalid"
+  },
+  "mutation-if-properties-nested-leaf-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: if-properties-nested-leaf-invalid"
+  },
+  "mutation-if-properties-nested:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-if-properties-nested:us-west-2": {
     "cue": "valid",
     "lint": "valid",
     "note": "Project-authored valid template."

@@ -27,6 +27,8 @@ import structs "struct"
 		Message?:                  string | number | bool | fn.#StringExpression
 		Status?: "Created" | "Disabled" | "Enabled" | "Invited" | "Removed" | "Resigned" | fn.#StringExpression
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

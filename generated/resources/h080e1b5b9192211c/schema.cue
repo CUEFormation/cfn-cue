@@ -44,8 +44,10 @@ import structs "struct"
 		// resource, or it can be the volume ID of an existing Amazon EBS volume.
 		VolumeId!: #VolumeId
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Device: string | number | bool | fn.#StringExpression

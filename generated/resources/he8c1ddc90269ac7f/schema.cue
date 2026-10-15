@@ -120,8 +120,10 @@ import structs "struct"
 		Type!:                     "PROFILE" | "RECIPE" | fn.#StringExpression
 		ValidationConfigurations?: list.MinItems(1) & [...#ValidationConfiguration] | fn.#ListExpression
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AllowedStatistics: close({Statistics!: list.MinItems(1) & [...#Statistic] | fn.#ListExpression}) | fn.#ObjectExpression

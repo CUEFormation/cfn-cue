@@ -19,8 +19,10 @@ import structs "struct"
 		Tags?:     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 		Template?: #Template
 	})
-	Properties?: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #Tag: close({

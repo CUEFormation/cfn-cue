@@ -50,6 +50,8 @@ import structs "struct"
 		Roles?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Users?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	}) & matchN(>=1, [{Users!: _}, {Groups!: _}, {Roles!: _}])
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

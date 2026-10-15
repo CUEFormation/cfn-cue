@@ -38,8 +38,10 @@ import structs "struct"
 		// The name of the Table to create a Data Cells Filter for.
 		TableName!: #NameString
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CatalogIdString: strings.MaxRunes(12) & strings.MinRunes(12) |

@@ -27,8 +27,10 @@ import structs "struct"
 		Tags?:                    #Tags
 		TriggerMode?:             #TriggerMode
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Code: close({S3Location?: #CodeS3Location}) | fn.#ObjectExpression

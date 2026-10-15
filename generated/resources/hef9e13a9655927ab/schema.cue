@@ -25,8 +25,10 @@ import structs "struct"
 		RecommenderRecipeName!: #RecommenderRecipeName
 		Tags?:                  list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Description: strings.MaxRunes(1000) & strings.MinRunes(1) |

@@ -52,8 +52,10 @@ import structs "struct"
 		// A complex type that contains zero or more ``Tag`` elements.
 		Tags?: #Tags
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #IpAddressType: "ipv4" | "dualstack" | fn.#StringExpression

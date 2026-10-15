@@ -1,0 +1,59 @@
+{
+  "Conditions": {
+    "Named": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "Name"
+            },
+            ""
+          ]
+        }
+      ]
+    },
+    "Private": {
+      "Fn::Equals": [
+        {
+          "Ref": "Name"
+        },
+        "private"
+      ]
+    },
+    "Versioned": {
+      "Fn::Equals": [
+        {
+          "Ref": "Name"
+        },
+        "versioned"
+      ]
+    }
+  },
+  "Parameters": {
+    "Name": {
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "Bucket": {
+      "Properties": {
+        "Fn::If": [
+          "Named",
+          {
+            "Fn::If": [
+              "Versioned",
+              {
+                "BucketName": "one-bucket"
+              },
+              {
+                "BucketName": "two-bucket"
+              }
+            ]
+          },
+          {}
+        ]
+      },
+      "Type": "AWS::S3::Bucket"
+    }
+  }
+}

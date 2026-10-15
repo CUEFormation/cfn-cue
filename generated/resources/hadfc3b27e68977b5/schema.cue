@@ -54,8 +54,10 @@ import structs "struct"
 		Tags?:                 list.MinItems(1) & [...#Tag] | fn.#ListExpression
 		VisibilityConfig!:     #VisibilityConfig
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AllowAction: close({CustomRequestHandling?: #CustomRequestHandling}) | fn.#ObjectExpression

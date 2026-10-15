@@ -21,8 +21,10 @@ import structs "struct"
 		ModelPackageGroupPolicy?:      fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		Tags?:                         list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ModelPackageGroupDescription: strings.MaxRunes(1024) &

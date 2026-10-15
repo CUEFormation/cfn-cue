@@ -86,6 +86,17 @@ def compatibility_cases():
     missing = copy.deepcopy(custom)
     missing["Resources"]["Thing"]["Properties"] = {}
     cases["custom-resource-missing-token"] = (missing, "invalid", "invalid")
+    # Custom properties are open, so Fn::If and NoValue keys must not also
+    # match them.
+    conditional = copy.deepcopy(custom)
+    conditional["Conditions"] = {"Primary": {"Fn::Equals": [{"Ref": "AWS::Region"}, "us-east-1"]},
+                                 "Payload": {"Fn::Equals": [{"Ref": "AWS::Region"}, "us-west-2"]}}
+    conditional["Resources"]["Thing"]["Properties"] = {"Fn::If": ["Primary", {"ServiceToken": token},
+        {"Fn::If": ["Payload", {"ServiceToken": token, "Payload": [1]}, {"Ref": "AWS::NoValue"}]}]}
+    cases["custom-resource-if-properties"] = (conditional, "valid", "valid")
+    untokened = copy.deepcopy(conditional)
+    untokened["Resources"]["Thing"]["Properties"]["Fn::If"][2]["Fn::If"][1] = {"Payload": [1]}
+    cases["custom-resource-if-properties-missing-token"] = (untokened, "invalid", "invalid")
     invalid = copy.deepcopy(custom)
     invalid["Resources"]["Thing"]["Type"] = "Custom::bad!"
     # cfn-lint currently accepts names outside the regional schema's grammar.
@@ -198,6 +209,25 @@ def template_grammar_cases():
     empty = copy.deepcopy(conditional)
     empty["Resources"] = {"Queue": {"Type": "AWS::SQS::Queue", "Properties": {"Fn::If": ["Named", {}, {"Ref": "AWS::NoValue"}]}}}
     cases["if-properties-empty-branch"] = (empty, "valid", "valid")
+    # Fn::If may nest inside a whole Properties branch; literal leaves keep the
+    # S3 schema.
+    nested = copy.deepcopy(conditional)
+    nested["Conditions"]["Versioned"] = {"Fn::Equals": [{"Ref": "Name"}, "versioned"]}
+    nested["Conditions"]["Private"] = {"Fn::Equals": [{"Ref": "Name"}, "private"]}
+    nested["Resources"]["Bucket"]["Properties"] = {"Fn::If": ["Named",
+        {"Fn::If": ["Versioned", {"BucketName": "one-bucket"}, {"BucketName": "two-bucket"}]}, {}]}
+    cases["if-properties-nested"] = (nested, "valid", "valid")
+    deep = copy.deepcopy(nested)
+    deep["Resources"]["Bucket"]["Properties"] = {"Fn::If": ["Named",
+        {"Fn::If": ["Versioned", {"Fn::If": ["Private", {"AccessControl": "Private"}, {"Ref": "AWS::NoValue"}]},
+                    {}]}, {"Ref": "AWS::NoValue"}]}
+    cases["if-properties-nested-deep"] = (deep, "valid", "valid")
+    leaf = copy.deepcopy(deep)
+    leaf["Resources"]["Bucket"]["Properties"]["Fn::If"][1]["Fn::If"][1]["Fn::If"][1] = {"AccessControl": "DefinitelyNotAnACL"}
+    cases["if-properties-nested-leaf-invalid"] = (leaf, "invalid", "invalid")
+    arity = copy.deepcopy(nested)
+    arity["Resources"]["Bucket"]["Properties"]["Fn::If"][1]["Fn::If"].pop()
+    cases["if-properties-nested-arity-invalid"] = (arity, "invalid", "invalid")
     # widdix's wordpress-ha maps engines to PerformanceInsights: true.
     cases["mapping-boolean"] = ({"Mappings": {"Engine": {"mysql": {"PerformanceInsights": True}}},
         "Resources": {"Queue": {"Type": "AWS::SQS::Queue"}}}, "valid", "valid")

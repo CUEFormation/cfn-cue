@@ -54,8 +54,10 @@ import structs "struct"
 		ResourceTags?:     list.MaxItems(200) & [...] & [...#ResourceTag] | fn.#ListExpression
 		Subscribers!:      list.MaxItems(11) & list.MinItems(1) & [...#Subscriber] | fn.#ListExpression
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ActionThreshold: close({

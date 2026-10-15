@@ -21,6 +21,7 @@ scripts/region-bench.sh                                   # current generator
 OLD_REF=671dded scripts/region-bench.sh                   # also the union
 OLD_REF=f01c05f TYPES="6 50" SIZES=1,10 RUN_TIMEOUT=300 scripts/region-bench.sh
 CFN_CUE_PERF=1 go test ./internal/generate -run TestResourcePerformance -v   # one type at a time
+CFN_CUE_PERF_DIR=<module> CFN_CUE_PERF_IF_DEPTH=3 go test ./internal/generate -run TestRegionPerformance -v
 ```
 
 `scripts/regions.sh benchmark` measures a different comparison through fresh `cue` CLI processes: the full region package against the lighter `types` package, which checks type names only.
@@ -60,6 +61,23 @@ Loading the region package takes about 2.7 s with either generator, so a full ed
 | 1,839 | not run | 2.7 s |
 
 Inlining each resource's properties schema into `#Resource` raised the full-region load to about 3.2 s (2.8 s before, three runs each). Validation time did not change.
+
+### Nested `Fn::If` around `Properties`
+
+Measured on October 14, 2026, on the same machine under heavy unrelated load (load average 28 to 42), so absolute times are about three times the figures above. Both modules contain all 1,839 us-east-1 types: the generator before nested `Properties` conditionals (`d3a6c2b`) and after. `CFN_CUE_PERF_IF_DEPTH` wraps every resource's `Properties` in that many `Fn::If`, with the literal properties innermost and `AWS::NoValue` in each other branch. Each configuration ran three times, interleaved; figures are medians in milliseconds. The earlier generator rejects depth 3, so it has no figure there.
+
+| | before | after |
+|---|---:|---:|
+| Load region package | 7,946 | 7,714 |
+| 10 resources, no `Fn::If` | 33 | 41 |
+| 50 resources, no `Fn::If` | 267 | 177 |
+| 10 resources, depth 1 | 55 | 56 |
+| 50 resources, depth 1 | 536 | 545 |
+| 10 resources, depth 3 | — | 118 |
+| 50 resources, depth 3 | — | 569 |
+| 50 resources, depth 3, one broken | — | 745 |
+
+Load time and unconditional or single-level validation are unchanged within noise. Three levels cost 11 to 12 ms per resource, between one and two times a single level, in the worst case where every resource is nested.
 
 ### Per type, without the region
 

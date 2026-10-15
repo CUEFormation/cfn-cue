@@ -155,8 +155,10 @@ import structs "struct"
 		// information, see Alarm warm-up periods in the Amazon CloudWatch User Guide.
 		WarmUpConfiguration?: #WarmUpConfiguration
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ScheduleConfiguration: close({

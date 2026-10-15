@@ -90,8 +90,10 @@ import structs "struct"
 		Tags?:      [...#Tag] | fn.#ListExpression
 		VpcConfig?: #VpcConfig
 	}) & matchN(>=1, [{ImageName!: _}, {ImageArn!: _}])
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AccessEndpoint: close({

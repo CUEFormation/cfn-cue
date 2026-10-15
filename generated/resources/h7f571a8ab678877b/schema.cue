@@ -41,8 +41,10 @@ import structs "struct"
 		Triggers?:                list.MaxItems(5) & [...] & [...#Trigger] | fn.#ListExpression
 		VersioningConfiguration?: #VersioningConfiguration
 	})
-	Properties!: properties |
-		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Action: close({
