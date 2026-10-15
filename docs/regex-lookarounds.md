@@ -113,3 +113,12 @@ as several S3 bucket name properties do, both apply, as in cfn-lint. The
 provider pattern sometimes repeats the format, for example "doesn't end with
 a dot". It also adds constraints the format lacks, such as rejecting IP-address
 names.
+
+## Corpus check
+
+The downloaded-example survey was rerun on the 548 templates that use a
+resource type whose schema changed, before and after this change, with a
+30-second deadline. One outcome changed: troposphere's `RedshiftServerless`
+example, whose `WorkgroupName` `RedshiftServerlessWorkgroup` fails
+`^(?=^[a-z0-9-]+$).{3,64}$`, moved from accepted by CUE and rejected by
+cfn-lint to rejected by both. No template became a CUE-only rejection.
