@@ -167,7 +167,7 @@ The generator emits a finite graph of named CUE definitions. It does not recursi
 
 A shared function table has optional function keys and enforces exactly one key in a concrete expression. Result-type views select the permitted keys for strings, numbers, booleans, lists and objects. Multi-type properties use a combined view so shared functions such as `Ref` do not leave competing alternatives. Generic objects reserve intrinsic keys, which prevents malformed functions from passing as ordinary objects. Common input types keep the recursive graph small. `Fn::If` branches use the expected result type, with the scalar compatibility described above for strings; `Ref: "AWS::NoValue"` works through the dynamic reference alternative. Logical functions enforce their argument counts without constructing an eagerly expanded recursive tuple.
 
-`Fn::If` can also choose a resource's whole `Properties`, `UpdatePolicy` or `CreationPolicy`. Each `Properties` branch must match the resource's properties schema or be `Ref: "AWS::NoValue"`; nested `Fn::If` is not accepted there. Policy branches are objects, `AWS::NoValue` or another `Fn::If`. Other intrinsics, such as `UpdatePolicy: {Ref: P}`, are rejected, as in cfn-lint. Required properties are not checked against the branch CloudFormation will pick, because conditions are not evaluated.
+`Fn::If` can also choose a resource's whole `Properties`, `UpdatePolicy` or `CreationPolicy`. Each `Properties` branch must match the resource's properties schema or be `Ref: "AWS::NoValue"`; nested `Fn::If` is not accepted there. Policy branches are objects, `AWS::NoValue` or another `Fn::If`. Other intrinsics, such as `UpdatePolicy: {Ref: P}`, are rejected, as in cfn-lint. The schemas treat an `Fn::If` with an `AWS::NoValue` branch as a present value; `cfn-cue-validate` checks the branches that remove a value (see [Conditional removal](#conditional-removal-with-awsnovalue)).
 
 Local schema references reuse intrinsic alternatives already present in their
 target definition. Adding them again at a reference created incomplete values
@@ -184,7 +184,7 @@ The schema checks call shapes and known result categories. Dynamic functions suc
 
 ## Validation boundary
 
-This is a structural schema generator, not a replacement for cfn-lint. Keep cfn-lint in the validation workflow for reference existence, attribute names and return types, `Sub` variables, function-specific nesting permissions, function placement, transform execution, condition evaluation, cross-resource relationships, and the AWS service rules not listed under [Service rules from cfn-lint](#service-rules-from-cfn-lint).
+This is a structural schema generator, not a replacement for cfn-lint. Keep cfn-lint in the validation workflow for reference existence, attribute names and return types, `Sub` variables, function-specific nesting permissions, function placement, transform execution, condition evaluation beyond [conditional removal](#conditional-removal-with-awsnovalue), cross-resource relationships, and the AWS service rules not listed under [Service rules from cfn-lint](#service-rules-from-cfn-lint).
 
 Literal property constraints apply directly to literal values. Intrinsic values receive argument and result-type checks; this version does not evaluate them or specialize their branches with the complete target property's enum, pattern, or nested object schema. Parameter type names and SAM Globals have structural coverage. Listed IAM policy properties use the profiles described below; other policy objects have structural coverage. ForEach expansion and ForEach in Conditions/Outputs remain future work.
 
@@ -222,6 +222,40 @@ may be followed by one final newline. Placement and syntax checks, such as
 `ssm-secure` only in supported properties, remain with cfn-lint. Embedded IAM
 policy semantics remain separate.
 
+## Conditional removal with AWS::NoValue
+
+`{"Ref": "AWS::NoValue"}` removes the property, list entry or `Properties` object that holds it. The generated schemas can't see the template's `Conditions`, so they accept `AssumeRolePolicyDocument: {"Fn::If": ["IsProd", {...}, {"Ref": "AWS::NoValue"}]}` as present. `cfn-cue-validate` adds a check for this case. After the template passes the schemas, it finds every position in each resource's `Properties` that `AWS::NoValue` can remove, directly or through nested `Fn::If`. For each reachable combination of conditions, it checks a copy of the resource with those positions deleted against the resource schema. A required property removed in any reachable combination is reported with the resource, the removed path, and the condition values that select the branch:
+
+```text
+Resources.Role: AWS::NoValue removes Properties.AssumeRolePolicyDocument when condition IsProd is false:
+Resources.Role.Properties.AssumeRolePolicyDocument: field is required but not present
+```
+
+The same copies catch required fields in nested objects (`Properties.Policies[0].PolicyDocument`), a removed `Properties` object for a type with required properties, and at-least-one groups whose members are all removed. Only errors that name a removed position as a required field are reported. Optional properties and list entries can be removed freely. If the template already fails the schemas, that error is reported instead.
+
+Reachability uses the template's `Conditions` and `Parameters` (`internal/conditions`):
+
+- `Fn::And`, `Fn::Or`, `Fn::Not` and `Condition` are evaluated as written. A branch is reachable only if some assignment satisfies every enclosing `Fn::If` choice and the resource's `Condition` attribute. A resource whose `Condition` can never hold is never created, so its branches aren't checked.
+- `Fn::Equals` of two literals is a known boolean, compared by string form (`"1"` equals `1`). An expression compared with literals takes at most one of them, so `Env = prod` and `Env = dev` can't both hold. A `Ref` to a `String` or `Number` parameter with `AllowedValues` takes only those values.
+- Every other comparison, such as two different `Ref`s or a `Fn::FindInMap` result, is an unknown boolean, independent of the rest.
+- An undeclared, cyclic or malformed condition is unknown, not true or false. Both of its branches stay reachable. Each use of the name has the same value, so a resource with `Condition: X` can't reach `X`'s false branch. Undeclared names themselves are left to cfn-lint.
+
+Compared with cfn-lint 1.57.2 on the IAM Role cases in `internal/validate/novalue_test.go`, both report one branch, either branch, both branches, nested conditionals, and the resource's own `Condition` the same way. The model is stricter about what is unreachable than cfn-lint in three cases, so it accepts templates that cfn-lint rejects:
+
+- a constant condition (`Fn::Equals: [a, a]`; cfn-lint warns W8003 and checks both branches);
+- different literal comparisons with a pseudo parameter, such as two `AWS::Region` values;
+- a resource whose `Condition` is constantly false.
+
+It also reports a `Properties` object that `Fn::If` replaces with `AWS::NoValue` when the type has required properties. cfn-lint accepts that, but CloudFormation can't create the resource without them.
+
+Remaining approximations:
+
+- Values are not resolved, so comparisons involving `Fn::FindInMap`, `Fn::Select`, `Fn::Join` and similar functions don't constrain each other. They may make an unreachable branch look reachable.
+- A query over more than 16,384 assignments of the underlying comparisons is undecided. If a resource has more than 32 distinct removal sets, or its combinations are undecided, each removal is checked with the others the same choices force. That fallback misses failures that need independent removals together, and an undecided removal is not reported.
+- Other rules are not checked against removals. A list that `AWS::NoValue` leaves shorter than `minItems`, or a cross-property rule that a removal breaks, is not reported. The copies keep every other `Fn::If` as a present value, which may not match any single condition assignment. In the corpus, the widdix DynamoDB template removes a `KeySchema` sort key while keeping conditional local indexes; checking that rule would reject a template cfn-lint accepts.
+- `AWS::NoValue` inside other intrinsic arguments, `Fn::ForEach` output, and resource attributes other than `Properties` are not checked. Branches are not otherwise specialized: a kept `Fn::If` value is still checked only for its result type.
+- The check runs in `cfn-cue-validate` and `internal/validate`. Importing `regions/<region>:cf` and unifying a template with `#Template` in CUE does not include it.
+
 ## Service rules from cfn-lint
 
 cfn-lint adds service rules to the provider schemas as JSON Schema "extension" files. The generator applies 49 of them, copied unchanged from cfn-lint v1.57.2 into `internal/generate/cfnlint/extensions/`, to 34 resource types. Examples: an S3 bucket with a public `AccessControl` needs `OwnershipControls`; a Lambda target group can't set a port; `ZipFile` code needs a Node.js or Python runtime; an Aurora instance can't set `AllocatedStorage`; a Fargate task needs a supported `Cpu` and `Memory` combination. `internal/generate/extensions.go` lists each rule ID, file and property path.
@@ -254,7 +288,7 @@ A rule whose path ends at a referenced definition is added to that definition, s
 | `#KMSKeyPolicyValue` | `KeyPolicy` on `AWS::KMS::Key` and `AWS::KMS::ReplicaKey` |
 | `#ServiceControlPolicyValue`, `#ResourceControlPolicyValue` | `AWS::Organizations::Policy.Content` when `Type` is `SERVICE_CONTROL_POLICY` or `RESOURCE_CONTROL_POLICY` |
 
-The profiles check which elements each policy kind allows. Trust policies need a principal and take no `Resource`. Identity policies take no `Principal`. SCP `Allow` statements may only name `Resource: "*"`. Customer-managed RCPs only deny, with `Principal: "*"`. They also check `Version`, the `Action` and ARN shapes, condition operators, and the exactly-one rules for `Action`/`NotAction` and the other element pairs. Every value also accepts an intrinsic, which is not evaluated: an intrinsic `Effect` skips the SCP `Resource` rule, for example. `Statement`, a single statement, `Principal` or `Condition` can be `Fn::If`, and a statement, `Condition` or the whole policy can be removed with `AWS::NoValue`. Condition keys may use OIDC issuer namespaces such as `token.actions.githubusercontent.com:sub`. The profiles don't check whether an action, resource or condition key exists; leave that to IAM Access Analyzer or cfn-lint.
+The profiles check which elements each policy kind allows. Trust policies need a principal and take no `Resource`. Identity policies take no `Principal`. SCP `Allow` statements may only name `Resource: "*"`. Customer-managed RCPs only deny, with `Principal: "*"`. They also check `Version`, the `Action` and ARN shapes, condition operators, and the exactly-one rules for `Action`/`NotAction` and the other element pairs. Every value also accepts an intrinsic, which is not evaluated: an intrinsic `Effect` skips the SCP `Resource` rule, for example. `Statement`, a single statement, `Principal` or `Condition` can be `Fn::If`, and a statement, `Condition` or the whole policy can be removed with `AWS::NoValue`. A whole-policy `Fn::If` may nest another one in either branch. Condition keys may use OIDC issuer namespaces such as `token.actions.githubusercontent.com:sub`. The profiles don't check whether an action, resource or condition key exists; leave that to IAM Access Analyzer or cfn-lint.
 
 A placement that no longer matches the provider schema is reported as an `iamPolicy` diagnostic. `literal/` schemas keep provider types. Known limits with CUE v0.18.0-rc.1:
 
@@ -273,9 +307,10 @@ go vet ./...
 CFN_CUE_INTEGRATION=1 go test ./internal/generate \
   -run TestCurrentResources -timeout 3m
 
-# The smoke corpus against the complete us-east-1 and us-west-2 #Template.
+# IAM Role AWS::NoValue cases, and the smoke corpus against the complete
+# us-east-1 and us-west-2 #Template.
 CFN_CUE_INTEGRATION=1 go test ./internal/validate \
-  -run TestCorpusRegionalTemplates -timeout 3m
+  -run 'TestIAMRoleNoValue|TestCorpusRegionalTemplates' -timeout 3m
 
 # Benchmark the complete us-east-1 aggregate with a bounded run.
 GOMEMLIMIT=2GiB CFN_CUE_INTEGRATION=1 CFN_CUE_FULL_REGION=1 \
@@ -288,7 +323,7 @@ CFN_CUE_PERF=1 go test ./internal/generate -run TestResourcePerformance -v
 scripts/region-bench.sh
 ```
 
-Tests cover recursive provider definitions, nested intrinsics, conditional branches, wrong return categories, malformed function objects, required properties, unknown fields/types, read-only filtering, schema exclusivity, LanguageExtensions, resource ForEach, regional selection, strict diagnostics, and preservation of existing output after failure. The opt-in test generates a filtered module from the real upstream snapshot and checks S3 and IAM templates, including policy documents that permit either strings or objects. A second opt-in test checks the 88 smoke corpus templates against the complete us-east-1 and us-west-2 `#Template` and compares the results with `corpus/smoke/expectations.json`.
+Tests cover recursive provider definitions, nested intrinsics, conditional branches, required properties removed by reachable `AWS::NoValue` branches, condition reachability, wrong return categories, malformed function objects, required properties, unknown fields/types, read-only filtering, schema exclusivity, LanguageExtensions, resource ForEach, regional selection, strict diagnostics, and preservation of existing output after failure. The opt-in test generates a filtered module from the real upstream snapshot and checks S3 and IAM templates, including policy documents that permit either strings or objects. A second opt-in test checks the IAM Role `AWS::NoValue` cases compared with cfn-lint. A third checks the 88 smoke corpus templates against the complete us-east-1 and us-west-2 `#Template` and compares the results with `corpus/smoke/expectations.json`.
 
 See [RESEARCH.md](RESEARCH.md) for upstream locations and the next design decisions.
 
