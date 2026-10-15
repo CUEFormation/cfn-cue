@@ -486,18 +486,18 @@
     {
       "depth": 9,
       "id": "mutation-custom-resource-if-properties",
-      "intrinsic_depth": 3,
+      "intrinsic_depth": 2,
       "intrinsics": {
         "Fn::Equals": 2,
         "Fn::If": 2,
-        "Ref": 3
+        "Ref": 2
       },
       "license": "Apache-2.0",
       "nodes": 29,
       "normalized": "normalized/mutation-custom-resource-if-properties.json",
-      "normalized_sha256": "9c970f4eaf2916483db272d2b755254b019fe6c990f979e4a9e55189a99c8052",
+      "normalized_sha256": "8d904ce17514b364426e758ab80817ca171341a15dd860ae2948f991f1900c7c",
       "original": "original/mutations/custom-resource-if-properties.yaml",
-      "original_sha256": "e251b0bd3d24a77cce45dc5528450765ad8c8c704f3affa2bd6603ebd3c42c4b",
+      "original_sha256": "df2e9b511d892913f9af8afc021fef5bb183e47268d70c9e074c3d41ae2f5517",
       "path": "custom-resource-if-properties",
       "resource_count": 1,
       "resource_types": [
@@ -510,18 +510,18 @@
     {
       "depth": 9,
       "id": "mutation-custom-resource-if-properties-missing-token",
-      "intrinsic_depth": 3,
+      "intrinsic_depth": 2,
       "intrinsics": {
         "Fn::Equals": 2,
         "Fn::If": 2,
-        "Ref": 3
+        "Ref": 2
       },
       "license": "Apache-2.0",
       "nodes": 28,
       "normalized": "normalized/mutation-custom-resource-if-properties-missing-token.json",
-      "normalized_sha256": "75e925b42ea130ceafc539cf1aca9bd0ef259b89e96fd8a12597b466684bead7",
+      "normalized_sha256": "03a74c4ff7166fffe97ddc9911a51bc42ee857e83bf886e9bd5b95c022f08e7f",
       "original": "original/mutations/custom-resource-if-properties-missing-token.yaml",
-      "original_sha256": "93477a63ea17e28e7b50b0d4a73955ecf22477afbedc36b73f4eecb10eab32b8",
+      "original_sha256": "27fa8c9ede0e05d5ebe366c32902d81badfa4db8fd83e57d6a21965fb4809c8d",
       "path": "custom-resource-if-properties-missing-token",
       "resource_count": 1,
       "resource_types": [

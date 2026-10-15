@@ -92,7 +92,7 @@ def compatibility_cases():
     conditional["Conditions"] = {"Primary": {"Fn::Equals": [{"Ref": "AWS::Region"}, "us-east-1"]},
                                  "Payload": {"Fn::Equals": [{"Ref": "AWS::Region"}, "us-west-2"]}}
     conditional["Resources"]["Thing"]["Properties"] = {"Fn::If": ["Primary", {"ServiceToken": token},
-        {"Fn::If": ["Payload", {"ServiceToken": token, "Payload": [1]}, {"Ref": "AWS::NoValue"}]}]}
+        {"Fn::If": ["Payload", {"ServiceToken": token, "Payload": [1]}, {"ServiceToken": token}]}]}
     cases["custom-resource-if-properties"] = (conditional, "valid", "valid")
     untokened = copy.deepcopy(conditional)
     untokened["Resources"]["Thing"]["Properties"]["Fn::If"][2]["Fn::If"][1] = {"Payload": [1]}

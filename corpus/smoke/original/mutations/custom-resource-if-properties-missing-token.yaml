@@ -9,7 +9,7 @@ Resources:
         - Payload
         - Payload:
           - 1
-        - Ref: AWS::NoValue
+        - ServiceToken: arn:aws:lambda:us-east-1:123456789012:function:CustomResourceProvider
 Conditions:
   Primary:
     Fn::Equals:

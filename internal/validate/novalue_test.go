@@ -80,6 +80,10 @@ func TestNoValueRequiredProperties(t *testing.T) {
 		{"properties-branch-removes", thing(`{"Fn::If":["IsProd",{"Name":"one"},{"Name":{"Fn::If":["IsDev","two",` + noValue + `]}}]}`), "valid", nil},
 		{"properties-branch-free", thing(`{"Fn::If":["FreeA",{"Name":"one"},{"Name":{"Fn::If":["FreeB","two",` + noValue + `]}}]}`), "invalid",
 			[]string{"removes Properties.Fn::If[2].Name when condition FreeA is false and condition FreeB is false"}},
+		{"properties-nested", thing(`{"Fn::If":["FreeA",{"Name":"one"},{"Fn::If":["FreeB",{"Name":"two"},{"Name":"one"}]}]}`), "valid", nil},
+		{"properties-nested-removed", thing(`{"Fn::If":["FreeA",{"Name":"one"},{"Fn::If":["FreeB",{"Name":"two"},` + noValue + `]}]}`), "invalid",
+			[]string{"removes Properties when condition FreeA is false and condition FreeB is false", "Resources.Thing.Properties: field is required but not present"}},
+		{"properties-nested-leaf", thing(`{"Fn::If":["FreeA",{"Name":"one"},{"Fn::If":["FreeB",{"Name":{"Fn::If":["FreeA",` + noValue + `,"two"]}},{"Name":"one"}]}]}`), "valid", nil},
 
 		// Nested objects, list entries and presence groups.
 		{"nested-required", `{"N":{"Type":"AWS::Test::Nested","Properties":{"Primary":"p","Settings":[{"Value":"v","Key":{"Fn::If":["IsProd","k",` + noValue + `]}}]}}}`, "invalid",
