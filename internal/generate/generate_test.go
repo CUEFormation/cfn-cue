@@ -145,6 +145,75 @@ func TestDefinitionNames(t *testing.T) {
 	validate(t, resource, `{Type:"AWS::Test::Named",Properties:{Target:{}}}`, false)
 	validate(t, resource, `{Type:"AWS::Test::Named",Properties:{Settings:{Mode:"c"}}}`, false)
 }
+
+// TestPrunedDefinitions checks that resources packages drop provider
+// definitions the template input schema no longer reaches, transitively, while
+// literal packages keep every definition. Percent-encoded references and,
+// in TestRootReferenceKept, references from the root schema keep their targets.
+// A field rule inside a pruned definition is dropped; one in a kept
+// definition still applies.
+func TestPrunedDefinitions(t *testing.T) {
+	root := `{"typeName":"AWS::Test::Pruned","type":"object","additionalProperties":false,
+		"properties":{"Id":{"$ref":"#/definitions/AccountId"},"Wrapper":{"$ref":"#/definitions/Wrapper"},"Odd":{"$ref":"#/definitions/odd~1name"},"Spaced":{"$ref":"#/definitions%2Fodd%20space"}},
+		"readOnlyProperties":["/properties/Id"],
+		"definitions":{
+			"AccountId":{"allOf":[{"$ref":"#/definitions/Digits"}]},
+			"Digits":{"type":"string","pattern":"^[0-9]+$"},
+			"Wrapper":{"type":"object","additionalProperties":false,"properties":{"Inner":{"$ref":"#/definitions/Inner"},"Other":{"type":"string"}},"requiredXor":["Inner","Other"]},
+			"Inner":{"type":"string"},
+			"odd space":{"type":"string"},
+			"odd/name":{"type":"string"},
+			"odd/orphan":{"type":"string"},
+			"Orphan":{"type":"object","properties":{"X":{"type":"string"},"Y":{"type":"string"}},"requiredXor":["X","Y"]}}}`
+	out := filepath.Join(t.TempDir(), "generated")
+	if _, e := Generate(&Source{Label: "pruned", SHA256: "pruned", files: map[string][]byte{
+		"providers/us-east-1.json": []byte(`{"AWS::Test::Pruned":"pruned"}`),
+		"resources/pruned.json":    []byte(root),
+	}}, Options{Out: out, Regions: []string{"us-east-1"}}); e != nil {
+		t.Fatal(e)
+	}
+	pkg := build(t, out, "./resources/hpruned")
+	for name, want := range map[string]bool{"AccountId": false, "Digits": false, "Orphan": false, "Wrapper": true, "Inner": true} {
+		if got := pkg.LookupPath(cue.MakePath(cue.Def(name))).Exists(); got != want {
+			t.Errorf("resources #%s exists=%v want=%v", name, got, want)
+		}
+	}
+	b, e := os.ReadFile(filepath.Join(out, "resources", "hpruned", "schema.cue"))
+	if e != nil {
+		t.Fatal(e)
+	}
+	if !strings.Contains(string(b), "odd~1name") || strings.Contains(string(b), "odd~1orphan") {
+		t.Errorf("nested definitions not pruned as expected:\n%s", b)
+	}
+	literal := build(t, out, "./literal/hpruned")
+	for _, name := range []string{"AccountId", "Digits", "Orphan"} {
+		if !literal.LookupPath(cue.MakePath(cue.Def(name))).Exists() {
+			t.Errorf("literal #%s missing", name)
+		}
+	}
+	resource := pkg.LookupPath(cue.MakePath(cue.Def("Resource")))
+	validate(t, resource, `{Type:"AWS::Test::Pruned",Properties:{Wrapper:{Inner:"x"},Odd:"y",Spaced:"z"}}`, true)
+	validate(t, resource, `{Type:"AWS::Test::Pruned",Properties:{Id:"123456789012"}}`, false)
+	validate(t, resource, `{Type:"AWS::Test::Pruned",Properties:{Wrapper:{Inner:"x",Other:"y"}}}`, false)
+}
+
+// TestRootReferenceKept checks that a definition referenced by the root
+// schema's own $ref survives pruning. Read-only removal inlines a root $ref, so
+// this fixture has no read-only properties.
+func TestRootReferenceKept(t *testing.T) {
+	root := `{"typeName":"AWS::Test::RootRef","type":"object","$ref":"#/definitions/Shape",
+		"definitions":{"Shape":{"type":"object","properties":{"Name":{"type":"string"}},"required":["Name"]}}}`
+	out := filepath.Join(t.TempDir(), "generated")
+	if _, e := Generate(&Source{Label: "rootref", SHA256: "rootref", files: map[string][]byte{
+		"providers/us-east-1.json": []byte(`{"AWS::Test::RootRef":"rootref"}`),
+		"resources/rootref.json":   []byte(root),
+	}}, Options{Out: out, Regions: []string{"us-east-1"}}); e != nil {
+		t.Fatal(e)
+	}
+	if !build(t, out, "./resources/hrootref").LookupPath(cue.MakePath(cue.Def("Shape"))).Exists() {
+		t.Error("resources #Shape pruned")
+	}
+}
 func TestExtensions(t *testing.T) {
 	out := filepath.Join(t.TempDir(), "generated")
 	_, e := Generate(fixture(t), Options{Out: out, LanguageExtensions: true})

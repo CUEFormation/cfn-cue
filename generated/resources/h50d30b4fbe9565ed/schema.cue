@@ -42,8 +42,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ConfigOwner: "ACCOUNT" | "ORGANIZATION" | fn.#StringExpression
-
 #ModelEnforcement: close({
 	ExcludedModels!: [...] & [...=~"^([a-z0-9-]{1,63}[.]{1}[a-z0-9-]{1,63})([:][a-z0-9-]{1,63}){0,2}(/[a-z0-9]{12}){0,1}$" |
 	{

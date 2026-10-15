@@ -692,12 +692,6 @@ fn.#ObjectExpression
 
 #SnapStart: close({ApplyOn!: "PublishedVersions" | "None" | fn.#StringExpression}) | fn.#ObjectExpression
 
-#SnapStartResponse: close({
-	ApplyOn?:            "PublishedVersions" | "None" | fn.#StringExpression
-	OptimizationStatus?: "On" | "Off" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{

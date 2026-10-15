@@ -26,14 +26,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ISO8601DateString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" |
-{
-	number | bool
-	_cfnString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" &
-		"\(self)"
-} |
-fn.#StringExpression
-
 #NetworkScanning: close({Status!: "ENABLED" | "DISABLED" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Tags: struct.MaxFields(50) & {...} | fn.#ObjectExpression

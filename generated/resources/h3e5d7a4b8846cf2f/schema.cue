@@ -197,22 +197,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Tag: close({
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #TransformEncryption: close({
 	MLUserDataEncryption?: #MLUserDataEncryption
 	TaskRunSecurityConfigurationName?: strings.MaxRunes(255) & strings.MinRunes(1) |

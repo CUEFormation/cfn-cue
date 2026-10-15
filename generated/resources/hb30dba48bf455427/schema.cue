@@ -36,12 +36,6 @@ import structs "struct"
 #ComputeNodeGroupConfiguration: close({ComputeNodeGroupId?: string | number | bool | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-#ErrorInfo: close({
-	Code?:    string | number | bool | fn.#StringExpression
-	Message?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #SlurmCustomSetting: close({
 	ParameterName!:  string | number | bool | fn.#StringExpression
 	ParameterValue!: string | number | bool | fn.#StringExpression

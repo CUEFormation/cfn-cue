@@ -151,5 +151,3 @@ fn.#ValueExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Unit: close({}) | fn.#ObjectExpression

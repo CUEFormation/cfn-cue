@@ -167,13 +167,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#SolutionArn: strings.MaxRunes(256) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(256) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" & "\(self)"
-} |
-fn.#StringExpression
-
 #SolutionConfig: close({
 	AlgorithmHyperParameters?: struct.MaxFields(100) & close({
 

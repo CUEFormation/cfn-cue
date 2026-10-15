@@ -115,13 +115,6 @@ fn.#StringExpression
 ) |
 	fn.#ObjectExpression
 
-#DeployedImage: close({
-	ResolutionTime?: #Timestamp
-	ResolvedImage?:  #ContainerImage
-	SpecifiedImage?: #ContainerImage
-}) |
-fn.#ObjectExpression
-
 #EndpointArn: strings.MaxRunes(256) & strings.MinRunes(1) |
 {
 	number | bool
@@ -137,20 +130,6 @@ fn.#StringExpression
 fn.#StringExpression
 
 #EnvironmentMap: struct.MaxFields(16) & {...} | fn.#ObjectExpression
-
-#FailureReason: strings.MaxRunes(63) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(63) & "\(self)"
-} |
-fn.#StringExpression
-
-#InferenceComponentArn: strings.MaxRunes(256) & strings.MinRunes(1) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
-} |
-fn.#StringExpression
 
 #InferenceComponentAvailabilityZoneBalance: close({
 	EnforcementMode!: #AvailabilityZoneBalanceEnforcementMode
@@ -186,15 +165,6 @@ fn.#ObjectExpression
 	MinMemoryRequiredInMb?:              #MemoryInMb
 	NumberOfAcceleratorDevicesRequired?: #NumberOfAcceleratorDevices
 	NumberOfCpuCoresRequired?:           #NumberOfCpuCores
-}) |
-fn.#ObjectExpression
-
-#InferenceComponentContainerSpecification: close({
-	ArtifactUrl?:            #Url
-	ContainerMetricsConfig?: #ContainerMetricsConfig
-	DeployedImage?:          #DeployedImage
-	Environment?:            #EnvironmentMap
-	Image?:                  #ContainerImage
 }) |
 fn.#ObjectExpression
 
@@ -240,12 +210,6 @@ fn.#ObjectExpression
 } |
 fn.#StringExpression
 
-#InferenceComponentPlacementStatus: close({
-	CurrentCopyCount!: #InferenceComponentCopyCount
-	InstanceType!:     #InstanceType
-}) |
-fn.#ObjectExpression
-
 #InferenceComponentPlacementStrategy: "SPREAD" | "BINPACK" | fn.#StringExpression
 
 #InferenceComponentRollingUpdatePolicy: close({
@@ -256,68 +220,17 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#InferenceComponentRuntimeConfig: close({
-	CopyCount?:        #InferenceComponentCopyCount
-	CurrentCopyCount?: #InferenceComponentCopyCount
-	DesiredCopyCount?: #InferenceComponentCopyCount
-	PlacementStatus?:  [...#InferenceComponentPlacementStatus] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
 #InferenceComponentSchedulingConfig: close({
 	AvailabilityZoneBalance!: #InferenceComponentAvailabilityZoneBalance
 	PlacementStrategy!:       #InferenceComponentPlacementStrategy
 }) |
 fn.#ObjectExpression
 
-#InferenceComponentSpecification: close({
-	BaseInferenceComponentName?:  #BaseInferenceComponentName
-	ComputeResourceRequirements?: #InferenceComponentComputeResourceRequirements
-	Container?:                   #InferenceComponentContainerSpecification
-
-	// The data caching configuration actually in effect, including a value the
-	// service chose rather than the template: SageMaker enables caching
-	// automatically on instance types with more than 232 GiB of local NVMe
-	// storage, whether or not DataCacheConfig was set. Returned by Describe and
-	// not settable; set DataCacheConfig instead.
-	CurrentDataCacheConfig?: #InferenceComponentDataCacheConfig
-	DataCacheConfig?:        #InferenceComponentDataCacheConfig
-	ModelName?:              #ModelName
-	SchedulingConfig?:       #InferenceComponentSchedulingConfig
-	StartupParameters?:      #InferenceComponentStartupParameters
-}) |
-fn.#ObjectExpression
-
-#InferenceComponentSpecificationForInstanceType: close({
-	ComputeResourceRequirements?: #InferenceComponentComputeResourceRequirements
-	Container?:                   #InferenceComponentContainerSpecificationForInstanceType
-
-	// The data caching configuration actually in effect for this instance type,
-	// including a value the service chose rather than the template: SageMaker
-	// enables caching automatically on instance types with more than 232 GiB of
-	// local NVMe storage, whether or not DataCacheConfig was set. Returned by
-	// Describe and not settable; set DataCacheConfig instead.
-	CurrentDataCacheConfig?: #InferenceComponentDataCacheConfig
-	DataCacheConfig?:        #InferenceComponentDataCacheConfig
-	InstanceType!:           #InstanceType
-	ModelName?:              #ModelName
-	SchedulingConfig?:       #InferenceComponentSchedulingConfig
-	StartupParameters?:      #InferenceComponentStartupParameters
-}) |
-fn.#ObjectExpression
-
-#InferenceComponentSpecificationList: list.MaxItems(5) & list.MinItems(2) & [
-	...#InferenceComponentSpecificationForInstanceType
-] |
-	fn.#ListExpression
-
 #InferenceComponentStartupParameters: close({
 	ContainerStartupHealthCheckTimeoutInSeconds?: #StartupParameterTimeoutInSeconds
 	ModelDataDownloadTimeoutInSeconds?:           #StartupParameterTimeoutInSeconds
 }) |
 fn.#ObjectExpression
-
-#InferenceComponentStatus: "InService" | "Creating" | "Updating" | "Failed" | "Deleting" | fn.#StringExpression
 
 #InstanceType: strings.MaxRunes(64) & =~"^ml\\..*" |
 {
@@ -466,8 +379,6 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #TagList: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-
-#Timestamp: string | number | bool | fn.#StringExpression
 
 #Url: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
 {

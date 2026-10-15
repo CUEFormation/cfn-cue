@@ -25,20 +25,11 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#PhysicalId: string | number | bool | fn.#StringExpression
-
 #Policy: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 #ResourceArn: strings.MaxRunes(1011) & strings.MinRunes(1) |
 {
 	number | bool
 	_cfnString: strings.MaxRunes(1011) & strings.MinRunes(1) & "\(self)"
-} |
-fn.#StringExpression
-
-#RevisionId: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^[0-9]+$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^[0-9]+$" & "\(self)"
 } |
 fn.#StringExpression

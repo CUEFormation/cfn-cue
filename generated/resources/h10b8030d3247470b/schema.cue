@@ -44,8 +44,4 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ApplicationType: "SAS" | "DESKTOP_APPLICATION" | "OTHER" | fn.#StringExpression
-
 #ContextType: "APPLICATION" | fn.#StringExpression
-
-#Criticality: "MISSION_CRITICAL" | "BUSINESS_CRITICAL" | "NON_CRITICAL" | "TEST_DEVELOPMENT" | fn.#StringExpression

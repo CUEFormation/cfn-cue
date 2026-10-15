@@ -78,9 +78,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-// The configuration options for customer provided KMS encryption.
-#SseSpecification: #SseSpecification
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{

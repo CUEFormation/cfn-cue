@@ -46,14 +46,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#DeviceCreationFileList: [...strings.MaxRunes(1024) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(1024) & "\(self)"
-} |
-fn.#StringExpression] |
-fn.#ListExpression
-
 #Role: strings.MaxRunes(2048) & strings.MinRunes(0) |
 {
 	number | bool

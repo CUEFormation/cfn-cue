@@ -36,13 +36,6 @@ import structs "struct"
 } |
 fn.#StringExpression
 
-#EntityId: =~"^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$" |
-{
-	number | bool
-	_cfnString: =~"^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$" & "\(self)"
-} |
-fn.#StringExpression
-
 #EntityName: =~"^[0-9A-Za-z_-]{1,128}$" |
 {
 	number | bool
@@ -58,8 +51,6 @@ fn.#StringExpression
 fn.#StringExpression
 
 #IPAddressVersion: "IPV4" | "IPV6" | fn.#StringExpression
-
-#ResourceArn: string | number | bool | fn.#StringExpression
 
 #Scope: "CLOUDFRONT" | "REGIONAL" | fn.#StringExpression
 

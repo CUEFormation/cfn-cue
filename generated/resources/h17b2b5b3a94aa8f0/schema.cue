@@ -5,7 +5,6 @@ package schema
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
-	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -111,5 +110,3 @@ fn.#ObjectExpression
 	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression

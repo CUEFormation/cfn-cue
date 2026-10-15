@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -39,17 +39,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#ApiKeySecretArn: close({
-	SecretArn!: =~"^arn:(aws|aws-us-gov):secretsmanager:[A-Za-z0-9-]{1,64}:[0-9]{12}:secret:[a-zA-Z0-9-_/+=.@!]+$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:(aws|aws-us-gov):secretsmanager:[A-Za-z0-9-]{1,64}:[0-9]{12}:secret:[a-zA-Z0-9-_/+=.@!]+$" &
-			"\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #SecretReference: close({
 	JsonKey!: strings.MaxRunes(128) & strings.MinRunes(1) |

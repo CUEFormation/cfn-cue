@@ -108,12 +108,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#KeyOrigin: "EXTERNAL" | "AWS_PAYMENT_CRYPTOGRAPHY" | fn.#StringExpression
-
-#KeyReplicationState: "IN_PROGRESS" | "DELETE_IN_PROGRESS" | "FAILED" | "SYNCHRONIZED" | fn.#StringExpression
-
-#KeyState: "CREATE_IN_PROGRESS" | "CREATE_COMPLETE" | "DELETE_PENDING" | "DELETE_COMPLETE" | fn.#StringExpression
-
 #KeyUsage: "TR31_B0_BASE_DERIVATION_KEY" |
 	"TR31_C0_CARD_VERIFICATION_KEY" |
 	"TR31_D0_SYMMETRIC_DATA_ENCRYPTION_KEY" |
@@ -139,47 +133,6 @@ fn.#ObjectExpression
 	"TR31_V2_VISA_PIN_VERIFICATION_KEY" |
 	"TR31_K2_TR34_ASYMMETRIC_KEY" |
 	fn.#StringExpression
-
-#ReplicationStatus: close({
-
-	{[=~"^[a-z]{2}-[a-z]{1,16}-[0-9]+$"]: #ReplicationStatusType}}) |
-fn.#ObjectExpression
-
-#ReplicationStatusType: close({
-	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws(-[^:]+)?:kms:[a-z0-9-]{1,20}:[0-9]{12}:key/[a-zA-Z0-9-]+$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
-		strings.MaxRunes(2048) &
-		strings.MinRunes(20) &
-		=~"^arn:aws(-[^:]+)?:kms:[a-z0-9-]{1,20}:[0-9]{12}:key/[a-zA-Z0-9-]+$" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
-		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
-		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^[a-zA-Z0-9:/_-]+$" |
-	{
-		number | bool
-		_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
-			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
-			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
-		strings.MaxRunes(2048) &
-		strings.MinRunes(1) &
-		=~"^[a-zA-Z0-9:/_-]+$" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	Status!:        #KeyReplicationState
-	StatusMessage?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |

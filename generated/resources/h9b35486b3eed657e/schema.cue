@@ -7,10 +7,6 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
 
 import structs "struct"
@@ -36,65 +32,5 @@ import structs "struct"
 #TemplateConfiguration: close({
 	DeletionPolicy?:      "DELETE" | "RETAIN" | fn.#StringExpression
 	UpdateReplacePolicy?: "DELETE" | "RETAIN" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#TemplateProgress: close({
-	ResourcesFailed?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ResourcesPending?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ResourcesProcessing?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ResourcesSucceeded?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
 }) |
 fn.#ObjectExpression

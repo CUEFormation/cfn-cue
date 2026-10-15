@@ -142,13 +142,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ThemeImageLink: strings.MaxRunes(254) & strings.MinRunes(1) & =~".*\\S.*" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(254) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
-} |
-fn.#StringExpression
-
 #ThemeString: strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" |
 {
 	number | bool

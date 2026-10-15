@@ -128,5 +128,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#TrainingDatasetStatus: "ACTIVE" | fn.#StringExpression

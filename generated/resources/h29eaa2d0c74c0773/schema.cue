@@ -9,10 +9,6 @@ import (
 	"struct"
 )
 
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
 
 import structs "struct"
@@ -111,23 +107,6 @@ fn.#ObjectExpression
 	} |
 	fn.#StringExpression
 	ExternalId?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#DisasterRecoverySource: close({
-	PolicyName?: string | number | bool | fn.#StringExpression
-	Value?:      string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#EffectivePolicyValues: close({
-	AvailabilitySlo?:       #SloSource
-	MultiAzDrApproach?:     #DisasterRecoverySource
-	MultiAzRpo?:            #TargetSource
-	MultiAzRto?:            #TargetSource
-	MultiRegionDrApproach?: #DisasterRecoverySource
-	MultiRegionRpo?:        #TargetSource
-	MultiRegionRto?:        #TargetSource
 }) |
 fn.#ObjectExpression
 
@@ -278,30 +257,6 @@ fn.#ObjectExpression
 ) |
 	fn.#ObjectExpression
 
-#SloSource: close({
-	PolicyName?: string | number | bool | fn.#StringExpression
-	Value?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{
@@ -315,24 +270,5 @@ fn.#ObjectExpression
 		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
 	} |
 	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#TargetSource: close({
-	PolicyName?: string | number | bool | fn.#StringExpression
-	Value?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
 }) |
 fn.#ObjectExpression

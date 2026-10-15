@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -38,16 +38,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#HlsIngest: close({ingestEndpoints?: [...#IngestEndpoint] | fn.#ListExpression}) | fn.#ObjectExpression
-
-#IngestEndpoint: close({
-	Id?:       string | number | bool | fn.#StringExpression
-	Password?: string | number | bool | fn.#StringExpression
-	Url?:      string | number | bool | fn.#StringExpression
-	Username?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #LogConfiguration: close({
 	LogGroupName?: strings.MaxRunes(256) & strings.MinRunes(1) |

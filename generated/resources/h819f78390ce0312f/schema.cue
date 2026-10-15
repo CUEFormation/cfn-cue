@@ -193,12 +193,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#DefaultArguments: close({
-	Key?:   string | number | bool | fn.#StringExpression
-	Value?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #ExecutionProperty: close({
 	MaxConcurrentRuns?: number |
 		{
@@ -242,12 +236,6 @@ fn.#ObjectExpression
 		_cfnString: strings.MaxRunes(400000) & strings.MinRunes(0) & "\(self)"
 	} |
 	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#NonOverridableArguments: close({
-	Key?:   string | number | bool | fn.#StringExpression
-	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

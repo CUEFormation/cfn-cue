@@ -185,18 +185,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#IamRole: close({
-	AwsIntegration?: string | number | bool | fn.#StringExpression
-	IamRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression
-	Status?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #MaintenanceWindow: close({
 	DaysOfWeek?: [
 		..."MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY" | fn.#StringExpression

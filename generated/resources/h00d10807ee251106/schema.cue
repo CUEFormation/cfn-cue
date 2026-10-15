@@ -27,15 +27,3 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#ScheduledEvents: close({
-	FinalAutoActivation?: string | number | bool | fn.#StringExpression
-	FirstAutoActivation?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#Validity: close({
-	NotAfter?:  string | number | bool | fn.#StringExpression
-	NotBefore?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression

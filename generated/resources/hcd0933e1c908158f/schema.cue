@@ -38,18 +38,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ResourceExclusions: close({
-	EgressOnlyInternetGateway?: #VpcEncryptionControlExclusion
-	ElasticFileSystem?:         #VpcEncryptionControlExclusion
-	InternetGateway?:           #VpcEncryptionControlExclusion
-	Lambda?:                    #VpcEncryptionControlExclusion
-	NatGateway?:                #VpcEncryptionControlExclusion
-	VirtualPrivateGateway?:     #VpcEncryptionControlExclusion
-	VpcLattice?:                #VpcEncryptionControlExclusion
-	VpcPeering?:                #VpcEncryptionControlExclusion
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{
@@ -63,11 +51,5 @@ fn.#ObjectExpression
 		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
 	} |
 	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#VpcEncryptionControlExclusion: close({
-	State?:        string | number | bool | fn.#StringExpression
-	StateMessage?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

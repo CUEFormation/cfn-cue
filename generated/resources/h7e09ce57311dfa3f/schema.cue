@@ -70,8 +70,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#OutputType: string | number | bool | fn.#StringExpression
-
 #ProvisioningParameter: close({
 	Key!: strings.MaxRunes(1000) & strings.MinRunes(1) |
 	{

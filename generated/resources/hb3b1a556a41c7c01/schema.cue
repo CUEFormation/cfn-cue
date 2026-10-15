@@ -398,12 +398,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#FleetCapabilities: close({
-	Amounts?:    list.MaxItems(15) & list.MinItems(1) & [...#FleetAmountCapability] | fn.#ListExpression
-	Attributes?: list.MaxItems(15) & list.MinItems(1) & [...#FleetAttributeCapability] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
 #FleetConfiguration: matchN(1, [close(
 	{CustomerManaged!: #CustomerManagedFleetConfiguration},
 ), close(
@@ -414,14 +408,6 @@ fn.#ValueExpression
 #FleetSoftwareAddOn: close({Name!: #FleetSoftwareAddOnName}) | fn.#ObjectExpression
 
 #FleetSoftwareAddOnName: "docker" | fn.#StringExpression
-
-#FleetStatus: "ACTIVE" |
-	"CREATE_IN_PROGRESS" |
-	"UPDATE_IN_PROGRESS" |
-	"CREATE_FAILED" |
-	"UPDATE_FAILED" |
-	"SUSPENDED" |
-	fn.#StringExpression
 
 #HostConfiguration: close({
 	ScriptBody!: strings.MaxRunes(15000) & strings.MinRunes(0) |

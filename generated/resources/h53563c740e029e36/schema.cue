@@ -37,13 +37,6 @@ fn.#StringExpression
 
 #FilterType: "WILDCARD" | fn.#StringExpression
 
-#RegistryId: =~"^[0-9]{12}$" |
-{
-	number | bool
-	_cfnString: =~"^[0-9]{12}$" & "\(self)"
-} |
-fn.#StringExpression
-
 #RepositoryFilter: close({
 	// The filter to use when scanning.
 	Filter!: #Filter

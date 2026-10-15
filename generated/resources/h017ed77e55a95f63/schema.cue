@@ -47,25 +47,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ControlMappingSource: close({
-	SourceDescription?: string | number | bool | fn.#StringExpression
-	SourceFrequency?:   "DAILY" | "WEEKLY" | "MONTHLY" | fn.#StringExpression
-	SourceId?:          string | number | bool | fn.#StringExpression
-	SourceKeyword?:     #SourceKeyword
-	SourceName?:        string | number | bool | fn.#StringExpression
-	SourceSetUpOption?: "System_Controls_Mapping" | "Procedural_Controls_Mapping" | fn.#StringExpression
-	SourceType?: "AWS_Cloudtrail" |
-		"AWS_Config" |
-		"AWS_Security_Hub" |
-		"AWS_API_Call" |
-		"MANUAL" |
-		"Common_Control" |
-		"Core_Control" |
-		fn.#StringExpression
-	TroubleshootingText?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #SourceKeyword: close({
 	KeywordInputType?: "SELECT_FROM_LIST" | "UPLOAD_FILE" | "INPUT_TEXT" | fn.#StringExpression
 	KeywordValue?:     string | number | bool | fn.#StringExpression

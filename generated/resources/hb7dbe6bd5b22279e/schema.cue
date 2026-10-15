@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -20,14 +20,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#NotificationHubStatus: "ACTIVE" | "REGISTERING" | "DEREGISTERING" | "INACTIVE" | fn.#StringExpression
-
-#NotificationHubStatusSummary: close({
-	NotificationHubStatus!:       #NotificationHubStatus
-	NotificationHubStatusReason!: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #Region: strings.MaxRunes(25) & strings.MinRunes(2) |
 {

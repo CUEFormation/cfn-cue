@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
 
@@ -53,8 +53,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#LicenseEndpointStatus: "CREATE_IN_PROGRESS" | "DELETE_IN_PROGRESS" | "READY" | "NOT_READY" | fn.#StringExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(127) & strings.MinRunes(1) |

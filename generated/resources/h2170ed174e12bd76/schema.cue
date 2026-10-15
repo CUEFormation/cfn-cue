@@ -150,15 +150,6 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#KnowledgeBaseStatus: "CREATING" |
-	"ACTIVE" |
-	"DELETING" |
-	"UPDATING" |
-	"FAILED" |
-	"DELETE_UNSUCCESSFUL" |
-	"UPDATE_UNSUCCESSFUL" |
-	fn.#StringExpression
-
 #KnowledgeBaseStorageType: "OPENSEARCH_SERVERLESS" |
 	"PINECONE" |
 	"RDS" |
@@ -571,52 +562,6 @@ fn.#ObjectExpression
 	{
 		number | bool
 		_cfnString: strings.MaxRunes(63) & =~"^[a-zA-Z0-9_\\-]+$" & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#RedisEnterpriseCloudConfiguration: close({
-	CredentialsSecretArn!: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws(|-cn|-us-gov):secretsmanager:[a-z0-9-]{1,20}:([0-9]{12}|):secret:[a-zA-Z0-9!/_+=.@-]{1,512}$" &
-			"\(self)"
-	} |
-	fn.#StringExpression
-	Endpoint!: strings.MaxRunes(2048) & =~"^.*$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
-	} |
-	fn.#StringExpression
-	FieldMapping!: #RedisEnterpriseCloudFieldMapping
-	VectorIndexName!: strings.MaxRunes(2048) & =~"^.*$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#RedisEnterpriseCloudFieldMapping: close({
-	MetadataField!: strings.MaxRunes(2048) & =~"^.*$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
-	} |
-	fn.#StringExpression
-	TextField!: strings.MaxRunes(2048) & =~"^.*$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
-	} |
-	fn.#StringExpression
-	VectorField!: strings.MaxRunes(2048) & =~"^.*$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(2048) & =~"^.*$" & "\(self)"
 	} |
 	fn.#StringExpression
 }) |

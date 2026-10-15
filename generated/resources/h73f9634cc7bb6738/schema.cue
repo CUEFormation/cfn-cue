@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -70,11 +70,3 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#LatestVersion: close({
-	Arn?:   string | number | bool | fn.#StringExpression
-	Major?: string | number | bool | fn.#StringExpression
-	Minor?: string | number | bool | fn.#StringExpression
-	Patch?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression

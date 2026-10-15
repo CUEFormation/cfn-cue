@@ -29,12 +29,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ResourceLocation: close({
-	AvailabilityZone?: string | number | bool | fn.#StringExpression
-	RegionName?:       string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{

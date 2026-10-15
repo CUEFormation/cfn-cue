@@ -1046,30 +1046,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#OutputColumn: close({
-	Description?: strings.MaxRunes(500) & strings.MinRunes(0) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & "\(self)"
-	} |
-	fn.#StringExpression
-	Id?: strings.MaxRunes(64) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	Name?: strings.MaxRunes(127) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	SubType?: #ColumnDataSubType
-	Type?:    #ColumnDataType
-}) |
-fn.#ObjectExpression
-
 #OutputColumnNameOverride: close({
 	OutputColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) |
 	{

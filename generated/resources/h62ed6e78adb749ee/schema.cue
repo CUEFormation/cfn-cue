@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -84,12 +84,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#Certificate: close({
-	CertificateArn?:  string | number | bool | fn.#StringExpression
-	CertificateData?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #CloudWatchMonitoringConfiguration: close({
 	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" |

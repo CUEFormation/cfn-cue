@@ -25,19 +25,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#DnsVerification: close({
-	DnsRecordName?: string | number | bool | fn.#StringExpression
-	DnsRecordType?: "TXT" | fn.#StringExpression
-	Token?:         string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#HttpVerification: close({
-	RoutePath?: string | number | bool | fn.#StringExpression
-	Token?:     string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{
@@ -51,12 +38,5 @@ fn.#ObjectExpression
 		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
 	} |
 	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#VerificationDetails: close({
-	DnsTxt?:    #DnsVerification
-	HttpRoute?: #HttpVerification
-	Method?:    "DNS_TXT" | "HTTP_ROUTE" | "PRIVATE_VPC" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

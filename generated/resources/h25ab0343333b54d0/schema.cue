@@ -75,24 +75,6 @@ strings.MinRunes(2) &
 } |
 fn.#StringExpression
 
-#PullThroughCacheRule: close({
-	CredentialArn?:            #CredentialArn
-	CustomRoleArn?:            #CustomRoleArn
-	EcrRepositoryPrefix!:      #EcrRepositoryPrefix
-	RegistryId?:               #RegistryId
-	UpstreamRegistry?:         #UpstreamRegistry
-	UpstreamRegistryUrl!:      #UpstreamRegistryUrl
-	UpstreamRepositoryPrefix?: #UpstreamRepositoryPrefix
-}) |
-fn.#ObjectExpression
-
-#RegistryId: =~"^[0-9]{12}$" |
-{
-	number | bool
-	_cfnString: =~"^[0-9]{12}$" & "\(self)"
-} |
-fn.#StringExpression
-
 #UpstreamRegistry: "azure-container-registry" |
 	"chainguard" |
 	"docker-hub" |

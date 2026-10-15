@@ -42,8 +42,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Document: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
-
 #IdMappingConfig: close(
 	{AllowUseAsDimensionColumn!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
@@ -60,12 +58,6 @@ import structs "struct"
 	} |
 	fn.#StringExpression
 	ManageResourcePolicies!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-}) |
-fn.#ObjectExpression
-
-#IdNamespaceAssociationInputReferenceProperties: close({
-	IdMappingWorkflowsSupported?: [...#Document] | fn.#ListExpression
-	IdNamespaceType?:             "SOURCE" | "TARGET" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

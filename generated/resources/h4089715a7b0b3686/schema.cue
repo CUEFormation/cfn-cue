@@ -6,7 +6,6 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"struct"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -122,28 +121,6 @@ fn.#ObjectExpression
 		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9 _=@:.+-/]*$" & "\(self)"
 	} |
 	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#TagMap: struct.MaxFields(50) & close({
-
-	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
-		"disallowed",
-	)}
-
-	{
-		[=~"^([\\p{L}\\p{Z}\\p{N}_.,:/=+\\-@]*)$"]: strings.MaxRunes(256) &
-		strings.MinRunes(0) &
-		=~"^([\\p{L}\\p{Z}\\p{N}_.,:/=+\\-@]*)$" |
-		{
-			number | bool
-			_cfnString: strings.MaxRunes(256) &
-			strings.MinRunes(0) &
-			=~"^([\\p{L}\\p{Z}\\p{N}_.,:/=+\\-@]*)$" &
-			"\(self)"
-		} |
-		fn.#StringExpression
-	}
 }) |
 fn.#ObjectExpression
 

@@ -2,11 +2,11 @@
 
 package schema
 
-import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
 
 import structs "struct"
+
+import fn "github.com/cueformation/cfn-cue/fn:fn"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -18,10 +18,3 @@ import structs "struct"
 	Properties?: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#AccountId: =~"^\\d{12}$" |
-{
-	number | bool
-	_cfnString: =~"^\\d{12}$" & "\(self)"
-} |
-fn.#StringExpression

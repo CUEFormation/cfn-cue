@@ -32,8 +32,6 @@ import structs "struct"
 })]) |
 fn.#ObjectExpression
 
-#Regex: string | number | bool | fn.#StringExpression
-
 #S3WordsList: close({
 	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
 	{
@@ -44,16 +42,6 @@ fn.#ObjectExpression
 	ObjectKey!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Status: "OK" |
-	"S3_OBJECT_NOT_FOUND" |
-	"S3_USER_ACCESS_DENIED" |
-	"S3_OBJECT_ACCESS_DENIED" |
-	"S3_THROTTLED" |
-	"S3_OBJECT_OVERSIZE" |
-	"S3_OBJECT_EMPTY" |
-	"UNKNOWN_ERROR" |
-	fn.#StringExpression
 
 #Tag: close({
 	Key!:   string | number | bool | fn.#StringExpression

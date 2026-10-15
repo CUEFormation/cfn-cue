@@ -5,8 +5,8 @@ package schema
 import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"struct"
 	"list"
+	"struct"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -119,28 +119,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#AuthParameters: struct.MaxFields(2) & struct.MinFields(1) & (close({
-	ApiKeyAuthParameters?:     #ApiKeyAuthParameters
-	BasicAuthParameters?:      #BasicAuthParameters
-	ConnectivityParameters?:   #ConnectivityParameters
-	InvocationHttpParameters?: #ConnectionHttpParameters
-	OAuthParameters?:          #OAuthParameters
-	if BasicAuthParameters != _|_ if BasicAuthParameters."Fn::If" == _|_ {
-		OAuthParameters?: close({"Fn::If": _}) | error(
-			"OAuthParameters cannot be used with BasicAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
-		)
-		ApiKeyAuthParameters?: close({"Fn::If": _}) | error(
-			"ApiKeyAuthParameters cannot be used with BasicAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
-		)
-	}
-	if OAuthParameters != _|_ if OAuthParameters."Fn::If" == _|_ {
-		ApiKeyAuthParameters?: close({"Fn::If": _}) | error(
-			"ApiKeyAuthParameters cannot be used with OAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
-		)
-	}
-}) & matchN(>=1, [{BasicAuthParameters!: _}, {OAuthParameters!: _}, {ApiKeyAuthParameters!: _}])) |
-fn.#ObjectExpression
-
 #BasicAuthParameters: close({
 	Password!: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
@@ -200,8 +178,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ConnectivityParameters: close({ResourceParameters!: #ResourceParameters}) | fn.#ObjectExpression
-
 #OAuthParameters: close({
 	AuthorizationEndpoint!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
@@ -234,30 +210,6 @@ fn.#ObjectExpression
 		_cfnString: strings.MaxRunes(512) &
 		strings.MinRunes(0) &
 		=~"^[ \\t]*[\\x20-\\x7E]+([ \\t]+[\\x20-\\x7E]+)*[ \\t]*$" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#ResourceParameters: close({
-	ResourceAssociationArn?: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:servicenetworkresourceassociation/snra-[0-9a-z]{17}$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(2048) &
-		strings.MinRunes(20) &
-		=~"^arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:servicenetworkresourceassociation/snra-[0-9a-z]{17}$" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	ResourceConfigurationArn!: strings.MaxRunes(2048) &
-	=~"^arn:[a-z0-9f\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(2048) &
-		=~"^arn:[a-z0-9f\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}$" &
 		"\(self)"
 	} |
 	fn.#StringExpression

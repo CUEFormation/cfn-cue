@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -46,13 +46,3 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#DomainUnitGroupProperties: close({GroupId?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
-
-#DomainUnitOwnerProperties: close({
-	Group?: #DomainUnitGroupProperties
-	User?:  #DomainUnitUserProperties
-}) |
-fn.#ObjectExpression
-
-#DomainUnitUserProperties: close({UserId?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression

@@ -24,12 +24,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#PeeringAttachmentStatus: close({
-	Code?:    string | number | bool | fn.#StringExpression
-	Message?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key?:   string | number | bool | fn.#StringExpression
 	Value?: string | number | bool | fn.#StringExpression

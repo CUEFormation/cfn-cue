@@ -25,8 +25,6 @@ import structs "struct"
 
 #SdiSourceMode: "QUADRANT" | "INTERLEAVE" | fn.#StringExpression
 
-#SdiSourceState: "IDLE" | "IN_USE" | "DELETED" | fn.#StringExpression
-
 #SdiSourceType: "SINGLE" | "QUAD" | fn.#StringExpression
 
 #Tags: close({

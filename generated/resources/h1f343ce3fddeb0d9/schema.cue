@@ -7,10 +7,6 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
 
 import structs "struct"
@@ -38,28 +34,5 @@ import structs "struct"
 	fn.#StringExpression
 	S3Key?:           string | number | bool | fn.#StringExpression
 	S3ObjectVersion?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#RevocationId: string | number | bool | fn.#StringExpression
-
-#TrustStoreRevocation: close({
-	NumberOfRevokedEntries?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	RevocationId?:   string | number | bool | fn.#StringExpression
-	RevocationType?: string | number | bool | fn.#StringExpression
-	TrustStoreArn?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

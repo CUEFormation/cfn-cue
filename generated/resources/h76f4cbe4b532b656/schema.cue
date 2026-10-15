@@ -89,8 +89,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#BillingGroupStatus: "ACTIVE" | "PRIMARY_ACCOUNT_MISSING" | fn.#StringExpression
-
 #ComputationPreference: close({
 	PricingPlanArn!: =~"arn:aws(-cn)?:billingconductor::(aws|[0-9]{12}):pricingplan/(BasicPricingPlan|Passthrough|[a-zA-Z0-9]{10})" |
 	{

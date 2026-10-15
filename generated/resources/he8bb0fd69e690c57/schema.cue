@@ -53,23 +53,11 @@ fn.#ObjectExpression
 ]) |
 fn.#ValueExpression
 
-#RouterNetworkInterfaceState: "CREATING" |
-	"ACTIVE" |
-	"UPDATING" |
-	"DELETING" |
-	"ERROR" |
-	"RECOVERING" |
-	fn.#StringExpression
-
-#RouterNetworkInterfaceType: "PUBLIC" | "VPC" | fn.#StringExpression
-
 #Tag: close({
 	Key!:   string | number | bool | fn.#StringExpression
 	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Unit: close({}) | fn.#ObjectExpression
 
 #VpcRouterNetworkInterfaceConfiguration: close({
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |

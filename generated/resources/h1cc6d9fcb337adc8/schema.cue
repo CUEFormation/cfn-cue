@@ -70,18 +70,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#IdMappingTableInputReferenceProperties: close({
-	IdMappingTableInputSource!: list.MaxItems(2) & list.MinItems(2) & [...#IdMappingTableInputSource] |
-		fn.#ListExpression
-}) |
-	fn.#ObjectExpression
-
-#IdMappingTableInputSource: close({
-	IdNamespaceAssociationId!: string | number | bool | fn.#StringExpression
-	Type!:                     "SOURCE" | "TARGET" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{

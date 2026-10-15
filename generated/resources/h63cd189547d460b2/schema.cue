@@ -3,7 +3,6 @@
 package schema
 
 import (
-	"time"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
@@ -36,8 +35,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#CreationTime: time.Time | fn.#StringExpression
 
 #DataType: "float32" | fn.#StringExpression
 
@@ -77,8 +74,6 @@ import structs "struct"
 	SseType?: "AES256" | "aws:kms" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#IndexArn: string | number | bool | fn.#StringExpression
 
 #IndexName: strings.MaxRunes(63) & strings.MinRunes(3) |
 {

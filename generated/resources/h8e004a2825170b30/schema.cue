@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -28,29 +28,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#ConnectionAliasAssociation: close({
-	AssociatedAccountId?: string | number | bool | fn.#StringExpression
-	AssociationStatus?: "NOT_ASSOCIATED" |
-		"PENDING_ASSOCIATION" |
-		"ASSOCIATED_WITH_OWNER_ACCOUNT" |
-		"ASSOCIATED_WITH_SHARED_ACCOUNT" |
-		"PENDING_DISASSOCIATION" |
-		fn.#StringExpression
-	ConnectionIdentifier?: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
-	} |
-	fn.#StringExpression
-	ResourceId?: strings.MaxRunes(1000) & strings.MinRunes(1) & =~".+" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & =~".+" & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(127) & strings.MinRunes(1) |

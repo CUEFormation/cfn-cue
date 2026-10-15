@@ -177,20 +177,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#StorageLensConfiguration: close({
-	AccountLevel!:               #AccountLevel
-	AwsOrg?:                     #AwsOrg
-	DataExport?:                 #DataExport
-	Exclude?:                    #BucketsAndRegions
-	ExpandedPrefixesDataExport?: #StorageLensExpandedPrefixesDataExport
-	Id!:                         #Id
-	Include?:                    #BucketsAndRegions
-	IsEnabled!:                  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PrefixDelimiter?:            string | number | bool | fn.#StringExpression
-	StorageLensArn?:             string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #StorageLensExpandedPrefixesDataExport: close({
 	S3BucketDestination?:         #S3BucketDestination
 	StorageLensTableDestination?: #StorageLensTableDestination

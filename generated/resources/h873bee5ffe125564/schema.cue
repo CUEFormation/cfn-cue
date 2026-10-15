@@ -3,7 +3,6 @@
 package schema
 
 import (
-	"time"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
@@ -112,71 +111,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#IamAuthConfiguration: close({
-	CreatedAt?: time.Time | fn.#StringExpression
-	OperatorAppRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression
-	UpdatedAt?: time.Time | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#IdcAuthConfiguration: close({
-	CreatedAt?:         time.Time | fn.#StringExpression
-	IdcApplicationArn?: string | number | bool | fn.#StringExpression
-	IdcInstanceArn!:    string | number | bool | fn.#StringExpression
-	OperatorAppRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression
-	UpdatedAt?: time.Time | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#IdpAuthConfiguration: close({
-	ClientId!: strings.MaxRunes(512) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	ClientSecret!: strings.MaxRunes(1024) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	CreatedAt?: time.Time | fn.#StringExpression
-	IssuerUrl!: =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" |
-	{
-		number | bool
-		_cfnString: =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" & "\(self)"
-	} |
-	fn.#StringExpression
-	OperatorAppRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression
-	Provider!:    "okta" | "entra" | fn.#StringExpression
-	UpdatedAt?:   time.Time | fn.#StringExpression
-	UserIdClaim?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#OperatorApp: close({
-	Iam?: #IamAuthConfiguration
-	Idc?: #IdcAuthConfiguration
-	Idp?: #IdpAuthConfiguration
-}) |
-fn.#ObjectExpression
 
 #Preferences: close(
 	{ElevatedActionsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},

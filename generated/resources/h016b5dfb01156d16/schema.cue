@@ -56,61 +56,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Snapshot: close({
-	AdminUsername?: string | number | bool | fn.#StringExpression
-	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
-	} |
-	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
-			"\(self)"
-	} |
-	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression
-	NamespaceArn?: string | number | bool | fn.#StringExpression
-	NamespaceName?: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" & "\(self)"
-	} |
-	fn.#StringExpression
-	OwnerAccount?: string | number | bool | fn.#StringExpression
-	RetentionPeriod?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SnapshotArn?:        string | number | bool | fn.#StringExpression
-	SnapshotCreateTime?: string | number | bool | fn.#StringExpression
-	SnapshotName?: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" & "\(self)"
-	} |
-	fn.#StringExpression
-	Status?: #SnapshotStatus
-}) |
-fn.#ObjectExpression
-
-#SnapshotStatus: "AVAILABLE" | "CREATING" | "DELETED" | "CANCELLED" | "FAILED" | "COPYING" | fn.#StringExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{

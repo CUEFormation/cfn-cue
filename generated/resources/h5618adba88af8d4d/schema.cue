@@ -338,13 +338,6 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#LocationConfiguration: close({
-	Location!:            #Location
-	LocationCapacity?:    #LocationCapacity
-	PlayerGatewayStatus?: "DISABLED" | "ENABLED" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #ManagedCapacityConfiguration: close({
 	ScaleInAfterInactivityMinutes?: int & <=1440 & >=5 |
 		{

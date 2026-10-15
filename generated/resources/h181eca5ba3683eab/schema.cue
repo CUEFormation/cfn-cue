@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import cfnScalarStrings "strings"
@@ -123,29 +123,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#DeploymentTask: close({
-	TaskName?:   string | number | bool | fn.#StringExpression
-	TaskStatus?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#SwitchoverDetail: close({
-	SourceMember?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:[A-Za-z][0-9A-Za-z-:._]*$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:[A-Za-z][0-9A-Za-z-:._]*$" & "\(self)"
-	} |
-	fn.#StringExpression
-	SwitchoverDetailStatus?: string | number | bool | fn.#StringExpression
-	TargetMember?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:[A-Za-z][0-9A-Za-z-:._]*$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:[A-Za-z][0-9A-Za-z-:._]*$" & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |

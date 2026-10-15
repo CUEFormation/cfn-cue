@@ -32,10 +32,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#LandingZoneDriftStatus: "DRIFTED" | "IN_SYNC" | fn.#StringExpression
-
-#LandingZoneStatus: "ACTIVE" | "PROCESSING" | "FAILED" | fn.#StringExpression
-
 #RemediationTypes: list.MaxItems(1) & list.MinItems(1) & [..."INHERITANCE_DRIFT" | fn.#StringExpression] |
 	fn.#ListExpression
 

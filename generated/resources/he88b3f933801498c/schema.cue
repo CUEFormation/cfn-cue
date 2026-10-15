@@ -135,12 +135,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ErrorInfo: close({
-	Code?:    string | number | bool | fn.#StringExpression
-	Message?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #GresCustomSetting: close({
 
 	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
@@ -211,8 +205,6 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#SecurityGroupId: string | number | bool | fn.#StringExpression
 
 #SlurmCustomSetting: close({
 	ParameterName!:  string | number | bool | fn.#StringExpression

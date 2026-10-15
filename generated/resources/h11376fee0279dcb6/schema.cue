@@ -2,10 +2,7 @@
 
 package schema
 
-import (
-	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
-)
+import "github.com/cueformation/cfn-cue/fn:fn"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -21,18 +18,4 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AccountId: =~"^\\d{12}$" |
-{
-	number | bool
-	_cfnString: =~"^\\d{12}$" & "\(self)"
-} |
-fn.#StringExpression
-
 #AutoshiftObserverNotificationStatus: "ENABLED" | fn.#StringExpression
-
-#Region: strings.MaxRunes(30) & strings.MinRunes(5) & =~"^[a-z0-9-]*$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(30) & strings.MinRunes(5) & =~"^[a-z0-9-]*$" & "\(self)"
-} |
-fn.#StringExpression

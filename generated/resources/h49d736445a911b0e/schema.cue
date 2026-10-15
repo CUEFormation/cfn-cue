@@ -68,23 +68,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#RegionalEndpoint: close({
-	AuthType?:        "ApplicationManaged" | "IamAuth" | fn.#StringExpression
-	DomainName?:      string | number | bool | fn.#StringExpression
-	RevisionWeights?: [...#RevisionWeight] | fn.#ListExpression
-
-	// The scaling configuration for the endpoint.
-	ScalingConfig?: #ScalingConfig
-	State?:         "Pending" | "Active" | "Failed" | "Deleting" | fn.#StringExpression
-	StateReason?:   string | number | bool | fn.#StringExpression
-
-	// The throttling configuration for the endpoint.
-	ThrottleConfig?:     #ThrottleConfig
-	UpdateStatus?:       "InProgress" | "Successful" | "Failed" | fn.#StringExpression
-	UpdateStatusReason?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #RevisionWeight: close({
 	RevisionId!: strings.MaxRunes(256) & strings.MinRunes(1) |
 	{

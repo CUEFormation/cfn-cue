@@ -6,7 +6,6 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"time"
 	"struct"
 )
 
@@ -243,8 +242,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DateTimeFormat: time.Time | fn.#StringExpression
-
 #Function: close({
 	// The data connector.
 	ImplementedBy?: #DataConnector
@@ -341,20 +338,3 @@ fn.#ObjectExpression
 	_cfnString: =~"[a-zA-Z_\\-0-9]+" & "\(self)"
 } |
 fn.#StringExpression
-
-#Status: close({
-	Error?: fn.#Object &
-	{...} &
-	(close({}) | close({
-		Code?: "VALIDATION_ERROR" | "INTERNAL_FAILURE" | fn.#StringExpression
-		Message?: strings.MaxRunes(2048) & strings.MinRunes(0) |
-		{
-			number | bool
-			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
-		} |
-		fn.#StringExpression
-	})) |
-	fn.#ObjectExpression
-	State?: "CREATING" | "UPDATING" | "DELETING" | "ACTIVE" | "ERROR" | fn.#StringExpression
-}) |
-fn.#ObjectExpression

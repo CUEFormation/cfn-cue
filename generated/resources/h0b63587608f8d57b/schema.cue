@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
 	"list"
+	"strings"
 	"struct"
 )
 
@@ -75,28 +75,11 @@ import structs "struct"
 	"NODE_22" |
 	fn.#StringExpression
 
-#AgentRuntimeArn: strings.MaxRunes(2048) &
-=~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:runtime/[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(2048) &
-	=~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:runtime/[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}$" &
-	"\(self)"
-} |
-fn.#StringExpression
-
 #AgentRuntimeArtifact: close({
 	CodeConfiguration?:      #CodeConfiguration
 	ContainerConfiguration?: #ContainerConfiguration
 }) |
 fn.#ObjectExpression
-
-#AgentRuntimeId: =~"[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}" |
-{
-	number | bool
-	_cfnString: =~"[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}" & "\(self)"
-} |
-fn.#StringExpression
 
 #AgentRuntimeName: =~"[a-zA-Z][a-zA-Z0-9_]{0,47}" |
 {
@@ -104,22 +87,6 @@ fn.#StringExpression
 	_cfnString: =~"[a-zA-Z][a-zA-Z0-9_]{0,47}" & "\(self)"
 } |
 fn.#StringExpression
-
-#AgentRuntimeVersion: strings.MaxRunes(5) & strings.MinRunes(1) & =~"([1-9][0-9]{0,4})" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(5) & strings.MinRunes(1) & =~"([1-9][0-9]{0,4})" & "\(self)"
-} |
-fn.#StringExpression
-
-#AgentStatus: "CREATING" |
-	"CREATE_FAILED" |
-	"UPDATING" |
-	"UPDATE_FAILED" |
-	"READY" |
-	"DELETING" |
-	"DELETE_FAILED" |
-	fn.#StringExpression
 
 #AllowedAudience: string | number | bool | fn.#StringExpression
 
@@ -185,13 +152,6 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ClientToken: strings.MaxRunes(256) & strings.MinRunes(33) & =~"^[a-zA-Z0-9-_]+$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(256) & strings.MinRunes(33) & =~"^[a-zA-Z0-9-_]+$" & "\(self)"
-} |
-fn.#StringExpression
-
 #Code: close({S3?: #S3Location}) | fn.#ObjectExpression
 
 #CodeConfiguration: close({
@@ -202,8 +162,6 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #ContainerConfiguration: close({ContainerUri!: #RuntimeContainerUri}) | fn.#ObjectExpression
-
-#CreatedAt: string | number | bool | fn.#StringExpression
 
 #CustomClaimValidationType: close({
 	AuthorizingClaimMatchValue!: #AuthorizingClaimMatchValueType
@@ -259,20 +217,6 @@ fn.#ObjectExpression
 #EntryPoints: list.MaxItems(2) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
 	fn.#ListExpression
 
-#EnvironmentVariableKey: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z0-9_]*$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z0-9_]*$" & "\(self)"
-} |
-fn.#StringExpression
-
-#EnvironmentVariableValue: strings.MaxRunes(2048) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(2048) & "\(self)"
-} |
-fn.#StringExpression
-
 #EnvironmentVariablesMap: struct.MaxFields(50) & close({
 
 	{[=~"^(?:Ref)$"]: error("disallowed")}
@@ -326,8 +270,6 @@ fn.#ObjectExpression
 fn.#StringExpression
 
 #InboundTokenClaimValueType: "STRING" | "STRING_ARRAY" | fn.#StringExpression
-
-#LastUpdatedAt: string | number | bool | fn.#StringExpression
 
 #LifecycleConfiguration: close({
 	IdleRuntimeSessionTimeout?: int & <=1209600 & >=60 |
@@ -559,12 +501,3 @@ strings.MinRunes(3) &
 } |
 fn.#StringExpression] |
 fn.#ListExpression
-
-#WorkloadIdentityArn: strings.MaxRunes(1024) & strings.MinRunes(1) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
-} |
-fn.#StringExpression
-
-#WorkloadIdentityDetails: close({WorkloadIdentityArn!: #WorkloadIdentityArn}) | fn.#ObjectExpression

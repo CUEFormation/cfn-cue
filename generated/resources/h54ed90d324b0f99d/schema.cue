@@ -46,5 +46,3 @@ import structs "struct"
 	)}
 }) |
 fn.#ObjectExpression
-
-#Unit: close({}) | fn.#ObjectExpression

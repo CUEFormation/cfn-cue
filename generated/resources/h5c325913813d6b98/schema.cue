@@ -21,8 +21,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#IndexState: "ACTIVE" | "CREATING" | "DELETING" | "DELETED" | "UPDATING" | fn.#StringExpression
-
 #IndexType: "LOCAL" | "AGGREGATOR" | fn.#StringExpression
 
 #TagMap: close({

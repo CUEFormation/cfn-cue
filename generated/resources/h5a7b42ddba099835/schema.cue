@@ -527,18 +527,6 @@ fn.#ObjectExpression
 } |
 fn.#StringExpression
 
-#MessageTemplateAttachment: close({
-	AttachmentId?: strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	AttachmentName!: #AttachmentName
-	S3PresignedUrl!: #AttachmentUrl
-}) |
-fn.#ObjectExpression
-
 #MessageTemplateAttributes: close({
 	AgentAttributes?:           #AgentAttributes
 	CustomAttributes?:          #CustomAttributes

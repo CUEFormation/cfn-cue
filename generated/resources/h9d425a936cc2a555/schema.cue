@@ -176,32 +176,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#S3AccessPoint: close({
-	Alias?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[0-9a-z\\\\-]{1,63}" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[0-9a-z\\\\-]{1,63}" & "\(self)"
-	} |
-	fn.#StringExpression
-	Policy?: fn.#Object & {...} |
-	strings.MaxRunes(200000) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(200000) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringObjectExpression
-	ResourceARN?: strings.MaxRunes(1024) & strings.MinRunes(8) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(8) & "\(self)"
-	} |
-	fn.#StringExpression
-
-	// The S3 access point's virtual private cloud (VPC) configuration.
-	VpcConfiguration?: #S3AccessPointVpcConfiguration
-}) |
-fn.#ObjectExpression
-
 #S3AccessPointOntapConfiguration: close({
 	// The file system identity used to authorize file access requests made using the S3 access point.
 	FileSystemIdentity!: #OntapFileSystemIdentity

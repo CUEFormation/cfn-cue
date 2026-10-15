@@ -266,16 +266,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ResourceStatus: "CREATION_IN_PROGRESS" |
-	"CREATION_SUCCESSFUL" |
-	"CREATION_FAILED" |
-	"UPDATE_IN_PROGRESS" |
-	"UPDATE_SUCCESSFUL" |
-	"UPDATE_FAILED" |
-	"PENDING_UPDATE" |
-	"DELETED" |
-	fn.#StringExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{

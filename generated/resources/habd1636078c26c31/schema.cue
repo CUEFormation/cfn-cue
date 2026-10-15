@@ -219,14 +219,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#LatestVersion: close({
-	Arn?:   string | number | bool | fn.#StringExpression
-	Major?: string | number | bool | fn.#StringExpression
-	Minor?: string | number | bool | fn.#StringExpression
-	Patch?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #WorkflowConfiguration: close({
 	OnFailure?: "CONTINUE" | "ABORT" | fn.#StringExpression
 	ParallelGroup?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9-_+#]{0,99}$" |

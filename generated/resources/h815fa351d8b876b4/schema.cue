@@ -26,8 +26,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AccessGrantsInstanceArn: string | number | bool | fn.#StringExpression
-
 #IdentityCenterArn: string | number | bool | fn.#StringExpression
 
 #Tag: close({

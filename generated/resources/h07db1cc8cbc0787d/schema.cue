@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -22,13 +22,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
-} |
-fn.#StringExpression
-
 #GroupingAttributeDefinition: close({
 	DefaultGroupingValue?: #GroupingString
 	GroupingName!:         #GroupingString
@@ -44,5 +37,3 @@ fn.#ObjectExpression
 	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+\\-=\\._:/@]*$" & "\(self)"
 } |
 fn.#StringExpression
-
-#Timestamp: string | number | bool | fn.#StringExpression

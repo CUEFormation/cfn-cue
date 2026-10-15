@@ -65,8 +65,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#DailySetting: close({HandOffTime!: #HandOffTime}) | fn.#ObjectExpression
-
 #DayOfWeek: "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN" | fn.#StringExpression
 
 #HandOffTime: =~"^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" |

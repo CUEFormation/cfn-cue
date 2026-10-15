@@ -47,13 +47,6 @@ import structs "struct"
 
 #ProvisioningType: "FLEET_PROVISIONING" | "JITR" | fn.#StringExpression
 
-#Status: "CREATE_IN_PROGRESS" |
-	"CREATE_FAILED" |
-	"CREATED" |
-	"DELETE_IN_PROGRESS" |
-	"DELETE_FAILED" |
-	fn.#StringExpression
-
 #TagsMap: struct.MaxFields(50) & struct.MinFields(0) & close({
 
 	{
@@ -70,5 +63,3 @@ import structs "struct"
 	)}
 }) |
 fn.#ObjectExpression
-
-#Unit: close({}) | fn.#ObjectExpression

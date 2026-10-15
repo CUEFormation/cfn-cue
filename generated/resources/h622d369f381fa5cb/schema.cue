@@ -148,52 +148,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#LogConfiguration: close({
-	Destination?: strings.MaxRunes(1024) & strings.MinRunes(8) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(8) & "\(self)"
-	} |
-	fn.#StringExpression
-	Level!: "DISABLED" | "WARN_ONLY" | "ERROR_ONLY" | "WARN_ERROR" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#LustreConfiguration: close({
-	DeploymentType!:        "CACHE_1" | fn.#StringExpression
-	LogConfiguration?:      #LogConfiguration
-	MetadataConfiguration!: #MetadataConfiguration
-	MountName?: strings.MaxRunes(8) & strings.MinRunes(1) & =~"^([A-Za-z0-9_-]{1,8})$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(8) & strings.MinRunes(1) & =~"^([A-Za-z0-9_-]{1,8})$" & "\(self)"
-	} |
-	fn.#StringExpression
-	PerUnitStorageThroughput!: int & <=1000 & >=12 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=1000 &
-							>=12,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	WeeklyMaintenanceStartTime?: strings.MaxRunes(7) & strings.MinRunes(7) & =~"^[1-7]:([01]\\d|2[0-3]):?([0-5]\\d)$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(7) & strings.MinRunes(7) & =~"^[1-7]:([01]\\d|2[0-3]):?([0-5]\\d)$" & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #MetadataConfiguration: close({
 	StorageCapacity!: int & <=2147483647 & >=0 |
 		{

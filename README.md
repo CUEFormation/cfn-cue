@@ -81,7 +81,7 @@ The two resource representations serve different purposes. `literal/` preserves 
 
 In `resources/`, `#Resource` holds the properties schema inline, so a file reads from the resource envelope to its properties and then the definitions they use. CUE can't select an optional or required field, so to reuse the properties schema on its own write `(s3.#Resource & {Properties: _}).Properties`. `literal/` packages have no envelope and keep `#Properties`.
 
-Each provider definition becomes a package-level definition, such as `#Tag` or `#TargetResource`, so other packages can reference it. Read-only removal applies to property paths, so a shared definition keeps the provider's complete shape. A definition named `Properties` or `Resource`, or one whose name is not an identifier, stays in the extractor's hidden `_#defs` namespace.
+Each provider definition becomes a package-level definition, such as `#Tag` or `#TargetResource`, so other packages can reference it. `resources/` packages expose only the definitions reachable from `#Resource`; a definition used only by read-only properties, or by a policy replaced with an IAM profile, is omitted. `literal/` packages keep the full upstream set. Read-only removal applies to property paths, so a shared definition that stays reachable keeps the provider's complete shape. A definition named `Properties` or `Resource`, or one whose name is not an identifier, stays in the extractor's hidden `_#defs` namespace.
 
 Template-input schemas also permit CloudFormation boolean spellings and numeric
 strings, checking parsed numbers against the property's numeric constraints.

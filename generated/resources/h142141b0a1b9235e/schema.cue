@@ -22,5 +22,3 @@ import structs "struct"
 }
 
 #Scope: "ACCOUNT" | fn.#StringExpression
-
-#Status: "RUNNING" | "STOPPED" | "IMPAIRED" | fn.#StringExpression

@@ -36,13 +36,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ChannelArn: strings.MaxRunes(256) & strings.MinRunes(3) & =~"(^[a-zA-Z0-9._/\\-:]+$)" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(256) & strings.MinRunes(3) & =~"(^[a-zA-Z0-9._/\\-:]+$)" & "\(self)"
-} |
-fn.#StringExpression
-
 #ChannelName: strings.MaxRunes(128) & strings.MinRunes(3) & =~"(^[a-zA-Z0-9._\\-]+$)" |
 {
 	number | bool
@@ -76,12 +69,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Timestamp: string | number | bool | fn.#StringExpression
-
-#UUID: strings.MaxRunes(36) & strings.MinRunes(36) & =~"(^[a-f0-9\\-]+$)" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(36) & strings.MinRunes(36) & =~"(^[a-f0-9\\-]+$)" & "\(self)"
-} |
-fn.#StringExpression

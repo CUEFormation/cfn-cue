@@ -53,8 +53,6 @@ import structs "struct"
 
 #DlpProviderType: "MICROSOFT_PURVIEW" | fn.#StringExpression
 
-#DlpSettingStatus: "ACTIVE" | "INACTIVE" | fn.#StringExpression
-
 #LabelActionMapping: close({
 	Action!: #DlpAction
 	LabelId!: strings.MaxRunes(512) & strings.MinRunes(1) |

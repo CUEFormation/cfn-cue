@@ -274,13 +274,6 @@ fn.#ObjectExpression
 
 #MonitoringResources: close({ClusterConfig!: #ClusterConfig}) | fn.#ObjectExpression
 
-#MonitoringTimeOffsetString: strings.MaxRunes(15) & strings.MinRunes(1) & =~"^.?P.*" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(15) & strings.MinRunes(1) & =~"^.?P.*" & "\(self)"
-} |
-fn.#StringExpression
-
 #NetworkConfig: close({
 	EnableInterContainerTrafficEncryption?: bool |
 		"true" |

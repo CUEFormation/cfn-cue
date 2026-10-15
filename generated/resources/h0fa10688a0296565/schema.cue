@@ -38,13 +38,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AccessToken: strings.MaxRunes(100) & strings.MinRunes(0) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
-} |
-fn.#StringExpression
-
 #ResourceName: strings.MaxRunes(64) & strings.MinRunes(1) |
 {
 	number | bool
@@ -67,5 +60,3 @@ fn.#StringExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#TokenStatus: "CREATING" | "OPERATIONAL" | "DELETING" | fn.#StringExpression

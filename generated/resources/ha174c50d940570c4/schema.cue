@@ -125,26 +125,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#SynchronizationConfiguration: close({
-	ExpirationDataRules!: list.MaxItems(1) & list.MinItems(1) & [...#ExpirationDataRule] | fn.#ListExpression
-	ImportDataRules!:     list.MaxItems(10) & list.MinItems(1) & [...#ImportDataRule] | fn.#ListExpression
-	LatestVersionNumber?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$" |
 	{

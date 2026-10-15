@@ -103,8 +103,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CampaignStatus: "CREATING" | "WAITING_FOR_APPROVAL" | "RUNNING" | "SUSPENDED" | fn.#StringExpression
-
 #CollectionScheme: matchN(1, [close(
 	{TimeBasedCollectionScheme!: #TimeBasedCollectionScheme},
 ), close(
@@ -474,32 +472,6 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 	fn.#ObjectExpression
-
-#TimePeriod: close({
-	Unit!: #TimeUnit
-	Value!: >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							>=1,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
-#TimeUnit: "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR" | fn.#StringExpression
 
 #TimestreamConfig: close({
 	ExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &

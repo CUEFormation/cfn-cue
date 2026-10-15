@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -24,8 +24,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#HostedZoneAssociationStatus: "CREATING" | "OPERATIONAL" | "DELETING" | fn.#StringExpression
 
 #HostedZoneId: strings.MaxRunes(32) & strings.MinRunes(1) |
 {

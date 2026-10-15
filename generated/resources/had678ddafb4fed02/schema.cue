@@ -291,12 +291,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Endpoint: close({
-	Address?: string | number | bool | fn.#StringExpression
-	Port?:    string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #LoggingProperties: close({
 	BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
 	{

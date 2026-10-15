@@ -64,8 +64,6 @@ fn.#ObjectExpression
 }) & matchN(>=1, [{GreengrassV2!: _}, {SiemensIE!: _}]) |
 fn.#ObjectExpression
 
-#GatewayVersion: string | number | bool | fn.#StringExpression
-
 #GreengrassV2: close({
 	CoreDeviceOperatingSystem?: "LINUX_AARCH64" | "LINUX_AMD64" | "WINDOWS_AMD64" | fn.#StringExpression
 	CoreDeviceThingName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$" |

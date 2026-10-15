@@ -8,10 +8,6 @@ import (
 	"list"
 )
 
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
 
 import structs "struct"
@@ -47,30 +43,6 @@ import structs "struct"
 {
 	number | bool
 	_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\-\\_\\.\\/\\:]+$" & "\(self)"
-} |
-fn.#StringExpression
-
-#MaxResults: int & <=100 & >=1 |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatInt(
-					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-						int &
-						<=100 &
-						>=1,
-					10,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression
-
-#NextToken: strings.MaxRunes(3000) & strings.MinRunes(1) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(3000) & strings.MinRunes(1) & "\(self)"
 } |
 fn.#StringExpression
 

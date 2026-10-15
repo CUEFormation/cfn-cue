@@ -61,13 +61,6 @@ fn.#StringExpression
 } |
 fn.#StringExpression
 
-#ProfilingGroupArn: =~"^arn:aws([-\\w]*):codeguru-profiler:(([a-z]+-)+[0-9]+):([0-9]{12}):profilingGroup/[^.]+$" |
-{
-	number | bool
-	_cfnString: =~"^arn:aws([-\\w]*):codeguru-profiler:(([a-z]+-)+[0-9]+):([0-9]{12}):profilingGroup/[^.]+$" & "\(self)"
-} |
-fn.#StringExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{

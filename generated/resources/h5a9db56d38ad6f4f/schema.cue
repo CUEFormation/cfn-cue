@@ -89,8 +89,6 @@ fn.#ObjectExpression
 
 #EnabledAnalysisType: "TLS_SNI" | "HTTP_HOST" | fn.#StringExpression
 
-#EndpointId: string | number | bool | fn.#StringExpression
-
 #ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:aws.*$" |
 {
 	number | bool

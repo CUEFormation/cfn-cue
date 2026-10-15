@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -44,8 +44,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#CRResourceStatus: "CREATING" | "OPERATIONAL" | "UPDATING" | "DELETING" | fn.#StringExpression
 
 #Domains: list.UniqueItems() & [...strings.MaxRunes(255) & strings.MinRunes(1) |
 {

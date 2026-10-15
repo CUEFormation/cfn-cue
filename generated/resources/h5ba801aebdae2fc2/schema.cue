@@ -49,8 +49,6 @@ fn.#StringExpression
 } |
 fn.#StringExpression
 
-#IntegrationAssociationId: string | number | bool | fn.#StringExpression
-
 #IntegrationType: "LEX_BOT" |
 	"LAMBDA_FUNCTION" |
 	"APPLICATION" |

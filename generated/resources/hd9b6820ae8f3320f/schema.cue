@@ -47,15 +47,6 @@ import structs "struct"
 
 #FirewallRulesFailOpenType: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-#ProfileResourceStatus: "CREATING" |
-	"OPERATIONAL" |
-	"UPDATING" |
-	"ENABLING" |
-	"DISABLING" |
-	"DISABLED" |
-	"DELETING" |
-	fn.#StringExpression
-
 #ResourceDescription: strings.MaxRunes(256) & strings.MinRunes(1) |
 {
 	number | bool

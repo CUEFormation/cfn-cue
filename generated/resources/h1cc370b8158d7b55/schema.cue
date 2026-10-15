@@ -27,13 +27,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: strings.MaxRunes(2048) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(2048) & "\(self)"
-} |
-fn.#StringExpression
-
 #CollectionId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\A[a-zA-Z0-9_\\.\\-]+$" |
 {
 	number | bool

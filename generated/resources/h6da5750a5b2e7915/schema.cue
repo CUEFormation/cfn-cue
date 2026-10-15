@@ -85,37 +85,9 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#ArgoCd: close({
-	AwsIdc!: #AwsIdc
-	EndpointPrefix?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-z0-9]([a-z0-9-]*[a-z0-9])?$" & "\(self)"
-	} |
-	fn.#StringExpression
-	Namespace?:        string | number | bool | fn.#StringExpression
-	NetworkAccess?:    #NetworkAccess
-	RbacRoleMappings?: [...#ArgoCdRoleMapping] | fn.#ListExpression
-	ServerUrl?:        string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #ArgoCdRoleMapping: close({
 	Identities!: [...#SsoIdentity] | fn.#ListExpression
 	Role!:       "ADMIN" | "EDITOR" | "VIEWER" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#AwsIdc: close({
-	IdcInstanceArn!:           string | number | bool | fn.#StringExpression
-	IdcManagedApplicationArn?: string | number | bool | fn.#StringExpression
-	IdcRegion?:                string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#CapabilityConfiguration: close({
-	Ack?:    #Ack
-	ArgoCd?: #ArgoCd
 }) |
 fn.#ObjectExpression
 

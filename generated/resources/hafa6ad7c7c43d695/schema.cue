@@ -70,8 +70,6 @@ import structs "struct"
 
 #EncryptionType: "KMS" | fn.#StringExpression
 
-#SequenceStoreStatus: "CREATING" | "ACTIVE" | "UPDATING" | "DELETING" | "FAILED" | fn.#StringExpression
-
 #SseConfig: close({
 	KeyArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &

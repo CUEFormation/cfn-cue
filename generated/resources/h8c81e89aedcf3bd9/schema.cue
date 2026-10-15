@@ -45,8 +45,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#IntegrationStatus: "PENDING" | "IN_PROGRESS" | "ACTIVE" | "INACTIVE" | "DISABLING" | fn.#StringExpression
-
 #IntegrationType: "GITLAB_SELF_MANAGED" | "GITHUB" | fn.#StringExpression
 
 #TagMap: close({

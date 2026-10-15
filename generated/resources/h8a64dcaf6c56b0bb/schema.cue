@@ -25,11 +25,3 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#SecurityGroupVpcAssociationState: "associating" |
-	"associated" |
-	"association-failed" |
-	"disassociating" |
-	"disassociated" |
-	"disassociation-failed" |
-	fn.#StringExpression

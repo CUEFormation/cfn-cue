@@ -3,14 +3,10 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -33,55 +29,12 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CreatedAt: close({
-	Nanos!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Seconds!: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#DatastoreArn: =~"^arn:aws((-us-gov)|(-iso)|(-iso-b)|(-cn))?:healthlake:[a-zA-Z0-9-]+:[0-9]{12}:datastore/.+?" |
-{
-	number | bool
-	_cfnString: =~"^arn:aws((-us-gov)|(-iso)|(-iso-b)|(-cn))?:healthlake:[a-zA-Z0-9-]+:[0-9]{12}:datastore/.+?" &
-		"\(self)"
-} |
-fn.#StringExpression
-
-#DatastoreEndpoint: strings.MaxRunes(10000) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(10000) & "\(self)"
-} |
-fn.#StringExpression
-
-#DatastoreId: strings.MaxRunes(32) & strings.MinRunes(1) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & "\(self)"
-} |
-fn.#StringExpression
-
 #DatastoreName: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-%@]*)$" |
 {
 	number | bool
 	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-%@]*)$" & "\(self)"
 } |
 fn.#StringExpression
-
-#DatastoreStatus: "CREATING" | "ACTIVE" | "DELETING" | "DELETED" | fn.#StringExpression
 
 #DatastoreTypeVersion: "R4" | fn.#StringExpression
 

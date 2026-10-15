@@ -57,8 +57,6 @@ fn.#ObjectExpression
 
 #AutoDetectionScope: "ORGANIZATION" | fn.#StringExpression
 
-#AutoDetectionStatus: "ACTIVE" | "INACTIVE" | fn.#StringExpression
-
 #ClaimMatchValueType: close({
 	MatchValueString?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9_.:/-]+$" |
 	{
@@ -150,15 +148,6 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RegistryAuthorizerType: "CUSTOM_JWT" | "AWS_IAM" | fn.#StringExpression
-
-#RegistryStatus: "CREATING" |
-	"READY" |
-	"UPDATING" |
-	"CREATE_FAILED" |
-	"UPDATE_FAILED" |
-	"DELETING" |
-	"DELETE_FAILED" |
-	fn.#StringExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |

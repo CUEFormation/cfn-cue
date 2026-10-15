@@ -243,14 +243,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#LatestVersion: close({
-	Arn?:   string | number | bool | fn.#StringExpression
-	Major?: string | number | bool | fn.#StringExpression
-	Minor?: string | number | bool | fn.#StringExpression
-	Patch?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #TargetContainerRepository: close({
 	RepositoryName?: strings.MaxRunes(1024) & strings.MinRunes(1) |
 	{

@@ -56,8 +56,6 @@ fn.#ObjectExpression
 ]) |
 fn.#ValueExpression
 
-#PolicyType: "STATIC" | "TEMPLATE_LINKED" | fn.#StringExpression
-
 #StaticPolicyDefinition: close({
 	Description?: strings.MaxRunes(150) & strings.MinRunes(0) |
 	{

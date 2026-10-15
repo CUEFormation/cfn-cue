@@ -68,12 +68,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#KmsEncryptionState: close({
-	EncryptionContext!: #EncryptionContext
-	Key!:               #KmsKey
-}) |
-fn.#ObjectExpression
-
 #KmsKey: =~"^[a-zA-Z0-9:/_-]+$" |
 {
 	number | bool

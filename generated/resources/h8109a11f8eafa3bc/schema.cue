@@ -84,8 +84,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DataLakePrincipalList: [...#DataLakePrincipal] | fn.#ListExpression
-
 #DataLakePrincipalString: strings.MaxRunes(255) & strings.MinRunes(1) |
 {
 	number | bool
@@ -112,13 +110,6 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Expression: list.MaxItems(5) & list.MinItems(1) & [...#LFTag] | fn.#ListExpression
-
-#IAMRoleArn: =~"arn:*:iam::[0-9]*:role/.*" |
-{
-	number | bool
-	_cfnString: =~"arn:*:iam::[0-9]*:role/.*" & "\(self)"
-} |
-fn.#StringExpression
 
 #LFTag: close({
 	// The key-name for the LF-tag.
@@ -148,13 +139,6 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#LFTagPair: close({
-	CatalogId?: #CatalogIdString
-	TagKey!:    #LFTagKey
-	TagValues!: #TagValueList
-}) |
-fn.#ObjectExpression
-
 #LFTagPolicyResource: close({
 	// The identifier for the GLUDC. The GLUDC is the persistent metadata store. It
 	// contains database definitions, table definitions, and other control
@@ -176,18 +160,12 @@ fn.#ObjectExpression
 } |
 fn.#StringExpression
 
-#LFTagsList: [...#LFTagPair] | fn.#ListExpression
-
 #NameString: strings.MaxRunes(255) & strings.MinRunes(1) |
 {
 	number | bool
 	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
 } |
 fn.#StringExpression
-
-#NullableBoolean: null | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-
-#PathString: string | number | bool | fn.#StringExpression
 
 #Permission: "ALL" |
 	"SELECT" |
@@ -205,20 +183,6 @@ fn.#StringExpression
 	fn.#StringExpression
 
 #PermissionList: [...#Permission] | fn.#ListExpression
-
-#PrincipalPermissions: close({
-	DataLakePrincipal?: #DataLakePrincipal
-	PermissionList?:    #PermissionList
-}) |
-fn.#ObjectExpression
-
-#PrincipalPermissionsList: [...#PrincipalPermissions] | fn.#ListExpression
-
-#PrincipalResourcePair: close({
-	Principal!: #DataLakePrincipal
-	Resource!:  _#defs."/$defs/Properties/definitions/Resource"
-}) |
-fn.#ObjectExpression
 
 #ResourceArnString: string | number | bool | fn.#StringExpression
 

@@ -21,5 +21,3 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-_#defs: "/$defs/Properties/definitions/_PropertyRef0fa0f63af5e72a77": string | number | bool | fn.#StringExpression

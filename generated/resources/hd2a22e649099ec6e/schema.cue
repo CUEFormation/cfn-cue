@@ -119,8 +119,6 @@ fn.#ObjectExpression
 
 #MembershipQueryLogStatus: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-#MembershipStatus: "ACTIVE" | "REMOVED" | "COLLABORATION_DELETED" | fn.#StringExpression
-
 #MembershipSyntheticDataGenerationPaymentConfig: close(
 	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |

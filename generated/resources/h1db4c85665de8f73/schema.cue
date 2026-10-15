@@ -41,14 +41,6 @@ import structs "struct"
 
 #IpAddressType: "ipv4" | "ipv6" | fn.#StringExpression
 
-#PrivateDnsNameConfiguration: close({
-	Name?:  string | number | bool | fn.#StringExpression
-	State?: string | number | bool | fn.#StringExpression
-	Type?:  string | number | bool | fn.#StringExpression
-	Value?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!:   string | number | bool | fn.#StringExpression
 	Value!: string | number | bool | fn.#StringExpression

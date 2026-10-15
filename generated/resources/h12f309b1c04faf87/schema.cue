@@ -81,35 +81,6 @@ fn.#ObjectExpression
 )]) |
 fn.#ValueExpression
 
-#IdentitySourceDetails: close({
-	ClientIds?: list.MaxItems(1000) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" & "\(self)"
-	} |
-	fn.#StringExpression] |
-	fn.#ListExpression
-	DiscoveryUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$" & "\(self)"
-	} |
-	fn.#StringExpression
-	OpenIdIssuer?: #OpenIdIssuer
-	UserPoolArn?: strings.MaxRunes(255) &
-	strings.MinRunes(1) &
-	=~"^arn:[a-zA-Z0-9-]+:cognito-idp:(([a-zA-Z0-9-]+:\\d{12}:userpool/[\\w-]+_[0-9a-zA-Z]+))$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(255) &
-		strings.MinRunes(1) &
-		=~"^arn:[a-zA-Z0-9-]+:cognito-idp:(([a-zA-Z0-9-]+:\\d{12}:userpool/[\\w-]+_[0-9a-zA-Z]+))$" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #OpenIdConnectAccessTokenConfiguration: close({
 	Audiences?: list.MaxItems(255) & list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) |
 	{
@@ -189,5 +160,3 @@ fn.#ObjectExpression
 	{IdentityTokenOnly!: #OpenIdConnectIdentityTokenConfiguration},
 )]) |
 fn.#ValueExpression
-
-#OpenIdIssuer: "COGNITO" | fn.#StringExpression

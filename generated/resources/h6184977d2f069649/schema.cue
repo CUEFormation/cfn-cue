@@ -92,16 +92,3 @@ fn.#StringExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Subscriber: close({
-	Address!: =~"(^[a-zA-Z0-9.!#$%&'*+=?^_‘{|}~-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$)|(^arn:(aws[a-zA-Z-]*):sns:[a-zA-Z0-9-]+:[0-9]{12}:[a-zA-Z0-9_-]+(\\.fifo)?$)" |
-	{
-		number | bool
-		_cfnString: =~"(^[a-zA-Z0-9.!#$%&'*+=?^_‘{|}~-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$)|(^arn:(aws[a-zA-Z-]*):sns:[a-zA-Z0-9-]+:[0-9]{12}:[a-zA-Z0-9_-]+(\\.fifo)?$)" &
-			"\(self)"
-	} |
-	fn.#StringExpression
-	Status?: "CONFIRMED" | "DECLINED" | fn.#StringExpression
-	Type!:   "EMAIL" | "SNS" | fn.#StringExpression
-}) |
-fn.#ObjectExpression

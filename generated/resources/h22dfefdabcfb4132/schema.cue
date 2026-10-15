@@ -23,13 +23,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AccountId: =~"^\\d{12}$" |
-{
-	number | bool
-	_cfnString: =~"^\\d{12}$" & "\(self)"
-} |
-fn.#StringExpression
-
 #IndexingPercentage: <=100 & >=0 |
 	{
 		string &

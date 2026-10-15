@@ -7,7 +7,6 @@ import (
 	"list"
 	"strings"
 	"struct"
-	"time"
 )
 
 import cfnScalarStrings "strings"
@@ -145,9 +144,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#BooleanFilter: close({Value!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
-	fn.#ObjectExpression
-
 #DateFilter: matchN(1, [
 	{
 		DateRange!: _
@@ -221,13 +217,6 @@ fn.#StringExpression
 	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#NonEmptyString: strings.MinRunes(1) |
-{
-	number | bool
-	_cfnString: strings.MinRunes(1) & "\(self)"
-} |
-fn.#StringExpression
 
 #NoteUpdate: close({
 	Text!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"\\S" |
@@ -506,13 +495,3 @@ fn.#ValueExpression
 	}
 }) |
 fn.#ObjectExpression
-
-#timestamp: time.Time &
-	=~"(\\d\\d\\d\\d)-[0-1](\\d)-[0-3](\\d)[Tt](?:[0-2](\\d):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?(?:[Zz]|[+-](\\d\\d)(?::?(\\d\\d))?)$" |
-{
-	number | bool
-	_cfnString: time.Time &
-		=~"(\\d\\d\\d\\d)-[0-1](\\d)-[0-3](\\d)[Tt](?:[0-2](\\d):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?(?:[Zz]|[+-](\\d\\d)(?::?(\\d\\d))?)$" &
-		"\(self)"
-} |
-fn.#StringExpression

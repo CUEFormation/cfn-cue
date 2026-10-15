@@ -8,10 +8,6 @@ import (
 	"list"
 )
 
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
 
 import structs "struct"
@@ -33,35 +29,12 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#NodePackageArn: strings.MaxRunes(255) & strings.MinRunes(1) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
-} |
-fn.#StringExpression
-
-#NodePackageId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_\\/]+$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_\\/]+$" & "\(self)"
-} |
-fn.#StringExpression
-
 #NodePackageName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" |
 {
 	number | bool
 	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" & "\(self)"
 } |
 fn.#StringExpression
-
-#StorageLocation: close({
-	BinaryPrefixLocation?:    string | number | bool | fn.#StringExpression
-	Bucket?:                  string | number | bool | fn.#StringExpression
-	GeneratedPrefixLocation?: string | number | bool | fn.#StringExpression
-	ManifestPrefixLocation?:  string | number | bool | fn.#StringExpression
-	RepoPrefixLocation?:      string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" |
@@ -80,17 +53,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TagList: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-
-#Timestamp: int |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatInt(
-					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) & int,
-					10,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression

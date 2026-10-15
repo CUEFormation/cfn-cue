@@ -28,18 +28,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ImageArn: strings.MaxRunes(256) &
-strings.MinRunes(1) &
-=~"^arn:aws(-[\\w]+)*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:image\\/[a-zA-Z0-9]([-.]?[a-zA-Z0-9])*$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(256) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-[\\w]+)*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:image\\/[a-zA-Z0-9]([-.]?[a-zA-Z0-9])*$" &
-	"\(self)"
-} |
-fn.#StringExpression
-
 #ImageDescription: strings.MaxRunes(512) & strings.MinRunes(1) & =~".+" |
 {
 	number | bool

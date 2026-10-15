@@ -36,22 +36,6 @@ import structs "struct"
 
 #Action: string | number | bool | fn.#StringExpression
 
-#Alias: close({
-	Status?: =~"^[A-Z]*$" |
-	{
-		number | bool
-		_cfnString: =~"^[A-Z]*$" & "\(self)"
-	} |
-	fn.#StringExpression
-	Value!: =~"^[a-z0-9\\-]*$" |
-	{
-		number | bool
-		_cfnString: =~"^[a-z0-9\\-]*$" & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #AwsLambda: close({
 	FunctionArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
 	{
@@ -76,17 +60,6 @@ fn.#ObjectExpression
 	} |
 	fn.#StringExpression
 	TransformationConfigurations!: list.UniqueItems() & [...#TransformationConfiguration] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#PolicyStatus: close({IsPublic?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
-	fn.#ObjectExpression
-
-#PublicAccessBlockConfiguration: close({
-	BlockPublicAcls?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	BlockPublicPolicy?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IgnorePublicAcls?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RestrictPublicBuckets?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 

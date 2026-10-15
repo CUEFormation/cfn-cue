@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -30,13 +30,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#PermissionTemplateParameterDeclaration: close({
-	Description!: string | number | bool | fn.#StringExpression
-	Name!:        string | number | bool | fn.#StringExpression
-	Type!:        "STRING" | "STRING_LIST" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |

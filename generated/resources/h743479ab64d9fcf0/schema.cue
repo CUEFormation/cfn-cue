@@ -217,14 +217,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#PublicIpDnsNameOptions: close({
-	DnsHostnameType?:        string | number | bool | fn.#StringExpression
-	PublicDualStackDnsName?: string | number | bool | fn.#StringExpression
-	PublicIpv4DnsName?:      string | number | bool | fn.#StringExpression
-	PublicIpv6DnsName?:      string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!:   string | number | bool | fn.#StringExpression
 	Value!: string | number | bool | fn.#StringExpression

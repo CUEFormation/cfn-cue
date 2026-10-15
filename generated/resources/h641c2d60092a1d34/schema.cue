@@ -166,12 +166,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Endpoint: close({
-	Address?: string | number | bool | fn.#StringExpression
-	Port?:    string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #NetworkType: =~"(?i)^(?:dual_stack|ipv4|ipv6)$" |
 {
 	number | bool

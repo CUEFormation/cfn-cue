@@ -50,8 +50,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: string | number | bool | fn.#StringExpression
-
 #PackagingType: "APPSTREAM2" | "CUSTOM" | fn.#StringExpression
 
 #S3Location: close({

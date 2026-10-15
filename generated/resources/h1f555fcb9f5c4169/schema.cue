@@ -34,10 +34,3 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#RegistryId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
-} |
-fn.#StringExpression

@@ -41,13 +41,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" |
-{
-	number | bool
-	_cfnString: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" & "\(self)"
-} |
-fn.#StringExpression
-
 #RenderingEngine: close({
 	Name!: "OGRE" | fn.#StringExpression
 	Version!: =~"1.x" |

@@ -60,13 +60,6 @@ fn.#StringExpression
 
 #FileFormat: "CSV" | "CSV_WITH_HEADER" | "JSON" | fn.#StringExpression
 
-#Id: strings.MaxRunes(100) & strings.MinRunes(1) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
-} |
-fn.#StringExpression
-
 #IndexId: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]*$" |
 {
 	number | bool

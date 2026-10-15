@@ -187,5 +187,3 @@ fn.#ObjectExpression
 	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Timestamp: string | number | bool | fn.#StringExpression

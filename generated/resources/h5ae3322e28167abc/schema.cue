@@ -4,10 +4,6 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
 
 import structs "struct"
@@ -29,23 +25,3 @@ import structs "struct"
 }
 
 #KafkaVersionsList: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-
-#LatestRevision: close({
-	CreationTime?: string | number | bool | fn.#StringExpression
-	Description?:  string | number | bool | fn.#StringExpression
-	Revision?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression

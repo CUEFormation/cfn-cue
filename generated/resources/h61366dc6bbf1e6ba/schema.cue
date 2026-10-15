@@ -133,59 +133,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#CustomPromptInterface: close({
-	CustomInstructions?: strings.MaxRunes(350000) & strings.MinRunes(5) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(350000) & strings.MinRunes(5) & "\(self)"
-	} |
-	fn.#StringExpression
-	Identity?: strings.MaxRunes(350000) & strings.MinRunes(5) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(350000) & strings.MinRunes(5) & "\(self)"
-	} |
-	fn.#StringExpression
-	ModelProfileId?: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" & "\(self)"
-	} |
-	fn.#StringExpression
-	OutputStyle?: strings.MaxRunes(350000) & strings.MinRunes(5) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(350000) & strings.MinRunes(5) & "\(self)"
-	} |
-	fn.#StringExpression
-	PromptSummary?: string | number | bool | fn.#StringExpression
-	QbsAwsAccountId?: strings.MaxRunes(15) & strings.MinRunes(15) & =~"^QBS[0-9]{12}$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(15) & strings.MinRunes(15) & =~"^QBS[0-9]{12}$" & "\(self)"
-	} |
-	fn.#StringExpression
-	ResponseLength?: strings.MaxRunes(350000) & strings.MinRunes(5) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(350000) & strings.MinRunes(5) & "\(self)"
-	} |
-	fn.#StringExpression
-	SubscriptionId?: strings.MaxRunes(32) & strings.MinRunes(32) & =~"^[a-z0-9]+$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(32) & strings.MinRunes(32) & =~"^[a-z0-9]+$" & "\(self)"
-	} |
-	fn.#StringExpression
-	Tone?: strings.MaxRunes(350000) & strings.MinRunes(5) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(350000) & strings.MinRunes(5) & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #CustomPromptProfile: close({
 	ModelProfileId!: strings.MaxRunes(36) |
 	{

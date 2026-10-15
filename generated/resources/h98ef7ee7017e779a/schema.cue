@@ -62,12 +62,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#FipsEndpoints: close({
-	CollectionEndpoint?: string | number | bool | fn.#StringExpression
-	DashboardEndpoint?:  string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #ServerlessVectorAcceleration: "ENABLED" | "DISABLED" | "ALLOWED" | fn.#StringExpression
 
 #StandbyReplicas: "ENABLED" | "DISABLED" | fn.#StringExpression

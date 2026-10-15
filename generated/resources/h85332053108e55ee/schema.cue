@@ -35,8 +35,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AccessGrantArn: string | number | bool | fn.#StringExpression
-
 #AccessGrantsLocationConfiguration: close({S3SubPrefix!: string | number | bool | fn.#StringExpression}) |
 	fn.#ObjectExpression
 

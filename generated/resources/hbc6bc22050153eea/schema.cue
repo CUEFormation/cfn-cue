@@ -45,9 +45,3 @@ import structs "struct"
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#TxtMethodConfig: close({
-	name?:  string | number | bool | fn.#StringExpression
-	value?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression

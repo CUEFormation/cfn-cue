@@ -4,7 +4,6 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"time"
 	"strings"
 )
 
@@ -61,42 +60,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AnycastIpList: close({
-	AnycastIps!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-	Arn!:        string | number | bool | fn.#StringExpression
-	Id!:         string | number | bool | fn.#StringExpression
-
-	// The IP address type for the Anycast static IP list.
-	IpAddressType?: #IpAddressType
-	IpCount!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-
-	// The results for the IPAM CIDRs that defines a specific IP address range, IPAM
-	// pool, and associated Anycast IP address.
-	IpamCidrConfigResults?: #IpamCidrConfigResults
-	LastModifiedTime!:      time.Time | fn.#StringExpression
-	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" & "\(self)"
-	} |
-	fn.#StringExpression
-	Status!: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #IpAddressType: "ipv4" | "dualstack" | fn.#StringExpression
 
 #IpamCidrConfig: close({
@@ -109,21 +72,6 @@ fn.#ObjectExpression
 	IpamPoolArn!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#IpamCidrConfigResult: close({
-	AnycastIp?: string | number | bool | fn.#StringExpression
-	Cidr?: fn.#IPv4Network & string |
-	{
-		number | bool
-		_cfnString: fn.#IPv4Network & string & "\(self)"
-	} |
-	fn.#StringExpression
-	IpamPoolArn?: string | number | bool | fn.#StringExpression
-	Status?:      string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#IpamCidrConfigResults: [...#IpamCidrConfigResult] | fn.#ListExpression
 
 #IpamCidrConfigs: [...#IpamCidrConfig] | fn.#ListExpression
 

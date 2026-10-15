@@ -79,8 +79,6 @@ import structs "struct"
 
 #AudioExtractionStatus: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-#DataSetStatus: "CREATING" | "UPDATING" | "ACTIVE" | "FAILED" | "DELETING" | fn.#StringExpression
-
 #ImageExtractionConfiguration: close({ImageExtractionStatus!: #ImageExtractionStatus}) | fn.#ObjectExpression
 
 #ImageExtractionStatus: "ENABLED" | "DISABLED" | fn.#StringExpression

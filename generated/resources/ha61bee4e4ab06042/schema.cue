@@ -311,29 +311,3 @@ fn.#ObjectExpression
 	Type!:        #TargetDatabase
 }) |
 fn.#ObjectExpression
-
-#TestCaseLatestVersion: close({
-	Status!: #TestCaseLifecycle
-	Version!: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
-#TestCaseLifecycle: "Active" | "Deleting" | fn.#StringExpression

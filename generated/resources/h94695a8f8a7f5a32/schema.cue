@@ -63,18 +63,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#IamIdentityCenterApplicationArn: string | number | bool | fn.#StringExpression
-
-#IamIdentityCenterConfigOptions: close({
-	ApplicationArn?:         #IamIdentityCenterApplicationArn
-	ApplicationDescription?: string | number | bool | fn.#StringExpression
-	ApplicationName?:        string | number | bool | fn.#StringExpression
-	GroupAttribute?:         #IamIdentityCenterGroupAttribute
-	InstanceArn!:            #IamIdentityCenterInstanceArn
-	UserAttribute?:          #IamIdentityCenterUserAttribute
-}) |
-fn.#ObjectExpression
-
 #IamIdentityCenterGroupAttribute: string | number | bool | fn.#StringExpression
 
 #IamIdentityCenterInstanceArn: strings.MaxRunes(1224) &

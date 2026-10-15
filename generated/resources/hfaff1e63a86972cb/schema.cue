@@ -112,13 +112,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#InvestigationGroupArn: strings.MaxRunes(2048) & strings.MinRunes(20) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
-} |
-fn.#StringExpression
-
 #RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(2048) &
 strings.MinRunes(20) &
@@ -157,5 +150,3 @@ fn.#StringExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Timestamp: string | number | bool | fn.#StringExpression

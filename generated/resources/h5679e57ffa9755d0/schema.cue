@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 	"time"
 )
 
@@ -44,13 +44,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#Arn: strings.MaxRunes(2048) & strings.MinRunes(0) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
-} |
-fn.#StringExpression
 
 #BorrowConfiguration: close({
 	AllowEarlyCheckIn!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression

@@ -739,22 +739,6 @@ fn.#ObjectExpression
 
 #GlobalAuroraUngracefulBehavior: "failover" | fn.#StringExpression
 
-#HealthCheckIds: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-
-#HealthCheckRecordNames: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-
-#HealthCheckRegions: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-
-#HealthCheckState: close({
-	HealthCheckId?: string | number | bool | fn.#StringExpression
-	Region?:        string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#HealthChecks: list.MaxItems(2) & list.MinItems(2) & [...#HealthCheckState] | fn.#ListExpression
-
-#HostedZoneIds: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-
 #KubernetesResourceType: close({
 	ApiVersion!: string | number | bool | fn.#StringExpression
 	Kind!:       string | number | bool | fn.#StringExpression

@@ -6,7 +6,6 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
-	"struct"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -81,33 +80,3 @@ import structs "struct"
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#TagMap: struct.MaxFields(50) & close({
-
-	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
-		"disallowed",
-	)}
-
-	{
-		[=~"^([\\p{L}\\p{Z}\\p{N}_.,:/=+\\-@]*)$"]: strings.MaxRunes(256) &
-		strings.MinRunes(0) &
-		=~"^([\\p{L}\\p{Z}\\p{N}_.,:/=+\\-@]*)$" |
-		{
-			number | bool
-			_cfnString: strings.MaxRunes(256) &
-			strings.MinRunes(0) &
-			=~"^([\\p{L}\\p{Z}\\p{N}_.,:/=+\\-@]*)$" &
-			"\(self)"
-		} |
-		fn.#StringExpression
-	}
-}) |
-fn.#ObjectExpression
-
-#iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
-{
-	number | bool
-	_cfnString: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" &
-		"\(self)"
-} |
-fn.#StringExpression

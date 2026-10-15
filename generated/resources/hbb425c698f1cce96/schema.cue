@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -31,28 +31,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: strings.MaxRunes(2048) &
-strings.MinRunes(20) &
-=~"^arn:aws:rtbfabric:[a-zA-Z0-9_-]+:[0-9]{12}:gateway/[a-zA-Z0-9-]+/link/[a-zA-Z0-9-]+$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws:rtbfabric:[a-zA-Z0-9_-]+:[0-9]{12}:gateway/[a-zA-Z0-9-]+/link/[a-zA-Z0-9-]+$" &
-	"\(self)"
-} |
-fn.#StringExpression
-
-#CreatedTimestamp: string | number | bool | fn.#StringExpression
-
-#DomainName: =~"^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))+$" |
-{
-	number | bool
-	_cfnString: =~"^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))+$" &
-		"\(self)"
-} |
-fn.#StringExpression
-
 #GatewayId: =~"^rtb-gw-[a-z0-9-]{1,25}$" |
 {
 	number | bool
@@ -66,13 +44,6 @@ fn.#StringExpression
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
-
-#LinkId: =~"^link-[a-z0-9-]{1,25}$" |
-{
-	number | bool
-	_cfnString: =~"^link-[a-z0-9-]{1,25}$" & "\(self)"
-} |
-fn.#StringExpression
 
 #LinkLogSettings: close({
 	ApplicationLogs!: close({
@@ -123,22 +94,6 @@ fn.#StringExpression
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
-
-#LinkStatus: "PENDING_CREATION" |
-	"PENDING_REQUEST" |
-	"REQUESTED" |
-	"ACCEPTED" |
-	"ACTIVE" |
-	"REJECTED" |
-	"FAILED" |
-	"PENDING_DELETION" |
-	"DELETED" |
-	"PENDING_UPDATE" |
-	"PENDING_ISOLATION" |
-	"ISOLATED" |
-	"PENDING_RESTORATION" |
-	"UNKNOWN_TO_SDK_VERSION" |
-	fn.#StringExpression
 
 #ResponderErrorMaskingForHttpCode: close({
 	Action!: "NO_BID" | "PASSTHROUGH" | fn.#StringExpression
@@ -195,5 +150,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-
-#UpdatedTimestamp: string | number | bool | fn.#StringExpression

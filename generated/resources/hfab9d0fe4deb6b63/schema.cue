@@ -152,25 +152,6 @@ fn.#ObjectExpression
 
 #DataDeletionPolicy: "RETAIN" | "DELETE" | fn.#StringExpression
 
-#DataSourceConfiguration: close({
-	ConfluenceConfiguration?:                    #ConfluenceDataSourceConfiguration
-	ManagedKnowledgeBaseConnectorConfiguration?: #ManagedKnowledgeBaseConnectorConfiguration
-	S3Configuration?:                            #S3DataSourceConfiguration
-	SalesforceConfiguration?:                    #SalesforceDataSourceConfiguration
-	SharePointConfiguration?:                    #SharePointDataSourceConfiguration
-	Type!:                                       #DataSourceType
-	WebConfiguration?:                           #WebDataSourceConfiguration
-}) |
-fn.#ObjectExpression
-
-#DataSourceStatus: "AVAILABLE" |
-	"DELETING" |
-	"DELETE_UNSUCCESSFUL" |
-	"CREATING" |
-	"UPDATING" |
-	"FAILED" |
-	fn.#StringExpression
-
 #DataSourceType: "S3" |
 	"CONFLUENCE" |
 	"SALESFORCE" |
@@ -636,26 +617,6 @@ fn.#ObjectExpression
 
 #VideoExtractionConfiguration: close({VideoExtractionStatus!: #EnabledOrDisabledState}) | fn.#ObjectExpression
 
-#WebCrawlerConfiguration: close({
-	CrawlerLimits?:    #WebCrawlerLimits
-	ExclusionFilters?: #FilterList
-	InclusionFilters?: #FilterList
-	Scope?:            #WebScopeType
-	UserAgent?: strings.MaxRunes(40) & strings.MinRunes(15) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(40) & strings.MinRunes(15) & "\(self)"
-	} |
-	fn.#StringExpression
-	UserAgentHeader?: strings.MaxRunes(86) & strings.MinRunes(61) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(86) & strings.MinRunes(61) & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #WebCrawlerLimits: close({
 	MaxPages?: int & >=1 |
 		{
@@ -688,12 +649,6 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
-#WebDataSourceConfiguration: close({
-	CrawlerConfiguration?: #WebCrawlerConfiguration
-	SourceConfiguration!:  #WebSourceConfiguration
 }) |
 fn.#ObjectExpression
 

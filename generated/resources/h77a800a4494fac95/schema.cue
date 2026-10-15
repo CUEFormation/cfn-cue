@@ -62,17 +62,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#DeploymentStatus: "COMPLETED" |
-	"CREATING" |
-	"DELETE_IN_PROGRESS" |
-	"DELETE_INITIATING" |
-	"DELETE_FAILED" |
-	"DELETED" |
-	"FAILED" |
-	"IN_PROGRESS" |
-	"VALIDATING" |
-	fn.#StringExpression
-
 #Tags: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z+-=._:/]+$" |
 	{

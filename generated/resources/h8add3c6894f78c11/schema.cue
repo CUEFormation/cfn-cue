@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -42,8 +42,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ConnectorType: "GENERAL_PURPOSE" | "INTUNE" | fn.#StringExpression
-
 #IntuneConfiguration: close({
 	AzureApplicationId!: strings.MaxRunes(100) &
 	strings.MinRunes(15) &
@@ -67,13 +65,6 @@ fn.#ObjectExpression
 
 #MobileDeviceManagement: fn.#Object & {...} & close({Intune!: #IntuneConfiguration}) | fn.#ObjectExpression
 
-#OpenIdConfiguration: close({
-	Audience?: string | number | bool | fn.#StringExpression
-	Issuer?:   string | number | bool | fn.#StringExpression
-	Subject?:  string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tags: close({
 
 	{[=~".+"]: string | number | bool | fn.#StringExpression}
@@ -83,5 +74,3 @@ fn.#ObjectExpression
 	)}
 }) |
 fn.#ObjectExpression
-
-#Unit: close({}) | fn.#ObjectExpression

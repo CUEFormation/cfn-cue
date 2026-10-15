@@ -53,12 +53,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#DomainResult: close({
-	Domain?: string | number | bool | fn.#StringExpression
-	Status?: "active" | "inactive" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #GeoRestrictionCustomization: close({
 	Locations?:       [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	RestrictionType?: "blacklist" | "whitelist" | "none" | fn.#StringExpression

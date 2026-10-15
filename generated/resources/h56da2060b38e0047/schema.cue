@@ -95,8 +95,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ResourceArn: string | number | bool | fn.#StringExpression
-
 #ShareAttributes: close({
 	ShareIdentifier?: string | number | bool | fn.#StringExpression
 	WeightFactor?: <=1000 & >=0 |

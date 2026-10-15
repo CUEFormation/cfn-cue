@@ -242,18 +242,6 @@ fn.#ObjectExpression
 )]) |
 fn.#ValueExpression
 
-#ConnectionStatus: "CREATING" |
-	"CREATE_FAILED" |
-	"DELETING" |
-	"DELETE_FAILED" |
-	"READY" |
-	"UPDATING" |
-	"UPDATE_FAILED" |
-	"DELETED" |
-	fn.#StringExpression
-
-#ConnectionType: string | number | bool | fn.#StringExpression
-
 #CredentialMap: close({
 
 	{

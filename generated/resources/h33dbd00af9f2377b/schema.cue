@@ -4,8 +4,8 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 )
 
 import cfnScalarStrings "strings"
@@ -254,77 +254,6 @@ fn.#ObjectExpression
 
 #BrowserType: "CHROME" | "FIREFOX" | fn.#StringExpression
 
-#Code: matchN(>=1, [{
-	Handler!:  _
-	S3Bucket!: _
-	S3Key!:    _
-	...
-}, {
-	BlueprintTypes!: _
-	S3Bucket!:       _
-	S3Key!:          _
-	...
-}, {
-	Handler!: _
-	Script!:  _
-	...
-}, {
-	BlueprintTypes!: _
-	Script!:         _
-	...
-}, {
-	Handler!: _
-	...
-}, {
-	BlueprintTypes!: _
-	...
-}]) & close({
-	BlueprintTypes?: list.MaxItems(1) & [...] & [...strings.MaxRunes(128) &
-	strings.MinRunes(1) &
-	=~"^[0-9a-zA-Z_\\-\\.]+$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_\\-\\.]+$" & "\(self)"
-	} |
-	fn.#StringExpression] |
-	fn.#ListExpression
-	Dependencies?: list.MaxItems(1) & [...] & [...#Dependency] | fn.#ListExpression
-	Handler?: strings.MaxRunes(128) &
-	strings.MinRunes(0) &
-	=~"^(([0-9a-zA-Z_-]+(\\/|\\.))*[0-9A-Za-z_\\\\-]+(\\.|::)[A-Za-z_][A-Za-z0-9_]*)?$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) &
-		strings.MinRunes(0) &
-		=~"^(([0-9a-zA-Z_-]+(\\/|\\.))*[0-9A-Za-z_\\\\-]+(\\.|::)[A-Za-z_][A-Za-z0-9_]*)?$" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	S3Bucket?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
-	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
-	strings.MaxRunes(1024) &
-	strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
-		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
-		strings.MaxRunes(1024) &
-		strings.MinRunes(1) &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	S3Key?: strings.MaxRunes(1024) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	S3ObjectVersion?:   string | number | bool | fn.#StringExpression
-	Script?:            string | number | bool | fn.#StringExpression
-	SourceLocationArn?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Dependency: close({
 	Reference!: strings.MaxRunes(140) &
 	strings.MinRunes(1) &
@@ -340,50 +269,6 @@ fn.#ObjectExpression
 	Type?: "LambdaLayer" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Replica: close({
-	CanaryState?: string | number | bool | fn.#StringExpression
-	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
-		=~"^arn:[a-z0-9-]+:kms:[a-z0-9-]+:[0-9]{12}:(key/([a-f0-9-]{36}|mrk-[a-f0-9]{32})|alias/[a-zA-Z0-9:/_.-]+)$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
-			=~"^arn:[a-z0-9-]+:kms:[a-z0-9-]+:[0-9]{12}:(key/([a-f0-9-]{36}|mrk-[a-f0-9]{32})|alias/[a-zA-Z0-9:/_.-]+)$" &
-			"\(self)"
-	} |
-	fn.#StringExpression
-	LastModified?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Location!: string | number | bool | fn.#StringExpression
-
-	// Replication status for this replica
-	ReplicationStatus?:        #ReplicaReplicationStatus
-	ResourcesToReplicateTags?: list.UniqueItems() & [...#ResourceToTag] | fn.#ListExpression
-	Tags?:                     [...#Tag] | fn.#ListExpression
-
-	// VPC configuration for this replica location
-	VpcConfig?: #VPCConfig
-}) |
-fn.#ObjectExpression
-
-#ReplicaReplicationStatus: close({State?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #ResourceToTag: "lambda-function" | fn.#StringExpression
 

@@ -58,54 +58,11 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#CoinbaseCdpConfigurationOutput: close({
-	ApiKeyId!: strings.MaxRunes(512) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	ApiKeySecretArn!: #SecretInfo
-	ApiKeySecretJsonKey?: strings.MaxRunes(128) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	ApiKeySecretSource?: #SecretSourceType
-	WalletSecretArn?:    #SecretInfo
-	WalletSecretJsonKey?: strings.MaxRunes(128) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	WalletSecretSource?: #SecretSourceType
-}) |
-fn.#ObjectExpression
-
 #PaymentCredentialProviderVendorType: "CoinbaseCDP" | "StripePrivy" | fn.#StringExpression
 
 #PaymentProviderConfigurationInput: close({
 	CoinbaseCdpConfiguration?: #CoinbaseCdpConfigurationInput
 	StripePrivyConfiguration?: #StripePrivyConfigurationInput
-}) |
-fn.#ObjectExpression
-
-#PaymentProviderConfigurationOutput: close({
-	CoinbaseCdpConfiguration?: #CoinbaseCdpConfigurationOutput
-	StripePrivyConfiguration?: #StripePrivyConfigurationOutput
-}) |
-fn.#ObjectExpression
-
-#SecretInfo: close({
-	SecretArn!: =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b|aws-iso-e|aws-iso-f|aws-eusc):secretsmanager:[A-Za-z0-9-]{1,64}:[0-9]{12}:secret:[a-zA-Z0-9-_/+=.@!]+$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b|aws-iso-e|aws-iso-f|aws-eusc):secretsmanager:[A-Za-z0-9-]{1,64}:[0-9]{12}:secret:[a-zA-Z0-9-_/+=.@!]+$" &
-			"\(self)"
-	} |
-	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -155,38 +112,6 @@ fn.#ObjectExpression
 	} |
 	fn.#StringExpression
 	AuthorizationPrivateKeyConfig?: #SecretReference
-	AuthorizationPrivateKeySource?: #SecretSourceType
-}) |
-fn.#ObjectExpression
-
-#StripePrivyConfigurationOutput: close({
-	AppId!: strings.MaxRunes(512) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	AppSecretArn!: #SecretInfo
-	AppSecretJsonKey?: strings.MaxRunes(128) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	AppSecretSource?: #SecretSourceType
-	AuthorizationId!: strings.MaxRunes(512) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	AuthorizationPrivateKeyArn!: #SecretInfo
-	AuthorizationPrivateKeyJsonKey?: strings.MaxRunes(128) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
 	AuthorizationPrivateKeySource?: #SecretSourceType
 }) |
 fn.#ObjectExpression

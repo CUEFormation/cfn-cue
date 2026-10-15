@@ -73,22 +73,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#Provider: close({
-	CloudServiceProvider?: strings.MaxRunes(32) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(32) & "\(self)"
-	} |
-	fn.#StringExpression
-	LastMileProvider?: strings.MaxRunes(32) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(32) & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{

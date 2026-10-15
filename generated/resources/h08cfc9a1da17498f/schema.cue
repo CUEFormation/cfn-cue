@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -61,12 +61,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AvailableFilter: close({
-	Id!:   string | number | bool | fn.#StringExpression
-	Type!: "METRIC_LEVEL" | "RESOURCE_LEVEL" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #CalculationComponent: close({
 	Alias!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z_][a-zA-Z0-9_]*" |
 	{
@@ -88,11 +82,6 @@ fn.#ObjectExpression
 	} |
 	fn.#StringExpression
 }) |
-fn.#ObjectExpression
-
-#CreatedByInfo: fn.#Object & matchN(1, [
-	close({AWSIdentityArn!: string | fn.#StringExpression}), close({ConnectUserArn!: string | fn.#StringExpression}),
-]) |
 fn.#ObjectExpression
 
 #MetricFilter: close({

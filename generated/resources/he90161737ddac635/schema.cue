@@ -8,10 +8,6 @@ import (
 	"strings"
 )
 
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
 
 import structs "struct"
@@ -47,73 +43,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#ClusterConfiguration: close({
-	Description?:       string | number | bool | fn.#StringExpression
-	Engine?:            string | number | bool | fn.#StringExpression
-	EngineVersion?:     string | number | bool | fn.#StringExpression
-	MaintenanceWindow?: string | number | bool | fn.#StringExpression
-	Name?:              string | number | bool | fn.#StringExpression
-	NodeType?:          string | number | bool | fn.#StringExpression
-	NumShards?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ParameterGroupName?: string | number | bool | fn.#StringExpression
-	Port?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SnapshotRetentionLimit?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SnapshotWindow?:  string | number | bool | fn.#StringExpression
-	SubnetGroupName?: string | number | bool | fn.#StringExpression
-	TopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression
-	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |

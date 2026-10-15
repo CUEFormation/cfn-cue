@@ -3,14 +3,10 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
-
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
 
 import base "github.com/cueformation/cfn-cue/template:template"
 
@@ -31,47 +27,7 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: strings.MaxRunes(140) &
-strings.MinRunes(1) &
-=~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:network-connector:[a-zA-Z0-9-_]+(:[1-9][0-9]*)?)$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(140) &
-	strings.MinRunes(1) &
-	=~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:network-connector:[a-zA-Z0-9-_]+(:[1-9][0-9]*)?)$" &
-	"\(self)"
-} |
-fn.#StringExpression
-
 #Config: close({VpcEgressConfiguration!: #VpcEgressConfiguration}) | fn.#ObjectExpression
-
-#LatestVersion: int & >=1 |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatInt(
-					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-						int &
-						>=1,
-					10,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression
-
-#LatestVersionArn: strings.MaxRunes(140) &
-strings.MinRunes(1) &
-=~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:network-connector:[a-zA-Z0-9-_]+(:[1-9][0-9]*)?)$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(140) &
-	strings.MinRunes(1) &
-	=~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:network-connector:[a-zA-Z0-9-_]+(:[1-9][0-9]*)?)$" &
-	"\(self)"
-} |
-fn.#StringExpression
 
 #Name: strings.MaxRunes(140) &
 strings.MinRunes(1) &
@@ -96,8 +52,6 @@ strings.MinRunes(0) &
 	"\(self)"
 } |
 fn.#StringExpression
-
-#State: "PENDING" | "ACTIVE" | "INACTIVE" | "FAILED" | "DELETING" | "DELETE_FAILED" | fn.#StringExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |

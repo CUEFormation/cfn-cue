@@ -3,9 +3,8 @@
 package schema
 
 import (
-	"time"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -30,15 +29,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CreatedAt: time.Time | fn.#StringExpression
-
-#DefinitionHash: strings.MaxRunes(128) & strings.MinRunes(128) & =~"^[0-9a-z]{128}$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(128) & strings.MinRunes(128) & =~"^[0-9a-z]{128}$" & "\(self)"
-} |
-fn.#StringExpression
-
 #Description: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" |
 {
 	number | bool
@@ -47,20 +37,6 @@ fn.#StringExpression
 fn.#StringExpression
 
 #ForceDelete: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-
-#KmsKeyArn: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
-strings.MaxRunes(2048) &
-strings.MinRunes(1) &
-=~"^arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
-{
-	number | bool
-	_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" &
-	"\(self)"
-} |
-fn.#StringExpression
 
 #KmsKeyId: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
 	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
@@ -84,18 +60,6 @@ fn.#StringExpression
 {
 	number | bool
 	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ ]+$" & "\(self)"
-} |
-fn.#StringExpression
-
-#PolicyArn: strings.MaxRunes(2048) &
-strings.MinRunes(1) &
-=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:automated-reasoning-policy\\/[a-z0-9]{12}$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:automated-reasoning-policy\\/[a-z0-9]{12}$" &
-	"\(self)"
 } |
 fn.#StringExpression
 
@@ -200,13 +164,6 @@ fn.#ObjectExpression
 
 #PolicyDefinitionVariableList: list.MaxItems(200) & [...] & [...#PolicyDefinitionVariable] | fn.#ListExpression
 
-#PolicyId: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-z0-9]{12}$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-z0-9]{12}$" & "\(self)"
-} |
-fn.#StringExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
 	{
@@ -224,12 +181,3 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #Tags: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-
-#UpdatedAt: time.Time | fn.#StringExpression
-
-#Version: =~"^(([1-9][0-9]{0,11})|(DRAFT))$" |
-{
-	number | bool
-	_cfnString: =~"^(([1-9][0-9]{0,11})|(DRAFT))$" & "\(self)"
-} |
-fn.#StringExpression

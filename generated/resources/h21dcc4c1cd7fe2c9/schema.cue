@@ -127,8 +127,6 @@ fn.#ObjectExpression
 
 #CustomerContentEncryptionConfiguration: close({KmsKey!: #KmsKey}) | fn.#ObjectExpression
 
-#EffectiveEngineVersion: string | number | bool | fn.#StringExpression
-
 #EncryptionConfiguration: close({
 	EncryptionOption!: #EncryptionOption
 	KmsKey?:           #KmsKey
@@ -201,12 +199,6 @@ fn.#ObjectExpression
 		{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
 	}) |
 	fn.#ObjectExpression
-}) |
-fn.#ObjectExpression
-
-#EngineVersion: close({
-	EffectiveEngineVersion?: #EffectiveEngineVersion
-	SelectedEngineVersion?:  #SelectedEngineVersion
 }) |
 fn.#ObjectExpression
 
@@ -310,37 +302,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tags: [...#Tag] | fn.#ListExpression
-
-#WorkGroupConfiguration: close({
-	AdditionalConfiguration?:                #AdditionalConfiguration
-	BytesScannedCutoffPerQuery?:             #BytesScannedCutoffPerQuery
-	CustomerContentEncryptionConfiguration?: #CustomerContentEncryptionConfiguration
-	EnforceWorkGroupConfiguration?:          #EnforceWorkGroupConfiguration
-	EngineConfiguration?:                    #EngineConfiguration
-	EngineVersion?:                          #EngineVersion
-	ExecutionRole?:                          #ExecutionRole
-	ManagedQueryResultsConfiguration?:       #ManagedQueryResultsConfiguration
-	MonitoringConfiguration?:                #MonitoringConfiguration
-	PublishCloudWatchMetricsEnabled?:        #PublishCloudWatchMetricsEnabled
-	RequesterPaysEnabled?:                   #RequesterPaysEnabled
-	ResultConfiguration?:                    #ResultConfiguration
-}) |
-fn.#ObjectExpression
-
-#WorkGroupConfigurationUpdates: close({
-	AdditionalConfiguration?:                      #AdditionalConfiguration
-	BytesScannedCutoffPerQuery?:                   #BytesScannedCutoffPerQuery
-	CustomerContentEncryptionConfiguration?:       #CustomerContentEncryptionConfiguration
-	EnforceWorkGroupConfiguration?:                #EnforceWorkGroupConfiguration
-	EngineConfiguration?:                          #EngineConfiguration
-	EngineVersion?:                                #EngineVersion
-	ExecutionRole?:                                #ExecutionRole
-	ManagedQueryResultsConfiguration?:             #ManagedQueryResultsConfiguration
-	MonitoringConfiguration?:                      #MonitoringConfiguration
-	PublishCloudWatchMetricsEnabled?:              #PublishCloudWatchMetricsEnabled
-	RemoveBytesScannedCutoffPerQuery?:             #RemoveBytesScannedCutoffPerQuery
-	RemoveCustomerContentEncryptionConfiguration?: #RemoveCustomerContentEncryptionConfiguration
-	RequesterPaysEnabled?:                         #RequesterPaysEnabled
-	ResultConfigurationUpdates?:                   #ResultConfigurationUpdates
-}) |
-fn.#ObjectExpression

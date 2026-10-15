@@ -82,5 +82,3 @@ import structs "struct"
 	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#TrafficMirrorSessionField: "packet-length" | "description" | "virtual-network-id" | fn.#StringExpression

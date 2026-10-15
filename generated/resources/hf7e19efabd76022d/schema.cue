@@ -68,8 +68,6 @@ import structs "struct"
 }) |
 	fn.#ObjectExpression
 
-#Arn: string | number | bool | fn.#StringExpression
-
 #BucketEncryption: close(
 	{ServerSideEncryptionConfiguration!: list.UniqueItems() & [...#ServerSideEncryptionRule] | fn.#ListExpression},
 ) |

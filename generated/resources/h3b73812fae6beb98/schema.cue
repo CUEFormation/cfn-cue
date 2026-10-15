@@ -35,22 +35,10 @@ import structs "struct"
 } |
 fn.#StringExpression
 
-#EndpointId: string | number | bool | fn.#StringExpression
-
 #ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$" |
 {
 	number | bool
 	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$" & "\(self)"
-} |
-fn.#StringExpression
-
-#ResourceId: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^([0-9a-f]{8})-([0-9a-f]{4}-){3}([0-9a-f]{12})$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"^([0-9a-f]{8})-([0-9a-f]{4}-){3}([0-9a-f]{12})$" &
-	"\(self)"
 } |
 fn.#StringExpression
 

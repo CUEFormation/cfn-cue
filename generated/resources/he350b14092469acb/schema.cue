@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -97,77 +97,6 @@ import structs "struct"
 	Properties?: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#CrossRegionS3RestoreSourcesAccess: close({
-	Ipv4Addresses?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-	Region?:        string | number | bool | fn.#StringExpression
-
-	// The current status of the cross-Region Amazon S3 restore access configuration.
-	Status?: #ManagedResourceStatus
-}) |
-fn.#ObjectExpression
-
-#ManagedResourceStatus: "ENABLED" | "ENABLING" | "DISABLED" | "DISABLING" | fn.#StringExpression
-
-#ManagedServices: close({
-	CrossRegionS3RestoreSourcesAccess?: list.UniqueItems() & [...#CrossRegionS3RestoreSourcesAccess] |
-		fn.#ListExpression
-	KmsAccess?: close({
-		DomainName?:        string | number | bool | fn.#StringExpression
-		Ipv4Addresses?:     [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-		KmsPolicyDocument?: string | number | bool | fn.#StringExpression
-
-		// The status of the AWS KMS access.
-		Status?: #ManagedResourceStatus
-	}) |
-	fn.#ObjectExpression
-	ManagedS3BackupAccess?: close({
-		Ipv4Addresses?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-
-		// The status of the managed Amazon S3 backup access.
-		Status?: #ManagedResourceStatus
-	}) |
-	fn.#ObjectExpression
-	ManagedServicesIpv4Cidrs?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-	ResourceGatewayArn?:       string | number | bool | fn.#StringExpression
-	S3Access?: close({
-		DomainName?:       string | number | bool | fn.#StringExpression
-		Ipv4Addresses?:    [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-		S3PolicyDocument?: string | number | bool | fn.#StringExpression
-
-		// The status of the Amazon S3 access.
-		Status?: #ManagedResourceStatus
-	}) |
-	fn.#ObjectExpression
-	ServiceNetworkArn?: string | number | bool | fn.#StringExpression
-	ServiceNetworkEndpoint?: close({
-		VpcEndpointId?:   string | number | bool | fn.#StringExpression
-		VpcEndpointType?: "SERVICENETWORK" | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	StsAccess?: close({
-		DomainName?:    string | number | bool | fn.#StringExpression
-		Ipv4Addresses?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-
-		// The status of the AWS STS access.
-		Status?:            #ManagedResourceStatus
-		StsPolicyDocument?: string | number | bool | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	ZeroEtlAccess?: close({
-		Cidr?: fn.#IPv4Network & string |
-		{
-			number | bool
-			_cfnString: fn.#IPv4Network & string & "\(self)"
-		} |
-		fn.#StringExpression
-
-		// The status of the Zero-ETL access.
-		Status?: #ManagedResourceStatus
-	}) |
-	fn.#ObjectExpression
-}) |
-fn.#ObjectExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |

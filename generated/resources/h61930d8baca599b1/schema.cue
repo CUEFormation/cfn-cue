@@ -52,8 +52,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#Unit: close({}) | fn.#ObjectExpression
-
 #VpcInformation: close({
 	IpAddressType?: "IPV4" | "DUALSTACK" | fn.#StringExpression
 	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &

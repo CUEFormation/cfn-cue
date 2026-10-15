@@ -27,13 +27,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ModelPackageGroupArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"arn:.*" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"arn:.*" & "\(self)"
-} |
-fn.#StringExpression
-
 #ModelPackageGroupDescription: strings.MaxRunes(1024) &
 strings.MinRunes(0) &
 =~"[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*" |

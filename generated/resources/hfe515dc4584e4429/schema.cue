@@ -174,16 +174,6 @@ fn.#ObjectExpression
 
 #AuthenticationType: "PASSWORD" | "TOKEN" | "X509" | "KEYPAIR" | fn.#StringExpression
 
-#AwsIotAnalyticsParameters: close({
-	DataSetName!: strings.MaxRunes(128) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #CredentialPair: close({
 	AlternateDataSourceParameters?: list.MaxItems(50) & list.MinItems(1) & [...#DataSourceParameters] |
 		fn.#ListExpression
@@ -365,42 +355,6 @@ fn.#ObjectExpression
 	{EnableIdentityPropagation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
-
-#ImpalaParameters: close({
-	Host!: strings.MaxRunes(256) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	Port!: <=65535 & >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							<=65535 &
-							>=1,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SqlEndpointPath!: strings.MaxRunes(4096) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #KeyPairCredentials: close({
 	KeyPairUsername!: strings.MaxRunes(64) & strings.MinRunes(1) |
@@ -748,16 +702,6 @@ fn.#ObjectExpression
 	Resource?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#ResourceStatus: "CREATION_IN_PROGRESS" |
-	"CREATION_SUCCESSFUL" |
-	"CREATION_FAILED" |
-	"UPDATE_IN_PROGRESS" |
-	"UPDATE_SUCCESSFUL" |
-	"UPDATE_FAILED" |
-	"PENDING_UPDATE" |
-	"DELETED" |
-	fn.#StringExpression
 
 #S3Parameters: close({
 	ManifestFileLocation!: #ManifestFileLocation

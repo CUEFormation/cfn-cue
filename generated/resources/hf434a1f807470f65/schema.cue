@@ -4,7 +4,6 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"time"
 	"list"
 	"strings"
 )
@@ -45,16 +44,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#NodeSnapshot: close({
-	CacheClusterId?:      string | number | bool | fn.#StringExpression
-	CacheNodeCreateTime?: time.Time | fn.#StringExpression
-	CacheNodeId?:         string | number | bool | fn.#StringExpression
-	CacheSize?:           string | number | bool | fn.#StringExpression
-	NodeGroupId?:         string | number | bool | fn.#StringExpression
-	SnapshotCreateTime?:  time.Time | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -33,20 +33,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#Arn: strings.MaxRunes(2048) &
-strings.MinRunes(20) &
-=~"^arn:aws:rtbfabric:[a-zA-Z0-9_-]+:[0-9]{12}:gateway/[a-zA-Z0-9-]+/link/[a-zA-Z0-9-]+/routing-rule/[a-zA-Z0-9-]+$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws:rtbfabric:[a-zA-Z0-9_-]+:[0-9]{12}:gateway/[a-zA-Z0-9-]+/link/[a-zA-Z0-9-]+/routing-rule/[a-zA-Z0-9-]+$" &
-	"\(self)"
-} |
-fn.#StringExpression
-
-#CreatedTimestamp: string | number | bool | fn.#StringExpression
 
 #GatewayId: =~"^rtb-gw-[a-z0-9-]{1,25}$" |
 {
@@ -146,13 +132,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#RuleId: =~"^rule-[a-z0-9-]{1,25}$" |
-{
-	number | bool
-	_cfnString: =~"^rule-[a-z0-9-]{1,25}$" & "\(self)"
-} |
-fn.#StringExpression
-
 #RulePriority: int & <=1000 & >=1 |
 	{
 		string &
@@ -169,14 +148,6 @@ fn.#StringExpression
 			)
 	} |
 	fn.#NumberExpression
-
-#RuleStatus: "CREATION_IN_PROGRESS" |
-	"ACTIVE" |
-	"UPDATE_IN_PROGRESS" |
-	"DELETION_IN_PROGRESS" |
-	"DELETED" |
-	"FAILED" |
-	fn.#StringExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^(resourceArn|internalId|[a-zA-Z0-9+\\-=._:/@]+)$" |
@@ -198,5 +169,3 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-
-#UpdatedTimestamp: string | number | bool | fn.#StringExpression

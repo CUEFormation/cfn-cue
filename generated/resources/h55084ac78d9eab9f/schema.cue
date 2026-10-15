@@ -595,8 +595,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#RoleArn: string | number | bool | fn.#StringExpression
-
 #S3Action: close({
 	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
 	{

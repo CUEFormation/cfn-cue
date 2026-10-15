@@ -5,7 +5,6 @@ package schema
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
 
 import cfnScalarStrings "strings"
@@ -114,21 +113,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Endpoint: close({
-	Ipv6Address?:      string | number | bool | fn.#StringExpression
-	Port!:             string | number | bool | fn.#StringExpression
-	PrivateIpAddress!: string | number | bool | fn.#StringExpression
-	PublicIpAddress?:  string | number | bool | fn.#StringExpression
-	Type!:             "SLURMCTLD" | "SLURMDBD" | "SLURMRESTD" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#ErrorInfo: close({
-	Code?:    string | number | bool | fn.#StringExpression
-	Message?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #JwtAuth: close({JwtKey?: #JwtKey}) | fn.#ObjectExpression
 
 #JwtKey: close({
@@ -164,19 +148,3 @@ fn.#ObjectExpression
 	_cfnString: =~"^subnet-\\w{8,17}$" & "\(self)"
 } |
 fn.#StringExpression
-
-#Tag: close({
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression

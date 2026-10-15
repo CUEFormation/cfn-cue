@@ -96,8 +96,6 @@ import structs "struct"
 
 #BlockOverrideDnsQueryType: "CNAME" | fn.#StringExpression
 
-#CRResourceStatus: "CREATING" | "OPERATIONAL" | "UPDATING" | "DELETING" | fn.#StringExpression
-
 #ConfidenceThreshold: "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression
 
 #DnsAdvancedProtection: "DGA" | "DNS_TUNNELING" | "DICTIONARY_DGA" | fn.#StringExpression

@@ -32,18 +32,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#PermissionArnTemplateParameters: close({
-	PermissionArn!:                string | number | bool | fn.#StringExpression
-	PermissionTemplateParameters?: [...#PermissionTemplateParameter] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#PermissionTemplateParameter: close({
-	Name!:   string | number | bool | fn.#StringExpression
-	Values!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
 #ResourceShareConfiguration: close({
 	ExclusiveAccountAccess?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RetainSharingOnAccountLeaveOrganization?: bool |

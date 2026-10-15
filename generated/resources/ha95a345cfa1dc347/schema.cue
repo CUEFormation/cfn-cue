@@ -58,8 +58,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#FunctionMetadata: close({FunctionARN?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
-
 #KeyValueStoreAssociation: close({KeyValueStoreARN!: string | number | bool | fn.#StringExpression}) |
 	fn.#ObjectExpression
 

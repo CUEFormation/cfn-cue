@@ -21,8 +21,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#HaStatus: "processing" | "active" | "standby" | "invalid" | fn.#StringExpression
-
 #InstanceId: =~"^i-[0-9a-f]{8,17}$" |
 {
 	number | bool
@@ -30,8 +28,4 @@ import structs "struct"
 } |
 fn.#StringExpression
 
-#LastUpdatedTime: string | number | bool | fn.#StringExpression
-
 #SqlServerCredentials: string | number | bool | fn.#StringExpression
-
-#SqlServerLicenseUsage: "full" | "waived" | fn.#StringExpression

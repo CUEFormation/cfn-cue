@@ -49,8 +49,6 @@ import structs "struct"
 } |
 fn.#StringExpression
 
-#CreatedAt: string | number | bool | fn.#StringExpression
-
 #CustomerProfilesDomainArn: =~"^arn:(aws|aws-us-gov|aws-cn):profile:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(domains/[a-zA-Z_0-9-]{1,255})$" |
 {
 	number | bool
@@ -135,13 +133,6 @@ fn.#StringExpression
 	{EnableTransitiveMatching?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
-
-#MatchingWorkflowArn: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(matchingworkflow/.*)$" |
-{
-	number | bool
-	_cfnString: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(matchingworkflow/.*)$" & "\(self)"
-} |
-fn.#StringExpression
 
 #OutputAttribute: close({
 	Hashed?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -251,5 +242,3 @@ fn.#StringExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#UpdatedAt: string | number | bool | fn.#StringExpression

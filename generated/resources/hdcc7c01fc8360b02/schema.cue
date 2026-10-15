@@ -181,8 +181,6 @@ fn.#ObjectExpression
 )]) |
 fn.#ValueExpression
 
-#MaintenanceType: "PREFERRED_DAY_TIME" | "DEFAULT" | fn.#StringExpression
-
 #MediaConnectFlowRouterInputConfiguration: close({
 	FlowArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
 	{
@@ -308,8 +306,6 @@ fn.#ObjectExpression
 #RouterContentQualityAnalysisConfiguration: close({ContentLevel!: #ContentQualityAnalysisFeatureConfiguration}) |
 	fn.#ValueExpression
 
-#RouterContentQualityAnalysisType: "CONTENT_LEVEL" | fn.#StringExpression
-
 #RouterInputConfiguration: matchN(1, [close(
 	{Standard!: #StandardRouterInputConfiguration},
 ), close(
@@ -336,18 +332,6 @@ fn.#ValueExpression
 )]) |
 fn.#ValueExpression
 
-#RouterInputState: "CREATING" |
-	"STANDBY" |
-	"STARTING" |
-	"ACTIVE" |
-	"STOPPING" |
-	"DELETING" |
-	"UPDATING" |
-	"ERROR" |
-	"RECOVERING" |
-	"MIGRATING" |
-	fn.#StringExpression
-
 #RouterInputTier: "INPUT_100" | "INPUT_50" | "INPUT_20" | fn.#StringExpression
 
 #RouterInputTransitEncryption: close({
@@ -364,8 +348,6 @@ fn.#ObjectExpression
 fn.#ValueExpression
 
 #RouterInputTransitEncryptionKeyType: "SECRETS_MANAGER" | "AUTOMATIC" | fn.#StringExpression
-
-#RouterInputType: "STANDARD" | "FAILOVER" | "MERGE" | "MEDIACONNECT_FLOW" | "MEDIALIVE_CHANNEL" | fn.#StringExpression
 
 #RoutingScope: "REGIONAL" | "GLOBAL" | fn.#StringExpression
 

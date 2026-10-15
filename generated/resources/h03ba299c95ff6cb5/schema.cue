@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -46,32 +46,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#IamIdentityCenter: close({
-	ApprovalPortalUrl?: string | number | bool | fn.#StringExpression
-	InstanceArn!: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:.+:sso:::instance/(?:sso)?ins-[a-zA-Z0-9-.]{16}$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(2048) &
-		strings.MinRunes(20) &
-		=~"^arn:.+:sso:::instance/(?:sso)?ins-[a-zA-Z0-9-.]{16}$" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	Region!: strings.MaxRunes(1000) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(1000) & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#IdentitySourceArn: string | number | bool | fn.#StringExpression
-
-#IdentitySourceParameters: close({IamIdentityCenter!: #IamIdentityCenter}) | fn.#ObjectExpression
 
 #Tag: close({
 	Key!:   string | number | bool | fn.#StringExpression

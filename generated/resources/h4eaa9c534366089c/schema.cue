@@ -215,12 +215,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#Endpoint: close({
-	Address?: string | number | bool | fn.#StringExpression
-	Port?:    string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #KinesisFirehoseDestinationDetails: close({DeliveryStream!: string | number | bool | fn.#StringExpression}) |
 	fn.#ObjectExpression
 

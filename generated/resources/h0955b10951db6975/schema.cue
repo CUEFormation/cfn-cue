@@ -134,10 +134,6 @@ fn.#ObjectExpression
 
 #CustomOutputConfiguration: close({Blueprints?: [...#BlueprintItem] | fn.#ListExpression}) | fn.#ObjectExpression
 
-#DataAutomationProjectStage: "DEVELOPMENT" | "LIVE" | fn.#StringExpression
-
-#DataAutomationProjectStatus: "COMPLETED" | "IN_PROGRESS" | "FAILED" | fn.#StringExpression
-
 #DesiredModality: "DOCUMENT" | "IMAGE" | "VIDEO" | "AUDIO" | fn.#StringExpression
 
 #DocumentBoundingBox: close({State!: #State}) | fn.#ObjectExpression
@@ -329,8 +325,6 @@ fn.#ObjectExpression
 	SpeakerLabeling?: #SpeakerLabelingConfiguration
 }) |
 fn.#ObjectExpression
-
-#Unit: close({}) | fn.#ObjectExpression
 
 #VideoBoundingBox: close({State!: #State}) | fn.#ObjectExpression
 

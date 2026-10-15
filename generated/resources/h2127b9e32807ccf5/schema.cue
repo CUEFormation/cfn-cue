@@ -89,59 +89,6 @@ import structs "struct"
 }) |
 	fn.#ObjectExpression
 
-#ConnectPeerBgpConfiguration: close({
-	CoreNetworkAddress?: string | number | bool | fn.#StringExpression
-	CoreNetworkAsn?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	PeerAddress?: string | number | bool | fn.#StringExpression
-	PeerAsn?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
-#ConnectPeerConfiguration: close({
-	BgpConfigurations?:  [...#ConnectPeerBgpConfiguration] | fn.#ListExpression
-	CoreNetworkAddress?: string | number | bool | fn.#StringExpression
-	InsideCidrBlocks?:   [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-	PeerAddress?:        string | number | bool | fn.#StringExpression
-	Protocol?:           #TunnelProtocol
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
 	{
@@ -157,5 +104,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#TunnelProtocol: string | number | bool | fn.#StringExpression

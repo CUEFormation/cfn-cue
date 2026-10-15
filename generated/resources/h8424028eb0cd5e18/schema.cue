@@ -22,9 +22,3 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#PermissionTemplateParameter: close({
-	Name!:   string | number | bool | fn.#StringExpression
-	Values!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-}) |
-fn.#ObjectExpression

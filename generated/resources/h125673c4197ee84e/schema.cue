@@ -95,8 +95,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Timestamp: string | number | bool | fn.#StringExpression
-
 #Widget: close({
 	QueryParameters?: list.MaxItems(10) & list.MinItems(1) & [...#QueryParameter] | fn.#ListExpression
 	QueryStatement!: strings.MaxRunes(10000) & strings.MinRunes(1) & =~"(?s).*" |

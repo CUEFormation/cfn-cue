@@ -140,34 +140,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CmkSecretConfig: close({
-	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(0) &
-	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
-		strings.MaxRunes(2048) &
-		strings.MinRunes(0) &
-		=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	SecretArn?: strings.MaxRunes(2048) &
-	strings.MinRunes(0) &
-	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(2048) &
-		strings.MinRunes(0) &
-		=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #CustomSecretConfig: close({
 	SecretAccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
@@ -189,19 +161,6 @@ fn.#ObjectExpression
 		number | bool
 		_cfnString: strings.MaxRunes(2048) &
 		strings.MinRunes(0) &
-		=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#ManagedSecretConfig: close({
-	SecretArn!: strings.MaxRunes(2048) &
-	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(2048) &
 		=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$" &
 		"\(self)"
 	} |

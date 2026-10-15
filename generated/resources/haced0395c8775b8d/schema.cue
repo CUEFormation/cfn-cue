@@ -154,8 +154,6 @@ fn.#ObjectExpression
 
 #ConnectorEgressType: "SERVICE_MANAGED" | "VPC_LATTICE" | fn.#StringExpression
 
-#ConnectorStatus: "ACTIVE" | "PENDING" | "ERRORED" | fn.#StringExpression
-
 #ConnectorVpcLatticeEgressConfig: close({
 	PortNumber?: int & <=65535 & >=1 |
 		{

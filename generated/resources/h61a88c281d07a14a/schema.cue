@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -37,17 +37,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#InferenceProfileModel: close({
-	ModelArn?: =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}::foundation-model/[a-z0-9-]{1,63}[.]{1}([a-z0-9-]{1,63}[.]){0,2}[a-z0-9-]{1,63}([:][a-z0-9-]{1,63}){0,2}$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}::foundation-model/[a-z0-9-]{1,63}[.]{1}([a-z0-9-]{1,63}[.]){0,2}[a-z0-9-]{1,63}([:][a-z0-9-]{1,63}){0,2}$" &
-			"\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #InferenceProfileModelSource: close({
 	CopyFrom!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
@@ -62,10 +51,6 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ValueExpression
-
-#InferenceProfileStatus: "ACTIVE" | fn.#StringExpression
-
-#InferenceProfileType: "APPLICATION" | "SYSTEM_DEFINED" | fn.#StringExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
@@ -82,5 +67,3 @@ fn.#ValueExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Unit: close({}) | fn.#ObjectExpression

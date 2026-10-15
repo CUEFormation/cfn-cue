@@ -23,13 +23,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: strings.MaxRunes(1000) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(1000) & "\(self)"
-} |
-fn.#StringExpression
-
 #ProjectName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9][a-zA-Z0-9_\\-]*" |
 {
 	number | bool

@@ -1147,8 +1147,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ContextMenuOption: close({AvailabilityStatus?: #DashboardBehavior}) | fn.#ObjectExpression
-
 #ContributionAnalysisDefault: close({
 	ContributorDimensions!: list.MaxItems(4) & list.MinItems(1) & [...#ColumnIdentifier] | fn.#ListExpression
 	MeasureFieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
@@ -1387,30 +1385,6 @@ fn.#ObjectExpression
 
 #DashboardBehavior: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-#DashboardError: close({
-	Message?: =~"\\S" |
-	{
-		number | bool
-		_cfnString: =~"\\S" & "\(self)"
-	} |
-	fn.#StringExpression
-	Type?:             #DashboardErrorType
-	ViolatedEntities?: list.MaxItems(200) & [...] & [...#Entity] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#DashboardErrorType: "ACCESS_DENIED" |
-	"SOURCE_NOT_FOUND" |
-	"DATA_SET_NOT_FOUND" |
-	"INTERNAL_FAILURE" |
-	"PARAMETER_VALUE_INCOMPATIBLE" |
-	"PARAMETER_TYPE_INVALID" |
-	"PARAMETER_NOT_FOUND" |
-	"COLUMN_TYPE_MISMATCH" |
-	"COLUMN_GEOGRAPHIC_ROLE_MISMATCH" |
-	"COLUMN_REPLACEMENT_MISSING" |
-	fn.#StringExpression
-
 #DashboardPublishOptions: close({
 	AdHocFilteringOption?:                 #AdHocFilteringOption
 	DataPointDrillUpDownOption?:           #DataPointDrillUpDownOption
@@ -1440,43 +1414,6 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DashboardUIState: "EXPANDED" | "COLLAPSED" | fn.#StringExpression
-
-#DashboardVersion: close({
-	Arn?:         string | number | bool | fn.#StringExpression
-	CreatedTime?: time.Time | fn.#StringExpression
-	DataSetArns?: list.MaxItems(100) & [...] & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-	Description?: strings.MaxRunes(512) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	Errors?:          list.MinItems(1) & [...#DashboardError] | fn.#ListExpression
-	Sheets?:          list.MaxItems(20) & [...] & [...#Sheet] | fn.#ListExpression
-	SourceEntityArn?: string | number | bool | fn.#StringExpression
-	Status?:          #ResourceStatus
-	ThemeArn?:        string | number | bool | fn.#StringExpression
-	VersionNumber?: >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							>=1,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
 
 #DashboardVersionDefinition: close({
 	AnalysisDefaults?:              #AnalysisDefaults
@@ -2206,16 +2143,6 @@ fn.#ObjectExpression
 	{
 		number | bool
 		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#Entity: close({
-	Path?: =~"\\S" |
-	{
-		number | bool
-		_cfnString: =~"\\S" & "\(self)"
 	} |
 	fn.#StringExpression
 }) |
@@ -5977,16 +5904,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ResourceStatus: "CREATION_IN_PROGRESS" |
-	"CREATION_SUCCESSFUL" |
-	"CREATION_FAILED" |
-	"UPDATE_IN_PROGRESS" |
-	"UPDATE_SUCCESSFUL" |
-	"UPDATE_FAILED" |
-	"PENDING_UPDATE" |
-	"DELETED" |
-	fn.#StringExpression
-
 #RollingDateConfiguration: close({
 	DataSetIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(0) |
 	{
@@ -6207,22 +6124,6 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ShapeConditionalFormat: close({BackgroundColor!: #ConditionalFormattingColor}) | fn.#ObjectExpression
-
-#Sheet: close({
-	Name?: strings.MaxRunes(2048) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	SheetId?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #SheetContentType: "PAGINATED" | "INTERACTIVE" | fn.#StringExpression
 
@@ -7811,5 +7712,3 @@ fn.#ObjectExpression
 #WordCloudWordPadding: "NONE" | "SMALL" | "MEDIUM" | "LARGE" | fn.#StringExpression
 
 #WordCloudWordScaling: "EMPHASIZE" | "NORMAL" | fn.#StringExpression
-
-#YAxisOptions: close({YAxis!: #SingleYAxisOption}) | fn.#ObjectExpression

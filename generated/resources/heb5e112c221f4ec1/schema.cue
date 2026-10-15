@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"struct"
 	"list"
 )
@@ -38,8 +38,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#DataAutomationLibraryStatus: "ACTIVE" | "DELETING" | fn.#StringExpression
-
 #EncryptionConfiguration: close({
 	KmsEncryptionContext?: #KmsEncryptionContext
 	KmsKeyId!: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
@@ -59,14 +57,6 @@ import structs "struct"
 		"\(self)"
 	} |
 	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#EntityType: "VOCABULARY" | fn.#StringExpression
-
-#EntityTypeInfo: close({
-	EntityMetadata?: string | number | bool | fn.#StringExpression
-	EntityType!:     #EntityType
 }) |
 fn.#ObjectExpression
 

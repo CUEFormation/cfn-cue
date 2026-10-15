@@ -55,12 +55,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#IngestEndpoint: close({
-	Id?:  string | number | bool | fn.#StringExpression
-	Url?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #InputSwitchConfiguration: close({
 	MQCSInputSwitching?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PreferredInput?: int & <=2 & >=1 |

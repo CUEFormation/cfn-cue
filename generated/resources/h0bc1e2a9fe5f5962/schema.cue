@@ -96,5 +96,3 @@ import structs "struct"
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression

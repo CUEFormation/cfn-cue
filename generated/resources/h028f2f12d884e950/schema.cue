@@ -100,22 +100,6 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#QuickResponseContents: close({
-	Markdown?:  #QuickResponseContentProvider
-	PlainText?: #QuickResponseContentProvider
-}) |
-fn.#ObjectExpression
-
-#Status: "CREATE_IN_PROGRESS" |
-	"CREATE_FAILED" |
-	"CREATED" |
-	"DELETE_IN_PROGRESS" |
-	"DELETE_FAILED" |
-	"DELETED" |
-	"UPDATE_IN_PROGRESS" |
-	"UPDATE_FAILED" |
-	fn.#StringExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{

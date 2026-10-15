@@ -41,8 +41,6 @@ import structs "struct"
 
 #AggregationDuration: "LONG" | "SHORT" | "NONE" | fn.#StringExpression
 
-#NotificationConfigurationStatus: "ACTIVE" | "PARTIALLY_ACTIVE" | "INACTIVE" | "DELETING" | fn.#StringExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{

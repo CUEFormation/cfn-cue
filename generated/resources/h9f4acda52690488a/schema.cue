@@ -4,7 +4,6 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"time"
 	"list"
 	"strings"
 )
@@ -55,23 +54,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#AccessType: "PUBLIC" | "PRIVATE" | fn.#StringExpression
-
-#AutoScalingArns: close({
-	ApplicationAutoScalingPolicies?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-	ScalableTarget?:                 string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#ECSManagedResourceArns: close({
-	AutoScaling?:           #AutoScalingArns
-	IngressPath?:           #IngressPathArns
-	LogGroups?:             [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-	MetricAlarms?:          [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-	ServiceSecurityGroups?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
 
 #ExpressGatewayContainer: close({
 	AwsLogsConfiguration?: #ExpressGatewayServiceAwsLogsConfiguration
@@ -153,32 +135,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ExpressGatewayServiceConfiguration: close({
-	Cpu?:       string | number | bool | fn.#StringExpression
-	CreatedAt?: time.Time | fn.#StringExpression
-	ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression
-	HealthCheckPath?:      string | number | bool | fn.#StringExpression
-	IngressPaths?:         [...#IngressPathSummary] | fn.#ListExpression
-	Memory?:               string | number | bool | fn.#StringExpression
-	NetworkConfiguration?: #ExpressGatewayServiceNetworkConfiguration
-	PrimaryContainer?:     #ExpressGatewayContainer
-	ScalingTarget?:        #ExpressGatewayScalingTarget
-	ServiceRevisionArn?:   string | number | bool | fn.#StringExpression
-	TaskDefinitionArn?:    string | number | bool | fn.#StringExpression
-	TaskRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #ExpressGatewayServiceNetworkConfiguration: close({
 	SecurityGroups?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
 	{
@@ -201,31 +157,6 @@ fn.#ObjectExpression
 	"AVERAGE_MEMORY" |
 	"REQUEST_COUNT_PER_TARGET" |
 	fn.#StringExpression
-
-#ExpressGatewayServiceStatus: close({StatusCode?: #ExpressGatewayServiceStatusCode}) | fn.#ObjectExpression
-
-#ExpressGatewayServiceStatusCode: "ACTIVE" | "DRAINING" | "INACTIVE" | fn.#StringExpression
-
-#IngressPathArns: close({
-	CertificateArn?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression
-	ListenerArn?:                string | number | bool | fn.#StringExpression
-	ListenerRuleArn?:            string | number | bool | fn.#StringExpression
-	LoadBalancerArn?:            string | number | bool | fn.#StringExpression
-	LoadBalancerSecurityGroups?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-	TargetGroupArns?:            [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#IngressPathSummary: close({
-	AccessType?: #AccessType
-	Endpoint?:   string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #KeyValuePair: close({
 	Name!:  string | number | bool | fn.#StringExpression

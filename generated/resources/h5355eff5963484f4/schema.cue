@@ -6,7 +6,6 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
-	"time"
 )
 
 import cfnScalarStrings "strings"
@@ -104,24 +103,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#BrandingConfiguration: close({
-	ColorTheme?:       #ColorTheme
-	Favicon?:          string | number | bool | fn.#StringExpression
-	FaviconMetadata?:  #ImageMetadata
-	LocalizedStrings?: #LocalizedBrandingStringMap
-	Logo?:             string | number | bool | fn.#StringExpression
-	LogoMetadata?:     #ImageMetadata
-	TermsOfService?: strings.MaxRunes(153600) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(153600) & "\(self)"
-	} |
-	fn.#StringExpression
-	Wallpaper?:         string | number | bool | fn.#StringExpression
-	WallpaperMetadata?: #ImageMetadata
-}) |
-fn.#ObjectExpression
-
 #ColorTheme: "Light" | "Dark" | fn.#StringExpression
 
 #CookieSpecification: close({
@@ -175,31 +156,6 @@ fn.#ObjectExpression
 	}
 }) |
 fn.#ObjectExpression
-
-#ImageMetadata: close({
-	FileExtension!: strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
-	} |
-	fn.#StringExpression
-	LastUploadTimestamp!: time.Time | fn.#StringExpression
-	MimeType!:            #MimeType
-}) |
-fn.#ObjectExpression
-
-#Locale: "de-DE" |
-	"en-US" |
-	"es-ES" |
-	"fr-FR" |
-	"id-ID" |
-	"it-IT" |
-	"ja-JP" |
-	"ko-KR" |
-	"pt-BR" |
-	"zh-CN" |
-	"zh-TW" |
-	fn.#StringExpression
 
 #LocalizedBrandingStringMap: close({
 
@@ -272,8 +228,6 @@ fn.#ObjectExpression
 	"size1024X768" |
 	"size800X600" |
 	fn.#StringExpression
-
-#MimeType: "image/png" | "image/jpeg" | "image/x-icon" | fn.#StringExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |

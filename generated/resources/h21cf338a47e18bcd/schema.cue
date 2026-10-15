@@ -55,21 +55,6 @@ fn.#ObjectExpression
 } |
 fn.#StringExpression
 
-#ChannelStateInfo: close({
-	Code?:    string | number | bool | fn.#StringExpression
-	Message?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#ChannelStatus: "CREATING" |
-	"ACTIVE" |
-	"UPDATING" |
-	"DELETING" |
-	"FAILED" |
-	"SUSPENDING" |
-	"SUSPENDED" |
-	fn.#StringExpression
-
 #CloudWatchLogsLogDestination: close({
 	Enabled!:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LogGroup?: string | number | bool | fn.#StringExpression

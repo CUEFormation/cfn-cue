@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -121,17 +121,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Check: close({
-	ImpairedSince?: string | number | bool | fn.#StringExpression
-	Result!:        #CheckResult
-	Type!:          "KEY_REUSE" | "KEY_COVERAGE" | "REACHABILITY" | "VCF_VERSION" | "HOST_COUNT" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#CheckResult: "PASSED" | "FAILED" | "UNKNOWN" | fn.#StringExpression
-
-#EnvironmentState: "CREATING" | "CREATED" | "DELETING" | "DELETED" | "CREATE_FAILED" | fn.#StringExpression
-
 #HostInfoForCreate: close({
 	PlacementGroupId?: _
 	if PlacementGroupId != _|_ {
@@ -203,8 +192,6 @@ fn.#StringExpression
 } |
 fn.#StringExpression
 
-#Secret: close({SecretArn?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
-
 #SecurityGroupId: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 strings.MaxRunes(25) &
 strings.MinRunes(3) &
@@ -234,5 +221,3 @@ fn.#StringExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Timestamp: string | number | bool | fn.#StringExpression

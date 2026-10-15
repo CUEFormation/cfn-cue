@@ -60,8 +60,6 @@ fn.#ObjectExpression
 
 #AccessMethodType: string | number | bool | fn.#StringExpression
 
-#Arn: string | number | bool | fn.#StringExpression
-
 #CrlConfiguration: close({
 	CrlDistributionPointExtensionConfiguration?: #CrlDistributionPointExtensionConfiguration
 	CrlType?:                                    "COMPLETE" | "PARTITIONED" | fn.#StringExpression

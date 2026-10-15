@@ -108,49 +108,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#LoRaWAN: close({
-	RfRegion!: ("AS923-1" |
-		"AS923-2" |
-		"AS923-3" |
-		"AS923-4" |
-		"AU915" |
-		"CN470" |
-		"CN779" |
-		"EU433" |
-		"EU868" |
-		"IN865" |
-		"KR920" |
-		"RU864" |
-		"US915") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
-	{
-		number | bool
-		_cfnString: ("AS923-1" |
-			"AS923-2" |
-			"AS923-3" |
-			"AS923-4" |
-			"AU915" |
-			"CN470" |
-			"CN779" |
-			"EU433" |
-			"EU868" |
-			"IN865" |
-			"KR920" |
-			"RU864" |
-			"US915") &
-		strings.MaxRunes(64) &
-		strings.MinRunes(1) &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	StartTime?: strings.MaxRunes(64) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(64) & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key?: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{

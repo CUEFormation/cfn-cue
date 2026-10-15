@@ -189,12 +189,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#SourceSecurityGroup: close({
-	GroupName?:  string | number | bool | fn.#StringExpression
-	OwnerAlias?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
 	{

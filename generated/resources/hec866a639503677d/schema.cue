@@ -3,9 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -27,15 +27,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#Arn: strings.MaxRunes(1000) & =~"^arn:aws(-(cn|us-gov|iso(-b)?))?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(1000) &
-	=~"^arn:aws(-(cn|us-gov|iso(-b)?))?:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" &
-	"\(self)"
-} |
-fn.#StringExpression
 
 #DeletionProtected: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 

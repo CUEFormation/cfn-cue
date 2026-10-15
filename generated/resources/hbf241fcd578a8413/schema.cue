@@ -159,13 +159,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AttributeId: strings.MaxRunes(256) & strings.MinRunes(1) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
-} |
-fn.#StringExpression
-
 #Description: strings.MaxRunes(250) &
 strings.MinRunes(0) &
 =~"""

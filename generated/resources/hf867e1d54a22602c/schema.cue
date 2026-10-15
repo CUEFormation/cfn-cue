@@ -108,8 +108,6 @@ fn.#ObjectExpression
 ]) |
 fn.#ValueExpression
 
-#AuthorizationData: close({Oauth2!: #OAuth2AuthorizationData}) | fn.#ValueExpression
-
 #ConnectorConfiguration: close({
 	Description?: strings.MaxRunes(2000) |
 	{
@@ -288,25 +286,6 @@ fn.#ValueExpression
 
 #ListingMode: "DEFAULT" | "DYNAMIC" | fn.#StringExpression
 
-#ManagedResourceDetails: close({
-	Domain?: string | number | bool | fn.#StringExpression
-	ResourceAssociationArn?: =~"^(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:servicenetworkresourceassociation/)?snra-[0-9a-f]{17}$" |
-	{
-		number | bool
-		_cfnString: =~"^(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:servicenetworkresourceassociation/)?snra-[0-9a-f]{17}$" &
-			"\(self)"
-	} |
-	fn.#StringExpression
-	ResourceGatewayArn?: =~"^arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourcegateway/rgw-[0-9a-z]{17}$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourcegateway/rgw-[0-9a-z]{17}$" &
-			"\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #ManagedVpcResource: close({
 	EndpointIpAddressType!: #EndpointIpAddressType
 	RoutingDomain?: strings.MaxRunes(255) & strings.MinRunes(3) |
@@ -449,22 +428,6 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ModelMapping: close({ProviderPrefix?: #ProviderPrefix}) | fn.#ObjectExpression
-
-#OAuth2AuthorizationData: close({
-	AuthorizationUrl!: strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	UserId?: strings.MaxRunes(128) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #OAuthCredentialProvider: close({
 	CustomParameters?: #OAuthCustomParameters
@@ -668,21 +631,6 @@ fn.#ObjectExpression
 	{Inference!: #InferenceTargetConfiguration},
 )]) |
 fn.#ValueExpression
-
-#TargetProtocolType: "MCP" | "HTTP" | fn.#StringExpression
-
-#TargetStatus: "CREATING" |
-	"UPDATING" |
-	"UPDATE_UNSUCCESSFUL" |
-	"DELETING" |
-	"READY" |
-	"FAILED" |
-	"SYNCHRONIZING" |
-	"SYNCHRONIZE_UNSUCCESSFUL" |
-	"CREATE_PENDING_AUTH" |
-	"UPDATE_PENDING_AUTH" |
-	"SYNCHRONIZE_PENDING_AUTH" |
-	fn.#StringExpression
 
 #ToolDefinition: close({
 	Description!:  string | number | bool | fn.#StringExpression

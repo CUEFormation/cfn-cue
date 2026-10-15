@@ -144,52 +144,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ConnectionTrackingSpecificationRequest: close({
-	TcpEstablishedTimeout?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	UdpStreamTimeout?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	UdpTimeout?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
 #CpuOptionsRequest: close({
 	CoreCount?: int & >=0 |
 		{
@@ -226,8 +180,6 @@ fn.#ObjectExpression
 
 #CreditSpecificationRequest: close({CpuCredits?: "standard" | "unlimited" | fn.#StringExpression}) |
 	fn.#ObjectExpression
-
-#EC2ManagedInstance: close({InstanceId?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #EbsBlockDevice: close({
 	Encrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -293,17 +245,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#EnaSrdSpecificationRequest: close({
-	EnaSrdEnabled?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnaSrdUdpSpecification?: #EnaSrdUdpSpecificationRequest
-}) |
-fn.#ObjectExpression
-
-#EnaSrdUdpSpecificationRequest: close(
-	{EnaSrdUdpEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-) |
-	fn.#ObjectExpression
-
 #EnclaveOptionsRequest: close(
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
@@ -327,17 +268,6 @@ fn.#ObjectExpression
 		_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
 	} |
 	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#InstanceIpv6Address: close({
-	Ipv6Address?: strings.MaxRunes(128) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) & "\(self)"
-	} |
-	fn.#StringExpression
-	IsPrimaryIpv6?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -411,26 +341,6 @@ fn.#ObjectExpression
 ) |
 	fn.#ObjectExpression
 
-#Ipv4PrefixSpecificationRequest: close({
-	Ipv4Prefix?: strings.MaxRunes(128) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#Ipv6PrefixSpecificationRequest: close({
-	Ipv6Prefix?: strings.MaxRunes(128) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #LicenseConfigurationRequest: close({
 	LicenseConfigurationArn?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^arn:.*" |
 	{
@@ -490,17 +400,6 @@ fn.#ObjectExpression
 		fn.#BooleanExpression
 	EnableResourceNameDnsARecord?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	HostnameType?:                 "ip-name" | "resource-name" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#PrivateIpAddressSpecification: close({
-	Primary?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PrivateIpAddress?: strings.MaxRunes(128) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) & "\(self)"
-	} |
-	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

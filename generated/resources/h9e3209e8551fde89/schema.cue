@@ -187,8 +187,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ExperimentTemplateId: string | number | bool | fn.#StringExpression
-
 #ExperimentTemplateLogConfiguration: close({
 	CloudWatchLogsConfiguration?: close({
 		LogGroupArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[\\S]+$" |

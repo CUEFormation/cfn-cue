@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -25,41 +25,10 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CreatedAt: string | number | bool | fn.#StringExpression
-
-#DatastoreArn: strings.MaxRunes(127) &
-strings.MinRunes(1) &
-=~"^arn:aws((-us-gov)|(-iso)|(-iso-b)|(-cn))?:medical-imaging:[a-z0-9-]+:[0-9]{12}:datastore/[0-9a-z]{32}(/imageset/[0-9a-z]{32})?$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(127) &
-	strings.MinRunes(1) &
-	=~"^arn:aws((-us-gov)|(-iso)|(-iso-b)|(-cn))?:medical-imaging:[a-z0-9-]+:[0-9]{12}:datastore/[0-9a-z]{32}(/imageset/[0-9a-z]{32})?$" &
-	"\(self)"
-} |
-fn.#StringExpression
-
-#DatastoreId: strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[0-9a-z]{32}$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[0-9a-z]{32}$" & "\(self)"
-} |
-fn.#StringExpression
-
 #DatastoreName: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9._/#-]+$" |
 {
 	number | bool
 	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9._/#-]+$" & "\(self)"
-} |
-fn.#StringExpression
-
-#DatastoreStatus: ("CREATING" | "CREATE_FAILED" | "ACTIVE" | "DELETING" | "DELETED") & (strings.MaxRunes(127) & strings.MinRunes(1)) |
-{
-	number | bool
-	_cfnString: ("CREATING" | "CREATE_FAILED" | "ACTIVE" | "DELETING" | "DELETED") &
-	strings.MaxRunes(127) &
-	strings.MinRunes(1) &
-	"\(self)"
 } |
 fn.#StringExpression
 
@@ -89,5 +58,3 @@ fn.#StringExpression
 	}
 }) |
 fn.#ObjectExpression
-
-#UpdatedAt: string | number | bool | fn.#StringExpression

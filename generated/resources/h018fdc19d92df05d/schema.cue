@@ -3,9 +3,8 @@
 package schema
 
 import (
-	"time"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"struct"
 )
 
@@ -76,5 +75,3 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#DateTimeFormat: time.Time | fn.#StringExpression

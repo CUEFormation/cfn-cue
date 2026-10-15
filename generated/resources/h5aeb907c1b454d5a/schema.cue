@@ -72,28 +72,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#LogSource: close({
-	Identifier?: strings.MaxRunes(256) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(256) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	Type!: strings.MaxRunes(256) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{

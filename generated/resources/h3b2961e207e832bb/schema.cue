@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -46,15 +46,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#PolicyEngineStatus: "CREATING" |
-	"ACTIVE" |
-	"UPDATING" |
-	"DELETING" |
-	"CREATE_FAILED" |
-	"UPDATE_FAILED" |
-	"DELETE_FAILED" |
-	fn.#StringExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |

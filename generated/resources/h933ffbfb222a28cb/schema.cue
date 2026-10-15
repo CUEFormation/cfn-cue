@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 	"struct"
 )
@@ -67,13 +67,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" & "\(self)"
-} |
-fn.#StringExpression
-
 #DataAccessRole: =~"^arn:aws[^:]*:iam::\\d{12}:role(/[a-zA-Z0-9+=,.@_-]+)*/[a-zA-Z0-9+=,.@_-]+$" |
 {
 	number | bool
@@ -89,16 +82,6 @@ fn.#StringExpression
 	{SageMakerRunConfiguration?: #SageMakerRunConfigurationInput},
 )]) |
 fn.#ValueExpression
-
-#DataSourceStatus: "CREATING" |
-	"FAILED_CREATION" |
-	"READY" |
-	"UPDATING" |
-	"FAILED_UPDATE" |
-	"RUNNING" |
-	"DELETING" |
-	"FAILED_DELETION" |
-	fn.#StringExpression
 
 #EnableSetting: "ENABLED" | "DISABLED" | fn.#StringExpression
 
@@ -217,13 +200,6 @@ fn.#ObjectExpression
 	{RedshiftServerlessSource!: #RedshiftServerlessStorage},
 )]) |
 fn.#ValueExpression
-
-#Region: strings.MaxRunes(16) & strings.MinRunes(4) & =~"[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(16) & strings.MinRunes(4) & =~"[a-z]{2}-?(iso|gov)?-{1}[a-z]*-{1}[0-9]" & "\(self)"
-} |
-fn.#StringExpression
 
 #RelationalFilterConfiguration: close({
 	DatabaseName!: strings.MaxRunes(128) & strings.MinRunes(1) |

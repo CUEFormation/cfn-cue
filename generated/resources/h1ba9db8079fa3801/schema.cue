@@ -77,8 +77,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#StoreStatus: "CREATING" | "UPDATING" | "DELETING" | "ACTIVE" | "FAILED" | fn.#StringExpression
-
 #TagMap: close({
 
 	{

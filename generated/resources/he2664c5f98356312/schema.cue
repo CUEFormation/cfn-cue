@@ -3,9 +3,8 @@
 package schema
 
 import (
-	"time"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -26,8 +25,6 @@ import structs "struct"
 	Properties?: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#CreationTime: time.Time | fn.#StringExpression
 
 #EncryptionConfiguration: close({
 	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
@@ -62,8 +59,6 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#VectorBucketArn: string | number | bool | fn.#StringExpression
 
 #VectorBucketName: strings.MaxRunes(63) & strings.MinRunes(3) |
 {

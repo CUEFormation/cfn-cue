@@ -100,18 +100,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#AdvancedSecurityOptionsInput: close({
-	AnonymousAuthDisableDate?:    string | number | bool | fn.#StringExpression
-	AnonymousAuthEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Enabled?:                     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IAMFederationOptions?:        #IAMFederationOptions
-	InternalUserDatabaseEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	JWTOptions?:                  #JWTOptions
-	MasterUserOptions?:           #MasterUserOptions
-	SAMLOptions?:                 #SAMLOptions
-}) |
-fn.#ObjectExpression
-
 #AutomatedSnapshotPauseOptions: close({
 	Enabled!:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EndTime?:   string | number | bool | fn.#StringExpression
@@ -282,20 +270,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#IdentityCenterOptions: close({
-	EnabledAPIAccess?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IdentityCenterApplicationARN?: string | number | bool | fn.#StringExpression
-	IdentityCenterInstanceARN?:    string | number | bool | fn.#StringExpression
-	IdentityStoreId?:              string | number | bool | fn.#StringExpression
-
-	// The roles key for Identity Center options.
-	RolesKey?: #RolesKeyIdcType
-
-	// The subject key for Identity Center options.
-	SubjectKey?: #SubjectKeyIdcType
-}) |
-fn.#ObjectExpression
-
 #Idp: close({
 	EntityId!: string | number | bool | fn.#StringExpression
 	MetadataContent!: strings.MaxRunes(1048576) & strings.MinRunes(1) |
@@ -402,18 +376,6 @@ fn.#ObjectExpression
 	{Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
-
-#ServiceSoftwareOptions: close({
-	AutomatedUpdateDate?: string | number | bool | fn.#StringExpression
-	Cancellable?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CurrentVersion?:      string | number | bool | fn.#StringExpression
-	Description?:         string | number | bool | fn.#StringExpression
-	NewVersion?:          string | number | bool | fn.#StringExpression
-	OptionalDeployment?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	UpdateAvailable?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	UpdateStatus?:        string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #SnapshotOptions: close({
 	AutomatedSnapshotStartHour?: int |

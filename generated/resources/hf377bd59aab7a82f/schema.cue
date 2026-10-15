@@ -8,10 +8,6 @@ import (
 	"list"
 )
 
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
 
 import structs "struct"
@@ -51,69 +47,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#TelemetryPipeline: close({
-	Arn?: strings.MaxRunes(1011) &
-	strings.MinRunes(1) &
-	=~"^arn:aws([a-z0-9\\-]+)?:([a-zA-Z0-9\\-]+):([a-z0-9\\-]+)?:([0-9]{12})?:(.+)$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(1011) &
-		strings.MinRunes(1) &
-		=~"^arn:aws([a-z0-9\\-]+)?:([a-zA-Z0-9\\-]+):([a-z0-9\\-]+)?:([0-9]{12})?:(.+)$" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	Configuration?: #TelemetryPipelineConfiguration
-	CreatedTimeStamp?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	LastUpdateTimeStamp?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Name?: strings.MaxRunes(28) & strings.MinRunes(3) & =~"[a-z][a-z0-9\\-]+" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(28) & strings.MinRunes(3) & =~"[a-z][a-z0-9\\-]+" & "\(self)"
-	} |
-	fn.#StringExpression
-	Status?:       #TelemetryPipelineStatus
-	StatusReason?: #TelemetryPipelineStatusReason
-	Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
 #TelemetryPipelineConfiguration: close({
 	Body!: strings.MaxRunes(24000) & strings.MinRunes(1) |
 	{
@@ -123,16 +56,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#TelemetryPipelineStatus: "CREATING" |
-	"ACTIVE" |
-	"UPDATING" |
-	"DELETING" |
-	"CREATE_FAILED" |
-	"UPDATE_FAILED" |
-	fn.#StringExpression
-
-#TelemetryPipelineStatusReason: close({Description?: string | number | bool | fn.#StringExpression}) |
-	fn.#ObjectExpression
-
-#Unit: close({}) | fn.#ObjectExpression

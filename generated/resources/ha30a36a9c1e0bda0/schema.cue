@@ -114,8 +114,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#MemberStatus: "INVITED" | "ACTIVE" | "LEFT" | "REMOVED" | fn.#StringExpression
-
 #ModelInferencePaymentConfig: close(
 	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |

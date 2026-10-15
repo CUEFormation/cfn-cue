@@ -87,12 +87,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Location: close({
-	AvailabilityZone?: string | number | bool | fn.#StringExpression
-	RegionName?:       string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{

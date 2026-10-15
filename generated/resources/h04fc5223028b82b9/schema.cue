@@ -83,16 +83,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: =~"arn:aws[a-z-]*:(billing)::[0-9]{12}:billingview/[a-zA-Z0-9/:_\\+=\\.\\-@]{0,75}[a-zA-Z0-9]" |
-{
-	number | bool
-	_cfnString: =~"arn:aws[a-z-]*:(billing)::[0-9]{12}:billingview/[a-zA-Z0-9/:_\\+=\\.\\-@]{0,75}[a-zA-Z0-9]" &
-		"\(self)"
-} |
-fn.#StringExpression
-
-#BillingViewType: "PRIMARY" | "BILLING_GROUP" | "CUSTOM" | fn.#StringExpression
-
 #DimensionKey: "LINKED_ACCOUNT" | fn.#StringExpression
 
 #Tag: close({

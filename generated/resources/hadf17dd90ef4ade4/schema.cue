@@ -263,13 +263,6 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Uuid: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" |
-{
-	number | bool
-	_cfnString: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" & "\(self)"
-} |
-fn.#StringExpression
-
 #WorkflowEngine: ("WDL" | "NEXTFLOW" | "CWL") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
 {
 	number | bool
@@ -300,20 +293,3 @@ fn.#ObjectExpression
 	{[=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$"]: #WorkflowParameter}
 }) |
 fn.#ObjectExpression
-
-#WorkflowStatus: ("CREATING" | "ACTIVE" | "UPDATING" | "DELETED" | "FAILED") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
-{
-	number | bool
-	_cfnString: ("CREATING" | "ACTIVE" | "UPDATING" | "DELETED" | "FAILED") &
-	strings.MaxRunes(64) &
-	strings.MinRunes(1) &
-	"\(self)"
-} |
-fn.#StringExpression
-
-#WorkflowType: "PRIVATE" & (strings.MaxRunes(64) & strings.MinRunes(1)) |
-{
-	number | bool
-	_cfnString: "PRIVATE" & strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
-} |
-fn.#StringExpression

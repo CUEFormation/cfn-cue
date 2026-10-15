@@ -92,19 +92,3 @@ import structs "struct"
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-
-#Tag: close({
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression

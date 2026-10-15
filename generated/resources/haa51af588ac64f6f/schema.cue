@@ -160,22 +160,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Identity: close({
-	Arn?: strings.MaxRunes(1600) & strings.MinRunes(5) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(1600) & strings.MinRunes(5) & "\(self)"
-	} |
-	fn.#StringExpression
-	Name?: strings.MaxRunes(256) & strings.MinRunes(0) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{

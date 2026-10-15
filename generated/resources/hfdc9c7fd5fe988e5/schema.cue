@@ -3,9 +3,8 @@
 package schema
 
 import (
-	"time"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -27,26 +26,10 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CreatedAt: time.Time | fn.#StringExpression
-
 #DefinitionHash: strings.MaxRunes(128) & strings.MinRunes(128) & =~"^[0-9a-z]{128}$" |
 {
 	number | bool
 	_cfnString: strings.MaxRunes(128) & strings.MinRunes(128) & =~"^[0-9a-z]{128}$" & "\(self)"
-} |
-fn.#StringExpression
-
-#Description: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(1024) & =~"^[\\s\\S]+$" & "\(self)"
-} |
-fn.#StringExpression
-
-#Name: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ ]+$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ ]+$" & "\(self)"
 } |
 fn.#StringExpression
 
@@ -59,13 +42,6 @@ strings.MinRunes(1) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:automated-reasoning-policy\\/[a-z0-9]{12}$" &
 	"\(self)"
-} |
-fn.#StringExpression
-
-#PolicyId: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-z0-9]{12}$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-z0-9]{12}$" & "\(self)"
 } |
 fn.#StringExpression
 
@@ -86,12 +62,3 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #Tags: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-
-#UpdatedAt: time.Time | fn.#StringExpression
-
-#Version: strings.MaxRunes(12) & =~"^([1-9][0-9]{0,11})$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(12) & =~"^([1-9][0-9]{0,11})$" & "\(self)"
-} |
-fn.#StringExpression

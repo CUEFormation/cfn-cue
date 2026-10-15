@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -24,13 +24,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Namespace: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]*$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]*$" & "\(self)"
-} |
-fn.#StringExpression
-
 #ResourcePolicy: fn.#Object & {...} |
 strings.MaxRunes(20480) & strings.MinRunes(1) |
 {
@@ -40,12 +33,3 @@ strings.MaxRunes(20480) & strings.MinRunes(1) |
 fn.#StringObjectExpression
 
 #TableARN: string | number | bool | fn.#StringExpression
-
-#TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" |
-{
-	number | bool
-	_cfnString: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" & "\(self)"
-} |
-fn.#StringExpression
-
-#TableName: string | number | bool | fn.#StringExpression

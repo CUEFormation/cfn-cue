@@ -45,5 +45,3 @@ import structs "struct"
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Status: "RUNNING" | "STOPPED" | fn.#StringExpression

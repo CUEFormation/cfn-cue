@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -43,8 +43,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#PromptRouterStatus: "AVAILABLE" | fn.#StringExpression
-
 #PromptRouterTargetModel: close({
 	ModelArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
@@ -59,8 +57,6 @@ import structs "struct"
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#PromptRouterType: "custom" | "default" | fn.#StringExpression
 
 #RoutingCriteria: close({
 	ResponseQualityDifference!: <=100 & >=0 |

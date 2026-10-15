@@ -95,17 +95,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ClientSecretArn: close({
-	SecretArn!: =~"^arn:(aws|aws-us-gov):secretsmanager:[A-Za-z0-9-]{1,64}:[0-9]{12}:secret:[a-zA-Z0-9-_/+=.@!]+$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:(aws|aws-us-gov):secretsmanager:[A-Za-z0-9-]{1,64}:[0-9]{12}:secret:[a-zA-Z0-9-_/+=.@!]+$" &
-			"\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #CustomOauth2ProviderConfigInput: close({
 	ClientAuthenticationMethod?: "CLIENT_SECRET_BASIC" |
 		"CLIENT_SECRET_POST" |
@@ -314,26 +303,6 @@ fn.#ObjectExpression
 	MicrosoftOauth2ProviderConfig?:  #MicrosoftOauth2ProviderConfigInput
 	SalesforceOauth2ProviderConfig?: #SalesforceOauth2ProviderConfigInput
 	SlackOauth2ProviderConfig?:      #SlackOauth2ProviderConfigInput
-}) |
-fn.#ObjectExpression
-
-#Oauth2ProviderConfigOutput: close({
-	ClientAuthenticationMethod?: "CLIENT_SECRET_BASIC" |
-		"CLIENT_SECRET_POST" |
-		"AWS_IAM_ID_TOKEN_JWT" |
-		"PRIVATE_KEY_JWT" |
-		fn.#StringExpression
-	ClientId?: strings.MaxRunes(256) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	OauthDiscovery?:                #Oauth2Discovery
-	OnBehalfOfTokenExchangeConfig?: #OnBehalfOfTokenExchangeConfig
-	PrivateEndpoint?:               #PrivateEndpoint
-	PrivateEndpointOverrides?:      list.MaxItems(5) & [...#PrivateEndpointOverride] | fn.#ListExpression
-	PrivateKeyJwtConfig?:           #PrivateKeyJwtConfig
 }) |
 fn.#ObjectExpression
 

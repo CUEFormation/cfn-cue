@@ -270,13 +270,6 @@ fn.#ObjectExpression
 	"NETWORK_ACL_COMMON" |
 	fn.#StringExpression
 
-#ResourceArn: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([^\\s]*)$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([^\\s]*)$" & "\(self)"
-} |
-fn.#StringExpression
-
 #ResourceTag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{

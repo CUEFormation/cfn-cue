@@ -52,21 +52,11 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: string | number | bool | fn.#StringExpression
-
 #CapacityAssignment: close({WorkgroupNames!: #WorkgroupNames}) | fn.#ObjectExpression
 
 #CapacityAssignmentConfiguration: close({CapacityAssignments!: #CapacityAssignments}) | fn.#ObjectExpression
 
 #CapacityAssignments: [...#CapacityAssignment] | fn.#ListExpression
-
-#CapacityReservationStatus: "PENDING" |
-	"ACTIVE" |
-	"CANCELLING" |
-	"CANCELLED" |
-	"FAILED" |
-	"UPDATE_PENDING" |
-	fn.#StringExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -82,44 +82,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#NetworkInterface: close({
-	AvailabilityZone?: string | number | bool | fn.#StringExpression
-	ErrorMessage?:     string | number | bool | fn.#StringExpression
-	NetworkInterfaceId?: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^eni-[0-9a-z]*$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^eni-[0-9a-z]*$" & "\(self)"
-	} |
-	fn.#StringExpression
-	Status?: #NetworkInterfaceStatus
-	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
-	strings.MaxRunes(255) &
-	strings.MinRunes(1) &
-	=~"^subnet-[0-9a-z]*$" |
-	{
-		number | bool
-		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
-		strings.MaxRunes(255) &
-		strings.MinRunes(1) &
-		=~"^subnet-[0-9a-z]*$" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#NetworkInterfaceStatus: "CREATING" |
-	"AVAILABLE" |
-	"CREATION_FAILED" |
-	"UPDATING" |
-	"UPDATE_FAILED" |
-	"DELETING" |
-	"DELETED" |
-	"DELETION_FAILED" |
-	"DELETION_SCHEDULED" |
-	"ATTACHMENT_FAILED_ROLLBACK_FAILED" |
-	fn.#StringExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{
@@ -137,14 +99,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VPCConnectionAvailabilityStatus: "AVAILABLE" | "UNAVAILABLE" | "PARTIALLY_AVAILABLE" | fn.#StringExpression
-
-#VPCConnectionResourceStatus: "CREATION_IN_PROGRESS" |
-	"CREATION_SUCCESSFUL" |
-	"CREATION_FAILED" |
-	"UPDATE_IN_PROGRESS" |
-	"UPDATE_SUCCESSFUL" |
-	"UPDATE_FAILED" |
-	"DELETION_IN_PROGRESS" |
-	"DELETION_FAILED" |
-	"DELETED" |
-	fn.#StringExpression

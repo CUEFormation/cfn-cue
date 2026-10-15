@@ -8,10 +8,6 @@ import (
 	"list"
 )
 
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
 
 import structs "struct"
@@ -83,23 +79,3 @@ fn.#StringExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Timestamp: number |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatFloat(
-					cfnScalarStrconv.ParseFloat(
-						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-						64,
-					) &
-						number,
-					"g",
-					-1,
-					64,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression

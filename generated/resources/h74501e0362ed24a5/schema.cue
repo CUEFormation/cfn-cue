@@ -164,8 +164,6 @@ import structs "struct"
 
 #AuthenticationType: "Standard" | "IAM_Identity_Center" | fn.#StringExpression
 
-#BrowserType: "Chrome" | fn.#StringExpression
-
 #EncryptionContextMap: close({
 
 	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
@@ -184,10 +182,6 @@ import structs "struct"
 fn.#ObjectExpression
 
 #InstanceType: "standard.regular" | "standard.large" | "standard.xlarge" | fn.#StringExpression
-
-#PortalStatus: "Incomplete" | "Pending" | "Active" | fn.#StringExpression
-
-#RendererType: "AppStream" | fn.#StringExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |

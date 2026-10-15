@@ -33,13 +33,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: strings.MaxRunes(2048) & strings.MinRunes(1) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
-} |
-fn.#StringExpression
-
 #BucketName: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
 =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
 strings.MaxRunes(63) &

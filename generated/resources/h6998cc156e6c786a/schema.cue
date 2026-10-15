@@ -155,25 +155,6 @@ import structs "struct"
 
 #DataTieringStatus: "true" | true | "false" | false | fn.#StringExpression
 
-#Endpoint: close({
-	Address?: string | number | bool | fn.#StringExpression
-	Port?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
 #SupportedIpDiscoveryTypes: "ipv4" | "ipv6" | fn.#StringExpression
 
 #SupportedNetworkTypes: "ipv4" | "ipv6" | "dual_stack" | fn.#StringExpression

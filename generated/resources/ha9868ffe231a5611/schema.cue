@@ -5,7 +5,6 @@ package schema
 import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"time"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -35,33 +34,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#EmailContact: close({
-	Address!: strings.MaxRunes(254) & strings.MinRunes(6) & =~"^(.+)@(.+)$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(254) & strings.MinRunes(6) & =~"^(.+)@(.+)$" & "\(self)"
-	} |
-	fn.#StringExpression
-	Arn!: =~"^arn:aws:notifications-contacts::[0-9]{12}:emailcontact/[a-z0-9]{27}$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws:notifications-contacts::[0-9]{12}:emailcontact/[a-z0-9]{27}$" & "\(self)"
-	} |
-	fn.#StringExpression
-	CreationTime!: time.Time | fn.#StringExpression
-	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\w-.~]+" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\w-.~]+" & "\(self)"
-	} |
-	fn.#StringExpression
-	Status!:     #EmailContactStatus
-	UpdateTime!: time.Time | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#EmailContactStatus: "inactive" | "active" | fn.#StringExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |

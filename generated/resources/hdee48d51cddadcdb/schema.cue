@@ -421,13 +421,6 @@ strings.MinRunes(1) &
 } |
 fn.#StringExpression
 
-#SensitivePropertiesKeyValuePair: strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*\\S.*" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
-} |
-fn.#StringExpression
-
 #SensitivePropertiesMap: strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*\\S.*" |
 {
 	number | bool

@@ -92,5 +92,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Unit: close({}) | fn.#ObjectExpression

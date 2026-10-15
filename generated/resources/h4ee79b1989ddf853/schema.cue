@@ -91,8 +91,6 @@ fn.#ValueExpression
 )]) |
 fn.#ValueExpression
 
-#MaintenanceType: "PREFERRED_DAY_TIME" | "DEFAULT" | fn.#StringExpression
-
 #MediaConnectFlowRouterOutputConfiguration: close({
 	DestinationTransitEncryption!: #FlowTransitEncryption
 	FlowArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
@@ -194,23 +192,7 @@ fn.#ValueExpression
 )]) |
 fn.#ValueExpression
 
-#RouterOutputRoutedState: "ROUTED" | "ROUTING" | "UNROUTED" | fn.#StringExpression
-
-#RouterOutputState: "CREATING" |
-	"STANDBY" |
-	"STARTING" |
-	"ACTIVE" |
-	"STOPPING" |
-	"DELETING" |
-	"UPDATING" |
-	"ERROR" |
-	"RECOVERING" |
-	"MIGRATING" |
-	fn.#StringExpression
-
 #RouterOutputTier: "OUTPUT_100" | "OUTPUT_50" | "OUTPUT_20" | fn.#StringExpression
-
-#RouterOutputType: "STANDARD" | "MEDIACONNECT_FLOW" | "MEDIALIVE_INPUT" | fn.#StringExpression
 
 #RoutingScope: "REGIONAL" | "GLOBAL" | fn.#StringExpression
 

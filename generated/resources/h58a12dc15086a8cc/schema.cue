@@ -73,31 +73,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AdditionalServiceDetails: fn.#Object & matchN(1, [close(
-	{MCPServer!: #RegisteredMCPServerDetails},
-), close(
-	{GitLab!: #RegisteredGitLabServiceDetails},
-), close(
-	{GitHub!: #RegisteredGitHubServiceDetails},
-), close(
-	{MCPServerSplunk!: #RegisteredMCPServerDetails},
-), close(
-	{MCPServerNewRelic!: #RegisteredNewRelicDetails},
-), close(
-	{Dynatrace!: #RegisteredDynatraceDetails},
-), close(
-	{ServiceNow!: #RegisteredServiceNowDetails},
-), close(
-	{PagerDuty!: #RegisteredPagerDutyDetails},
-), close(
-	{AzureIdentity!: #RegisteredAzureIdentityDetails},
-), close(
-	{MCPServerSigV4!: #RegisteredMCPServerSigV4Details},
-), close(
-	{MCPServerGrafana!: #RegisteredMCPServerGrafanaDetails},
-)]) |
-fn.#ObjectExpression
-
 #ApiKeyDetails: close({
 	ApiKeyHeader!: =~"^[a-zA-Z0-9-]+$" |
 	{
@@ -476,109 +451,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#RegisteredAzureIdentityDetails: close({
-	ClientId!: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" |
-	{
-		number | bool
-		_cfnString: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" & "\(self)"
-	} |
-	fn.#StringExpression
-	TenantId!: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" |
-	{
-		number | bool
-		_cfnString: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" & "\(self)"
-	} |
-	fn.#StringExpression
-	WebIdentityRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
-		=~"^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
-			=~"^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.+$" &
-			"\(self)"
-	} |
-	fn.#StringExpression
-	WebIdentityTokenAudiences!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#RegisteredDynatraceDetails: close({AccountUrn!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
-
-#RegisteredGitHubServiceDetails: close({
-	AppVariant?:  "READ_ONLY" | "READ_WRITE" | "CUSTOM_APP" | fn.#StringExpression
-	AuthMode?:    "app" | "pat" | fn.#StringExpression
-	HostingType?: "SAAS" | "SELF_MANAGED" | "DEDICATED" | fn.#StringExpression
-	Owner!:       string | number | bool | fn.#StringExpression
-	OwnerType!:   "organization" | "user" | fn.#StringExpression
-	TargetUrl?:   string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#RegisteredGitLabServiceDetails: close({
-	GroupId?:   string | number | bool | fn.#StringExpression
-	TargetUrl!: string | number | bool | fn.#StringExpression
-	TokenType!: "personal" | "group" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#RegisteredMCPServerDetails: close({
-	ApiKeyHeader?:        string | number | bool | fn.#StringExpression
-	AuthorizationMethod!: "oauth-client-credentials" | "api-key" | "bearer-token" | fn.#StringExpression
-	Description?:         string | number | bool | fn.#StringExpression
-	Endpoint!:            string | number | bool | fn.#StringExpression
-	Name!:                string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#RegisteredMCPServerGrafanaDetails: close({
-	AuthorizationMethod!: "bearer-token" | fn.#StringExpression
-	Description?:         string | number | bool | fn.#StringExpression
-	Endpoint!:            string | number | bool | fn.#StringExpression
-	Name?:                string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#RegisteredMCPServerSigV4Details: close({
-	CustomHeaders?: close({
-
-		{[=~"^(?:Ref)$"]: error("disallowed")}
-
-		{[=~"^[a-zA-Z0-9-_]+$"]: string | number | bool | fn.#StringExpression}
-	}) |
-	fn.#ObjectExpression
-	Description?: string | number | bool | fn.#StringExpression
-	Endpoint!:    string | number | bool | fn.#StringExpression
-	McpRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression
-	Name!:   string | number | bool | fn.#StringExpression
-	Region!: string | number | bool | fn.#StringExpression
-	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression
-	Service!: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#RegisteredNewRelicDetails: close({
-	AccountId!:   string | number | bool | fn.#StringExpression
-	Description?: string | number | bool | fn.#StringExpression
-	Region!:      "US" | "EU" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#RegisteredPagerDutyDetails: close({Scopes!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression}) |
-	fn.#ObjectExpression
-
-#RegisteredServiceNowDetails: close({InstanceUrl!: string | number | bool | fn.#StringExpression}) |
-	fn.#ObjectExpression
-
 #ServiceDetails: fn.#Object & matchN(1, [close(
 	{Dynatrace!: #DynatraceServiceDetails},
 ), close(
@@ -603,13 +475,6 @@ fn.#ObjectExpression
 	{MCPServerGrafana!: #MCPServerGrafanaDetails},
 )]) |
 fn.#ObjectExpression
-
-#ServiceId: strings.MaxRunes(255) & strings.MinRunes(1) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
-} |
-fn.#StringExpression
 
 #ServiceNowAuthorizationConfig: close({OAuthClientCredentials?: #OAuthClientDetails}) | fn.#ObjectExpression
 

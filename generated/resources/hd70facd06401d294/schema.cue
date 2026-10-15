@@ -110,8 +110,6 @@ fn.#StringExpression
 } |
 fn.#StringExpression
 
-#CreationTime: string | number | bool | fn.#StringExpression
-
 #CustomerMetadataProperties: struct.MaxFields(50) & struct.MinFields(1) & close({
 
 	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
@@ -242,8 +240,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#LastModifiedTime: string | number | bool | fn.#StringExpression
-
 #MetadataProperties: close({
 	CommitId?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" |
 	{
@@ -328,13 +324,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ModelPackageArn: strings.MaxRunes(2048) & strings.MinRunes(1) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
-} |
-fn.#StringExpression
-
 #ModelPackageContainerDefinition: close({
 	ContainerHostname?: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
 	{
@@ -402,8 +391,6 @@ fn.#StringExpression
 	_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" & "\(self)"
 } |
 fn.#StringExpression
-
-#ModelPackageStatus: "Pending" | "Deleting" | "InProgress" | "Completed" | "Failed" | fn.#StringExpression
 
 #ModelPackageStatusDetails: close({ValidationStatuses?: [...#ModelPackageStatusItem] | fn.#ListExpression}) |
 	fn.#ObjectExpression

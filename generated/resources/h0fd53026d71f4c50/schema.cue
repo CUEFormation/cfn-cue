@@ -104,34 +104,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CmkSecretConfig: close({
-	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(0) &
-	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
-		strings.MaxRunes(2048) &
-		strings.MinRunes(0) &
-		=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	SecretArn?: strings.MaxRunes(2048) &
-	strings.MinRunes(0) &
-	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(2048) &
-		strings.MinRunes(0) &
-		=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #CustomSecretConfig: close({
 	SecretAccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
@@ -160,60 +132,10 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ManagedSecretConfig: close({
-	SecretArn!: strings.MaxRunes(2048) &
-	strings.MinRunes(0) &
-	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(2048) &
-		strings.MinRunes(0) &
-		=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #NFS: close({MountOptions!: #NfsMountOptions}) | fn.#ObjectExpression
 
 #NfsMountOptions: close({Version?: "AUTOMATIC" | "NFS3" | "NFS4_0" | "NFS4_1" | fn.#StringExpression}) |
 	fn.#ObjectExpression
-
-#Protocol: close({
-	NFS?: #NFS
-	SMB?: #SMB
-}) |
-fn.#ObjectExpression
-
-#SMB: close({
-	CmkSecretConfig?:    #CmkSecretConfig
-	CustomSecretConfig?: #CustomSecretConfig
-	Domain?: strings.MaxRunes(253) & strings.MinRunes(0) & =~"^([A-Za-z0-9]+[A-Za-z0-9-.]*)*[A-Za-z0-9-]*[A-Za-z0-9]$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(253) &
-		strings.MinRunes(0) &
-		=~"^([A-Za-z0-9]+[A-Za-z0-9-.]*)*[A-Za-z0-9-]*[A-Za-z0-9]$" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	ManagedSecretConfig?: #ManagedSecretConfig
-	MountOptions!:        #SmbMountOptions
-	Password?: strings.MaxRunes(104) & =~"^.{0,104}$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(104) & =~"^.{0,104}$" & "\(self)"
-	} |
-	fn.#StringExpression
-	User!: strings.MaxRunes(104) & =~"^[^\\x5B\\x5D\\\\/:;|=,+*?]{1,104}$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(104) & =~"^[^\\x5B\\x5D\\\\/:;|=,+*?]{1,104}$" & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #SmbMountOptions: close({Version?: "AUTOMATIC" | "SMB2" | "SMB3" | fn.#StringExpression}) | fn.#ObjectExpression
 

@@ -51,30 +51,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#IamUserProfileDetails: close({
-	Arn?:            string | number | bool | fn.#StringExpression
-	GroupProfileId?: string | number | bool | fn.#StringExpression
-	SessionName?:    string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#SsoUserProfileDetails: close({
-	FirstName?: string | number | bool | fn.#StringExpression
-	LastName?:  string | number | bool | fn.#StringExpression
-	Username?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z_0-9+=,.@-]+$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z_0-9+=,.@-]+$" & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#UserProfileDetails: matchN(1, [close({Iam!: #IamUserProfileDetails}), close({Sso!: #SsoUserProfileDetails})]) |
-fn.#ValueExpression
-
 #UserProfileStatus: "ASSIGNED" | "NOT_ASSIGNED" | "ACTIVATED" | "DEACTIVATED" | fn.#StringExpression
-
-#UserProfileType: "IAM" | "SSO" | fn.#StringExpression
 
 #UserType: "IAM_USER" | "IAM_ROLE" | "SSO_USER" | "IAM_ROLE_SESSION" | fn.#StringExpression

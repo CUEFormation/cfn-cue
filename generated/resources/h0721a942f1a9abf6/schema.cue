@@ -150,27 +150,6 @@ fn.#ObjectExpression
 	} |
 	fn.#NumberExpression
 
-#Readiness: close({
-	Message?: string | number | bool | fn.#StringExpression
-	ProgressPercentage?: int & <=100 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=100 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
 #Statistic: "FIRST_OCCURRENCE" |
 	"LAST_OCCURRENCE" |
 	"COUNT" |

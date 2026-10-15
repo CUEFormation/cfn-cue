@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -109,13 +109,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#AlarmActionARN: strings.MaxRunes(1024) & strings.MinRunes(1) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
-} |
-fn.#StringExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |

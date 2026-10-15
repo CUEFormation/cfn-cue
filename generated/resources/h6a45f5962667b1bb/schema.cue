@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -42,8 +42,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#FlowPublishState: "PUBLISHED" | "DRAFT" | "PENDING_APPROVAL" | fn.#StringExpression
-
 #Permission: close({
 	Actions!: [...strings.MaxRunes(64) & strings.MinRunes(1) |
 	{
@@ -56,17 +54,6 @@ import structs "struct"
 	{
 		number | bool
 		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#StepAliasMapping: close({
-	StepAlias!: string | number | bool | fn.#StringExpression
-	StepId!: strings.MaxRunes(64) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
 	} |
 	fn.#StringExpression
 }) |

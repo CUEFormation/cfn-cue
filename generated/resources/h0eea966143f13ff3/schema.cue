@@ -131,8 +131,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: string | number | bool | fn.#StringExpression
-
 #BackupPolicy: close({Status!: "DISABLED" | "ENABLED" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #ElasticFileSystemTag: close({
@@ -166,49 +164,5 @@ fn.#ObjectExpression
 		"AFTER_90_DAYS" |
 		fn.#StringExpression
 	TransitionToPrimaryStorageClass?: "AFTER_1_ACCESS" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#ReplicationConfiguration: close({
-	Destinations?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#ReplicationDestination] |
-		fn.#ListExpression
-}) |
-	fn.#ObjectExpression
-
-#ReplicationDestination: close({
-	AvailabilityZoneName?: string | number | bool | fn.#StringExpression
-	FileSystemId?: =~"^(arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:file-system/fs-[0-9a-f]{8,40}|fs-[0-9a-f]{8,40})$" |
-	{
-		number | bool
-		_cfnString: =~"^(arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:file-system/fs-[0-9a-f]{8,40}|fs-[0-9a-f]{8,40})$" &
-			"\(self)"
-	} |
-	fn.#StringExpression
-	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
-	} |
-	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
-			"\(self)"
-	} |
-	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression
-	Region?: string | number | bool | fn.#StringExpression
-	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression
-	Status?:        string | number | bool | fn.#StringExpression
-	StatusMessage?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

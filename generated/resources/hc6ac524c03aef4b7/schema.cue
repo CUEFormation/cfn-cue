@@ -147,46 +147,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#BgpPeer: close({
-	AddressFamily!: =~"^(ipv4)|(ipv6)$" |
-	{
-		number | bool
-		_cfnString: =~"^(ipv4)|(ipv6)$" & "\(self)"
-	} |
-	fn.#StringExpression
-	AmazonAddress?: =~"^[0-9a-fA-F:.]+/[0-9]+$" |
-	{
-		number | bool
-		_cfnString: =~"^[0-9a-fA-F:.]+/[0-9]+$" & "\(self)"
-	} |
-	fn.#StringExpression
-	Asn!: =~"^[1-9][0-9]*$" |
-	{
-		number | bool
-		_cfnString: =~"^[1-9][0-9]*$" & "\(self)"
-	} |
-	fn.#StringExpression
-	AuthKey?: =~"^[A-Za-z0-9\\\\!\"#$%&'()*+,\\-./:;<=>?@\\[\\]\\^_`{|}~]{6,80}$" |
-	{
-		number | bool
-		_cfnString: =~"^[A-Za-z0-9\\\\!\"#$%&'()*+,\\-./:;<=>?@\\[\\]\\^_`{|}~]{6,80}$" & "\(self)"
-	} |
-	fn.#StringExpression
-	BgpPeerId?: =~"^dxpeer-[a-z0-9]{8}$" |
-	{
-		number | bool
-		_cfnString: =~"^dxpeer-[a-z0-9]{8}$" & "\(self)"
-	} |
-	fn.#StringExpression
-	CustomerAddress?: =~"^[0-9a-fA-F:.]+/[0-9]+$" |
-	{
-		number | bool
-		_cfnString: =~"^[0-9a-fA-F:.]+/[0-9]+$" & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{

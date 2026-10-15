@@ -56,15 +56,3 @@ import structs "struct"
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#ZonedDateTime: strings.MaxRunes(25) &
-strings.MinRunes(20) &
-=~"^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(([+-]\\d\\d:\\d\\d)|Z)$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(25) &
-	strings.MinRunes(20) &
-	=~"^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d(([+-]\\d\\d:\\d\\d)|Z)$" &
-	"\(self)"
-} |
-fn.#StringExpression

@@ -46,8 +46,6 @@ import structs "struct"
 	"AWS_LAMBDA" |
 	fn.#StringExpression
 
-#ChannelNamespaceArn: string | number | bool | fn.#StringExpression
-
 #Code: strings.MaxRunes(32768) & strings.MinRunes(1) |
 {
 	number | bool

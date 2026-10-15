@@ -26,8 +26,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AccessorStatus: "AVAILABLE" | "PENDING_DELETION" | "DELETED" | fn.#StringExpression
-
 #AccessorType: "BILLING_TOKEN" | fn.#StringExpression
 
 #NetworkAccessorType: "ETHEREUM_GOERLI" |

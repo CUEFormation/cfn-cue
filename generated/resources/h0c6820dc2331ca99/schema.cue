@@ -38,8 +38,6 @@ import structs "struct"
 ]) |
 fn.#ValueExpression
 
-#MemberIdentifierType: "USER_IDENTIFIER" | "GROUP_IDENTIFIER" | fn.#StringExpression
-
 #UserDesignation: =~"^[a-zA-Z0-9_-]{1,36}$" |
 {
 	number | bool

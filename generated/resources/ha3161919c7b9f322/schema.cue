@@ -22,8 +22,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AccountId: string | number | bool | fn.#StringExpression
-
 #ExpiryEventsConfiguration: close({
 	DaysBeforeExpiry?: int & <=45 & >=1 |
 		{

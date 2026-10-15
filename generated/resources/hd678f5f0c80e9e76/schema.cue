@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -50,15 +50,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#HarnessEndpointStatus: "CREATING" |
-	"CREATE_FAILED" |
-	"UPDATING" |
-	"UPDATE_FAILED" |
-	"READY" |
-	"DELETING" |
-	"DELETE_FAILED" |
-	fn.#StringExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.:/=+\\-@]*$" |

@@ -80,5 +80,3 @@ fn.#ObjectExpression
 	)}
 }) |
 fn.#ObjectExpression
-
-#ResourceType: "INDEX_STORAGE" | "AGENT_HOURS" | fn.#StringExpression

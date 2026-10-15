@@ -190,29 +190,6 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Operator: "PROJECTION" |
-	"LESS_THAN" |
-	"GREATER_THAN" |
-	"CONTAINS" |
-	"BETWEEN" |
-	"LESS_THAN_OR_EQUAL_TO" |
-	"GREATER_THAN_OR_EQUAL_TO" |
-	"EQUAL_TO" |
-	"NOT_EQUAL_TO" |
-	"ADDITION" |
-	"MULTIPLICATION" |
-	"DIVISION" |
-	"SUBTRACTION" |
-	"MASK_ALL" |
-	"MASK_FIRST_N" |
-	"MASK_LAST_N" |
-	"VALIDATE_NON_NULL" |
-	"VALIDATE_NON_ZERO" |
-	"VALIDATE_NON_NEGATIVE" |
-	"VALIDATE_NUMERIC" |
-	"NO_OP" |
-	fn.#StringExpression
-
 #OperatorPropertiesKeys: "VALUE" |
 	"VALUES" |
 	"DATA_TYPE" |

@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -45,27 +45,3 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#NetworkInterface: close({
-	AvailabilityZone?:   string | number | bool | fn.#StringExpression
-	NetworkInterfaceId?: string | number | bool | fn.#StringExpression
-	PrivateIpAddress?:   string | number | bool | fn.#StringExpression
-	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#VpcSecurityGroup: close({
-	Status?: string | number | bool | fn.#StringExpression
-	VpcSecurityGroupId?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression

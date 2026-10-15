@@ -244,23 +244,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#AnnotationTableConfiguration: close({
-	ConfigurationState!: "ENABLED" | "DISABLED" | fn.#StringExpression
-
-	// The encryption configuration for the annotation table. To encrypt your
-	// annotation table with server-side encryption using AWS Key Management
-	// Service (AWS KMS) keys (SSE-KMS), set ``SseAlgorithm`` to ``aws:kms``. You
-	// must also set ``KmsKeyArn`` to the ARN of a customer managed KMS key in the
-	// same Region where your general purpose bucket is located.
-	EncryptionConfiguration?: #MetadataTableEncryptionConfiguration
-	Role?:                    string | number | bool | fn.#StringExpression
-	TableArn?:                string | number | bool | fn.#StringExpression
-	TableName?:               string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#Arn: string | number | bool | fn.#StringExpression
-
 #BlockedEncryptionTypeList: list.UniqueItems() & [..."NONE" | "SSE-C" | fn.#StringExpression] | fn.#ListExpression
 
 #BlockedEncryptionTypes: close({
@@ -469,27 +452,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#InventoryTableConfiguration: close({
-	ConfigurationState!: "ENABLED" | "DISABLED" | fn.#StringExpression
-
-	// The encryption configuration for the inventory table.
-	EncryptionConfiguration?: #MetadataTableEncryptionConfiguration
-	TableArn?:                string | number | bool | fn.#StringExpression
-	TableName?:               string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#JournalTableConfiguration: close({
-	// The encryption configuration for the journal table.
-	EncryptionConfiguration?: #MetadataTableEncryptionConfiguration
-
-	// The journal table record expiration settings for the journal table.
-	RecordExpiration!: #RecordExpiration
-	TableArn?:         string | number | bool | fn.#StringExpression
-	TableName?:        string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #LambdaConfiguration: close({
 	Event!: string | number | bool | fn.#StringExpression
 
@@ -515,37 +477,6 @@ fn.#ObjectExpression
 	// Amazon S3 key format for log objects. Only one format, either
 	// PartitionedPrefix or SimplePrefix, is allowed.
 	TargetObjectKeyFormat?: #TargetObjectKeyFormat
-}) |
-fn.#ObjectExpression
-
-#MetadataConfiguration: close({
-	// The annotation table configuration for a metadata configuration.
-	AnnotationTableConfiguration?: #AnnotationTableConfiguration
-
-	// The destination information for the S3 Metadata configuration.
-	Destination?: #MetadataDestination
-
-	// The inventory table configuration for a metadata configuration.
-	InventoryTableConfiguration?: #InventoryTableConfiguration
-
-	// The journal table configuration for a metadata configuration.
-	JournalTableConfiguration!: #JournalTableConfiguration
-}) |
-fn.#ObjectExpression
-
-#MetadataDestination: close({
-	TableBucketArn?:  string | number | bool | fn.#StringExpression
-	TableBucketType!: "aws" | "customer" | fn.#StringExpression
-	TableNamespace?:  string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#MetadataTableConfiguration: close({
-	// The destination information for the metadata table configuration. The
-	// destination table bucket must be in the same Region and AWS-account as the
-	// general purpose bucket. The specified metadata table name must be unique
-	// within the ``aws_s3_metadata`` namespace in the destination table bucket.
-	S3TablesDestination!: #S3TablesDestination
 }) |
 fn.#ObjectExpression
 
@@ -1050,14 +981,6 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #S3KeyFilter: close({Rules!: list.UniqueItems() & [...#FilterRule] | fn.#ListExpression}) | fn.#ObjectExpression
-
-#S3TablesDestination: close({
-	TableArn?:       string | number | bool | fn.#StringExpression
-	TableBucketArn!: string | number | bool | fn.#StringExpression
-	TableName!:      string | number | bool | fn.#StringExpression
-	TableNamespace?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #ServerSideEncryptionByDefault: close({
 	KMSMasterKeyID?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |

@@ -141,13 +141,6 @@ fn.#StringExpression
 } |
 fn.#StringExpression
 
-#AuthCode: strings.MaxRunes(4096) & =~"\\S+" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(4096) & =~"\\S+" & "\(self)"
-} |
-fn.#StringExpression
-
 #AuthenticationType: "OAUTH2" | "APIKEY" | "BASIC" | "CUSTOM" | fn.#StringExpression
 
 #BasicAuthCredentials: close({

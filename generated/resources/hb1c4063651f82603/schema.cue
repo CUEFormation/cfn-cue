@@ -69,13 +69,6 @@ fn.#StringExpression
 
 #OperatingSystemList: list.MaxItems(50) & list.UniqueItems() & [...#OperatingSystem] | fn.#ListExpression
 
-#RegistryId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
-} |
-fn.#StringExpression
-
 #RepositoryDescription: strings.MaxRunes(1024) |
 {
 	number | bool

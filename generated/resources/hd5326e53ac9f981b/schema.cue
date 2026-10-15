@@ -115,19 +115,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#BridgeStateEnum: "CREATING" |
-	"STANDBY" |
-	"STARTING" |
-	"DEPLOYING" |
-	"ACTIVE" |
-	"STOPPING" |
-	"DELETING" |
-	"DELETED" |
-	"START_FAILED" |
-	"START_PENDING" |
-	"UPDATING" |
-	fn.#StringExpression
-
 #EgressGatewayBridge: close({
 	MaxBitrate!: int |
 		{

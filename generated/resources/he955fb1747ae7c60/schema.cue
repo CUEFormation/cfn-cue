@@ -242,127 +242,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#ComputeResources: close({
-	AllocationStrategy?: =~"(?i)^(?:best_fit|best_fit_progressive|best_fit_progressive_ordered|spot_capacity_optimized|spot_capacity_optimized_prioritized|spot_price_capacity_optimized)$" |
-	{
-		number | bool
-		_cfnString: =~"(?i)^(?:best_fit|best_fit_progressive|best_fit_progressive_ordered|spot_capacity_optimized|spot_capacity_optimized_prioritized|spot_price_capacity_optimized)$" &
-			"\(self)"
-	} |
-	fn.#StringExpression
-	BidPercentage?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	CapacityTags?: close({
-
-		{[=~".*"]: string | number | bool | fn.#StringExpression}
-
-		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
-			"disallowed",
-		)}
-	}) |
-	fn.#ObjectExpression
-	DesiredvCpus?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Ec2Configuration?: [...#Ec2ConfigurationObject] | fn.#ListExpression
-	Ec2KeyPair?:       string | number | bool | fn.#StringExpression
-	ImageId?: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression
-	InstanceRole?:             string | number | bool | fn.#StringExpression
-	InstanceTypes?:            [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-	LaunchTemplate?:           #LaunchTemplateSpecification
-	ManagedInstancesProvider?: #ManagedInstancesProvider
-	MaxvCpus!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	MinvCpus?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	PlacementGroup?: string | number | bool | fn.#StringExpression
-	ScalingPolicy?:  #ComputeScalingPolicy
-	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression] |
-	fn.#ListExpression
-	SpotIamFleetRole?: string | number | bool | fn.#StringExpression
-	Subnets?: [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression] |
-	fn.#ListExpression
-	Tags?: close({
-
-		{[=~".*"]: string | number | bool | fn.#StringExpression}
-
-		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
-			"disallowed",
-		)}
-	}) |
-	fn.#ObjectExpression
-	Type!: =~"(?i)^(?:ec2|ecs_managed_instances|fargate|fargate_spot|spot)$" |
-	{
-		number | bool
-		_cfnString: =~"(?i)^(?:ec2|ecs_managed_instances|fargate|fargate_spot|spot)$" & "\(self)"
-	} |
-	fn.#StringExpression
-	UpdateToLatestImageVersion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-}) |
-fn.#ObjectExpression
-
 #ComputeScalingPolicy: close({
 	MinScaleDownDelayMinutes?: int |
 		{
@@ -381,24 +260,6 @@ fn.#ObjectExpression
 }) |
 	fn.#ObjectExpression
 
-#Ec2ConfigurationObject: close({
-	BatchImageStatus?: string | number | bool | fn.#StringExpression
-	ImageIdOverride?:  string | number | bool | fn.#StringExpression
-	ImageKubernetesVersion?: strings.MaxRunes(256) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	ImageType!: strings.MaxRunes(256) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #EcsSettings: close({
 	ContainerInsights?: =~"(?i)^(?:disabled|enabled|enhanced)$" |
 	{
@@ -406,29 +267,6 @@ fn.#ObjectExpression
 		_cfnString: =~"(?i)^(?:disabled|enabled|enhanced)$" & "\(self)"
 	} |
 	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#EksAccessEntry: close({
-	DesiredState?: =~"(?i)^(?:disabled|enabled|inherit_from_cluster)$" |
-	{
-		number | bool
-		_cfnString: =~"(?i)^(?:disabled|enabled|inherit_from_cluster)$" & "\(self)"
-	} |
-	fn.#StringExpression
-	Status?: =~"(?i)^(?:active|inactive)$" |
-	{
-		number | bool
-		_cfnString: =~"(?i)^(?:active|inactive)$" & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#EksConfiguration: close({
-	AccessEntry?:         #EksAccessEntry
-	EksClusterArn!:       string | number | bool | fn.#StringExpression
-	KubernetesNamespace!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

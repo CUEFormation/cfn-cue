@@ -180,8 +180,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ParameterValues: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-
 #Target: close({
 	Key!: strings.MaxRunes(163) &
 	strings.MinRunes(1) &

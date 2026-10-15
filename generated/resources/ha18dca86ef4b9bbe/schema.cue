@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -63,8 +63,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ComponentConfiguration: close({Configuration!: fn.#Object & {...} | fn.#ObjectExpression}) | fn.#ObjectExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
 	{
@@ -84,29 +82,5 @@ fn.#ObjectExpression
 #VersionCreatedBySource: close({
 	Arn?:  string | number | bool | fn.#StringExpression
 	Name!: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#VersionLineageMetadata: close({
-	BranchName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_/-]{0,127}$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_/-]{0,127}$" & "\(self)"
-	} |
-	fn.#StringExpression
-	CommitMessage?: strings.MaxRunes(500) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	CreatedBy?: #VersionCreatedBySource
-	ParentVersionIds?: [...=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
-	{
-		number | bool
-		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" & "\(self)"
-	} |
-	fn.#StringExpression] |
-	fn.#ListExpression
 }) |
 fn.#ObjectExpression

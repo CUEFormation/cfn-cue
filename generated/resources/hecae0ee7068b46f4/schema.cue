@@ -115,23 +115,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ServerCertificateSummary: close({
-	ServerCertificateArn?: strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(-cn|-us-gov|-iso-b|-iso)?:acm:[a-z]{2}-(gov-|iso-|isob-)?[a-z]{4,9}-\\d{1}:\\d{12}:certificate/[a-zA-Z0-9/-]+$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(2048) &
-		strings.MinRunes(1) &
-		=~"^arn:aws(-cn|-us-gov|-iso-b|-iso)?:acm:[a-z]{2}-(gov-|iso-|isob-)?[a-z]{4,9}-\\d{1}:\\d{12}:certificate/[a-zA-Z0-9/-]+$" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	ServerCertificateStatus?:       "INVALID" | "VALID" | fn.#StringExpression
-	ServerCertificateStatusDetail?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
 	{

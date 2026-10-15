@@ -8,10 +8,6 @@ import (
 	"list"
 )
 
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
 
 import structs "struct"
@@ -50,38 +46,10 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ApplicationInstanceArn: strings.MaxRunes(255) & strings.MinRunes(1) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
-} |
-fn.#StringExpression
-
-#ApplicationInstanceHealthStatus: "RUNNING" | "ERROR" | "NOT_AVAILABLE" | fn.#StringExpression
-
 #ApplicationInstanceId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" |
 {
 	number | bool
 	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" & "\(self)"
-} |
-fn.#StringExpression
-
-#ApplicationInstanceStatus: "DEPLOYMENT_PENDING" |
-	"DEPLOYMENT_REQUESTED" |
-	"DEPLOYMENT_IN_PROGRESS" |
-	"DEPLOYMENT_ERROR" |
-	"DEPLOYMENT_SUCCEEDED" |
-	"REMOVAL_PENDING" |
-	"REMOVAL_REQUESTED" |
-	"REMOVAL_IN_PROGRESS" |
-	"REMOVAL_FAILED" |
-	"REMOVAL_SUCCEEDED" |
-	fn.#StringExpression
-
-#ApplicationInstanceStatusDescription: strings.MaxRunes(255) & strings.MinRunes(1) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
 } |
 fn.#StringExpression
 
@@ -96,20 +64,6 @@ fn.#StringExpression
 {
 	number | bool
 	_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$" & "\(self)"
-} |
-fn.#StringExpression
-
-#DeviceId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" & "\(self)"
-} |
-fn.#StringExpression
-
-#DeviceName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" & "\(self)"
 } |
 fn.#StringExpression
 
@@ -160,14 +114,6 @@ strings.MinRunes(1) &
 } |
 fn.#StringExpression
 
-#StatusFilter: "DEPLOYMENT_SUCCEEDED" |
-	"DEPLOYMENT_ERROR" |
-	"REMOVAL_SUCCEEDED" |
-	"REMOVAL_FAILED" |
-	"PROCESSING_DEPLOYMENT" |
-	"PROCESSING_REMOVAL" |
-	fn.#StringExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" |
 	{
@@ -185,17 +131,3 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #TagList: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-
-#Timestamp: int |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatInt(
-					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) & int,
-					10,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression

@@ -55,14 +55,6 @@ import structs "struct"
 
 #AuthType: "IAM_IDC" | "DISABLED" | fn.#StringExpression
 
-#DomainStatus: "CREATING" |
-	"AVAILABLE" |
-	"CREATION_FAILED" |
-	"DELETING" |
-	"DELETED" |
-	"DELETION_FAILED" |
-	fn.#StringExpression
-
 #IdcInstanceArn: strings.MaxRunes(1224) &
 strings.MinRunes(10) &
 =~"arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}" |

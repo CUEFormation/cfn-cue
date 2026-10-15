@@ -306,12 +306,6 @@ fn.#ObjectExpression
 	"LoopController" |
 	fn.#StringExpression
 
-#FlowStatus: "Failed" | "Prepared" | "Preparing" | "NotPrepared" | fn.#StringExpression
-
-#FlowValidation: close({Message!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
-
-#FlowValidations: [...#FlowValidation] | fn.#ListExpression
-
 #GuardrailConfiguration: close({
 	GuardrailIdentifier?: strings.MaxRunes(2048) &
 	=~"^(([a-z0-9]+)|(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:guardrail/[a-z0-9]+))$" |

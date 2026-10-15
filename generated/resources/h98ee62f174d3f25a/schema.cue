@@ -197,14 +197,6 @@ fn.#ObjectExpression
 
 #MonitorConfigState: "PENDING" | "ACTIVE" | "INACTIVE" | "ERROR" | fn.#StringExpression
 
-#MonitorProcessingStatusCode: "OK" |
-	"INACTIVE" |
-	"COLLECTING_DATA" |
-	"INSUFFICIENT_DATA" |
-	"FAULT_SERVICE" |
-	"FAULT_ACCESS_CLOUDWATCH" |
-	fn.#StringExpression
-
 #S3Config: close({
 	BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
 	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
@@ -227,11 +219,3 @@ fn.#ObjectExpression
 	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
-{
-	number | bool
-	_cfnString: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" &
-		"\(self)"
-} |
-fn.#StringExpression

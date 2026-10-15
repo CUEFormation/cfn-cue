@@ -62,63 +62,9 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CatalogProperties: close({
-	CustomProperties?: close({
-
-		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
-			"disallowed",
-		)}
-
-		{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
-	}) |
-	fn.#ObjectExpression
-	DataLakeAccessProperties?: #DataLakeAccessProperties
-}) |
-fn.#ObjectExpression
-
-#DataLakeAccessProperties: close({
-	AllowFullTableExternalDataAccess?: "True" | "False" | fn.#StringExpression
-	CatalogType?:                      string | number | bool | fn.#StringExpression
-	DataLakeAccess?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DataTransferRole?:       string | number | bool | fn.#StringExpression
-	KmsKey?:                 string | number | bool | fn.#StringExpression
-	ManagedWorkgroupName?:   string | number | bool | fn.#StringExpression
-	ManagedWorkgroupStatus?: string | number | bool | fn.#StringExpression
-	RedshiftDatabaseName?:   string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#DataLakePrincipal: close({
-	DataLakePrincipalIdentifier?: strings.MaxRunes(255) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #FederatedCatalog: close({
 	ConnectionName?: string | number | bool | fn.#StringExpression
 	Identifier?:     string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#PrincipalPermissions: close({
-	Permissions?: [
-		..."ALL" |
-			"SELECT" |
-			"ALTER" |
-			"DROP" |
-			"DELETE" |
-			"INSERT" |
-			"CREATE_DATABASE" |
-			"CREATE_TABLE" |
-			"DATA_LOCATION_ACCESS" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Principal?: #DataLakePrincipal
 }) |
 fn.#ObjectExpression
 

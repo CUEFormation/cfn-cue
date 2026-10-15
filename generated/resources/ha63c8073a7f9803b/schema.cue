@@ -58,14 +58,6 @@ import structs "struct"
 )]) |
 fn.#ValueExpression
 
-#IngressPointStatus: "PROVISIONING" |
-	"DEPROVISIONING" |
-	"UPDATING" |
-	"ACTIVE" |
-	"CLOSED" |
-	"FAILED" |
-	fn.#StringExpression
-
 #IngressPointStatusToUpdate: "ACTIVE" | "CLOSED" | fn.#StringExpression
 
 #IngressPointType: "OPEN" | "AUTH" | "MTLS" | fn.#StringExpression

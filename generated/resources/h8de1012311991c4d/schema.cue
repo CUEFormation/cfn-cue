@@ -164,14 +164,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DeprecatedHashKeyElement: close({
-	AttributeName!: string | number | bool | fn.#StringExpression
-	AttributeType!: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#DeprecatedKeySchema: close({HashKeyElement!: #DeprecatedHashKeyElement}) | fn.#ObjectExpression
-
 #GlobalSecondaryIndex: close({
 	// The settings used to specify whether to enable CloudWatch Contributor
 	// Insights for the global table and define which events to monitor.

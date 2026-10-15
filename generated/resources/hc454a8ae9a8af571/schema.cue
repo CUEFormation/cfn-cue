@@ -255,17 +255,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#MicrovmImageState: "CREATING" |
-	"CREATED" |
-	"CREATE_FAILED" |
-	"UPDATING" |
-	"UPDATED" |
-	"UPDATE_FAILED" |
-	"DELETING" |
-	"DELETE_FAILED" |
-	"DELETED" |
-	fn.#StringExpression
-
 #Resources: close({
 	MinimumMemoryInMiB!: int |
 		{

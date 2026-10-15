@@ -41,15 +41,7 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#OwnerGroupPropertiesOutput: close({GroupId?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
-
 #OwnerProperties: fn.#Object & matchN(1, [close({Group?: #OwnerGroupProperties}), close({User?: #OwnerUserProperties})]) |
-fn.#ObjectExpression
-
-#OwnerPropertiesOutput: close({
-	Group?: #OwnerGroupPropertiesOutput
-	User?:  #OwnerUserPropertiesOutput
-}) |
 fn.#ObjectExpression
 
 #OwnerUserProperties: close({
@@ -62,5 +54,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#OwnerUserPropertiesOutput: close({UserId?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression

@@ -46,13 +46,6 @@ import structs "struct"
 
 #Arn: string | number | bool | fn.#StringExpression
 
-#InstanceArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
-{
-	number | bool
-	_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" & "\(self)"
-} |
-fn.#StringExpression
-
 #LocalizedString: =~"^.{0,500}$" |
 {
 	number | bool
@@ -94,11 +87,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#UserArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent/[-a-zA-Z0-9]*$" |
-{
-	number | bool
-	_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent/[-a-zA-Z0-9]*$" &
-		"\(self)"
-} |
-fn.#StringExpression

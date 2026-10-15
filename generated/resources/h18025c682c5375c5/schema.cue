@@ -123,12 +123,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#ConnectionParameters: close({
-	// The connection details based on the connection Type.
-	CodeStar?: #CodeStarParameters
-}) |
-fn.#ObjectExpression
-
 #ProvisioningArtifactProperties: close({
 	Description?:               string | number | bool | fn.#StringExpression
 	DisableTemplateValidation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression

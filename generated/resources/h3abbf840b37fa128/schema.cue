@@ -123,12 +123,6 @@ fn.#ObjectExpression
 
 #FindingFilterAction: "ARCHIVE" | "NOOP" | fn.#StringExpression
 
-#FindingsFilterListItem: {
-	Id?:   string | number | bool | fn.#StringExpression
-	Name?: string | number | bool | fn.#StringExpression
-	...
-} | fn.#ObjectExpression
-
 #Tag: close({
 	Key!:   string | number | bool | fn.#StringExpression
 	Value!: string | number | bool | fn.#StringExpression

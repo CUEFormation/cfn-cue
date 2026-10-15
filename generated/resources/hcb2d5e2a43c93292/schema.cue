@@ -58,13 +58,6 @@ fn.#ObjectExpression
 
 #TermsEnforcementType: "NONE" | fn.#StringExpression
 
-#TermsIdType: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[4][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$" |
-{
-	number | bool
-	_cfnString: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[4][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$" & "\(self)"
-} |
-fn.#StringExpression
-
 #TermsNameType: =~"^(terms-of-use|privacy-policy)$" |
 {
 	number | bool

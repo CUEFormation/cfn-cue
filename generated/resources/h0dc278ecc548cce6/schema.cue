@@ -80,18 +80,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AirflowArn: strings.MaxRunes(1224) &
-strings.MinRunes(1) &
-=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:airflow:[a-z0-9\\-]+:\\d{12}:environment/\\w+" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(1224) &
-	strings.MinRunes(1) &
-	=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:airflow:[a-z0-9\\-]+:\\d{12}:environment/\\w+" &
-	"\(self)"
-} |
-fn.#StringExpression
-
 #AirflowVersion: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[0-9a-z.]+$" |
 {
 	number | bool
@@ -99,59 +87,7 @@ fn.#StringExpression
 } |
 fn.#StringExpression
 
-#CeleryExecutorQueue: strings.MaxRunes(1224) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(1224) & "\(self)"
-} |
-fn.#StringExpression
-
-#CloudWatchLogGroupArn: strings.MaxRunes(1224) &
-=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:logs:[a-z0-9\\-]+:\\d{12}:log-group:\\w+" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(1224) &
-	=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:logs:[a-z0-9\\-]+:\\d{12}:log-group:\\w+" &
-	"\(self)"
-} |
-fn.#StringExpression
-
-#ConfigKey: strings.MaxRunes(64) & =~"^[a-z]+([a-z._]*[a-z]+)?$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(64) & =~"^[a-z]+([a-z._]*[a-z]+)?$" & "\(self)"
-} |
-fn.#StringExpression
-
-#ConfigValue: strings.MaxRunes(256) & =~".*" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(256) & =~".*" & "\(self)"
-} |
-fn.#StringExpression
-
-#CreatedAt: string | number | bool | fn.#StringExpression
-
-#DatabaseVpcEndpointService: strings.MaxRunes(1224) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(1224) & "\(self)"
-} |
-fn.#StringExpression
-
 #EndpointManagement: "CUSTOMER" | "SERVICE" | fn.#StringExpression
-
-#EnvironmentArn: strings.MaxRunes(1224) &
-strings.MinRunes(1) &
-=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:airflow:[a-z0-9\\-]+:\\d{12}:environment/\\w+" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(1224) &
-	strings.MinRunes(1) &
-	=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:airflow:[a-z0-9\\-]+:\\d{12}:environment/\\w+" &
-	"\(self)"
-} |
-fn.#StringExpression
 
 #EnvironmentClass: strings.MaxRunes(1024) & strings.MinRunes(1) |
 {
@@ -164,26 +100,6 @@ fn.#StringExpression
 {
 	number | bool
 	_cfnString: strings.MaxRunes(80) & strings.MinRunes(1) & =~"^[a-zA-Z][0-9a-zA-Z\\-_]*$" & "\(self)"
-} |
-fn.#StringExpression
-
-#EnvironmentStatus: "CREATING" |
-	"CREATE_FAILED" |
-	"AVAILABLE" |
-	"UPDATING" |
-	"DELETING" |
-	"DELETED" |
-	"UPDATE_FAILED" |
-	"UNAVAILABLE" |
-	"PENDING" |
-	fn.#StringExpression
-
-#ErrorCode: string | number | bool | fn.#StringExpression
-
-#ErrorMessage: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.+$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.+$" & "\(self)"
 } |
 fn.#StringExpression
 
@@ -212,32 +128,6 @@ strings.MinRunes(1) &
 	"\(self)"
 } |
 fn.#StringExpression
-
-#LastUpdate: close({
-	CreatedAt?:                 #UpdateCreatedAt
-	Error?:                     #UpdateError
-	Status?:                    #UpdateStatus
-	WorkerReplacementStrategy?: #WorkerReplacementStrategy
-}) |
-fn.#ObjectExpression
-
-#LoggingConfiguration: close({
-	DagProcessingLogs?: #ModuleLoggingConfiguration
-	SchedulerLogs?:     #ModuleLoggingConfiguration
-	TaskLogs?:          #ModuleLoggingConfiguration
-	WebserverLogs?:     #ModuleLoggingConfiguration
-	WorkerLogs?:        #ModuleLoggingConfiguration
-}) |
-fn.#ObjectExpression
-
-#LoggingConfigurationInput: close({
-	DagProcessingLogs?: #ModuleLoggingConfigurationInput
-	SchedulerLogs?:     #ModuleLoggingConfigurationInput
-	TaskLogs?:          #ModuleLoggingConfigurationInput
-	WebserverLogs?:     #ModuleLoggingConfigurationInput
-	WorkerLogs?:        #ModuleLoggingConfigurationInput
-}) |
-fn.#ObjectExpression
 
 #LoggingEnabled: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
@@ -307,19 +197,6 @@ fn.#ObjectExpression
 	} |
 	fn.#NumberExpression
 
-#ModuleLoggingConfiguration: close({
-	CloudWatchLogGroupArn?: #CloudWatchLogGroupArn
-	Enabled?:               #LoggingEnabled
-	LogLevel?:              #LoggingLevel
-}) |
-fn.#ObjectExpression
-
-#ModuleLoggingConfigurationInput: close({
-	Enabled?:  #LoggingEnabled
-	LogLevel?: #LoggingLevel
-}) |
-fn.#ObjectExpression
-
 #NetworkConfiguration: close({
 	SecurityGroupIds?: list.MaxItems(5) & list.MinItems(1) & [...#SecurityGroupId] | fn.#ListExpression
 	SubnetIds?:        list.MaxItems(2) & list.MinItems(2) & [...#SubnetId] | fn.#ListExpression
@@ -383,16 +260,6 @@ strings.MinRunes(1) &
 } |
 fn.#StringExpression
 
-#ServiceRoleArn: strings.MaxRunes(1224) &
-=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(1224) &
-	=~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b)(-[a-z]+)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" &
-	"\(self)"
-} |
-fn.#StringExpression
-
 #SubnetId: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^subnet-[a-zA-Z0-9\\-._]+$" |
 {
 	number | bool
@@ -400,31 +267,7 @@ fn.#StringExpression
 } |
 fn.#StringExpression
 
-#UpdateCreatedAt: string | number | bool | fn.#StringExpression
-
-#UpdateError: close({
-	ErrorCode?:    #ErrorCode
-	ErrorMessage?: #ErrorMessage
-}) |
-fn.#ObjectExpression
-
-#UpdateStatus: "SUCCESS" | "PENDING" | "FAILED" | fn.#StringExpression
-
 #WebserverAccessMode: "PRIVATE_ONLY" | "PUBLIC_ONLY" | "PUBLIC_AND_PRIVATE" | fn.#StringExpression
-
-#WebserverUrl: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^https://.+$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^https://.+$" & "\(self)"
-} |
-fn.#StringExpression
-
-#WebserverVpcEndpointService: strings.MaxRunes(1224) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(1224) & "\(self)"
-} |
-fn.#StringExpression
 
 #WeeklyMaintenanceWindowStart: strings.MaxRunes(9) &
 strings.MinRunes(1) &

@@ -38,13 +38,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Base62Id: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^([a-z0-9A-Z]*)$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^([a-z0-9A-Z]*)$" & "\(self)"
-} |
-fn.#StringExpression
-
 #ResourceType: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$" |
 {
 	number | bool

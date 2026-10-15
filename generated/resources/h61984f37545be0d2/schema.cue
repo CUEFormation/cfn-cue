@@ -3,10 +3,9 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"struct"
-	"time"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -33,18 +32,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#Arn: strings.MaxRunes(2048) &
-strings.MinRunes(1) &
-=~"^arn:aws(?:-(?:cn|us-gov|iso|iso-b|iso-e|iso-f))?:airflow-serverless:([a-z]{2}-(?:[a-z]+-)+[0-9]{1}):([0-9]{12}):workflow/([a-zA-Z0-9][a-zA-Z0-9\\.\\-_]{0,254}-[a-zA-Z0-9]{10})$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^arn:aws(?:-(?:cn|us-gov|iso|iso-b|iso-e|iso-f))?:airflow-serverless:([a-z]{2}-(?:[a-z]+-)+[0-9]{1}):([0-9]{12}):workflow/([a-zA-Z0-9][a-zA-Z0-9\\.\\-_]{0,254}-[a-zA-Z0-9]{10})$" &
-	"\(self)"
-} |
-fn.#StringExpression
 
 #Code: close({S3Location?: #CodeS3Location}) | fn.#ObjectExpression
 
@@ -172,8 +159,6 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ScheduleConfiguration: close({CronExpression?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
-
 #Tags: struct.MaxFields(50) & close({
 
 	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
@@ -191,20 +176,9 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Timestamp: time.Time | fn.#StringExpression
-
 #TriggerMode: strings.MaxRunes(255) & strings.MinRunes(1) |
 {
 	number | bool
 	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
-} |
-fn.#StringExpression
-
-#WorkflowStatus: "READY" | "DELETING" | fn.#StringExpression
-
-#WorkflowVersion: strings.MaxRunes(32) & strings.MinRunes(32) & =~"^[a-z0-9]{32}$" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(32) & strings.MinRunes(32) & =~"^[a-z0-9]{32}$" & "\(self)"
 } |
 fn.#StringExpression

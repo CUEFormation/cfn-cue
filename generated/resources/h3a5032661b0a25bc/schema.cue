@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"time"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
 )
@@ -35,8 +35,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CurrencyCode: "USD" | fn.#StringExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{
@@ -57,5 +55,3 @@ fn.#ObjectExpression
 	"AFTER_DISCOUNTS" |
 	"AFTER_DISCOUNTS_AND_COMMITMENTS" |
 	fn.#StringExpression
-
-#WorkloadEstimateStatus: "UPDATING" | "VALID" | "INVALID" | "ACTION_NEEDED" | fn.#StringExpression

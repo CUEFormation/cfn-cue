@@ -302,13 +302,6 @@ fn.#ObjectExpression
 } |
 fn.#StringExpression
 
-#EntityId: =~"^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$" |
-{
-	number | bool
-	_cfnString: =~"^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$" & "\(self)"
-} |
-fn.#StringExpression
-
 #EntityName: =~"^[0-9A-Za-z_-]{1,128}$" |
 {
 	number | bool
@@ -319,8 +312,6 @@ fn.#StringExpression
 #EvaluationWindowSec: (==60 | ==120 | ==300 | ==600) & int | fn.#NumberExpression
 
 #ExcludedRule: close({Name!: #EntityName}) | fn.#ObjectExpression
-
-#ExcludedRules: [...#ExcludedRule] | fn.#ListExpression
 
 #FieldIdentifier: close({
 	Identifier!: strings.MaxRunes(512) & strings.MinRunes(1) & =~".*\\S.*" |
@@ -1151,8 +1142,6 @@ fn.#StringExpression
 
 #Prices: list.MaxItems(1) & list.MinItems(1) & [...#Price] | fn.#ListExpression
 
-#QueryString: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
-
 #RateBasedStatement: close({
 	AggregateKeyType!:    "CONSTANT" | "IP" | "FORWARDED_IP" | "CUSTOM_KEYS" | fn.#StringExpression
 	CustomKeys?:          list.MaxItems(5) & [...] & [...#RateBasedStatementCustomKey] | fn.#ListExpression
@@ -1514,8 +1503,6 @@ fn.#ObjectExpression
 	} |
 	fn.#NumberExpression
 
-#Rules: [...#Rule] | fn.#ListExpression
-
 #Scope: "CLOUDFRONT" | "REGIONAL" | fn.#StringExpression
 
 #SearchString: string | number | bool | fn.#StringExpression
@@ -1525,10 +1512,6 @@ fn.#ObjectExpression
 #SensitivityLevel: "LOW" | "HIGH" | fn.#StringExpression
 
 #SensitivityToAct: "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression
-
-#SingleHeader: close({Name?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
-
-#SingleQueryArgument: close({Name?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #SizeConstraintStatement: close({
 	ComparisonOperator!:          "EQ" | "NE" | "LE" | "LT" | "GE" | "GT" | fn.#StringExpression
@@ -1668,8 +1651,6 @@ fn.#StringExpression] |
 fn.#ListExpression
 
 #UriFragment: close({FallbackBehavior?: "MATCH" | "NO_MATCH" | fn.#StringExpression}) | fn.#ObjectExpression
-
-#UriPath: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 #UsageOfAction: "ENABLED" | "DISABLED" | fn.#StringExpression
 

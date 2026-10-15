@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -45,13 +45,6 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#Arn: strings.MaxRunes(1000) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(1000) & "\(self)"
-} |
-fn.#StringExpression
 
 #CapacityUnitsConfiguration: close({
 	QueryCapacityUnits!:   #QueryCapacityUnits
@@ -107,13 +100,6 @@ fn.#StringExpression
 {
 	number | bool
 	_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
-} |
-fn.#StringExpression
-
-#Id: strings.MaxRunes(36) & strings.MinRunes(36) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(36) & strings.MinRunes(36) & "\(self)"
 } |
 fn.#StringExpression
 

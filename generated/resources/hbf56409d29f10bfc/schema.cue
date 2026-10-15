@@ -69,8 +69,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#FormatToHeaderKey: "CHR" | "START" | "END" | "REF" | "ALT" | "POS" | fn.#StringExpression
-
 #ReferenceItem: close({
 	ReferenceArn!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^arn:.+$" |
 	{
@@ -119,8 +117,6 @@ fn.#ObjectExpression
 #StoreFormat: "GFF" | "TSV" | "VCF" | fn.#StringExpression
 
 #StoreOptions: close({TsvStoreOptions!: #TsvStoreOptions}) | fn.#ValueExpression
-
-#StoreStatus: "CREATING" | "UPDATING" | "DELETING" | "ACTIVE" | "FAILED" | fn.#StringExpression
 
 #TagMap: close({
 

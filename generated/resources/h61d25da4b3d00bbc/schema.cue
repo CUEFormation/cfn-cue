@@ -29,8 +29,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#NodeConnectionState: "CONNECTED" | "DISCONNECTED" | fn.#StringExpression
-
 #NodeInterfaceMapping: close({
 	LogicalInterfaceName?:  string | number | bool | fn.#StringExpression
 	NetworkInterfaceMode?:  "NAT" | "BRIDGE" | fn.#StringExpression
@@ -38,28 +36,7 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#NodeInterfaceMappingCreateRequest: close({
-	LogicalInterfaceName?:  string | number | bool | fn.#StringExpression
-	NetworkInterfaceMode?:  "NAT" | "BRIDGE" | fn.#StringExpression
-	PhysicalInterfaceName?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #NodeRole: "BACKUP" | "ACTIVE" | fn.#StringExpression
-
-#NodeState: "CREATED" |
-	"REGISTERING" |
-	"READY_TO_ACTIVATE" |
-	"REGISTRATION_FAILED" |
-	"ACTIVATION_FAILED" |
-	"ACTIVE" |
-	"READY" |
-	"IN_USE" |
-	"DEREGISTERING" |
-	"DRAINING" |
-	"DEREGISTRATION_FAILED" |
-	"DEREGISTERED" |
-	fn.#StringExpression
 
 #SdiSourceMapping: close({
 	CardNumber?: int |

@@ -89,53 +89,9 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#EnvironmentDeploymentDetails: close({
-	EnvironmentFailureReasons?: #EnvironmentFailureReasons
-	OverallDeploymentStatus?:   #OverallDeploymentStatus
-}) |
-fn.#ObjectExpression
-
-#EnvironmentError: close({
-	Code?:    string | number | bool | fn.#StringExpression
-	Message!: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#EnvironmentFailureReasons: close({
-
-	{[=~".+"]: [...#EnvironmentError] | fn.#ListExpression}
-
-	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
-		"disallowed",
-	)}
-}) |
-fn.#ObjectExpression
-
 #EnvironmentParameter: close({
 	Name?:  string | number | bool | fn.#StringExpression
 	Value?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#EnvironmentResolvedAccount: close({
-	AwsAccountId!: =~"^\\d{12}$" |
-	{
-		number | bool
-		_cfnString: =~"^\\d{12}$" & "\(self)"
-	} |
-	fn.#StringExpression
-	RegionName!: =~"^[a-z]{2}-[a-z]{4,10}-\\d$" |
-	{
-		number | bool
-		_cfnString: =~"^[a-z]{2}-[a-z]{4,10}-\\d$" & "\(self)"
-	} |
-	fn.#StringExpression
-	SourceAccountPoolId!: =~"^[a-zA-Z0-9_-]{1,36}$" |
-	{
-		number | bool
-		_cfnString: =~"^[a-zA-Z0-9_-]{1,36}$" & "\(self)"
-	} |
-	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -145,26 +101,11 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#OverallDeploymentStatus: "PENDING_DEPLOYMENT" |
-	"IN_PROGRESS" |
-	"SUCCESSFUL" |
-	"FAILED_VALIDATION" |
-	"FAILED_DEPLOYMENT" |
-	fn.#StringExpression
-
-#ProjectDeletionError: close({
-	Code?:    string | number | bool | fn.#StringExpression
-	Message?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #ProjectMembershipAssignment: close({
 	Designation!: #UserDesignation
 	Member!:      #Member
 }) |
 fn.#ObjectExpression
-
-#ProjectStatus: "ACTIVE" | "MOVING" | "DELETING" | "DELETE_FAILED" | "UPDATING" | "UPDATE_FAILED" | fn.#StringExpression
 
 #ResourceTag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w \\.:/=+@-]+$" |
@@ -179,23 +120,6 @@ fn.#ObjectExpression
 		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w \\.:/=+@-]*$" & "\(self)"
 	} |
 	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#Tags: close({
-
-	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
-		"disallowed",
-	)}
-
-	{
-		[=~"^[\\w \\.:/=+@-]+$"]: strings.MaxRunes(256) & =~"^[\\w \\.:/=+@-]*$" |
-		{
-			number | bool
-			_cfnString: strings.MaxRunes(256) & =~"^[\\w \\.:/=+@-]*$" & "\(self)"
-		} |
-		fn.#StringExpression
-	}
 }) |
 fn.#ObjectExpression
 

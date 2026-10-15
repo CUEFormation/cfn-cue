@@ -110,15 +110,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#PaymentManagerStatus: "CREATING" |
-	"UPDATING" |
-	"DELETING" |
-	"READY" |
-	"CREATE_FAILED" |
-	"UPDATE_FAILED" |
-	"DELETE_FAILED" |
-	fn.#StringExpression
-
 #PaymentsAuthorizerType: "CUSTOM_JWT" | "AWS_IAM" | fn.#StringExpression
 
 #Tag: close({
@@ -132,16 +123,6 @@ fn.#ObjectExpression
 	{
 		number | bool
 		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#WorkloadIdentityDetails: close({
-	WorkloadIdentityArn!: strings.MaxRunes(1024) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
 	} |
 	fn.#StringExpression
 }) |

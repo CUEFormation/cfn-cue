@@ -456,36 +456,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#Endpoint: close({
-	Address?: string | number | bool | fn.#StringExpression
-	Port?:    string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#MasterUserSecret: close({
-	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
-	} |
-	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
-			"\(self)"
-	} |
-	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression
-	SecretArn?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#ReadEndpoint: close({Address?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
-
 #ScalingConfiguration: close({
 	AutoPause?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxCapacity?: int |

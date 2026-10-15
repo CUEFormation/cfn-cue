@@ -130,5 +130,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-_#defs: "/$defs/Properties/definitions/_PropertyRefcde43015987bd6b3": "UPDATE" | fn.#StringExpression

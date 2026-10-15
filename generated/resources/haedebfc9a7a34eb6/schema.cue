@@ -8,10 +8,6 @@ import (
 	"list"
 )
 
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
 
 import structs "struct"
@@ -57,46 +53,6 @@ import structs "struct"
 }
 
 #ConnectAttachmentOptions: close({Protocol?: "GRE" | "NO_ENCAP" | fn.#StringExpression}) | fn.#ObjectExpression
-
-#ProposedNetworkFunctionGroupChange: close({
-	AttachmentPolicyRuleNumber?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	NetworkFunctionGroupName?: string | number | bool | fn.#StringExpression
-	Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#ProposedSegmentChange: close({
-	AttachmentPolicyRuleNumber?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SegmentName?: string | number | bool | fn.#StringExpression
-	Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |

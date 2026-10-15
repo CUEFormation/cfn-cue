@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -58,18 +58,3 @@ import structs "struct"
 	Properties!: properties |
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
-
-#EventRuleStatus: "ACTIVE" | "INACTIVE" | "CREATING" | "UPDATING" | "DELETING" | fn.#StringExpression
-
-#EventRuleStatusSummary: close({
-	Reason!: string | number | bool | fn.#StringExpression
-	Status!: #EventRuleStatus
-}) |
-fn.#ObjectExpression
-
-#StatusSummaryByRegion: close({
-
-	{[=~"^([a-z]{1,2})-([a-z]{1,15}-)+([0-9])$"]: #EventRuleStatusSummary}}) |
-fn.#ObjectExpression
-
-#Unit: close({}) | fn.#ObjectExpression

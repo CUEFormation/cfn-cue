@@ -32,20 +32,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#InstanceConnectEndpointDnsNames: close({
-	DnsName?:     string | number | bool | fn.#StringExpression
-	FipsDnsName?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#InstanceConnectEndpointPublicDnsNames: close({
-	Dualstack?: #InstanceConnectEndpointDnsNames & fn.#Object & {...} | fn.#ObjectExpression
-	Ipv4?:      #InstanceConnectEndpointDnsNames & fn.#Object & {...} | fn.#ObjectExpression
-}) |
-fn.#ObjectExpression
-
-#NetworkInterfaceId: string | number | bool | fn.#StringExpression
-
 #SecurityGroupId: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
 {
 	number | bool

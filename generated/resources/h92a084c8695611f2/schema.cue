@@ -41,15 +41,6 @@ fn.#StringExpression
 
 #ColumnNames: [...#NameString] | fn.#ListExpression
 
-#DataLakePrincipal: close({DataLakePrincipalIdentifier?: #DataLakePrincipalString}) | fn.#ObjectExpression
-
-#DataLakePrincipalString: strings.MaxRunes(255) & strings.MinRunes(1) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
-} |
-fn.#StringExpression
-
 #DatabaseResource: close({
 	CatalogId!: #CatalogIdString
 	Name!:      #NameString
@@ -85,8 +76,6 @@ fn.#StringExpression
 	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
 } |
 fn.#StringExpression
-
-#ResourceType: "DATABASE" | "TABLE" | fn.#StringExpression
 
 #TableResource: close({
 	CatalogId!:     #CatalogIdString

@@ -212,13 +212,6 @@ fn.#ObjectExpression
 } |
 fn.#StringExpression
 
-#EntityId: =~"^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$" |
-{
-	number | bool
-	_cfnString: =~"^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$" & "\(self)"
-} |
-fn.#StringExpression
-
 #EntityName: =~"^[0-9A-Za-z_-]{1,128}$" |
 {
 	number | bool
@@ -897,8 +890,6 @@ fn.#ObjectExpression
 
 #LabelName: string | number | bool | fn.#StringExpression
 
-#LabelSummary: close({Name?: #LabelName}) | fn.#ObjectExpression
-
 #MapMatchScope: "ALL" | "KEY" | "VALUE" | fn.#StringExpression
 
 #MonetizationConfig: close({
@@ -1151,31 +1142,6 @@ fn.#ObjectExpression
 	Challenge?: #ChallengeAction
 	Count?:     #CountAction
 	Monetize?:  #MonetizeAction
-}) |
-fn.#ObjectExpression
-
-#RuleGroup: close({
-	Arn?: #ResourceArn
-	Capacity?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Description?:      #EntityDescription
-	Id?:               #EntityId
-	Name?:             #EntityName
-	Rules?:            [...#Rule] | fn.#ListExpression
-	VisibilityConfig?: #VisibilityConfig
 }) |
 fn.#ObjectExpression
 

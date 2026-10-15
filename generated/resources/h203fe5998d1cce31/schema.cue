@@ -106,18 +106,3 @@ import structs "struct"
 	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#EnvironmentStatus: "ACTIVE" |
-	"CREATING" |
-	"UPDATING" |
-	"DELETING" |
-	"CREATE_FAILED" |
-	"UPDATE_FAILED" |
-	"DELETE_FAILED" |
-	"VALIDATION_FAILED" |
-	"SUSPENDED" |
-	"DISABLED" |
-	"EXPIRED" |
-	"DELETED" |
-	"INACCESSIBLE" |
-	fn.#StringExpression

@@ -5,7 +5,6 @@ package schema
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"struct"
-	"time"
 	"strings"
 	"list"
 )
@@ -105,8 +104,6 @@ import structs "struct"
 
 #Arn: string | number | bool | fn.#StringExpression
 
-#ConsolidationConfiguration: fn.#Object & {...} & #CustomConsolidationConfiguration & {...} | fn.#ObjectExpression
-
 #ContentConfiguration: close({
 	Level?: "METADATA_ONLY" | "FULL_CONTENT" | fn.#StringExpression
 	Type!:  "MEMORY_RECORDS" | fn.#StringExpression
@@ -122,39 +119,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#CustomConsolidationConfiguration: fn.#Object & matchN(1, [
-	#SemanticConsolidationOverride & {...},
-	#SummaryConsolidationOverride & {...},
-	#UserPreferenceConsolidationOverride & {...}
-]) |
-fn.#ObjectExpression
-
-#CustomExtractionConfiguration: fn.#Object & matchN(1, [
-	#SemanticExtractionOverride & {...},
-	#UserPreferenceExtractionOverride & {...}
-]) |
-fn.#ObjectExpression
-
-#CustomMemoryStrategy: close({
-	Configuration?:      #CustomConfigurationInput
-	CreatedAt?:          time.Time | fn.#StringExpression
-	Description?:        #Description
-	MemoryRecordSchema?: #MemoryRecordSchema
-	Name!:               #Name
-	NamespaceTemplates?: #NamespacesList
-	Namespaces?:         #NamespacesList
-	Status?:             "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | fn.#StringExpression
-	StrategyId?: strings.MinRunes(12) & =~"^[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" |
-	{
-		number | bool
-		_cfnString: strings.MinRunes(12) & =~"^[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" & "\(self)"
-	} |
-	fn.#StringExpression
-	Type?:      "SEMANTIC" | "SUMMARIZATION" | "USER_PREFERENCE" | "CUSTOM" | "EPISODIC" | fn.#StringExpression
-	UpdatedAt?: time.Time | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Definition: strings.MaxRunes(1000) & strings.MinRunes(1) |
 {
 	number | bool
@@ -163,26 +127,6 @@ fn.#ObjectExpression
 fn.#StringExpression
 
 #Description: string | number | bool | fn.#StringExpression
-
-#EpisodicMemoryStrategy: close({
-	CreatedAt?:               time.Time | fn.#StringExpression
-	Description?:             #Description
-	MemoryRecordSchema?:      #MemoryRecordSchema
-	Name!:                    #Name
-	NamespaceTemplates?:      #NamespacesList
-	Namespaces?:              #NamespacesList
-	ReflectionConfiguration?: #EpisodicReflectionConfigurationInput
-	Status?:                  "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | fn.#StringExpression
-	StrategyId?: strings.MinRunes(12) & =~"^[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" |
-	{
-		number | bool
-		_cfnString: strings.MinRunes(12) & =~"^[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" & "\(self)"
-	} |
-	fn.#StringExpression
-	Type?:      "SEMANTIC" | "SUMMARIZATION" | "USER_PREFERENCE" | "CUSTOM" | "EPISODIC" | fn.#StringExpression
-	UpdatedAt?: time.Time | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #EpisodicOverride: close({
 	Consolidation?: #EpisodicOverrideConsolidationConfigurationInput
@@ -221,8 +165,6 @@ fn.#ObjectExpression
 
 #ExtractionConfig: struct.MaxFields(1) & struct.MinFields(1) & close({LlmExtractionConfig?: #LlmExtractionConfig}) |
 fn.#ObjectExpression
-
-#ExtractionConfiguration: fn.#Object & {...} & #CustomExtractionConfiguration & {...} | fn.#ObjectExpression
 
 #ExtractionType: "LLM_INFERRED" | "STRICTLY_CONSISTENT" | fn.#StringExpression
 
@@ -266,35 +208,7 @@ fn.#ObjectExpression
 } |
 fn.#StringExpression
 
-#MemoryArn: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:memory/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" |
-{
-	number | bool
-	_cfnString: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:memory/[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" &
-		"\(self)"
-} |
-fn.#StringExpression
-
-#MemoryId: strings.MinRunes(12) & =~"^[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" |
-{
-	number | bool
-	_cfnString: strings.MinRunes(12) & =~"^[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" & "\(self)"
-} |
-fn.#StringExpression
-
 #MemoryRecordSchema: close({MetadataSchema?: #MetadataSchemaList}) | fn.#ObjectExpression
-
-#MemoryStatus: "CREATING" | "ACTIVE" | "FAILED" | "DELETING" | fn.#StringExpression
-
-#MemoryStrategies: [...#MemoryStrategy] | fn.#ListExpression
-
-#MemoryStrategy: struct.MaxFields(1) & struct.MinFields(1) & close({
-	CustomMemoryStrategy?:         #CustomMemoryStrategy
-	EpisodicMemoryStrategy?:       #EpisodicMemoryStrategy
-	SemanticMemoryStrategy?:       #SemanticMemoryStrategy
-	SummaryMemoryStrategy?:        #SummaryMemoryStrategy
-	UserPreferenceMemoryStrategy?: #UserPreferenceMemoryStrategy
-}) |
-fn.#ObjectExpression
 
 #MessageBasedTriggerInput: close({
 	MessageCount?: int & <=50 & >=1 |
@@ -457,37 +371,6 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#SemanticConsolidationOverride: close({
-	AppendToPrompt!: #Prompt
-	ModelId!:        string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#SemanticExtractionOverride: close({
-	AppendToPrompt!: #Prompt
-	ModelId!:        string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#SemanticMemoryStrategy: close({
-	CreatedAt?:          time.Time | fn.#StringExpression
-	Description?:        #Description
-	MemoryRecordSchema?: #MemoryRecordSchema
-	Name!:               #Name
-	NamespaceTemplates?: #NamespacesList
-	Namespaces?:         #NamespacesList
-	Status?:             "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | fn.#StringExpression
-	StrategyId?: strings.MinRunes(12) & =~"^[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" |
-	{
-		number | bool
-		_cfnString: strings.MinRunes(12) & =~"^[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" & "\(self)"
-	} |
-	fn.#StringExpression
-	Type?:      "SEMANTIC" | "SUMMARIZATION" | "USER_PREFERENCE" | "CUSTOM" | "EPISODIC" | fn.#StringExpression
-	UpdatedAt?: time.Time | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #SemanticOverride: close({
 	Consolidation?: #SemanticOverrideConsolidationConfigurationInput
 	Extraction?:    #SemanticOverrideExtractionConfigurationInput
@@ -503,13 +386,6 @@ fn.#ObjectExpression
 #SemanticOverrideExtractionConfigurationInput: close({
 	AppendToPrompt!: #Prompt
 	ModelId!:        string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#StrategyConfiguration: close({
-	Consolidation?: #ConsolidationConfiguration
-	Extraction?:    #ExtractionConfiguration
-	Type?: "SEMANTIC_OVERRIDE" | "SUMMARY_OVERRIDE" | "USER_PREFERENCE_OVERRIDE" | "EPISODIC" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -546,31 +422,6 @@ fn.#ObjectExpression
 		fn.#ListExpression
 }) |
 	fn.#ObjectExpression
-
-#SummaryConsolidationOverride: close({
-	AppendToPrompt!: #Prompt
-	ModelId!:        string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#SummaryMemoryStrategy: close({
-	CreatedAt?:          time.Time | fn.#StringExpression
-	Description?:        #Description
-	MemoryRecordSchema?: #MemoryRecordSchema
-	Name!:               #Name
-	NamespaceTemplates?: #NamespacesList
-	Namespaces?:         #NamespacesList
-	Status?:             "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | fn.#StringExpression
-	StrategyId?: strings.MinRunes(12) & =~"^[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" |
-	{
-		number | bool
-		_cfnString: strings.MinRunes(12) & =~"^[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" & "\(self)"
-	} |
-	fn.#StringExpression
-	Type?:      "SEMANTIC" | "SUMMARIZATION" | "USER_PREFERENCE" | "CUSTOM" | "EPISODIC" | fn.#StringExpression
-	UpdatedAt?: time.Time | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #SummaryOverride: close({Consolidation?: #SummaryOverrideConsolidationConfigurationInput}) | fn.#ObjectExpression
 
@@ -647,37 +498,6 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TriggerConditionList: list.MinItems(1) & [...#TriggerConditionInput] | fn.#ListExpression
-
-#UserPreferenceConsolidationOverride: close({
-	AppendToPrompt!: #Prompt
-	ModelId!:        string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#UserPreferenceExtractionOverride: close({
-	AppendToPrompt!: #Prompt
-	ModelId!:        string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#UserPreferenceMemoryStrategy: close({
-	CreatedAt?:          time.Time | fn.#StringExpression
-	Description?:        #Description
-	MemoryRecordSchema?: #MemoryRecordSchema
-	Name!:               #Name
-	NamespaceTemplates?: #NamespacesList
-	Namespaces?:         #NamespacesList
-	Status?:             "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | fn.#StringExpression
-	StrategyId?: strings.MinRunes(12) & =~"^[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" |
-	{
-		number | bool
-		_cfnString: strings.MinRunes(12) & =~"^[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10}$" & "\(self)"
-	} |
-	fn.#StringExpression
-	Type?:      "SEMANTIC" | "SUMMARIZATION" | "USER_PREFERENCE" | "CUSTOM" | "EPISODIC" | fn.#StringExpression
-	UpdatedAt?: time.Time | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #UserPreferenceOverride: close({
 	Consolidation?: #UserPreferenceOverrideConsolidationConfigurationInput

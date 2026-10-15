@@ -74,8 +74,6 @@ import structs "struct"
 	}}) |
 fn.#ObjectExpression
 
-#GatewayRateLimitStatus: "CREATING" | "ACTIVE" | "UPDATING" | "DELETING" | fn.#StringExpression
-
 #LimitEntry: close({
 	Connections?: list.MaxItems(1) & list.MinItems(1) & [...#RateConfig] | fn.#ListExpression
 	Dimensions!:  #Dimensions

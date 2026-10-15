@@ -104,10 +104,3 @@ import structs "struct"
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#TestingAgentInformation: close({
-	RegistrationId!:     string | number | bool | fn.#StringExpression
-	TestingAgentId?:     string | number | bool | fn.#StringExpression
-	TestingAgentStatus!: "CREATED" | "PENDING" | "ACTIVE" | fn.#StringExpression
-}) |
-fn.#ObjectExpression

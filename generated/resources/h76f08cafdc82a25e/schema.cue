@@ -57,20 +57,6 @@ fn.#ObjectExpression
 
 #PaymentConnectorProvisionMode: "MANUAL" | "QUICK_CREATE" | fn.#StringExpression
 
-#PaymentConnectorStatus: "CREATING" |
-	"UPDATING" |
-	"DELETING" |
-	"READY" |
-	"CREATE_FAILED" |
-	"UPDATE_FAILED" |
-	"DELETE_FAILED" |
-	"AWS_MARKETPLACE_SUBSCRIPTION_REQUIRED" |
-	"PENDING_AUTHENTICATION" |
-	"PROVISIONING" |
-	"AUTHENTICATION_EXPIRED" |
-	"AUTHENTICATION_FAILED" |
-	fn.#StringExpression
-
 #PaymentConnectorType: "CoinbaseCDP" | "StripePrivy" | fn.#StringExpression
 
 #PaymentCredentialProviderConfiguration: close({CredentialProviderArn!: string | number | bool | fn.#StringExpression}) |

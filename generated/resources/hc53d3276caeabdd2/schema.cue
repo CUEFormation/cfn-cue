@@ -55,6 +55,4 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ResourceArn: string | number | bool | fn.#StringExpression
-
 #ResourceType: "REPLENISHABLE" | "NON_REPLENISHABLE" | fn.#StringExpression

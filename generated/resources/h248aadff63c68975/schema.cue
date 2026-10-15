@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -64,36 +64,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ConfigurationDefinition: close({
-	LocalDeploymentAdministrationRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression
-	LocalDeploymentExecutionRoleName?: strings.MaxRunes(256) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	Parameters!: #ConfigurationParametersMap
-	Type!: =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" |
-	{
-		number | bool
-		_cfnString: =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" & "\(self)"
-	} |
-	fn.#StringExpression
-	TypeVersion?: strings.MaxRunes(128) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-	id?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #ConfigurationParametersMap: close({
 
 	{[=~"^(?:Ref)$"]: error("disallowed")}
@@ -108,39 +78,6 @@ fn.#ObjectExpression
 	}
 }) |
 fn.#ObjectExpression
-
-#Status: "INITIALIZING" |
-	"DEPLOYING" |
-	"SUCCEEDED" |
-	"DELETING" |
-	"STOPPING" |
-	"FAILED" |
-	"STOPPED" |
-	"DELETE_FAILED" |
-	"STOP_FAILED" |
-	"NONE" |
-	fn.#StringExpression
-
-#StatusDetails: close({
-
-	{[=~".+"]: string | number | bool | fn.#StringExpression}
-
-	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
-		"disallowed",
-	)}
-}) |
-fn.#ObjectExpression
-
-#StatusSummary: close({
-	LastUpdatedAt!: string | number | bool | fn.#StringExpression
-	Status?:        #Status
-	StatusDetails?: #StatusDetails
-	StatusMessage?: string | number | bool | fn.#StringExpression
-	StatusType!:    #StatusType
-}) |
-fn.#ObjectExpression
-
-#StatusType: "Deployment" | "AsyncExecutions" | fn.#StringExpression
 
 #TagsMap: close({
 

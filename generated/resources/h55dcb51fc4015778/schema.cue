@@ -55,22 +55,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#Metadata: close({
-	Key!: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*\\S.*" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
-	} |
-	fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*\\S.*" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{

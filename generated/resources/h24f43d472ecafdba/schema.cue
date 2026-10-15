@@ -186,16 +186,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#AgentStatus: "CREATING" |
-	"PREPARING" |
-	"PREPARED" |
-	"NOT_PREPARED" |
-	"DELETING" |
-	"FAILED" |
-	"VERSIONING" |
-	"UPDATING" |
-	fn.#StringExpression
-
 #CreationMode: "DEFAULT" | "OVERRIDDEN" | fn.#StringExpression
 
 #CustomControlMethod: "RETURN_CONTROL" | fn.#StringExpression

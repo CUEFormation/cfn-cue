@@ -4,10 +4,6 @@ package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
 
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
 
 import structs "struct"
@@ -34,59 +30,5 @@ import structs "struct"
 #Tag: close({
 	Key?:   string | number | bool | fn.#StringExpression
 	Value?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#TransitGatewayAttachmentBgpConfiguration: close({
-	BgpStatus?:   string | number | bool | fn.#StringExpression
-	PeerAddress?: string | number | bool | fn.#StringExpression
-	PeerAsn?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TransitGatewayAddress?: string | number | bool | fn.#StringExpression
-	TransitGatewayAsn?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
-#TransitGatewayConnectPeerConfiguration: close({
-	BgpConfigurations?:     [...#TransitGatewayAttachmentBgpConfiguration] | fn.#ListExpression
-	InsideCidrBlocks!:      [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-	PeerAddress!:           string | number | bool | fn.#StringExpression
-	Protocol?:              string | number | bool | fn.#StringExpression
-	TransitGatewayAddress?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -101,5 +101,3 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Tags: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression

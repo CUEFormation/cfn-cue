@@ -23,14 +23,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ChannelPlacementGroupState: "UNASSIGNED" |
-	"ASSIGNING" |
-	"ASSIGNED" |
-	"DELETING" |
-	"DELETED" |
-	"UNASSIGNING" |
-	fn.#StringExpression
-
 #Tags: close({
 	Key?:   string | number | bool | fn.#StringExpression
 	Value?: string | number | bool | fn.#StringExpression

@@ -57,27 +57,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Actor: close({
-	// Authentication credentials for this actor
-	Authentication?:       #Authentication
-	Description?:          string | number | bool | fn.#StringExpression
-	EnableEmailMfa?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Identifier?:           string | number | bool | fn.#StringExpression
-	MfaForwardingAddress?: string | number | bool | fn.#StringExpression
-	Uris?:                 [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#Assets: close({
-	Actors?:                 [...#Actor] | fn.#ListExpression
-	Documents?:              [...#DocumentInfo] | fn.#ListExpression
-	Endpoints?:              [...#Endpoint] | fn.#ListExpression
-	IntegratedRepositories?: [...#IntegratedRepository] | fn.#ListExpression
-	SourceCode?:             [...#SourceCodeRepository] | fn.#ListExpression
-	TrustedCaCertificates?:  [...#TrustedCaCertificate] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
 #Authentication: close({
 	ProviderType?: "SECRETS_MANAGER" | "AWS_LAMBDA" | "AWS_IAM_ROLE" | "AWS_INTERNAL" | fn.#StringExpression
 	Value?:        string | number | bool | fn.#StringExpression

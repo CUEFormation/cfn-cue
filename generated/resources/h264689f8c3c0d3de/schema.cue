@@ -35,13 +35,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Arn: =~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$" |
-{
-	number | bool
-	_cfnString: =~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$" & "\(self)"
-} |
-fn.#StringExpression
-
 #ResourceTag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{

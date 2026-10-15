@@ -68,8 +68,6 @@ import structs "struct"
 	} |
 	fn.#NumberExpression
 
-#Id: string | number | bool | fn.#StringExpression
-
 #InstanceId: string | number | bool | fn.#StringExpression
 
 #VolumeId: string | number | bool | fn.#StringExpression

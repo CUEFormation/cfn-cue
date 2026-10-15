@@ -4,7 +4,7 @@ These results preserve the final survey and timing evidence from the corpus impl
 
 `summary.json` records the final counts, coverage and fingerprints. `run.json` records the inputs and selection. `comparison.md` and `comparison.json` compare the final build against the pre-service-rule baseline (which already included scalar, grammar, dynamic-reference and format work).
 
-The final generated CUE fingerprint, manifest hash and validator binary hash were checked against the landing candidate and matched. Fresh generation of all 45 regions and 1,866 resource schemas matched the checked-in output byte for byte. The final acceptance suite is recorded in the PR and CI.
+The generated CUE fingerprint, manifest hash and validator binary hash matched commit 9fea8fe3, before integration of main’s definition-pruning change from PR #5. Fresh generation of all 45 regions and 1,866 resource schemas matched that commit byte for byte. After integrating PR #5, schemas were regenerated and acceptance checks rerun; the historical survey and timing numbers below are not new measurements of the integrated build. The final acceptance suite is recorded in the PR and CI.
 
 ## Outcomes
 

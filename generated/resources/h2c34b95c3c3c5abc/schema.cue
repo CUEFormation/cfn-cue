@@ -40,8 +40,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#CRResourceStatus: "CREATING" | "OPERATIONAL" | "UPDATING" | "DELETING" | fn.#StringExpression
-
 #Cidr: fn.#IPv4Network & string & strings.MaxRunes(42) & strings.MinRunes(1) |
 {
 	number | bool

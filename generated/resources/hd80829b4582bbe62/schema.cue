@@ -27,24 +27,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Ipv4CidrBlockAssociation: close({
-	AssociationId?: string | number | bool | fn.#StringExpression
-	CidrBlock?: fn.#IPv4Network & string |
-	{
-		number | bool
-		_cfnString: fn.#IPv4Network & string & "\(self)"
-	} |
-	fn.#StringExpression
-	State?: "associating" |
-		"associated" |
-		"association-failed" |
-		"disassociating" |
-		"disassociated" |
-		"disassociation-failed" |
-		fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{

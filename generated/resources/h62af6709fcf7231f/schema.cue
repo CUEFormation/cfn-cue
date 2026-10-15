@@ -688,10 +688,3 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 }) |
 fn.#ObjectExpression
-
-#UserContext: close({
-	DomainId?:        string | number | bool | fn.#StringExpression
-	UserProfileArn?:  string | number | bool | fn.#StringExpression
-	UserProfileName?: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression

@@ -3,9 +3,9 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
 
 import base "github.com/cueformation/cfn-cue/template:template"
@@ -43,13 +43,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AgentAliasHistoryEvent: close({
-	EndDate?:              string | number | bool | fn.#StringExpression
-	RoutingConfiguration?: list.MaxItems(1) & [...#AgentAliasRoutingConfigurationListItem] | fn.#ListExpression
-	StartDate?:            string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #AgentAliasRoutingConfigurationListItem: close({
 	AgentVersion!: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]{0,4}[1-9][0-9]{0,4})$" |
 	{
@@ -59,8 +52,6 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#AgentAliasStatus: "CREATING" | "PREPARED" | "FAILED" | "UPDATING" | "DELETING" | fn.#StringExpression
 
 #TagsMap: close({
 

@@ -81,8 +81,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#ApplicationStatus: "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | "UPDATING" | fn.#StringExpression
-
 #AttachmentsConfiguration: close({AttachmentsControlMode!: #AttachmentsControlMode}) | fn.#ObjectExpression
 
 #AttachmentsControlMode: "ENABLED" | "DISABLED" | fn.#StringExpression

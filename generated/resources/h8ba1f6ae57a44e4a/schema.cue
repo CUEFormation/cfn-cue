@@ -569,154 +569,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AssetModelCompositeModel: close({
-	ComposedAssetModelId?:     string | number | bool | fn.#StringExpression
-	CompositeModelProperties?: [...#AssetModelProperty] | fn.#ListExpression
-	Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" & "\(self)"
-	} |
-	fn.#StringExpression
-	ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) &
-		strings.MinRunes(2) &
-		=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	Id?: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(36) &
-		strings.MinRunes(36) &
-		=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" & "\(self)"
-	} |
-	fn.#StringExpression
-	ParentAssetModelCompositeModelExternalId?: strings.MaxRunes(128) &
-	strings.MinRunes(2) &
-	=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) &
-		strings.MinRunes(2) &
-		=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	Path?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-	Type!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#AssetModelHierarchy: close({
-	ChildAssetModelId!: strings.MaxRunes(139) & strings.MinRunes(13) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(139) & strings.MinRunes(13) & "\(self)"
-	} |
-	fn.#StringExpression
-	ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) &
-		strings.MinRunes(2) &
-		=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	Id?: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(36) &
-		strings.MinRunes(36) &
-		=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	LogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" & "\(self)"
-	} |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#AssetModelProperty: close({
-	// The data type of the asset model property.
-	DataType!: #DataType
-
-	// The data type of the structure for this property.
-	DataTypeSpec?: #DataTypeSpec
-	ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) &
-		strings.MinRunes(2) &
-		=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	Id?: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(36) &
-		strings.MinRunes(36) &
-		=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	LogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" & "\(self)"
-	} |
-	fn.#StringExpression
-	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" & "\(self)"
-	} |
-	fn.#StringExpression
-
-	// The property type
-	Type!: #PropertyType
-	Unit?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Attribute: close({
 	DefaultValue?: =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
 	{
@@ -749,40 +601,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ExpressionVariable: close({
-	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-z0-9_]*$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-z0-9_]*$" & "\(self)"
-	} |
-	fn.#StringExpression
-
-	// The variable that identifies an asset property from which to use values.
-	Value!: #VariableValue
-}) |
-fn.#ObjectExpression
-
 #Interval: strings.MaxRunes(23) & strings.MinRunes(2) |
 {
 	number | bool
 	_cfnString: strings.MaxRunes(23) & strings.MinRunes(2) & "\(self)"
 } |
 fn.#StringExpression
-
-#Metric: close({
-	Expression!: strings.MaxRunes(1024) & strings.MinRunes(0) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
-	} |
-	fn.#StringExpression
-	Variables!: [...#ExpressionVariable] | fn.#ListExpression
-
-	// The window (time interval) over which AWS IoT SiteWise computes the metric's
-	// aggregation expression
-	Window!: #MetricWindow
-}) |
-fn.#ObjectExpression
 
 #MetricWindow: close({Tumbling?: #TumblingWindow}) | fn.#ObjectExpression
 
@@ -803,28 +627,9 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#PropertyType: close({
-	Attribute?: #Attribute
-	Metric?:    #Metric
-	Transform?: #Transform
-	TypeName!:  #TypeName
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
 	Key!:   string | number | bool | fn.#StringExpression
 	Value!: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#Transform: close({
-	Expression!: strings.MaxRunes(1024) & strings.MinRunes(0) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
-	} |
-	fn.#StringExpression
-	Variables!: [...#ExpressionVariable] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -835,60 +640,3 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TypeName: "Measurement" | "Attribute" | "Transform" | "Metric" | fn.#StringExpression
-
-#VariableValue: close({
-	HierarchyExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) &
-		strings.MinRunes(2) &
-		=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	HierarchyId?: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(36) &
-		strings.MinRunes(36) &
-		=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	HierarchyLogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" & "\(self)"
-	} |
-	fn.#StringExpression
-	PropertyExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(128) &
-		strings.MinRunes(2) &
-		=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	PropertyId?: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(36) &
-		strings.MinRunes(36) &
-		=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
-		"\(self)"
-	} |
-	fn.#StringExpression
-	PropertyLogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" & "\(self)"
-	} |
-	fn.#StringExpression
-	PropertyPath?: [...#PropertyPathDefinition] | fn.#ListExpression
-}) |
-fn.#ObjectExpression

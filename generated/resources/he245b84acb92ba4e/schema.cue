@@ -185,8 +185,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#GuardrailStatus: "CREATING" | "UPDATING" | "VERSIONING" | "READY" | "FAILED" | "DELETING" | fn.#StringExpression
-
 #ManagedWordsConfig: close({
 	InputAction?:   #WordAction
 	InputEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression

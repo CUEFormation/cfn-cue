@@ -3,8 +3,8 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
 
@@ -84,24 +84,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AutoScalingGroupArn: strings.MaxRunes(256) &
-strings.MinRunes(0) &
-=~"""
-	[ -\ud7ff\ue000-�𐀀-\U0010ffff\r
-	\t]*
-	""" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(256) &
-	strings.MinRunes(0) &
-	=~"""
-		[ -\ud7ff\ue000-�𐀀-\U0010ffff\r
-		\t]*
-		""" &
-	"\(self)"
-} |
-fn.#StringExpression
-
 #AutoScalingPolicy: close({
 	EstimatedInstanceWarmup?:     #EstimatedInstanceWarmup
 	TargetTrackingConfiguration!: #TargetTrackingConfiguration
@@ -109,8 +91,6 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #BalancingStrategy: "SPOT_ONLY" | "SPOT_PREFERRED" | "ON_DEMAND_ONLY" | fn.#StringExpression
-
-#CreationTime: string | number | bool | fn.#StringExpression
 
 #DeleteOption: "SAFE_DELETE" | "FORCE_DELETE" | "RETAIN" | fn.#StringExpression
 
@@ -134,29 +114,6 @@ fn.#ObjectExpression
 	} |
 	fn.#NumberExpression
 
-#GameServerGroup: close({
-	AutoScalingGroupArn?:        #AutoScalingGroupArn
-	BalancingStrategy?:          #BalancingStrategy
-	CreationTime?:               #CreationTime
-	GameServerGroupArn?:         #GameServerGroupArn
-	GameServerGroupName?:        #GameServerGroupName
-	GameServerProtectionPolicy?: #GameServerProtectionPolicy
-	InstanceDefinitions?:        #InstanceDefinitions
-	LastUpdatedTime?:            #LastUpdatedTime
-	RoleArn?:                    #RoleArn
-	Status?:                     #Status
-	StatusReason?:               #StatusReason
-	SuspendedActions?:           #SuspendedActions
-}) |
-fn.#ObjectExpression
-
-#GameServerGroupArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:.*:gameservergroup\\/[a-zA-Z0-9-\\.]*" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:.*:gameservergroup\\/[a-zA-Z0-9-\\.]*" & "\(self)"
-} |
-fn.#StringExpression
-
 #GameServerGroupName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\.]+" |
 {
 	number | bool
@@ -175,8 +132,6 @@ fn.#ObjectExpression
 #InstanceDefinitions: list.MaxItems(20) & list.MinItems(2) & [...#InstanceDefinition] | fn.#ListExpression
 
 #InstanceType: string | number | bool | fn.#StringExpression
-
-#LastUpdatedTime: string | number | bool | fn.#StringExpression
 
 #LaunchTemplate: close({
 	LaunchTemplateId?:   #LaunchTemplateId
@@ -252,17 +207,6 @@ strings.MinRunes(1) &
 	"\(self)"
 } |
 fn.#StringExpression
-
-#Status: "NEW" | "ACTIVATING" | "ACTIVE" | "DELETE_SCHEDULED" | "DELETING" | "DELETED" | "ERROR" | fn.#StringExpression
-
-#StatusReason: strings.MaxRunes(1024) & strings.MinRunes(1) |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
-} |
-fn.#StringExpression
-
-#SuspendedActions: [..."REPLACE_INSTANCE_TYPES" | fn.#StringExpression] | fn.#ListExpression
 
 #Tag: close({
 	Key?: strings.MaxRunes(128) & strings.MinRunes(1) |

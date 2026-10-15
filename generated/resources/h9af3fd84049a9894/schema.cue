@@ -74,14 +74,6 @@ import structs "struct"
 
 #AudioExtractionStatus: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-#DataSourceStatus: "PENDING_CREATION" |
-	"CREATING" |
-	"ACTIVE" |
-	"DELETING" |
-	"FAILED" |
-	"UPDATING" |
-	fn.#StringExpression
-
 #DataSourceVpcConfiguration: close({
 	SecurityGroupIds!: list.MaxItems(10) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 	strings.MaxRunes(200) &

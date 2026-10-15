@@ -39,8 +39,6 @@ import structs "struct"
 } |
 fn.#StringExpression
 
-#CreatedAt: string | number | bool | fn.#StringExpression
-
 #Description: strings.MaxRunes(255) & strings.MinRunes(0) |
 {
 	number | bool
@@ -54,8 +52,6 @@ fn.#StringExpression
 	_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9-]*$" & "\(self)"
 } |
 fn.#StringExpression
-
-#HasWorkflows: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 #Hashed: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
@@ -98,13 +94,6 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#SchemaMappingArn: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(schemamapping/.*)$" |
-{
-	number | bool
-	_cfnString: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(schemamapping/.*)$" & "\(self)"
-} |
-fn.#StringExpression
-
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
 	{
@@ -120,5 +109,3 @@ fn.#StringExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#UpdatedAt: string | number | bool | fn.#StringExpression

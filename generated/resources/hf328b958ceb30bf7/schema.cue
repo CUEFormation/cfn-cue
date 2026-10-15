@@ -50,8 +50,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#AuthStatus: "ACTIVE" | "FAILED" | fn.#StringExpression
-
 #AzureProviderConfiguration: close({
 	AWSConfigConnectorArn!: string | number | bool | fn.#StringExpression
 	AzureRegions!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
@@ -68,20 +66,6 @@ fn.#ObjectExpression
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
-
-#HealthIssue: close({
-	Code!:    string | number | bool | fn.#StringExpression
-	Message!: string | number | bool | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#ISO8601DateString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" |
-{
-	number | bool
-	_cfnString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" &
-		"\(self)"
-} |
-fn.#StringExpression
 
 #JiraCloudProviderConfiguration: close({
 	ProjectKey!: strings.MaxRunes(10) & strings.MinRunes(2) |

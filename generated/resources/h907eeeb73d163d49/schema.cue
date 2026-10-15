@@ -33,17 +33,6 @@ import structs "struct"
 }) |
 fn.#ObjectExpression
 
-#NetworkState: "CREATING" |
-	"CREATE_FAILED" |
-	"ACTIVE" |
-	"DELETING" |
-	"IDLE" |
-	"IN_USE" |
-	"UPDATING" |
-	"DELETED" |
-	"DELETE_FAILED" |
-	fn.#StringExpression
-
 #Route: close({
 	Cidr?: fn.#IPv4Network & string |
 	{

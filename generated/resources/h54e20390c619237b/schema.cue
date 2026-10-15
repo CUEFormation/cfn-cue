@@ -154,24 +154,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#StorageConnector: close({
-	ConnectorType!: "GOOGLE_DRIVE" | "HOMEFOLDERS" | "ONE_DRIVE" | fn.#StringExpression
-	Domains?: list.MaxItems(50) & [...] & [...strings.MaxRunes(64) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression] |
-	fn.#ListExpression
-	ResourceIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(1) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #StreamingExperienceSettings: close({PreferredProtocol?: "TCP" | "UDP" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Tag: close({

@@ -117,62 +117,6 @@ import structs "struct"
 
 #LogExport: "useractivitylog" | "userlog" | "connectionlog" | fn.#StringExpression
 
-#Namespace: close({
-	AdminPasswordSecretArn?:      string | number | bool | fn.#StringExpression
-	AdminPasswordSecretKmsKeyId?: string | number | bool | fn.#StringExpression
-	AdminUsername?:               string | number | bool | fn.#StringExpression
-	CreationDate?:                string | number | bool | fn.#StringExpression
-	DbName?: =~"[a-zA-Z][a-zA-Z_0-9+.@-]*" |
-	{
-		number | bool
-		_cfnString: =~"[a-zA-Z][a-zA-Z_0-9+.@-]*" & "\(self)"
-	} |
-	fn.#StringExpression
-	DefaultIamRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression
-	IamRoles?: [...strings.MaxRunes(512) & strings.MinRunes(0) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
-	} |
-	fn.#StringExpression] |
-	fn.#ListExpression
-	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
-	} |
-	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
-			"\(self)"
-	} |
-	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
-	{
-		number | bool
-		_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
-	} |
-	fn.#StringExpression
-	LogExports?:   list.MaxItems(16) & [...] & [...#LogExport] | fn.#ListExpression
-	NamespaceArn?: string | number | bool | fn.#StringExpression
-	NamespaceId?:  string | number | bool | fn.#StringExpression
-	NamespaceName?: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$" & "\(self)"
-	} |
-	fn.#StringExpression
-	Status?: #NamespaceStatus
-}) |
-fn.#ObjectExpression
-
-#NamespaceStatus: "AVAILABLE" | "MODIFYING" | "DELETING" | fn.#StringExpression
-
 #SnapshotCopyConfiguration: close({
 	DestinationKmsKeyId?: string | number | bool | fn.#StringExpression
 	DestinationRegion!:   string | number | bool | fn.#StringExpression

@@ -92,8 +92,6 @@ fn.#ValueExpression
 }) |
 fn.#ObjectExpression
 
-#GatewayRuleStatus: "CREATING" | "ACTIVE" | "UPDATING" | "DELETING" | fn.#StringExpression
-
 #IamPrincipal: close({
 	Arn!: strings.MaxRunes(2048) &
 	=~"^(arn:aws[a-zA-Z-]*:iam::(\\d{12}|\\*):(user|role)/[\\w+=,.@*?/-]+|arn:aws[a-zA-Z-]*:sts::(\\d{12}|\\*):assumed-role/[\\w+=,.@*?/-]+)$" |
@@ -157,8 +155,6 @@ fn.#ObjectExpression
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#SystemManagedBlock: close({ManagedBy!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #TargetTrafficSplitEntry: close({
 	Description?: strings.MaxRunes(200) & strings.MinRunes(1) |

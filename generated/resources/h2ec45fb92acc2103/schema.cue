@@ -67,13 +67,6 @@ fn.#StringExpression
 } |
 fn.#StringExpression
 
-#AssessmentArn: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*:auditmanager:.*" |
-{
-	number | bool
-	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*:auditmanager:.*" & "\(self)"
-} |
-fn.#StringExpression
-
 #AssessmentDescription: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\w\\W\\s\\S]*$" |
 {
 	number | bool

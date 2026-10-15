@@ -51,26 +51,6 @@ import structs "struct"
 		close({[=~"^Fn::If$"]: [string, properties | fn.#NoValue, properties | fn.#NoValue]}) & structs.MinFields(1)
 }
 
-#Certificate: close({
-	CertificateArn?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" &
-		=~"\"^arn:aws:acm:[a-z0-9-]+:\\d{12}:certificate\\/.+$\"" |
-	{
-		number | bool
-		_cfnString: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" &
-			=~"\"^arn:aws:acm:[a-z0-9-]+:\\d{12}:certificate\\/.+$\"" &
-			"\(self)"
-	} |
-	fn.#StringExpression
-	CertificateType?: "AMPLIFY_MANAGED" | "CUSTOM" | fn.#StringExpression
-	CertificateVerificationDNSRecord?: strings.MaxRunes(1000) |
-	{
-		number | bool
-		_cfnString: strings.MaxRunes(1000) & "\(self)"
-	} |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #CertificateSettings: close({
 	CertificateType?: "AMPLIFY_MANAGED" | "CUSTOM" | fn.#StringExpression
 	CustomCertificateArn?: strings.MaxRunes(1000) &
