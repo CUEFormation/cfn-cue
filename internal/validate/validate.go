@@ -125,27 +125,41 @@ func Check(data []byte, opt Options) (result Result) {
 		}
 		resources = map[string]json.RawMessage{opt.Resource: resource}
 	}
+	// Resources are classified in logical-ID order and every problem is kept, so
+	// the status and message never depend on map iteration. See classify.
+	order := make([]string, 0, len(resources))
+	for name := range resources {
+		order = append(order, name)
+	}
+	sort.Strings(order)
 	names := make([]string, 0, len(resources))
 	types := map[string]string{}
 	actualTypes := map[string]bool{}
 	schemaTypes := map[string]string{}
-	for name, raw := range resources {
+	var invalid, unsupported []string
+	for _, name := range order {
+		raw := resources[name]
 		if !logicalID.MatchString(name) {
-			return fail("invalid", "invalid resource logical ID: "+name)
+			invalid = append(invalid, "invalid resource logical ID: "+name)
+			continue
 		}
 		var resource struct {
 			Type string `json:"Type"`
 		}
 		if err := json.Unmarshal(raw, &resource); err != nil || resource.Type == "" {
-			return fail("invalid", "resource "+name+" must have a string Type")
+			invalid = append(invalid, "resource "+name+" must have a string Type")
+			continue
 		}
 		if strings.HasPrefix(resource.Type, "Custom::") && !cfn.IsCustomResource(resource.Type) {
-			return fail("invalid", "resource "+name+" has an invalid custom resource Type")
+			invalid = append(invalid, "resource "+name+" has an invalid custom resource Type")
+			continue
 		}
+		actualTypes[resource.Type] = true
 		schemaType := cfn.SchemaType(resource.Type)
 		hash, ok := mapping[schemaType]
 		if !ok {
-			return fail("unsupported", fmt.Sprintf("resource %s: %s is absent from %s", name, resource.Type, opt.Region))
+			unsupported = append(unsupported, fmt.Sprintf("resource %s: %s is absent from %s", name, resource.Type, opt.Region))
+			continue
 		}
 		if !schemaID.MatchString(hash) {
 			return fail("error", "unsafe schema identifier in manifest")
@@ -153,13 +167,17 @@ func Check(data []byte, opt Options) (result Result) {
 		names = append(names, name)
 		types[schemaType] = hash
 		schemaTypes[name] = schemaType
-		actualTypes[resource.Type] = true
 	}
-	sort.Strings(names)
 	for typ := range actualTypes {
 		result.ResourceTypes = append(result.ResourceTypes, typ)
 	}
 	sort.Strings(result.ResourceTypes)
+	if len(invalid) > 0 {
+		return fail("invalid", classify(strings.Join(invalid, "\n"), unsupported))
+	}
+	if len(names) == 0 {
+		return fail("unsupported", strings.Join(unsupported, "\n"))
+	}
 	f := &ast.File{Decls: []ast.Decl{&ast.Package{Name: ast.NewIdent("validation")}}}
 	imports := &ast.ImportDecl{}
 	if opt.Resource == "" {
@@ -231,13 +249,27 @@ func Check(data []byte, opt Options) (result Result) {
 	result.Phase = "evaluate"
 	v := cuecontext.New().BuildInstance(instances[0])
 	if err := v.Err(); err != nil {
-		return fail("invalid", detail(err))
+		return fail("invalid", classify(detail(err), unsupported))
 	}
 	if err := v.LookupPath(cue.MakePath(cue.Str("value"))).Validate(cue.Concrete(true)); err != nil {
-		return fail("invalid", detail(err))
+		return fail("invalid", classify(detail(err), unsupported))
+	}
+	if len(unsupported) > 0 {
+		return fail("unsupported", strings.Join(unsupported, "\n"))
 	}
 	result.Status = "valid"
 	return result
+}
+
+// classify appends the resources that were not checked to an invalid result's
+// diagnostics. Status precedence is error, then invalid, then unsupported: a
+// template is invalid when any check that can run fails, and unsupported only
+// when every checkable part passes but some resource type has no schema.
+func classify(message string, unsupported []string) string {
+	for _, line := range unsupported {
+		message += "\nnot checked: " + line
+	}
+	return message
 }
 
 func detail(err error) string {
@@ -251,11 +283,17 @@ func detail(err error) string {
 func unexpanded(value any) string {
 	switch node := value.(type) {
 	case map[string]any:
-		for key, child := range node {
+		// Visit keys in order so the reported construct is stable.
+		keys := make([]string, 0, len(node))
+		for key := range node {
+			keys = append(keys, key)
+		}
+		sort.Strings(keys)
+		for _, key := range keys {
 			if key == "Fn::Transform" || strings.HasPrefix(key, "Fn::ForEach::") {
 				return key
 			}
-			if name := unexpanded(child); name != "" {
+			if name := unexpanded(node[key]); name != "" {
 				return name
 			}
 		}

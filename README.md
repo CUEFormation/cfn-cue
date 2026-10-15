@@ -179,6 +179,8 @@ This is a structural schema generator, not a replacement for cfn-lint. Keep cfn-
 
 Literal property constraints apply directly to literal values. Intrinsic values receive argument and result-type checks; this version does not evaluate them or specialize their branches with the complete target property's enum, pattern, or nested object schema. Parameter type names and SAM Globals have structural coverage. Listed IAM policy properties use the profiles described below; other policy objects have structural coverage. ForEach expansion and ForEach in Conditions/Outputs remain future work.
 
+`cfn-cue-validate` reports `invalid` when any check it can run fails, even if other resources have types missing from the bundle; those resources are listed as not checked. It reports `unsupported` only when everything checkable passes. Resources are checked in logical-ID order, so repeated runs give the same status and message. The [corpus guide](corpus/README.md#compare-validators) gives the full policy.
+
 The conversion report in generated/manifest.json lists every remaining approximation. Unsupported Python/ECMAScript regex features are reported; Unicode `\uXXXX` escapes are translated to RE2 notation. Selected-key uniqueness degrades to whole-item uniqueness. Other unsupported constraints are reported rather than silently presented as enforced. AWS provider annotations and defaults are not emitted as deployable values.
 
 Thirteen cfn-lint identifier formats are enforced as additional literal
