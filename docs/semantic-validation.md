@@ -240,7 +240,7 @@ same core choices as `semantic.Conditions`: literal comparisons are decided,
 comparisons of one expression with different literals exclude each other,
 `AllowedValues` restrict a parameter, and undefined conditions are unknown. The
 two differ in which parameter types `AllowedValues` restrict, in malformed and
-cyclic conditions, in query size limits and in number spelling.
-[conditions.md](conditions.md) lists the differences, the decisions a merge
-needs and a migration plan. Until the models are merged, a change to how
-conditions are decided must be made in both.
+cyclic conditions, in query size limits and in number spelling. The two are
+kept separate because they serve different callers.
+[conditions.md](conditions.md) lists the differences and how to keep the
+shared choices in step.

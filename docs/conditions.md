@@ -9,12 +9,11 @@ Two packages decide CloudFormation conditions. They landed in parallel:
   classifies the guards of a reference for the `conditional-target` and
   `dependency-cycle` rules.
 
-This note records where the two differ, what each caller needs, and what
-merging them would change. The short answer is that **a merge changes
-validation results for some templates**. No template in the smoke, semantic
-or full corpus is affected, but each difference below has a small template
-for which one caller's answer would change. The merge is on hold until the
-decisions in [Open decisions](#open-decisions) are made.
+Both make the same core choices, but they answer different questions for
+different callers and differ in several edge cases. **They are kept as two
+packages on purpose.** This note records where they agree, where they differ,
+and what each caller needs, so a change to one can be checked against the
+other.
 
 ## What the two agree on
 
@@ -98,36 +97,7 @@ names it mentions, `Never` when it is false in every row, and `Sometimes`
 otherwise. The edge and cycle formulas only combine named conditions, so they
 can be evaluated row by row.
 
-## Which shape to keep
-
-`internal/conditions` should be the single model:
-
-- It is already a standalone package with a documented contract and two
-  possible callers in mind. The semantic model is an unexported part of the
-  pass's `Model`.
-- It models a compared expression as a finite-domain variable. Exclusivity
-  and `AllowedValues` are properties of the variable's domain.
-  `semantic.Conditions` gets the same result by enumerating every bit
-  pattern of its atoms and then filtering out infeasible ones, plus a separate
-  rule for a parameter compared with every allowed value. With *k* literals
-  per expression, the finite domain has *k* + 1 choices where the atoms have
-  2ᵏ patterns.
-- `Combinations` is the more general query. `Classify` is a few lines on top
-  of it (see above). The reverse is not true: classification can't produce
-  the rows that removal variants report.
-
-From `semantic.Conditions` it should take:
-
-- Compiling every condition once, in name order, and recording cycles. The
-  current on-demand compilation makes a cyclic template's answers depend on
-  which resource asked first (row 4).
-- The `Truth` type and `Classify`, and JSON tags on `Literal`, so
-  `semantic.Guard` can become an alias and the output stays the same.
-- Constant folding, which lets queries over constant conditions skip
-  enumeration. It changes no answer, but it does lower the variable count
-  that the limit is measured on. See row 5.
-
-## Effect on the corpus and tests
+## How much the differences matter
 
 The differences were measured over every normalized template in
 `.corpus/normalized` (1,092 templates; 213 declare conditions) and the
@@ -163,78 +133,32 @@ Existing tests:
   corpus tests) and `semantic.TestClassify` use only behaviour from
   [What the two agree on](#what-the-two-agree-on).
 
-So a merge can keep every corpus result and every existing test. It can't
-keep every result for every template, because for each of rows 1–6 one
-caller's answer has to change.
+## Decision
 
-## Open decisions
+The models stay separate. Merging them would change results: each row in
+[Where they differ](#where-they-differ) has a small template on which one
+caller's answer would change, so a merge would mean six behaviour decisions,
+not a refactor. The two callers also need different things. Removal variants
+need the rows of `Combinations` and the 2¹⁴ limit that the corpus reaches.
+The semantic pass needs a four-valued classification of guard formulas and
+the list of cyclic conditions. Today no corpus template is affected by any
+difference, so nothing is gained by forcing one answer.
 
-For each row, the merged model has to pick one behaviour. These are the
-recommendations, and the results each would change:
+When changing either model:
 
-1. **`AllowedValues` scope.** Recommendation: restrict `String` and `Number`
-   only, as `internal/conditions` does, until the AWS-specific types are
-   checked against CloudFormation. The CloudFormation documentation lists
-   `AllowedValues` as a constraint for `String` and `Number`. For SSM types,
-   the input is the Parameter Store key and `Ref` returns the stored value, so
-   restricting the `Ref` by `AllowedValues` is probably wrong there. No
-   direction is safe for both callers. Restricting too much can turn a
-   `conditional-target` warning into an error and hide a removal. Restricting
-   too little can turn an error into a warning and report a removal that
-   CloudFormation can't reach. Changes: semantic results for templates that
-   compare an AWS-specific parameter with `AllowedValues` in a condition.
-2. **Non-scalar `AllowedValues`.** Recommendation: ignore the list, as
-   `internal/conditions` does. Changes: `-checks semantic` results for
-   templates the schema rejects. Today such a parameter makes every
-   classification that compares it `Unknown`.
-3. **`Fn::And` and `Fn::Or` arity.** Recommendation: unknown, as
-   `internal/conditions` does. One rule then covers every shape CloudFormation
-   rejects. Changes: `-checks semantic` results, and semantic diagnostics
-   listed next to a schema error, for templates the schema rejects.
-4. **Cycles.** Recommendation: compile every condition in name order, as
-   `semantic.Conditions` does. Changes: removal-variant results in
-   `-checks structural` (the default) and `-resource` mode for templates with
-   cyclic conditions. The schemas don't detect those cycles, and
-   CloudFormation rejects them.
-5. **Limits.** Recommendation: measure every query in assignments. Keep 2¹⁴
-   for `Combinations` and `Satisfiable`, counted as today. Use 2¹⁶ for
-   `Classify`, counted after folding, and count a parameter with
-   `AllowedValues` as the values compared plus one for the rest. An
-   expression with *k* literal atoms then has at most *k* + 1 ≤ 2ᵏ choices,
-   so `Classify` decides every query the 16-atom rule decides today. (Today
-   `internal/conditions` counts every allowed value: a parameter with 100
-   allowed values compared once is 1 atom but 100 choices.) Changes: semantic
-   queries with more than 16 atoms but at most 2¹⁶ assignments become decided
-   rather than `Unknown`. Neither the folding nor the reduced count may apply
-   to `Combinations` while its 2¹⁴ results are pinned.
-6. **Number spelling.** Recommendation: decode once with `UseNumber` in
-   `validate.Check` and pass that template to both callers, so `"1"` and
-   `1.0` are compared the same way everywhere. CloudFormation's own spelling
-   of `1.0` hasn't been checked. Changes: semantic results for conditions or
-   allowed values that spell a number differently from its `float64` form.
+- Keep the choices in [What the two agree on](#what-the-two-agree-on) in
+  step. A change to one of them should be made in both packages, or added to
+  [Where they differ](#where-they-differ) with the reason.
+- A change to a behaviour in the differences table needs no change in the
+  other model. Update the table.
+- Rows 4 and 6 can be fixed on their own without a merge.
+  `internal/conditions` could compile every condition up front, so a cyclic
+  template's answers don't depend on which resource asks first.
+  `validate.Check` could decode the template once with `UseNumber` and give
+  that copy to both checks.
 
-## Migration plan
-
-Once the decisions are made:
-
-1. Make each decision as its own commit, in the model whose behaviour
-   changes, with a test that pins the new answer. Run the corpus before and
-   after each one. Reviewers then see every result change separately from
-   the move.
-2. Add to `internal/conditions` what the semantic pass needs: compiling
-   every condition in `New`, `Cycles()`, `Truth`, `Classify`, and a small
-   formula type for the edge and cycle rules (a disjunction of guard
-   conjunctions, and a conjunction of those). Add JSON tags to `Literal`.
-   Port the cases from `semantic.TestClassify` and the cyclic case from
-   row 4 to `conditions_test.go`.
-3. Switch `internal/semantic` to `*conditions.Model`. Make `semantic.Guard`
-   an alias of `conditions.Literal`, so `Diagnostic` JSON doesn't change.
-   Delete `internal/semantic/conditions.go`. The rule tests in
-   `check_test.go` stay as they are.
-4. Check that nothing changed. Run `go test ./...` and `./scripts/corpus.sh
-   test`, and compare the semantic diagnostics and removal variants of every
-   template in `.corpus/normalized` before and after step 3. The comparison
-   should be byte-identical.
-5. Update `docs/semantic-validation.md` and the README's AWS::NoValue section
-   to point here, and remove the note that a change has to be made in both
-   models.
+If a merge is reconsidered, `internal/conditions` is the better base. Its
+finite-domain variables make exclusivity and `AllowedValues` part of the
+domain, and `Classify` can be built from `Combinations`, but not the other way
+round. The merge would first have to settle each row of the differences table
+and keep the 2¹⁴ `Combinations` limit exactly as it is counted today.
