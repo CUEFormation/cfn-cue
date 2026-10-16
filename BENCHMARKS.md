@@ -91,7 +91,24 @@ The slowdown does not come from nested `Properties` conditionals. Two more inter
 | + #20, reference validation (no CUE change) | `4f087b2` | 43 | 171 |
 | + #21, nested `Properties` conditionals (after) | `e364842` | 41 | 180 |
 
-The cells for `076ccda` give the first run, then the second. #21 against `4f087b2` changed the paired medians by -3 to +11 ms, with after slower in only 4 to 9 of 15 pairs, at depth 0 and depth 1 alike. #22 against `6fbff63` is likewise within noise. The whole difference arrives with #24, slower in all 12 pairs at 10 resources. That change touches only `iam/iam.cue`: it makes the `Fn::If` alternatives of each policy document value recursive (`_#TrustPolicyIf` and its siblings). Of the six benchmark types, only `AWS::IAM::Role` imports `iam`, and the other five resource packages are identical across the two commits. The cost is therefore about 9 to 12 ms per `AWS::IAM::Role` with a literal `AssumeRolePolicyDocument` (2 of the 10 resources, 9 of the 50), not a general per-resource cost. The earlier measurement attributed this to nested `Properties` because its "after" commit already included #24.
+The cells for `076ccda` give the first run, then the second. #21 against `4f087b2` changed the paired medians by -3 to +11 ms, with after slower in only 4 to 9 of 15 pairs, at depth 0 and depth 1 alike. #22 against `6fbff63` is likewise within noise. The whole difference arrives with #24, slower in all 12 pairs at 10 resources. That change touches only `iam/iam.cue`: it makes the `Fn::If` alternatives of each policy document value recursive (`_#TrustPolicyIf` and its siblings). Of the six benchmark types, only `AWS::IAM::Role` imports `iam`, and the other five resource packages are identical across the two commits. The earlier measurement attributed this to nested `Properties` because its "after" commit already included #24.
+
+A follow-up run on October 16, 2026, set the number of roles directly. A throwaway program, not checked in, loaded each module once per process and ran one discarded warm-up template. It then validated each template three times in random order, with no `Fn::If`. Ten processes per generator ran interleaved, with `GOMAXPROCS=4` and load average 4 to 6. Each role has the same literal trust policy as the benchmark role. Figures are median milliseconds over 30 validations, with the interquartile range:
+
+| Template | before (`076ccda`) | #24 (`6fbff63`) | after (`e364842`) | after − before |
+|---|---:|---:|---:|---:|
+| 20 queues, no roles | 24.4 (24.1–27.2) | 25.0 (24.1–28.5) | 24.9 (23.9–27.8) | +0.4 |
+| 2 roles, 18 queues | 26.1 (25.0–27.5) | 50.0 (46.9–53.0) | 48.3 (47.1–50.5) | +22 |
+| 5 roles, 15 queues | 26.9 (26.1–29.1) | 70.5 (68.8–77.9) | 73.5 (69.8–88.2) | +47 |
+| 10 roles, 10 queues | 27.9 (27.2–29.4) | 114 (108–122) | 112 (109–145) | +85 |
+| 20 roles | 30.6 (29.1–32.5) | 196 (184–206) | 192 (187–216) | +161 |
+| 40 roles | 59.0 (57.8–65.4) | 405 (369–501) | 388 (368–552) | +329 |
+| 2 roles, 8 queues | 13.7 (13.2–14.1) | 37.6 (35.1–52.2) | 35.5 (34.7–39.5) | +22 |
+| 2 roles, 48 queues | 63.2 (61.5–75.0) | 86.9 (82.7–106) | 89.8 (83.6–102) | +27 |
+| 50 of the other five types, no roles | 89.0 (86.9–95.2) | 89.5 (86.5–103) | 89.5 (85.8–95.4) | +0.6 |
+| 10 roles with one inline policy, 10 queues | 38.0 (35.9–39.3) | 206 (196–224) | 207 (197–297) | +169 |
+
+The extra time is linear in the number of roles: about 8.2 ms per role on #24 and after (a fit through the medians of the 20-resource rows), against 0.3 ms per role more than a queue before. It does not move with the number of other resources: 2 roles cost the same 22 to 27 ms more alongside 8 or 48 queues. With no roles there is no difference. An inline `Policies` document (`#IdentityPolicyValue`) on each role about doubles the added cost, to 17 ms per role. So the cost belongs to each IAM policy document a template contains, not to resources in general.
 
 Over the same templates without `Fn::If`, one level of nested `Properties` adds about 1.8 ms per resource at the median (267 against 175 ms for 50 resources), and three levels add about 3.6 ms (353 ms), in the worst case where every resource is nested.
 
