@@ -246,7 +246,7 @@ Resources.Role.Properties.AssumeRolePolicyDocument: field is required but not pr
 
 The same copies catch required fields in nested objects (`Properties.Policies[0].PolicyDocument`), a removed `Properties` object for a type with required properties, and at-least-one groups whose members are all removed. Only errors that name a removed position as a required field are reported. Optional properties and list entries can be removed freely. If the template already fails the schemas, that error is reported instead.
 
-Reachability uses the template's `Conditions` and `Parameters` (`internal/conditions`):
+Reachability uses the template's `Conditions` and `Parameters` (`internal/conditions`). The semantic pass has its own condition model; [docs/conditions.md](docs/conditions.md) compares the two:
 
 - `Fn::And`, `Fn::Or`, `Fn::Not` and `Condition` are evaluated as written. A branch is reachable only if some assignment satisfies every enclosing `Fn::If` choice and the resource's `Condition` attribute. A resource whose `Condition` can never hold is never created, so its branches aren't checked.
 - `Fn::Equals` of two literals is a known boolean, compared by string form (`"1"` equals `1`). An expression compared with literals takes at most one of them, so `Env = prod` and `Env = dev` can't both hold. A `Ref` to a `String` or `Number` parameter with `AllowedValues` takes only those values.
