@@ -236,8 +236,11 @@ resource. They build on the model this pass provides:
 
 Condition-aware required-property checks (issue #11, PR #24) landed in
 parallel with their own condition model, `internal/conditions`. It makes the
-same choices as `semantic.Conditions`: literal comparisons are decided,
+same core choices as `semantic.Conditions`: literal comparisons are decided,
 comparisons of one expression with different literals exclude each other,
-`AllowedValues` restrict a parameter, and undefined or cyclic conditions are
-unknown. Merging the two models into one package is follow-up work; until then,
-a change to how conditions are decided must be made in both.
+`AllowedValues` restrict a parameter, and undefined conditions are unknown. The
+two differ in which parameter types `AllowedValues` restrict, in malformed and
+cyclic conditions, in query size limits and in number spelling.
+[conditions.md](conditions.md) lists the differences, the decisions a merge
+needs and a migration plan. Until the models are merged, a change to how
+conditions are decided must be made in both.
