@@ -64,20 +64,53 @@ Inlining each resource's properties schema into `#Resource` raised the full-regi
 
 ### Nested `Fn::If` around `Properties`
 
-Measured on October 15, 2026, with CUE v0.18.0-rc.1 on the same machine under moderate unrelated load (load average 7 to 9), so absolute times run somewhat above the figures above. Both modules contain all 1,839 us-east-1 types: the generator before nested `Properties` conditionals (`076ccda`) and after. `CFN_CUE_PERF_IF_DEPTH` wraps every resource's `Properties` in that many `Fn::If`, with the literal properties innermost and `AWS::NoValue` in each other branch. Each configuration ran three times, interleaved; figures are medians in milliseconds. The earlier generator rejects depth 3, so it has no figure there.
+Measured on October 15, 2026, with CUE v0.18.0-rc.1 and Go 1.26.4 on the same machine. Every module holds all 1,839 us-east-1 types and was generated once, then reused for every repetition. "Before" is the generator at `076ccda`; "after" is `e364842`, main with #21 merged. `CFN_CUE_PERF_IF_DEPTH` wraps every resource's `Properties` in that many `Fn::If`, with the literal properties innermost and `AWS::NoValue` in each other branch. One `go test -c` binary from `e364842` ran every configuration with `GOMAXPROCS=4`, one process per variant and depth. Each configuration ran 20 times. Before and after alternated within each iteration, and the order flipped every iteration. Load average was 5 to 9 for most of the run; one spike to 48 in the third iteration came from other work on the machine. Figures are milliseconds: median, then interquartile range (25th to 75th percentile) and min to max. The earlier generator rejects depth 3, so it has no figure there.
 
 | | before | after |
-|---|---:|---:|
-| Load region package | 5,252 | 4,733 |
-| 10 resources, no `Fn::If` | 20 | 26 |
-| 50 resources, no `Fn::If` | 106 | 125 |
-| 10 resources, depth 1 | 35 | 36 |
-| 50 resources, depth 1 | 167 | 162 |
-| 10 resources, depth 3 | — | 68 |
-| 50 resources, depth 3 | — | 386 |
-| 50 resources, depth 3, one broken | — | 323 |
+|---|---|---|
+| Load region package | 4,754 (4,624–5,064; 4,284–12,227) | 4,790 (4,623–4,994; 4,244–5,643) |
+| 10 resources, no `Fn::If` | 20 (19–23; 18–28) | 43 (41–44; 40–57) |
+| 10 resources, no `Fn::If`, one broken | 19 (18–21; 17–28) | 42 (41–43; 40–49) |
+| 50 resources, no `Fn::If` | 97 (88–112; 85–312) | 175 (170–181; 160–371) |
+| 50 resources, no `Fn::If`, one broken | 97 (91–185; 84–495) | 176 (172–188; 163–372) |
+| 10 resources, depth 1 | 34 (33–36; 31–86) | 58 (58–66; 54–291) |
+| 50 resources, depth 1 | 164 (157–179; 146–374) | 267 (249–345; 227–534) |
+| 10 resources, depth 3 | — | 76 (73–79; 67–258) |
+| 50 resources, depth 3 | — | 353 (334–530; 305–858) |
+| 50 resources, depth 3, one broken | — | 350 (334–440; 308–764) |
 
-Load time and single-level validation are unchanged within noise. Validation without `Fn::If` varied from run to run by more than the difference between the generators (50 resources: 91 to 173 ms before, 109 to 386 ms after). Three levels cost about 6.5 to 7.7 ms per resource, two to two and a half times a single level, in the worst case where every resource is nested.
+The no-`Fn::If` slowdown is real, and larger than the three-run figures showed (20 to 26 ms and 106 to 125 ms; those did not reproduce). With 10 resources, after was slower in all 20 paired iterations, by a median of 23 ms (2.2 times). That gap is six to eight times the interquartile range of either column (3 to 4 ms), and the ranges do not overlap: the slowest of 20 before runs took 28 ms, the fastest after run 40 ms. With 50 resources the median gap is 78 ms (1.8 times), against interquartile ranges of 11 to 24 ms. Occasional outliers above 300 ms in both columns make the min-to-max ranges overlap, and after was slower in 16 of 20 pairs. Load time is unchanged.
+
+The slowdown does not come from nested `Properties` conditionals. Two more interleaved runs (15 and 12 iterations, load average 5 to 11) added modules from the commits between `076ccda` and `e364842`. Medians are in milliseconds, no `Fn::If`, valid templates:
+
+| Generator | Commit | 10 resources | 50 resources |
+|---|---|---:|---:|
+| before | `076ccda` | 18 / 19 | 87 / 90 |
+| + #24, conditional IAM policy documents | `6fbff63` | 43 | 170 |
+| + #22, lookaround patterns | `3743119` | 42 | 171 |
+| + #20, reference validation (no CUE change) | `4f087b2` | 43 | 171 |
+| + #21, nested `Properties` conditionals (after) | `e364842` | 41 | 180 |
+
+The cells for `076ccda` give the first run, then the second. #21 against `4f087b2` changed the paired medians by -3 to +11 ms, with after slower in only 4 to 9 of 15 pairs, at depth 0 and depth 1 alike. #22 against `6fbff63` is likewise within noise. The whole difference arrives with #24, slower in all 12 pairs at 10 resources. That change touches only `iam/iam.cue`: it makes the `Fn::If` alternatives of each policy document value recursive (`_#TrustPolicyIf` and its siblings). Of the six benchmark types, only `AWS::IAM::Role` imports `iam`, and the other five resource packages are identical across the two commits. The earlier measurement attributed this to nested `Properties` because its "after" commit already included #24.
+
+A follow-up run on October 16, 2026, set the number of roles directly. A throwaway program, not checked in, loaded each module once per process and ran one discarded warm-up template. It then validated each template three times in random order, with no `Fn::If`. Ten processes per generator ran interleaved, with `GOMAXPROCS=4` and load average 4 to 6. Each role has the same literal trust policy as the benchmark role. Figures are median milliseconds over 30 validations, with the interquartile range:
+
+| Template | before (`076ccda`) | #24 (`6fbff63`) | after (`e364842`) | after − before |
+|---|---:|---:|---:|---:|
+| 20 queues, no roles | 24.4 (24.1–27.2) | 25.0 (24.1–28.5) | 24.9 (23.9–27.8) | +0.4 |
+| 2 roles, 18 queues | 26.1 (25.0–27.5) | 50.0 (46.9–53.0) | 48.3 (47.1–50.5) | +22 |
+| 5 roles, 15 queues | 26.9 (26.1–29.1) | 70.5 (68.8–77.9) | 73.5 (69.8–88.2) | +47 |
+| 10 roles, 10 queues | 27.9 (27.2–29.4) | 114 (108–122) | 112 (109–145) | +85 |
+| 20 roles | 30.6 (29.1–32.5) | 196 (184–206) | 192 (187–216) | +161 |
+| 40 roles | 59.0 (57.8–65.4) | 405 (369–501) | 388 (368–552) | +329 |
+| 2 roles, 8 queues | 13.7 (13.2–14.1) | 37.6 (35.1–52.2) | 35.5 (34.7–39.5) | +22 |
+| 2 roles, 48 queues | 63.2 (61.5–75.0) | 86.9 (82.7–106) | 89.8 (83.6–102) | +27 |
+| 50 of the other five types, no roles | 89.0 (86.9–95.2) | 89.5 (86.5–103) | 89.5 (85.8–95.4) | +0.6 |
+| 10 roles with one inline policy, 10 queues | 38.0 (35.9–39.3) | 206 (196–224) | 207 (197–297) | +169 |
+
+The extra time is linear in the number of roles: about 8.2 ms per role on #24 and after (a fit through the medians of the 20-resource rows), against 0.3 ms per role more than a queue before. It does not move with the number of other resources: 2 roles cost the same 22 to 27 ms more alongside 8 or 48 queues. With no roles there is no difference. An inline `Policies` document (`#IdentityPolicyValue`) on each role about doubles the added cost, to 17 ms per role. So the cost belongs to each IAM policy document a template contains, not to resources in general.
+
+Over the same templates without `Fn::If`, one level of nested `Properties` adds about 1.8 ms per resource at the median (267 against 175 ms for 50 resources), and three levels add about 3.6 ms (353 ms), in the worst case where every resource is nested.
 
 ### Per type, without the region
 
@@ -94,4 +127,4 @@ Load time and single-level validation are unchanged within noise. Validation wit
 
 - Templates with many or large properties per resource. The per-type benchmark gives a floor of 1 to 3 ms per minimal resource.
 - The `cue` command line with the current generator. In-process figures exclude process start-up and CLI module loading.
-- Repeated runs and variance.
+- Repeated runs and variance, except for nested `Fn::If` around `Properties`.
