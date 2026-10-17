@@ -25,8 +25,10 @@ underlying comparisons:
   equals `1` and `true` equals `"true"`.
 - An expression compared with literals takes at most one of them. `Env ==
   "prod"` and `Env == "dev"` exclude each other.
-- A `Ref` to a parameter with `AllowedValues` takes one of those values.
-  Comparing it with a value outside the list is false.
+- A `Ref` to a `String` or `Number` parameter whose `AllowedValues` is a
+  nonempty list of scalars takes one of those values. Comparing it with a
+  value outside the list is false. Neither model restricts
+  `CommaDelimitedList` or `List<…>` parameters. Row 1 covers the other types.
 - Two identical expressions are equal. Any other comparison, such as two
   different `Ref`s, is an independent unknown.
 - An undeclared condition, or an expression of unrecognized shape, is an
@@ -44,9 +46,9 @@ on `e3648424`. "Semantic" is `semantic.Analyze(t).Conditions.Classify`.
 | # | Input | `semantic.Conditions` | `internal/conditions` | Accepted by CloudFormation |
 | --- | --- | --- | --- | --- |
 | 1 | `AllowedValues` on an AWS-specific parameter type, such as `AWS::EC2::KeyPair::KeyName` or `AWS::SSM::Parameter::Value<String>` | Restricts the `Ref`. Only `CommaDelimitedList` and `List<…>` types are excluded, so `AWS::SSM::Parameter::Value<List<String>>` is also restricted | Restricts only `String` and `Number` | Yes |
-| 2 | `AllowedValues` with a non-scalar entry | Keeps the scalar entries as the domain. With none left, the domain is empty and every query on the parameter is `Unknown` | Ignores the list | No; the schema rejects it |
+| 2 | `AllowedValues` with a non-scalar entry | Keeps the scalar entries as the domain. With none left, the domain is empty and every comparison of the parameter with a literal that survives constant folding is `Unknown` | Ignores the list | No; the schema rejects it |
 | 3 | `Fn::And` or `Fn::Or` with 1 or more than 10 arguments | Evaluates the arguments | Unknown | No; the schema rejects it |
-| 4 | Cyclic conditions, such as `A: And[Condition B, Equals[Ref P, x]]`, `B: Condition A` | Compiles every condition up front in name order and breaks the cycle at the first back reference: `B = cycle(A)`, `A = cycle(A) ∧ P=x`. `B ∧ ¬A` is `Sometimes` | Compiles on demand. The first condition a query touches is where the cycle breaks, and the result is cached for later resources: `A = u(B) ∧ P=x`, `B = A`. `B ∧ ¬A` is unsatisfiable | No |
+| 4 | Cyclic conditions, such as `A: And[Condition B, Equals[Ref P, x]]`, `B: Condition A` | Compiles every condition up front in name order and breaks the cycle at the first back reference: `B = cycle(A)`, `A = cycle(A) ∧ P=x`. `B ∧ ¬A` is `Sometimes` | Compiles on demand. The first condition a query touches is where the cycle breaks, and the result is cached for later resources. If `B` is compiled first, `A = u(B) ∧ P=x` and `B = A`, so `B ∧ ¬A` is unsatisfiable. If `A` is compiled first, the same query is satisfiable | No |
 | 5 | Query size limit | At most 16 atoms per query, counted after constant folding. An expression compared with *k* literals is *k* atoms | At most 2¹⁴ assignments per query, without folding: the product over expressions of their choices (*k* + 1 values, or every allowed value) times 2 per unknown | Not applicable |
 | 6 | Number spelling, such as `Equals["1", 1.0]` or `AllowedValues: [1.0]` | `"1"`: `internal/validate` decodes the template into `float64` | `"1.0"`: `removalVariants` decodes again with `UseNumber` | Yes |
 
@@ -122,8 +124,9 @@ checked-in `corpus/smoke` and `corpus/semantic` cases:
 
 Existing tests:
 
-- `conditions.TestUndecided` pins the 2¹⁴ limit: 15 independent comparisons
-  are undecided. Under the semantic rule of 16 atoms, they would be decided.
+- `conditions.TestUndecided` checks that 15 independent comparisons (2¹⁵
+  assignments) are undecided. Under the semantic rule of 16 atoms, they would
+  be decided. It doesn't pin the exact limit: a lower limit would also pass.
 - No other test in either package depends on rows 1–6. The self-cycle
   `Loop` in `TestCombinations` and the two-condition cycle in
   `semantic.TestReferences` give the same answer both ways, and the malformed
@@ -159,6 +162,7 @@ When changing either model:
 
 If a merge is reconsidered, `internal/conditions` is the better base. Its
 finite-domain variables make exclusivity and `AllowedValues` part of the
-domain, and `Classify` can be built from `Combinations`, but not the other way
-round. The merge would first have to settle each row of the differences table
+domain, and `Classify` is a few lines on top of `Combinations`. Recovering
+`Combinations` from `Classify` would take one classification per assignment of
+the named conditions. The merge would first have to settle each row of the differences table
 and keep the 2¹⁴ `Combinations` limit exactly as it is counted today.
