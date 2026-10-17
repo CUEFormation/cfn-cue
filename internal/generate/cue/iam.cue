@@ -200,6 +200,9 @@ _#RCPActions: _#RCPAction | [..._#RCPAction] | _#ListIntrinsic
 // field's recursive branch types even for a literal document, which cost
 // about 8 ms per policy document; a pattern applies only when the key is
 // present.
+// As with the fn keys, a CUE value that only declares Fn::If as required
+// ("Fn::If"!:) no longer matches, because a pattern does not supply the
+// field; concrete template values are unaffected.
 //
 // Inside json.Validate, CUE v0.18 does not enforce matchN's required-field
 // alternatives, so JSON strings get every check except the exactly-one rules.

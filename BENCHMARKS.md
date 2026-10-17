@@ -87,7 +87,7 @@ Load time and single-level validation are unchanged within noise. Validation wit
 
 Measured on October 16 and 17, 2026, with CUE v0.18.0-rc.1 under unrelated load (load average 6 to 13). #24 let a policy document property be a nested `Fn::If` over documents. Its encoding matched `"Fn::If"` as a regular field, and CUE evaluated that field's recursive branch types for every literal document, about 8 ms per policy document. This generator matches the key with a pattern (`[=~"^Fn::If$"]`), which applies only when the key is present.
 
-Three modules with all 1,839 us-east-1 types were compared: before #24 (`076ccda`), main before this change (`e364842`), and main with this change. A small Go program loaded `regions/us-east-1` once per process and validated templates of `AWS::IAM::Role` resources with a one-statement trust policy, filled out with `AWS::SQS::Queue`. Scenarios ran in random order, three times per process, in 8 interleaved processes per module. Figures are medians in milliseconds.
+Three modules with all 1,839 us-east-1 types were compared: before #24 (`076ccda`), main before this change (`e364842`), and main with this change. A small Go program loaded `regions/us-east-1` once per process and validated templates of `AWS::IAM::Role` resources with a one-statement trust policy, filled out with `AWS::SQS::Queue`. Scenarios ran in random order, three times per process, in 8 interleaved processes per module: 24 measurements per scenario. This change also ran in a second batch of 8 processes, so its figures pool 48. Figures are medians in milliseconds.
 
 | | before #24 | main | this change |
 |---|---:|---:|---:|
