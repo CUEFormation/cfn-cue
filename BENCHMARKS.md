@@ -116,6 +116,27 @@ Over the same templates without `Fn::If`, one level of nested `Properties` adds 
 
 `TestResourcePerformance` checks a resource against its own `#ResourceTypes` entry. It loads each resource package in 10 to 24 ms and validates one minimal resource in 1 to 3 ms (`AWS::S3::Bucket` is the slowest).
 
+### Conditional IAM policy documents
+
+Measured on October 16 and 17, 2026, with CUE v0.18.0-rc.1 under unrelated load (load average 6 to 13). #24 let a policy document property be a nested `Fn::If` over documents. Its encoding matched `"Fn::If"` as a regular field, and CUE evaluated that field's recursive branch types for every literal document, about 8 ms per policy document. This generator matches the key with a pattern (`[=~"^Fn::If$"]`), which applies only when the key is present.
+
+Three modules with all 1,839 us-east-1 types were compared: before #24 (`076ccda`), main before this change (`e364842`), and main with this change. A small Go program loaded `regions/us-east-1` once per process and validated templates of `AWS::IAM::Role` resources with a one-statement trust policy, filled out with `AWS::SQS::Queue`. Scenarios ran in random order, three times per process, in 8 interleaved processes per module: 24 measurements per scenario. The two conditional trust policy rows also ran in a second batch of 8 processes with this change, so its figures there pool 48. Figures are medians in milliseconds.
+
+| | before #24 | main | this change |
+|---|---:|---:|---:|
+| 20 resources, no roles | 24 | 24 | 24 |
+| 20 resources, 10 roles | 27 | 110 | 23 |
+| 20 resources, 20 roles | 30 | 186 | 22 |
+| 40 roles | 57 | 366 | 42 |
+| 10 roles with an inline policy, 10 queues | 36 | 194 | 28 |
+| 10 roles with a depth-1 conditional trust policy, 10 queues | 30 | 117 | 33 |
+| 10 roles with a depth-3 conditional trust policy, 10 queues | — | 240 | 50 |
+| 50 resources of the other five benchmark types | 86 | 87 | 87 |
+
+Each role added 0.25 ms before #24, 7.9 ms on main, and nothing measurable with pattern keys. The earlier generator rejects depth 3. Removing the recursion while keeping the regular field (three unrolled levels) only halved the cost.
+
+`cfn-cue-validate` accepted and rejected the same 1,092 corpus templates with either module, one process per template including load: 839 valid and 253 invalid. Total time fell from 153 to 143 s; the largest savings were 0.9 to 1.4 s per template. Error messages changed for 5 templates: four no longer dump the expanded recursive document type, and one gains a `MinFields` line.
+
 ## Findings
 
 - **Pattern-constraint function keys made region evaluation feasible.** At equal region size the union is 460 to 1,400 times faster than with optional-field keys, which took 4.6 s per resource with only 6 types.
