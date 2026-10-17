@@ -104,3 +104,12 @@ ok	#TrustPolicyValue	{"Fn::If": ["A", {Statement: {Effect: "Allow", Principal: "
 bad	#TrustPolicyValue	{"Fn::If": ["A", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {"Fn::If": ["B", {Ref: "AWS::NoValue"}, {Statement: {Effect: "Allow", Action: "sts:AssumeRole"}}]}]}
 ok	#IdentityPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*"}]}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
 ok	#TrustPolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {Ref: "AWS::NoValue"}]}
+# Conditional documents nest to any depth; an inner Fn::If with only AWS::NoValue branches is not a document.
+ok	#TrustPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {"Fn::If": ["C", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
+ok	#TrustPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {"Fn::If": ["C", {"Fn::If": ["D", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
+bad	#TrustPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {"Fn::If": ["C", {Statement: {Effect: "Allow", Action: "sts:AssumeRole"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
+bad	#TrustPolicyValue	{"Fn::If": ["A", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {"Fn::If": ["B", {Ref: "AWS::NoValue"}, {Ref: "AWS::NoValue"}]}]}
+ok	#TrustPolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}]}]}
+bad	#TrustPolicyValue	{"Fn::If": ["A", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}]}
+bad	#TrustPolicyValue	{"Fn::If": ["A", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}], Extra: 1}
+ok	#TrustPolicyValue	{"Fn::If": ["A", {"Fn::Sub": "x"}, {Ref: "AWS::NoValue"}]}
