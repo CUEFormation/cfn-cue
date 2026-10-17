@@ -275,3 +275,105 @@ func TestSubVariables(t *testing.T) {
 		t.Fatalf("%q", got)
 	}
 }
+
+var identifiers = map[string][]string{
+	"AWS::Athena::WorkGroup": {"Name"},
+	"AWS::Test::Pair":        {"A", "B"},
+}
+
+func TestDuplicateIdentifiers(t *testing.T) {
+	cases := []struct {
+		name, resources string
+		want            []string
+	}{
+		{"literal", `"W1": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": "group"}},
+			"W2": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": "group"}}`,
+			[]string{"error:duplicate-identifier:/Resources/W2/Properties/Name"}},
+		{"distinct", `"W1": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": "a"}},
+			"W2": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": "b"}}`, []string{}},
+		// CloudFormation generates a missing name; identical intrinsics stay unresolved.
+		{"missing", `"W1": {"Type": "AWS::Athena::WorkGroup"}, "W2": {"Type": "AWS::Athena::WorkGroup", "Properties": {}}`, []string{}},
+		{"intrinsic", `"W1": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": {"Ref": "Env"}}},
+			"W2": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": {"Ref": "Env"}}}`, []string{}},
+		{"other type", `"W1": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": "x"}},
+			"Q": {"Type": "AWS::SQS::Queue", "Properties": {"QueueName": "x"}},
+			"R": {"Type": "AWS::SQS::Queue", "Properties": {"QueueName": "x"}}`, []string{}},
+		{"boolean string", `"W1": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": true}},
+			"W2": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": "True"}}`,
+			[]string{"error:duplicate-identifier:/Resources/W2/Properties/Name"}},
+		{"composite", `"P1": {"Type": "AWS::Test::Pair", "Properties": {"A": "x", "B": "y"}},
+			"P2": {"Type": "AWS::Test::Pair", "Properties": {"A": "x", "B": "z"}},
+			"P3": {"Type": "AWS::Test::Pair", "Properties": {"A": "x", "B": "y"}},
+			"P4": {"Type": "AWS::Test::Pair", "Properties": {"A": "x"}}`,
+			[]string{"error:duplicate-identifier:/Resources/P3/Properties"}},
+		{"three", `"W1": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": "g"}},
+			"W2": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": "g"}},
+			"W3": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": "g"}}`,
+			[]string{"error:duplicate-identifier:/Resources/W2/Properties/Name",
+				"error:duplicate-identifier:/Resources/W3/Properties/Name"}},
+		{"exclusive conditions", `"W1": {"Type": "AWS::Athena::WorkGroup", "Condition": "Prod", "Properties": {"Name": "g"}},
+			"W2": {"Type": "AWS::Athena::WorkGroup", "Condition": "Dev", "Properties": {"Name": "g"}}`, []string{}},
+		{"negated condition", `"W1": {"Type": "AWS::Athena::WorkGroup", "Condition": "Prod", "Properties": {"Name": "g"}},
+			"W2": {"Type": "AWS::Athena::WorkGroup", "Condition": "NotProd", "Properties": {"Name": "g"}}`, []string{}},
+		{"overlapping conditions", `"W1": {"Type": "AWS::Athena::WorkGroup", "Condition": "Prod", "Properties": {"Name": "g"}},
+			"W2": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": "g"}}`,
+			[]string{"warning:duplicate-identifier:/Resources/W2/Properties/Name"}},
+		{"if value", `"W1": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": {"Fn::If": ["Prod", "g", {"Ref": "AWS::NoValue"}]}}},
+			"W2": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": {"Fn::If": ["Prod", {"Ref": "AWS::NoValue"}, "g"]}}}`, []string{}},
+		{"if value overlap", `"W1": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": {"Fn::If": ["Prod", "g", {"Ref": "Env"}]}}},
+			"W2": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": "g"}}`,
+			[]string{"warning:duplicate-identifier:/Resources/W2/Properties/Name"}},
+		// Each branch pair needs Prod or not Prod, so together they always hold.
+		{"if both branches", `"W1": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": {"Fn::If": ["Prod", "a", "b"]}}},
+			"W2": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": {"Fn::If": ["Prod", "a", "b"]}}}`,
+			[]string{"error:duplicate-identifier:/Resources/W2/Properties/Name"}},
+		{"if properties", `"W1": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Fn::If": ["Prod", {"Name": "g"}, {"Name": "h"}]}},
+			"W2": {"Type": "AWS::Athena::WorkGroup", "Condition": "Dev", "Properties": {"Name": "g"}}`, []string{}},
+		{"never condition", `"W1": {"Type": "AWS::Athena::WorkGroup", "Condition": "Never", "Properties": {"Name": "g"}},
+			"W2": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": "g"}}`, []string{}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			var template map[string]any
+			data := `{"Parameters": {"Env": {"Type": "String"}},
+				"Conditions": {"Prod": {"Fn::Equals": [{"Ref": "Env"}, "prod"]}, "Dev": {"Fn::Equals": [{"Ref": "Env"}, "dev"]},
+					"NotProd": {"Fn::Not": [{"Condition": "Prod"}]}, "Never": {"Fn::Equals": ["a", "b"]}},
+				"Resources": {` + tc.resources + `}}`
+			if err := json.Unmarshal([]byte(data), &template); err != nil {
+				t.Fatal(err)
+			}
+			ds := Check(template, Options{PrimaryIdentifier: func(typ string) []string { return identifiers[typ] }})
+			if got := summary(ds); !reflect.DeepEqual(got, tc.want) {
+				t.Fatalf("got %q\nwant %q", got, tc.want)
+			}
+		})
+	}
+}
+
+func TestDuplicateIdentifierMessage(t *testing.T) {
+	var template map[string]any
+	_ = json.Unmarshal([]byte(`{"Parameters": {"Env": {"Type": "String"}},
+		"Conditions": {"Prod": {"Fn::Equals": [{"Ref": "Env"}, "prod"]}},
+		"Resources": {
+			"A": {"Type": "AWS::Athena::WorkGroup", "Condition": "Prod", "Properties": {"Name": "g"}},
+			"B": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": "g"}}}}`), &template)
+	ds := Check(template, Options{PrimaryIdentifier: func(typ string) []string { return identifiers[typ] }})
+	if len(ds) != 1 || !reflect.DeepEqual(ds[0].Conditions, []Guard{{"Prod", true}}) ||
+		ds[0].Message != `AWS::Athena::WorkGroup primary identifier Name="g" is also set by A when both exist` {
+		t.Fatalf("%+v", ds)
+	}
+}
+
+func TestDuplicateIdentifierBranchMessage(t *testing.T) {
+	var template map[string]any
+	_ = json.Unmarshal([]byte(`{"Parameters": {"Env": {"Type": "String"}},
+		"Conditions": {"Prod": {"Fn::Equals": [{"Ref": "Env"}, "prod"]}},
+		"Resources": {
+			"A": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": {"Fn::If": ["Prod", "a", "b"]}}},
+			"B": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": "b"}}}}`), &template)
+	ds := Check(template, Options{PrimaryIdentifier: func(typ string) []string { return identifiers[typ] }})
+	if len(ds) != 1 || !reflect.DeepEqual(ds[0].Conditions, []Guard{{"Prod", false}}) ||
+		ds[0].Message != `AWS::Athena::WorkGroup primary identifier Name="b" is also set by A when both exist` {
+		t.Fatalf("%+v", ds)
+	}
+}

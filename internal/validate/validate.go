@@ -449,8 +449,9 @@ func withSemantic(message string, semanticErrors []string) string {
 }
 
 // checkSemantic records semantic diagnostics and returns the error messages.
-// GetAtt names come from the manifest; a manifest without them leaves
-// attribute names unchecked rather than rejecting every GetAtt.
+// GetAtt names and primary identifiers come from the manifest; a manifest
+// without them leaves attribute names and identifiers unchecked rather than
+// rejecting every GetAtt.
 func checkSemantic(decoded any, manifest generate.Manifest, mapping map[string]string, result *Result) []string {
 	template, _ := decoded.(map[string]any)
 	diagnostics := semantic.Check(template, semantic.Options{Attributes: func(typ string) ([]string, bool) {
@@ -460,6 +461,11 @@ func checkSemantic(decoded any, manifest generate.Manifest, mapping map[string]s
 		}
 		names := manifest.Schemas[hash].Attributes
 		return names, names != nil
+	}, PrimaryIdentifier: func(typ string) []string {
+		if hash, ok := mapping[typ]; ok {
+			return manifest.Schemas[hash].PrimaryIdentifier
+		}
+		return nil
 	}})
 	result.Diagnostics = diagnostics
 	var messages []string

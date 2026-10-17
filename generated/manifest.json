@@ -58920,7 +58920,11 @@
       "type": "AWS::SES::EmailIdentityCertificate",
       "sha256": "2a4a80449f697088f3c62eb136ea070a21b552c2062fd5b1eb9a918205f7a82d",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "EmailIdentity",
+        "FromAddress"
+      ]
     },
     "00421980662e80a4": {
       "type": "AWS::ApiGatewayV2::VpcLink",
@@ -58954,13 +58958,20 @@
       "propertiesRequired": true,
       "attributes": [
         "ConnectorArn"
+      ],
+      "primaryIdentifier": [
+        "ConnectorLabel"
       ]
     },
     "00acd97d0a6da712": {
       "type": "AWS::OpenSearchServerless::SecurityPolicy",
       "sha256": "281607901d9672fbb6f3d35a5eb50b4869a8cc1312fa94b58d1335390ebad240",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Type",
+        "Name"
+      ]
     },
     "00afa9a1fd4462af": {
       "type": "AWS::ECS::Service",
@@ -59002,6 +59013,10 @@
         "CreatedTime",
         "LastUpdatedTime",
         "Version"
+      ],
+      "primaryIdentifier": [
+        "AwsAccountId",
+        "TemplateId"
       ]
     },
     "016b5dfb01156d16": {
@@ -59021,6 +59036,9 @@
         "Snapshot.SnapshotCreateTime",
         "Snapshot.SnapshotName",
         "Snapshot.Status"
+      ],
+      "primaryIdentifier": [
+        "SnapshotName"
       ]
     },
     "01762363f3edfd39": {
@@ -59068,6 +59086,9 @@
         "CreationDate",
         "LastModificationDate",
         "State"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "018fdc19d92df05d": {
@@ -59078,6 +59099,9 @@
         "Arn",
         "CreationDateTime",
         "UpdateDateTime"
+      ],
+      "primaryIdentifier": [
+        "WorkspaceId"
       ]
     },
     "022e8915baa93595": {
@@ -59112,6 +59136,10 @@
       "attributes": [
         "State",
         "Type"
+      ],
+      "primaryIdentifier": [
+        "DestinationCidrBlock",
+        "LocalGatewayRouteTableId"
       ]
     },
     "027344b12e0a580c": {
@@ -59152,7 +59180,10 @@
       "type": "AWS::SSM::ResourceDataSync",
       "sha256": "48c388922fa0447191a6c894d195e63f16593eec00c6623a418dd8e557a70924",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "SyncName"
+      ]
     },
     "0300e1630e8b2eb9": {
       "type": "AWS::PI::PerfReports",
@@ -59225,7 +59256,11 @@
       "type": "AWS::OpenSearchServerless::LifecyclePolicy",
       "sha256": "3c62890e8755d9c0f534e491782bcc645afdecb11f7c5a3eb7fc68fa2adb8868",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Type",
+        "Name"
+      ]
     },
     "0392c0db89e7e1af": {
       "type": "AWS::Transfer::Server",
@@ -59266,6 +59301,9 @@
       "propertiesRequired": true,
       "attributes": [
         "RevisionId"
+      ],
+      "primaryIdentifier": [
+        "EventBusArn"
       ]
     },
     "03dbdf25d7f24ad1": {
@@ -59406,6 +59444,9 @@
       "propertiesRequired": true,
       "attributes": [
         "OrganizationConfigRuleArn"
+      ],
+      "primaryIdentifier": [
+        "OrganizationConfigRuleName"
       ]
     },
     "05200686dbc4258c": {
@@ -59421,7 +59462,10 @@
       "type": "AWS::S3::BucketPolicy",
       "sha256": "9e0b244e74921c751dba74d01663985cbae13c669efa0bab280c93f564bdedd0",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Bucket"
+      ]
     },
     "0543738693bf7047": {
       "type": "AWS::Grafana::Workspace",
@@ -59495,7 +59539,10 @@
       "type": "AWS::Logs::Transformer",
       "sha256": "cc5c8941d15b6a4c67e757f4f2ae918a033f2218cc485c53ef91df30755dc71d",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "LogGroupIdentifier"
+      ]
     },
     "062a88fa3ce58c90": {
       "type": "AWS::M2::Application",
@@ -59618,6 +59665,10 @@
         "LastUpdatedAt",
         "Readiness",
         "Status"
+      ],
+      "primaryIdentifier": [
+        "DomainName",
+        "CalculatedAttributeName"
       ]
     },
     "07262140df88d16b": {
@@ -59649,13 +59700,20 @@
         "CreatedAt",
         "Status",
         "UpdatedAt"
+      ],
+      "primaryIdentifier": [
+        "GatewayIdentifier",
+        "RateLimitId"
       ]
     },
     "078c356c924fb638": {
       "type": "AWS::S3Outposts::BucketPolicy",
       "sha256": "d760c4c600ddefe30f356ba93918ed5f9e12c8d3f80ae9a0ad6213ac50b27a7f",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Bucket"
+      ]
     },
     "079bb8bcdb9f31ca": {
       "type": "AWS::Omics::RunCache",
@@ -59681,6 +59739,9 @@
         "LockConfiguration.MinRetentionDays",
         "Notifications.BackupVaultEvents",
         "Notifications.SNSTopicArn"
+      ],
+      "primaryIdentifier": [
+        "BackupVaultName"
       ]
     },
     "07b42d36f86250f6": {
@@ -59698,6 +59759,10 @@
       "attributes": [
         "LastModifiedRegion",
         "LastModifiedTime"
+      ],
+      "primaryIdentifier": [
+        "InstanceArn",
+        "Name"
       ]
     },
     "07db1cc8cbc0787d": {
@@ -59713,7 +59778,11 @@
       "type": "AWS::EC2::VolumeAttachment",
       "sha256": "c3ee4b9d32ebda6453361c814306594c2057c1426ce8804f2887c70dfeee4797",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "VolumeId",
+        "InstanceId"
+      ]
     },
     "08394798e7854778": {
       "type": "AWS::B2BI::Transformer",
@@ -59847,13 +59916,19 @@
         "AbleToUpdateBundle",
         "DistributionArn",
         "Status"
+      ],
+      "primaryIdentifier": [
+        "DistributionName"
       ]
     },
     "0a973b9958e7812c": {
       "type": "AWS::DataBrew::Schedule",
       "sha256": "8c8253dfb7f35fdd8109779bf8f1f386553b438130b270a0a87589e158fefbad",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name"
+      ]
     },
     "0a9d8a67eb51b324": {
       "type": "AWS::Glue::Connection",
@@ -60034,7 +60109,10 @@
       "type": "AWS::ECS::CapacityProvider",
       "sha256": "1d06c54583f779003f46ffcf48292c199f2cbf1f5a7f0695e65f410a8087719b",
       "propertiesRequired": false,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name"
+      ]
     },
     "0c48a049cc8e7f7f": {
       "type": "AWS::FSx::Snapshot",
@@ -60052,13 +60130,20 @@
       "attributes": [
         "MemberIdentifier",
         "MemberIdentifierType"
+      ],
+      "primaryIdentifier": [
+        "DomainIdentifier",
+        "ProjectIdentifier"
       ]
     },
     "0ce3af187c649454": {
       "type": "AWS::Glue::DataQualityRuleset",
       "sha256": "67a176cb918bb5a5e4b4765444fcdf8b20249f16424543e271b823a10d51d339",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name"
+      ]
     },
     "0d14fade154ad02f": {
       "type": "AWS::EC2::PlacementGroup",
@@ -60078,6 +60163,10 @@
         "CreatedAt",
         "CreatedBy",
         "UpdatedAt"
+      ],
+      "primaryIdentifier": [
+        "AwsAccountId",
+        "SpaceId"
       ]
     },
     "0db8b6b02c40ba94": {
@@ -60113,6 +60202,9 @@
         "LoggingConfiguration.WorkerLogs.CloudWatchLogGroupArn",
         "WebserverUrl",
         "WebserverVpcEndpointService"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "0dd7860b8d88036d": {
@@ -60131,7 +60223,10 @@
       "type": "AWS::RDS::OptionGroup",
       "sha256": "d855bab2cc11f45e65eaff094b565db8cbeb8da670c7cb9d4b1125688aefd228",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "OptionGroupName"
+      ]
     },
     "0e682257559a9234": {
       "type": "AWS::SupportAuthZ::SupportPermit",
@@ -60241,13 +60336,20 @@
       "type": "AWS::ServiceCatalog::PortfolioPrincipalAssociation",
       "sha256": "123dec4798bc26b7e91d34461962c24fdcd495436c815f6ea33e64be79412166",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "PortfolioId",
+        "PrincipalARN"
+      ]
     },
     "0f275b33894abe0b": {
       "type": "AWS::Logs::ResourcePolicy",
       "sha256": "8f43603844e5cf677903ab5feba6507ad2e3ce5f9169a892da1ce129eba41b8d",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "PolicyName"
+      ]
     },
     "0f32d2585ee03d53": {
       "type": "AWS::IAM::ServiceLinkedRole",
@@ -60279,7 +60381,10 @@
       "type": "AWS::Config::RemediationConfiguration",
       "sha256": "a4c2c079a5b2e03924feeb4edc386d08d9aac3263cc2e6ad74ba0a667e1c9f1d",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ConfigRuleName"
+      ]
     },
     "0f7cba406804ea41": {
       "type": "AWS::MediaPackage::OriginEndpoint",
@@ -60288,13 +60393,19 @@
       "attributes": [
         "Arn",
         "Url"
+      ],
+      "primaryIdentifier": [
+        "Id"
       ]
     },
     "0f8a566ef6e1b9ef": {
       "type": "AWS::AutoScaling::WarmPool",
       "sha256": "88232c3eee1dc13315381abc1f15b64e7f7158af7fb1275e1f3c71a55016d7f7",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "AutoScalingGroupName"
+      ]
     },
     "0f933e80c17a2414": {
       "type": "AWS::EC2::CapacityReservation",
@@ -60418,6 +60529,10 @@
       "attributes": [
         "Arn",
         "Name"
+      ],
+      "primaryIdentifier": [
+        "DatabaseName",
+        "TableName"
       ]
     },
     "1072c1f68c872932": {
@@ -60447,6 +60562,9 @@
         "Arn",
         "CertificateExpiryTime",
         "Status"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "108b2d2e7356102b": {
@@ -60528,6 +60646,9 @@
       "attributes": [
         "QueryArn",
         "QueryId"
+      ],
+      "primaryIdentifier": [
+        "QueryName"
       ]
     },
     "1194a6eecb67b604": {
@@ -60549,6 +60670,9 @@
         "HaStatus",
         "LastUpdatedTime",
         "SqlServerLicenseUsage"
+      ],
+      "primaryIdentifier": [
+        "InstanceId"
       ]
     },
     "1222605db57002a8": {
@@ -60631,13 +60755,20 @@
       "propertiesRequired": true,
       "attributes": [
         "AssociationId"
+      ],
+      "primaryIdentifier": [
+        "GatewayId"
       ]
     },
     "1302db7b81a64216": {
       "type": "AWS::ServiceCatalog::PortfolioProductAssociation",
       "sha256": "3cf457f716ad021e5407b3f5c82c34f62a7a0b86aced8b635df519ef4d17a72a",
       "propertiesRequired": false,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "PortfolioId",
+        "ProductId"
+      ]
     },
     "13528c63087e2868": {
       "type": "AWS::NeptuneGraph::Graph",
@@ -60658,6 +60789,9 @@
         "SnapStartResponse",
         "SnapStartResponse.ApplyOn",
         "SnapStartResponse.OptimizationStatus"
+      ],
+      "primaryIdentifier": [
+        "FunctionName"
       ]
     },
     "13df22ce891c9c15": {
@@ -60674,6 +60808,10 @@
       "propertiesRequired": true,
       "attributes": [
         "AggregationAuthorizationArn"
+      ],
+      "primaryIdentifier": [
+        "AuthorizedAccountId",
+        "AuthorizedAwsRegion"
       ]
     },
     "142141b0a1b9235e": {
@@ -60682,6 +60820,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Status"
+      ],
+      "primaryIdentifier": [
+        "Scope"
       ]
     },
     "143ad2161e09b85f": {
@@ -60697,7 +60838,11 @@
       "type": "AWS::SupportApp::SlackChannelConfiguration",
       "sha256": "5d06b8f52aeaf9d0fce3e87271046c4a9482bcb570111bdde99d1c8c4548f77f",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "TeamId",
+        "ChannelId"
+      ]
     },
     "14d24ae8a612f0ef": {
       "type": "AWS::CloudFront::Distribution",
@@ -60774,7 +60919,11 @@
       "type": "AWS::OpenSearchServerless::AccessPolicy",
       "sha256": "011acad4d3e23118b2099dd09b81dc55df41e0997fa0f42226c7d35e656962c3",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Type",
+        "Name"
+      ]
     },
     "160bffde956c8320": {
       "type": "AWS::HealthAgent::Domain",
@@ -60853,6 +61002,10 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "AwsAccountId",
+        "CustomPermissionsName"
       ]
     },
     "16c40d786200765f": {
@@ -60895,6 +61048,9 @@
         "DBProxyArn",
         "Endpoint",
         "VpcId"
+      ],
+      "primaryIdentifier": [
+        "DBProxyName"
       ]
     },
     "170b9a5a1ef671c7": {
@@ -60921,7 +61077,12 @@
       "type": "AWS::Glue::Table",
       "sha256": "94fbe094b4f6c9d519c9039905a6eaad7815705840cb9555dc471912ad7ed473",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "CatalogId",
+        "DatabaseName",
+        "Name"
+      ]
     },
     "172c4ac321a37b38": {
       "type": "AWS::IoT::CustomMetric",
@@ -60929,6 +61090,9 @@
       "propertiesRequired": true,
       "attributes": [
         "MetricArn"
+      ],
+      "primaryIdentifier": [
+        "MetricName"
       ]
     },
     "1732375018865dc5": {
@@ -60948,6 +61112,9 @@
         "PrincipalArn",
         "PrivateRegistryAccess.EcrImagePullerRole.PrincipalArn",
         "Url"
+      ],
+      "primaryIdentifier": [
+        "ServiceName"
       ]
     },
     "179b0c8bfbc318c8": {
@@ -60960,6 +61127,10 @@
         "LastUpdatedTime",
         "Type",
         "Version"
+      ],
+      "primaryIdentifier": [
+        "ThemeId",
+        "AwsAccountId"
       ]
     },
     "17b2b5b3a94aa8f0": {
@@ -61081,6 +61252,11 @@
       "propertiesRequired": true,
       "attributes": [
         "Id"
+      ],
+      "primaryIdentifier": [
+        "ResourceId",
+        "ScalableDimension",
+        "ServiceNamespace"
       ]
     },
     "18a177b1d7277049": {
@@ -61108,19 +61284,29 @@
       "attributes": [
         "Arn",
         "Id"
+      ],
+      "primaryIdentifier": [
+        "BillingGroupName"
       ]
     },
     "18fd6c7e2bad7d33": {
       "type": "AWS::SMSVOICE::ResourcePolicy",
       "sha256": "1a6822df01d11017fb200de8663b5c17d83767a752177246248f9b3120ff4b83",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ResourceArn"
+      ]
     },
     "19073f224096a12c": {
       "type": "AWS::EC2::TransitGatewayRoute",
       "sha256": "0b970d4d51bbd9533725c9cee4efbcff2a0a9cd6e6306383ad3eb27bffb3304c",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "TransitGatewayRouteTableId",
+        "DestinationCidrBlock"
+      ]
     },
     "19123208649a6efb": {
       "type": "AWS::Pinpoint::ADMChannel",
@@ -61153,6 +61339,10 @@
       "propertiesRequired": false,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "AwsAccountId",
+        "TopicId"
       ]
     },
     "1961d0ebac37774f": {
@@ -61267,6 +61457,9 @@
         "UseDefaultProcessorFeatures",
         "UseLatestRestorableTime",
         "VPCSecurityGroups"
+      ],
+      "primaryIdentifier": [
+        "DBInstanceIdentifier"
       ]
     },
     "1972a80f23becd23": {
@@ -61303,13 +61496,20 @@
       "attributes": [
         "Arn",
         "Id"
+      ],
+      "primaryIdentifier": [
+        "ThingName"
       ]
     },
     "19d4e336125eb6d9": {
       "type": "AWS::NetworkManager::CustomerGatewayAssociation",
       "sha256": "f886b7ccb0e4e901f496d67f72d4adcc39ce581ba769c1cc8442594bbbbb4e8c",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "GlobalNetworkId",
+        "CustomerGatewayArn"
+      ]
     },
     "1a24619f1fbd48ca": {
       "type": "AWS::Cases::Template",
@@ -61356,7 +61556,10 @@
       "type": "AWS::S3Express::BucketPolicy",
       "sha256": "a963096f887e65aae4ef24c3fb08d15a45957e5678c1aaf17f6ac11fc35d3e20",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Bucket"
+      ]
     },
     "1ad161adc132b7a0": {
       "type": "AWS::Kinesis::Channel",
@@ -61375,6 +61578,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Id"
+      ],
+      "primaryIdentifier": [
+        "ApiId"
       ]
     },
     "1af36d774d04faba": {
@@ -61427,6 +61633,9 @@
         "CreateTime",
         "IndexArn",
         "UpdateTime"
+      ],
+      "primaryIdentifier": [
+        "IndexName"
       ]
     },
     "1ba9db8079fa3801": {
@@ -61441,6 +61650,9 @@
         "StoreArn",
         "StoreSizeBytes",
         "UpdateTime"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "1c0e8deb0cf5db3d": {
@@ -61468,6 +61680,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "CollectionId"
       ]
     },
     "1cc6d9fcb337adc8": {
@@ -61487,7 +61702,10 @@
       "type": "AWS::ServiceCatalog::AcceptedPortfolioShare",
       "sha256": "63c46af0589d38b898c58ef0035b2a643bdb054bb13ca6e1a9f51c1b7d5215d6",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "PortfolioId"
+      ]
     },
     "1d2e26597c7817f0": {
       "type": "AWS::Personalize::Solution",
@@ -61512,7 +61730,10 @@
       "type": "AWS::CodeDeploy::Application",
       "sha256": "24e2d97b88ce34e3269dfcded34987d88f2164006bd66df85d965b8eac36e5aa",
       "propertiesRequired": false,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ApplicationName"
+      ]
     },
     "1d4ea4422912682f": {
       "type": "AWS::EC2::TransitGatewayMulticastDomainAssociation",
@@ -61522,6 +61743,11 @@
         "ResourceId",
         "ResourceType",
         "State"
+      ],
+      "primaryIdentifier": [
+        "TransitGatewayMulticastDomainId",
+        "TransitGatewayAttachmentId",
+        "SubnetId"
       ]
     },
     "1d7d7242c9a86b62": {
@@ -61570,6 +61796,9 @@
       "attributes": [
         "ConnectorProfileArn",
         "CredentialsArn"
+      ],
+      "primaryIdentifier": [
+        "ConnectorProfileName"
       ]
     },
     "1db4c85665de8f73": {
@@ -61591,6 +61820,9 @@
       "attributes": [
         "Arn",
         "Name"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "1e33fe09459b9ef4": {
@@ -61611,7 +61843,10 @@
       "type": "AWS::PaymentCryptography::Alias",
       "sha256": "c93f274481f45b581dea9323cf9eb9f52a672294bc0b75f977bfc97f5327e9bc",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "AliasName"
+      ]
     },
     "1e67f5cee288d84c": {
       "type": "AWS::EC2::RouteServerPeer",
@@ -61647,6 +61882,9 @@
       "attributes": [
         "Arn",
         "Status"
+      ],
+      "primaryIdentifier": [
+        "UserGroupId"
       ]
     },
     "1eee5de23e01e807": {
@@ -61681,6 +61919,9 @@
       "attributes": [
         "Arn",
         "State"
+      ],
+      "primaryIdentifier": [
+        "CapacityProviderName"
       ]
     },
     "1f343ce3fddeb0d9": {
@@ -61795,6 +62036,9 @@
         "Arn",
         "Compliance.Type",
         "ConfigRuleId"
+      ],
+      "primaryIdentifier": [
+        "ConfigRuleName"
       ]
     },
     "20307761d40b5cfa": {
@@ -61829,7 +62073,11 @@
       "type": "AWS::Cognito::UserPoolUICustomizationAttachment",
       "sha256": "aff0d7bfdb195f8c3369d36a9e36be84a24ec872284dde9a1dcb5145792df000",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "UserPoolId",
+        "ClientId"
+      ]
     },
     "20adf47bce5f481c": {
       "type": "AWS::SDB::Domain",
@@ -61846,6 +62094,9 @@
       "attributes": [
         "CellArn",
         "ParentReadinessScopes"
+      ],
+      "primaryIdentifier": [
+        "CellName"
       ]
     },
     "210eccabf8630814": {
@@ -61899,6 +62150,9 @@
       "propertiesRequired": false,
       "attributes": [
         "ReadinessCheckArn"
+      ],
+      "primaryIdentifier": [
+        "ReadinessCheckName"
       ]
     },
     "21cf338a47e18bcd": {
@@ -61919,6 +62173,9 @@
         "CreationTime",
         "WorkGroupConfiguration.EngineVersion.EffectiveEngineVersion",
         "WorkGroupConfigurationUpdates.EngineVersion.EffectiveEngineVersion"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "220852adabc6989b": {
@@ -61927,6 +62184,9 @@
       "propertiesRequired": true,
       "attributes": [
         "TrackingServerArn"
+      ],
+      "primaryIdentifier": [
+        "TrackingServerName"
       ]
     },
     "22795f28da4be2ff": {
@@ -61946,6 +62206,9 @@
         "CreatedAt",
         "UpdatedAt",
         "WorkflowArn"
+      ],
+      "primaryIdentifier": [
+        "WorkflowName"
       ]
     },
     "22cb6c6a8addc328": {
@@ -61982,13 +62245,19 @@
       "type": "AWS::S3Vectors::VectorBucketPolicy",
       "sha256": "65269999628b86a510756d5476ccaddc2379e760fff2397d27d247e1cce0f3ff",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "VectorBucketArn"
+      ]
     },
     "23476de910d44b07": {
       "type": "AWS::S3Files::FileSystemPolicy",
       "sha256": "23e8d76f3020e89650bc2fb947dbddf15a65fbb2c044c52043aa5152d062b518",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "FileSystemId"
+      ]
     },
     "2381ddcb280ea599": {
       "type": "AWS::FraudDetector::EventType",
@@ -62025,6 +62294,10 @@
         "CreatedAt",
         "SegmentDefinitionArn",
         "SegmentType"
+      ],
+      "primaryIdentifier": [
+        "DomainName",
+        "SegmentDefinitionName"
       ]
     },
     "24074be2ddb5280e": {
@@ -62166,7 +62439,10 @@
       "type": "AWS::SES::CustomVerificationEmailTemplate",
       "sha256": "57d1dd69f38e09e142d81018f82eb24804573e5e2591784af0c2fc45719e95b4",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "TemplateName"
+      ]
     },
     "24f43d472ecafdba": {
       "type": "AWS::Bedrock::Agent",
@@ -62225,7 +62501,10 @@
       "type": "AWS::ECR::PullThroughCacheRule",
       "sha256": "5ba58503aabebf7507d2ab12ac106e0992d5fed1f65ae7009b5c12907e60883d",
       "propertiesRequired": false,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "EcrRepositoryPrefix"
+      ]
     },
     "25b88096b0c660ef": {
       "type": "AWS::AppSync::ApiCache",
@@ -62279,19 +62558,28 @@
       "type": "AWS::Athena::DataCatalog",
       "sha256": "d2fe1a3a5677323ac8a2dd774608248c1c4d716a11ab591e4076f57f57fc7739",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name"
+      ]
     },
     "26cb825f5342240b": {
       "type": "AWS::EC2::VPCEndpointServicePermissions",
       "sha256": "1991c5ef22e6a7f3c2da65d5d714dd698d59fe0547f0c3c9e9c2b191b8fccdf1",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ServiceId"
+      ]
     },
     "26da3e3dd083f133": {
       "type": "AWS::SecurityHub::SecurityControl",
       "sha256": "d12f1d87926285a1639d34b8a9a0a88e81f6e879304d9348ad857ae103d91f7d",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "SecurityControlId"
+      ]
     },
     "273a66a590dfa9f0": {
       "type": "AWS::Lambda::Permission",
@@ -62395,6 +62683,9 @@
       "propertiesRequired": true,
       "attributes": [
         "LocationArn"
+      ],
+      "primaryIdentifier": [
+        "LocationName"
       ]
     },
     "284af15b6095cc9d": {
@@ -62444,6 +62735,9 @@
       "attributes": [
         "Arn",
         "Status"
+      ],
+      "primaryIdentifier": [
+        "UserId"
       ]
     },
     "29076fa333225a7a": {
@@ -62458,13 +62752,22 @@
         "SourceType",
         "SubnetId",
         "TransitGatewayAttachmentId"
+      ],
+      "primaryIdentifier": [
+        "TransitGatewayMulticastDomainId",
+        "GroupIpAddress",
+        "NetworkInterfaceId"
       ]
     },
     "290ee57080b77c2b": {
       "type": "AWS::FIS::TargetAccountConfiguration",
       "sha256": "c7852993138cb47f6c7b4790aedf31950617aee35257abc7143a2723c84abc3e",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ExperimentTemplateId",
+        "AccountId"
+      ]
     },
     "29308cd635698daa": {
       "type": "AWS::CloudWatch::Integration",
@@ -62482,7 +62785,10 @@
       "type": "AWS::SQS::QueueInlinePolicy",
       "sha256": "6edd1d0892dff28a1d7a2415112ca7db293e64fe4905b1658bade1f0fbd91353",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Queue"
+      ]
     },
     "295bf65d087b9866": {
       "type": "AWS::Events::ApiDestination",
@@ -62491,6 +62797,9 @@
       "attributes": [
         "Arn",
         "ArnForPolicy"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "299e6a356971f808": {
@@ -62503,6 +62812,9 @@
         "Name",
         "RuleSetBody",
         "Tags"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "29c26bb857ed86f2": {
@@ -62564,7 +62876,10 @@
       "type": "AWS::DAX::ParameterGroup",
       "sha256": "0262a7a4506642571748a4eebb31c51777c5cd66ff4161420d3a2b0d2c33d1c1",
       "propertiesRequired": false,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ParameterGroupName"
+      ]
     },
     "2a7b8e0a5cc3feea": {
       "type": "AWS::KinesisAnalytics::Application",
@@ -62591,6 +62906,9 @@
       "propertiesRequired": true,
       "attributes": [
         "LoadBalancerArn"
+      ],
+      "primaryIdentifier": [
+        "LoadBalancerName"
       ]
     },
     "2b138a87e63f1464": {
@@ -62615,7 +62933,10 @@
       "type": "AWS::VerifiedPermissions::PolicyStoreAlias",
       "sha256": "ebbb80170ba5d22d49cea865e3b4cbec68c49d58851e4b05aec32c22553af770",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "AliasName"
+      ]
     },
     "2ba2ac17d5d8ec1b": {
       "type": "AWS::QBusiness::Retriever",
@@ -62686,7 +63007,10 @@
       "type": "AWS::CloudWatch::Dashboard",
       "sha256": "73a9551aded15fc21f75d01b62fc17429f8b2449cbabe1a60a8f518e19c95e3c",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "DashboardName"
+      ]
     },
     "2c093a07d450922d": {
       "type": "AWS::EC2::CarrierGateway",
@@ -62722,6 +63046,10 @@
         "NetworkInterfaces",
         "Status",
         "VPCId"
+      ],
+      "primaryIdentifier": [
+        "AwsAccountId",
+        "VPCConnectionId"
       ]
     },
     "2c293592864b3faa": {
@@ -62781,7 +63109,10 @@
       "type": "AWS::EMR::SecurityConfiguration",
       "sha256": "85748e50114061db154ad1ea299b9186434caa42ecffca1d8d32a0f4b436ba35",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name"
+      ]
     },
     "2dab5afa3d6101af": {
       "type": "AWS::WAF::ByteMatchSet",
@@ -62810,6 +63141,9 @@
         "SourceSecurityGroup",
         "SourceSecurityGroup.GroupName",
         "SourceSecurityGroup.OwnerAlias"
+      ],
+      "primaryIdentifier": [
+        "LoadBalancerName"
       ]
     },
     "2e2e6002e2891008": {
@@ -62872,6 +63206,9 @@
       "propertiesRequired": true,
       "attributes": [
         "ResourceARN"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "2eb83da727ca85c0": {
@@ -62919,6 +63256,9 @@
         "CreatedAt",
         "IdNamespaceArn",
         "UpdatedAt"
+      ],
+      "primaryIdentifier": [
+        "IdNamespaceName"
       ]
     },
     "2f23f8fa69bffed9": {
@@ -62980,6 +63320,9 @@
       "propertiesRequired": false,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "GroupName"
       ]
     },
     "306c591b5d776bb0": {
@@ -62998,6 +63341,9 @@
         "CreatedAt",
         "UpdatedAt",
         "WorkflowArn"
+      ],
+      "primaryIdentifier": [
+        "WorkflowName"
       ]
     },
     "30ecdb42ffdd873d": {
@@ -63140,6 +63486,10 @@
       "attributes": [
         "SpaceArn",
         "Url"
+      ],
+      "primaryIdentifier": [
+        "DomainId",
+        "SpaceName"
       ]
     },
     "3306b4a9d7e0d4fb": {
@@ -63171,19 +63521,30 @@
       "type": "AWS::S3Tables::TableBucketPolicy",
       "sha256": "d494192e331719b0e43c32b9eca0cfcb046cd5ae24e4bca057107535b941c80f",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "TableBucketARN"
+      ]
     },
     "3367cb572094177b": {
       "type": "AWS::S3Tables::Namespace",
       "sha256": "4a24b9b9714c8e1ef80e22b6fced424d6ddd7f6433f72bdf6cf2d582af8f2b5f",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "TableBucketARN",
+        "Namespace"
+      ]
     },
     "3368676aa3803430": {
       "type": "AWS::Notifications::OrganizationalUnitAssociation",
       "sha256": "19f2942cf33ac5ba5e31ad907f7dba5ebc1e76aa3515ef63372d81d3b23ae4bd",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "NotificationConfigurationArn",
+        "OrganizationalUnitId"
+      ]
     },
     "33970d53212b5b31": {
       "type": "AWS::AutoScaling::ScheduledAction",
@@ -63213,6 +63574,9 @@
         "Replicas.*.ReplicationStatus",
         "Replicas.*.VpcConfig.VpcId",
         "State"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "34006d374db2f2d7": {
@@ -63274,6 +63638,10 @@
         "DestinationDetails",
         "EventStreamArn",
         "State"
+      ],
+      "primaryIdentifier": [
+        "DomainName",
+        "EventStreamName"
       ]
     },
     "349d9efd1ac1671d": {
@@ -63284,6 +63652,9 @@
         "Arn",
         "StreamArn",
         "TableId"
+      ],
+      "primaryIdentifier": [
+        "TableName"
       ]
     },
     "34ce7e9a57c2373a": {
@@ -63354,6 +63725,9 @@
       "propertiesRequired": false,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "UserName"
       ]
     },
     "35a21c87ad11fda6": {
@@ -63385,7 +63759,11 @@
       "type": "AWS::ServiceCatalog::TagOptionAssociation",
       "sha256": "652a110feaed5577c1e18bb0e8736cc6217059f5d8544c4f3810f4b0ece12e33",
       "propertiesRequired": false,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "TagOptionId",
+        "ResourceId"
+      ]
     },
     "3613b0329b28d064": {
       "type": "AWS::CleanRooms::ConfiguredTableAssociation",
@@ -63411,7 +63789,10 @@
       "type": "AWS::Glue::Database",
       "sha256": "776a5579187cea0d6bbaa39338069e1ba35bc12748bd0f44038419eedafce899",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "DatabaseName"
+      ]
     },
     "36b93d14d6c8fddd": {
       "type": "AWS::ImageBuilder::ContainerRecipe",
@@ -63619,7 +64000,11 @@
       "type": "AWS::Backup::RestoreTestingSelection",
       "sha256": "3fb36ad78c09827aea0b9692da42ed575e2efad007cea9f94af7448ad4b68c2d",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "RestoreTestingPlanName",
+        "RestoreTestingSelectionName"
+      ]
     },
     "3996ea98e1c13853": {
       "type": "AWS::Glue::Schema",
@@ -63634,13 +64019,21 @@
       "type": "AWS::NetworkManager::LinkAssociation",
       "sha256": "b69a87d1d1c1d6d6b86037df06980b63b9581e1f233490c166c0c7f9a58f09fa",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "GlobalNetworkId",
+        "DeviceId",
+        "LinkId"
+      ]
     },
     "39f77d5363e25838": {
       "type": "AWS::DataBrew::Dataset",
       "sha256": "42940824a0fe359113c26cfb7849ca3c9d0e86191e8616052dd0046aa394ec43",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name"
+      ]
     },
     "3a08600530d8a5de": {
       "type": "AWS::ApiGatewayV2::DomainName",
@@ -63650,6 +64043,9 @@
         "DomainNameArn",
         "RegionalDomainName",
         "RegionalHostedZoneId"
+      ],
+      "primaryIdentifier": [
+        "DomainName"
       ]
     },
     "3a256aaf82dd936d": {
@@ -63740,6 +64136,10 @@
       "propertiesRequired": true,
       "attributes": [
         "NetworkInterfaceIds"
+      ],
+      "primaryIdentifier": [
+        "FlowArn",
+        "Name"
       ]
     },
     "3b15e489f43818ca": {
@@ -63773,6 +64173,10 @@
         "LastUpdatedTime",
         "SourceType",
         "Status"
+      ],
+      "primaryIdentifier": [
+        "ResourceShareArn",
+        "SourceId"
       ]
     },
     "3b2961e207e832bb": {
@@ -63823,6 +64227,9 @@
       "propertiesRequired": true,
       "attributes": [
         "ResourceSetArn"
+      ],
+      "primaryIdentifier": [
+        "ResourceSetName"
       ]
     },
     "3ba9ed20f78c7eca": {
@@ -63831,6 +64238,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "DestinationName"
       ]
     },
     "3bb3a2846429b20a": {
@@ -63840,6 +64250,9 @@
       "attributes": [
         "AlarmArn",
         "State"
+      ],
+      "primaryIdentifier": [
+        "AlarmName"
       ]
     },
     "3bfdbe6ad93901ff": {
@@ -63870,13 +64283,19 @@
       "propertiesRequired": false,
       "attributes": [
         "Id"
+      ],
+      "primaryIdentifier": [
+        "ChannelName"
       ]
     },
     "3cc907a7f409ff96": {
       "type": "AWS::IoTEvents::DetectorModel",
       "sha256": "cbe1d4dabdbf063be9255b317fe848acc6fd338e8a792b56ab23ef59640e4344",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "DetectorModelName"
+      ]
     },
     "3d07a740b68bf097": {
       "type": "AWS::BedrockAgentCore::RuntimeEndpoint",
@@ -63947,6 +64366,9 @@
       "attributes": [
         "CreatedAt",
         "UpdatedAt"
+      ],
+      "primaryIdentifier": [
+        "ResourceArn"
       ]
     },
     "3e5d7a4b8846cf2f": {
@@ -63982,6 +64404,10 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "IsoCountryCode",
+        "SenderId"
       ]
     },
     "3ec2df6cb6bad073": {
@@ -64016,6 +64442,9 @@
         "CreatedAt",
         "Type",
         "UpdatedAt"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "3ee5ac2b5d24f4c2": {
@@ -64068,7 +64497,10 @@
       "type": "AWS::SSO::InstanceAccessControlAttributeConfiguration",
       "sha256": "28ead7590d326abdf951b0fd7ec78b0949b082e0acf07fabea2ef806a45392e3",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "InstanceArn"
+      ]
     },
     "3fb4dd51ddd8865a": {
       "type": "AWS::DocDBElastic::ClusterSnapshot",
@@ -64101,6 +64533,9 @@
       "attributes": [
         "Arn",
         "RepositoryUri"
+      ],
+      "primaryIdentifier": [
+        "RepositoryName"
       ]
     },
     "3ffec6997f3346ec": {
@@ -64133,6 +64568,9 @@
       "propertiesRequired": false,
       "attributes": [
         "PackageArn"
+      ],
+      "primaryIdentifier": [
+        "PackageName"
       ]
     },
     "404b136c05e378ec": {
@@ -64165,6 +64603,9 @@
         "CreateTime",
         "KeyArn",
         "UpdateTime"
+      ],
+      "primaryIdentifier": [
+        "KeyName"
       ]
     },
     "409b2fa45e9e1172": {
@@ -64183,6 +64624,9 @@
       "propertiesRequired": true,
       "attributes": [
         "DescribePayload"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "40e0113985984ebe": {
@@ -64214,7 +64658,11 @@
       "type": "AWS::Cognito::UserPoolUser",
       "sha256": "c11689f23ca8e6dfce76a8661b594401f459daadfe948bb389246aace8025d97",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "UserPoolId",
+        "Username"
+      ]
     },
     "417c093522767f46": {
       "type": "AWS::RedshiftServerless::Namespace",
@@ -64233,6 +64681,9 @@
         "Namespace.NamespaceId",
         "Namespace.NamespaceName",
         "Namespace.Status"
+      ],
+      "primaryIdentifier": [
+        "NamespaceName"
       ]
     },
     "420847507f5f2dab": {
@@ -64329,6 +64780,9 @@
       "propertiesRequired": true,
       "attributes": [
         "ManagedByFirewallManager"
+      ],
+      "primaryIdentifier": [
+        "ResourceArn"
       ]
     },
     "43744feec9ca1a29": {
@@ -64377,7 +64831,11 @@
       "type": "AWS::Signer::ProfilePermission",
       "sha256": "56a25c790d71c440a67706cee5d37d1efde56b8ebc7008cff8f1f044ef627c30",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "StatementId",
+        "ProfileName"
+      ]
     },
     "448e8e078d081de3": {
       "type": "AWS::EC2::IPv4Pool",
@@ -64446,6 +64904,9 @@
         "ReadEndpoint.Address",
         "StorageEncryptionType",
         "StorageThroughput"
+      ],
+      "primaryIdentifier": [
+        "DBClusterIdentifier"
       ]
     },
     "454884084d2f439a": {
@@ -64454,6 +64915,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "CertificateProviderName"
       ]
     },
     "45ce3bc8aa743ab4": {
@@ -64463,6 +64927,9 @@
       "attributes": [
         "Arn",
         "DomainName"
+      ],
+      "primaryIdentifier": [
+        "Id"
       ]
     },
     "45d2b9139b0318a3": {
@@ -64489,6 +64956,9 @@
         "AbleToUpdateBundle",
         "BucketArn",
         "Url"
+      ],
+      "primaryIdentifier": [
+        "BucketName"
       ]
     },
     "46696a5de732b085": {
@@ -64503,7 +64973,10 @@
       "type": "AWS::Glue::DataCatalogEncryptionSettings",
       "sha256": "a51e9ac6917f72aafb28bee47447f710d3a453013b485e6865d72377f9194497",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "CatalogId"
+      ]
     },
     "467d3bfe1abe0577": {
       "type": "AWS::ODB::CloudVmCluster",
@@ -64629,6 +65102,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "AlarmName"
       ]
     },
     "47e5f69c56eca154": {
@@ -64649,6 +65125,9 @@
         "Description",
         "Family",
         "Tags"
+      ],
+      "primaryIdentifier": [
+        "DBParameterGroupName"
       ]
     },
     "4805dac0763d173f": {
@@ -64672,7 +65151,11 @@
       "type": "AWS::Logs::MetricFilter",
       "sha256": "44a404837b0f1ab3027e95857a34aab5e27b7e9c43152b0b93eee3c26680e131",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "LogGroupName",
+        "FilterName"
+      ]
     },
     "48daefc61784d5be": {
       "type": "AWS::SSM::OpsItem",
@@ -64815,7 +65298,10 @@
       "type": "AWS::Neptune::GlobalCluster",
       "sha256": "dbaf36827089f9935198b9a3a345575057313f7d404ba66703273acb1101e4a5",
       "propertiesRequired": false,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "GlobalClusterIdentifier"
+      ]
     },
     "4af99c615e13a499": {
       "type": "AWS::RDS::DBProxyEndpoint",
@@ -64826,6 +65312,9 @@
         "Endpoint",
         "IsDefault",
         "VpcId"
+      ],
+      "primaryIdentifier": [
+        "DBProxyEndpointName"
       ]
     },
     "4b3e9ea13978f1ae": {
@@ -64834,6 +65323,9 @@
       "propertiesRequired": true,
       "attributes": [
         "RevisionId"
+      ],
+      "primaryIdentifier": [
+        "KnowledgeBaseId"
       ]
     },
     "4b6a5643c0853cb3": {
@@ -64924,6 +65416,9 @@
       "attributes": [
         "Endpoint",
         "Port"
+      ],
+      "primaryIdentifier": [
+        "DBInstanceIdentifier"
       ]
     },
     "4c3839f42328464d": {
@@ -64994,7 +65489,10 @@
       "type": "AWS::CloudFormation::ModuleDefaultVersion",
       "sha256": "f7a0534007613705350101e1f9bfb06422dbc743b60c0f29f0259e29ca68a1bd",
       "propertiesRequired": false,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Arn"
+      ]
     },
     "4d6cc3612d7c627f": {
       "type": "AWS::IoT::FleetMetric",
@@ -65005,6 +65503,9 @@
         "LastModifiedDate",
         "MetricArn",
         "Version"
+      ],
+      "primaryIdentifier": [
+        "MetricName"
       ]
     },
     "4d735bc668254826": {
@@ -65061,7 +65562,10 @@
       "type": "AWS::RDS::DBClusterParameterGroup",
       "sha256": "319d7bd026a4072b3307d5146841f97bb901abe08ee0271e1e0f6576afcd5743",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "DBClusterParameterGroupName"
+      ]
     },
     "4dc93be643cebf89": {
       "type": "AWS::XRay::SamplingRule",
@@ -65118,7 +65622,11 @@
       "type": "AWS::CodeDeploy::DeploymentGroup",
       "sha256": "c30326ff103df98e7e6778fb2904899acb14edd595ed0d1bf9904c6998c7b6f8",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ApplicationName",
+        "DeploymentGroupName"
+      ]
     },
     "4e39a694ac9fc81d": {
       "type": "AWS::ServiceCatalog::TagOption",
@@ -65216,6 +65724,9 @@
         "TransitEncryptionEnabled",
         "TransitEncryptionMode",
         "UserGroupIds"
+      ],
+      "primaryIdentifier": [
+        "ReplicationGroupId"
       ]
     },
     "4ebfdf01c09130a6": {
@@ -65316,7 +65827,10 @@
       "type": "AWS::DMS::EventSubscription",
       "sha256": "0772b8a472e239222099ffaf2c9d50a3a10f025e427e63539bdb1ba226c08c81",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "SubscriptionName"
+      ]
     },
     "4fb294811823d209": {
       "type": "AWS::CloudFormation::Stack",
@@ -65390,6 +65904,10 @@
         "LastPublishedTime",
         "LastUpdatedTime",
         "Version"
+      ],
+      "primaryIdentifier": [
+        "AwsAccountId",
+        "DashboardId"
       ]
     },
     "5094388d0efdd6f0": {
@@ -65442,6 +65960,9 @@
         "CreationTime",
         "LastUpdatedTime",
         "TieringConfigurationArn"
+      ],
+      "primaryIdentifier": [
+        "TieringConfigurationName"
       ]
     },
     "515a0d27055701bb": {
@@ -65460,6 +65981,9 @@
         "ResourceType",
         "State",
         "SupportCode"
+      ],
+      "primaryIdentifier": [
+        "DiskName"
       ]
     },
     "5165bb5873aa1a35": {
@@ -65568,7 +66092,11 @@
       "type": "AWS::EC2::TransitGatewayRouteTableAssociation",
       "sha256": "ffe304d7aa504b5bf95314b0bcba8d3fbb4aa636ad79e2d8600d823c21a601ef",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "TransitGatewayRouteTableId",
+        "TransitGatewayAttachmentId"
+      ]
     },
     "52c118dae98a9c25": {
       "type": "AWS::Config::ConformancePack",
@@ -65576,6 +66104,9 @@
       "propertiesRequired": true,
       "attributes": [
         "ConformancePackArn"
+      ],
+      "primaryIdentifier": [
+        "ConformancePackName"
       ]
     },
     "5355eff5963484f4": {
@@ -65611,7 +66142,11 @@
       "type": "AWS::Athena::PreparedStatement",
       "sha256": "d1e960ab982264952bc6ad86d7af1ac4a78d14540ef61c3fdd9effa7460d21b7",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "StatementName",
+        "WorkGroup"
+      ]
     },
     "53bc91bd4bc7544a": {
       "type": "AWS::CloudFormation::HookVersion",
@@ -65668,13 +66203,19 @@
       "type": "AWS::DocDB::DBClusterParameterGroup",
       "sha256": "51b662ae54a503ab1c99b1e477d15747c1717ebead36a4ed9c662b3f5a885f7d",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name"
+      ]
     },
     "5438bdfad326a68e": {
       "type": "AWS::DataBrew::Ruleset",
       "sha256": "213236760cc1573c2ee0f7ea5e589ba252d61ffde6c3f977f261b87af15a4bbb",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name"
+      ]
     },
     "543bd16429dedee9": {
       "type": "AWS::IoTSiteWise::Asset",
@@ -65713,19 +66254,29 @@
       "attributes": [
         "NextInvocations",
         "State"
+      ],
+      "primaryIdentifier": [
+        "ScheduledActionName"
       ]
     },
     "54ab51528d5a9d7e": {
       "type": "AWS::NetworkManager::TransitGatewayRegistration",
       "sha256": "1c73f0f6290d5fd07fbeb57be1a41180efca5b7d4be96163b22dacfda0b7717a",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "GlobalNetworkId",
+        "TransitGatewayArn"
+      ]
     },
     "54c837568ba6c32d": {
       "type": "AWS::FMS::NotificationChannel",
       "sha256": "7534ade5a8bf583cb7f3fe61146cb66c3ce81abce71074983563569b283eec30",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "SnsTopicArn"
+      ]
     },
     "54e20390c619237b": {
       "type": "AWS::AppStream::Stack",
@@ -65733,6 +66284,9 @@
       "propertiesRequired": false,
       "attributes": [
         "StorageConnectors.*.ResourceIdentifier"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "54ed90d324b0f99d": {
@@ -65752,6 +66306,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "RuleName"
       ]
     },
     "550c862324af9064": {
@@ -65807,6 +66364,9 @@
       "attributes": [
         "CreationTime",
         "FeatureGroupStatus"
+      ],
+      "primaryIdentifier": [
+        "FeatureGroupName"
       ]
     },
     "5565731532c76456": {
@@ -65846,6 +66406,9 @@
       "propertiesRequired": false,
       "attributes": [
         "ConfigurationAggregatorArn"
+      ],
+      "primaryIdentifier": [
+        "ConfigurationAggregatorName"
       ]
     },
     "55dcb51fc4015778": {
@@ -65854,6 +66417,9 @@
       "propertiesRequired": true,
       "attributes": [
         "EventIntegrationArn"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "560432db3b24dca9": {
@@ -65942,6 +66508,9 @@
         "IpAddress",
         "IsAttached",
         "StaticIpArn"
+      ],
+      "primaryIdentifier": [
+        "StaticIpName"
       ]
     },
     "56da2060b38e0047": {
@@ -65965,7 +66534,13 @@
       "type": "AWS::Glue::TableOptimizer",
       "sha256": "c9a92b1df809d5de1c42254d6d98b606bc8758a1c1ba10d8c3950aa64be7e57c",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "TableName",
+        "DatabaseName",
+        "Type",
+        "CatalogId"
+      ]
     },
     "57137d27787545b3": {
       "type": "AWS::OpenSearchService::Domain",
@@ -65982,13 +66557,19 @@
         "IdentityCenterOptions.IdentityCenterApplicationARN",
         "IdentityCenterOptions.IdentityStoreId",
         "ServiceSoftwareOptions"
+      ],
+      "primaryIdentifier": [
+        "DomainName"
       ]
     },
     "57207058abfec3bb": {
       "type": "AWS::DocDB::EventSubscription",
       "sha256": "019a78fc0383ac6a38cac87843df87ac657ec275af22ed7212167e3cd41f80f9",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "SubscriptionName"
+      ]
     },
     "572ebde4745104a1": {
       "type": "AWS::SSM::MaintenanceWindow",
@@ -66031,6 +66612,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "57818fbc2c33ea7b": {
@@ -66056,13 +66640,21 @@
       "type": "AWS::Notifications::ManagedNotificationAccountContactAssociation",
       "sha256": "dcdc3b2097f067b3a2a563d4358667f8240532a3275fa57c581f957caeef0551",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ManagedNotificationConfigurationArn",
+        "ContactIdentifier"
+      ]
     },
     "57ec8db882df340d": {
       "type": "AWS::IoT::PolicyPrincipalAttachment",
       "sha256": "ad137e3bb6785631d95dc94bdf9e6bac86922200755b5025992ae3f9baa23101",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "PolicyName",
+        "Principal"
+      ]
     },
     "5850fd7954c5d473": {
       "type": "AWS::Route53::TrafficPolicy",
@@ -66130,6 +66722,9 @@
         "Notifications.SNSTopicArn",
         "VaultState",
         "VaultType"
+      ],
+      "primaryIdentifier": [
+        "BackupVaultName"
       ]
     },
     "58a12dc15086a8cc": {
@@ -66181,6 +66776,9 @@
         "RedisEndpoint",
         "RedisEndpoint.Address",
         "RedisEndpoint.Port"
+      ],
+      "primaryIdentifier": [
+        "ClusterName"
       ]
     },
     "59666100a7b0cf60": {
@@ -66220,7 +66818,10 @@
       "type": "AWS::CodeDeploy::DeploymentConfig",
       "sha256": "e26979543131d4f255f89a0ccd033efd186368c10567119aaba2c8b262528f28",
       "propertiesRequired": false,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "DeploymentConfigName"
+      ]
     },
     "59dc08ae2fb180ff": {
       "type": "AWS::DataSync::LocationS3",
@@ -66247,6 +66848,9 @@
       "attributes": [
         "Arn",
         "Id"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "5a3658f4c5dbb839": {
@@ -66319,7 +66923,10 @@
       "type": "AWS::Glue::Workflow",
       "sha256": "dbb35ab09d9ca164ceea25d4a1999912c9ee3d3e66009c45c356a99c21b5d702",
       "propertiesRequired": false,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name"
+      ]
     },
     "5aeb907c1b454d5a": {
       "type": "AWS::ObservabilityAdmin::S3TableIntegration",
@@ -66364,7 +66971,11 @@
       "type": "AWS::ServiceDiscovery::Instance",
       "sha256": "0ab5c9c3f34447af6929c0ee83d9feed7cb21ffea1fd5ef4369ea1f4f5e74133",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ServiceId",
+        "InstanceId"
+      ]
     },
     "5ba668392326746e": {
       "type": "AWS::AppSync::SourceApiAssociation",
@@ -66388,6 +66999,11 @@
       "propertiesRequired": true,
       "attributes": [
         "IntegrationAssociationId"
+      ],
+      "primaryIdentifier": [
+        "InstanceId",
+        "IntegrationType",
+        "IntegrationArn"
       ]
     },
     "5bb0d57d2c25795a": {
@@ -66403,6 +67019,9 @@
         "NodeCounts.TotalBranches",
         "NodeCounts.TotalNodes",
         "NodeCounts.TotalSensors"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "5bc6281576b021e6": {
@@ -66439,7 +67058,11 @@
       "type": "AWS::AppStream::StackFleetAssociation",
       "sha256": "484d08b9f7a8178fb3b375e262ba75bc4864ad096ca1e98054491321ba92ee4d",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "FleetName",
+        "StackName"
+      ]
     },
     "5c705cb122178739": {
       "type": "AWS::Config::OrganizationConformancePack",
@@ -66447,6 +67070,9 @@
       "propertiesRequired": true,
       "attributes": [
         "OrganizationConformancePackArn"
+      ],
+      "primaryIdentifier": [
+        "OrganizationConformancePackName"
       ]
     },
     "5c79de0dd922b73c": {
@@ -66469,6 +67095,10 @@
         "OwnerId",
         "ProviderType",
         "RepositoryName"
+      ],
+      "primaryIdentifier": [
+        "ResourceName",
+        "SyncType"
       ]
     },
     "5cc20728534faf19": {
@@ -66493,7 +67123,11 @@
       "type": "AWS::WAFv2::WebACLAssociation",
       "sha256": "2ebe2c7a47a95f163a5f47041314a0c6b6bad385e4ab69ae93ac36f0e5d32771",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ResourceArn",
+        "WebACLArn"
+      ]
     },
     "5ce0bc0a4a34bba5": {
       "type": "AWS::DataSync::Task",
@@ -66518,7 +67152,11 @@
       "type": "AWS::GuardDuty::Master",
       "sha256": "c2f8b9f552c656878258a4bb26e3f4039393fb5cc794783d49f0ef2a7670979a",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "DetectorId",
+        "MasterId"
+      ]
     },
     "5d465cd47166a28a": {
       "type": "AWS::MGN::LaunchConfigurationTemplate",
@@ -66537,6 +67175,10 @@
       "attributes": [
         "CreatedAt",
         "LastUpdatedAt"
+      ],
+      "primaryIdentifier": [
+        "DomainName",
+        "ObjectTypeName"
       ]
     },
     "5d5ba8672d2cef2c": {
@@ -66614,6 +67256,11 @@
         "RegisteredTime",
         "Status",
         "StatusDescription"
+      ],
+      "primaryIdentifier": [
+        "PackageId",
+        "PackageVersion",
+        "PatchVersion"
       ]
     },
     "5edae36713632561": {
@@ -66625,6 +67272,10 @@
         "CreatedTime",
         "DataSetArns",
         "LastUpdatedTime"
+      ],
+      "primaryIdentifier": [
+        "AnalysisId",
+        "AwsAccountId"
       ]
     },
     "5ee1cff343d46bc0": {
@@ -66718,7 +67369,11 @@
       "type": "AWS::ECS::PrimaryTaskSet",
       "sha256": "a35b18bb0d123e33e852377c43af0534b7f3fa9a47a311544c25bed2cd157512",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Cluster",
+        "Service"
+      ]
     },
     "6075479ad2e9bfee": {
       "type": "AWS::NimbleStudio::Studio",
@@ -66737,6 +67392,9 @@
       "propertiesRequired": true,
       "attributes": [
         "RestoreTestingPlanArn"
+      ],
+      "primaryIdentifier": [
+        "RestoreTestingPlanName"
       ]
     },
     "60d064fd490b6599": {
@@ -66799,7 +67457,11 @@
       "type": "AWS::ControlTower::EnabledControl",
       "sha256": "3075bb7ca17fa9fef85da38acd72b72cb5d69e9b954970690f0b42f049a55bbd",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "TargetIdentifier",
+        "ControlIdentifier"
+      ]
     },
     "6105250d72ebef66": {
       "type": "AWS::M2::Environment",
@@ -66822,7 +67484,11 @@
       "type": "AWS::Cognito::UserPoolReplica",
       "sha256": "ca4c3149cfe99c6a29c6a07ad9626c0bfded47fcc10554a1f456ae24e5468ac3",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "UserPoolId",
+        "RegionName"
+      ]
     },
     "61366dc6bbf1e6ba": {
       "type": "AWS::QuickSight::Agent",
@@ -66836,6 +67502,10 @@
         "CustomPromptInterface",
         "ErrorMessage",
         "UpdatedAt"
+      ],
+      "primaryIdentifier": [
+        "AwsAccountId",
+        "AgentId"
       ]
     },
     "6184977d2f069649": {
@@ -66910,7 +67580,10 @@
       "type": "AWS::Config::DeliveryChannel",
       "sha256": "8df9d6173667dd0f810c17dbe01da79827fed0c90e1215310ebda142a42d22c8",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name"
+      ]
     },
     "6210243fafa642a9": {
       "type": "AWS::Lex::BotVersion",
@@ -66969,6 +67642,9 @@
         "VpcSecurityGroups",
         "VpcSecurityGroups.*.Status",
         "VpcSecurityGroups.*.VpcSecurityGroupId"
+      ],
+      "primaryIdentifier": [
+        "EndpointName"
       ]
     },
     "629fdbc63c97365f": {
@@ -66983,7 +67659,11 @@
       "type": "AWS::PCAConnectorAD::TemplateGroupAccessControlEntry",
       "sha256": "4a8184837dc78fa71aa35483bf33f9f6670f850229079132dcd08559c21c7a2a",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "GroupSecurityIdentifier",
+        "TemplateArn"
+      ]
     },
     "62af6709fcf7231f": {
       "type": "AWS::SageMaker::ModelCard",
@@ -67001,6 +67681,9 @@
         "ModelCardArn",
         "ModelCardProcessingStatus",
         "ModelCardVersion"
+      ],
+      "primaryIdentifier": [
+        "ModelCardName"
       ]
     },
     "62d6ef0c614c7ca8": {
@@ -67044,6 +67727,10 @@
         "CreatedTime",
         "LastUpdatedTime",
         "OutputColumns"
+      ],
+      "primaryIdentifier": [
+        "AwsAccountId",
+        "DataSetId"
       ]
     },
     "634cc9dcccea92df": {
@@ -67058,7 +67745,10 @@
       "type": "AWS::SES::ReceiptRuleSet",
       "sha256": "e94e9d070e8d52f983a10f7a9a8282c5a76c3a37eb0b4c22cd5327de921e2053",
       "propertiesRequired": false,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "RuleSetName"
+      ]
     },
     "6385907f1b2e5b31": {
       "type": "AWS::MediaLive::EventBridgeRuleTemplateGroup",
@@ -67131,6 +67821,9 @@
         "HlsIngest.ingestEndpoints.*.Password",
         "HlsIngest.ingestEndpoints.*.Url",
         "HlsIngest.ingestEndpoints.*.Username"
+      ],
+      "primaryIdentifier": [
+        "Id"
       ]
     },
     "641c2d60092a1d34": {
@@ -67146,6 +67839,9 @@
         "ReaderEndpoint.Address",
         "ReaderEndpoint.Port",
         "Status"
+      ],
+      "primaryIdentifier": [
+        "ServerlessCacheName"
       ]
     },
     "6427a5646a39aa08": {
@@ -67158,6 +67854,9 @@
         "EndpointMetadata",
         "LastModifiedTime",
         "Status"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "6427e88e413173ca": {
@@ -67193,7 +67892,11 @@
       "type": "AWS::PCAConnectorAD::ServicePrincipalName",
       "sha256": "dbe2634c93c3f1734905c19a3d74732028867875fbfbb3635c6dc0a049b7dcf6",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ConnectorArn",
+        "DirectoryRegistrationArn"
+      ]
     },
     "6541279df1dcbaa7": {
       "type": "AWS::IoT::JobTemplate",
@@ -67201,6 +67904,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "JobTemplateId"
       ]
     },
     "657cf3c87f04c5d0": {
@@ -67229,6 +67935,10 @@
         "External",
         "LastUpdatedTime",
         "Status"
+      ],
+      "primaryIdentifier": [
+        "ResourceShareArn",
+        "Principal"
       ]
     },
     "658e1a47b9a2274c": {
@@ -67283,7 +67993,12 @@
       "type": "AWS::AppStream::ApplicationEntitlementAssociation",
       "sha256": "1cc5f9fd5de6fc67d34ccbdf651e28f5c8560b652908582cdb53afd5bd6e2dbc",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "StackName",
+        "EntitlementName",
+        "ApplicationIdentifier"
+      ]
     },
     "667ea9e91c7c7092": {
       "type": "AWS::AppSync::DomainName",
@@ -67297,6 +68012,9 @@
         "DomainNameArn",
         "HostedZoneId",
         "Tags"
+      ],
+      "primaryIdentifier": [
+        "DomainName"
       ]
     },
     "66996eec07d476ed": {
@@ -67314,7 +68032,10 @@
       "type": "AWS::SES::ContactList",
       "sha256": "2de963ab65715f75c101d654f2d4a2f5e6d9e57b99e103e1b32e0e16dfefa017",
       "propertiesRequired": false,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ContactListName"
+      ]
     },
     "66d231f85af08aa7": {
       "type": "AWS::InspectorV2::Filter",
@@ -67341,6 +68062,9 @@
         "HasWorkflows",
         "SchemaArn",
         "UpdatedAt"
+      ],
+      "primaryIdentifier": [
+        "SchemaName"
       ]
     },
     "6705cf658e132e3c": {
@@ -67349,6 +68073,10 @@
       "propertiesRequired": true,
       "attributes": [
         "State"
+      ],
+      "primaryIdentifier": [
+        "TransitGatewayPolicyTableId",
+        "PolicyRuleNumber"
       ]
     },
     "6756d83c32d8d84c": {
@@ -67432,6 +68160,9 @@
         "Arn",
         "Id",
         "Status"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "686562ae00d12fcb": {
@@ -67449,7 +68180,10 @@
       "type": "AWS::Neptune::DBParameterGroup",
       "sha256": "b69aab3f6a97ee5e5af54c42525266bbf1e8cd865720c6beee9a9e92a05932d9",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name"
+      ]
     },
     "6885175a1bba3a7c": {
       "type": "AWS::ImageBuilder::Component",
@@ -67520,6 +68254,10 @@
         "Arn",
         "CreatedTime",
         "LastUpdatedTime"
+      ],
+      "primaryIdentifier": [
+        "AwsAccountId",
+        "FolderId"
       ]
     },
     "6932b658456adda2": {
@@ -67528,6 +68266,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "FunctionId"
       ]
     },
     "6947b7104e54aa9b": {
@@ -67564,7 +68305,10 @@
       "type": "AWS::Glue::SecurityConfiguration",
       "sha256": "592a0e7965aa00ee5d07820e7828b0af0e0eb20639c95917983c07a922fa46c2",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name"
+      ]
     },
     "6998cc156e6c786a": {
       "type": "AWS::MemoryDB::Cluster",
@@ -67576,6 +68320,9 @@
         "ClusterEndpoint.Port",
         "ParameterGroupStatus",
         "Status"
+      ],
+      "primaryIdentifier": [
+        "ClusterName"
       ]
     },
     "69a6fd1194eb7974": {
@@ -67618,6 +68365,9 @@
         "MetadataTableConfiguration.S3TablesDestination.TableNamespace",
         "RegionalDomainName",
         "WebsiteURL"
+      ],
+      "primaryIdentifier": [
+        "BucketName"
       ]
     },
     "6a3f794f1fbb171b": {
@@ -67656,7 +68406,12 @@
       "type": "AWS::EMR::StudioSessionMapping",
       "sha256": "16280d9615fc5347e79d0a475849cf17b99a7434399c8279aa9ea95d838cf52d",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "StudioId",
+        "IdentityType",
+        "IdentityName"
+      ]
     },
     "6ad2580b260c5036": {
       "type": "AWS::IoT::EncryptionConfiguration",
@@ -67695,6 +68450,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "TemplateName"
       ]
     },
     "6bbbcc50fc86438a": {
@@ -67726,13 +68484,20 @@
       "type": "AWS::Events::EventBusPolicy",
       "sha256": "eabee23a239a2171646b47d420a40af2be5427415af0787bf7ae988a805c250a",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "EventBusName",
+        "StatementId"
+      ]
     },
     "6bfb7af4418445ba": {
       "type": "AWS::SES::DedicatedIpPool",
       "sha256": "43cb83f64268d4ba4eab3eb0ff77b4482b6c424f8ce8bb5275643d027c119e89",
       "propertiesRequired": false,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "PoolName"
+      ]
     },
     "6c261f3ce62bf0c3": {
       "type": "AWS::Bedrock::IntelligentPromptRouter",
@@ -67750,13 +68515,20 @@
       "type": "AWS::MediaPackageV2::ChannelPolicy",
       "sha256": "fbebe823d4397ca069b3bec2ae85cdb8c7f5a60125cc2feea9b5f9260df2204d",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ChannelGroupName",
+        "ChannelName"
+      ]
     },
     "6c9e612e231ed242": {
       "type": "AWS::Cognito::UserPoolRegionalConfigurationAttachment",
       "sha256": "9acba7d558b755a4bdfe1bb6dc78e3fbc5de1a2cee3e45e33b6befdaef7cdc6c",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "UserPoolId"
+      ]
     },
     "6ca58985c60a520c": {
       "type": "AWS::ControlTower::LandingZone",
@@ -67774,13 +68546,20 @@
       "type": "AWS::EC2::VPNConnectionRoute",
       "sha256": "00545a3d9f28c440bda496d082566d6344346df0f15f860143fa9fc51ecd4a10",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "DestinationCidrBlock",
+        "VpnConnectionId"
+      ]
     },
     "6cbeeb9470189dcc": {
       "type": "AWS::SES::ConfigurationSet",
       "sha256": "acc2c3a5432dfbb3a00fea09525f2c6109950897ce557dd1d71f5155ad8e3d9a",
       "propertiesRequired": false,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name"
+      ]
     },
     "6ccba5b5ed963c13": {
       "type": "AWS::AppConfig::HostedConfigurationVersion",
@@ -67796,6 +68575,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Id"
+      ],
+      "primaryIdentifier": [
+        "PipelineName"
       ]
     },
     "6d9907e2df1ae038": {
@@ -67843,6 +68625,9 @@
       "propertiesRequired": true,
       "attributes": [
         "CreatedOn"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "6dcb58bc756e5745": {
@@ -67860,6 +68645,9 @@
       "propertiesRequired": true,
       "attributes": [
         "ScheduledAuditArn"
+      ],
+      "primaryIdentifier": [
+        "ScheduledAuditName"
       ]
     },
     "6e133e9a17359339": {
@@ -67896,13 +68684,20 @@
         "Arn",
         "CreationTime",
         "LastModificationTime"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "6ff48bff31f461dd": {
       "type": "AWS::IoT::ThingPrincipalAttachment",
       "sha256": "fe54a522294ef5495e039877ef99fcd9f51a242e6d8a605353975ae212a1d2bb",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ThingName",
+        "Principal"
+      ]
     },
     "70155e67def604b2": {
       "type": "AWS::Lightsail::InstanceSnapshot",
@@ -67918,6 +68713,9 @@
         "SizeInGb",
         "State",
         "SupportCode"
+      ],
+      "primaryIdentifier": [
+        "InstanceSnapshotName"
       ]
     },
     "70502df555a39eee": {
@@ -68029,6 +68827,9 @@
       "attributes": [
         "Arn",
         "Name"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "7218f3eda41f920b": {
@@ -68061,7 +68862,11 @@
       "type": "AWS::QBusiness::Permission",
       "sha256": "e422d9df0494bcc76fccc8b37aa68285fcfaa0f2bac69840682d1cf2afe41c7f",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ApplicationId",
+        "StatementId"
+      ]
     },
     "72ea4861cba0cb0d": {
       "type": "AWS::Macie::Member",
@@ -68114,6 +68919,9 @@
       "attributes": [
         "Arn",
         "Id"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "738ed2694ad2ff0c": {
@@ -68180,7 +68988,11 @@
       "type": "AWS::IAM::GroupPolicy",
       "sha256": "3186bcb3ec5e26d1c31a9dadc1683d71c1907dc45c4c8f60a978cc77bcc45df7",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "PolicyName",
+        "GroupName"
+      ]
     },
     "743479ab64d9fcf0": {
       "type": "AWS::EC2::NetworkInterface",
@@ -68262,6 +69074,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "AuthorizerName"
       ]
     },
     "751444032b040057": {
@@ -68310,6 +69125,10 @@
       "attributes": [
         "CreatedAt",
         "LastUpdatedAt"
+      ],
+      "primaryIdentifier": [
+        "DomainName",
+        "Uri"
       ]
     },
     "7595cf80dc3114ab": {
@@ -68356,6 +69175,9 @@
         "CreateTime",
         "TrackerArn",
         "UpdateTime"
+      ],
+      "primaryIdentifier": [
+        "TrackerName"
       ]
     },
     "762fd64dd35d68ca": {
@@ -68421,7 +69243,12 @@
       "type": "AWS::Deadline::QueueFleetAssociation",
       "sha256": "0fe62c536dd22b646fc9322a17c336657d293125f7d717b490b34afceab3c2fb",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "FarmId",
+        "FleetId",
+        "QueueId"
+      ]
     },
     "765699848949c339": {
       "type": "AWS::WAF::XssMatchSet",
@@ -68450,6 +69277,9 @@
         "Location",
         "ResourceType",
         "SupportCode"
+      ],
+      "primaryIdentifier": [
+        "DomainName"
       ]
     },
     "76ceaa095e2169de": {
@@ -68463,6 +69293,10 @@
         "IsSchemaInitialized",
         "Status",
         "UpdateDateTime"
+      ],
+      "primaryIdentifier": [
+        "WorkspaceId",
+        "ComponentTypeId"
       ]
     },
     "76f08cafdc82a25e": {
@@ -68495,7 +69329,10 @@
       "type": "AWS::RDS::EventSubscription",
       "sha256": "4bf910b91e2485b7c85b9ba300de1d6b7d0a2458276e52b3076cf1c92890d0b8",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "SubscriptionName"
+      ]
     },
     "778d60d0ea4eafc3": {
       "type": "AWS::Pinpoint::APNSVoipChannel",
@@ -68534,7 +69371,10 @@
       "type": "AWS::Neptune::DBClusterParameterGroup",
       "sha256": "6b37d5fb03465c7aceb91c684fd496d235aed06abe035de3761fedf32981ade1",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name"
+      ]
     },
     "77d3dfa6d122efbf": {
       "type": "AWS::CloudFront::TrustStore",
@@ -68599,6 +69439,10 @@
       "propertiesRequired": true,
       "attributes": [
         "Uuid"
+      ],
+      "primaryIdentifier": [
+        "IndexName",
+        "CollectionEndpoint"
       ]
     },
     "78d56d00e1bda29e": {
@@ -68616,6 +69460,9 @@
       "attributes": [
         "Arn",
         "Status"
+      ],
+      "primaryIdentifier": [
+        "ACLName"
       ]
     },
     "79b130196eebee6f": {
@@ -68668,7 +69515,11 @@
       "type": "AWS::ApiGatewayV2::Stage",
       "sha256": "d4bb2b090699a4c1574c5bc98478acf7590a23cefdc2d513d3bd87fef0e9576e",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ApiId",
+        "StageName"
+      ]
     },
     "7aed699976a26314": {
       "type": "AWS::AccountAccess::Entitlement",
@@ -68692,7 +69543,10 @@
       "type": "AWS::SSM::Document",
       "sha256": "74825b115e781f5a1ed6ef7dca900f51e8f769fa862df94cf9e43cf08b7ef61c",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name"
+      ]
     },
     "7b2e4da1706db8e6": {
       "type": "AWS::Organizations::ResourcePolicy",
@@ -68806,6 +69660,10 @@
         "CreatedAt",
         "LastUpdatedAt",
         "MaxAvailableProfileObjectCount"
+      ],
+      "primaryIdentifier": [
+        "DomainName",
+        "ObjectTypeName"
       ]
     },
     "7c53f6de6f4da7d5": {
@@ -68815,6 +69673,9 @@
       "attributes": [
         "ARN",
         "SupportedNetworkTypes"
+      ],
+      "primaryIdentifier": [
+        "SubnetGroupName"
       ]
     },
     "7c77f6955e4b4df5": {
@@ -68829,7 +69690,12 @@
       "type": "AWS::ServiceCatalog::ServiceActionAssociation",
       "sha256": "5dda47fb4899a2e1e7e97ea2ca21f759558a04cbb7ea2cbcf38011f209b7e26d",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ProductId",
+        "ProvisioningArtifactId",
+        "ServiceActionId"
+      ]
     },
     "7cfcf2c9acbd65d3": {
       "type": "AWS::CertificateManager::Certificate",
@@ -68867,6 +69733,9 @@
       "propertiesRequired": false,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "ClusterName"
       ]
     },
     "7d19b2441c68b99c": {
@@ -68894,6 +69763,9 @@
         "SourceIdsList",
         "Status",
         "SubscriptionCreationTime"
+      ],
+      "primaryIdentifier": [
+        "SubscriptionName"
       ]
     },
     "7d3515f80e8746fe": {
@@ -68902,13 +69774,20 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "7d6c7fa55c5f9ad4": {
       "type": "AWS::Logs::LogStream",
       "sha256": "4a3d40b34909b5c806cad17a50aee6f30dce8f95567a1d6c07bc6f365e4a0d6f",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "LogGroupName",
+        "LogStreamName"
+      ]
     },
     "7d9ef41b753827ef": {
       "type": "AWS::B2BI::Profile",
@@ -68937,6 +69816,10 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "LiveSourceName",
+        "SourceLocationName"
       ]
     },
     "7df5782be5b4c6cd": {
@@ -68977,6 +69860,10 @@
       "propertiesRequired": true,
       "attributes": [
         "AccessEntryArn"
+      ],
+      "primaryIdentifier": [
+        "PrincipalArn",
+        "ClusterName"
       ]
     },
     "7e660a9ca0009289": {
@@ -69048,7 +69935,11 @@
       "type": "AWS::GuardDuty::Member",
       "sha256": "10eb622778145bf03f1823a9285816db75624c7dcac6863ca130965ab8cf09b2",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "DetectorId",
+        "MemberId"
+      ]
     },
     "7f571a8ab678877b": {
       "type": "AWS::IoTAnalytics::Dataset",
@@ -69056,6 +69947,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Id"
+      ],
+      "primaryIdentifier": [
+        "DatasetName"
       ]
     },
     "7f5c291a84675f4b": {
@@ -69071,6 +69965,9 @@
         "PlayerLatencyPolicies",
         "Tags",
         "TimeoutInSeconds"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "7f8fe950f2d7717c": {
@@ -69151,7 +70048,10 @@
       "type": "AWS::IoT::Logging",
       "sha256": "e4c649727b1f1433d4f4c85e357072abd550cd0f50c2ea00037a2a2eb0de9393",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "AccountId"
+      ]
     },
     "8081a34dd83a4878": {
       "type": "AWS::SSO::Instance",
@@ -69209,7 +70109,10 @@
       "type": "AWS::Glue::Job",
       "sha256": "80e8b6af52bd068f0cac51324b1fafab83391f6945cb3872f4f5c5ce1df86b34",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name"
+      ]
     },
     "81a73a951e6c6178": {
       "type": "AWS::EC2::InternetGateway",
@@ -69280,13 +70183,19 @@
         "PublicAccessBlockConfiguration.RestrictPublicBuckets",
         "Tags",
         "VpcConfiguration.VpcId"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "82a05480e982c516": {
       "type": "AWS::Neptune::EventSubscription",
       "sha256": "88c1986b2b2c05b0cf5aad6cc3e3a1a6cf8d8121ebbe950c63082c6451008c1d",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "SubscriptionName"
+      ]
     },
     "82cd087dcf8e54f1": {
       "type": "AWS::VpcLattice::ResourceGateway",
@@ -69380,7 +70289,10 @@
       "type": "AWS::KinesisAnalyticsV2::Application",
       "sha256": "5e194b805815fd83e2dec5316bdfa1344da1246153000568879f099ce9466b49",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ApplicationName"
+      ]
     },
     "83d7ff91a4f55d15": {
       "type": "AWS::EC2::TransitGatewayMeteringPolicyEntry",
@@ -69389,13 +70301,23 @@
       "attributes": [
         "State",
         "UpdateEffectiveAt"
+      ],
+      "primaryIdentifier": [
+        "TransitGatewayMeteringPolicyId",
+        "PolicyRuleNumber"
       ]
     },
     "83f071da734a928d": {
       "type": "AWS::LakeFormation::DataCellsFilter",
       "sha256": "e82d08caaa64eb977c2fc46b54ae7cc409b49b5ba33b9090e70ef4769da1f609",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "TableCatalogId",
+        "DatabaseName",
+        "TableName",
+        "Name"
+      ]
     },
     "840fa5d0699d7896": {
       "type": "AWS::Chime::MediaPipelineKinesisVideoStreamPool",
@@ -69420,6 +70342,10 @@
         "LastUpdatedTime",
         "PermissionVersion",
         "ResourceType"
+      ],
+      "primaryIdentifier": [
+        "ResourceShareArn",
+        "PermissionArn"
       ]
     },
     "8436d901cedc24b9": {
@@ -69429,13 +70355,20 @@
       "attributes": [
         "Alias",
         "CreatedAt"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "844f9996dd4d8c73": {
       "type": "AWS::EntityResolution::PolicyStatement",
       "sha256": "46b0e4096a773ab90c29c429e11ada016e9a2f3757a17f1acf19f1df2209adfa",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Arn",
+        "StatementId"
+      ]
     },
     "84bf9be0ad8daee7": {
       "type": "AWS::ElasticBeanstalk::Environment",
@@ -69443,6 +70376,9 @@
       "propertiesRequired": true,
       "attributes": [
         "EndpointURL"
+      ],
+      "primaryIdentifier": [
+        "EnvironmentName"
       ]
     },
     "84c664ec037d88cf": {
@@ -69482,13 +70418,23 @@
       "type": "AWS::Location::TrackerConsumer",
       "sha256": "9a53d205276256c83da88b0b80a4f65df241a862e0da887837b669a774ddd96d",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "TrackerName",
+        "ConsumerArn"
+      ]
     },
     "850fd9e2bdac4c5f": {
       "type": "AWS::Route53::RecordSet",
       "sha256": "af5020a4d00378311f91cc31c09a0b400a5b77eb2982474897eed5d3de917b96",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name",
+        "HostedZoneId",
+        "Type",
+        "SetIdentifier"
+      ]
     },
     "85332053108e55ee": {
       "type": "AWS::S3::AccessGrant",
@@ -69508,6 +70454,9 @@
         "Namespace",
         "TableBucketARN",
         "TableName"
+      ],
+      "primaryIdentifier": [
+        "TableARN"
       ]
     },
     "859382ae3ace98f2": {
@@ -69536,6 +70485,9 @@
       "propertiesRequired": false,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "LogGroupName"
       ]
     },
     "8633a3e4c033154a": {
@@ -69560,7 +70512,10 @@
       "type": "AWS::DMS::ReplicationSubnetGroup",
       "sha256": "c467850dacb038e484ee81f0b611b42db033850cfda16acb5c42738389e1e346",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ReplicationSubnetGroupIdentifier"
+      ]
     },
     "867b4ebcebf635f4": {
       "type": "AWS::Pinpoint::APNSChannel",
@@ -69586,6 +70541,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "ProjectName"
       ]
     },
     "87242dcfca18681d": {
@@ -69620,7 +70578,10 @@
       "type": "AWS::NetworkFirewall::LoggingConfiguration",
       "sha256": "5e1f7b3af91eb061b9df1c4bfd8e1ca52069616f3461bb16f56813c9cae7db18",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "FirewallArn"
+      ]
     },
     "875262a1949fab92": {
       "type": "AWS::Synthetics::Group",
@@ -69628,6 +70589,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Id"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "87807f5f29de999d": {
@@ -69654,7 +70618,10 @@
       "type": "AWS::CloudTrail::ResourcePolicy",
       "sha256": "1ba185639236f2a203ca86718d3c63802021f2e78c7e7ddc27f5b3abc66276df",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ResourceArn"
+      ]
     },
     "8892c865e009667c": {
       "type": "AWS::ElastiCache::ParameterGroup",
@@ -69699,7 +70666,10 @@
       "type": "AWS::Glue::CustomEntityType",
       "sha256": "c3e18a9fcdd660ec4938c608aa0e0bbd78fa83dad9ae3a15d18c3a89a5aebca3",
       "propertiesRequired": false,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name"
+      ]
     },
     "890149a8578737b7": {
       "type": "AWS::Route53::RecordSetGroup",
@@ -69740,7 +70710,10 @@
       "type": "AWS::IoTEvents::Input",
       "sha256": "1474be74c848d28232dc7da42a9097312d8ca5f694c1c38dd28afb7dda061193",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "InputName"
+      ]
     },
     "89f1b545c1f07d05": {
       "type": "AWS::MediaTailor::PlaybackConfiguration",
@@ -69752,6 +70725,9 @@
         "PlaybackConfigurationArn",
         "PlaybackEndpointPrefix",
         "SessionInitializationEndpointPrefix"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "89f769ec822df170": {
@@ -69768,7 +70744,10 @@
       "type": "AWS::SageMaker::Pipeline",
       "sha256": "8fa2b4c99d65c61f7379446633a96e0dab6028ba8a06acecf28bd820533ba864",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "PipelineName"
+      ]
     },
     "8a64dcaf6c56b0bb": {
       "type": "AWS::EC2::SecurityGroupVpcAssociation",
@@ -69778,6 +70757,10 @@
         "State",
         "StateReason",
         "VpcOwnerId"
+      ],
+      "primaryIdentifier": [
+        "GroupId",
+        "VpcId"
       ]
     },
     "8ad3fefc08e93b3c": {
@@ -69848,7 +70831,10 @@
       "type": "AWS::XRay::ResourcePolicy",
       "sha256": "3c07710c623a85c4f7d90d9e44a714942633d7548df982274609ea7e3be456b4",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "PolicyName"
+      ]
     },
     "8ba1f6ae57a44e4a": {
       "type": "AWS::IoTSiteWise::AssetModel",
@@ -69880,7 +70866,13 @@
       "type": "AWS::EC2::NetworkPerformanceMetricSubscription",
       "sha256": "f505e527c6f1e4c765e9b8704a5793ffaaf5e662c327342dd2289b6a56241b70",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Source",
+        "Destination",
+        "Metric",
+        "Statistic"
+      ]
     },
     "8bff982fed0ad3ee": {
       "type": "AWS::Kendra::QuerySuggestionsBlockList",
@@ -69915,6 +70907,9 @@
       "propertiesRequired": true,
       "attributes": [
         "AppImageConfigArn"
+      ],
+      "primaryIdentifier": [
+        "AppImageConfigName"
       ]
     },
     "8c60f012f1cad1e2": {
@@ -69951,6 +70946,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Id"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "8cad68176d5806df": {
@@ -69976,7 +70974,11 @@
       "type": "AWS::Notifications::ManagedNotificationAdditionalChannelAssociation",
       "sha256": "ff231516d32ad80c74c1b3b2555f82a32c203110d792f1080e1eabb4949611f4",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ChannelArn",
+        "ManagedNotificationConfigurationArn"
+      ]
     },
     "8d2a8acae8a74d23": {
       "type": "AWS::WorkSpacesWeb::IpAccessSettings",
@@ -69992,7 +70994,11 @@
       "type": "AWS::Cognito::UserPoolGroup",
       "sha256": "88e77ce9fc679789dfba3f74bf628097e2c4312984d213cd33dba89fc0ddf689",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "UserPoolId",
+        "GroupName"
+      ]
     },
     "8dc1a56804094f8b": {
       "type": "AWS::SageMaker::Project",
@@ -70020,6 +71026,9 @@
       "attributes": [
         "Arn",
         "StreamArn"
+      ],
+      "primaryIdentifier": [
+        "TableName"
       ]
     },
     "8dea7cb361509197": {
@@ -70053,6 +71062,9 @@
         "DkimDNSTokenValue1",
         "DkimDNSTokenValue2",
         "DkimDNSTokenValue3"
+      ],
+      "primaryIdentifier": [
+        "EmailIdentity"
       ]
     },
     "8e03cd2e4ab66099": {
@@ -70084,6 +71096,9 @@
         "AutodefinedReverse",
         "Id",
         "OwnerId"
+      ],
+      "primaryIdentifier": [
+        "ResourceId"
       ]
     },
     "8e13abc2cb161d75": {
@@ -70092,6 +71107,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "AlarmName"
       ]
     },
     "8e4c879998e72f6f": {
@@ -70109,6 +71127,11 @@
       "propertiesRequired": true,
       "attributes": [
         "IdentityProviderConfigArn"
+      ],
+      "primaryIdentifier": [
+        "IdentityProviderConfigName",
+        "ClusterName",
+        "Type"
       ]
     },
     "8e63acbdcca77401": {
@@ -70139,13 +71162,19 @@
       "propertiesRequired": false,
       "attributes": [
         "RecoveryGroupArn"
+      ],
+      "primaryIdentifier": [
+        "RecoveryGroupName"
       ]
     },
     "8e858add83cd9963": {
       "type": "AWS::Bedrock::ResourcePolicy",
       "sha256": "6671f2dbda78dcaaf298213350003693e81ab3a7fc9647509ee8e461607f3610",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ResourceArn"
+      ]
     },
     "8ea7d01a821ec7f9": {
       "type": "AWS::VpcLattice::TargetGroup",
@@ -70165,6 +71194,9 @@
       "propertiesRequired": true,
       "attributes": [
         "StudioLifecycleConfigArn"
+      ],
+      "primaryIdentifier": [
+        "StudioLifecycleConfigName"
       ]
     },
     "8ec677c423b3f19e": {
@@ -70200,13 +71232,25 @@
       "type": "AWS::Route53::KeySigningKey",
       "sha256": "d7c6c9a008477b42b8c87628dbb1c9f3a9815264105f0cf561fa8b95740b4e46",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "HostedZoneId",
+        "Name"
+      ]
     },
     "8f38b07c29b21b49": {
       "type": "AWS::SSO::Assignment",
       "sha256": "270bc108f010f194fc727e061c62d9e0a2b97fa6cd39320a92512aacc3db982a",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "InstanceArn",
+        "TargetId",
+        "TargetType",
+        "PermissionSetArn",
+        "PrincipalType",
+        "PrincipalId"
+      ]
     },
     "8f4c485f8cf6a950": {
       "type": "AWS::SageMaker::Workforce",
@@ -70272,6 +71316,9 @@
         "Arn",
         "CreationTime",
         "LastModificationTime"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "9174be3e50854a59": {
@@ -70298,6 +71345,9 @@
         "Id",
         "KubernetesNetworkConfig.ServiceIpv6Cidr",
         "OpenIdConnectIssuerUrl"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "9193f40e9a2287ca": {
@@ -70365,6 +71415,9 @@
         "CreatedAt",
         "PolicyArn",
         "UpdatedAt"
+      ],
+      "primaryIdentifier": [
+        "PolicyId"
       ]
     },
     "9223d736ccc6feb0": {
@@ -70415,6 +71468,9 @@
       "attributes": [
         "Arn",
         "SnsTopicArn"
+      ],
+      "primaryIdentifier": [
+        "TrailName"
       ]
     },
     "92c9fb13b2e8b861": {
@@ -70445,6 +71501,9 @@
         "CreationTime",
         "LastModificationTime",
         "Status"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "933ffbfb222a28cb": {
@@ -70526,6 +71585,9 @@
         "TerminationPolicies",
         "TrafficSources",
         "VPCZoneIdentifier"
+      ],
+      "primaryIdentifier": [
+        "AutoScalingGroupName"
       ]
     },
     "935e6e91f3350c15": {
@@ -70550,6 +71612,9 @@
         "PolicyStatus",
         "PolicyStatus.IsPublic",
         "PublicAccessBlockConfiguration"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "93b7b0e17391bd54": {
@@ -70576,13 +71641,19 @@
         "Tier",
         "Type",
         "Value"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "93d49b464f44b664": {
       "type": "AWS::Route53::DNSSEC",
       "sha256": "e6a1c521c6271b1d97b9397e3a3ea1863b22e2c20dd77d3c21c0fce1104904ce",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "HostedZoneId"
+      ]
     },
     "941d16ae6360710e": {
       "type": "AWS::GammaDilithium::JobDefinition",
@@ -70638,6 +71709,11 @@
       "propertiesRequired": true,
       "attributes": [
         "Id"
+      ],
+      "primaryIdentifier": [
+        "Category",
+        "Provider",
+        "Version"
       ]
     },
     "94b202512265ae42": {
@@ -70647,6 +71723,12 @@
       "attributes": [
         "AppArn",
         "BuiltInLifecycleConfigArn"
+      ],
+      "primaryIdentifier": [
+        "AppName",
+        "AppType",
+        "DomainId",
+        "UserProfileName"
       ]
     },
     "94d4ae7d0d1a8aee": {
@@ -70670,13 +71752,21 @@
         "ResourceType",
         "SubnetId",
         "TransitGatewayAttachmentId"
+      ],
+      "primaryIdentifier": [
+        "TransitGatewayMulticastDomainId",
+        "GroupIpAddress",
+        "NetworkInterfaceId"
       ]
     },
     "955f003d4c281b75": {
       "type": "AWS::CUR::ReportDefinition",
       "sha256": "8f7fff15c195d62215fc5db2cb0915f379e703615bcb22e1a9258a51e6352b38",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ReportName"
+      ]
     },
     "9564bb4165a2bc9c": {
       "type": "AWS::GuardDuty::ThreatEntitySet",
@@ -70847,6 +71937,10 @@
         "HasChildEntities",
         "Status",
         "UpdateDateTime"
+      ],
+      "primaryIdentifier": [
+        "WorkspaceId",
+        "EntityId"
       ]
     },
     "98ee62f174d3f25a": {
@@ -70859,6 +71953,9 @@
         "MonitorArn",
         "ProcessingStatus",
         "ProcessingStatusInfo"
+      ],
+      "primaryIdentifier": [
+        "MonitorName"
       ]
     },
     "98ef7ee7017e779a": {
@@ -70880,6 +71977,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "ChannelName"
       ]
     },
     "99195180260edfb8": {
@@ -71050,6 +72150,9 @@
         "Tags",
         "UseLatestRestorableTime",
         "VpcSecurityGroupIds"
+      ],
+      "primaryIdentifier": [
+        "DBClusterIdentifier"
       ]
     },
     "9af3fd84049a9894": {
@@ -71077,7 +72180,10 @@
       "type": "AWS::MediaTailor::ChannelPolicy",
       "sha256": "f87f4cd1ca3dbf11c6c5e88c08b8b355dafdd56398d71ae70673618633893860",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ChannelName"
+      ]
     },
     "9b35486b3eed657e": {
       "type": "AWS::CloudFormation::GeneratedTemplate",
@@ -71096,7 +72202,10 @@
       "type": "AWS::Kinesis::ResourcePolicy",
       "sha256": "365973eaec28927d20ab6cce6f608b5f6b97a06f9f189d690370b94a032c5bf7",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ResourceArn"
+      ]
     },
     "9b92ccbabc8c1413": {
       "type": "AWS::EC2::ClientVpnRoute",
@@ -71110,7 +72219,12 @@
       "type": "AWS::Glue::SchemaVersionMetadata",
       "sha256": "7e2df8263ac34170addd593c9d6c1860eaabc0c769e5d1c9d5380e8c0e6cb331",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "SchemaVersionId",
+        "Key",
+        "Value"
+      ]
     },
     "9c4278cd4e91145b": {
       "type": "AWS::IVSChat::Room",
@@ -71142,7 +72256,11 @@
       "type": "AWS::Notifications::ChannelAssociation",
       "sha256": "eeb353838dc6b3ffca387054039737c426f71d99ff088480dc47aa7b8141ac66",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Arn",
+        "NotificationConfigurationArn"
+      ]
     },
     "9ccae27e8cdd7ee1": {
       "type": "AWS::EC2::PrefixList",
@@ -71221,6 +72339,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "InstanceProfileName"
       ]
     },
     "9d2e78c1e9a7cc51": {
@@ -71239,6 +72360,9 @@
         "Lifecycle",
         "S3AccessPoint.Alias",
         "S3AccessPoint.ResourceARN"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "9d50eae05604737e": {
@@ -71313,6 +72437,9 @@
       "attributes": [
         "PolicyStatus",
         "PolicyStatus.IsPublic"
+      ],
+      "primaryIdentifier": [
+        "MrapName"
       ]
     },
     "9e9f03b8c0d7dfd9": {
@@ -71331,7 +72458,10 @@
       "type": "AWS::SES::MultiRegionEndpoint",
       "sha256": "4098fddd8e5620eb343af2992bbc8eeed0d669c45aeeea383b69d589fa8c21b1",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "EndpointName"
+      ]
     },
     "9ec2b933a5a5266e": {
       "type": "AWS::StepFunctions::StateMachineAlias",
@@ -71407,6 +72537,9 @@
       "propertiesRequired": true,
       "attributes": [
         "InferenceSchedulerArn"
+      ],
+      "primaryIdentifier": [
+        "InferenceSchedulerName"
       ]
     },
     "9f91a8cf18531dd5": {
@@ -71478,6 +72611,9 @@
         "CreationDate",
         "LastUpdateDate",
         "State"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "a0829992f02d11d1": {
@@ -71505,7 +72641,11 @@
       "type": "AWS::Cognito::UserPoolResourceServer",
       "sha256": "f933676b9b1ac98d3b7e856c74716329e38fa06e171242d59ac433bea7c8474c",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "UserPoolId",
+        "Identifier"
+      ]
     },
     "a1531c8653cff025": {
       "type": "AWS::SMSVOICE::NotifyConfiguration",
@@ -71646,7 +72786,11 @@
       "type": "AWS::EC2::RouteServerAssociation",
       "sha256": "0e3cee7a0da4376465fe1c022c642a5c97b5464423d6743485dfdd30f352a560",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "RouteServerId",
+        "VpcId"
+      ]
     },
     "a29a6ba8dc1beca1": {
       "type": "AWS::Greengrass::CoreDefinitionVersion",
@@ -71721,13 +72865,20 @@
       "attributes": [
         "GlobalClusterArn",
         "GlobalClusterResourceId"
+      ],
+      "primaryIdentifier": [
+        "GlobalClusterIdentifier"
       ]
     },
     "a356cbffb93af5f4": {
       "type": "AWS::ApiGateway::Stage",
       "sha256": "6013a94d16696d906ecb28fb5e3ee5c76004c392b4425101c61d23dd5f0f9370",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "RestApiId",
+        "StageName"
+      ]
     },
     "a388d8abe1219d0e": {
       "type": "AWS::EC2::IpamExternalResourceVerificationToken",
@@ -71749,7 +72900,10 @@
       "type": "AWS::Lambda::ResourcePolicy",
       "sha256": "3ceb02429b8dff9f6797d613d4caf144df48897726b3794fbae593a41066c2fc",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ResourceArn"
+      ]
     },
     "a3fc2798aeb3e8b6": {
       "type": "AWS::GroundStation::DataflowEndpointGroupV2",
@@ -71776,6 +72930,9 @@
       "propertiesRequired": false,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "a4352228354c37db": {
@@ -71814,6 +72971,9 @@
       "propertiesRequired": false,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "DatabaseName"
       ]
     },
     "a4d9f4696502a65d": {
@@ -71861,6 +73021,9 @@
         "CreationTime",
         "Id",
         "LastModificationTime"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "a55e1d9541af18de": {
@@ -71869,6 +73032,10 @@
       "propertiesRequired": true,
       "attributes": [
         "State"
+      ],
+      "primaryIdentifier": [
+        "TransitGatewayPolicyTableId",
+        "TransitGatewayAttachmentId"
       ]
     },
     "a5a30d2f7acae716": {
@@ -71922,6 +73089,10 @@
         "PackageVersionArn",
         "SbomValidationStatus",
         "Status"
+      ],
+      "primaryIdentifier": [
+        "PackageName",
+        "VersionName"
       ]
     },
     "a62c8b6913949833": {
@@ -72034,6 +73205,10 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "ClusterName",
+        "FargateProfileName"
       ]
     },
     "a76b66268ca8f1a7": {
@@ -72044,6 +73219,9 @@
         "Arn",
         "CreationTime",
         "LastModificationTime"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "a775f85ea46cc21f": {
@@ -72111,7 +73289,10 @@
       "type": "AWS::SupportApp::SlackWorkspaceConfiguration",
       "sha256": "a9e23b36d17c0ed61a079cb482d916d5112e1dfadb61819fb9ddd010214223f8",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "TeamId"
+      ]
     },
     "a8254b2e69e687eb": {
       "type": "AWS::Logs::DeliverySource",
@@ -72123,6 +73304,9 @@
         "Service",
         "Status",
         "StatusReason"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "a88acefa171d9a00": {
@@ -72136,6 +73320,9 @@
         "Location",
         "ResourceType",
         "SupportCode"
+      ],
+      "primaryIdentifier": [
+        "KeyPairName"
       ]
     },
     "a898ebc3b2f95f22": {
@@ -72166,6 +73353,9 @@
       "propertiesRequired": true,
       "attributes": [
         "IntegrationStatus"
+      ],
+      "primaryIdentifier": [
+        "IntegrationName"
       ]
     },
     "a8f9736329595729": {
@@ -72195,7 +73385,10 @@
       "type": "AWS::VpcLattice::ResourcePolicy",
       "sha256": "503c430162c9f89a212ba49fc4dde9e071e053eec93aa03ff35391dd9ddc06bf",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ResourceArn"
+      ]
     },
     "a95a345cfa1dc347": {
       "type": "AWS::CloudFront::Function",
@@ -72236,6 +73429,9 @@
       "propertiesRequired": true,
       "attributes": [
         "JobDefinitionArn"
+      ],
+      "primaryIdentifier": [
+        "JobDefinitionName"
       ]
     },
     "aa12dce2bbef237a": {
@@ -72322,6 +73518,10 @@
         "Grantee",
         "Grantor",
         "Status"
+      ],
+      "primaryIdentifier": [
+        "ClusterIdentifier",
+        "Account"
       ]
     },
     "ab6dffe1c7a7e094": {
@@ -72427,6 +73627,9 @@
       "propertiesRequired": true,
       "attributes": [
         "CommandArn"
+      ],
+      "primaryIdentifier": [
+        "CommandId"
       ]
     },
     "ad5b79ccf3b71cfa": {
@@ -72450,6 +73653,9 @@
         "Endpoint.Address",
         "Endpoint.Port",
         "MasterPasswordSecretArn"
+      ],
+      "primaryIdentifier": [
+        "ClusterIdentifier"
       ]
     },
     "ad696fa2873a8318": {
@@ -72515,7 +73721,10 @@
       "type": "AWS::SageMaker::DeviceFleet",
       "sha256": "5bd074a079bc2a3c2ddd9a151bc9accb397711ca09ca4e86bffe99c2e738356b",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "DeviceFleetName"
+      ]
     },
     "adf17dd90ef4ade4": {
       "type": "AWS::Omics::Workflow",
@@ -72564,7 +73773,11 @@
       "type": "AWS::ApiGateway::BasePathMapping",
       "sha256": "382afb6645b674f8afe219ae39b4a8c06df90deff1dfabc6a9c13660e64a09fd",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "DomainName",
+        "BasePath"
+      ]
     },
     "ae76ea9b08945982": {
       "type": "AWS::CloudFormation::ChangeSet",
@@ -72664,19 +73877,32 @@
       "type": "AWS::ApiGateway::Method",
       "sha256": "fb94117274233a03b69c7307fecc0970f70402e9c48d726e547c6dcb500f1d74",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "RestApiId",
+        "ResourceId",
+        "HttpMethod"
+      ]
     },
     "af4232f76a410e45": {
       "type": "AWS::SecurityLake::AwsLogSource",
       "sha256": "2070b9f9ab007b6a33d270c855ebb418250bcaee2a512bb5440d860c2b337940",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "SourceName",
+        "SourceVersion"
+      ]
     },
     "af6bfe8b2454dec8": {
       "type": "AWS::EC2::VPCDHCPOptionsAssociation",
       "sha256": "cd601043c65e6043ccf9883cbfae90edecc1fff13961872f74ef33a1fa4e18b7",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "DhcpOptionsId",
+        "VpcId"
+      ]
     },
     "af6cfd00b2ff1297": {
       "type": "AWS::DAX::Cluster",
@@ -72814,13 +74040,20 @@
       "attributes": [
         "MitigationActionArn",
         "MitigationActionId"
+      ],
+      "primaryIdentifier": [
+        "ActionName"
       ]
     },
     "b0eb321ac4ab5924": {
       "type": "AWS::ServiceCatalog::PortfolioShare",
       "sha256": "e59f8ad1934bc2341badd47b7dc80d37b4b15fa7850542faf5ac359b3e0dc2d3",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "PortfolioId",
+        "AccountId"
+      ]
     },
     "b12fb14e30c8e307": {
       "type": "AWS::WAFRegional::SqlInjectionMatchSet",
@@ -72860,6 +74093,9 @@
       "propertiesRequired": false,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "RepositoryName"
       ]
     },
     "b201b650d022bf32": {
@@ -72891,7 +74127,10 @@
       "type": "AWS::DocDB::DBSubnetGroup",
       "sha256": "ccb0aa85d817c86282bd139b33666b15b3b3b736df5c6dbd0d101ba626ca41ac",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "DBSubnetGroupName"
+      ]
     },
     "b2cfdbcf327ef113": {
       "type": "AWS::EC2::EgressOnlyInternetGateway",
@@ -72905,7 +74144,11 @@
       "type": "AWS::EC2::TransitGatewayRouteTablePropagation",
       "sha256": "ce537873723d70261b7abdf6fb04d5005280c091b6c716f8fbf48cc95e91e024",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "TransitGatewayRouteTableId",
+        "TransitGatewayAttachmentId"
+      ]
     },
     "b2e3bf6167dffb85": {
       "type": "AWS::MemoryDB::User",
@@ -72914,6 +74157,9 @@
       "attributes": [
         "Arn",
         "Status"
+      ],
+      "primaryIdentifier": [
+        "UserName"
       ]
     },
     "b30dba48bf455427": {
@@ -72933,6 +74179,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "b3407a31ade1ed2a": {
@@ -73085,7 +74334,11 @@
       "type": "AWS::GuardDuty::Filter",
       "sha256": "8cf1f37afe1e9583b19ba288af0d896df5e1d835d73cf85af609a1d3c5247707",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "DetectorId",
+        "Name"
+      ]
     },
     "b49b5695ad1635bc": {
       "type": "AWS::S3Express::AccessPoint",
@@ -73094,6 +74347,9 @@
       "attributes": [
         "Arn",
         "NetworkOrigin"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "b4e82979f199cc25": {
@@ -73112,13 +74368,20 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "SourceLocationName"
       ]
     },
     "b54e6661e89c8ae3": {
       "type": "AWS::Cassandra::Table",
       "sha256": "fead4adcd693e590dbc0e882877986a22a0abf1ad6ffda3948882638675287ff",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "KeyspaceName",
+        "TableName"
+      ]
     },
     "b55bfb76c1152913": {
       "type": "AWS::SageMaker::NotebookInstance",
@@ -73137,6 +74400,9 @@
         "Arn",
         "Status",
         "StatusMessage"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "b5cdaa99e29b15dc": {
@@ -73209,7 +74475,10 @@
       "type": "AWS::MSK::BatchScramSecret",
       "sha256": "ac3c9f5ce3843dbd2119f7df53fe20be1c1355081cf251ac8701282d035fd12a",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ClusterArn"
+      ]
     },
     "b6b2b7203a188504": {
       "type": "AWS::DataSync::LocationHDFS",
@@ -73303,6 +74572,9 @@
       "attributes": [
         "CreationTime",
         "NotificationHubStatusSummary"
+      ],
+      "primaryIdentifier": [
+        "Region"
       ]
     },
     "b7f8318a0b562d89": {
@@ -73311,6 +74583,9 @@
       "propertiesRequired": true,
       "attributes": [
         "GraphArn"
+      ],
+      "primaryIdentifier": [
+        "AccountId"
       ]
     },
     "b80a583ef6ae88bd": {
@@ -73416,6 +74691,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "b9b9aaf14b3ce55e": {
@@ -73442,7 +74720,11 @@
       "type": "AWS::Cognito::UserPoolIdentityProvider",
       "sha256": "0e38645bc16cccc004906b34c6e1b549f015ba9d1cdf6c73b3b473cf20721f4c",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "UserPoolId",
+        "ProviderName"
+      ]
     },
     "ba92454a029e1743": {
       "type": "AWS::Greengrass::DeviceDefinitionVersion",
@@ -73517,13 +74799,20 @@
       "propertiesRequired": true,
       "attributes": [
         "RoleAliasArn"
+      ],
+      "primaryIdentifier": [
+        "RoleAlias"
       ]
     },
     "bc623b15f06f37ad": {
       "type": "AWS::AppStream::ApplicationFleetAssociation",
       "sha256": "446a0e362796fee7afc64cd47a8223846f99baf5cd75f10b04cc25fad7d6cded",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "FleetName",
+        "ApplicationArn"
+      ]
     },
     "bc6bc22050153eea": {
       "type": "AWS::VpcLattice::DomainVerification",
@@ -73567,13 +74856,20 @@
       "type": "AWS::APS::ResourcePolicy",
       "sha256": "01f43b40ef52272d33e74fd93db6190dfb0fd1e89d3fdfedd49fd1f37f220780",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "WorkspaceArn"
+      ]
     },
     "bd2a6c5d7882e40d": {
       "type": "AWS::Cognito::UserPoolRiskConfigurationAttachment",
       "sha256": "99d008eab6dff8b6b120f15b023e326e53abf6d58d4605b16a4890d14667713c",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "UserPoolId",
+        "ClientId"
+      ]
     },
     "bd3738a72df125ce": {
       "type": "AWS::EC2::FpgaImage",
@@ -73636,6 +74932,9 @@
       "propertiesRequired": false,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "OptOutListName"
       ]
     },
     "bdbcac2e1edd90ed": {
@@ -73735,6 +75034,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "bf241fcd578a8413": {
@@ -73761,7 +75063,12 @@
       "type": "AWS::Deadline::QueueLimitAssociation",
       "sha256": "9035ef380744d4c928137478dea1a69d2fb4cadfb8f3467107c5ff23002d09c7",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "FarmId",
+        "LimitId",
+        "QueueId"
+      ]
     },
     "bf56409d29f10bfc": {
       "type": "AWS::Omics::AnnotationStore",
@@ -73775,6 +75082,9 @@
         "StoreArn",
         "StoreSizeBytes",
         "UpdateTime"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "bf5d1d8dde960c05": {
@@ -73809,6 +75119,9 @@
       "attributes": [
         "Arn",
         "WarmThroughputObject"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "bfe3b47089380bde": {
@@ -73867,6 +75180,9 @@
       "propertiesRequired": false,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "DeliveryStreamName"
       ]
     },
     "c1046a5d883b8e03": {
@@ -73891,6 +75207,10 @@
       "attributes": [
         "CreatedTime",
         "LastModifiedTime"
+      ],
+      "primaryIdentifier": [
+        "StackName",
+        "Name"
       ]
     },
     "c10632c49eef07e2": {
@@ -73919,6 +75239,9 @@
       "propertiesRequired": true,
       "attributes": [
         "TemplateArn"
+      ],
+      "primaryIdentifier": [
+        "TemplateName"
       ]
     },
     "c1bbc49f2657c3a2": {
@@ -73927,6 +75250,10 @@
       "propertiesRequired": true,
       "attributes": [
         "DBEngineVersionArn"
+      ],
+      "primaryIdentifier": [
+        "Engine",
+        "EngineVersion"
       ]
     },
     "c1cdd059dc6ba4d8": {
@@ -73971,13 +75298,20 @@
       "propertiesRequired": true,
       "attributes": [
         "CloudFrontDistribution"
+      ],
+      "primaryIdentifier": [
+        "UserPoolId",
+        "Domain"
       ]
     },
     "c215adb6fd9b20f8": {
       "type": "AWS::ECS::ClusterCapacityProviderAssociations",
       "sha256": "18f4f0ca4da525f7f33571471b27eae376ee6c7e656d81822bc9b2ebb9582dc1",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Cluster"
+      ]
     },
     "c21d8d895fcf2842": {
       "type": "AWS::IoTSiteWise::Portal",
@@ -74087,6 +75421,9 @@
       "attributes": [
         "DBShardGroupResourceId",
         "Endpoint"
+      ],
+      "primaryIdentifier": [
+        "DBShardGroupIdentifier"
       ]
     },
     "c454a8ae9a8af571": {
@@ -74118,6 +75455,9 @@
         "Arn",
         "CreationTime",
         "LastModificationTime"
+      ],
+      "primaryIdentifier": [
+        "Id"
       ]
     },
     "c4fa4cd8cef4ff8d": {
@@ -74135,6 +75475,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "TenantName"
       ]
     },
     "c52f04d24365a1a9": {
@@ -74185,6 +75528,9 @@
       "attributes": [
         "Arn",
         "CreatedTime"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "c57b53f8cb3c483e": {
@@ -74204,6 +75550,9 @@
         "CollectionArn",
         "CreateTime",
         "UpdateTime"
+      ],
+      "primaryIdentifier": [
+        "CollectionName"
       ]
     },
     "c581162fa24510be": {
@@ -74247,6 +75596,9 @@
       "propertiesRequired": true,
       "attributes": [
         "DBSubnetGroupArn"
+      ],
+      "primaryIdentifier": [
+        "DBSubnetGroupName"
       ]
     },
     "c63e11f58457f690": {
@@ -74273,6 +75625,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "ProfilingGroupName"
       ]
     },
     "c6cd8e3180787e4d": {
@@ -74281,6 +75636,9 @@
       "propertiesRequired": false,
       "attributes": [
         "Id"
+      ],
+      "primaryIdentifier": [
+        "DatastoreName"
       ]
     },
     "c6de9b719f6b26d1": {
@@ -74302,7 +75660,11 @@
       "type": "AWS::IAM::UserPolicy",
       "sha256": "2e0cc9c6747b1aaaf16092cf3ca0fa3941754c7018e5eb31c253d8fa2343a2a8",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "PolicyName",
+        "UserName"
+      ]
     },
     "c776f0b2601489c0": {
       "type": "AWS::Amplify::Webhook",
@@ -74318,7 +75680,10 @@
       "type": "AWS::S3ObjectLambda::AccessPointPolicy",
       "sha256": "94b2c584b88e23d74f1c0bd2f5f30bac6f8394779b00d5405ac87bba7cb36c77",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ObjectLambdaAccessPoint"
+      ]
     },
     "c7cfa417317220c6": {
       "type": "AWS::Route53Profiles::ProfileAssociation",
@@ -74388,13 +75753,20 @@
       "attributes": [
         "LoadBalancerTlsCertificateArn",
         "Status"
+      ],
+      "primaryIdentifier": [
+        "CertificateName",
+        "LoadBalancerName"
       ]
     },
     "c8fe2fc6a8e4ded0": {
       "type": "AWS::SNS::TopicInlinePolicy",
       "sha256": "b6151b7ba11440a962d5e0081004d9d67d1afb9320bbc0e776466ebccf6f52f0",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "TopicArn"
+      ]
     },
     "c90e842e4fc50b75": {
       "type": "AWS::Connect::User",
@@ -74410,6 +75782,9 @@
       "propertiesRequired": false,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "ConfigurationSetName"
       ]
     },
     "c93cecc5f7f60e14": {
@@ -74424,13 +75799,21 @@
       "type": "AWS::BedrockAgentCore::ResourcePolicy",
       "sha256": "b0a0a9848b9801c8563bd748e0206be56fbcf76911b822d5ac79e2ddc2f50b26",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ResourceArn"
+      ]
     },
     "c9900681170ae751": {
       "type": "AWS::AppStream::StackUserAssociation",
       "sha256": "e44d2e86dbb8c9fa3acbdd647acf6e8658251f7f9386c59813612ff9e071b03c",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "StackName",
+        "UserName",
+        "AuthenticationType"
+      ]
     },
     "c9ed22baa83301c2": {
       "type": "AWS::RedshiftServerless::Workgroup",
@@ -74472,6 +75855,9 @@
         "Workgroup.WorkgroupId",
         "Workgroup.WorkgroupName",
         "WorkgroupName"
+      ],
+      "primaryIdentifier": [
+        "WorkgroupName"
       ]
     },
     "ca0a7f6abd27d592": {
@@ -74480,6 +75866,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "ca288527753382d6": {
@@ -74495,7 +75884,10 @@
       "type": "AWS::KMS::Alias",
       "sha256": "97a43d32fa9d9c0da0cf0e2879c17f814683057a5a917c7110a6ca5b6e75ba0b",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "AliasName"
+      ]
     },
     "ca88707c91899447": {
       "type": "AWS::CloudFront::OriginRequestPolicy",
@@ -74510,7 +75902,11 @@
       "type": "AWS::Lambda::EventInvokeConfig",
       "sha256": "92a7dbb50d0ea8761a83053aebca12e53cb88a61f57272b2b94c2880b476732c",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "FunctionName",
+        "Qualifier"
+      ]
     },
     "cac8ce084430a700": {
       "type": "AWS::WAFRegional::Rule",
@@ -74593,6 +75989,9 @@
       "propertiesRequired": true,
       "attributes": [
         "State"
+      ],
+      "primaryIdentifier": [
+        "ResourceIdentifier"
       ]
     },
     "cd0933e1c908158f": {
@@ -74634,7 +76033,12 @@
       "type": "AWS::Cognito::UserPoolUserToGroupAttachment",
       "sha256": "061f88ced2c63317e520359260959bbdd566d194a6d4fa3aef86814a6eeb32f4",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "UserPoolId",
+        "GroupName",
+        "Username"
+      ]
     },
     "cd8e48eb12a1c8a1": {
       "type": "AWS::Rekognition::Project",
@@ -74642,6 +76046,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "ProjectName"
       ]
     },
     "cda9637e4ba3829c": {
@@ -74677,7 +76084,11 @@
       "type": "AWS::NetworkManager::CoreNetworkPrefixListAssociation",
       "sha256": "f8a5c3420194a8de0ebcf872f0cf4242d59caa9e84bcfe45cf4fccf5cbf61711",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "CoreNetworkId",
+        "PrefixListArn"
+      ]
     },
     "cde85e964f8e90f3": {
       "type": "AWS::GameLift::Script",
@@ -74795,6 +76206,9 @@
         "CalculatorArn",
         "CreateTime",
         "UpdateTime"
+      ],
+      "primaryIdentifier": [
+        "CalculatorName"
       ]
     },
     "d01de64c5ada1efb": {
@@ -74841,6 +76255,9 @@
         "AuthParameters.ConnectivityParameters.ResourceParameters.ResourceAssociationArn",
         "InvocationConnectivityParameters.ResourceParameters.ResourceAssociationArn",
         "SecretArn"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "d0f360fe89fa8386": {
@@ -74913,6 +76330,9 @@
       "propertiesRequired": true,
       "attributes": [
         "StorageLensGroupArn"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "d24af14efdd40c17": {
@@ -74937,6 +76357,9 @@
         "CreateTime",
         "MapArn",
         "UpdateTime"
+      ],
+      "primaryIdentifier": [
+        "MapName"
       ]
     },
     "d266007f54cb3cfa": {
@@ -75040,6 +76463,9 @@
       "propertiesRequired": true,
       "attributes": [
         "CurrentVersion"
+      ],
+      "primaryIdentifier": [
+        "ClusterArn"
       ]
     },
     "d49523269b8efe5f": {
@@ -75056,6 +76482,9 @@
       "propertiesRequired": true,
       "attributes": [
         "StreamingUrl"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "d4ee5cb536724fa1": {
@@ -75070,7 +76499,12 @@
       "type": "AWS::SSO::ApplicationAssignment",
       "sha256": "3db346556058150dbe1e7fecfd569d49aedf2e59b3d46ac0ddcdb89ede32e87c",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ApplicationArn",
+        "PrincipalType",
+        "PrincipalId"
+      ]
     },
     "d5279fb393cab4fa": {
       "type": "AWS::Panorama::ApplicationInstance",
@@ -75102,6 +76536,10 @@
       "propertiesRequired": false,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "AwsAccountId",
+        "TopicId"
       ]
     },
     "d54266a6790b938e": {
@@ -75152,6 +76590,10 @@
         "CreationDateTime",
         "State",
         "UpdateDateTime"
+      ],
+      "primaryIdentifier": [
+        "WorkspaceId",
+        "SyncSource"
       ]
     },
     "d61e158d46659c77": {
@@ -75243,6 +76685,9 @@
       "propertiesRequired": true,
       "attributes": [
         "ARN"
+      ],
+      "primaryIdentifier": [
+        "ParameterGroupName"
       ]
     },
     "d7c34179aa7a079e": {
@@ -75268,6 +76713,10 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "SourceLocationName",
+        "VodSourceName"
       ]
     },
     "d80829b4582bbe62": {
@@ -75347,19 +76796,30 @@
       "type": "AWS::IoT::AccountAuditConfiguration",
       "sha256": "4e76be402938f0951aa644f3af31a1a71e6ca0fe166c32e37571059b10845d42",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "AccountId"
+      ]
     },
     "d8c5c020c9b36c73": {
       "type": "AWS::OpenSearchServerless::CollectionIndex",
       "sha256": "52c711dcbb8773c0e38b5ed7f78bd875f4034944ef8be86bb1e35648235bf2c7",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Id",
+        "IndexName"
+      ]
     },
     "d8c6b3ee36d310ee": {
       "type": "AWS::Connect::ApprovedOrigin",
       "sha256": "61424b919c071322ab15176d8064180285c7b22c16299216d25a83d951383e49",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "InstanceId",
+        "Origin"
+      ]
     },
     "d90f2a7bc7d615d2": {
       "type": "AWS::WAFRegional::SizeConstraintSet",
@@ -75385,7 +76845,11 @@
       "type": "AWS::IAM::RolePolicy",
       "sha256": "a90f28ab0accba627a71962743c2c80ca9638ea0650db46fee9e73248211895f",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "PolicyName",
+        "RoleName"
+      ]
     },
     "d9400a3cc60e6427": {
       "type": "AWS::Transfer::Profile",
@@ -75410,7 +76874,10 @@
       "type": "AWS::Glue::Crawler",
       "sha256": "ab88513c3d1c6a7a390f8a48214a4ada5f653b6a70ca450edcc091692a64e26f",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name"
+      ]
     },
     "d964d045f320022e": {
       "type": "AWS::SageMaker::ClusterSchedulerConfig",
@@ -75452,7 +76919,11 @@
       "type": "AWS::Detective::MemberInvitation",
       "sha256": "4d616301067b30145b3ff3154d72554a8fb01ad0358e204a477dcd439140fecd",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "GraphArn",
+        "MemberId"
+      ]
     },
     "d9b6820ae8f3320f": {
       "type": "AWS::Route53GlobalResolver::DnsView",
@@ -75479,13 +76950,20 @@
         "Status",
         "Type",
         "UpdatedAt"
+      ],
+      "primaryIdentifier": [
+        "AwsAccountId",
+        "KnowledgeBaseId"
       ]
     },
     "d9e914ea91089802": {
       "type": "AWS::DataBrew::Recipe",
       "sha256": "b2f3c124f827c887368d3bb2dba75ec75aa245c4f5069119ffba64bf0316fa7b",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name"
+      ]
     },
     "da2044177d5cb066": {
       "type": "AWS::MediaPackage::Asset",
@@ -75496,6 +76974,9 @@
         "CreatedAt",
         "EgressEndpoints.*.PackagingConfigurationId",
         "EgressEndpoints.*.Url"
+      ],
+      "primaryIdentifier": [
+        "Id"
       ]
     },
     "da272b60037c575f": {
@@ -75506,6 +76987,9 @@
         "CreatedTime",
         "LastUpdatedTime",
         "WorkloadIdentityArn"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "da6fcff6674bf450": {
@@ -75514,6 +76998,9 @@
       "propertiesRequired": false,
       "attributes": [
         "GlobalEndpoint"
+      ],
+      "primaryIdentifier": [
+        "GlobalClusterIdentifier"
       ]
     },
     "da7eacb801891242": {
@@ -75565,7 +77052,10 @@
       "type": "AWS::Redshift::ClusterParameterGroup",
       "sha256": "81024ea65a59b01a913f1bec62273ed4def78d4a3ddc9bc955a612033fa5ab5d",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ParameterGroupName"
+      ]
     },
     "db12efb114637d9c": {
       "type": "AWS::SCN::Dataset",
@@ -75589,7 +77079,10 @@
       "type": "AWS::Glue::Trigger",
       "sha256": "d375f97577d5c3014c498d5df2a6e5940715c75ad69418429b45f4f473d3aec9",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name"
+      ]
     },
     "db56896404e619ab": {
       "type": "AWS::InspectorV2::Connector",
@@ -75632,6 +77125,9 @@
       "propertiesRequired": true,
       "attributes": [
         "DatabaseArn"
+      ],
+      "primaryIdentifier": [
+        "RelationalDatabaseName"
       ]
     },
     "dbba8a03ff10bb49": {
@@ -75699,6 +77195,10 @@
         "CertificateS3BucketName",
         "CertificateS3ObjectKey",
         "EncryptionKmsKeyId"
+      ],
+      "primaryIdentifier": [
+        "CertificateArn",
+        "RoleArn"
       ]
     },
     "dc9a8ad1a6e810d5": {
@@ -75759,7 +77259,10 @@
       "type": "AWS::CloudFront::MonitoringSubscription",
       "sha256": "2ebddb5e8f39bf832089ae0ee7e3ea0e7f583915e1c65fc656b3b6458a0813af",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "DistributionId"
+      ]
     },
     "ddc2c61efb34d9be": {
       "type": "AWS::CustomerProfiles::Domain",
@@ -75771,6 +77274,9 @@
         "LastUpdatedAt",
         "RuleBasedMatching.Status",
         "Stats"
+      ],
+      "primaryIdentifier": [
+        "DomainName"
       ]
     },
     "ddf03085ad005d07": {
@@ -75785,7 +77291,10 @@
       "type": "AWS::Neptune::DBSubnetGroup",
       "sha256": "ac462a8e98afffd8a73b7d2dccd127dba14471f6cb2c62657820f8d3e0ef023e",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "DBSubnetGroupName"
+      ]
     },
     "de830a0afed1aa34": {
       "type": "AWS::DevOpsAgent::Association",
@@ -75809,7 +77318,10 @@
       "type": "AWS::ARCZonalShift::ZonalAutoshiftConfiguration",
       "sha256": "548044e53cadcf81dda6b93fe63e6ca320c738991043a7f517f9a3bf5bc713a0",
       "propertiesRequired": false,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ResourceIdentifier"
+      ]
     },
     "ded8f9fe8312422e": {
       "type": "AWS::Connect::EmailAddress",
@@ -75844,19 +77356,30 @@
       "type": "AWS::ApiGateway::Model",
       "sha256": "e63702c0f70579b71180b68929ef1273b344fb598311785f34008f4353f55c62",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "RestApiId",
+        "Name"
+      ]
     },
     "def1177843a231e8": {
       "type": "AWS::ApiGateway::DocumentationVersion",
       "sha256": "28247c6ab31c94172b27af8927f2f8322d84423584d65e17a733393fe631288f",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "DocumentationVersion",
+        "RestApiId"
+      ]
     },
     "df0671c90a558eda": {
       "type": "AWS::LakeFormation::Tag",
       "sha256": "e01deec0091956e3c107c3089225016826a02301aa8249257101c3eb3f5515c1",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "TagKey"
+      ]
     },
     "df322d5101043ea6": {
       "type": "AWS::SystemsManagerSAP::Application",
@@ -75918,13 +77441,20 @@
         "CreatedAt",
         "Status",
         "UpdatedAt"
+      ],
+      "primaryIdentifier": [
+        "AwsAccountId",
+        "DlpSettingId"
       ]
     },
     "e0dcea812dbd9878": {
       "type": "AWS::EMR::WALWorkspace",
       "sha256": "7dcc593c7aeb690ccd909bf48766a9ac9120480ce3d29d7e2bb8a01b50157003",
       "propertiesRequired": false,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "WALWorkspaceName"
+      ]
     },
     "e0dd7e7a00fbac77": {
       "type": "AWS::CloudWatch::InsightRule",
@@ -76109,6 +77639,9 @@
       "attributes": [
         "Arn",
         "Fingerprint"
+      ],
+      "primaryIdentifier": [
+        "PartnerAccountId"
       ]
     },
     "e3ce63041315cf44": {
@@ -76117,6 +77650,9 @@
       "propertiesRequired": false,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "AlarmName"
       ]
     },
     "e3d2b06c010fa097": {
@@ -76207,6 +77743,10 @@
         "External",
         "LastUpdatedTime",
         "Status"
+      ],
+      "primaryIdentifier": [
+        "ResourceShareArn",
+        "ResourceArn"
       ]
     },
     "e5cd94805c79df63": {
@@ -76276,7 +77816,11 @@
       "type": "AWS::MediaConnect::BridgeOutput",
       "sha256": "750faa0d31551ce86364a64b1ea09e0b1bd3cd204007e4c2b86f06bf29943cdc",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "BridgeArn",
+        "Name"
+      ]
     },
     "e703fb10b42108ae": {
       "type": "AWS::EKS::Nodegroup",
@@ -76365,6 +77909,9 @@
       "attributes": [
         "CreatedAt",
         "UpdatedAt"
+      ],
+      "primaryIdentifier": [
+        "Prefix"
       ]
     },
     "e79191ef6886ca0c": {
@@ -76442,6 +77989,9 @@
       "attributes": [
         "Arn",
         "Version"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "e88b3f933801498c": {
@@ -76465,6 +78015,9 @@
         "Status",
         "StatusReason",
         "VersionNumber"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "e8bb0fd69e690c57": {
@@ -76486,7 +78039,10 @@
       "type": "AWS::DataBrew::Job",
       "sha256": "7d44239a86d300b3ecf86f7b22f9793afe67743cf8c7408531aac328419aec3d",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name"
+      ]
     },
     "e8ce201e75e68e0c": {
       "type": "AWS::DirectConnect::DirectConnectGatewayAssociation",
@@ -76514,6 +78070,9 @@
         "DomainNameArn",
         "RegionalDomainName",
         "RegionalHostedZoneId"
+      ],
+      "primaryIdentifier": [
+        "DomainName"
       ]
     },
     "e90161737ddac635": {
@@ -76532,13 +78091,22 @@
       "type": "AWS::MediaPackageV2::OriginEndpointPolicy",
       "sha256": "08ede81389eccbd82337fb7c8e5849a7cb6af6e24a44d16d55ace69a67e0f920",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ChannelGroupName",
+        "ChannelName",
+        "OriginEndpointName"
+      ]
     },
     "e943110631a29e3c": {
       "type": "AWS::MediaConnect::BridgeSource",
       "sha256": "39d215de506eea9959352b01ff942408bb27f794d283a4d4a2052440c22f61a9",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "BridgeArn",
+        "Name"
+      ]
     },
     "e955fb1747ae7c60": {
       "type": "AWS::Batch::ComputeEnvironment",
@@ -76564,6 +78132,9 @@
       "propertiesRequired": true,
       "attributes": [
         "CompleteCertificateChain"
+      ],
+      "primaryIdentifier": [
+        "CertificateAuthorityArn"
       ]
     },
     "e9eb6b54013a4bdb": {
@@ -76632,6 +78203,9 @@
         "RuleSetArn",
         "RuleSetName",
         "Tags"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "ea3a986f02799120": {
@@ -76672,7 +78246,10 @@
       "type": "AWS::AppStream::DirectoryConfig",
       "sha256": "2409ec4c4a442a3567d02bcd4e28e60b3118323427bef217db2537b86821cc65",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "DirectoryName"
+      ]
     },
     "eae03209bf1fdb48": {
       "type": "AWS::IAM::ServerCertificate",
@@ -76680,6 +78257,9 @@
       "propertiesRequired": false,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "ServerCertificateName"
       ]
     },
     "eae3483c61654312": {
@@ -76688,6 +78268,10 @@
       "propertiesRequired": true,
       "attributes": [
         "UserProfileArn"
+      ],
+      "primaryIdentifier": [
+        "UserProfileName",
+        "DomainId"
       ]
     },
     "eae891304b25d36e": {
@@ -76725,6 +78309,11 @@
       "attributes": [
         "ResourceShareArn",
         "ResourceShareId"
+      ],
+      "primaryIdentifier": [
+        "InstanceId",
+        "DataSetId",
+        "TargetAccountId"
       ]
     },
     "eb08b59943553138": {
@@ -76794,6 +78383,10 @@
         "EnabledActions",
         "LastUpdatedTime",
         "Status"
+      ],
+      "primaryIdentifier": [
+        "ActionConnectorId",
+        "AwsAccountId"
       ]
     },
     "ebd392f8ae8ed887": {
@@ -76816,7 +78409,10 @@
       "type": "AWS::AutoScaling::LaunchConfiguration",
       "sha256": "a2d154af20e83c1ed55362064feb077b63fcadc66a9451e05fd8016e64f2692b",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "LaunchConfigurationName"
+      ]
     },
     "ec866a639503677d": {
       "type": "AWS::SSMIncidents::ReplicationSet",
@@ -76860,13 +78456,19 @@
         "Arn",
         "DomainType",
         "ServerCertificates"
+      ],
+      "primaryIdentifier": [
+        "DomainConfigurationName"
       ]
     },
     "eccf6aa3b10130d3": {
       "type": "AWS::ElastiCache::SubnetGroup",
       "sha256": "e75d63bdff65d0180d76a5bd29bd937c644800fbca4d97f74672cf0a0db27e3b",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "CacheSubnetGroupName"
+      ]
     },
     "ecf7cc1c42c5b125": {
       "type": "AWS::SageMaker::ExperimentTrialComponent",
@@ -77022,6 +78624,9 @@
         "LogConfig.Level",
         "Name",
         "Tags"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "eed1000a22999652": {
@@ -77038,7 +78643,11 @@
       "type": "AWS::AutoScaling::LifecycleHook",
       "sha256": "a2a861b69c5a119c6c1d01397b5343faf4c2f85f055351d93b5746fd6d0810d0",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "AutoScalingGroupName",
+        "LifecycleHookName"
+      ]
     },
     "ef09262e04db072f": {
       "type": "AWS::Lightsail::Instance",
@@ -77061,6 +78670,9 @@
         "State.Name",
         "SupportCode",
         "UserName"
+      ],
+      "primaryIdentifier": [
+        "InstanceName"
       ]
     },
     "ef4a553243c345b6": {
@@ -77070,6 +78682,10 @@
       "attributes": [
         "CreatedAt",
         "LastUpdatedAt"
+      ],
+      "primaryIdentifier": [
+        "DomainName",
+        "EventTriggerName"
       ]
     },
     "ef85016924b1f7a9": {
@@ -77086,6 +78702,9 @@
       "propertiesRequired": false,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "ef9e13a9655927ab": {
@@ -77100,6 +78719,10 @@
         "RecommenderArn",
         "Status",
         "TrainingMetrics"
+      ],
+      "primaryIdentifier": [
+        "DomainName",
+        "RecommenderName"
       ]
     },
     "efa46691b9d30304": {
@@ -77121,6 +78744,9 @@
         "SizeInGb",
         "State",
         "SupportCode"
+      ],
+      "primaryIdentifier": [
+        "RelationalDatabaseSnapshotName"
       ]
     },
     "efa49c6bebf1e880": {
@@ -77152,6 +78778,9 @@
         "CreationTime",
         "Status",
         "Uuid"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "f083c7513e0f3fec": {
@@ -77199,6 +78828,9 @@
       "propertiesRequired": true,
       "attributes": [
         "FlowArn"
+      ],
+      "primaryIdentifier": [
+        "FlowName"
       ]
     },
     "f2210ee1e5532f1e": {
@@ -77213,7 +78845,10 @@
       "type": "AWS::DataBrew::Project",
       "sha256": "b30c469c02f1ba259f2438ae066ff11db8737caf430ab7eb35c82a8832315a1a",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "Name"
+      ]
     },
     "f24a360be9aa4a2d": {
       "type": "AWS::SSM::MaintenanceWindowTask",
@@ -77239,6 +78874,10 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "ClusterName",
+        "AddonName"
       ]
     },
     "f328b958ceb30bf7": {
@@ -77305,6 +78944,10 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "UserName",
+        "AuthenticationType"
       ]
     },
     "f3f4847d64460f5c": {
@@ -77390,6 +79033,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "f49f9760c9db6961": {
@@ -77419,7 +79065,10 @@
       "type": "AWS::Cassandra::Keyspace",
       "sha256": "44ed9f0bbf4cc21a78fb2f2378de733b6d82b453dadab74f8a9792d45a2e889b",
       "propertiesRequired": false,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "KeyspaceName"
+      ]
     },
     "f4df10470daccb0c": {
       "type": "AWS::RTBFabric::Link",
@@ -77462,6 +79111,9 @@
       "attributes": [
         "Arn",
         "Id"
+      ],
+      "primaryIdentifier": [
+        "ThingTypeName"
       ]
     },
     "f5fc582bd1a35a68": {
@@ -77470,6 +79122,10 @@
       "propertiesRequired": false,
       "attributes": [
         "ChannelId"
+      ],
+      "primaryIdentifier": [
+        "ProgramName",
+        "MultiplexId"
       ]
     },
     "f60115e39378ddb6": {
@@ -77522,7 +79178,11 @@
       "type": "AWS::Logs::SubscriptionFilter",
       "sha256": "97e13712675fc5a6da684c82c44f75da20fe367cd975500f2c1b2e9ef484077a",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "FilterName",
+        "LogGroupName"
+      ]
     },
     "f6b785ff8e74d121": {
       "type": "AWS::SecretsManager::Secret",
@@ -77565,7 +79225,12 @@
       "type": "AWS::WorkspacesInstances::VolumeAssociation",
       "sha256": "f97331c84a3037887f9427075d888d256beacb06b9059adab9b8460f7a8b0bc6",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "WorkspaceInstanceId",
+        "VolumeId",
+        "Device"
+      ]
     },
     "f789a2e85b4a4422": {
       "type": "AWS::SecurityHub::AutomationRule",
@@ -77605,6 +79270,9 @@
       "attributes": [
         "Arn",
         "AvailabilityZoneName"
+      ],
+      "primaryIdentifier": [
+        "BucketName"
       ]
     },
     "f80830e85fc31e7b": {
@@ -77617,6 +79285,10 @@
         "KeyspaceArn",
         "LastModifiedTimestamp",
         "MaxNestingDepth"
+      ],
+      "primaryIdentifier": [
+        "KeyspaceName",
+        "TypeName"
       ]
     },
     "f8141fef96db4fc7": {
@@ -77643,6 +79315,9 @@
       "propertiesRequired": false,
       "attributes": [
         "Arn",
+        "Name"
+      ],
+      "primaryIdentifier": [
         "Name"
       ]
     },
@@ -77713,6 +79388,9 @@
       "attributes": [
         "DeploymentId",
         "Status"
+      ],
+      "primaryIdentifier": [
+        "ApplicationId"
       ]
     },
     "f8f72d14b0d0cc07": {
@@ -77733,6 +79411,9 @@
       "propertiesRequired": true,
       "attributes": [
         "SubscriberEndpoint"
+      ],
+      "primaryIdentifier": [
+        "SubscriberArn"
       ]
     },
     "f9510c7382b5ecc0": {
@@ -77782,7 +79463,10 @@
       "type": "AWS::ElasticBeanstalk::Application",
       "sha256": "ebb49b5b44e86e67737e96f277d8bc757804c09627be0bcc9f7967f383fbcb33",
       "propertiesRequired": false,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "ApplicationName"
+      ]
     },
     "f96ef50d012a8048": {
       "type": "AWS::Lightsail::DiskSnapshot",
@@ -77799,6 +79483,9 @@
         "SizeInGb",
         "State",
         "SupportCode"
+      ],
+      "primaryIdentifier": [
+        "DiskSnapshotName"
       ]
     },
     "f984c6a0a8f9e395": {
@@ -77903,6 +79590,9 @@
       "attributes": [
         "CertificateArn",
         "Status"
+      ],
+      "primaryIdentifier": [
+        "CertificateName"
       ]
     },
     "fa787fe1698920b9": {
@@ -78007,6 +79697,9 @@
       "attributes": [
         "KeyFingerprint",
         "KeyPairId"
+      ],
+      "primaryIdentifier": [
+        "KeyName"
       ]
     },
     "fb21f7ef5ccde234": {
@@ -78018,6 +79711,10 @@
         "CreationDateTime",
         "GeneratedSceneMetadata",
         "UpdateDateTime"
+      ],
+      "primaryIdentifier": [
+        "WorkspaceId",
+        "SceneId"
       ]
     },
     "fbb3392fd41d48b0": {
@@ -78034,7 +79731,10 @@
       "type": "AWS::ECR::PullTimeUpdateExclusion",
       "sha256": "540a9a6f210cc0c8ea104b788c8c71f31d954da118402510d88bbd5f551171fc",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "PrincipalArn"
+      ]
     },
     "fc1c86db2c69fbd1": {
       "type": "AWS::MediaConnect::Gateway",
@@ -78052,13 +79752,20 @@
       "attributes": [
         "Arn",
         "RoleId"
+      ],
+      "primaryIdentifier": [
+        "RoleName"
       ]
     },
     "fc2fe78bfeb26c8e": {
       "type": "AWS::Cognito::IdentityPoolPrincipalTag",
       "sha256": "e17277f51058404274078da7f0c4c9b1bc0592c81b3bd5c7ead96838da44ba7e",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "IdentityPoolId",
+        "IdentityProviderName"
+      ]
     },
     "fc3a6dea13e2f042": {
       "type": "AWS::BedrockAgentCore::ApiKeyCredentialProvider",
@@ -78135,6 +79842,9 @@
       "propertiesRequired": false,
       "attributes": [
         "SecurityProfileArn"
+      ],
+      "primaryIdentifier": [
+        "SecurityProfileName"
       ]
     },
     "fcfd2f302e2ee44b": {
@@ -78147,6 +79857,9 @@
         "EndpointUrl",
         "State",
         "StateReason"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "fd3d1ca033870c47": {
@@ -78172,7 +79885,11 @@
       "type": "AWS::ACMPCA::Permission",
       "sha256": "afc3d5162e2d2a18bf4778f94687f6440df6f79496062cf333668d099874ffa5",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "CertificateAuthorityArn",
+        "Principal"
+      ]
     },
     "fd7c67aaf6e96e34": {
       "type": "AWS::FraudDetector::List",
@@ -78191,6 +79908,9 @@
       "attributes": [
         "Arn",
         "Id"
+      ],
+      "primaryIdentifier": [
+        "ThingGroupName"
       ]
     },
     "fda57d3016dc05c0": {
@@ -78256,6 +79976,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "ArchiveName"
       ]
     },
     "fe515dc4584e4429": {
@@ -78267,6 +79990,10 @@
         "CreatedTime",
         "LastUpdatedTime",
         "Status"
+      ],
+      "primaryIdentifier": [
+        "AwsAccountId",
+        "DataSourceId"
       ]
     },
     "fe5e45e295bcae2d": {
@@ -78331,7 +80058,11 @@
       "type": "AWS::EC2::RouteServerPropagation",
       "sha256": "1e5f2d0aacc538bf7c46c70a397354d1eef4a613dd5a2095b6ccfd4f52b62d5f",
       "propertiesRequired": true,
-      "attributes": []
+      "attributes": [],
+      "primaryIdentifier": [
+        "RouteServerId",
+        "RouteTableId"
+      ]
     },
     "ff696192057a9047": {
       "type": "AWS::EMR::Cluster",
@@ -78352,6 +80083,9 @@
         "CurrentState",
         "LastModifiedTime",
         "StateReason"
+      ],
+      "primaryIdentifier": [
+        "Name"
       ]
     },
     "ffeffacf371c63ef": {
@@ -78360,6 +80094,9 @@
       "propertiesRequired": true,
       "attributes": [
         "Arn"
+      ],
+      "primaryIdentifier": [
+        "Id"
       ]
     },
     "fff38b4a77f91fbb": {

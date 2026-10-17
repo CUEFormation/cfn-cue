@@ -1,7 +1,8 @@
 // Package semantic checks CloudFormation template references that the
 // structural CUE schemas leave unresolved: Ref, Fn::GetAtt, Fn::Sub variables,
 // DependsOn, condition names, mapping names and dependency cycles. It also
-// checks where ssm-secure dynamic references appear.
+// checks where ssm-secure dynamic references appear and reports duplicate
+// primary identifiers.
 //
 // The pass reads a decoded, normalized JSON template and never evaluates a
 // deployment-time value. Parameters, pseudo parameters, resource attributes
@@ -38,6 +39,10 @@ type Options struct {
 	// containing "*" is a pattern; "*" alone accepts every name. ok=false
 	// means the names are unknown, and attribute names are not checked.
 	Attributes func(resourceType string) (names []string, ok bool)
+	// PrimaryIdentifier returns the top-level properties that make up a
+	// resource Type's primary identifier when a template can set all of
+	// them. An empty result leaves the type's identifiers unchecked.
+	PrimaryIdentifier func(resourceType string) []string
 }
 
 // Check analyzes a template and returns its diagnostics, sorted by path.
@@ -65,6 +70,7 @@ func CheckModel(m *Model, template map[string]any, opt Options) []Diagnostic {
 	c.cycles()
 	c.secureStrings(template)
 	c.duplicateSids(template)
+	c.duplicateIdentifiers(template)
 	sort.SliceStable(c.out, func(i, j int) bool {
 		if c.out[i].Path != c.out[j].Path {
 			return c.out[i].Path < c.out[j].Path

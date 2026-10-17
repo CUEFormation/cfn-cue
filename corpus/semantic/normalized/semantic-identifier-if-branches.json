@@ -1,0 +1,55 @@
+{
+  "Conditions": {
+    "Dev": {
+      "Fn::Equals": [
+        {
+          "Ref": "Env"
+        },
+        "dev"
+      ]
+    },
+    "Prod": {
+      "Fn::Equals": [
+        {
+          "Ref": "Env"
+        },
+        "prod"
+      ]
+    }
+  },
+  "Parameters": {
+    "Env": {
+      "AllowedValues": [
+        "prod",
+        "dev"
+      ],
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "A": {
+      "Properties": {
+        "LogGroupName": {
+          "Fn::If": [
+            "Prod",
+            "app",
+            "app-dev"
+          ]
+        }
+      },
+      "Type": "AWS::Logs::LogGroup"
+    },
+    "B": {
+      "Properties": {
+        "LogGroupName": {
+          "Fn::If": [
+            "Prod",
+            "app",
+            "app-dev"
+          ]
+        }
+      },
+      "Type": "AWS::Logs::LogGroup"
+    }
+  }
+}

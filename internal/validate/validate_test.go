@@ -21,7 +21,7 @@ func fixture(t *testing.T) string {
 		"providers/us-east-1.json": `{"AWS::Test::Thing":"thing","AWS::Test::Nested":"nested","AWS::CloudFormation::CustomResource":"custom"}`,
 		"resources/nested.json":    `{"typeName":"AWS::Test::Nested","type":"object","additionalProperties":false,"definitions":{"Setting":{"type":"object","additionalProperties":false,"properties":{"Key":{"type":"string"},"Value":{"type":"string"}},"required":["Key"]}},"properties":{"Settings":{"type":"array","minItems":1,"items":{"$ref":"#/definitions/Setting"}},"Primary":{"type":"string"},"Secondary":{"type":"string"}},"anyOf":[{"required":["Primary"]},{"required":["Secondary"]}]}`,
 		"resources/custom.json":    `{"typeName":"AWS::CloudFormation::CustomResource","type":"object","properties":{"ServiceToken":{"type":"string"},"ServiceTimeout":{"type":"integer","minimum":1,"maximum":3600}},"required":["ServiceToken"],"patternProperties":{".*":{"type":["string","integer","number","array","object"]}},"additionalProperties":false}`,
-		"resources/thing.json":     `{"typeName":"AWS::Test::Thing","type":"object","additionalProperties":false,"properties":{"Name":{"type":"string","enum":["one","two"]},"Count":{"type":"integer","minimum":1},"Names":{"type":"array","items":{"type":"string"}},"Status":{"type":"string"}},"required":["Name"],"readOnlyProperties":["/properties/Status"]}`,
+		"resources/thing.json":     `{"typeName":"AWS::Test::Thing","type":"object","additionalProperties":false,"properties":{"Name":{"type":"string","enum":["one","two"]},"Count":{"type":"integer","minimum":1},"Names":{"type":"array","items":{"type":"string"}},"Status":{"type":"string"}},"required":["Name"],"readOnlyProperties":["/properties/Status"],"primaryIdentifier":["/properties/Name"]}`,
 	} {
 		path := filepath.Join(dir, name)
 		if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
@@ -265,7 +265,8 @@ func TestSemanticChecks(t *testing.T) {
 		badEnum      = `{"Resources":{"Thing":{"Type":"AWS::Test::Thing","Properties":{"Name":"bad"}}}}`
 		bothBad      = `{"Resources":{"Thing":{"Type":"AWS::Test::Thing","Properties":{"Name":"bad","Names":[{"Ref":"Missing"}]}}}}`
 		attribute    = `{"Resources":{"Thing":{"Type":"AWS::Test::Thing","Properties":{"Name":"one"}},"Other":{"Type":"AWS::Test::Thing","Properties":{"Name":"two","Names":[{"Fn::GetAtt":["Thing","%s"]}]}}}}`
-		conditional  = `{"Parameters":{"Env":{"Type":"String"}},"Conditions":{"Prod":{"Fn::Equals":[{"Ref":"Env"},"prod"]}},"Resources":{"A":{"Type":"AWS::Test::Thing","Properties":{"Name":{"Fn::If":["Prod",{"Ref":"B"},"one"]}}},"B":{"Type":"AWS::Test::Thing","DependsOn":"A","Properties":{"Name":"one"}}}}`
+		duplicate    = `{"Resources":{"A":{"Type":"AWS::Test::Thing","Properties":{"Name":"one"}},"B":{"Type":"AWS::Test::Thing","Properties":{"Name":"one"}}}}`
+		conditional  = `{"Parameters":{"Env":{"Type":"String"}},"Conditions":{"Prod":{"Fn::Equals":[{"Ref":"Env"},"prod"]}},"Resources":{"A":{"Type":"AWS::Test::Thing","Properties":{"Name":{"Fn::If":["Prod",{"Ref":"B"},"one"]}}},"B":{"Type":"AWS::Test::Thing","DependsOn":"A","Properties":{"Name":"two"}}}}`
 	)
 	for _, tc := range []struct{ data, checks, status, phase string }{
 		// Structural checks alone keep their existing results.
@@ -280,6 +281,9 @@ func TestSemanticChecks(t *testing.T) {
 		{fmt.Sprintf(attribute, "Status"), ChecksAll, "valid", "evaluate"},
 		{fmt.Sprintf(attribute, "Missing"), ChecksAll, "invalid", "semantic"},
 		{conditional, ChecksAll, "valid", "evaluate"},
+		// The manifest's primary identifier reaches the semantic pass.
+		{duplicate, ChecksStructural, "valid", "evaluate"},
+		{duplicate, ChecksAll, "invalid", "semantic"},
 		{undefinedRef, "everything", "error", "input"},
 	} {
 		result := Check([]byte(tc.data), Options{Schemas: dir, Region: "us-east-1", Checks: tc.checks})
