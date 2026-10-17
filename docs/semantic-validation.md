@@ -291,6 +291,24 @@ every change to the semantic pass.
 A complete run through the harness is
 `./scripts/corpus.sh full --checks all --report .corpus-full-semantic`.
 
+`duplicate-identifier` was surveyed separately over the extended corpus of
+2,383 templates, with `-checks all` in us-east-1, comparing each status with
+the previous validator:
+
+- 14 templates change from valid to invalid, such as checkov's
+  `AthenaWorkgroupConfiguration-FAIL.yaml`, where two `AWS::Athena::WorkGroup`
+  resources set `Name: MyCustomWorkGroup`. cfn-lint reports `E3019` and no
+  other error in each of them. No other status or diagnostic changes.
+- 25 templates have `duplicate-identifier` diagnostics, and cfn-lint reports
+  `E3019` for the same resources in all of them. cfn-lint's
+  `bad/resources/primary_identifiers.yaml` gets errors and three warnings
+  where its conditions depend on a parameter; the matching `good` fixture has
+  none.
+- cfn-lint reports `E3019` in three more templates, which the schemas already
+  reject. They repeat one `Fn::Sub` or `Fn::Join` expression, which the pass
+  doesn't compare. It also reports `E3019` in one SAM template, which the
+  validator reports as unsupported.
+
 ## Boundary
 
 The semantic pass covers names and dependencies. These remain with cfn-lint:
