@@ -67,9 +67,21 @@ The corpus harness passes `--checks` through to the validator:
 | `duplicate-logical-id` | error | A name isn't both a parameter and a resource | E3007 |
 | `dependency-cycle` | error or warning | Resources don't depend on themselves through `Ref`, `GetAtt`, `Sub` or `DependsOn` | E3004 |
 | `conditional-target` | error or warning | A reference to a resource with a `Condition` is evaluated only where that resource exists | W1001, E3005 |
+| `ssm-secure-placement` | error | `{{resolve:ssm-secure:...}}` appears only in the 11 resource properties CloudFormation resolves it in, such as `AWS::RDS::DBInstance` `MasterUserPassword` | E1027 |
 
 `${!Literal}` is an escape, and whitespace inside `${ Name }` is ignored, as in
 cfn-lint. Variables bound in `Fn::Sub`'s second argument shadow template names.
+
+`ssm-secure-placement` checks every section except the template's
+`Metadata`, as cfn-lint does. It also copies E1027's blind spots, which
+CloudFormation itself would still reject:
+
+- It skips strings inside intrinsic functions other than `Fn::If`, such as
+  `Fn::Sub` and `Fn::Join`. Condition functions such as `Fn::Equals` are
+  checked.
+- It checks `Fn::If` branches only when the condition is defined.
+- It reads only single-line strings.
+- In a string with several dynamic references, it checks only the last one.
 
 ### Resource attributes
 
