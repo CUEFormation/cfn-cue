@@ -156,8 +156,26 @@ _#TrustActions: #TrustAction | fn.#StringExpression | [..._#TrustAction] | _#Lis
 	_onePrincipal
 })
 
-// Resource-based policies name the principal they apply to.
+// Resource-based policies (SNS topics, SQS queues, OpenSearch domains) name
+// the principal and the resource they apply to, as cfn-lint E3512 requires.
 #ResourceStatement: close({
+	Sid?:          _#Sid
+	Effect!:       _#Effect
+	Action?:       #Actions
+	NotAction?:    #Actions
+	Principal?:    _#Principal
+	NotPrincipal?: _#Principal
+	Resource?:     #Resources
+	NotResource?:  #Resources
+	Condition?:    _#Condition
+	_oneAction
+	_onePrincipal
+	_oneResource
+})
+
+// ECR repository policies apply to the repository they are attached to, so
+// Resource is optional (cfn-lint E3513).
+#ECRRepositoryStatement: close({
 	Sid?:          _#Sid
 	Effect!:       _#Effect
 	Action?:       #Actions
@@ -299,6 +317,16 @@ _#ResourceEntry:      #ResourceStatement | fn.#NoValue | close({"Fn::If": [strin
 #ResourcePolicyValue: #ResourcePolicy | _#ResourcePolicyIf | string & json.Validate(#ResourcePolicy) | fn.#StringExpression
 _#ResourcePolicyIf: (close({[=~"^Fn::If$"]: [string, #ResourcePolicy | _#ResourcePolicyIf, #ResourcePolicy | fn.#NoValue | _#ResourcePolicyIf]}) |
 	close({[=~"^Fn::If$"]: [string, fn.#NoValue, #ResourcePolicy | _#ResourcePolicyIf]})) & struct.MinFields(1)
+
+#ECRRepositoryPolicy: close({
+	Version?:   _#Version
+	Id?:        #Str
+	Statement!: [..._#ECRRepositoryEntry] | _#ECRRepositoryEntry | close({"Fn::If": [string, [..._#ECRRepositoryEntry] | fn.#NoValue, [..._#ECRRepositoryEntry] | fn.#NoValue]})
+})
+_#ECRRepositoryEntry:      #ECRRepositoryStatement | fn.#NoValue | close({"Fn::If": [string, #ECRRepositoryStatement | fn.#NoValue, #ECRRepositoryStatement | fn.#NoValue]})
+#ECRRepositoryPolicyValue: #ECRRepositoryPolicy | _#ECRRepositoryPolicyIf | string & json.Validate(#ECRRepositoryPolicy) | fn.#StringExpression
+_#ECRRepositoryPolicyIf: (close({[=~"^Fn::If$"]: [string, #ECRRepositoryPolicy | _#ECRRepositoryPolicyIf, #ECRRepositoryPolicy | fn.#NoValue | _#ECRRepositoryPolicyIf]}) |
+	close({[=~"^Fn::If$"]: [string, fn.#NoValue, #ECRRepositoryPolicy | _#ECRRepositoryPolicyIf]})) & struct.MinFields(1)
 
 #S3BucketPolicy: close({
 	Version?:   _#Version

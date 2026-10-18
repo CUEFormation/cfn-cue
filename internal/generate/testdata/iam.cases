@@ -54,7 +54,15 @@ bad	#S3BucketPolicy	{Statement: [{Effect: "Allow", Principal: "*", Action: "s3:G
 ok	#KMSKeyPolicy	{Version: "2012-10-17", Id: "key-default-1", Statement: [{Sid: "Enable IAM User Permissions", Effect: "Allow", Principal: {AWS: {"Fn::Sub": "arn:${AWS::Partition}:iam::${AWS::AccountId}:root"}}, Action: "kms:*", Resource: "*"}]}
 bad	#KMSKeyPolicy	{Statement: [{Effect: "Allow", Principal: {AWS: "123456789012"}, Action: "kms:*", Resource: "arn:aws:s3:::b"}]}
 bad	#KMSKeyPolicy	{Statement: [{Effect: "Allow", Action: "kms:*", Resource: "*"}]}
-ok	#ResourcePolicy	{Statement: [{Effect: "Allow", NotPrincipal: {AWS: "arn:aws:iam::123456789012:root"}, Action: "sqs:*"}]}
+bad	#ResourcePolicy	{Statement: [{Effect: "Allow", NotPrincipal: {AWS: "arn:aws:iam::123456789012:root"}, Action: "sqs:*"}]}
+ok	#ResourcePolicy	{Statement: [{Effect: "Allow", NotPrincipal: {AWS: "arn:aws:iam::123456789012:root"}, Action: "sqs:*", Resource: "*"}]}
+bad	#ResourcePolicy	{Statement: [{Effect: "Allow", Principal: "*", Action: "sqs:*", Resource: "*", NotResource: "*"}]}
+# ECR repository policies apply to the repository, so Resource is optional.
+ok	#ECRRepositoryPolicy	{Statement: [{Effect: "Allow", Principal: {AWS: "arn:aws:iam::123456789012:root"}, Action: ["ecr:BatchGetImage", "ecr:GetDownloadUrlForLayer"]}]}
+ok	#ECRRepositoryPolicy	{Statement: [{Effect: "Allow", Principal: "*", Action: "ecr:BatchGetImage", Resource: "*"}]}
+bad	#ECRRepositoryPolicy	{Statement: [{Effect: "Allow", Action: "ecr:BatchGetImage"}]}
+bad	#ECRRepositoryPolicy	{Statement: [{Effect: "Allow", Principal: "*", Action: "ecr:BatchGetImage", Resource: "*", NotResource: "*"}]}
+ok	#ECRRepositoryPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"ecr:BatchGetImage\"}]}"
 # SCP / RCP
 ok	#ServiceControlPolicy	{Version: "2012-10-17", Statement: [{Effect: "Allow", Action: "*", Resource: "*"}, {Effect: "Deny", NotAction: ["iam:*", "sts:*"], Resource: "arn:aws:ec2:*:*:instance/*", Condition: {StringNotEquals: {"aws:RequestedRegion": ["eu-west-1"]}}}]}
 bad	#ServiceControlPolicy	{Statement: [{Effect: "Allow", Action: "ec2:*", Resource: "arn:aws:ec2:*:*:instance/*"}]}
@@ -78,7 +86,8 @@ bad	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:
 bad	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Resource\":\"*\"}]}"
 bad	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:GetObject\",\"NotAction\":\"s3:PutObject\",\"Resource\":\"*\"}]}"
 bad	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:GetObject\",\"Resource\":\"*\",\"NotResource\":\"*\"}]}"
-ok	#ResourcePolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"sqs:SendMessage\"}]}"
+bad	#ResourcePolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"sqs:SendMessage\"}]}"
+ok	#ResourcePolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"sqs:SendMessage\",\"Resource\":\"*\"}]}"
 bad	#ResourcePolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"sqs:SendMessage\"}]}"
 bad	#S3BucketPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"s3:GetObject\"}]}"
 bad	#KMSKeyPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"kms:*\"}]}"
@@ -102,7 +111,7 @@ ok	#IdentityPolicy	{Version: {Ref: "PolicyVersion"}, Statement: [{Effect: "Allow
 ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Condition: {"Fn::If": ["Restrict", {Bool: {"aws:SecureTransport": true}}, {Ref: "AWS::NoValue"}]}}]}
 ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: {"Fn::If": ["Write", "s3:PutObject", "s3:GetObject"]}, Resource: "*"}]}
 ok	#TrustPolicy	{Statement: [{Effect: "Allow", Principal: {"Fn::If": ["CrossAccount", {AWS: "arn:aws:iam::123456789012:root"}, {Service: "lambda.amazonaws.com"}]}, Action: "sts:AssumeRole"}]}
-ok	#ResourcePolicy	{Statement: [{Effect: "Allow", Principal: {"Fn::If": ["Public", "*", {AWS: {Ref: "AWS::AccountId"}}]}, Action: "sqs:SendMessage"}]}
+ok	#ResourcePolicy	{Statement: [{Effect: "Allow", Principal: {"Fn::If": ["Public", "*", {AWS: {Ref: "AWS::AccountId"}}]}, Action: "sqs:SendMessage", Resource: {"Fn::GetAtt": ["Queue", "Arn"]}}]}
 ok	#ServiceControlPolicy	{Statement: [{Effect: {Ref: "EffectParam"}, Action: "ec2:*", Resource: "*"}]}
 ok	#ServiceControlPolicy	{Statement: [{Effect: {Ref: "EffectParam"}, Action: "ec2:*", Resource: "arn:aws:ec2:*:*:instance/*"}]}
 ok	#ResourceControlPolicy	{Statement: [{Effect: "Deny", Principal: "*", Action: "s3:*", Resource: "*", Sid: {"Fn::Sub": "Deny${Env}"}}]}
@@ -138,10 +147,14 @@ ok	#TrustPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {Statement: {Effect: "All
 bad	#TrustPolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {Statement: {Effect: "Allow", Action: "sts:AssumeRole"}}]}]}
 bad	#TrustPolicyValue	{}
 bad	#TrustPolicyValue	{"Fn::If": "A"}
-ok	#ResourcePolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "sqs:*"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
-bad	#ResourcePolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "sqs:*"}}, {Statement: {Effect: "Allow", Action: "sqs:*"}}]}]}
+ok	#ResourcePolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "sqs:*", Resource: "*"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
+bad	#ResourcePolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "sqs:*", Resource: "*"}}, {Statement: {Effect: "Allow", Action: "sqs:*", Resource: "*"}}]}]}
 bad	#ResourcePolicyValue	{}
 bad	#ResourcePolicyValue	{"Fn::If": "A"}
+ok	#ECRRepositoryPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "ecr:BatchGetImage"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
+bad	#ECRRepositoryPolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "ecr:BatchGetImage"}}, {Statement: {Effect: "Allow", Action: "ecr:BatchGetImage"}}]}]}
+bad	#ECRRepositoryPolicyValue	{}
+bad	#ECRRepositoryPolicyValue	{"Fn::If": "A"}
 ok	#S3BucketPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "s3:GetObject", Resource: "arn:aws:s3:::b/*"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
 bad	#S3BucketPolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "s3:GetObject", Resource: "arn:aws:s3:::b/*"}}, {Statement: {Effect: "Allow", Action: "s3:GetObject", Resource: "arn:aws:s3:::b/*"}}]}]}
 bad	#S3BucketPolicyValue	{}

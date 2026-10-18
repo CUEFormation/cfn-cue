@@ -5,6 +5,7 @@ package schema
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/iam:iam"
 	"list"
 )
 import cfnScalarStrings "strings"
@@ -19,7 +20,7 @@ import structs "struct"
 	Type!: "AWS::OpenSearchService::Domain"
 	let properties = close({
 		AIMLOptions?:    #AIMLOptions
-		AccessPolicies?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		AccessPolicies?: iam.#ResourcePolicyValue
 		AdvancedOptions?: close({
 
 			{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
