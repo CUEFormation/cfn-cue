@@ -1,6 +1,7 @@
 package generate
 
 import (
+	"github.com/cueformation/cfn-cue/internal/bundle"
 	"github.com/cueformation/cfn-cue/internal/cfn"
 
 	"cuelang.org/go/cue/ast"
@@ -18,7 +19,7 @@ func Region(module string, resources map[string]string, extensions bool) (*ast.F
 	types := &ast.StructLit{}
 	for _, typ := range names {
 		alias := aliases[typ]
-		addImport(f, alias, module+"/resources/h"+resources[typ]+":schema")
+		addImport(f, alias, bundle.ResourceImport(module, resources[typ]))
 		types.Elts = append(types.Elts, &ast.Field{Label: ast.NewString(typ), Value: sel(alias, "Resource")})
 	}
 	f.Decls = append(f.Decls, def("ResourceTypes", types))

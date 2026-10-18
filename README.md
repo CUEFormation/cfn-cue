@@ -60,7 +60,8 @@ The full survey uses the original six-second deadline and writes
 `.corpus-full-report/report.md`. `resume` continues an interrupted full run;
 `sample` checks 50 examples. See the [corpus guide](corpus/README.md) for each
 profile, report locations, prerequisites, and advanced options. The
-`cmd/cfn-cue-validate` Go tool imports only resource schemas used by each input.
+`cmd/cfn-cue-validate` Go tool reads the region's `index.json` and imports only
+resource schemas used by each input.
 
 ## Generated module
 
@@ -74,6 +75,7 @@ generated/
   resources/h<hash>/schema.cue      #Resource with inline properties, and definitions with intrinsics
   regions/<region>/region.cue      #Template, #Resources, #ResourceTypes
   regions/<region>/types/region.cue #Template, #Resources, #Resource, #ResourceType
+  regions/<region>/index.json      Module, options, and type-to-hash map for one region
   manifest.json                   Source checksum, availability, conversion report
 ```
 

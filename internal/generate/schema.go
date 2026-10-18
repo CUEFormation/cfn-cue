@@ -8,6 +8,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/cueformation/cfn-cue/internal/bundle"
+
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/ast/astutil"
@@ -16,15 +18,9 @@ import (
 	"cuelang.org/go/encoding/jsonschema"
 )
 
-type Diagnostic struct {
-	Resource string `json:"resource"`
-	Path     string `json:"path"`
-	Keyword  string `json:"keyword"`
-	Detail   string `json:"detail"`
-}
 type converter struct {
 	module, resource string
-	diagnostics      []Diagnostic
+	diagnostics      []bundle.Diagnostic
 	extensions       bool
 	template         bool
 	rules            []*fieldRules
@@ -34,7 +30,7 @@ type converter struct {
 }
 
 func (c *converter) warn(path, key, detail string) {
-	c.diagnostics = append(c.diagnostics, Diagnostic{c.resource, path, key, detail})
+	c.diagnostics = append(c.diagnostics, bundle.Diagnostic{Resource: c.resource, Path: path, Keyword: key, Detail: detail})
 }
 
 var annotations = strings.Fields("typeName primaryIdentifier additionalIdentifiers handlers tagging taggable readOnlyProperties writeOnlyProperties createOnlyProperties conditionalCreateOnlyProperties deprecatedProperties replacementStrategy propertyTransform relationshipRef resourceLink typeConfiguration sourceUrl documentationUrl lifecycle insertionOrder arrayType default")

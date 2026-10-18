@@ -4,11 +4,14 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/errors"
+
+	"github.com/cueformation/cfn-cue/internal/bundle"
 )
 
 func TestRegionalAliasCollisionPreservesOutput(t *testing.T) {
@@ -205,6 +208,27 @@ func TestRegionalTypeSelection(t *testing.T) {
 			if list := errors.Errors(e); len(list) != 1 || !strings.Contains(list[0].Error(), `undefined field: "AWS::Other::Thing"`) {
 				t.Fatalf("unknown type error: %v", e)
 			}
+		}
+	}
+}
+
+func TestRegionIndexes(t *testing.T) {
+	out := filepath.Join(t.TempDir(), "generated")
+	manifest, err := Generate(fixture(t), Options{Out: out, Module: "example.com/schemas", LanguageExtensions: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(manifest.Regions) < 2 {
+		t.Fatalf("fixture has %d regions", len(manifest.Regions))
+	}
+	for region, resources := range manifest.Regions {
+		index, err := bundle.ReadRegionIndex(out, region)
+		if err != nil {
+			t.Fatal(err)
+		}
+		want := bundle.RegionIndex{Generator: bundle.Generator, Module: "example.com/schemas", Region: region, LanguageExtensions: true, Resources: resources}
+		if !reflect.DeepEqual(*index, want) {
+			t.Fatalf("%s index %+v, want %+v", region, *index, want)
 		}
 	}
 }

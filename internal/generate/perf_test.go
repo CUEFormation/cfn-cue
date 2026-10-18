@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"cuelang.org/go/cue"
+
+	"github.com/cueformation/cfn-cue/internal/bundle"
 )
 
 // perfCases are minimal valid resources. Cost is dominated by the schema,
@@ -50,7 +52,7 @@ func TestResourcePerformance(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	var m Manifest
+	var m bundle.Manifest
 	if e = json.Unmarshal(b, &m); e != nil {
 		t.Fatal(e)
 	}
@@ -101,7 +103,7 @@ func TestRegionPerformance(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	var m Manifest
+	var m bundle.Manifest
 	if e = json.Unmarshal(b, &m); e != nil {
 		t.Fatal(e)
 	}

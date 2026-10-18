@@ -8,6 +8,8 @@ import (
 	"testing"
 
 	"cuelang.org/go/cue"
+
+	"github.com/cueformation/cfn-cue/internal/bundle"
 )
 
 // Run after generating a real bundle with CFN_CUE_INTEGRATION=1 go test
@@ -24,7 +26,7 @@ func TestCurrentResources(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	var m Manifest
+	var m bundle.Manifest
 	if e = json.Unmarshal(b, &m); e != nil {
 		t.Fatal(e)
 	}
