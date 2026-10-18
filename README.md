@@ -72,7 +72,7 @@ generated/
   iam/iam.cue                      IAM policy grammar and per-placement profiles
   literal/h<hash>/schema.cue        #Properties and definitions for literal resource data
   resources/h<hash>/schema.cue      #Resource with inline properties, and definitions with intrinsics
-  regions/<region>/region.cue      #Template, #Resources, #Resource, #ResourceTypes
+  regions/<region>/region.cue      #Template, #Resources, #ResourceTypes
   regions/<region>/types/region.cue #Template, #Resources, #Resource, #ResourceType
   manifest.json                   Source checksum, availability, conversion report
 ```

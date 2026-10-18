@@ -169,7 +169,13 @@ func TestRegionalTypeSelection(t *testing.T) {
 			if _, err := Generate(s, Options{Out: out, LanguageExtensions: extensions}); err != nil {
 				t.Fatal(err)
 			}
-			schema := build(t, out, "./regions/us-east-1").LookupPath(cue.MakePath(cue.Def("Template")))
+			region := build(t, out, "./regions/us-east-1")
+			// A union of every resource schema costs about 0.5 s per resource
+			// in a complete region; the full package must not define one.
+			if region.LookupPath(cue.MakePath(cue.Def("Resource"))).Exists() {
+				t.Fatal("full region package defines #Resource")
+			}
+			schema := region.LookupPath(cue.MakePath(cue.Def("Template")))
 			prefix := ""
 			if extensions {
 				prefix = `Transform: "AWS::LanguageExtensions", `

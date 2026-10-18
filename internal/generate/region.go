@@ -16,24 +16,21 @@ func Region(module string, resources map[string]string, extensions bool) (*ast.F
 	f := file("cf")
 	addImport(f, "base", module+"/template:template")
 	types := &ast.StructLit{}
-	alternatives := []ast.Expr{}
 	for _, typ := range names {
 		alias := aliases[typ]
 		addImport(f, alias, module+"/resources/h"+resources[typ]+":schema")
-		v := sel(alias, "Resource")
-		alternatives = append(alternatives, v)
-		types.Elts = append(types.Elts, &ast.Field{Label: ast.NewString(typ), Value: v})
+		types.Elts = append(types.Elts, &ast.Field{Label: ast.NewString(typ), Value: sel(alias, "Resource")})
 	}
-	f.Decls = append(f.Decls, def("ResourceTypes", types), def("Resource", union(alternatives...)))
+	f.Decls = append(f.Decls, def("ResourceTypes", types))
 	_, custom := resources[cfn.CustomResourceType]
 	regionTemplate(f, module, extensions, selectResource(custom))
 	return f, nil
 }
 
-// selectResource checks each resource against #ResourceTypes[Type]. Matching
-// the #Resource union instead tries every type in the region for every
+// selectResource checks each resource against #ResourceTypes[Type]. A union
+// of every resource schema would try each type in the region for every
 // resource: about 0.3 ms per type in CUE v0.18, or 0.5 s per resource in a
-// complete region. CloudFormation requires Type to be a literal string, so
+// complete region, so the full package defines no such union. CloudFormation requires Type to be a literal string, so
 // the lookup is always concrete. Custom:: names select the CustomResource
 // schema, whose Type pattern then checks the name.
 func selectResource(custom bool) func(ast.Expr) *ast.Field {
@@ -63,7 +60,7 @@ func matchResource(label ast.Expr) *ast.Field {
 
 // RegionTypes checks regional availability without importing resource property
 // schemas. Keep it in a separate package so loading it never loads the full
-// registry or resource union produced by Region.
+// registry produced by Region.
 func RegionTypes(module string, resources map[string]string, extensions bool) *ast.File {
 	// A different package name prevents CUE from inheriting the parent region's
 	// cf files and accidentally loading its full registry.
