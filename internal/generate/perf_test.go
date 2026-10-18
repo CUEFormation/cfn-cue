@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
+	"runtime/metrics"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -146,4 +149,129 @@ func TestRegionPerformance(t *testing.T) {
 			t.Logf("RESULT types=%d if_depth=%d n=%d broken=%v ms=%d per_resource_us=%d", types, depth, n, broken, elapsed.Milliseconds(), elapsed.Microseconds()/int64(n))
 		}
 	}
+}
+
+// iamPolicyBudget bounds TestIAMPolicyPerformance. On an Apple M4, iam
+// profiles built on matchN took 2.4 s, allocated 2.3 GiB and peaked at
+// 2.1 GiB of heap.
+var iamPolicyBudget = struct {
+	elapsed         time.Duration
+	allocated, peak uint64
+}{elapsed: 1500 * time.Millisecond, allocated: 1 << 30, peak: 768 << 20}
+
+// TestIAMPolicyPerformance validates a template of ten
+// AWS::IAM::ManagedPolicy resources, each with 30 statements of 40 actions,
+// 40 resources and a condition, and fails over iamPolicyBudget. Set
+// CFN_CUE_PERF=1 to run. Run it alone: peak heap is sampled for the whole
+// process.
+func TestIAMPolicyPerformance(t *testing.T) {
+	if os.Getenv("CFN_CUE_PERF") != "1" {
+		t.Skip("set CFN_CUE_PERF=1 to measure IAM policy validation")
+	}
+	dir, e := filepath.Abs("../../generated")
+	if e != nil {
+		t.Fatal(e)
+	}
+	b, e := os.ReadFile(filepath.Join(dir, "manifest.json"))
+	if e != nil {
+		t.Fatal(e)
+	}
+	var m bundle.Manifest
+	if e = json.Unmarshal(b, &m); e != nil {
+		t.Fatal(e)
+	}
+	const typ = "AWS::IAM::ManagedPolicy"
+	hash, ok := m.Regions["us-east-1"][typ]
+	if !ok {
+		t.Fatalf("%s is not in us-east-1", typ)
+	}
+	schema := build(t, dir, "./resources/h"+hash).LookupPath(cue.MakePath(cue.Def("Resource")))
+	// One value holds every resource, as in cfn-cue-validate, so peak heap
+	// covers the whole template rather than one resource at a time.
+	template := schema.Context().CompileString("{}")
+	resources := map[string]any{}
+	for r := 0; r < 10; r++ {
+		name := fmt.Sprintf("Policy%d", r)
+		template = template.FillPath(cue.MakePath(cue.Str(name)), schema)
+		resources[name] = map[string]any{"Type": typ, "Properties": map[string]any{"PolicyDocument": iamPolicy(r, 30, 40)}}
+	}
+	data, e := json.Marshal(resources)
+	if e != nil {
+		t.Fatal(e)
+	}
+	input := schema.Context().CompileBytes(data)
+
+	runtime.GC()
+	var before, after runtime.MemStats
+	runtime.ReadMemStats(&before)
+	peak, stop := samplePeakHeap()
+	start := time.Now()
+	if e := template.Unify(input).Validate(cue.Concrete(true)); e != nil {
+		t.Fatal(e)
+	}
+	elapsed := time.Since(start)
+	stop()
+	runtime.ReadMemStats(&after)
+	allocated := after.TotalAlloc - before.TotalAlloc
+	t.Logf("RESULT ms=%d alloc_mib=%d peak_heap_mib=%d", elapsed.Milliseconds(), allocated>>20, *peak>>20)
+	if elapsed > iamPolicyBudget.elapsed {
+		t.Errorf("validation took %s, budget %s", elapsed.Round(time.Millisecond), iamPolicyBudget.elapsed)
+	}
+	if allocated > iamPolicyBudget.allocated {
+		t.Errorf("validation allocated %d MiB, budget %d MiB", allocated>>20, iamPolicyBudget.allocated>>20)
+	}
+	if *peak > iamPolicyBudget.peak {
+		t.Errorf("peak heap %d MiB, budget %d MiB", *peak>>20, iamPolicyBudget.peak>>20)
+	}
+}
+
+// iamPolicy returns an identity policy document with n statements of k
+// actions and k resources each. One resource per statement is an intrinsic.
+func iamPolicy(r, n, k int) map[string]any {
+	statements := make([]any, n)
+	for s := range statements {
+		actions := make([]any, k)
+		resources := make([]any, k)
+		for i := range actions {
+			actions[i] = fmt.Sprintf("svc%d:Action%d*", i%7, i)
+			resources[i] = fmt.Sprintf("arn:aws:s3:::bucket-%d-%d/key/%d", r, s, i)
+		}
+		resources[0] = map[string]any{"Fn::Sub": "arn:${AWS::Partition}:s3:::bucket-" + strconv.Itoa(r)}
+		statements[s] = map[string]any{
+			"Sid":      fmt.Sprintf("S%dx%d", r, s),
+			"Effect":   "Allow",
+			"Action":   actions,
+			"Resource": resources,
+			"Condition": map[string]any{
+				"StringEquals": map[string]any{"aws:RequestedRegion": []any{"us-east-1", "us-west-2"}},
+				"Bool":         map[string]any{"aws:SecureTransport": "true"},
+			},
+		}
+	}
+	return map[string]any{"Version": "2012-10-17", "Statement": statements}
+}
+
+// samplePeakHeap records the largest heap object size seen every
+// millisecond until stop returns.
+func samplePeakHeap() (*uint64, func()) {
+	var peak uint64
+	done := make(chan struct{})
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		sample := []metrics.Sample{{Name: "/memory/classes/heap/objects:bytes"}}
+		tick := time.NewTicker(time.Millisecond)
+		defer tick.Stop()
+		for {
+			metrics.Read(sample)
+			peak = max(peak, sample[0].Value.Uint64())
+			select {
+			case <-done:
+				return
+			case <-tick.C:
+			}
+		}
+	}()
+	return &peak, func() { close(done); wg.Wait() }
 }
