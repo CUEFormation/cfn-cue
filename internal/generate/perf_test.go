@@ -153,7 +153,7 @@ func TestRegionPerformance(t *testing.T) {
 
 // iamPolicyBudget bounds TestIAMPolicyPerformance. On an Apple M4, iam
 // profiles built on matchN took 2.4 s, allocated 2.3 GiB and peaked at
-// 2.1 GiB of heap.
+// 2.1 GiB of heap; the current profiles take 0.46 s, 582 MiB and 420 MiB.
 var iamPolicyBudget = struct {
 	elapsed         time.Duration
 	allocated, peak uint64
