@@ -126,11 +126,15 @@ func (c *checker) secureValue(v any, path, property []string) {
 	}
 }
 
-// secureIf walks Fn::If as cfn-lint does. The condition name is checked
-// against the enclosing property. The branches keep that property path, and
-// are walked only when the function is well formed and its condition is
-// defined.
+// secureIf walks Fn::If as cfn-lint does. A string argument, or the condition
+// name, is checked against the enclosing property. The branches keep that
+// property path, and are walked only when the function is well formed and its
+// condition is defined.
 func (c *checker) secureIf(v any, path, property []string) {
+	if s, ok := v.(string); ok {
+		c.secureValue(s, path, property)
+		return
+	}
 	args, ok := v.([]any)
 	if !ok || len(args) != 3 {
 		return

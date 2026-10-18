@@ -65,8 +65,11 @@ func TestSecureStrings(t *testing.T) {
 		{"if-malformed", `{"Conditions": {"C": {"Fn::Equals": ["a", "b"]}}, "Resources": {"R": {"Type": "AWS::Amplify::App", "Properties": {
 			"OauthToken": {"Fn::If": ["C", "` + secure + `"]},
 			"AccessToken": {"Fn::If": ["Undefined", "x", "` + secure + `"]},
-			"Name": {"Fn::If": ["` + secure + `", "x", "y"]}}}}}`,
+			"Name": {"Fn::If": ["` + secure + `", "x", "y"]},
+			"Description": {"Fn::If": "` + secure + `"},
+			"Repository": {"Fn::If": {"Key": "` + secure + `"}}}}}}`,
 			[]string{"error:condition-undefined:/Resources/R/Properties/AccessToken/Fn::If/0",
+				"error:ssm-secure-placement:/Resources/R/Properties/Description/Fn::If",
 				"error:condition-undefined:/Resources/R/Properties/Name/Fn::If/0",
 				"error:ssm-secure-placement:/Resources/R/Properties/Name/Fn::If/0"}},
 		{"function-name-on-path", `{"Resources": {
