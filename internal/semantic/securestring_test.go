@@ -16,7 +16,16 @@ func TestSecureStrings(t *testing.T) {
 		name, data string
 		want       []string
 	}{
-		{"allowed", resource("AWS::RDS::DBInstance", `{"MasterUserPassword": "`+secure+`"}`), []string{}},
+		{"allowed", `{"Resources": {
+			"MicrosoftAD": {"Type": "AWS::DirectoryService::MicrosoftAD", "Properties": {"Password": "` + secure + `"}},
+			"SimpleAD": {"Type": "AWS::DirectoryService::SimpleAD", "Properties": {"Password": "` + secure + `"}},
+			"Redis": {"Type": "AWS::ElastiCache::ReplicationGroup", "Properties": {"AuthToken": "` + secure + `"}},
+			"User": {"Type": "AWS::IAM::User", "Properties": {"LoginProfile": {"Password": "` + secure + `"}}},
+			"Firehose": {"Type": "AWS::KinesisFirehose::DeliveryStream", "Properties": {"RedshiftDestinationConfiguration": {"Password": "` + secure + `"}}},
+			"App": {"Type": "AWS::OpsWorks::App", "Properties": {"AppSource": {"Password": "` + secure + `"}}},
+			"Cluster": {"Type": "AWS::RDS::DBCluster", "Properties": {"MasterUserPassword": "` + secure + `"}},
+			"Instance": {"Type": "AWS::RDS::DBInstance", "Properties": {"MasterUserPassword": "` + secure + `"}},
+			"Redshift": {"Type": "AWS::Redshift::Cluster", "Properties": {"MasterUserPassword": "` + secure + `"}}}}`, []string{}},
 		{"allowed-if", `{"Conditions": {"C": {"Fn::Equals": ["a", "b"]}}, "Resources": {"R": {"Type": "AWS::RDS::DBCluster",
 			"Properties": {"MasterUserPassword": {"Fn::If": ["C", "` + secure + `", "{{resolve:ssm:Plain:1}}"]}}}}}`, []string{}},
 		{"allowed-list-item", resource("AWS::OpsWorks::Stack", `{"RdsDbInstances": [{"DbPassword": "`+secure+`", "DbUser": "`+secure+`"}],
@@ -53,6 +62,21 @@ func TestSecureStrings(t *testing.T) {
 				"error:ssm-secure-placement:/Outputs/O/Value",
 				"error:ssm-secure-placement:/Parameters/P/Default",
 				"error:ssm-secure-placement:/Resources/R/Metadata/MasterUserPassword"}},
+		{"if-malformed", `{"Conditions": {"C": {"Fn::Equals": ["a", "b"]}}, "Resources": {"R": {"Type": "AWS::Amplify::App", "Properties": {
+			"OauthToken": {"Fn::If": ["C", "` + secure + `"]},
+			"AccessToken": {"Fn::If": ["Undefined", "x", "` + secure + `"]},
+			"Name": {"Fn::If": ["` + secure + `", "x", "y"]}}}}}`,
+			[]string{"error:condition-undefined:/Resources/R/Properties/AccessToken/Fn::If/0",
+				"error:condition-undefined:/Resources/R/Properties/Name/Fn::If/0",
+				"error:ssm-secure-placement:/Resources/R/Properties/Name/Fn::If/0"}},
+		{"function-name-on-path", `{"Resources": {
+			"Ref": {"Type": "AWS::S3::Bucket", "Properties": {"BucketName": "` + secure + `"}},
+			"R": {"Type": "AWS::S3::Bucket", "Metadata": {"Fn::Sub": "` + secure + `", "Other": "x"}}}}`, []string{}},
+		{"condition-function", `{"Conditions": {"C": {"Fn::Equals": ["` + secure + `", "x"]}}, "Resources": {"R": {"Type": "AWS::S3::Bucket"}}}`,
+			[]string{"error:ssm-secure-placement:/Conditions/C/Fn::Equals/0"}},
+		{"incomplete-reference", resource("AWS::Amplify::App", `{"OauthToken": "{{resolve:ssm-secure}}", "AccessToken": "{{resolve:ssm-secure:}}"}`),
+			[]string{"error:ssm-secure-placement:/Resources/R/Properties/AccessToken"}},
+		{"template-metadata", `{"Metadata": {"Note": "` + secure + `"}, "Resources": {"R": {"Type": "AWS::S3::Bucket"}}}`, []string{}},
 		{"no-type", `{"Resources": {"R": {"Properties": {"OauthToken": "` + secure + `"}}}}`, []string{}},
 	}
 	for _, tc := range cases {

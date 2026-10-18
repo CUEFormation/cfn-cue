@@ -2,7 +2,6 @@ package semantic
 
 import (
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -43,26 +42,29 @@ var opaqueFunctions = map[string]bool{
 }
 
 // secureStrings reports ssm-secure dynamic references outside the listed
-// properties, anywhere in the template. Properties of a resource without a
-// Type are skipped, since their property paths are unknown.
+// properties. Like cfn-lint, it checks every section except the template's
+// Metadata. Properties of a resource without a Type are skipped, since their
+// property paths are unknown.
 func (c *checker) secureStrings(template map[string]any) {
 	resources, _ := template["Resources"].(map[string]any)
 	for _, section := range sortedKeys(template) {
-		if section != "Resources" {
-			c.secureValue(template[section], []string{section}, nil)
-			continue
-		}
-		for _, name := range sortedKeys(resources) {
-			r, _ := resources[name].(map[string]any)
-			typ, _ := r["Type"].(string)
-			for _, key := range sortedKeys(r) {
-				path := []string{"Resources", name, key}
-				if key != "Properties" {
-					c.secureValue(r[key], path, nil)
-				} else if typ != "" {
-					c.secureValue(r[key], path, []string{typ})
+		switch section {
+		case "Metadata":
+		case "Resources":
+			for _, name := range sortedKeys(resources) {
+				r, _ := resources[name].(map[string]any)
+				typ, _ := r["Type"].(string)
+				for _, key := range sortedKeys(r) {
+					path := []string{"Resources", name, key}
+					if key != "Properties" {
+						c.secureValue(r[key], path, nil)
+					} else if typ != "" {
+						c.secureValue(r[key], path, []string{typ})
+					}
 				}
 			}
+		default:
+			c.secureValue(template[section], []string{section}, nil)
 		}
 	}
 }
@@ -76,8 +78,19 @@ func (c *checker) secureValue(v any, path, property []string) {
 		if !strings.Contains(v, "{{resolve:") {
 			return
 		}
+		// cfn-lint skips a string when any key on its path is an opaque
+		// function name, even a logical ID or a key in a larger object.
+		for _, key := range path {
+			if opaqueFunctions[key] {
+				return
+			}
+		}
 		m := dynamicReference.FindStringSubmatch(v)
-		if m == nil || strings.Split(m[1], ":")[1] != "ssm-secure" {
+		if m == nil {
+			return
+		}
+		// cfn-lint's E1050 requires resolve:<service>:<rest> before E1027 runs.
+		if parts := strings.Split(m[1], ":"); len(parts) < 3 || parts[1] != "ssm-secure" {
 			return
 		}
 		if property != nil && secureStringProperties[strings.Join(property, "/")] {
@@ -99,31 +112,38 @@ func (c *checker) secureValue(v any, path, property []string) {
 			c.secureValue(x, child(path, strconv.Itoa(i)), p)
 		}
 	case map[string]any:
-		if len(v) == 1 {
-			for key, arg := range v {
-				if opaqueFunctions[key] {
-					return
-				}
-				if args, ok := arg.([]any); ok && key == "Fn::If" && len(args) == 3 {
-					// Branches keep the enclosing property path.
-					for i := 1; i <= 2; i++ {
-						c.secureValue(args[i], child(child(path, key), strconv.Itoa(i)), property)
-					}
-					return
-				}
-			}
+		if args, ok := v["Fn::If"]; ok && len(v) == 1 {
+			c.secureIf(args, child(path, "Fn::If"), property)
+			return
 		}
-		keys := make([]string, 0, len(v))
-		for key := range v {
-			keys = append(keys, key)
-		}
-		sort.Strings(keys)
-		for _, key := range keys {
+		for _, key := range sortedKeys(v) {
 			var p []string
 			if property != nil {
 				p = child(property, key)
 			}
 			c.secureValue(v[key], child(path, key), p)
 		}
+	}
+}
+
+// secureIf walks Fn::If as cfn-lint does. The condition name is checked
+// against the enclosing property. The branches keep that property path, and
+// are walked only when the function is well formed and its condition is
+// defined.
+func (c *checker) secureIf(v any, path, property []string) {
+	args, ok := v.([]any)
+	if !ok || len(args) != 3 {
+		return
+	}
+	name, ok := args[0].(string)
+	if !ok {
+		return
+	}
+	c.secureValue(name, append(path[:len(path):len(path)], "0"), property)
+	if !c.m.Conditions.Defined(name) {
+		return
+	}
+	for i := 1; i <= 2; i++ {
+		c.secureValue(args[i], append(path[:len(path):len(path)], strconv.Itoa(i)), property)
 	}
 }
