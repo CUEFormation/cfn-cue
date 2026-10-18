@@ -4,7 +4,7 @@
     "cfn-lint": "1.57.2"
   },
   "skipped": [],
-  "source_lock_sha256": "a99e5af96ec8ea3734bbb5406e129d6a217160dd02b02fba4b7ee1184b1a96ac",
+  "source_lock_sha256": "828c455149465556f12611022779440ded79d28bc138e7fe2b2fca67c3bd4e35",
   "sources": [],
   "templates": [
     {

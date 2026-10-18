@@ -10,22 +10,33 @@ The locked sources are:
 
 | ID | Source | Templates |
 | --- | --- | --- |
-| `aws-examples` | AWS's [CloudFormation examples](https://github.com/aws-cloudformation/aws-cloudformation-templates) | 144 |
-| `cfn-lint-good` | cfn-lint's [good fixtures](https://github.com/aws-cloudformation/cfn-lint/tree/main/test/fixtures/templates/good) | 95 |
+| `aws-examples` | AWS's [CloudFormation examples](https://github.com/aws-cloudformation/aws-cloudformation-templates) | 151 |
+| `cfn-lint-good` | cfn-lint's [good fixtures](https://github.com/aws-cloudformation/cfn-lint/tree/main/test/fixtures/templates/good) | 99 |
 | `cfn-lint-bad` | cfn-lint's [bad fixtures](https://github.com/aws-cloudformation/cfn-lint/tree/main/test/fixtures/templates/bad) | 98 |
 | `cfn-lint-snapshot` | cfn-lint's quickstart, integration, and public snapshot templates | 44 |
 | `widdix` | [widdix/aws-cf-templates](https://github.com/widdix/aws-cf-templates) | 65 |
 | `sam-translator-output` | SAM's [translator output](https://github.com/aws/serverless-application-model/tree/develop/tests/translator/output) for the `aws` partition | 567 |
 | `troposphere-examples` | troposphere's [example output](https://github.com/cloudtools/troposphere/tree/main/tests/examples_output) | 88 |
+| `checkov-tests` | checkov's [CloudFormation test templates](https://github.com/bridgecrewio/checkov/tree/main/tests/cloudformation) | 431 |
+| `cfn-nag-tests` | cfn_nag's [test templates](https://github.com/stelligent/cfn_nag/tree/master/spec/test_templates) | 713 |
+| `rain-tests` | Rain's [test templates](https://github.com/aws-cloudformation/rain/tree/main/test/templates) | 86 |
 
 “Good” and “bad” are upstream directory names, not guarantees about standalone
 linting with today's schemas. Some fixtures rely on test-specific configuration,
 and several bad fixtures deliberately fail to parse. AWS's examples use `.yaml`
 as the source of truth; generated JSON copies and unrelated `.yml` configuration
-files are excluded. SAM's translator output is CloudFormation produced by the
-SAM transform; its error cases are not templates and are excluded. The `aws-cn`
+files are excluded, apart from seven JSON and `.yml` templates that have no
+`.yaml` counterpart. Three of these, the StackSets `*-pkg.json` files, are
+Rain-packaged outputs of YAML sources, kept because the sources use Rain
+directives (`!Rain::Module`, `!Rain::Embed`) and only the packaged form is plain
+CloudFormation. SAM's translator output is CloudFormation produced by the SAM
+transform; its error cases are not templates and are excluded. The `aws-cn`
 and `aws-us-gov` partition copies are excluded because surveys check commercial
 regions. troposphere's output is generated JSON with a `.template` extension.
+checkov and cfn_nag are security scanners, so many of their fixtures are
+deliberately insecure but schema-valid; a few are deliberately malformed. A few of
+Rain's templates use Rain-specific directives such as `Rain::Module`, which
+CloudFormation itself does not accept.
 
 ## Quick start
 
