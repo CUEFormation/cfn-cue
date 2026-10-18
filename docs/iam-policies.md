@@ -16,7 +16,7 @@ The profiles check which elements each policy kind allows. Trust policies need a
 
 A placement that no longer matches the provider schema is reported as an `iamPolicy` diagnostic. `literal/` schemas keep provider types. Known limits with CUE v0.18.0-rc.1:
 
-- A policy written as a literal JSON string is checked with `json.Validate`, which skips the exactly-one rules.
+- A policy written as a literal JSON string is checked with `json.Validate`, which skips some of the exactly-one rules.
 - Repeated statement `Sid`s are not checked here; the semantic pass reports them (see [semantic validation](semantic-validation.md#iam-statement-ids)).
 - A failing policy often produces a vague error such as `Statement: field not allowed`. To find the failing field, unify the statement with its statement profile, for example `iam.#TrustStatement & {...}`.
 
