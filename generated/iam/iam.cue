@@ -62,11 +62,10 @@ _#Condition: #Condition | close({"Fn::If": [string, #Condition | fn.#NoValue, #C
 _#Effect: #Effect | fn.#StringExpression
 
 // Identity policies need a nonempty alphanumeric Sid, as cfn-lint E3510
-// requires. Trust policies also accept an empty Sid.
-#IAMSid:    =~"^[A-Za-z0-9]+$"
-_#IAMSid:   #IAMSid | fn.#StringExpression
-_#TrustSid: =~"^[A-Za-z0-9]*$" | fn.#StringExpression
-_#Sid:      string | fn.#StringExpression
+// requires. Other policy kinds, including trust policies, accept any string.
+#IAMSid:  =~"^[A-Za-z0-9]+$"
+_#IAMSid: #IAMSid | fn.#StringExpression
+_#Sid:    string | fn.#StringExpression
 #Statement: close({
 	Sid?:          _#Sid
 	Effect!:       _#Effect
@@ -108,7 +107,7 @@ _#AtMostOneResource:  matchN(<=1, [{Resource!: _}, {NotResource!: _}])
 _#TrustAction:  #TrustAction | fn.#StringExpression
 _#TrustActions: _#TrustAction | [..._#TrustAction] | _#ListIntrinsic
 #TrustStatement: close({
-	Sid?:          _#TrustSid
+	Sid?:          _#Sid
 	Effect!:       _#Effect
 	Action?:       _#TrustActions
 	NotAction?:    _#TrustActions

@@ -25,7 +25,7 @@ bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*"
 bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Sid: ""}]}
 ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Sid: "ReadAll1"}]}
 ok	#TrustPolicy	{Statement: [{Sid: "", Effect: "Allow", Principal: {Service: "lambda.amazonaws.com"}, Action: "sts:AssumeRole"}]}
-bad	#TrustPolicy	{Statement: [{Sid: "has space", Effect: "Allow", Principal: {Service: "lambda.amazonaws.com"}, Action: "sts:AssumeRole"}]}
+ok	#TrustPolicy	{Statement: [{Sid: "has space", Effect: "Allow", Principal: {Service: "lambda.amazonaws.com"}, Action: "sts:AssumeRole"}]}
 bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Bogus: 1}]}
 bad	#IdentityPolicy	{Version: "2012-10-18", Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*"}]}
 bad	#IdentityPolicy	{Statements: [{Effect: "Allow", Action: "s3:*", Resource: "*"}]}
