@@ -48,7 +48,7 @@ Requires Go 1.26+ and Python 3.12+. These are the same entry points used in CI:
 ```
 
 `test` runs Go checks, the pinned S3/IAM integration, parser tests, all 192
-offline corpus expectations, and the 68 semantic reference expectations. To
+offline corpus expectations, and the 80 semantic reference expectations. To
 repeat the downloaded-example investigation:
 
 ```sh
@@ -189,8 +189,9 @@ This is a structural schema generator, not a replacement for cfn-lint. Keep cfn-
 
 A separate semantic pass checks what the schemas leave unresolved: `Ref`
 targets, `Fn::GetAtt` resources and attribute names, `Fn::Sub` variables,
-`DependsOn`, condition and mapping names, dependency cycles, and the
-properties where `{{resolve:ssm-secure:...}}` may appear. It runs
+`DependsOn`, condition and mapping names, dependency cycles, the
+properties where `{{resolve:ssm-secure:...}}` may appear, and duplicate IAM
+statement `Sid`s. It runs
 without CUE and never substitutes deployment-time values; a cycle or missing
 resource that occurs only for some parameter values is a warning. Select it
 with `cfn-cue-validate -checks semantic` or `-checks all`; the default,
@@ -307,6 +308,7 @@ The profiles check which elements each policy kind allows. Trust policies need a
 A placement that no longer matches the provider schema is reported as an `iamPolicy` diagnostic. `literal/` schemas keep provider types. Known limits with CUE v0.18.0-rc.1:
 
 - A policy written as a literal JSON string is checked with `json.Validate`, which skips the exactly-one rules.
+- Repeated statement `Sid`s are not checked here; the semantic pass reports them (see [semantic validation](docs/semantic-validation.md#iam-statement-ids)).
 - A failing policy often produces a vague error such as `Statement: field not allowed`. To find the failing field, unify the statement with its statement profile, for example `iam.#TrustStatement & {...}`.
 
 Other templates can import `iam` and unify profiles with their own values, or add organization rules on top.

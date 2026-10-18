@@ -59,6 +59,20 @@ def queues(**resources):
     return template
 
 
+def role(statements):
+    """An IAM role whose inline policy has the given statements."""
+    return {"Parameters": {"Env": {"Type": "String", "AllowedValues": ["prod", "dev"]}},
+            "Conditions": {"Prod": {"Fn::Equals": [{"Ref": "Env"}, "prod"]}},
+            "Resources": {"Role": {"Type": "AWS::IAM::Role", "Properties": {
+                "AssumeRolePolicyDocument": {"Version": "2012-10-17", "Statement": [{
+                    "Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"}, "Action": "sts:AssumeRole"}]},
+                "Policies": [{"PolicyName": "read", "PolicyDocument": {"Version": "2012-10-17", "Statement": statements}}]}}}}
+
+
+def statement(sid, bucket):
+    return {"Sid": sid, "Effect": "Allow", "Action": "s3:GetObject", "Resource": "arn:aws:s3:::" + bucket + "/*"}
+
+
 def cases():
     """Each case maps to (template, cue status, lint status, note)."""
     out = {}
@@ -175,6 +189,27 @@ def cases():
     mutate("conditional-target-dependson", lambda t: t["Resources"]["Bucket"].update(DependsOn="Topic"), "valid", "invalid",
         note="Known divergence: Topic is absent when Dev is false, which depends on a parameter. The validator "
              "warns; cfn-lint reports E3005.")
+
+    case("sid-distinct", role([statement("ReadA", "a"), statement("ReadB", "b")]), "valid")
+    case("sid-duplicate", role([statement("Read", "a"), statement("Read", "b")]), "invalid")
+    case("sid-exclusive-branches", role([{"Fn::If": ["Prod", statement("Read", "a"), NO_VALUE]},
+                                         {"Fn::If": ["Prod", NO_VALUE, statement("Read", "b")]}]), "valid",
+         note="The two statements are on opposite branches of Prod, so they never appear together.")
+    case("sid-conditional", role([statement("Read", "a"), {"Fn::If": ["Prod", statement("Read", "b"), NO_VALUE]}]),
+         "valid",
+         note="The duplicate exists only when Prod holds, which depends on a parameter. The validator warns; "
+              "cfn-lint reports nothing.")
+    case("sid-statement-branch", role({"Fn::If": ["Prod", [statement("Read", "a"), statement("Read", "b")],
+                                                  [statement("Read", "a")]]}), "valid", "invalid",
+         note="Known divergence: only the Prod list repeats the Sid, which depends on a parameter. The validator "
+              "warns; cfn-lint checks each Statement branch and reports E3510.")
+    bucket_policy = {"Resources": {
+        "Bucket": {"Type": "AWS::S3::Bucket"},
+        "Policy": {"Type": "AWS::S3::BucketPolicy", "Properties": {"Bucket": {"Ref": "Bucket"}, "PolicyDocument": {
+            "Version": "2012-10-17", "Statement": [
+                dict(statement("Read", "a"), Principal="*", Resource={"Fn::Sub": "${Bucket.Arn}/a/*"}),
+                dict(statement("Read", "b"), Principal="*", Resource={"Fn::Sub": "${Bucket.Arn}/b/*"})]}}}}}
+    case("sid-bucket-policy", bucket_policy, "valid", note="S3 bucket policies may repeat a Sid.")
     return out
 
 
