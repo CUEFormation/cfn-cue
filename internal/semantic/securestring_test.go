@@ -80,6 +80,15 @@ func TestSecureStrings(t *testing.T) {
 		{"incomplete-reference", resource("AWS::Amplify::App", `{"OauthToken": "{{resolve:ssm-secure}}", "AccessToken": "{{resolve:ssm-secure:}}"}`),
 			[]string{"error:ssm-secure-placement:/Resources/R/Properties/AccessToken"}},
 		{"template-metadata", `{"Metadata": {"Note": "` + secure + `"}, "Resources": {"R": {"Type": "AWS::S3::Bucket"}}}`, []string{}},
+		{"if-condition-in-allowed", resource("AWS::RDS::DBInstance", `{"MasterUserPassword": {"Fn::If": ["`+secure+`", "x", "y"]}}`),
+			[]string{"error:condition-undefined:/Resources/R/Properties/MasterUserPassword/Fn::If/0",
+				"error:ssm-secure-placement:/Resources/R/Properties/MasterUserPassword/Fn::If/0"}},
+		{"literal-sections", `{"Parameters": {"P": {"Type": "CommaDelimitedList", "Default": {"Fn::If": "` + secure + `"},
+				"AllowedValues": ["` + secure + `", {"Fn::If": "` + secure + `"}]}},
+			"Mappings": {"M": {"a": {"b": {"Fn::If": "` + secure + `"}, "c": ["` + secure + `"]}}},
+			"Resources": {"R": {"Type": "AWS::S3::Bucket"}}}`,
+			[]string{"error:ssm-secure-placement:/Mappings/M/a/c/0",
+				"error:ssm-secure-placement:/Parameters/P/AllowedValues/0"}},
 		{"no-type", `{"Resources": {"R": {"Properties": {"OauthToken": "` + secure + `"}}}}`, []string{}},
 	}
 	for _, tc := range cases {

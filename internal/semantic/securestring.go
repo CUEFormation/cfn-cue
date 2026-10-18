@@ -50,6 +50,10 @@ func (c *checker) secureStrings(template map[string]any) {
 	for _, section := range sortedKeys(template) {
 		switch section {
 		case "Metadata":
+		case "Parameters", "Mappings":
+			// Their values are literals; cfn-lint rejects an object without
+			// reading it as a function.
+			c.secureLiteral(template[section], []string{section}, section == "Parameters", 0)
 		case "Resources":
 			for _, name := range sortedKeys(resources) {
 				r, _ := resources[name].(map[string]any)
@@ -126,9 +130,9 @@ func (c *checker) secureValue(v any, path, property []string) {
 	}
 }
 
-// secureIf walks Fn::If as cfn-lint does. A string argument, or the condition
-// name, is checked against the enclosing property. The branches keep that
-// property path, and are walked only when the function is well formed and its
+// secureIf walks Fn::If as cfn-lint does. A string argument is checked against
+// the enclosing property, and the condition name is always reported. The
+// branches keep the enclosing property path, and are walked only when the function is well formed and its
 // condition is defined.
 func (c *checker) secureIf(v any, path, property []string) {
 	if s, ok := v.(string); ok {
@@ -143,11 +147,40 @@ func (c *checker) secureIf(v any, path, property []string) {
 	if !ok {
 		return
 	}
-	c.secureValue(name, append(path[:len(path):len(path)], "0"), property)
+	// The condition name is never an allowed property, even inside one.
+	var p []string
+	if property != nil {
+		p = append(property[:len(property):len(property)], "Fn::If")
+	}
+	c.secureValue(name, append(path[:len(path):len(path)], "0"), p)
 	if !c.m.Conditions.Defined(name) {
 		return
 	}
 	for i := 1; i <= 2; i++ {
 		c.secureValue(args[i], append(path[:len(path):len(path)], strconv.Itoa(i)), property)
+	}
+}
+
+// secureLiteral walks Parameters or Mappings, where values are strings or
+// lists. Objects are walked only above the value: a parameter's attributes,
+// or a mapping's two levels of keys.
+func (c *checker) secureLiteral(v any, path []string, parameters bool, depth int) {
+	child := func(s string) []string { return append(path[:len(path):len(path)], s) }
+	switch v := v.(type) {
+	case string:
+		c.secureValue(v, path, nil)
+	case []any:
+		for i, x := range v {
+			if _, ok := x.(map[string]any); !ok {
+				c.secureLiteral(x, child(strconv.Itoa(i)), parameters, depth+1)
+			}
+		}
+	case map[string]any:
+		if parameters && depth >= 2 || !parameters && depth >= 3 {
+			return
+		}
+		for _, key := range sortedKeys(v) {
+			c.secureLiteral(v[key], child(key), parameters, depth+1)
+		}
 	}
 }
