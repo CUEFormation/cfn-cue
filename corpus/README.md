@@ -27,9 +27,10 @@ and several bad fixtures deliberately fail to parse. AWS's examples use `.yaml`
 as the source of truth; generated JSON copies and unrelated `.yml` configuration
 files are excluded, apart from seven JSON and `.yml` templates that have no
 `.yaml` counterpart. Three of these, the StackSets `*-pkg.json` files, are
-Rain-packaged outputs of YAML sources, kept because the sources use
-`!Rain::Module` and only the packaged form is plain CloudFormation. SAM's translator output is CloudFormation produced by the
-SAM transform; its error cases are not templates and are excluded. The `aws-cn`
+Rain-packaged outputs of YAML sources, kept because the sources use Rain
+directives (`!Rain::Module`, `!Rain::Embed`) and only the packaged form is plain
+CloudFormation. SAM's translator output is CloudFormation produced by the SAM
+transform; its error cases are not templates and are excluded. The `aws-cn`
 and `aws-us-gov` partition copies are excluded because surveys check commercial
 regions. troposphere's output is generated JSON with a `.template` extension.
 checkov and cfn_nag are security scanners, so many of their fixtures are
