@@ -47,7 +47,7 @@ Requires Go 1.26+ and Python 3.12+. These are the same entry points used in CI:
 ./scripts/corpus.sh test
 ```
 
-`test` runs Go checks, the pinned S3/IAM integration, parser tests, all 176
+`test` runs Go checks, the pinned S3/IAM integration, parser tests, all 192
 offline corpus expectations, and the 68 semantic reference expectations. To
 repeat the downloaded-example investigation:
 
