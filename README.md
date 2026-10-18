@@ -47,7 +47,7 @@ Requires Go 1.26+ and Python 3.12+. These are the same entry points used in CI:
 ./scripts/corpus.sh test
 ```
 
-`test` runs Go checks, the pinned S3/IAM integration, parser tests, all 176
+`test` runs Go checks, the pinned S3/IAM integration, parser tests, all 192
 offline corpus expectations, and the 68 semantic reference expectations. To
 repeat the downloaded-example investigation:
 
@@ -337,7 +337,7 @@ CFN_CUE_PERF=1 go test ./internal/generate -run TestResourcePerformance -v
 scripts/region-bench.sh
 ```
 
-Tests cover recursive provider definitions, nested intrinsics, conditional branches, required properties removed by reachable `AWS::NoValue` branches, condition reachability, wrong return categories, malformed function objects, required properties, unknown fields/types, read-only filtering, schema exclusivity, LanguageExtensions, resource ForEach, regional selection, strict diagnostics, and preservation of existing output after failure. The opt-in test generates a filtered module from the real upstream snapshot and checks S3 and IAM templates, including policy documents that permit either strings or objects. A second opt-in test checks the IAM Role `AWS::NoValue` cases compared with cfn-lint. A third checks the 94 smoke corpus templates against the complete us-east-1 and us-west-2 `#Template` and compares the results with `corpus/smoke/expectations.json`.
+Tests cover recursive provider definitions, nested intrinsics, conditional branches, required properties removed by reachable `AWS::NoValue` branches, condition reachability, wrong return categories, malformed function objects, required properties, unknown fields/types, read-only filtering, schema exclusivity, LanguageExtensions, resource ForEach, regional selection, strict diagnostics, and preservation of existing output after failure. The opt-in test generates a filtered module from the real upstream snapshot and checks S3 and IAM templates, including policy documents that permit either strings or objects. A second opt-in test checks the IAM Role `AWS::NoValue` cases compared with cfn-lint. A third checks the 96 smoke corpus templates against the complete us-east-1 and us-west-2 `#Template` and compares the results with `corpus/smoke/expectations.json`.
 
 See [RESEARCH.md](RESEARCH.md) for upstream locations and the next design decisions.
 

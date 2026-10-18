@@ -743,6 +743,46 @@
     },
     {
       "depth": 7,
+      "id": "mutation-iam-identity-sid-invalid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 13,
+      "normalized": "normalized/mutation-iam-identity-sid-invalid.json",
+      "normalized_sha256": "97f7f5bf4a751a35651ef2dd286f3b4ee0169e2df2ebe6c66d55c04e93b1cb6d",
+      "original": "original/mutations/iam-identity-sid-invalid.yaml",
+      "original_sha256": "68694bca8456d6eaa7d8f9e077741f080cbe6d27b2643f44d7adf95b6c20fcae",
+      "path": "iam-identity-sid-invalid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::IAM::ManagedPolicy"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 7,
+      "id": "mutation-iam-identity-sid-valid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 13,
+      "normalized": "normalized/mutation-iam-identity-sid-valid.json",
+      "normalized_sha256": "0c7e778faf5faa918665cd28f2b4bc14b32488c7af68b5a1ac957813f7d1536a",
+      "original": "original/mutations/iam-identity-sid-valid.yaml",
+      "original_sha256": "64f12bae2afc1b71f1756746326549a0293ddc2651b60073c2ad93b056f8b82a",
+      "path": "iam-identity-sid-valid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::IAM::ManagedPolicy"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 7,
       "id": "mutation-if-properties",
       "intrinsic_depth": 3,
       "intrinsics": {

@@ -271,8 +271,8 @@ negative examples and documented known disagreements. Missing cases, unexecuted
 expectations, or changed results fail the contract; no automatic baseline
 updates occur.
 
-The checked-in `smoke/` corpus contains 94 templates: 11 pinned upstream examples
-and 83 project-authored cases, with 188 expectations across two regions. Cases
+The checked-in `smoke/` corpus contains 96 templates: 11 pinned upstream examples
+and 85 project-authored cases, with 192 expectations across two regions. Cases
 cover scalar compatibility, formats, nested intrinsics, required properties,
 enums, unknown/read-only fields, wrong function results and arguments, custom
 resource aliases, ServiceToken requirements, conditional custom properties,

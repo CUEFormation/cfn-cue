@@ -46,6 +46,10 @@ def compatibility_cases():
          "RoleArn", "arn:aws:iam::123456789012:role/MyRole", "SomeOptionalParameter")
     egress = {"GroupId": "sg-12345678", "IpProtocol": "tcp", "FromPort": "443", "ToPort": "443"}
     pair("cidr-host-bits", "AWS::EC2::SecurityGroupEgress", egress, "CidrIp", "10.0.0.0/16", "10.0.1.0/16")
+    statement = {"Effect": "Allow", "Action": "s3:GetObject", "Resource": "*"}
+    pair("iam-identity-sid", "AWS::IAM::ManagedPolicy", {}, "PolicyDocument",
+         {"Version": "2012-10-17", "Statement": [dict(statement, Sid="ReadObjects")]},
+         {"Version": "2012-10-17", "Statement": [dict(statement, Sid="")]})
     pair("kms-key-id", "AWS::SNS::Topic", {}, "KmsMasterKeyId", "alias/aws/sns", "aws/sns")
     pair("bucket-name", "AWS::S3::Bucket", {}, "BucketName", "my.bucket-1", "my..bucket")
     cases["dynamic-vpc-id"] = ({"Resources": {"Thing": {"Type": "AWS::EC2::Subnet", "Properties": {

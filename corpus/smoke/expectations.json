@@ -299,6 +299,26 @@
     "lint": "invalid",
     "note": "Intentional mutation: enum"
   },
+  "mutation-iam-identity-sid-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: iam-identity-sid-invalid"
+  },
+  "mutation-iam-identity-sid-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: iam-identity-sid-invalid"
+  },
+  "mutation-iam-identity-sid-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-iam-identity-sid-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
   "mutation-if-properties-branch-invalid:us-east-1": {
     "cue": "invalid",
     "lint": "invalid",
