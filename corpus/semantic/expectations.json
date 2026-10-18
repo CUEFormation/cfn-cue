@@ -239,6 +239,136 @@
     "lint": "valid",
     "note": "cfn-lint's attribute list lets EC2 instances return every property path."
   },
+  "semantic-identifier-composite:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "A and B share both parts of the RestApiId/StageName identifier."
+  },
+  "semantic-identifier-composite:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "A and B share both parts of the RestApiId/StageName identifier."
+  },
+  "semantic-identifier-conditional:us-east-1": {
+    "cue": "valid",
+    "lint": "invalid",
+    "note": "Known divergence: A and B collide only when Prod holds, which depends on a parameter. The validator warns; cfn-lint reports E3019."
+  },
+  "semantic-identifier-conditional:us-west-2": {
+    "cue": "valid",
+    "lint": "invalid",
+    "note": "Known divergence: A and B collide only when Prod holds, which depends on a parameter. The validator warns; cfn-lint reports E3019."
+  },
+  "semantic-identifier-distinct:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "semantic-identifier-distinct:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "semantic-identifier-duplicate:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: identifier-duplicate."
+  },
+  "semantic-identifier-duplicate:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: identifier-duplicate."
+  },
+  "semantic-identifier-exclusive-conditions:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Prod and Dev compare Env with different values, so A and B never exist together."
+  },
+  "semantic-identifier-exclusive-conditions:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Prod and Dev compare Env with different values, so A and B never exist together."
+  },
+  "semantic-identifier-generated:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "CloudFormation generates a missing LogGroupName, so it cannot collide."
+  },
+  "semantic-identifier-generated:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "CloudFormation generates a missing LogGroupName, so it cannot collide."
+  },
+  "semantic-identifier-if-branches:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Each Fn::If branch collides, so the duplicate exists for every Env."
+  },
+  "semantic-identifier-if-branches:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Each Fn::If branch collides, so the duplicate exists for every Env."
+  },
+  "semantic-identifier-if-exclusive:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "A is named app only when Prod holds and B only when it does not."
+  },
+  "semantic-identifier-if-exclusive:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "A is named app only when Prod holds and B only when it does not."
+  },
+  "semantic-identifier-intrinsic:us-east-1": {
+    "cue": "valid",
+    "lint": "invalid",
+    "note": "Known divergence: the validator compares only literal identifiers and leaves Fn::Sub unresolved. cfn-lint compares the expressions and reports E3019."
+  },
+  "semantic-identifier-intrinsic:us-west-2": {
+    "cue": "valid",
+    "lint": "invalid",
+    "note": "Known divergence: the validator compares only literal identifiers and leaves Fn::Sub unresolved. cfn-lint compares the expressions and reports E3019."
+  },
+  "semantic-identifier-large-integers:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Numbers keep every digit, so integers beyond float64 precision stay distinct."
+  },
+  "semantic-identifier-large-integers:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Numbers keep every digit, so integers beyond float64 precision stay distinct."
+  },
+  "semantic-identifier-number-spelling:us-east-1": {
+    "cue": "valid",
+    "lint": "invalid",
+    "note": "Known divergence: the validator compares numbers as written, so 1 and 1.0 differ. cfn-lint compares two numbers by value and reports E3019."
+  },
+  "semantic-identifier-number-spelling:us-west-2": {
+    "cue": "valid",
+    "lint": "invalid",
+    "note": "Known divergence: the validator compares numbers as written, so 1 and 1.0 differ. cfn-lint compares two numbers by value and reports E3019."
+  },
+  "semantic-identifier-number-string:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "A number matches the string with the same digits, as cfn-lint compares it."
+  },
+  "semantic-identifier-number-string:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "A number matches the string with the same digits, as cfn-lint compares it."
+  },
+  "semantic-identifier-read-only:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "The SQS queue identifier QueueUrl is read-only, so neither validator compares QueueName."
+  },
+  "semantic-identifier-read-only:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "The SQS queue identifier QueueUrl is read-only, so neither validator compares QueueName."
+  },
   "semantic-if-condition-undefined:us-east-1": {
     "cue": "invalid",
     "lint": "invalid",

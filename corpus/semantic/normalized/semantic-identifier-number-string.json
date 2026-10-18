@@ -1,0 +1,43 @@
+{
+  "Conditions": {
+    "Dev": {
+      "Fn::Equals": [
+        {
+          "Ref": "Env"
+        },
+        "dev"
+      ]
+    },
+    "Prod": {
+      "Fn::Equals": [
+        {
+          "Ref": "Env"
+        },
+        "prod"
+      ]
+    }
+  },
+  "Parameters": {
+    "Env": {
+      "AllowedValues": [
+        "prod",
+        "dev"
+      ],
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "A": {
+      "Properties": {
+        "LogGroupName": 9007199254740993
+      },
+      "Type": "AWS::Logs::LogGroup"
+    },
+    "B": {
+      "Properties": {
+        "LogGroupName": "9007199254740993"
+      },
+      "Type": "AWS::Logs::LogGroup"
+    }
+  }
+}

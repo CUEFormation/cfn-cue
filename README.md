@@ -48,7 +48,7 @@ Requires Go 1.26+ and Python 3.12+. These are the same entry points used in CI:
 ```
 
 `test` runs Go checks, the pinned S3/IAM integration, parser tests, all 192
-offline corpus expectations, and the 80 semantic reference expectations. To
+offline corpus expectations, and the 106 semantic reference expectations. To
 repeat the downloaded-example investigation:
 
 ```sh
@@ -190,13 +190,15 @@ This is a structural schema generator, not a replacement for cfn-lint. Keep cfn-
 A separate semantic pass checks what the schemas leave unresolved: `Ref`
 targets, `Fn::GetAtt` resources and attribute names, `Fn::Sub` variables,
 `DependsOn`, condition and mapping names, dependency cycles, the
-properties where `{{resolve:ssm-secure:...}}` may appear, and duplicate IAM
-statement `Sid`s. It runs
+properties where `{{resolve:ssm-secure:...}}` may appear, duplicate IAM
+statement `Sid`s, and resources of one type that set the same primary
+identifier. It runs
 without CUE and never substitutes deployment-time values; a cycle or missing
 resource that occurs only for some parameter values is a warning. Select it
 with `cfn-cue-validate -checks semantic` or `-checks all`; the default,
 `structural`, runs the CUE schemas alone. The generator records each
-resource type's GetAtt names in `manifest.json` for this pass. See
+resource type's GetAtt names and primary identifier in `manifest.json` for
+this pass. See
 [semantic validation](docs/semantic-validation.md) for the rules, the
 treatment of conditions and unknown values, and known differences from
 cfn-lint.

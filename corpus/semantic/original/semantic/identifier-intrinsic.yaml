@@ -1,0 +1,26 @@
+Parameters:
+  Env:
+    Type: String
+    AllowedValues:
+    - prod
+    - dev
+Conditions:
+  Prod:
+    Fn::Equals:
+    - Ref: Env
+    - prod
+  Dev:
+    Fn::Equals:
+    - Ref: Env
+    - dev
+Resources:
+  A:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub: ${AWS::StackName}-app
+  B:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub: ${AWS::StackName}-app

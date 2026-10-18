@@ -73,6 +73,14 @@ def statement(sid, bucket):
     return {"Sid": sid, "Effect": "Allow", "Action": "s3:GetObject", "Resource": "arn:aws:s3:::" + bucket + "/*"}
 
 
+def logs(**resources):
+    """Log groups, whose primary identifier LogGroupName a template may set."""
+    template = queues()
+    for name, resource in resources.items():
+        template["Resources"][name] = dict({"Type": "AWS::Logs::LogGroup"}, **copy.deepcopy(resource))
+    return template
+
+
 def cases():
     """Each case maps to (template, cue status, lint status, note)."""
     out = {}
@@ -210,6 +218,49 @@ def cases():
                 dict(statement("Read", "a"), Principal="*", Resource={"Fn::Sub": "${Bucket.Arn}/a/*"}),
                 dict(statement("Read", "b"), Principal="*", Resource={"Fn::Sub": "${Bucket.Arn}/b/*"})]}}}}}
     case("sid-bucket-policy", bucket_policy, "valid", note="S3 bucket policies may repeat a Sid.")
+    # Two resources of one type with the same primary identifier (cfn-lint E3019).
+    named = {"Properties": {"LogGroupName": "app"}}
+    case("identifier-duplicate", logs(A=named, B=named), "invalid")
+    case("identifier-distinct", logs(A=named, B={"Properties": {"LogGroupName": "other"}}), "valid")
+    case("identifier-generated", logs(A=named, B={}), "valid",
+         note="CloudFormation generates a missing LogGroupName, so it cannot collide.")
+    case("identifier-read-only", queues(A={"Properties": {"QueueName": "app"}}, B={"Properties": {"QueueName": "app"}}),
+         "valid", note="The SQS queue identifier QueueUrl is read-only, so neither validator compares QueueName.")
+    stage = {"Type": "AWS::ApiGateway::Stage", "Properties": {"RestApiId": "abc123", "StageName": "prod"}}
+    composite = logs()
+    composite["Resources"].update(A=stage, B=copy.deepcopy(stage), C=copy.deepcopy(stage))
+    composite["Resources"]["C"]["Properties"]["StageName"] = "dev"
+    case("identifier-composite", composite, "invalid", note="A and B share both parts of the RestApiId/StageName identifier.")
+    case("identifier-exclusive-conditions", logs(A=dict(named, Condition="Prod"), B=dict(named, Condition="Dev")), "valid",
+         note="Prod and Dev compare Env with different values, so A and B never exist together.")
+    case("identifier-if-branches", logs(
+        A={"Properties": {"LogGroupName": {"Fn::If": ["Prod", "app", "app-dev"]}}},
+        B={"Properties": {"LogGroupName": {"Fn::If": ["Prod", "app", "app-dev"]}}}), "invalid",
+        note="Each Fn::If branch collides, so the duplicate exists for every Env.")
+    case("identifier-if-exclusive", logs(
+        A={"Properties": {"LogGroupName": {"Fn::If": ["Prod", "app", NO_VALUE]}}},
+        B={"Properties": {"LogGroupName": {"Fn::If": ["Prod", NO_VALUE, "app"]}}}), "valid",
+        note="A is named app only when Prod holds and B only when it does not.")
+    case("identifier-conditional", logs(A=dict(named, Condition="Prod"), B=named), "valid", "invalid",
+         note="Known divergence: A and B collide only when Prod holds, which depends on a parameter. The validator "
+              "warns; cfn-lint reports E3019.")
+    case("identifier-number-string", logs(
+        A={"Properties": {"LogGroupName": 9007199254740993}},
+        B={"Properties": {"LogGroupName": "9007199254740993"}}), "invalid",
+        note="A number matches the string with the same digits, as cfn-lint compares it.")
+    case("identifier-large-integers", logs(
+        A={"Properties": {"LogGroupName": 9007199254740992}},
+        B={"Properties": {"LogGroupName": 9007199254740993}}), "valid",
+        note="Numbers keep every digit, so integers beyond float64 precision stay distinct.")
+    case("identifier-number-spelling", logs(
+        A={"Properties": {"LogGroupName": 1}},
+        B={"Properties": {"LogGroupName": 1.0}}), "valid", "invalid",
+        note="Known divergence: the validator compares numbers as written, so 1 and 1.0 differ. cfn-lint compares "
+             "two numbers by value and reports E3019.")
+    same = {"Properties": {"LogGroupName": {"Fn::Sub": "${AWS::StackName}-app"}}}
+    case("identifier-intrinsic", logs(A=same, B=same), "valid", "invalid",
+         note="Known divergence: the validator compares only literal identifiers and leaves Fn::Sub unresolved. "
+              "cfn-lint compares the expressions and reports E3019.")
     return out
 
 
