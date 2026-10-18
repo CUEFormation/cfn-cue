@@ -189,7 +189,8 @@ This is a structural schema generator, not a replacement for cfn-lint. Keep cfn-
 
 A separate semantic pass checks what the schemas leave unresolved: `Ref`
 targets, `Fn::GetAtt` resources and attribute names, `Fn::Sub` variables,
-`DependsOn`, condition and mapping names, and dependency cycles. It runs
+`DependsOn`, condition and mapping names, dependency cycles, and the
+properties where `{{resolve:ssm-secure:...}}` may appear. It runs
 without CUE and never substitutes deployment-time values; a cycle or missing
 resource that occurs only for some parameter values is a warning. Select it
 with `cfn-cue-validate -checks semantic` or `-checks all`; the default,

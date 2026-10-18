@@ -1,6 +1,7 @@
 // Package semantic checks CloudFormation template references that the
 // structural CUE schemas leave unresolved: Ref, Fn::GetAtt, Fn::Sub variables,
-// DependsOn, condition names, mapping names and dependency cycles.
+// DependsOn, condition names, mapping names and dependency cycles. It also
+// checks where ssm-secure dynamic references appear.
 //
 // The pass reads a decoded, normalized JSON template and never evaluates a
 // deployment-time value. Parameters, pseudo parameters, resource attributes
@@ -62,6 +63,7 @@ func CheckModel(m *Model, template map[string]any, opt Options) []Diagnostic {
 		c.reference(r)
 	}
 	c.cycles()
+	c.secureStrings(template)
 	sort.SliceStable(c.out, func(i, j int) bool {
 		if c.out[i].Path != c.out[j].Path {
 			return c.out[i].Path < c.out[j].Path
