@@ -146,3 +146,20 @@ ok	#ResourceControlPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {Statement: {Ef
 bad	#ResourceControlPolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Statement: {Effect: "Deny", Principal: "*", Action: "s3:*", Resource: "*"}}, {Statement: {Effect: "Allow", Principal: "*", Action: "s3:*", Resource: "*"}}]}]}
 bad	#ResourceControlPolicyValue	{}
 bad	#ResourceControlPolicyValue	{"Fn::If": "A"}
+# List elements: a literal is checked by its pattern, anything else as a string intrinsic.
+ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: ["s3:GetObject", {Ref: "ActionParam"}, {"Fn::Sub": "s3:${Verb}"}], Resource: ["arn:aws:s3:::b", {"Fn::GetAtt": ["Bucket", "Arn"]}]}]}
+bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: ["s3:GetObject", 5], Resource: "*"}]}
+bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: ["s3:GetObject", {"Fn::Bogus": "x"}], Resource: "*"}]}
+bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: [{"Fn::GetStackOutput": {OutputName: "o"}}], Resource: "*"}]}
+bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:GetObject", Resource: ["arn:aws:s3:::b", "bucket"]}]}
+ok	#TrustPolicy	{Statement: [{Effect: "Allow", Principal: {AWS: ["123456789012", {Ref: "AccountId"}]}, Action: "sts:AssumeRole"}]}
+bad	#TrustPolicy	{Statement: [{Effect: "Allow", Principal: {AWS: ["123456789012", 5]}, Action: "sts:AssumeRole"}]}
+ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Condition: {StringEquals: {"aws:x": ["a", 1, true, {Ref: "P"}]}}}]}
+bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Condition: {StringEquals: {"aws:x": ["a", null]}}}]}
+# Statement entries.
+bad	#IdentityPolicy	{Statement: [{"Fn::If": ["Cond", {Effect: "Allow", Action: "s3:*", Resource: "*"}, {Ref: "Other"}]}]}
+bad	#IdentityPolicy	{Statement: [{Ref: "AWS::NoValue", "Fn::If": ["Cond", {Effect: "Allow", Action: "s3:*", Resource: "*"}, {Ref: "AWS::NoValue"}]}]}
+bad	#IdentityPolicy	{Statement: [{}]}
+# Only Allow statements are restricted to Resource "*"; NotResource is not.
+ok	#ServiceControlPolicy	{Statement: [{Effect: "Allow", Action: "ec2:*", NotResource: "arn:aws:ec2:*:*:instance/*"}]}
+bad	#ServiceControlPolicy	{Statement: [{Effect: "Allow", Action: "ec2:*", Resource: ["*", "arn:aws:ec2:*:*:instance/*"]}]}
