@@ -1,0 +1,107 @@
+# optional.cue and pattern.cue differ only in how the keys of #StringExpr,
+# #NumberExpr and #ListExpr are declared: Ref?: T versus [=~"^Ref$"]: T.
+# Both accept and reject the same values. Compare their time, or their
+# Unifications count with CUE_STATS_FILE.
+env CUE_STATS_FILE=$WORK/optional-stats.json
+exec cue vet -c optional.cue
+env CUE_STATS_FILE=$WORK/pattern-stats.json
+exec cue vet -c pattern.cue
+env CUE_STATS_FILE=
+
+# cue fmt -s rewrites the fast pattern form into the slow optional form.
+exec cue fmt -s simplify.cue
+cmp simplify.cue simplify.golden
+
+-- cue.mod/module.cue --
+module: "example.com/repro@v0"
+language: version: "v0.18.0"
+-- optional.cue --
+package repro
+
+import "list"
+
+#String: string | #StringExpr
+#Number: number | #NumberExpr
+#List:   [...#String] | #ListExpr
+
+// Function-call objects: exactly one key, each with typed arguments.
+#StringExpr: close({
+	Ref?:          string
+	"Fn::Sub"?:    string | [string, {[string]: #String}]
+	"Fn::Join"?:   [string, [...#String] | #ListExpr]
+	"Fn::Select"?: [int | #NumberExpr, #List]
+	"Fn::If"?:     [string, #String, #String]
+})
+#NumberExpr: close({
+	Ref?:          string
+	"Fn::Select"?: [int | #NumberExpr, #List]
+	"Fn::If"?:     [string, #Number, #Number]
+})
+#ListExpr: close({
+	Ref?:          string
+	"Fn::Split"?:  [string, #String]
+	"Fn::Select"?: [int | #NumberExpr, #List]
+	"Fn::If"?:     [string, #List, #List]
+})
+
+// 40 optional properties, each a literal or a function call. None are set.
+#Schema: close({
+	for i in list.Range(0, 40, 1) {
+		"P\(i)"?: string | #StringExpr
+	}
+})
+
+for i in list.Range(0, 1000, 1) {
+	"x\(i)": #Schema & {}
+}
+-- pattern.cue --
+package repro
+
+import "list"
+
+#String: string | #StringExpr
+#Number: number | #NumberExpr
+#List:   [...#String] | #ListExpr
+
+// Function-call objects: exactly one key, each with typed arguments.
+#StringExpr: close({
+	[=~"^Ref$"]:        string
+	[=~"^Fn::Sub$"]:    string | [string, {[string]: #String}]
+	[=~"^Fn::Join$"]:   [string, [...#String] | #ListExpr]
+	[=~"^Fn::Select$"]: [int | #NumberExpr, #List]
+	[=~"^Fn::If$"]:     [string, #String, #String]
+})
+#NumberExpr: close({
+	[=~"^Ref$"]:        string
+	[=~"^Fn::Select$"]: [int | #NumberExpr, #List]
+	[=~"^Fn::If$"]:     [string, #Number, #Number]
+})
+#ListExpr: close({
+	[=~"^Ref$"]:        string
+	[=~"^Fn::Split$"]:  [string, #String]
+	[=~"^Fn::Select$"]: [int | #NumberExpr, #List]
+	[=~"^Fn::If$"]:     [string, #List, #List]
+})
+
+// 40 optional properties, each a literal or a function call. None are set.
+#Schema: close({
+	for i in list.Range(0, 40, 1) {
+		"P\(i)"?: string | #StringExpr
+	}
+})
+
+for i in list.Range(0, 1000, 1) {
+	"x\(i)": #Schema & {}
+}
+-- simplify.cue --
+package repro
+
+#F: close({
+	["Ref"]: string
+})
+-- simplify.golden --
+package repro
+
+#F: close({
+	Ref?: string
+})
