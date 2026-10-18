@@ -309,6 +309,66 @@
     "lint": "valid",
     "note": "Project-authored valid template."
   },
+  "semantic-sid-bucket-policy:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "S3 bucket policies may repeat a Sid."
+  },
+  "semantic-sid-bucket-policy:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "S3 bucket policies may repeat a Sid."
+  },
+  "semantic-sid-conditional:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "The duplicate exists only when Prod holds, which depends on a parameter. The validator warns; cfn-lint reports nothing."
+  },
+  "semantic-sid-conditional:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "The duplicate exists only when Prod holds, which depends on a parameter. The validator warns; cfn-lint reports nothing."
+  },
+  "semantic-sid-distinct:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "semantic-sid-distinct:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "semantic-sid-duplicate:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: sid-duplicate."
+  },
+  "semantic-sid-duplicate:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional reference error: sid-duplicate."
+  },
+  "semantic-sid-exclusive-branches:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "The two statements are on opposite branches of Prod, so they never appear together."
+  },
+  "semantic-sid-exclusive-branches:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "The two statements are on opposite branches of Prod, so they never appear together."
+  },
+  "semantic-sid-statement-branch:us-east-1": {
+    "cue": "valid",
+    "lint": "invalid",
+    "note": "Known divergence: only the Prod list repeats the Sid, which depends on a parameter. The validator warns; cfn-lint checks each Statement branch and reports E3510."
+  },
+  "semantic-sid-statement-branch:us-west-2": {
+    "cue": "valid",
+    "lint": "invalid",
+    "note": "Known divergence: only the Prod list repeats the Sid, which depends on a parameter. The validator warns; cfn-lint checks each Statement branch and reports E3510."
+  },
   "semantic-sub-attribute-invalid:us-east-1": {
     "cue": "invalid",
     "lint": "invalid",

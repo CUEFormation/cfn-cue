@@ -64,6 +64,7 @@ func CheckModel(m *Model, template map[string]any, opt Options) []Diagnostic {
 	}
 	c.cycles()
 	c.secureStrings(template)
+	c.duplicateSids(template)
 	sort.SliceStable(c.out, func(i, j int) bool {
 		if c.out[i].Path != c.out[j].Path {
 			return c.out[i].Path < c.out[j].Path

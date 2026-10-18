@@ -1,0 +1,38 @@
+{
+  "Resources": {
+    "Bucket": {
+      "Type": "AWS::S3::Bucket"
+    },
+    "Policy": {
+      "Properties": {
+        "Bucket": {
+          "Ref": "Bucket"
+        },
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Principal": "*",
+              "Resource": {
+                "Fn::Sub": "${Bucket.Arn}/a/*"
+              },
+              "Sid": "Read"
+            },
+            {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Principal": "*",
+              "Resource": {
+                "Fn::Sub": "${Bucket.Arn}/b/*"
+              },
+              "Sid": "Read"
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "Type": "AWS::S3::BucketPolicy"
+    }
+  }
+}

@@ -859,6 +859,148 @@
       "url": "https://github.com/CUEFormation/cfn-cue"
     },
     {
+      "depth": 8,
+      "id": "semantic-sid-bucket-policy",
+      "intrinsic_depth": 1,
+      "intrinsics": {
+        "Fn::Sub": 2,
+        "Ref": 1
+      },
+      "license": "Apache-2.0",
+      "nodes": 26,
+      "normalized": "normalized/semantic-sid-bucket-policy.json",
+      "normalized_sha256": "5f70c66157bc11ebbce0ab3dead15aaf4ed5526a3cb895285fc4bac39dfc989c",
+      "original": "original/semantic/sid-bucket-policy.yaml",
+      "original_sha256": "06bff52cbea7d4100fe0a3cfe2210fd0cb8b829acb3438e55cf1110267c85023",
+      "path": "sid-bucket-policy",
+      "resource_count": 2,
+      "resource_types": [
+        "AWS::S3::Bucket",
+        "AWS::S3::BucketPolicy"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 11,
+      "id": "semantic-sid-conditional",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 1,
+        "Fn::If": 1,
+        "Ref": 2
+      },
+      "license": "Apache-2.0",
+      "nodes": 46,
+      "normalized": "normalized/semantic-sid-conditional.json",
+      "normalized_sha256": "d273a63ba26195757f59db2ed7e18ce6e0e5f23f41f3e310e19c308d77d980cc",
+      "original": "original/semantic/sid-conditional.yaml",
+      "original_sha256": "d8fdfdad06b188b8586b7497a3e554629f8ec2afee832719f253ac9e0a63e31d",
+      "path": "sid-conditional",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::IAM::Role"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-sid-distinct",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 1,
+        "Ref": 1
+      },
+      "license": "Apache-2.0",
+      "nodes": 41,
+      "normalized": "normalized/semantic-sid-distinct.json",
+      "normalized_sha256": "bf2493bf73fee2a5a4ea934424e205c1aca21c7f439e898a3bf56a8854e1e983",
+      "original": "original/semantic/sid-distinct.yaml",
+      "original_sha256": "56df04e98894af202947f1261b838eff1a35e5177e8b7908d5899be959ad6636",
+      "path": "sid-distinct",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::IAM::Role"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 9,
+      "id": "semantic-sid-duplicate",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 1,
+        "Ref": 1
+      },
+      "license": "Apache-2.0",
+      "nodes": 41,
+      "normalized": "normalized/semantic-sid-duplicate.json",
+      "normalized_sha256": "24ac962e452b4df13ad1bac8f12d5a5092c5292a548a3098509fc9f1c092ed24",
+      "original": "original/semantic/sid-duplicate.yaml",
+      "original_sha256": "674361a535de4ef538743fd0f18e2994ba81079f5a5a5a36f35a203f3bb0153c",
+      "path": "sid-duplicate",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::IAM::Role"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 11,
+      "id": "semantic-sid-exclusive-branches",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 1,
+        "Fn::If": 2,
+        "Ref": 3
+      },
+      "license": "Apache-2.0",
+      "nodes": 51,
+      "normalized": "normalized/semantic-sid-exclusive-branches.json",
+      "normalized_sha256": "420d578f9a7dc0180a4ebbde238aa6586b880c5a8cfad494d9e0d79edb481750",
+      "original": "original/semantic/sid-exclusive-branches.yaml",
+      "original_sha256": "afb465aba2a0a9044f45f41e754ba564baff00b95af5654141f240bb40b707ab",
+      "path": "sid-exclusive-branches",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::IAM::Role"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 11,
+      "id": "semantic-sid-statement-branch",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 1,
+        "Fn::If": 1,
+        "Ref": 1
+      },
+      "license": "Apache-2.0",
+      "nodes": 50,
+      "normalized": "normalized/semantic-sid-statement-branch.json",
+      "normalized_sha256": "71a755c7940ceb8caf4e9b5ca27660fc70298c758a7106336b3bb9ccdce67085",
+      "original": "original/semantic/sid-statement-branch.yaml",
+      "original_sha256": "828c08461e3714d444309477b7693609bbd03ed53a1a96fd4ac3454704e43140",
+      "path": "sid-statement-branch",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::IAM::Role"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
       "depth": 9,
       "id": "semantic-sub-attribute-invalid",
       "intrinsic_depth": 2,
