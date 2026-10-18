@@ -331,18 +331,21 @@ func TestDuplicateIdentifiers(t *testing.T) {
 			"W2": {"Type": "AWS::Athena::WorkGroup", "Condition": "Dev", "Properties": {"Name": "g"}}`, []string{}},
 		{"never condition", `"W1": {"Type": "AWS::Athena::WorkGroup", "Condition": "Never", "Properties": {"Name": "g"}},
 			"W2": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": "g"}}`, []string{}},
+		// Numbers compare as written, as cfn-lint compares a number with a string.
+		{"large integers", `"W1": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": 9007199254740992}},
+			"W2": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": 9007199254740993}}`, []string{}},
+		{"number and string", `"W1": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": 9007199254740993}},
+			"W2": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": "9007199254740993"}}`,
+			[]string{"error:duplicate-identifier:/Resources/W2/Properties/Name"}},
+		{"decimal and integer string", `"W1": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": 1.0}},
+			"W2": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": "1"}}`, []string{}},
+		{"decimal and decimal string", `"W1": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": 1.0}},
+			"W2": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": "1.0"}}`,
+			[]string{"error:duplicate-identifier:/Resources/W2/Properties/Name"}},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			var template map[string]any
-			data := `{"Parameters": {"Env": {"Type": "String"}},
-				"Conditions": {"Prod": {"Fn::Equals": [{"Ref": "Env"}, "prod"]}, "Dev": {"Fn::Equals": [{"Ref": "Env"}, "dev"]},
-					"NotProd": {"Fn::Not": [{"Condition": "Prod"}]}, "Never": {"Fn::Equals": ["a", "b"]}},
-				"Resources": {` + tc.resources + `}}`
-			if err := json.Unmarshal([]byte(data), &template); err != nil {
-				t.Fatal(err)
-			}
-			ds := Check(template, Options{PrimaryIdentifier: func(typ string) []string { return identifiers[typ] }})
+			ds := checkIdentifiers(t, tc.resources)
 			if got := summary(ds); !reflect.DeepEqual(got, tc.want) {
 				t.Fatalf("got %q\nwant %q", got, tc.want)
 			}
@@ -350,14 +353,65 @@ func TestDuplicateIdentifiers(t *testing.T) {
 	}
 }
 
-func TestDuplicateIdentifierMessage(t *testing.T) {
+// checkIdentifiers checks resources for duplicate identifiers, decoding numbers
+// as validate does.
+func checkIdentifiers(t *testing.T, resources string) []Diagnostic {
+	t.Helper()
+	data := `{"Parameters": {"Env": {"Type": "String"}},
+		"Conditions": {"Prod": {"Fn::Equals": [{"Ref": "Env"}, "prod"]}, "Dev": {"Fn::Equals": [{"Ref": "Env"}, "dev"]},
+			"NotProd": {"Fn::Not": [{"Condition": "Prod"}]}, "Never": {"Fn::Equals": ["a", "b"]}},
+		"Resources": {` + resources + `}}`
+	decoder := json.NewDecoder(strings.NewReader(data))
+	decoder.UseNumber()
 	var template map[string]any
-	_ = json.Unmarshal([]byte(`{"Parameters": {"Env": {"Type": "String"}},
-		"Conditions": {"Prod": {"Fn::Equals": [{"Ref": "Env"}, "prod"]}},
-		"Resources": {
-			"A": {"Type": "AWS::Athena::WorkGroup", "Condition": "Prod", "Properties": {"Name": "g"}},
-			"B": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": "g"}}}}`), &template)
-	ds := Check(template, Options{PrimaryIdentifier: func(typ string) []string { return identifiers[typ] }})
+	if err := decoder.Decode(&template); err != nil {
+		t.Fatal(err)
+	}
+	return Check(template, Options{PrimaryIdentifier: func(typ string) []string { return identifiers[typ] }})
+}
+
+// ifTree returns nested Fn::If on Prod with n leaves, each v.
+func ifTree(n int, v any) any {
+	if n == 1 {
+		return v
+	}
+	return map[string]any{"Fn::If": []any{"Prod", ifTree(n/2, v), ifTree(n-n/2, v)}}
+}
+
+func TestDuplicateIdentifierLimit(t *testing.T) {
+	for _, tc := range []struct {
+		a, b int
+		want []string
+	}{
+		{8, 8, []string{"error:duplicate-identifier:/Resources/P2/Properties"}},
+		{5, 13, []string{}},
+	} {
+		properties, _ := json.Marshal(map[string]any{"A": ifTree(tc.a, "x"), "B": ifTree(tc.b, "y")})
+		ds := checkIdentifiers(t, `"P1": {"Type": "AWS::Test::Pair", "Properties": `+string(properties)+`},
+			"P2": {"Type": "AWS::Test::Pair", "Properties": {"A": "x", "B": "y"}}`)
+		if got := summary(ds); !reflect.DeepEqual(got, tc.want) {
+			t.Errorf("%d×%d: got %q, want %q", tc.a, tc.b, got, tc.want)
+		}
+	}
+}
+
+// TestDuplicateIdentifierExpansion checks that expansion stops at the bound
+// rather than building every alternative first.
+func TestDuplicateIdentifierExpansion(t *testing.T) {
+	properties := map[string]any{"A": ifTree(64, "x"), "B": ifTree(4096, "y")}
+	allocs := testing.AllocsPerRun(1, func() {
+		if _, ok := identities(properties, []string{"A", "B"}, nil, maxIdentities); ok {
+			t.Fatal("expanded past the bound")
+		}
+	})
+	if allocs > 2000 {
+		t.Fatalf("%v allocations", allocs)
+	}
+}
+
+func TestDuplicateIdentifierMessage(t *testing.T) {
+	ds := checkIdentifiers(t, `"A": {"Type": "AWS::Athena::WorkGroup", "Condition": "Prod", "Properties": {"Name": "g"}},
+		"B": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": "g"}}`)
 	if len(ds) != 1 || !reflect.DeepEqual(ds[0].Conditions, []Guard{{"Prod", true}}) ||
 		ds[0].Message != `AWS::Athena::WorkGroup primary identifier Name="g" is also set by A when both exist` {
 		t.Fatalf("%+v", ds)
@@ -365,15 +419,31 @@ func TestDuplicateIdentifierMessage(t *testing.T) {
 }
 
 func TestDuplicateIdentifierBranchMessage(t *testing.T) {
-	var template map[string]any
-	_ = json.Unmarshal([]byte(`{"Parameters": {"Env": {"Type": "String"}},
-		"Conditions": {"Prod": {"Fn::Equals": [{"Ref": "Env"}, "prod"]}},
-		"Resources": {
-			"A": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": {"Fn::If": ["Prod", "a", "b"]}}},
-			"B": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": "b"}}}}`), &template)
-	ds := Check(template, Options{PrimaryIdentifier: func(typ string) []string { return identifiers[typ] }})
+	ds := checkIdentifiers(t, `"A": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": {"Fn::If": ["Prod", "a", "b"]}}},
+		"B": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": "b"}}`)
 	if len(ds) != 1 || !reflect.DeepEqual(ds[0].Conditions, []Guard{{"Prod", false}}) ||
 		ds[0].Message != `AWS::Athena::WorkGroup primary identifier Name="b" is also set by A when both exist` {
+		t.Fatalf("%+v", ds)
+	}
+}
+
+// TestDuplicateIdentifierPossibleMessage checks that the message names the
+// value that can collide, not an earlier match under an impossible condition.
+func TestDuplicateIdentifierPossibleMessage(t *testing.T) {
+	ds := checkIdentifiers(t, `"A": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": {"Fn::If": ["Never", "dead", "live"]}}},
+		"B": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": {"Fn::If": ["Never", "dead", {"Fn::If": ["Prod", "live", "other"]}]}}}`)
+	if len(ds) != 1 || !reflect.DeepEqual(ds[0].Conditions, []Guard{{"Never", false}, {"Prod", true}}) ||
+		ds[0].Message != `AWS::Athena::WorkGroup primary identifier Name="live" is also set by A when both exist` {
+		t.Fatalf("%+v", ds)
+	}
+}
+
+// TestDuplicateIdentifierErrorMessage checks that an error combining branches
+// names each value.
+func TestDuplicateIdentifierErrorMessage(t *testing.T) {
+	ds := checkIdentifiers(t, `"A": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": {"Fn::If": ["Prod", "a", "b"]}}},
+		"B": {"Type": "AWS::Athena::WorkGroup", "Properties": {"Name": {"Fn::If": ["Prod", "a", "b"]}}}`)
+	if len(ds) != 1 || ds[0].Message != `AWS::Athena::WorkGroup primary identifier Name="a" or Name="b" is also set by A; the second resource fails to create` {
 		t.Fatalf("%+v", ds)
 	}
 }

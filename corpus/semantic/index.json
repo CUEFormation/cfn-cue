@@ -867,6 +867,75 @@
     },
     {
       "depth": 5,
+      "id": "semantic-identifier-large-integers",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Ref": 2
+      },
+      "license": "Apache-2.0",
+      "nodes": 27,
+      "normalized": "normalized/semantic-identifier-large-integers.json",
+      "normalized_sha256": "e6fa4d5945a27b7dc6c3445e1f4108a88f3cdb3e6a2563036df56dd2ea285c50",
+      "original": "original/semantic/identifier-large-integers.yaml",
+      "original_sha256": "88a577ee221d12cc920838b69f2d5ae2f19c679f7626052ad7e8b3efc024c0fd",
+      "path": "identifier-large-integers",
+      "resource_count": 2,
+      "resource_types": [
+        "AWS::Logs::LogGroup"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 5,
+      "id": "semantic-identifier-number-spelling",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Ref": 2
+      },
+      "license": "Apache-2.0",
+      "nodes": 27,
+      "normalized": "normalized/semantic-identifier-number-spelling.json",
+      "normalized_sha256": "589b1f9225ac4b88b442155a414fa973e5a9c47572192cbbcc25d922aec15332",
+      "original": "original/semantic/identifier-number-spelling.yaml",
+      "original_sha256": "42b08ca4d2c87ba734986d51b8ee68dd4a68b6f5944e3ec9b189fea11b5cefef",
+      "path": "identifier-number-spelling",
+      "resource_count": 2,
+      "resource_types": [
+        "AWS::Logs::LogGroup"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 5,
+      "id": "semantic-identifier-number-string",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 2,
+        "Ref": 2
+      },
+      "license": "Apache-2.0",
+      "nodes": 27,
+      "normalized": "normalized/semantic-identifier-number-string.json",
+      "normalized_sha256": "2b75306f515d2f22da20e4fbbfdc6f54c326a96f352c386fb1a541403a999527",
+      "original": "original/semantic/identifier-number-string.yaml",
+      "original_sha256": "d8d13352bf9bf557cf35d9740ec093d33f0db149c97b42f654432e72db9063aa",
+      "path": "identifier-number-string",
+      "resource_count": 2,
+      "resource_types": [
+        "AWS::Logs::LogGroup"
+      ],
+      "source": "semantic",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 5,
       "id": "semantic-identifier-read-only",
       "intrinsic_depth": 2,
       "intrinsics": {

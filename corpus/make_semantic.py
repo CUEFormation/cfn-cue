@@ -244,6 +244,19 @@ def cases():
     case("identifier-conditional", logs(A=dict(named, Condition="Prod"), B=named), "valid", "invalid",
          note="Known divergence: A and B collide only when Prod holds, which depends on a parameter. The validator "
               "warns; cfn-lint reports E3019.")
+    case("identifier-number-string", logs(
+        A={"Properties": {"LogGroupName": 9007199254740993}},
+        B={"Properties": {"LogGroupName": "9007199254740993"}}), "invalid",
+        note="A number matches the string with the same digits, as cfn-lint compares it.")
+    case("identifier-large-integers", logs(
+        A={"Properties": {"LogGroupName": 9007199254740992}},
+        B={"Properties": {"LogGroupName": 9007199254740993}}), "valid",
+        note="Numbers keep every digit, so integers beyond float64 precision stay distinct.")
+    case("identifier-number-spelling", logs(
+        A={"Properties": {"LogGroupName": 1}},
+        B={"Properties": {"LogGroupName": 1.0}}), "valid", "invalid",
+        note="Known divergence: the validator compares numbers as written, so 1 and 1.0 differ. cfn-lint compares "
+             "two numbers by value and reports E3019.")
     same = {"Properties": {"LogGroupName": {"Fn::Sub": "${AWS::StackName}-app"}}}
     case("identifier-intrinsic", logs(A=same, B=same), "valid", "invalid",
          note="Known divergence: the validator compares only literal identifiers and leaves Fn::Sub unresolved. "

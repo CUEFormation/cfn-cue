@@ -1,6 +1,7 @@
 package semantic
 
 import (
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -48,7 +49,7 @@ func (c *checker) duplicateIdentifiers(template map[string]any) {
 		if r.Condition != "" {
 			guards = []Guard{{r.Condition, true}}
 		}
-		found := identities(raw["Properties"], ids, guards)
+		found, _ := identities(raw["Properties"], ids, guards, maxIdentities)
 		for i := range found {
 			found[i].resource = name
 		}
@@ -65,12 +66,14 @@ func (c *checker) duplicateIdentifiers(template map[string]any) {
 // duplicate whatever Prod's value.
 func (c *checker) comparePairs(typ string, ids []string, list []identity) {
 	type pair struct{ first, second string }
-	type match struct {
-		values       []string
-		alternatives [][]Guard
+	// alternative is one value both resources may have, and the guards under
+	// which they both have it.
+	type alternative struct {
+		values []string
+		guards []Guard
 	}
 	var order []pair
-	matches := map[pair]*match{}
+	matches := map[pair][]alternative{}
 	seen := map[string][]identity{}
 	for _, b := range list {
 		key := strings.Join(b.values, "\x00")
@@ -79,105 +82,132 @@ func (c *checker) comparePairs(typ string, ids []string, list []identity) {
 				continue
 			}
 			p := pair{a.resource, b.resource}
-			m := matches[p]
-			if m == nil {
-				m = &match{values: b.values}
-				matches[p] = m
+			if matches[p] == nil {
 				order = append(order, p)
 			}
-			m.alternatives = append(m.alternatives, append(a.guards[:len(a.guards):len(a.guards)], b.guards...))
+			matches[p] = append(matches[p], alternative{b.values, mergeGuards(a.guards, b.guards)})
 		}
 		seen[key] = append(seen[key], b)
+	}
+	format := func(values []string) string {
+		parts := make([]string, len(ids))
+		for i, id := range ids {
+			parts[i] = id + "=" + strconv.Quote(values[i])
+		}
+		return strings.Join(parts, ", ")
 	}
 	failed := map[string]bool{}
 	for _, p := range order {
 		if failed[p.second] {
 			continue
 		}
-		m := matches[p]
-		fs := make([]*formula, len(m.alternatives))
-		for i, guards := range m.alternatives {
-			fs[i] = c.m.Conditions.guards(guards)
+		// Only alternatives that can occur are named in the message.
+		var possible []alternative
+		var fs []*formula
+		for _, alt := range matches[p] {
+			f := c.m.Conditions.guards(alt.guards)
+			if c.m.Conditions.classify(f) != Never {
+				possible = append(possible, alt)
+				fs = append(fs, f)
+			}
+		}
+		if len(possible) == 0 {
+			continue
 		}
 		path := []string{"Resources", p.second, "Properties"}
 		if len(ids) == 1 {
 			path = append(path, ids[0])
 		}
-		parts := make([]string, len(ids))
-		for i, id := range ids {
-			parts[i] = id + "=" + strconv.Quote(m.values[i])
-		}
-		value := strings.Join(parts, ", ")
-		switch c.m.Conditions.classify(or(fs...)) {
-		case Never:
-		case Always:
-			failed[p.second] = true
-			c.report("duplicate-identifier", Error, path, nil,
-				"%s primary identifier %s is also set by %s; the second resource fails to create", typ, value, p.first)
-		default:
-			var guards []Guard
-			for _, g := range m.alternatives {
-				if c.m.Conditions.Classify(g) != Never {
-					guards = g
-					break
+		if c.m.Conditions.classify(or(fs...)) == Always {
+			// The alternatives may together cover every case with different
+			// values, so each distinct value is named.
+			var values []string
+			named := map[string]bool{}
+			for _, alt := range possible {
+				if v := format(alt.values); !named[v] {
+					named[v] = true
+					values = append(values, v)
 				}
 			}
-			c.report("duplicate-identifier", Warning, path, guards,
-				"%s primary identifier %s is also set by %s when both exist", typ, value, p.first)
+			failed[p.second] = true
+			c.report("duplicate-identifier", Error, path, nil,
+				"%s primary identifier %s is also set by %s; the second resource fails to create", typ, strings.Join(values, " or "), p.first)
+			continue
 		}
+		c.report("duplicate-identifier", Warning, path, possible[0].guards,
+			"%s primary identifier %s is also set by %s when both exist", typ, format(possible[0].values), p.first)
 	}
 }
 
 // identities lists the literal identifiers a resource's Properties may
-// produce. Fn::If around Properties or around an identifier value branches,
-// each branch guarded by its condition. A resource with more than
-// maxIdentities alternatives is not compared, so no duplicate is reported
-// that was not found.
-func identities(properties any, ids []string, guards []Guard) []identity {
-	if name, then, otherwise, ok := fnIf(properties); ok {
-		out := append(identities(then, ids, appendGuard(guards, Guard{name, true})),
-			identities(otherwise, ids, appendGuard(guards, Guard{name, false}))...)
-		if len(out) > maxIdentities {
-			return nil
+// produce, at most max of them; ok is false when there are more. Fn::If
+// around Properties or around an identifier value branches, each branch
+// guarded by its condition. Expansion stops as soon as the bound is passed,
+// and the caller then compares none of the resource's identifiers, so no
+// duplicate is reported that was not found.
+func identities(properties any, ids []string, guards []Guard, max int) (out []identity, ok bool) {
+	if name, then, otherwise, isIf := fnIf(properties); isIf {
+		a, ok := identities(then, ids, appendGuard(guards, Guard{name, true}), max)
+		if !ok {
+			return nil, false
 		}
-		return out
+		b, ok := identities(otherwise, ids, appendGuard(guards, Guard{name, false}), max-len(a))
+		if !ok {
+			return nil, false
+		}
+		return append(a, b...), true
 	}
 	m, _ := properties.(map[string]any)
 	if m == nil {
-		return nil
+		return nil, true
 	}
+	// The identifiers are the cartesian product of each part's values.
 	partial := []identity{{guards: guards}}
 	for _, id := range ids {
 		var next []identity
 		for _, p := range partial {
-			for _, v := range identifierValues(m[id], p.guards) {
+			values, ok := identifierValues(m[id], p.guards, max-len(next))
+			if !ok {
+				return nil, false
+			}
+			for _, v := range values {
 				next = append(next, identity{values: append(p.values[:len(p.values):len(p.values)], v.values...), guards: v.guards})
 			}
 		}
-		if len(next) > maxIdentities {
-			return nil
-		}
 		partial = next
 	}
-	return partial
+	return partial, true
 }
 
-// identifierValues lists the literal values one identifier property may take.
-// A missing value, AWS::NoValue and other intrinsics produce none.
-func identifierValues(v any, guards []Guard) []identity {
-	if name, then, otherwise, ok := fnIf(v); ok {
-		return append(identifierValues(then, appendGuard(guards, Guard{name, true})),
-			identifierValues(otherwise, appendGuard(guards, Guard{name, false}))...)
+// identifierValues lists the literal values one identifier property may take,
+// at most max of them; ok is false when there are more. A missing value,
+// AWS::NoValue and other intrinsics produce none.
+func identifierValues(v any, guards []Guard, max int) (out []identity, ok bool) {
+	if name, then, otherwise, isIf := fnIf(v); isIf {
+		a, ok := identifierValues(then, appendGuard(guards, Guard{name, true}), max)
+		if !ok {
+			return nil, false
+		}
+		b, ok := identifierValues(otherwise, appendGuard(guards, Guard{name, false}), max-len(a))
+		if !ok {
+			return nil, false
+		}
+		return append(a, b...), true
 	}
-	s, ok := identifierLiteral(v)
-	if !ok {
-		return nil
+	s, isLiteral := identifierLiteral(v)
+	if !isLiteral {
+		return nil, true
 	}
-	return []identity{{values: []string{s}, guards: guards}}
+	if max < 1 {
+		return nil, false
+	}
+	return []identity{{values: []string{s}, guards: guards}}, true
 }
 
 // identifierLiteral follows cfn-lint's equality: scalars compare as strings,
-// and "true" and "false" compare with booleans in any letter case.
+// and "true" and "false" compare with booleans in any letter case. Numbers
+// compare as written, so 1 matches "1" but not 1.0, and large integers keep
+// every digit; the template must be decoded with json.Decoder.UseNumber.
 func identifierLiteral(v any) (string, bool) {
 	if _, ok := v.(map[string]any); ok {
 		return "", false
@@ -203,6 +233,17 @@ func fnIf(v any) (name string, then, otherwise any, ok bool) {
 	}
 	name, ok = args[0].(string)
 	return name, args[1], args[2], ok
+}
+
+// mergeGuards returns the guards of a followed by those of b not already in a.
+func mergeGuards(a, b []Guard) []Guard {
+	out := a[:len(a):len(a)]
+	for _, g := range b {
+		if !slices.Contains(a, g) {
+			out = append(out, g)
+		}
+	}
+	return out
 }
 
 func appendGuard(guards []Guard, g Guard) []Guard {

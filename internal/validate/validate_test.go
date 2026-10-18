@@ -266,6 +266,7 @@ func TestSemanticChecks(t *testing.T) {
 		bothBad      = `{"Resources":{"Thing":{"Type":"AWS::Test::Thing","Properties":{"Name":"bad","Names":[{"Ref":"Missing"}]}}}}`
 		attribute    = `{"Resources":{"Thing":{"Type":"AWS::Test::Thing","Properties":{"Name":"one"}},"Other":{"Type":"AWS::Test::Thing","Properties":{"Name":"two","Names":[{"Fn::GetAtt":["Thing","%s"]}]}}}}`
 		duplicate    = `{"Resources":{"A":{"Type":"AWS::Test::Thing","Properties":{"Name":"one"}},"B":{"Type":"AWS::Test::Thing","Properties":{"Name":"one"}}}}`
+		largeNumbers = `{"Resources":{"A":{"Type":"AWS::Test::Thing","Properties":{"Name":9007199254740992}},"B":{"Type":"AWS::Test::Thing","Properties":{"Name":9007199254740993}}}}`
 		conditional  = `{"Parameters":{"Env":{"Type":"String"}},"Conditions":{"Prod":{"Fn::Equals":[{"Ref":"Env"},"prod"]}},"Resources":{"A":{"Type":"AWS::Test::Thing","Properties":{"Name":{"Fn::If":["Prod",{"Ref":"B"},"one"]}}},"B":{"Type":"AWS::Test::Thing","DependsOn":"A","Properties":{"Name":"two"}}}}`
 	)
 	for _, tc := range []struct{ data, checks, status, phase string }{
@@ -284,6 +285,8 @@ func TestSemanticChecks(t *testing.T) {
 		// The manifest's primary identifier reaches the semantic pass.
 		{duplicate, ChecksStructural, "valid", "evaluate"},
 		{duplicate, ChecksAll, "invalid", "semantic"},
+		// Numbers keep every digit, so these names differ.
+		{largeNumbers, ChecksSemantic, "valid", "semantic"},
 		{undefinedRef, "everything", "error", "input"},
 	} {
 		result := Check([]byte(tc.data), Options{Schemas: dir, Region: "us-east-1", Checks: tc.checks})

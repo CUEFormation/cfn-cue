@@ -329,6 +329,36 @@
     "lint": "invalid",
     "note": "Known divergence: the validator compares only literal identifiers and leaves Fn::Sub unresolved. cfn-lint compares the expressions and reports E3019."
   },
+  "semantic-identifier-large-integers:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Numbers keep every digit, so integers beyond float64 precision stay distinct."
+  },
+  "semantic-identifier-large-integers:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Numbers keep every digit, so integers beyond float64 precision stay distinct."
+  },
+  "semantic-identifier-number-spelling:us-east-1": {
+    "cue": "valid",
+    "lint": "invalid",
+    "note": "Known divergence: the validator compares numbers as written, so 1 and 1.0 differ. cfn-lint compares two numbers by value and reports E3019."
+  },
+  "semantic-identifier-number-spelling:us-west-2": {
+    "cue": "valid",
+    "lint": "invalid",
+    "note": "Known divergence: the validator compares numbers as written, so 1 and 1.0 differ. cfn-lint compares two numbers by value and reports E3019."
+  },
+  "semantic-identifier-number-string:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "A number matches the string with the same digits, as cfn-lint compares it."
+  },
+  "semantic-identifier-number-string:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "A number matches the string with the same digits, as cfn-lint compares it."
+  },
   "semantic-identifier-read-only:us-east-1": {
     "cue": "valid",
     "lint": "valid",

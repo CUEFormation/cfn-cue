@@ -144,8 +144,11 @@ func Check(data []byte, opt Options) (result Result) {
 			return fail("unsupported", "generate with -language-extensions to check this template")
 		}
 	}
+	// Numbers are kept as written so semantic checks compare them exactly.
 	var decoded any
-	_ = json.Unmarshal(data, &decoded)
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.UseNumber()
+	_ = decoder.Decode(&decoded)
 	if name := unexpanded(decoded); name != "" {
 		return fail("unsupported", name+" requires preprocessing before schema validation")
 	}
