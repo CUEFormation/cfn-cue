@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strings"
 
+	"github.com/cueformation/cfn-cue/internal/bundle"
 	"github.com/cueformation/cfn-cue/internal/cfn"
 
 	"cuelang.org/go/cue/ast"
@@ -29,39 +29,10 @@ type Options struct {
 	// cfn-lint's extension schemas (see extensions.go).
 	NoCfnLintRules bool
 }
-type SchemaInfo struct {
-	Type               string `json:"type"`
-	SHA256             string `json:"sha256"`
-	PropertiesRequired bool   `json:"propertiesRequired"`
-	// Attributes lists the Fn::GetAtt names (see Attributes). Manifests from
-	// earlier generators omit it, which a reader must treat as unknown.
-	Attributes []string `json:"attributes"`
-	// PrimaryIdentifier lists the writable top-level properties that make
-	// up the resource's primary identifier (see PrimaryIdentifier). It is
-	// omitted when the template cannot set the whole identifier.
-	PrimaryIdentifier []string `json:"primaryIdentifier,omitempty"`
-}
-type Manifest struct {
-	Generator          string                       `json:"generator"`
-	Source             string                       `json:"source"`
-	SourceSHA256       string                       `json:"sourceSHA256"`
-	Module             string                       `json:"module"`
-	LanguageExtensions bool                         `json:"languageExtensions"`
-	IncludeSAM         bool                         `json:"includeSAM"`
-	IAMPolicies        bool                         `json:"iamPolicies"`
-	CfnLintRules       bool                         `json:"cfnLintRules"`
-	Regions            map[string]map[string]string `json:"regions"`
-	Schemas            map[string]SchemaInfo        `json:"schemas"`
-	Diagnostics        []Diagnostic                 `json:"diagnostics"`
-	ValidationNotes    []string                     `json:"validationNotes"`
-}
-
-var safeHash = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
-var regionName = regexp.MustCompile(`^[a-z][a-z0-9]*(?:-[a-z0-9]+)+-[0-9]+$`)
 
 // Generate writes to a staging directory and publishes only after every file
 // formats and reparses. Existing output must carry our manifest marker.
-func Generate(source *Source, opt Options) (*Manifest, error) {
+func Generate(source *Source, opt Options) (*bundle.Manifest, error) {
 	if opt.Out == "" {
 		return nil, fmt.Errorf("output directory is required")
 	}
@@ -75,17 +46,18 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 		if !st.IsDir() {
 			return nil, fmt.Errorf("output exists and is not a directory")
 		}
-		b, e := os.ReadFile(filepath.Join(opt.Out, "manifest.json"))
-		var old Manifest
-		if e != nil || json.Unmarshal(b, &old) != nil || old.Generator != "cfn-cue/v2" {
+		b, e := os.ReadFile(filepath.Join(opt.Out, bundle.ManifestFile))
+		var old bundle.Manifest
+		if e != nil || json.Unmarshal(b, &old) != nil || old.Generator != bundle.Generator {
 			return nil, fmt.Errorf("refusing to replace an unmanaged directory: %s", opt.Out)
 		}
 	} else if !os.IsNotExist(e) {
 		return nil, e
 	}
-	m := &Manifest{Generator: "cfn-cue/v2", Source: source.Label, SourceSHA256: source.SHA256, Module: opt.Module, LanguageExtensions: opt.LanguageExtensions, IncludeSAM: opt.IncludeSAM, IAMPolicies: !opt.NoIAMPolicies, CfnLintRules: !opt.NoCfnLintRules, Regions: map[string]map[string]string{}, Schemas: map[string]SchemaInfo{}, Diagnostics: []Diagnostic{}}
+	m := &bundle.Manifest{Generator: bundle.Generator, Source: source.Label, SourceSHA256: source.SHA256, Module: opt.Module, LanguageExtensions: opt.LanguageExtensions, IncludeSAM: opt.IncludeSAM, IAMPolicies: !opt.NoIAMPolicies, CfnLintRules: !opt.NoCfnLintRules, Regions: map[string]map[string]string{}, Schemas: map[string]bundle.SchemaInfo{}, Diagnostics: []bundle.Diagnostic{}}
 	m.ValidationNotes = []string{
 		"Each region has a full resource package and a separate types package. The types package checks template structure and regional type names, leaving resource Properties unconstrained.",
+		"Each resource type has one package, <Org>/<Service>/<Name>, which re-exports #Resource and the definitions of its resources/ schema. These packages do not check regional availability; the regional #Template and cfn-cue-validate do.",
 		"The full region #Template selects each resource's schema by Type. Loading a complete region imports every resource package; -resources modules load faster.",
 		"Intrinsic schemas validate argument shapes and result type classes. Function-specific nesting permissions and context permissions require cfn-lint.",
 		"Ref, GetAtt, Sub, mapping lookups, condition evaluation, macro expansion, and property-specific constraints on intrinsic results require semantic validation.",
@@ -117,7 +89,7 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 		if region == "sam" {
 			continue
 		}
-		if !regionName.MatchString(region) {
+		if !bundle.ValidRegion(region) {
 			return nil, fmt.Errorf("unexpected provider region %q", region)
 		}
 		if len(opt.Regions) > 0 && !includes(opt.Regions, region) {
@@ -132,7 +104,7 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 			mapping[typ] = hash
 		}
 		for typ, hash := range mapping {
-			if !safeHash.MatchString(hash) {
+			if !bundle.ValidSchemaID(hash) {
 				return nil, fmt.Errorf("unsafe schema identifier %q", hash)
 			}
 			if len(opt.Resources) > 0 && !includes(opt.Resources, typ) {
@@ -151,11 +123,16 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 	if len(m.Regions) == 0 {
 		return nil, fmt.Errorf("source contains no regional providers")
 	}
-	available := map[string]bool{}
+	// Per-type packages are shared by every region, so each type must use one
+	// schema everywhere.
+	typeHashes := map[string]string{}
 	hashTypes := map[string]string{}
-	for _, mapping := range m.Regions {
-		for typ, hash := range mapping {
-			available[typ] = true
+	for _, region := range sortedRegionKeys(m.Regions) {
+		for typ, hash := range m.Regions[region] {
+			if prev, ok := typeHashes[typ]; ok && prev != hash {
+				return nil, fmt.Errorf("resource type %s uses schema %s in %s but %s elsewhere; per-type packages need one schema per type", typ, hash, region, prev)
+			}
+			typeHashes[typ] = hash
 			if prev, ok := hashTypes[hash]; ok && prev != typ {
 				return nil, fmt.Errorf("schema %s maps to multiple resource types", hash)
 			}
@@ -163,9 +140,12 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 		}
 	}
 	for _, typ := range opt.Resources {
-		if !available[typ] {
+		if _, ok := typeHashes[typ]; !ok {
 			return nil, fmt.Errorf("requested resource type unavailable: %s", typ)
 		}
+	}
+	if e := checkTypePaths(sortedStringKeys(typeHashes)); e != nil {
+		return nil, e
 	}
 	parent := filepath.Dir(opt.Out)
 	if e := os.MkdirAll(parent, 0755); e != nil {
@@ -226,14 +206,14 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 			return nil, fmt.Errorf("schema %s typeName %q does not match %q", hash, typ, hashTypes[hash])
 		}
 		sum := sha256.Sum256(b)
-		m.Schemas[hash] = SchemaInfo{typ, hex.EncodeToString(sum[:]), len(asArray(root["required"])) > 0, Attributes(root), PrimaryIdentifier(root)}
+		m.Schemas[hash] = bundle.SchemaInfo{Type: typ, SHA256: hex.EncodeToString(sum[:]), PropertiesRequired: len(asArray(root["required"])) > 0, Attributes: Attributes(root), PrimaryIdentifier: PrimaryIdentifier(root)}
 		c := &converter{module: opt.Module, resource: typ, extensions: opt.LanguageExtensions, iam: !opt.NoIAMPolicies, cfnLintRules: !opt.NoCfnLintRules}
 		f, e := c.extract(root, false)
 		if e != nil {
 			return nil, fmt.Errorf("literal %s: %w", typ, e)
 		}
 		stripRootEmbed(f)
-		if e = writeAST("literal/h"+hash+"/schema.cue", f); e != nil {
+		if e = writeAST(bundle.LiteralDir(hash)+"/schema.cue", f); e != nil {
 			return nil, e
 		}
 		f, e = c.extract(root, true)
@@ -265,7 +245,10 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 		}); e != nil {
 			return nil, fmt.Errorf("template %s: %w", typ, e)
 		}
-		if e = writeAST("resources/h"+hash+"/schema.cue", f); e != nil {
+		if e = writeAST(bundle.ResourceDir(hash)+"/schema.cue", f); e != nil {
+			return nil, e
+		}
+		if e = writeAST(bundle.TypeDir(typ)+"/resource.cue", TypePackage(opt.Module, typ, hash, definitions(f))); e != nil {
 			return nil, e
 		}
 		m.Diagnostics = append(m.Diagnostics, c.diagnostics...)
@@ -275,10 +258,19 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 		if err != nil {
 			return nil, fmt.Errorf("region %s: %w", region, err)
 		}
-		if e = writeAST("regions/"+region+"/region.cue", regional); e != nil {
+		dir := bundle.RegionDir(region)
+		if e = writeAST(dir+"/region.cue", regional); e != nil {
 			return nil, e
 		}
-		if e = writeAST("regions/"+region+"/types/region.cue", RegionTypes(opt.Module, m.Regions[region], opt.LanguageExtensions)); e != nil {
+		if e = writeAST(dir+"/types/region.cue", RegionTypes(opt.Module, m.Regions[region], opt.LanguageExtensions)); e != nil {
+			return nil, e
+		}
+		index := bundle.RegionIndex{Generator: m.Generator, Module: m.Module, Region: region, LanguageExtensions: m.LanguageExtensions, Resources: m.Regions[region]}
+		b, e := json.MarshalIndent(index, "", "  ")
+		if e != nil {
+			return nil, e
+		}
+		if e = write(bundle.RegionIndexFile(region), append(b, '\n')); e != nil {
 			return nil, e
 		}
 	}
@@ -290,7 +282,7 @@ func Generate(source *Source, opt Options) (*Manifest, error) {
 	if e != nil {
 		return nil, e
 	}
-	if e = write("manifest.json", append(b, '\n')); e != nil {
+	if e = write(bundle.ManifestFile, append(b, '\n')); e != nil {
 		return nil, e
 	}
 	// Keep rollback possible until the fully generated directory is in place.
@@ -402,13 +394,13 @@ func sortedRegionKeys(m map[string]map[string]string) []string {
 	sort.Strings(a)
 	return a
 }
-func dedupDiagnostics(ds []Diagnostic) []Diagnostic {
+func dedupDiagnostics(ds []bundle.Diagnostic) []bundle.Diagnostic {
 	sort.Slice(ds, func(i, j int) bool {
 		a, _ := json.Marshal(ds[i])
 		b, _ := json.Marshal(ds[j])
 		return string(a) < string(b)
 	})
-	out := []Diagnostic{}
+	out := []bundle.Diagnostic{}
 	for _, d := range ds {
 		if len(out) == 0 || d != out[len(out)-1] {
 			out = append(out, d)

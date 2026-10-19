@@ -22,9 +22,9 @@ import (
 	"cuelang.org/go/cue/load"
 	"cuelang.org/go/cue/token"
 	cuejson "cuelang.org/go/encoding/json"
+	"github.com/cueformation/cfn-cue/internal/bundle"
 	"github.com/cueformation/cfn-cue/internal/cfn"
 	"github.com/cueformation/cfn-cue/internal/conditions"
-	"github.com/cueformation/cfn-cue/internal/generate"
 	"github.com/cueformation/cfn-cue/internal/semantic"
 )
 
@@ -59,7 +59,6 @@ type Result struct {
 }
 
 var logicalID = regexp.MustCompile(`^[A-Za-z0-9]{1,255}$`)
-var schemaID = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
 
 func truncate(message string) string {
 	if len(message) > 8000 {
@@ -101,18 +100,24 @@ func Check(data []byte, opt Options) (result Result) {
 	if err != nil {
 		return fail("error", err.Error())
 	}
-	b, err := os.ReadFile(filepath.Join(root, "manifest.json"))
-	if err != nil {
-		return fail("error", err.Error())
-	}
-	var manifest generate.Manifest
-	if err := json.Unmarshal(b, &manifest); err != nil || manifest.Generator != "cfn-cue/v2" {
-		return fail("error", "invalid generated manifest")
-	}
-	mapping, ok := manifest.Regions[opt.Region]
-	if !ok {
+	// The region index holds only what this check needs; the full manifest
+	// takes longer to decode than most templates take to validate.
+	index, err := bundle.ReadRegionIndex(root, opt.Region)
+	if errors.Is(err, os.ErrNotExist) {
+		if _, e := os.Stat(filepath.Join(root, bundle.ManifestFile)); e != nil {
+			return fail("error", "not a generated bundle: "+e.Error())
+		}
+		if bundle.ValidRegion(opt.Region) {
+			if _, e := os.Stat(filepath.Join(root, filepath.FromSlash(bundle.RegionDir(opt.Region)))); e == nil {
+				return fail("error", "generated bundle has no index for "+opt.Region+"; regenerate it")
+			}
+		}
 		return fail("unsupported", "region absent from generated bundle: "+opt.Region)
 	}
+	if err != nil {
+		return fail("error", "invalid generated region index: "+err.Error())
+	}
+	mapping := index.Resources
 	var transforms []string
 	if raw, ok := template["Transform"]; ok {
 		// Unmarshal into an interface first: encoding/json accepts null for
@@ -140,7 +145,7 @@ func Check(data []byte, opt Options) (result Result) {
 		if transform != "AWS::LanguageExtensions" {
 			return fail("unsupported", "macro expansion is not implemented: "+transform)
 		}
-		if !manifest.LanguageExtensions {
+		if !index.LanguageExtensions {
 			return fail("unsupported", "generate with -language-extensions to check this template")
 		}
 	}
@@ -149,19 +154,31 @@ func Check(data []byte, opt Options) (result Result) {
 	decoder := json.NewDecoder(bytes.NewReader(data))
 	decoder.UseNumber()
 	_ = decoder.Decode(&decoded)
-	if name := unexpanded(decoded); name != "" {
-		return fail("unsupported", name+" requires preprocessing before schema validation")
-	}
 	var resources map[string]json.RawMessage
 	if err := json.Unmarshal(template["Resources"], &resources); err != nil || len(resources) == 0 {
-		return fail("invalid", "Resources must be a nonempty object")
+		resources = nil
 	}
+	// Single-resource mode ignores preprocessing needed only by other
+	// resources or template sections.
+	scope := decoded
 	if opt.Resource != "" {
+		if resources == nil {
+			return fail("invalid", "Resources must be a nonempty object")
+		}
 		resource, ok := resources[opt.Resource]
 		if !ok {
 			return fail("invalid", "resource not found: "+opt.Resource)
 		}
 		resources = map[string]json.RawMessage{opt.Resource: resource}
+		var value any
+		_ = json.Unmarshal(resource, &value)
+		scope = map[string]any{opt.Resource: value}
+	}
+	if name := unexpanded(scope); name != "" {
+		return fail("unsupported", name+" requires preprocessing before schema validation")
+	}
+	if resources == nil {
+		return fail("invalid", "Resources must be a nonempty object")
 	}
 	// Resources are classified in logical-ID order and every problem is kept, so
 	// the status and message never depend on map iteration. See classify.
@@ -199,9 +216,6 @@ func Check(data []byte, opt Options) (result Result) {
 			unsupported = append(unsupported, fmt.Sprintf("resource %s: %s is absent from %s", name, resource.Type, opt.Region))
 			continue
 		}
-		if !schemaID.MatchString(hash) {
-			return fail("error", "unsafe schema identifier in manifest")
-		}
 		names = append(names, name)
 		types[schemaType] = hash
 		schemaTypes[name] = schemaType
@@ -215,7 +229,17 @@ func Check(data []byte, opt Options) (result Result) {
 	// invalid results and take precedence over unsupported ones (see classify).
 	var semanticErrors []string
 	if checks != ChecksStructural {
-		semanticErrors = checkSemantic(decoded, manifest, mapping, &result)
+		// Only semantic checks need GetAtt names and primary identifiers, which
+		// are in the full manifest rather than the region index.
+		b, err := os.ReadFile(filepath.Join(root, bundle.ManifestFile))
+		if err != nil {
+			return fail("error", err.Error())
+		}
+		var manifest bundle.Manifest
+		if err := json.Unmarshal(b, &manifest); err != nil || manifest.Generator != bundle.Generator {
+			return fail("error", "invalid generated manifest")
+		}
+		semanticErrors = checkSemantic(decoded, manifest.Schemas, mapping, &result)
 	}
 	if len(invalid) > 0 {
 		return fail("invalid", classify(withSemantic(strings.Join(invalid, "\n"), semanticErrors), unsupported))
@@ -236,7 +260,7 @@ func Check(data []byte, opt Options) (result Result) {
 	f := &ast.File{Decls: []ast.Decl{&ast.Package{Name: ast.NewIdent("validation")}}}
 	imports := &ast.ImportDecl{}
 	if opt.Resource == "" {
-		imports.Specs = append(imports.Specs, ast.NewImport(ast.NewIdent("base"), manifest.Module+"/template:template"))
+		imports.Specs = append(imports.Specs, ast.NewImport(ast.NewIdent("base"), index.Module+"/template:template"))
 	}
 	importTypes := make([]string, 0, len(types))
 	for typ := range types {
@@ -249,7 +273,7 @@ func Check(data []byte, opt Options) (result Result) {
 	}
 	for _, typ := range importTypes {
 		alias := aliases[typ]
-		imports.Specs = append(imports.Specs, ast.NewImport(ast.NewIdent(alias), manifest.Module+"/resources/h"+types[typ]+":schema"))
+		imports.Specs = append(imports.Specs, ast.NewImport(ast.NewIdent(alias), bundle.ResourceImport(index.Module, types[typ])))
 	}
 	f.Decls = append(f.Decls, imports)
 	selected := &ast.StructLit{}
@@ -455,18 +479,18 @@ func withSemantic(message string, semanticErrors []string) string {
 // GetAtt names and primary identifiers come from the manifest; a manifest
 // without them leaves attribute names and identifiers unchecked rather than
 // rejecting every GetAtt.
-func checkSemantic(decoded any, manifest generate.Manifest, mapping map[string]string, result *Result) []string {
+func checkSemantic(decoded any, schemas map[string]bundle.SchemaInfo, mapping map[string]string, result *Result) []string {
 	template, _ := decoded.(map[string]any)
 	diagnostics := semantic.Check(template, semantic.Options{Attributes: func(typ string) ([]string, bool) {
 		hash, ok := mapping[cfn.SchemaType(typ)]
 		if !ok {
 			return nil, false
 		}
-		names := manifest.Schemas[hash].Attributes
+		names := schemas[hash].Attributes
 		return names, names != nil
 	}, PrimaryIdentifier: func(typ string) []string {
 		if hash, ok := mapping[typ]; ok {
-			return manifest.Schemas[hash].PrimaryIdentifier
+			return schemas[hash].PrimaryIdentifier
 		}
 		return nil
 	}})

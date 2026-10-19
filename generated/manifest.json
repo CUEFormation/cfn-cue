@@ -84622,6 +84622,7 @@
   ],
   "validationNotes": [
     "Each region has a full resource package and a separate types package. The types package checks template structure and regional type names, leaving resource Properties unconstrained.",
+    "Each resource type has one package, \u003cOrg\u003e/\u003cService\u003e/\u003cName\u003e, which re-exports #Resource and the definitions of its resources/ schema. These packages do not check regional availability; the regional #Template and cfn-cue-validate do.",
     "The full region #Template selects each resource's schema by Type. Loading a complete region imports every resource package; -resources modules load faster.",
     "Intrinsic schemas validate argument shapes and result type classes. Function-specific nesting permissions and context permissions require cfn-lint.",
     "Ref, GetAtt, Sub, mapping lookups, condition evaluation, macro expansion, and property-specific constraints on intrinsic results require semantic validation.",

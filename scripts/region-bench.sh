@@ -5,8 +5,9 @@
 #   scripts/region-bench.sh                  the current generator
 #   OLD_REF=<git ref> scripts/region-bench.sh  also the generator at that ref
 #
-# For example, OLD_REF=671dded measures the #Resource union that preceded
-# selection by Type, and OLD_REF=f01c05f the optional-field intrinsics.
+# For example, OLD_REF=671dded measures the #Template that matched each
+# resource against a union of every resource schema, before selection by
+# Type, and OLD_REF=f01c05f the optional-field intrinsics.
 #
 # TYPES lists region sizes (default "6 50 200 800 1839"); SIZES lists
 # template sizes (default 1,10,50); RUN_TIMEOUT caps each run in seconds.

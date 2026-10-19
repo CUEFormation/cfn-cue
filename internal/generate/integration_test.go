@@ -8,6 +8,8 @@ import (
 	"testing"
 
 	"cuelang.org/go/cue"
+
+	"github.com/cueformation/cfn-cue/internal/bundle"
 )
 
 // Run after generating a real bundle with CFN_CUE_INTEGRATION=1 go test
@@ -24,7 +26,7 @@ func TestCurrentResources(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	var m Manifest
+	var m bundle.Manifest
 	if e = json.Unmarshal(b, &m); e != nil {
 		t.Fatal(e)
 	}
@@ -58,4 +60,10 @@ func TestCurrentResources(t *testing.T) {
 	validate(t, s, bucket(`{"Fn::If":["C",{"Fn::If":["D",{}]},{}]}`), false)
 	validate(t, s, bucket(`{"Fn::If":["C",{"Fn::If":["D",{},{}],BucketName:"x"},{}]}`), false)
 	validate(t, s, bucket(`{"Fn::If":["C",{"Fn::Bogus":["D",{},{}]},{}]}`), false)
+	// The per-type package re-exports the same schema without loading a region.
+	perType := build(t, checkDir, "./AWS/S3/Bucket")
+	r := perType.LookupPath(cue.MakePath(cue.Def("Resource")))
+	validate(t, r, `{Type:"AWS::S3::Bucket",Properties:{BucketName:{"Fn::Sub":"${Name}-bucket"},Tags:[{Key:"Name",Value:{Ref:"Name"}}]}}`, true)
+	validate(t, r, `{Type:"AWS::S3::Bucket",Properties:{AccessControl:"DefinitelyNotAnACL"}}`, false)
+	validate(t, perType.LookupPath(cue.MakePath(cue.Def("Tag"))), `{Key:"Name",Value:"v"}`, true)
 }

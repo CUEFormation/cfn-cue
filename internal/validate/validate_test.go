@@ -11,6 +11,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/cueformation/cfn-cue/internal/bundle"
 	"github.com/cueformation/cfn-cue/internal/generate"
 )
 
@@ -45,6 +46,22 @@ func fixture(t *testing.T) string {
 		t.Fatal(err)
 	}
 	return out
+}
+
+func editIndex(t *testing.T, dir string, edit func(*bundle.RegionIndex)) {
+	t.Helper()
+	index, err := bundle.ReadRegionIndex(dir, "us-east-1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	edit(index)
+	data, err := json.Marshal(index)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, bundle.RegionIndexFile("us-east-1")), data, 0644); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestConcreteValidation(t *testing.T) {
@@ -117,17 +134,9 @@ func TestCustomResourceValidation(t *testing.T) {
 	if result.Status != "valid" || !reflect.DeepEqual(result.ResourceTypes, []string{"AWS::CloudFormation::CustomResource", "Custom::Alpha", "Custom::Beta"}) {
 		t.Fatal(result)
 	}
-	manifestPath := filepath.Join(dir, "manifest.json")
-	bytes, _ := os.ReadFile(manifestPath)
-	var manifest generate.Manifest
-	if err := json.Unmarshal(bytes, &manifest); err != nil {
-		t.Fatal(err)
-	}
-	delete(manifest.Regions["us-east-1"], "AWS::CloudFormation::CustomResource")
-	bytes, _ = json.Marshal(manifest)
-	if err := os.WriteFile(manifestPath, bytes, 0644); err != nil {
-		t.Fatal(err)
-	}
+	editIndex(t, dir, func(index *bundle.RegionIndex) {
+		delete(index.Resources, "AWS::CloudFormation::CustomResource")
+	})
 	if result := Check(data, Options{Schemas: dir, Region: "us-east-1"}); result.Status != "unsupported" {
 		t.Fatal(result)
 	}
@@ -172,23 +181,9 @@ func TestResourceIsolation(t *testing.T) {
 
 func TestResourceAliasCollision(t *testing.T) {
 	dir := fixture(t)
-	path := filepath.Join(dir, "manifest.json")
-	data, err := os.ReadFile(path)
-	if err != nil {
-		t.Fatal(err)
-	}
-	var manifest generate.Manifest
-	if err := json.Unmarshal(data, &manifest); err != nil {
-		t.Fatal(err)
-	}
-	manifest.Regions["us-east-1"] = map[string]string{"AWS::Test_A::Thing": "first", "AWS::Test::A_Thing": "second"}
-	data, err = json.Marshal(manifest)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(path, data, 0644); err != nil {
-		t.Fatal(err)
-	}
+	editIndex(t, dir, func(index *bundle.RegionIndex) {
+		index.Resources = map[string]string{"AWS::Test_A::Thing": "first", "AWS::Test::A_Thing": "second"}
+	})
 	result := Check([]byte(`{"Resources":{"First":{"Type":"AWS::Test_A::Thing"},"Second":{"Type":"AWS::Test::A_Thing"}}}`), Options{Schemas: dir, Region: "us-east-1"})
 	if result.Status != "error" || result.Phase != "input" {
 		t.Fatalf("want collision detected before loading schemas: %+v", result)
@@ -196,6 +191,60 @@ func TestResourceAliasCollision(t *testing.T) {
 	for _, detail := range []string{"AWS::Test_A::Thing", "AWS::Test::A_Thing", "AWS_Test_A_Thing", "same import alias"} {
 		if !strings.Contains(result.Message, detail) {
 			t.Fatalf("collision error omits %q: %s", detail, result.Message)
+		}
+	}
+}
+
+func TestRegionIndex(t *testing.T) {
+	dir := fixture(t)
+	data := []byte(`{"Resources":{"Thing":{"Type":"AWS::Test::Thing","Properties":{"Name":"one"}}}}`)
+	// Validation reads the region index, not the full manifest.
+	if err := os.WriteFile(filepath.Join(dir, bundle.ManifestFile), []byte("not json"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if result := Check(data, Options{Schemas: dir, Region: "us-east-1"}); result.Status != "valid" {
+		t.Fatal(result)
+	}
+	for _, region := range []string{"us-west-2", "../us-east-1", ""} {
+		if result := Check(data, Options{Schemas: dir, Region: region}); result.Status != "unsupported" {
+			t.Fatalf("%q: %+v", region, result)
+		}
+	}
+	editIndex(t, dir, func(index *bundle.RegionIndex) { index.Resources["AWS::Test::Thing"] = "../thing" })
+	if result := Check(data, Options{Schemas: dir, Region: "us-east-1"}); result.Status != "error" || !strings.Contains(result.Message, "unsafe schema identifier") {
+		t.Fatal(result)
+	}
+	// An index without resources is malformed, not a region lacking the type.
+	empty := fixture(t)
+	editIndex(t, empty, func(index *bundle.RegionIndex) { index.Resources = nil })
+	if result := Check(data, Options{Schemas: empty, Region: "us-east-1"}); result.Status != "error" || !strings.Contains(result.Message, "not a cfn-cue/v2 region index") {
+		t.Fatal(result)
+	}
+	// A bundle generated before region indexes existed must be regenerated,
+	// not reported as lacking the region.
+	if err := os.Remove(filepath.Join(dir, bundle.RegionIndexFile("us-east-1"))); err != nil {
+		t.Fatal(err)
+	}
+	if result := Check(data, Options{Schemas: dir, Region: "us-east-1"}); result.Status != "error" || !strings.Contains(result.Message, "regenerate") {
+		t.Fatal(result)
+	}
+	if result := Check(data, Options{Schemas: t.TempDir(), Region: "us-east-1"}); result.Status != "error" {
+		t.Fatal(result)
+	}
+}
+
+// Preprocessing needed elsewhere in the template does not block checking one
+// resource that needs none.
+func TestResourcePreprocessingScope(t *testing.T) {
+	dir := fixture(t)
+	data := []byte(`{"Resources":{"Good":{"Type":"AWS::Test::Thing","Properties":{"Name":"one"}},` +
+		`"Other":{"Type":"AWS::Test::Thing","Properties":{"Fn::Transform":{"Name":"AWS::Include","Parameters":{"Location":"s3://bucket/key"}}}},` +
+		`"Fn::ForEach::Things":["X",["a"],{"Thing${X}":{"Type":"AWS::Test::Thing"}}]},` +
+		`"Outputs":{"O":{"Value":{"Fn::Transform":{"Name":"AWS::Include"}}}}}`)
+	for resource, want := range map[string]string{"": "unsupported", "Good": "valid", "Other": "unsupported", "Fn::ForEach::Things": "unsupported"} {
+		result := Check(data, Options{Schemas: dir, Region: "us-east-1", Resource: resource})
+		if result.Status != want {
+			t.Fatalf("resource=%q: %s want %s: %s", resource, result.Status, want, result.Message)
 		}
 	}
 }

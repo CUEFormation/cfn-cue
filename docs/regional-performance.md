@@ -3,12 +3,14 @@
 Every generator run emits both versions for every selected region. The existing
 full-resource import remains `regions/<region>:cf`; the lightweight import is
 `regions/<region>/types:types`. They are separate CUE packages: importing the
-type-name package does not load the full resource union or registry.
+type-name package does not load the full resource registry. To use one resource
+type without loading either, import its region-independent per-type package,
+such as `AWS/S3/Bucket`; see the [README](../README.md#importing-resource-types).
 
 | Definition | Full resource package | Type-name package |
 | --- | --- | --- |
 | `#Template` | Template sections, regional availability, resource properties and intrinsics | Template sections and regional availability |
-| `#Resource` | Union of complete resource schemas | Common resource attributes with a regional `Type` name |
+| `#Resource` | Absent; use `#ResourceTypes[Type]` | Common resource attributes with a regional `Type` name |
 | `#Resources` | Logical ID map; each resource is checked against `#ResourceTypes[Type]` | Logical ID map with resource envelopes |
 | `#ResourceTypes` | Map from type names to full resource definitions | Absent |
 | `#ResourceType` | Absent | Disjunction of available resource type names |
