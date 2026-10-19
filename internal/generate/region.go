@@ -10,6 +10,7 @@ import (
 
 	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/token"
+	"cuelang.org/go/mod/module"
 )
 
 func Region(module string, resources map[string]string, extensions bool) (*ast.File, error) {
@@ -107,7 +108,8 @@ func regionTemplate(f *ast.File, module string, extensions bool, resource func(a
 // and types, which CUE would otherwise merge from parent directories.
 var typeSegment = regexp.MustCompile(`^[A-Z][A-Za-z0-9_]*$`)
 
-// checkTypePaths rejects types without a per-type package path, and paths that
+// checkTypePaths rejects types without a per-type package path, paths that
+// CUE's module system rejects, such as Windows device names, and paths that
 // differ only in case from each other or from a generated root directory,
 // which collide on case-insensitive file systems.
 func checkTypePaths(types []string) error {
@@ -130,6 +132,9 @@ func checkTypePaths(types []string) error {
 				return fmt.Errorf("resource types %q and %q produce package paths that differ only in case", previous, prefix)
 			}
 			folded[key] = prefix
+		}
+		if err := module.CheckImportPath(bundle.TypeDir(typ)); err != nil {
+			return fmt.Errorf("resource type %q: %w", typ, err)
 		}
 	}
 	return nil

@@ -100,7 +100,7 @@ func ReadRegionIndex(root, region string) (*RegionIndex, error) {
 	if err := json.Unmarshal(b, &index); err != nil {
 		return nil, fmt.Errorf("%s: %w", RegionIndexFile(region), err)
 	}
-	if index.Generator != Generator || index.Region != region || index.Module == "" {
+	if index.Generator != Generator || index.Region != region || index.Module == "" || len(index.Resources) == 0 {
 		return nil, fmt.Errorf("%s: not a %s region index", RegionIndexFile(region), Generator)
 	}
 	for _, hash := range index.Resources {

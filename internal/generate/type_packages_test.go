@@ -3,10 +3,13 @@ package generate
 import (
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 
 	"cuelang.org/go/cue"
+
+	"github.com/cueformation/cfn-cue/internal/bundle"
 )
 
 // TestTypePackages imports per-type packages from an authored package, as a
@@ -19,6 +22,20 @@ func TestTypePackages(t *testing.T) {
 	out := filepath.Join(t.TempDir(), "generated")
 	if _, err := Generate(s, Options{Out: out}); err != nil {
 		t.Fatal(err)
+	}
+	// checkTypePaths guards the generated root directories against collisions.
+	entries, err := os.ReadDir(out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	roots := []string{}
+	for _, e := range entries {
+		if e.IsDir() && e.Name() != strings.ToUpper(e.Name()[:1])+e.Name()[1:] {
+			roots = append(roots, e.Name())
+		}
+	}
+	if !reflect.DeepEqual(roots, bundle.TopLevelDirs) {
+		t.Fatalf("generated root directories %v, bundle.TopLevelDirs %v", roots, bundle.TopLevelDirs)
 	}
 	author := `package example
 
@@ -77,6 +94,9 @@ func TestTypePathChecks(t *testing.T) {
 		"AWS::SageMaker::Model,AWS::Sagemaker::Other": "differ only in case",
 		"AWS::S3::Bucket,AWS::S3::BUCKET":             "differ only in case",
 		"Iam::S3::Bucket":                             "differ only in case",
+		"Aux::S3::Bucket":                             "disallowed as path element",
+		"AWS::Com1::Bucket":                           "disallowed as path element",
+		"AWS::Test::CON":                              "disallowed as path element",
 		"AWS::S3::bucket":                             "capitalized CUE identifier",
 		"types::S3::Bucket":                           "capitalized CUE identifier",
 		"AWS::S3::Bucket-2":                           "capitalized CUE identifier",

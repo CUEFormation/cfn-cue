@@ -207,6 +207,12 @@ func TestRegionIndex(t *testing.T) {
 	if result := Check(data, Options{Schemas: dir, Region: "us-east-1"}); result.Status != "error" || !strings.Contains(result.Message, "unsafe schema identifier") {
 		t.Fatal(result)
 	}
+	// An index without resources is malformed, not a region lacking the type.
+	empty := fixture(t)
+	editIndex(t, empty, func(index *bundle.RegionIndex) { index.Resources = nil })
+	if result := Check(data, Options{Schemas: empty, Region: "us-east-1"}); result.Status != "error" || !strings.Contains(result.Message, "not a cfn-cue/v2 region index") {
+		t.Fatal(result)
+	}
 	// A bundle generated before region indexes existed must be regenerated,
 	// not reported as lacking the region.
 	if err := os.Remove(filepath.Join(dir, bundle.RegionIndexFile("us-east-1"))); err != nil {
