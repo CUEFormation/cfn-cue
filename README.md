@@ -2,7 +2,7 @@
 
 A working Go generator for regional CloudFormation CUE schemas, built with CUE's Go AST and JSON Schema extractor. This is a new implementation alongside the 2021 generator in [cue-sh/cfn-cue](https://github.com/cue-sh/cfn-cue).
 
-The included snapshot produces **45 full regional template packages, 45 lightweight type-name packages, and 1,866 shared resource schemas**, covering **58,816 region/resource bindings**. Every generator run emits both regional representations. Identical input schemas are emitted once and referenced by the full regional packages. SAM's 13 additional schemas are available with `-include-sam`.
+The included snapshot produces **45 full regional template packages, 45 lightweight type-name packages, and 1,866 shared resource schemas**, covering **58,816 region/resource bindings**. Each resource type also has its own import package. Every generator run emits both regional representations and the per-type packages. Identical input schemas are emitted once and referenced by the full regional packages. SAM's 13 additional schemas are available with `-include-sam`.
 
 ## Run
 
@@ -76,6 +76,8 @@ generated/
   regions/<region>/region.cue      #Template, #Resources, #ResourceTypes
   regions/<region>/types/region.cue #Template, #Resources, #Resource, #ResourceType
   regions/<region>/index.json      Module, options, and type-to-hash map for one region
+  <Org>/<Service>/<Name>/resource.cue
+                                   #Resource and definitions for one type, re-exported
   manifest.json                   Source checksum, availability, conversion report
 ```
 
@@ -99,7 +101,43 @@ accept fractions or exponents. Unicode numeral conversions and non-finite
 numbers remain unsupported. Composed scalar constraints whose exact-value
 semantics cannot be established stay strict and produce conversion diagnostics.
 
-Inside the generated module, an authored CUE template can import a regional package:
+### Importing resource types
+
+To reference a single resource type from authored CUE, import its per-type
+package. Every type has one, at `<Org>/<Service>/<Name>`, with the type's last
+segment as the package name:
+
+```cue
+package example
+
+import s3bucket "github.com/cueformation/cfn-cue/AWS/S3/Bucket"
+
+bucket: s3bucket.#Resource & {
+    Type: "AWS::S3::Bucket"
+    Properties: {
+        BucketName: {"Fn::Sub": "${Name}-bucket"}
+        Tags: [s3bucket.#Tag & {Key: "team", Value: "data"}]
+    }
+}
+```
+
+The package re-exports `#Resource` and the provider definitions, such as
+`#Tag`, of the type's shared `resources/h<hash>` schema, so the path stays the
+same when the schema changes. Loading it imports only that schema and takes
+about 15 ms. `Custom::` names have no package of their own: use
+`AWS/CloudFormation/CustomResource`, whose `#Resource` accepts
+both `AWS::CloudFormation::CustomResource` and `Custom::<Name>`. This is the
+recommended way to reference a resource type. For another CUE module, copy or
+publish the generated module through CUE's module system before importing it.
+
+Per-type packages are shared by all regions, so importing one does not check
+that the type exists in the region you deploy to. The regional `#Template` and
+`cfn-cue-validate` check availability. Sharing is possible because every type
+uses the same schema in every region where it is available; generation fails
+if a source ever maps one type to different schemas in different regions.
+
+To check a whole template, the regional package's `#Template` selects each
+resource's schema by `Type`:
 
 ```cue
 package example
@@ -116,7 +154,13 @@ template: cf.#Template & {
 }
 ```
 
-For another CUE module, copy or publish the generated module through CUE's module system before importing it. `cf.#ResourceTypes["AWS::S3::Bucket"]` exposes a specific regional definition. Read the manifest to locate and import its shared hash package.
+Importing `regions/us-east-1:cf` loads every resource package in the region
+(1,839 in us-east-1), which takes about 2 s before any validation starts. The
+fast paths are the per-type packages above, and `cmd/cfn-cue-validate`, which
+imports only the schemas a template uses and checks each smoke-corpus
+template in under 25 ms. A module generated with `-resources` also loads faster.
+`cf.#ResourceTypes["AWS::S3::Bucket"]` exposes the same definition as the
+per-type package's `#Resource`, at the cost of loading the region.
 
 For lightweight regional validation, import `regions/us-east-1/types:types` and use
 its `#Template`. It checks template structure and available resource type names,
@@ -125,13 +169,11 @@ their intrinsic validation. The full regional imports above retain property and
 intrinsic checking. The two packages are isolated so importing the lightweight
 one never imports the full resource registry.
 
-**Scaling:** the full package's `#Template` selects each resource's schema by
-`Type` (`#ResourceTypes[Type]`), so validation costs about 1 ms per resource
-whatever the region's size. Loading the complete us-east-1 package (1,839 types)
-takes about 2.7 s, because every resource package is imported; `-resources`
-modules load faster. The lightweight package checks structure and type names
-without loading property schemas. [BENCHMARKS.md](BENCHMARKS.md) has the
-measurements.
+**Scaling:** once loaded, the full package's `#Template` costs about 1 ms per
+resource whatever the region's size, because it looks up `#ResourceTypes[Type]`
+rather than trying every schema. The full package defines no union of all
+resource schemas; unifying with one would cost about 0.5 s per resource in a
+complete region. [BENCHMARKS.md](BENCHMARKS.md) has the measurements.
 
 To record paired measurements at several resource counts:
 

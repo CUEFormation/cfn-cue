@@ -1,6 +1,10 @@
 package generate
 
 import (
+	"fmt"
+	"regexp"
+	"strings"
+
 	"github.com/cueformation/cfn-cue/internal/bundle"
 	"github.com/cueformation/cfn-cue/internal/cfn"
 
@@ -96,4 +100,61 @@ func regionTemplate(f *ast.File, module string, extensions bool, resource func(a
 		collection.Elts = append(collection.Elts, &ast.Field{Label: ast.NewList(&ast.UnaryExpr{Op: token.MAT, X: str("^Fn::ForEach::[A-Za-z0-9]+$")}), Value: id("#ForEach")})
 	}
 	f.Decls = append(f.Decls, def("Resources", collection), def("Template", and(sel("base", "Template"), obj(field("Resources", id("#Resources"), false)))))
+}
+
+// typeSegment keeps each part of a per-type package path a valid CUE
+// identifier. A leading capital also keeps the package name distinct from cf
+// and types, which CUE would otherwise merge from parent directories.
+var typeSegment = regexp.MustCompile(`^[A-Z][A-Za-z0-9_]*$`)
+
+// checkTypePaths rejects types without a per-type package path, and paths that
+// differ only in case from each other or from a generated root directory,
+// which collide on case-insensitive file systems.
+func checkTypePaths(types []string) error {
+	folded := map[string]string{}
+	for _, dir := range bundle.TopLevelDirs {
+		folded[dir] = dir
+	}
+	for _, typ := range types {
+		parts := strings.Split(typ, "::")
+		if len(parts) != 3 {
+			return fmt.Errorf("resource type %q does not have three segments", typ)
+		}
+		for i, part := range parts {
+			if !typeSegment.MatchString(part) {
+				return fmt.Errorf("resource type %q has segment %q, which is not a capitalized CUE identifier", typ, part)
+			}
+			prefix := strings.Join(parts[:i+1], "::")
+			key := strings.ToLower(prefix)
+			if previous, ok := folded[key]; ok && previous != prefix {
+				return fmt.Errorf("resource types %q and %q produce package paths that differ only in case", previous, prefix)
+			}
+			folded[key] = prefix
+		}
+	}
+	return nil
+}
+
+// TypePackage re-exports one shared resource schema's definitions under a
+// stable path, so authors can import a type without its hash.
+func TypePackage(module, typ, hash string, definitions []string) *ast.File {
+	f := file(bundle.TypePackage(typ))
+	addImport(f, "schema", bundle.ResourceImport(module, hash))
+	for _, name := range definitions {
+		f.Decls = append(f.Decls, &ast.Field{Label: ast.NewIdent(name), Value: ast.NewSel(id("schema"), name)})
+	}
+	return f
+}
+
+// definitions lists a package's top-level definitions in source order.
+func definitions(f *ast.File) []string {
+	names := []string{}
+	for _, d := range f.Decls {
+		if field, ok := d.(*ast.Field); ok {
+			if label, ok := field.Label.(*ast.Ident); ok && strings.HasPrefix(label.Name, "#") {
+				names = append(names, label.Name)
+			}
+		}
+	}
+	return names
 }

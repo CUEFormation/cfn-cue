@@ -45,7 +45,7 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Generated full and type-name packages for %d regions, plus %d shared resource schemas in %s\n", len(m.Regions), len(m.Schemas), opt.Out)
+	fmt.Printf("Generated full and type-name packages for %d regions, plus %d shared resource schemas and their per-type packages in %s\n", len(m.Regions), len(m.Schemas), opt.Out)
 	fmt.Printf("%d conversion diagnostics recorded in manifest.json\n", len(m.Diagnostics))
 	return nil
 }

@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 )
 
 // Generator marks output written by this generator. Generation only replaces
@@ -68,6 +69,19 @@ func RegionDir(region string) string       { return "regions/" + region }
 func RegionIndexFile(region string) string { return RegionDir(region) + "/index.json" }
 func ResourceDir(hash string) string       { return "resources/h" + hash }
 func LiteralDir(hash string) string        { return "literal/h" + hash }
+
+// TypeDir holds the stable per-type package for typ: AWS::S3::Bucket is
+// AWS/S3/Bucket, package Bucket. Custom:: names have no package of their
+// own; they use AWS::CloudFormation::CustomResource.
+func TypeDir(typ string) string { return strings.ReplaceAll(typ, "::", "/") }
+
+// TopLevelDirs are the generated module's lowercase root directories. A
+// per-type package's first segment must differ from each, ignoring case.
+var TopLevelDirs = []string{"cue.mod", "fn", "iam", "literal", "regions", "resources", "template"}
+
+// TypePackage is the package name of TypeDir: the type's last segment, so an
+// import path without a qualifier selects it.
+func TypePackage(typ string) string { return typ[strings.LastIndex(typ, "::")+2:] }
 
 // ResourceImport is the import path of a shared template-input schema package.
 func ResourceImport(module, hash string) string { return module + "/" + ResourceDir(hash) + ":schema" }

@@ -54,6 +54,7 @@ func Generate(source *Source, opt Options) (*bundle.Manifest, error) {
 	m := &bundle.Manifest{Generator: bundle.Generator, Source: source.Label, SourceSHA256: source.SHA256, Module: opt.Module, LanguageExtensions: opt.LanguageExtensions, IncludeSAM: opt.IncludeSAM, IAMPolicies: !opt.NoIAMPolicies, Regions: map[string]map[string]string{}, Schemas: map[string]bundle.SchemaInfo{}, Diagnostics: []bundle.Diagnostic{}}
 	m.ValidationNotes = []string{
 		"Each region has a full resource package and a separate types package. The types package checks template structure and regional type names, leaving resource Properties unconstrained.",
+		"Each resource type has one package, <Org>/<Service>/<Name>, which re-exports #Resource and the definitions of its resources/ schema. These packages do not check regional availability; the regional #Template and cfn-cue-validate do.",
 		"The full region #Template selects each resource's schema by Type. Loading a complete region imports every resource package; -resources modules load faster.",
 		"Intrinsic schemas validate argument shapes and result type classes. Function-specific nesting permissions and context permissions require cfn-lint.",
 		"Ref, GetAtt, Sub, mapping lookups, condition evaluation, macro expansion, and property-specific constraints on intrinsic results require semantic validation.",
@@ -119,11 +120,16 @@ func Generate(source *Source, opt Options) (*bundle.Manifest, error) {
 	if len(m.Regions) == 0 {
 		return nil, fmt.Errorf("source contains no regional providers")
 	}
-	available := map[string]bool{}
+	// Per-type packages are shared by every region, so each type must use one
+	// schema everywhere.
+	typeHashes := map[string]string{}
 	hashTypes := map[string]string{}
-	for _, mapping := range m.Regions {
-		for typ, hash := range mapping {
-			available[typ] = true
+	for _, region := range sortedRegionKeys(m.Regions) {
+		for typ, hash := range m.Regions[region] {
+			if prev, ok := typeHashes[typ]; ok && prev != hash {
+				return nil, fmt.Errorf("resource type %s uses schema %s in %s but %s elsewhere; per-type packages need one schema per type", typ, hash, region, prev)
+			}
+			typeHashes[typ] = hash
 			if prev, ok := hashTypes[hash]; ok && prev != typ {
 				return nil, fmt.Errorf("schema %s maps to multiple resource types", hash)
 			}
@@ -131,9 +137,12 @@ func Generate(source *Source, opt Options) (*bundle.Manifest, error) {
 		}
 	}
 	for _, typ := range opt.Resources {
-		if !available[typ] {
+		if _, ok := typeHashes[typ]; !ok {
 			return nil, fmt.Errorf("requested resource type unavailable: %s", typ)
 		}
+	}
+	if e := checkTypePaths(sortedStringKeys(typeHashes)); e != nil {
+		return nil, e
 	}
 	parent := filepath.Dir(opt.Out)
 	if e := os.MkdirAll(parent, 0755); e != nil {
@@ -220,6 +229,9 @@ func Generate(source *Source, opt Options) (*bundle.Manifest, error) {
 			return nil, fmt.Errorf("template %s: %w", typ, e)
 		}
 		if e = writeAST(bundle.ResourceDir(hash)+"/schema.cue", f); e != nil {
+			return nil, e
+		}
+		if e = writeAST(bundle.TypeDir(typ)+"/resource.cue", TypePackage(opt.Module, typ, hash, definitions(f))); e != nil {
 			return nil, e
 		}
 		m.Diagnostics = append(m.Diagnostics, c.diagnostics...)

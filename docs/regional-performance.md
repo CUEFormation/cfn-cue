@@ -3,7 +3,9 @@
 Every generator run emits both versions for every selected region. The existing
 full-resource import remains `regions/<region>:cf`; the lightweight import is
 `regions/<region>/types:types`. They are separate CUE packages: importing the
-type-name package does not load the full resource registry.
+type-name package does not load the full resource registry. To use one resource
+type without loading either, import its region-independent per-type package,
+such as `AWS/S3/Bucket`; see the [README](../README.md#importing-resource-types).
 
 | Definition | Full resource package | Type-name package |
 | --- | --- | --- |
