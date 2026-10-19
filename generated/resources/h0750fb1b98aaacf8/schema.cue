@@ -3,16 +3,14 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // (GameLift) GameServerGroup.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GameLift::GameServerGroup"
-	Properties!: close({
+	let properties = close({
 		// Configuration settings to define a scaling policy for the Auto Scaling group
 		// that is optimized for game hosting. Updating this game server group property
 		// will not take effect for the created EC2 Auto Scaling group, please update
@@ -78,15 +76,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Scaling group directly after creating the resource.
 		VpcSubnets?: #VpcSubnets
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
-
-#AutoScalingGroupArn: strings.MaxRunes(256) &
-strings.MinRunes(0) &
-=~"""
-	[ -\ud7ff\ue000-�𐀀-\U0010ffff\r
-	\t]*
-	""" |
-fn.#StringExpression
 
 #AutoScalingPolicy: close({
 	EstimatedInstanceWarmup?:     #EstimatedInstanceWarmup
@@ -95,8 +89,6 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #BalancingStrategy: "SPOT_ONLY" | "SPOT_PREFERRED" | "ON_DEMAND_ONLY" | fn.#StringExpression
-
-#CreationTime: string | fn.#StringExpression
 
 #DeleteOption: "SAFE_DELETE" | "FORCE_DELETE" | "RETAIN" | fn.#StringExpression
 
@@ -120,26 +112,12 @@ fn.#ObjectExpression
 	} |
 	fn.#NumberExpression
 
-#GameServerGroup: close({
-	AutoScalingGroupArn?:        #AutoScalingGroupArn
-	BalancingStrategy?:          #BalancingStrategy
-	CreationTime?:               #CreationTime
-	GameServerGroupArn?:         #GameServerGroupArn
-	GameServerGroupName?:        #GameServerGroupName
-	GameServerProtectionPolicy?: #GameServerProtectionPolicy
-	InstanceDefinitions?:        #InstanceDefinitions
-	LastUpdatedTime?:            #LastUpdatedTime
-	RoleArn?:                    #RoleArn
-	Status?:                     #Status
-	StatusReason?:               #StatusReason
-	SuspendedActions?:           #SuspendedActions
-}) |
-fn.#ObjectExpression
-
-#GameServerGroupArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:.*:gameservergroup\\/[a-zA-Z0-9-\\.]*" |
+#GameServerGroupName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\.]+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\.]+" & "\(self)"
+} |
 fn.#StringExpression
-
-#GameServerGroupName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\.]+" | fn.#StringExpression
 
 #GameServerProtectionPolicy: "NO_PROTECTION" | "FULL_PROTECTION" | fn.#StringExpression
 
@@ -151,9 +129,7 @@ fn.#ObjectExpression
 
 #InstanceDefinitions: list.MaxItems(20) & list.MinItems(2) & [...#InstanceDefinition] | fn.#ListExpression
 
-#InstanceType: string | fn.#StringExpression
-
-#LastUpdatedTime: string | fn.#StringExpression
+#InstanceType: string | number | bool | fn.#StringExpression
 
 #LaunchTemplate: close({
 	LaunchTemplateId?:   #LaunchTemplateId
@@ -162,9 +138,18 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#LaunchTemplateId: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#LaunchTemplateId: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #LaunchTemplateName: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9\\(\\)\\.\\-/_]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9\\(\\)\\.\\-/_]+$" & "\(self)"
+} |
 fn.#StringExpression
 
 #MaxSize: >=1 |
@@ -207,21 +192,33 @@ fn.#StringExpression
 	} |
 	fn.#NumberExpression
 
-#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^arn:.*:role\\/[\\w+=,.@-]+" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(256) &
+	strings.MinRunes(1) &
+	=~"^arn:.*:role\\/[\\w+=,.@-]+" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#Status: "NEW" | "ACTIVATING" | "ACTIVE" | "DELETE_SCHEDULED" | "DELETING" | "DELETED" | "ERROR" | fn.#StringExpression
-
-#StatusReason: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-
-#SuspendedActions: [..."REPLACE_INSTANCE_TYPES" | fn.#StringExpression] | fn.#ListExpression
-
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -249,11 +246,26 @@ fn.#ObjectExpression
 	} |
 	fn.#NumberExpression
 
-#Version: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#Version: strings.MaxRunes(128) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#VpcSubnets: list.MaxItems(20) & list.MinItems(1) & [
-	...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-[0-9a-z]+$" | fn.#StringExpression
-] |
+#VpcSubnets: list.MaxItems(20) & list.MinItems(1) & [...strings.MaxRunes(24) &
+strings.MinRunes(15) &
+=~"^subnet-[0-9a-z]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(24) & strings.MinRunes(15) & =~"^subnet-[0-9a-z]+$" & "\(self)"
+} |
+fn.#StringExpression] |
 fn.#ListExpression
 
-#WeightedCapacity: =~"^[\\x{0031}-\\x{0039}][\\x{0030}-\\x{0039}]{0,2}$" | fn.#StringExpression
+#WeightedCapacity: =~"^[\\x{0031}-\\x{0039}][\\x{0030}-\\x{0039}]{0,2}$" |
+{
+	number | bool
+	_cfnString: =~"^[\\x{0031}-\\x{0039}][\\x{0030}-\\x{0039}]{0,2}$" & "\(self)"
+} |
+fn.#StringExpression

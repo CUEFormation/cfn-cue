@@ -7,36 +7,56 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::QBusiness::Index Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QBusiness::Index"
-	Properties!: close({
+	let properties = close({
 		ApplicationId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" & "\(self)"
+		} |
 		fn.#StringExpression
 		CapacityConfiguration?: #IndexCapacityConfiguration
-		Description?:           strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		DisplayName!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		DocumentAttributeConfigurations?: list.MaxItems(500) & list.MinItems(1) & [...#DocumentAttributeConfiguration] |
 			fn.#ListExpression
 		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 		Type?: #IndexType
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AttributeType: "STRING" | "STRING_LIST" | "NUMBER" | "DATE" | fn.#StringExpression
 
 #DocumentAttributeConfiguration: close({
-	Name?:   strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_][a-zA-Z0-9_-]*$" | fn.#StringExpression
+	Name?: strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_][a-zA-Z0-9_-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_][a-zA-Z0-9_-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Search?: #Status
 	Type?:   #AttributeType
 }) |
@@ -65,58 +85,22 @@ fn.#ObjectExpression
 }) |
 	fn.#ObjectExpression
 
-#IndexStatistics: close({TextDocumentStatistics?: #TextDocumentStatistics}) | fn.#ObjectExpression
-
-#IndexStatus: "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | "UPDATING" | fn.#StringExpression
-
 #IndexType: "ENTERPRISE" | "STARTER" | fn.#StringExpression
 
 #Status: "ENABLED" | "DISABLED" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#TextDocumentStatistics: close({
-	IndexedTextBytes?: >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							>=0,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	IndexedTextDocumentCount?: >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							>=0,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

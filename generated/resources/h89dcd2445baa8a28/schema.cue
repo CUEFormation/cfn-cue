@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,19 +20,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Developer Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTEvents::Input"
-	Properties!: close({
+	let properties = close({
 		// The definition of the input.
-		InputDefinition!:  #InputDefinition
-		InputDescription?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		InputName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" | fn.#StringExpression
-		Tags?:      [...#Tag] | fn.#ListExpression
+		InputDefinition!: #InputDefinition
+		InputDescription?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		InputName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Attribute: close({
 	JsonPath!: strings.MaxRunes(128) &
 	strings.MinRunes(1) &
 	=~"^((`[a-zA-Z0-9_\\- ]+`)|([a-zA-Z0-9_\\-]+))(\\.((`[a-zA-Z0-9_\\- ]+`)|([a-zA-Z0-9_\\-]+)))*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"^((`[a-zA-Z0-9_\\- ]+`)|([a-zA-Z0-9_\\-]+))(\\.((`[a-zA-Z0-9_\\- ]+`)|([a-zA-Z0-9_\\-]+)))*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -43,7 +64,7 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

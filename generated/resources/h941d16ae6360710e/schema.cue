@@ -3,26 +3,24 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GammaDilithium::JobDefinition
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GammaDilithium::JobDefinition"
-	Properties!: close({
+	let properties = close({
 		ContainerProperties?:  #ContainerProperties
 		EcsProperties?:        #EcsProperties
 		EksProperties?:        #EksProperties
-		JobDefinitionName?:    string | fn.#StringExpression
+		JobDefinitionName?:    string | number | bool | fn.#StringExpression
 		NodeProperties?:       #NodeProperties
-		Parameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-		PlatformCapabilities?: [...string | fn.#StringExpression] | fn.#ListExpression
+		Parameters?:           fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		PlatformCapabilities?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		PropagateTags?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		RetryStrategy?:        #RetryStrategy
 		SchedulingPriority?: int |
@@ -42,33 +40,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		Tags?: [...close({
-			Key!:   string | fn.#StringExpression
-			Value!: string | fn.#StringExpression
+			Key!:   string | number | bool | fn.#StringExpression
+			Value!: string | number | bool | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
 		Timeout?: #Timeout
-		Type!:    string | fn.#StringExpression
+		Type!:    string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AuthorizationConfig: close({
-	AccessPointId?: string | fn.#StringExpression
-	Iam?:           string | fn.#StringExpression
+	AccessPointId?: string | number | bool | fn.#StringExpression
+	Iam?:           string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ContainerProperties: close({
-	Command?:          [...string | fn.#StringExpression] | fn.#ListExpression
+	Command?:          [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Environment?:      [...#Environment] | fn.#ListExpression
 	EphemeralStorage?: #EphemeralStorage
-	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	FargatePlatformConfiguration?: #FargatePlatformConfiguration
-	Image!:                        string | fn.#StringExpression
-	InstanceType?:                 string | fn.#StringExpression
-	JobRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	Image!:                        string | number | bool | fn.#StringExpression
+	InstanceType?:                 string | number | bool | fn.#StringExpression
+	JobRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	LinuxParameters?:  #LinuxParameters
 	LogConfiguration?: #LogConfiguration
 	Memory?: int |
@@ -94,7 +104,7 @@ fn.#ObjectExpression
 	RuntimePlatform?:        #RuntimePlatform
 	Secrets?:                [...#Secret] | fn.#ListExpression
 	Ulimits?:                [...#Ulimit] | fn.#ListExpression
-	User?:                   string | fn.#StringExpression
+	User?:                   string | number | bool | fn.#StringExpression
 	Vcpus?: int |
 		{
 			string &
@@ -114,9 +124,9 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Device: close({
-	ContainerPath?: string | fn.#StringExpression
-	HostPath?:      string | fn.#StringExpression
-	Permissions?:   [...string | fn.#StringExpression] | fn.#ListExpression
+	ContainerPath?: string | number | bool | fn.#StringExpression
+	HostPath?:      string | number | bool | fn.#StringExpression
+	Permissions?:   [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -125,24 +135,32 @@ fn.#ObjectExpression
 #EcsTaskProperties: close({
 	Containers?:       [...#TaskContainerProperties] | fn.#ListExpression
 	EphemeralStorage?: #EphemeralStorage
-	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	IpcMode?:              string | fn.#StringExpression
+	ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	IpcMode?:              string | number | bool | fn.#StringExpression
 	NetworkConfiguration?: #NetworkConfiguration
-	PidMode?:              string | fn.#StringExpression
-	PlatformVersion?:      string | fn.#StringExpression
+	PidMode?:              string | number | bool | fn.#StringExpression
+	PlatformVersion?:      string | number | bool | fn.#StringExpression
 	RuntimePlatform?:      #RuntimePlatform
-	TaskRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	TaskRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Volumes?: [...#Volumes] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #EfsVolumeConfiguration: close({
 	AuthorizationConfig?: #AuthorizationConfig
-	FileSystemId!:        string | fn.#StringExpression
-	RootDirectory?:       string | fn.#StringExpression
-	TransitEncryption?:   string | fn.#StringExpression
+	FileSystemId!:        string | number | bool | fn.#StringExpression
+	RootDirectory?:       string | number | bool | fn.#StringExpression
+	TransitEncryption?:   string | number | bool | fn.#StringExpression
 	TransitEncryptionPort?: int |
 		{
 			string &
@@ -161,12 +179,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #EksContainer: close({
-	Args?:            [...string | fn.#StringExpression] | fn.#ListExpression
-	Command?:         [...string | fn.#StringExpression] | fn.#ListExpression
+	Args?:            [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Command?:         [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Env?:             [...#EksContainerEnvironmentVariable] | fn.#ListExpression
-	Image!:           string | fn.#StringExpression
-	ImagePullPolicy?: string | fn.#StringExpression
-	Name?:            string | fn.#StringExpression
+	Image!:           string | number | bool | fn.#StringExpression
+	ImagePullPolicy?: string | number | bool | fn.#StringExpression
+	Name?:            string | number | bool | fn.#StringExpression
 	Resources?:       #EksContainerResourceRequirements
 	SecurityContext?: #EksContainerSecurityContext
 	VolumeMounts?:    [...#EksContainerVolumeMount] | fn.#ListExpression
@@ -174,14 +192,14 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #EksContainerEnvironmentVariable: close({
-	Name!:  string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Name!:  string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EksContainerResourceRequirements: close({
-	Limits?:   fn.#Object & {...} | string | fn.#StringObjectExpression
-	Requests?: fn.#Object & {...} | string | fn.#StringObjectExpression
+	Limits?:   fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+	Requests?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 
@@ -222,39 +240,39 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #EksContainerVolumeMount: close({
-	MountPath?: string | fn.#StringExpression
-	Name?:      string | fn.#StringExpression
+	MountPath?: string | number | bool | fn.#StringExpression
+	Name?:      string | number | bool | fn.#StringExpression
 	ReadOnly?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #EksEmptyDir: close({
-	Medium?:    string | fn.#StringExpression
-	SizeLimit?: string | fn.#StringExpression
+	Medium?:    string | number | bool | fn.#StringExpression
+	SizeLimit?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#EksHostPath: close({Path?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#EksHostPath: close({Path?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #EksProperties: close({PodProperties?: #PodProperties}) | fn.#ObjectExpression
 
 #EksSecret: close({
 	Optional?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SecretName!: string | fn.#StringExpression
+	SecretName!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EksVolume: close({
 	EmptyDir?: #EksEmptyDir
 	HostPath?: #EksHostPath
-	Name!:     string | fn.#StringExpression
+	Name!:     string | number | bool | fn.#StringExpression
 	Secret?:   #EksSecret
 }) |
 fn.#ObjectExpression
 
 #Environment: close({
-	Name?:  string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Name?:  string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -277,16 +295,17 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #EvaluateOnExit: close({
-	Action!:         string | fn.#StringExpression
-	OnExitCode?:     string | fn.#StringExpression
-	OnReason?:       string | fn.#StringExpression
-	OnStatusReason?: string | fn.#StringExpression
+	Action!:         string | number | bool | fn.#StringExpression
+	OnExitCode?:     string | number | bool | fn.#StringExpression
+	OnReason?:       string | number | bool | fn.#StringExpression
+	OnStatusReason?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#FargatePlatformConfiguration: close({PlatformVersion?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#FargatePlatformConfiguration: close({PlatformVersion?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
-#ImagePullSecret: close({Name!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#ImagePullSecret: close({Name!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #LinuxParameters: close({
 	Devices?:            [...#Device] | fn.#ListExpression
@@ -338,22 +357,23 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #LogConfiguration: close({
-	LogDriver!:     string | fn.#StringExpression
-	Options?:       fn.#Object & {...} | string | fn.#StringObjectExpression
+	LogDriver!:     string | number | bool | fn.#StringExpression
+	Options?:       fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	SecretOptions?: [...#Secret] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#Metadata: close({Labels?: fn.#Object & {...} | string | fn.#StringObjectExpression}) | fn.#ObjectExpression
+#Metadata: close({Labels?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression}) |
+fn.#ObjectExpression
 
 #MountPoints: close({
-	ContainerPath?: string | fn.#StringExpression
+	ContainerPath?: string | number | bool | fn.#StringExpression
 	ReadOnly?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SourceVolume?:  string | fn.#StringExpression
+	SourceVolume?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#NetworkConfiguration: close({AssignPublicIp?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#NetworkConfiguration: close({AssignPublicIp?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #NodeProperties: close({
 	MainNode!: int |
@@ -392,29 +412,30 @@ fn.#ObjectExpression
 	Container?:     #ContainerProperties
 	EcsProperties?: #EcsProperties
 	EksProperties?: #EksProperties
-	InstanceTypes?: [...string | fn.#StringExpression] | fn.#ListExpression
-	TargetNodes!:   string | fn.#StringExpression
+	InstanceTypes?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	TargetNodes!:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PodProperties: close({
 	Containers?:            [...#EksContainer] | fn.#ListExpression
-	DnsPolicy?:             string | fn.#StringExpression
+	DnsPolicy?:             string | number | bool | fn.#StringExpression
 	HostNetwork?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ImagePullSecrets?:      [...#ImagePullSecret] | fn.#ListExpression
 	InitContainers?:        [...#EksContainer] | fn.#ListExpression
 	Metadata?:              #Metadata
-	ServiceAccountName?:    string | fn.#StringExpression
+	ServiceAccountName?:    string | number | bool | fn.#StringExpression
 	ShareProcessNamespace?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Volumes?:               [...#EksVolume] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#RepositoryCredentials: close({CredentialsParameter!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#RepositoryCredentials: close({CredentialsParameter!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #ResourceRequirement: close({
-	Type?:  string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Type?:  string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -438,40 +459,40 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RuntimePlatform: close({
-	CpuArchitecture?:       string | fn.#StringExpression
-	OperatingSystemFamily?: string | fn.#StringExpression
+	CpuArchitecture?:       string | number | bool | fn.#StringExpression
+	OperatingSystemFamily?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Secret: close({
-	Name!:      string | fn.#StringExpression
-	ValueFrom!: string | fn.#StringExpression
+	Name!:      string | number | bool | fn.#StringExpression
+	ValueFrom!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TaskContainerDependency: close({
-	Condition!:     string | fn.#StringExpression
-	ContainerName!: string | fn.#StringExpression
+	Condition!:     string | number | bool | fn.#StringExpression
+	ContainerName!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TaskContainerProperties: close({
-	Command?:                [...string | fn.#StringExpression] | fn.#ListExpression
+	Command?:                [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	DependsOn?:              [...#TaskContainerDependency] | fn.#ListExpression
 	Environment?:            [...#Environment] | fn.#ListExpression
 	Essential?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Image!:                  string | fn.#StringExpression
+	Image!:                  string | number | bool | fn.#StringExpression
 	LinuxParameters?:        #LinuxParameters
 	LogConfiguration?:       #LogConfiguration
 	MountPoints?:            [...#MountPoints] | fn.#ListExpression
-	Name?:                   string | fn.#StringExpression
+	Name?:                   string | number | bool | fn.#StringExpression
 	Privileged?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ReadonlyRootFilesystem?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RepositoryCredentials?:  #RepositoryCredentials
 	ResourceRequirements?:   [...#ResourceRequirement] | fn.#ListExpression
 	Secrets?:                [...#Secret] | fn.#ListExpression
 	Ulimits?:                [...#Ulimit] | fn.#ListExpression
-	User?:                   string | fn.#StringExpression
+	User?:                   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -494,8 +515,8 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tmpfs: close({
-	ContainerPath!: string | fn.#StringExpression
-	MountOptions?:  [...string | fn.#StringExpression] | fn.#ListExpression
+	ContainerPath!: string | number | bool | fn.#StringExpression
+	MountOptions?:  [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Size!: int |
 		{
 			string &
@@ -528,7 +549,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Name!: string | fn.#StringExpression
+	Name!: string | number | bool | fn.#StringExpression
 	SoftLimit!: int |
 		{
 			string &
@@ -549,8 +570,8 @@ fn.#ObjectExpression
 #Volumes: close({
 	EfsVolumeConfiguration?: #EfsVolumeConfiguration
 	Host?:                   #VolumesHost
-	Name?:                   string | fn.#StringExpression
+	Name?:                   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#VolumesHost: close({SourcePath?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#VolumesHost: close({SourcePath?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression

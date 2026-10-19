@@ -33,7 +33,13 @@ strings.MinRunes(1) &
 
 #LastModified: number
 
-#Name: strings.MaxRunes(50) & strings.MinRunes(1)
+#Name: =~"^[\\p{L}\\p{N}\\p{Z}-_]*$" &
+matchN(0, [=~"^(?: )"]) &
+string &
+matchN(0, [=~"(?: )$"]) &
+string &
+strings.MaxRunes(50) &
+strings.MinRunes(1)
 
 #ResourceTag: close({
 	Key!:   strings.MaxRunes(256) & strings.MinRunes(1)

@@ -7,34 +7,79 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A thesaurus for an Amazon Kendra index. The thesaurus contains a list of synonyms in Solr format.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Kendra::Thesaurus"
-	Properties!: close({
-		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
-		IndexId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]*$" | fn.#StringExpression
-		Name!:    strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
+	let properties = close({
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		IndexId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(1284) &
+			strings.MinRunes(0) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		SourceS3Path!: #S3Path
 		Tags?:         list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #S3Path: close({
 	Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" & "\(self)"
+	} |
 	fn.#StringExpression
-	Key!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

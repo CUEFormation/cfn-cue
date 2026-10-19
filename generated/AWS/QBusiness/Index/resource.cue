@@ -8,9 +8,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hea175acd3c48e4cc:schem
 #AttributeType:                  schema.#AttributeType
 #DocumentAttributeConfiguration: schema.#DocumentAttributeConfiguration
 #IndexCapacityConfiguration:     schema.#IndexCapacityConfiguration
-#IndexStatistics:                schema.#IndexStatistics
-#IndexStatus:                    schema.#IndexStatus
 #IndexType:                      schema.#IndexType
 #Status:                         schema.#Status
 #Tag:                            schema.#Tag
-#TextDocumentStatistics:         schema.#TextDocumentStatistics

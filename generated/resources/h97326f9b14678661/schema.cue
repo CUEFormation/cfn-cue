@@ -6,49 +6,96 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::OpsWorks::Instance
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::OpsWorks::Instance"
-	Properties!: close({
-		AgentVersion?: string | fn.#StringExpression
-		AmiId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		Architecture?:         string | fn.#StringExpression
-		AutoScalingType?:      string | fn.#StringExpression
-		AvailabilityZone?:     string | fn.#StringExpression
-		BlockDeviceMappings?:  list.UniqueItems() & [...#BlockDeviceMapping] | fn.#ListExpression
-		EbsOptimized?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ElasticIps?:           list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		Hostname?:             string | fn.#StringExpression
+	let properties = close({
+		AgentVersion?: string | number | bool | fn.#StringExpression
+		AmiId?: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Architecture?:        string | number | bool | fn.#StringExpression
+		AutoScalingType?:     string | number | bool | fn.#StringExpression
+		AvailabilityZone?:    string | number | bool | fn.#StringExpression
+		BlockDeviceMappings?: list.UniqueItems() & [...#BlockDeviceMapping] | fn.#ListExpression
+		EbsOptimized?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ElasticIps?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		Hostname?:   string | number | bool | fn.#StringExpression
 		InstallUpdatesOnBoot?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		InstanceType!:         string | fn.#StringExpression
-		LayerIds!:             [...string | fn.#StringExpression] | fn.#ListExpression
-		Os?:                   string | fn.#StringExpression
-		RootDeviceType?:       string | fn.#StringExpression
-		SshKeyName?:           string | fn.#StringExpression
-		StackId!:              string | fn.#StringExpression
-		SubnetId?:             string | fn.#StringExpression
-		Tenancy?:              string | fn.#StringExpression
+		InstanceType!:         string | number | bool | fn.#StringExpression
+		LayerIds!:             [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		Os?:                   string | number | bool | fn.#StringExpression
+		RootDeviceType?:       string | number | bool | fn.#StringExpression
+		SshKeyName?:           string | number | bool | fn.#StringExpression
+		StackId!:              string | number | bool | fn.#StringExpression
+		SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tenancy?:              string | number | bool | fn.#StringExpression
 		TimeBasedAutoScaling?: #TimeBasedAutoScaling
-		VirtualizationType?:   string | fn.#StringExpression
-		Volumes?:              list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		VirtualizationType?:   string | number | bool | fn.#StringExpression
+		Volumes?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#BlockDeviceMapping: close({
-	DeviceName?:  string | fn.#StringExpression
+#BlockDeviceMapping: matchIf({
+	Ebs?:         error("disallowed")
+	VirtualName!: _
+	...
+}, {
+	VirtualName?: null |
+	bool |
+	"true" |
+	"True" |
+	"TRUE" |
+	"false" |
+	"False" |
+	"FALSE" |
+	number |
+	{
+		string &
+			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+			cfnScalarStrings.Repeat(
+				self,
+				len(cfnScalarStrconv.FormatFloat(
+					cfnScalarStrconv.ParseFloat(
+						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+						64,
+					) &
+						number,
+					"g",
+					-1,
+					64,
+				))*0 + 1,
+			)
+	} |
+	=~"^ephemeral([0-9]|[1][0-9]|[2][0-3])$" |
+	[...] |
+	{...} |
+	fn.#ValueExpression
+	...
+}, _) & (close({
+	DeviceName?:  string | number | bool | fn.#StringExpression
 	Ebs?:         #EbsBlockDevice
-	NoDevice?:    string | fn.#StringExpression
-	VirtualName?: string | fn.#StringExpression
+	NoDevice?:    string | number | bool | fn.#StringExpression
+	VirtualName?: string | number | bool | fn.#StringExpression
 	if VirtualName != _|_ if VirtualName."Fn::If" == _|_ {
 		Ebs?: close({"Fn::If": _}) | error(
 			"Ebs cannot be used with VirtualName; set exactly one of VirtualName, Ebs, NoDevice",
@@ -62,10 +109,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice",
 		)
 	}
-}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}]) |
+}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}])) |
 fn.#ObjectExpression
 
-#EbsBlockDevice: close({
+#EbsBlockDevice: matchIf({
+	VolumeType!: "io1"
+	...
+}, {
+	Iops!: null | bool | <=64000 & >=100 | string | [...] | {...} | fn.#ValueExpression
+	...
+}, _) & matchIf({
+	VolumeType!: "io2"
+	...
+}, {
+	Iops!: null | bool | <=256000 & >=100 | string | [...] | {...} | fn.#ValueExpression
+	...
+}, _) & matchIf({
+	VolumeType!: "gp3"
+	...
+}, {
+	Iops?: null | bool | <=16000 & >=3000 | string | [...] | {...} | fn.#ValueExpression
+	...
+}, _) & close({
 	DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Iops?: int |
 		{
@@ -81,7 +146,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SnapshotId?: string | fn.#StringExpression
+	SnapshotId?: string | number | bool | fn.#StringExpression
 	VolumeSize?: int |
 		{
 			string &
@@ -96,37 +161,65 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	VolumeType?: string | fn.#StringExpression
+	VolumeType?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TimeBasedAutoScaling: close({
 	Friday?: {
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
 		...
 	} | fn.#ObjectExpression
 	Monday?: {
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
 		...
 	} | fn.#ObjectExpression
 	Saturday?: {
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
 		...
 	} | fn.#ObjectExpression
 	Sunday?: {
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
 		...
 	} | fn.#ObjectExpression
 	Thursday?: {
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
 		...
 	} | fn.#ObjectExpression
 	Tuesday?: {
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
 		...
 	} | fn.#ObjectExpression
 	Wednesday?: {
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
 		...
 	} | fn.#ObjectExpression
 }) |

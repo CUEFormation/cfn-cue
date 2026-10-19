@@ -7,21 +7,30 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::B2BI::Capability Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::B2BI::Capability"
-	Properties!: close({
+	let properties = close({
 		Configuration!:         #CapabilityConfiguration
 		InstructionsDocuments?: list.MaxItems(5) & [...] & [...#S3Location] | fn.#ListExpression
-		Name!:                  strings.MaxRunes(254) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:                  list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-		Type!:                  #CapabilityType
+		Name!: strings.MaxRunes(254) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(254) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		Type!: #CapabilityType
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CapabilityConfiguration: close({Edi!: #EdiConfiguration}) | fn.#ValueExpression
@@ -34,22 +43,54 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	CapabilityDirection?: #CapabilityDirection
 	InputLocation!:       #S3Location
 	OutputLocation!:      #S3Location
-	TransformerId!:       strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Type!:                #EdiType
+	TransformerId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: #EdiType
 }) |
 fn.#ObjectExpression
 
 #EdiType: close({X12Details!: #X12Details}) | fn.#ValueExpression
 
 #S3Location: close({
-	BucketName?: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	Key?:        strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Key?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

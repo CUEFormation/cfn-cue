@@ -7,22 +7,62 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Oam::Link Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Oam::Link"
-	Properties!: close({
-		LabelTemplate?:     strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		LabelTemplate?: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		LinkConfiguration?: #LinkConfiguration
 		ResourceTypes!: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#ResourceType] |
 			fn.#ListExpression
-		SinkIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:           {...} | fn.#ObjectExpression
+		SinkIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: close({
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^(?:aws:.*)"]: error("disallowed")}
+
+			{
+				[=~"^.{1,128}$"]: =~"^.{0,256}$" &
+				matchN(0, [=~"^(?:aws:.*)"]) &
+				string &
+				strings.MaxRunes(256) &
+				strings.MinRunes(0) |
+				{
+					number | bool
+					_cfnString: =~"^.{0,256}$" &
+					matchN(0, [=~"^(?:aws:.*)"]) &
+					string &
+					strings.MaxRunes(256) &
+					strings.MinRunes(0) &
+					"\(self)"
+				} |
+				fn.#StringExpression
+			}
+		}) |
+		fn.#ObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #LinkConfiguration: close({
@@ -31,7 +71,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#LinkFilter: close({Filter!: strings.MaxRunes(2000) & strings.MinRunes(1) | fn.#StringExpression}) |
+#LinkFilter: close({
+	Filter!: strings.MaxRunes(2000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #ResourceType: "AWS::CloudWatch::Metric" |

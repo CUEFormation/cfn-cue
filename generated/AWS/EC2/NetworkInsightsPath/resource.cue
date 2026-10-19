@@ -11,4 +11,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h17b2b5b3a94aa8f0:schem
 #Port:            schema.#Port
 #Protocol:        schema.#Protocol
 #Tag:             schema.#Tag
-#Tags:            schema.#Tags

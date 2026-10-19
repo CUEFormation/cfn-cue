@@ -7,38 +7,69 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::VerifiedPermissions::IdentitySource Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::VerifiedPermissions::IdentitySource"
-	Properties!: close({
-		Configuration!:       #IdentitySourceConfiguration
-		PolicyStoreId!:       strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" | fn.#StringExpression
-		PrincipalEntityType?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
+	let properties = close({
+		Configuration!: #IdentitySourceConfiguration
+		PolicyStoreId!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		PrincipalEntityType?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^.*$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CognitoGroupConfiguration: close({
 	GroupEntityType!: strings.MaxRunes(200) &
 	strings.MinRunes(1) &
 	=~"^([_a-zA-Z][_a-zA-Z0-9]*::)*[_a-zA-Z][_a-zA-Z0-9]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) &
+		strings.MinRunes(1) &
+		=~"^([_a-zA-Z][_a-zA-Z0-9]*::)*[_a-zA-Z][_a-zA-Z0-9]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CognitoUserPoolConfiguration: close({
-	ClientIds?: list.MaxItems(1000) & [...] & [
-		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	] |
+	ClientIds?: list.MaxItems(1000) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	GroupConfiguration?: #CognitoGroupConfiguration
 	UserPoolArn!: strings.MaxRunes(255) &
 	strings.MinRunes(1) &
 	=~"^arn:[a-zA-Z0-9-]+:cognito-idp:(([a-zA-Z0-9-]+:\\d{12}:userpool/[\\w-]+_[0-9a-zA-Z]+))$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"^arn:[a-zA-Z0-9-]+:cognito-idp:(([a-zA-Z0-9-]+:\\d{12}:userpool/[\\w-]+_[0-9a-zA-Z]+))$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -50,52 +81,76 @@ fn.#ObjectExpression
 )]) |
 fn.#ValueExpression
 
-#IdentitySourceDetails: close({
-	ClientIds?: list.MaxItems(1000) & [...] & [
-		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	] |
+#OpenIdConnectAccessTokenConfiguration: close({
+	Audiences?: list.MaxItems(255) & list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	DiscoveryUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$" | fn.#StringExpression
-	OpenIdIssuer?: #OpenIdIssuer
-	UserPoolArn?: strings.MaxRunes(255) &
-	strings.MinRunes(1) &
-	=~"^arn:[a-zA-Z0-9-]+:cognito-idp:(([a-zA-Z0-9-]+:\\d{12}:userpool/[\\w-]+_[0-9a-zA-Z]+))$" |
+	PrincipalIdClaim?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#OpenIdConnectAccessTokenConfiguration: close({
-	Audiences?: list.MaxItems(255) & list.MinItems(1) & [
-		...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	PrincipalIdClaim?: strings.MinRunes(1) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #OpenIdConnectConfiguration: close({
-	EntityIdPrefix?:     strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	EntityIdPrefix?: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	GroupConfiguration?: #OpenIdConnectGroupConfiguration
-	Issuer!:             strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$" | fn.#StringExpression
-	TokenSelection!:     #OpenIdConnectTokenSelection
+	Issuer!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TokenSelection!: #OpenIdConnectTokenSelection
 }) |
 fn.#ObjectExpression
 
 #OpenIdConnectGroupConfiguration: close({
-	GroupClaim!: strings.MinRunes(1) | fn.#StringExpression
+	GroupClaim!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	GroupEntityType!: strings.MaxRunes(200) &
 	strings.MinRunes(1) &
 	=~"^([_a-zA-Z][_a-zA-Z0-9]*::)*[_a-zA-Z][_a-zA-Z0-9]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) &
+		strings.MinRunes(1) &
+		=~"^([_a-zA-Z][_a-zA-Z0-9]*::)*[_a-zA-Z][_a-zA-Z0-9]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OpenIdConnectIdentityTokenConfiguration: close({
-	ClientIds?: list.MaxItems(1000) & [...] & [
-		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	] |
+	ClientIds?: list.MaxItems(1000) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	PrincipalIdClaim?: strings.MinRunes(1) | fn.#StringExpression
+	PrincipalIdClaim?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -105,5 +160,3 @@ fn.#ObjectExpression
 	{IdentityTokenOnly!: #OpenIdConnectIdentityTokenConfiguration},
 )]) |
 fn.#ValueExpression
-
-#OpenIdIssuer: "COGNITO" | fn.#StringExpression

@@ -8,7 +8,14 @@
       "archive_sha256": "e0e85db0c4a4e4173abf72b584566b1228607a3ace0c48e9a4fd442cebf8ed34",
       "license": "Apache-2.0",
       "include": [
-        "*.yaml"
+        "*.yaml",
+        "CloudFormation/CustomResources/getfromjson/example-templates/getfromjson-consumer.yml",
+        "CloudFormation/CustomResources/getfromjson/src/getfromjson.yml",
+        "CloudFormation/CustomResources/getfromjson/src/template.yml",
+        "CloudFormation/StackSets/common-resources-pkg.json",
+        "CloudFormation/StackSets/common-resources-stackset-pkg.json",
+        "CloudFormation/StackSets/log-setup-management-pkg.json",
+        "CloudWatch/CloudWatch_Dashboard_ClientVPN.yml"
       ],
       "exclude": [
         ".github/*"
@@ -25,11 +32,158 @@
       "archive_sha256": "c83e21ebf31d7fa58737d175747f9aa59d6895089cf689fd5bba71824d877cd2",
       "license": "MIT-0",
       "include": [
-        "test/fixtures/templates/good/*.yaml"
+        "test/fixtures/templates/good/*.yaml",
+        "test/fixtures/templates/good/*.yml",
+        "test/fixtures/templates/good/*.json"
       ],
       "exclude": [
         ".github/*"
       ],
+      "license_files": [
+        "LICENSE",
+        "NOTICE"
+      ]
+    },
+    {
+      "id": "cfn-lint-bad",
+      "repository": "aws-cloudformation/cfn-lint",
+      "revision": "be66fb3e224b41c85065cb3002ad0b24e31db535",
+      "archive_sha256": "c83e21ebf31d7fa58737d175747f9aa59d6895089cf689fd5bba71824d877cd2",
+      "license": "MIT-0",
+      "include": [
+        "test/fixtures/templates/bad/*.yaml",
+        "test/fixtures/templates/bad/*.yml",
+        "test/fixtures/templates/bad/*.json"
+      ],
+      "exclude": [
+        ".github/*"
+      ],
+      "license_files": [
+        "LICENSE",
+        "NOTICE"
+      ]
+    },
+    {
+      "id": "cfn-lint-snapshot",
+      "repository": "aws-cloudformation/cfn-lint",
+      "revision": "be66fb3e224b41c85065cb3002ad0b24e31db535",
+      "archive_sha256": "c83e21ebf31d7fa58737d175747f9aa59d6895089cf689fd5bba71824d877cd2",
+      "license": "MIT-0",
+      "include": [
+        "test/fixtures/templates/quickstart/*.yaml",
+        "test/fixtures/templates/quickstart/*.yml",
+        "test/fixtures/templates/quickstart/*.json",
+        "test/fixtures/templates/integration/*.yaml",
+        "test/fixtures/templates/integration/*.yml",
+        "test/fixtures/templates/integration/*.json",
+        "test/fixtures/templates/public/*.yaml",
+        "test/fixtures/templates/public/*.yml",
+        "test/fixtures/templates/public/*.json"
+      ],
+      "exclude": [
+        ".github/*"
+      ],
+      "license_files": [
+        "LICENSE",
+        "NOTICE"
+      ]
+    },
+    {
+      "id": "widdix",
+      "repository": "widdix/aws-cf-templates",
+      "revision": "1a9f04f934179975a3a56c2496d2ed2b27598bd8",
+      "archive_sha256": "7d6a7978bbc2bcb60a5d3e7d67cc9400745935c005c4cc193ef13cc92aacd43f",
+      "license": "Apache-2.0",
+      "include": [
+        "*.yaml"
+      ],
+      "exclude": [
+        ".github/*",
+        ".readthedocs.yaml"
+      ],
+      "license_files": [
+        "LICENSE"
+      ]
+    },
+    {
+      "id": "sam-translator-output",
+      "repository": "aws/serverless-application-model",
+      "revision": "a130d8b4c43895b860d5b01b0fcc71bc465b91cf",
+      "archive_sha256": "02f3ea8f62033c0799b3da0055dadea24018cc5cf7f7525dee46a8bedca6cc74",
+      "license": "Apache-2.0",
+      "include": [
+        "tests/translator/output/*.json"
+      ],
+      "exclude": [
+        "tests/translator/output/aws-cn/*",
+        "tests/translator/output/aws-us-gov/*"
+      ],
+      "license_files": [
+        "LICENSE",
+        "NOTICE"
+      ]
+    },
+    {
+      "id": "troposphere-examples",
+      "repository": "cloudtools/troposphere",
+      "revision": "8cd7a25e5d3c65aee7e3e12d7abf9465c4a0d3c8",
+      "archive_sha256": "4d548ab7ff9fb2960e1666d80edd1a5a18c033086c056142c98f84bcbbceab0d",
+      "license": "BSD-2-Clause",
+      "include": [
+        "tests/examples_output/*.template"
+      ],
+      "exclude": [],
+      "license_files": [
+        "LICENSE"
+      ]
+    },
+    {
+      "id": "checkov-tests",
+      "repository": "bridgecrewio/checkov",
+      "revision": "7a6782e3d81e19f1bdd9213129f3138767691f5f",
+      "archive_sha256": "497756b787cb74ec86d1b6ab5b1a0ff21830d50830b7a33ab8191f1dced88a34",
+      "license": "Apache-2.0",
+      "include": [
+        "tests/cloudformation/*.yaml",
+        "tests/cloudformation/*.yml",
+        "tests/cloudformation/*.json",
+        "tests/cloudformation/*.template"
+      ],
+      "exclude": [],
+      "license_files": [
+        "LICENSE"
+      ]
+    },
+    {
+      "id": "cfn-nag-tests",
+      "repository": "stelligent/cfn_nag",
+      "revision": "8b5f03da74202ba323a145e9d037ddce6cab9dec",
+      "archive_sha256": "8300ebc08771da762eaa69aa8ae5b5daae6b1e5a4cc3b44b9883cba934dd51e9",
+      "license": "MIT",
+      "include": [
+        "spec/test_templates/*.yaml",
+        "spec/test_templates/*.yml",
+        "spec/test_templates/*.json",
+        "spec/test_templates/*.template"
+      ],
+      "exclude": [],
+      "license_files": [
+        "LICENSE.md"
+      ]
+    },
+    {
+      "id": "rain-tests",
+      "repository": "aws-cloudformation/rain",
+      "revision": "90e8c6f55803775f23ff2c1ef70fd4e79574ae15",
+      "archive_sha256": "4767f8899ce8d3b39977ea15bdea1af81fcf9da43f147ab0c63b5fbe905daa0d",
+      "license": "Apache-2.0",
+      "include": [
+        "test/templates/*.yaml",
+        "test/templates/*.yml",
+        "test/templates/*.json",
+        "test/templates/*.template"
+      ],
+      "exclude": [],
       "license_files": [
         "LICENSE",
         "NOTICE"

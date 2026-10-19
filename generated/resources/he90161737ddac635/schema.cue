@@ -7,12 +7,8 @@ import (
 	"list"
 	"strings"
 )
-
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,77 +16,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // entire cluster as of the time when the snapshot was taken.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MemoryDB::Snapshot"
-	Properties!: close({
-		ClusterName!: string | fn.#StringExpression
-		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string |
-			fn.#StringExpression
-		SnapshotName!: string | fn.#StringExpression
+	let properties = close({
+		ClusterName!: string | number | bool | fn.#StringExpression
+		KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+		} |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+				"\(self)"
+		} |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SnapshotName!: string | number | bool | fn.#StringExpression
 		Tags?:         list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#ClusterConfiguration: close({
-	Description?:       string | fn.#StringExpression
-	Engine?:            string | fn.#StringExpression
-	EngineVersion?:     string | fn.#StringExpression
-	MaintenanceWindow?: string | fn.#StringExpression
-	Name?:              string | fn.#StringExpression
-	NodeType?:          string | fn.#StringExpression
-	NumShards?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ParameterGroupName?: string | fn.#StringExpression
-	Port?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SnapshotRetentionLimit?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	SnapshotWindow?:  string | fn.#StringExpression
-	SubnetGroupName?: string | fn.#StringExpression
-	TopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: =~"^.+" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^.+" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -1,0 +1,17 @@
+Parameters:
+  Name:
+    Type: String
+Conditions:
+  Named:
+    Fn::Not:
+    - Fn::Equals:
+      - Ref: Name
+      - ''
+Resources:
+  Queue:
+    Type: AWS::SQS::Queue
+    Properties:
+      Fn::If:
+      - Named
+      - {}
+      - Ref: AWS::NoValue

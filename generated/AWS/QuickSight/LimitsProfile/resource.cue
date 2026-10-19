@@ -8,4 +8,3 @@ import schema "github.com/cueformation/cfn-cue/resources/haa6ad6bc52d9f01e:schem
 #LimitUnit:         schema.#LimitUnit
 #ProfileLimitValue: schema.#ProfileLimitValue
 #ResourceLimitsMap: schema.#ResourceLimitsMap
-#ResourceType:      schema.#ResourceType

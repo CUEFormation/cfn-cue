@@ -3,24 +3,22 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::DevEndpoint
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::DevEndpoint"
-	Properties!: close({
-		Arguments?:             fn.#Object & {...} | string | fn.#StringObjectExpression
-		EndpointName?:          string | fn.#StringExpression
-		ExtraJarsS3Path?:       string | fn.#StringExpression
-		ExtraPythonLibsS3Path?: string | fn.#StringExpression
-		GlueVersion?:           string | fn.#StringExpression
+	let properties = close({
+		Arguments?:             fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		EndpointName?:          string | number | bool | fn.#StringExpression
+		ExtraJarsS3Path?:       string | number | bool | fn.#StringExpression
+		ExtraPythonLibsS3Path?: string | number | bool | fn.#StringExpression
+		GlueVersion?:           string | number | bool | fn.#StringExpression
 		NumberOfNodes?: int |
 			{
 				string &
@@ -53,18 +51,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		PublicKey?:  string | fn.#StringExpression
-		PublicKeys?: [...string | fn.#StringExpression] | fn.#ListExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		SecurityConfiguration?: string | fn.#StringExpression
-		SecurityGroupIds?: [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
-		SubnetId?:   string | fn.#StringExpression
-		Tags?:       fn.#Object & {...} | string | fn.#StringObjectExpression
-		WorkerType?: string | fn.#StringExpression
+		PublicKey?:  string | number | bool | fn.#StringExpression
+		PublicKeys?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SecurityConfiguration?: string | number | bool | fn.#StringExpression
+		SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?:       fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		WorkerType?: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

@@ -5,7 +5,5 @@ package AccessToken
 import schema "github.com/cueformation/cfn-cue/resources/h0fa10688a0296565:schema"
 
 #Resource:     schema.#Resource
-#AccessToken:  schema.#AccessToken
 #ResourceName: schema.#ResourceName
 #Tag:          schema.#Tag
-#TokenStatus:  schema.#TokenStatus

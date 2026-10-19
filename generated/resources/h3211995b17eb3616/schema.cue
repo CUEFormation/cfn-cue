@@ -7,42 +7,74 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::Image
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::Image"
-	Properties!: close({
+	let properties = close({
 		ImageDescription?: #ImageDescription
 		ImageDisplayName?: #ImageDisplayName
 		ImageName!:        #ImageName
 		ImageRoleArn!:     #ImageRoleArn
 		Tags?:             list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#ImageArn: strings.MaxRunes(256) &
-strings.MinRunes(1) &
-=~"^arn:aws(-[\\w]+)*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:image\\/[a-zA-Z0-9]([-.]?[a-zA-Z0-9])*$" |
+#ImageDescription: strings.MaxRunes(512) & strings.MinRunes(1) & =~".+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~".+" & "\(self)"
+} |
 fn.#StringExpression
 
-#ImageDescription: strings.MaxRunes(512) & strings.MinRunes(1) & =~".+" | fn.#StringExpression
+#ImageDisplayName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9 -_]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9 -_]+$" & "\(self)"
+} |
+fn.#StringExpression
 
-#ImageDisplayName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9 -_]+$" | fn.#StringExpression
+#ImageName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([-.]?[a-zA-Z0-9])*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([-.]?[a-zA-Z0-9])*$" & "\(self)"
+} |
+fn.#StringExpression
 
-#ImageName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]([-.]?[a-zA-Z0-9])*$" | fn.#StringExpression
-
-#ImageRoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#ImageRoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(256) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(256) &
+	strings.MinRunes(1) &
+	=~"^arn:aws(-[\\w]+)*:iam::[0-9]{12}:role/.*$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

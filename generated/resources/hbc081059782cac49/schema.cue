@@ -3,15 +3,15 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Specifies the configuration data for a registered hook in CloudFormation Registry.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFormation::HookTypeConfig"
-	Properties?: matchN(1, [{
+	let properties = matchN(1, [{
 		TypeArn!:       _
 		Configuration!: _
 		...
@@ -20,10 +20,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Configuration!: _
 		...
 	}]) & close({
-		Configuration?:      =~"[\\s\\S]+" | fn.#StringExpression
-		ConfigurationAlias?: "default" & =~"^[a-zA-Z0-9]{1,256}$" | fn.#StringExpression
+		Configuration?: =~"[\\s\\S]+" |
+		{
+			number | bool
+			_cfnString: =~"[\\s\\S]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		ConfigurationAlias?: "default" & =~"^[a-zA-Z0-9]{1,256}$" |
+		{
+			number | bool
+			_cfnString: "default" & =~"^[a-zA-Z0-9]{1,256}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		TypeArn?: =~"^arn:aws[A-Za-z0-9-]{0,64}:cloudformation:[A-Za-z0-9-]{1,64}:([0-9]{12})?:type/hook/.+$" |
-			fn.#StringExpression
-		TypeName?: =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}$" | fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[A-Za-z0-9-]{0,64}:cloudformation:[A-Za-z0-9-]{1,64}:([0-9]{12})?:type/hook/.+$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		TypeName?: =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}$" |
+		{
+			number | bool
+			_cfnString: =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }

@@ -7,15 +7,15 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for Metric Stream
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudWatch::MetricStream"
-	Properties?: matchN(2, [{
+	let properties = matchN(2, [{
 		FirehoseArn!:  _
 		RoleArn!:      _
 		OutputFormat!: _
@@ -29,7 +29,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		}
 	])]) & close({
 		ExcludeFilters?: list.MaxItems(1000) & list.UniqueItems() & [...#MetricStreamFilter] | fn.#ListExpression
-		FirehoseArn?:    strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+		FirehoseArn?: strings.MaxRunes(2048) & strings.MinRunes(20) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
+		} |
+		fn.#StringExpression
 		IncludeFilters?: list.MaxItems(1000) & list.UniqueItems() & [...#MetricStreamFilter] | fn.#ListExpression
 		IncludeLinkedAccountsMetrics?: bool |
 			"true" |
@@ -39,39 +44,92 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		Name?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		OutputFormat?: ("json" | "opentelemetry0.7" | "opentelemetry1.0") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
 		fn.#StringExpression
-		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		OutputFormat?: ("json" | "opentelemetry0.7" | "opentelemetry1.0") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: ("json" | "opentelemetry0.7" | "opentelemetry1.0") &
+			strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		StatisticsConfigurations?: list.MaxItems(100) & list.UniqueItems() & [...#MetricStreamStatisticsConfiguration] |
 			fn.#ListExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #MetricStreamFilter: close({
-	MetricNames?: list.MaxItems(999) & [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
+	MetricNames?: list.MaxItems(999) & [...strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Namespace!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" | fn.#StringExpression
+	Namespace!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MetricStreamStatisticsConfiguration: close({
-	AdditionalStatistics!: list.MaxItems(20) & list.UniqueItems() & [...string | fn.#StringExpression] |
+	AdditionalStatistics!: list.MaxItems(20) & list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
 		fn.#ListExpression
 	IncludeMetrics!: list.MaxItems(100) & list.UniqueItems() & [...#MetricStreamStatisticsMetric] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #MetricStreamStatisticsMetric: close({
-	MetricName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Namespace!:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" | fn.#StringExpression
+	MetricName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Namespace!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:]" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

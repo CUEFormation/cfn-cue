@@ -6,14 +6,10 @@ import schema "github.com/cueformation/cfn-cue/resources/h66fa77e5e56a5bb6:schem
 
 #Resource:             schema.#Resource
 #AttributeName:        schema.#AttributeName
-#CreatedAt:            schema.#CreatedAt
 #Description:          schema.#Description
 #EntityName:           schema.#EntityName
-#HasWorkflows:         schema.#HasWorkflows
 #Hashed:               schema.#Hashed
 #MappedInputFields:    schema.#MappedInputFields
 #SchemaAttributeType:  schema.#SchemaAttributeType
 #SchemaInputAttribute: schema.#SchemaInputAttribute
-#SchemaMappingArn:     schema.#SchemaMappingArn
 #Tag:                  schema.#Tag
-#UpdatedAt:            schema.#UpdatedAt

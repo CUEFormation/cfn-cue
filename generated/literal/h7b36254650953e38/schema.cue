@@ -24,7 +24,17 @@ import (
 	ServiceIdentifier?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((svc-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:service/svc-[0-9a-z]{17}))$"
-	ServiceName?: strings.MaxRunes(40) & strings.MinRunes(3)
+	ServiceName?: =~"^[a-z0-9-]+$" &
+	matchN(0, [=~"^(?:svc-)"]) &
+	string &
+	matchN(0, [=~"^(?:[-])"]) &
+	string &
+	matchN(0, [=~"^(?:.*[-]$)"]) &
+	string &
+	matchN(0, [=~"^(?:.*[-]{2})"]) &
+	string &
+	strings.MaxRunes(40) &
+	strings.MinRunes(3)
 	ServiceNetworkArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:servicenetwork/sn-[0-9a-z]{17}$"
@@ -32,9 +42,19 @@ import (
 	ServiceNetworkIdentifier?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((sn-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:servicenetwork/sn-[0-9a-z]{17}))$"
-	ServiceNetworkName?: strings.MaxRunes(63) & strings.MinRunes(3)
-	Status?:             "CREATE_IN_PROGRESS" | "ACTIVE" | "DELETE_IN_PROGRESS" | "CREATE_FAILED" | "DELETE_FAILED"
-	Tags?:               list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
+	ServiceNetworkName?: =~"^[a-z0-9-]+$" &
+	matchN(0, [=~"^(?:servicenetwork-)"]) &
+	string &
+	matchN(0, [=~"^(?:[-])"]) &
+	string &
+	matchN(0, [=~"^(?:.*[-]$)"]) &
+	string &
+	matchN(0, [=~"^(?:.*[-]{2})"]) &
+	string &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3)
+	Status?: "CREATE_IN_PROGRESS" | "ACTIVE" | "DELETE_IN_PROGRESS" | "CREATE_FAILED" | "DELETE_FAILED"
+	Tags?:   list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })
 
 #DnsEntry: close({

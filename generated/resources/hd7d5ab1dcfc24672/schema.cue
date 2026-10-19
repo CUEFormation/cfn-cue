@@ -6,46 +6,103 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Chatbot::MicrosoftTeamsChannelConfiguration.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Chatbot::MicrosoftTeamsChannelConfiguration"
-	Properties!: close({
-		ConfigurationName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" | fn.#StringExpression
-		CustomizationResourceArns?: [
-			...=~"^arn:aws:chatbot:[A-Za-z0-9_/.-]{0,63}:[A-Za-z0-9_/.-]{0,63}:custom-action/[a-zA-Z0-9_-]{1,64}$" |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
-		GuardrailPolicies?: [...string | fn.#StringExpression] | fn.#ListExpression
-		IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		LoggingLevel?: strings.MaxRunes(5) & strings.MinRunes(4) & =~"^(ERROR|INFO|NONE)$" | fn.#StringExpression
-		SnsTopicArns?: [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		ConfigurationName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9-_]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		CustomizationResourceArns?: [...=~"^arn:aws:chatbot:[A-Za-z0-9_/.-]{0,63}:[A-Za-z0-9_/.-]{0,63}:custom-action/[a-zA-Z0-9_-]{1,64}$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws:chatbot:[A-Za-z0-9_/.-]{0,63}:[A-Za-z0-9_/.-]{0,63}:custom-action/[a-zA-Z0-9_-]{1,64}$" &
+				"\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		GuardrailPolicies?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		IamRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		LoggingLevel?: strings.MaxRunes(5) & strings.MinRunes(4) & =~"^(ERROR|INFO|NONE)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(5) & strings.MinRunes(4) & =~"^(ERROR|INFO|NONE)$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SnsTopicArns?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Tags?:         [...#Tag] | fn.#ListExpression
 		TeamId!: strings.MaxRunes(36) &
 		strings.MinRunes(36) &
 		=~"^[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) &
+			strings.MinRunes(36) &
+			=~"^[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		TeamsChannelId!: strings.MaxRunes(256) &
 		strings.MinRunes(1) &
 		=~"^([a-zA-Z0-9-_=+/.,])*%3[aA]([a-zA-Z0-9-_=+/.,])*%40([a-zA-Z0-9-_=+/.,])*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(1) &
+			=~"^([a-zA-Z0-9-_=+/.,])*%3[aA]([a-zA-Z0-9-_=+/.,])*%40([a-zA-Z0-9-_=+/.,])*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		TeamsChannelName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(.*)$" | fn.#StringExpression
+		TeamsChannelName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(.*)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(.*)$" & "\(self)"
+		} |
+		fn.#StringExpression
 		TeamsTenantId!: strings.MaxRunes(36) &
 		strings.MinRunes(36) &
 		=~"^[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) &
+			strings.MinRunes(36) &
+			=~"^[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		UserRoleRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

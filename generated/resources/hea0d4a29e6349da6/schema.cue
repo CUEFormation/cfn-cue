@@ -2,9 +2,12 @@
 
 package schema
 
-import "github.com/cueformation/cfn-cue/fn:fn"
-
+import (
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
+)
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -13,12 +16,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Region in which you enable Security Hub.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityHub::Hub"
-	Properties?: close({
-		AutoEnableControls?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ControlFindingGenerator?: =~"^(SECURITY_CONTROL|STANDARD_CONTROL)$" | fn.#StringExpression
-		EnableDefaultStandards?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Tags?:                    #Tags
+	let properties = close({
+		AutoEnableControls?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ControlFindingGenerator?: =~"^(SECURITY_CONTROL|STANDARD_CONTROL)$" |
+		{
+			number | bool
+			_cfnString: =~"^(SECURITY_CONTROL|STANDARD_CONTROL)$" & "\(self)"
+		} |
+		fn.#StringExpression
+		EnableDefaultStandards?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Tags?:                   #Tags
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
-#Tags: {...} | fn.#ObjectExpression
+#Tags: close({
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^(?:aws:)"]: error("disallowed")}
+
+	{
+		[=~"^[a-zA-Z+-=._:/]+$"]: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
+fn.#ObjectExpression

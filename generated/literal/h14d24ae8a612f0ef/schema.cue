@@ -50,7 +50,19 @@ import (
 // For more information about cache behaviors, see [Cache Behavior
 // Settings](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/distribution-web-values-specify.html#DownloadDistValuesCacheBehavior)
 // in the *Amazon CloudFront Developer Guide*.
-#CacheBehavior: close({
+#CacheBehavior: matchIf({
+	CachePolicyId!: _
+	...
+}, _, {
+	ForwardedValues?: null | bool | number | string | [...] | {
+		Cookies?: null | bool | number | string | [...] | {
+			Forward?: "all" | "none" | "whitelist"
+			...
+		}
+		...
+	}
+	...
+}) & close({
 	// A complex type that controls which HTTP methods CloudFront processes and
 	// forwards to your Amazon S3 bucket or your custom origin. There are three
 	// choices:
@@ -521,7 +533,19 @@ import (
 // least the duration specified in the cache policy's minimum TTL, even if the
 // ``Cache-Control: no-cache``, ``no-store``, or ``private`` directives are
 // present in the origin headers.
-#DefaultCacheBehavior: close({
+#DefaultCacheBehavior: matchIf({
+	CachePolicyId!: _
+	...
+}, _, {
+	ForwardedValues?: null | bool | number | string | [...] | {
+		Cookies?: null | bool | number | string | [...] | {
+			Forward?: "all" | "none" | "whitelist"
+			...
+		}
+		...
+	}
+	...
+}) & close({
 	// A complex type that controls which HTTP methods CloudFront processes and
 	// forwards to your Amazon S3 bucket or your custom origin. There are three
 	// choices:

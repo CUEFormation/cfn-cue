@@ -7,8 +7,8 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,18 +16,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // an audit and how often the audit should be run.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::ScheduledAudit"
-	Properties!: close({
-		DayOfMonth?: =~"^([1-9]|[12][0-9]|3[01])$|^LAST$|^UNSET_VALUE$" | fn.#StringExpression
-		DayOfWeek?:  "SUN" | "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "UNSET_VALUE" | fn.#StringExpression
-		Frequency!:  "DAILY" | "WEEKLY" | "BIWEEKLY" | "MONTHLY" | fn.#StringExpression
-		ScheduledAuditName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
-		Tags?:               list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TargetCheckNames!:   list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		DayOfMonth?: =~"^([1-9]|[12][0-9]|3[01])$|^LAST$|^UNSET_VALUE$" |
+		{
+			number | bool
+			_cfnString: =~"^([1-9]|[12][0-9]|3[01])$|^LAST$|^UNSET_VALUE$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DayOfWeek?: "SUN" | "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "UNSET_VALUE" | fn.#StringExpression
+		Frequency!: "DAILY" | "WEEKLY" | "BIWEEKLY" | "MONTHLY" | fn.#StringExpression
+		ScheduledAuditName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?:             list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetCheckNames!: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

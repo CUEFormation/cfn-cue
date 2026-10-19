@@ -7,5 +7,4 @@ import schema "github.com/cueformation/cfn-cue/resources/h8220b47edfff8427:schem
 #Resource:        schema.#Resource
 #ReportContext:   schema.#ReportContext
 #ReportFrequency: schema.#ReportFrequency
-#S3Location:      schema.#S3Location
 #Tag:             schema.#Tag

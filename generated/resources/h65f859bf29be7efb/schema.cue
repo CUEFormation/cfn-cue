@@ -3,36 +3,40 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::ResourceDefinitionVersion
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Greengrass::ResourceDefinitionVersion"
-	Properties!: close({
-		ResourceDefinitionId!: string | fn.#StringExpression
+	let properties = close({
+		ResourceDefinitionId!: string | number | bool | fn.#StringExpression
 		Resources!:            [...#ResourceInstance] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #GroupOwnerSetting: close({
 	AutoAddGroupOwner!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	GroupOwner?:        string | fn.#StringExpression
+	GroupOwner?:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LocalDeviceResourceData: close({
 	GroupOwnerSetting?: #GroupOwnerSetting
-	SourcePath!:        string | fn.#StringExpression
+	SourcePath!:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LocalVolumeResourceData: close({
-	DestinationPath!:   string | fn.#StringExpression
+	DestinationPath!:   string | number | bool | fn.#StringExpression
 	GroupOwnerSetting?: #GroupOwnerSetting
-	SourcePath!:        string | fn.#StringExpression
+	SourcePath!:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -46,34 +50,34 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ResourceDownloadOwnerSetting: close({
-	GroupOwner!:      string | fn.#StringExpression
-	GroupPermission!: string | fn.#StringExpression
+	GroupOwner!:      string | number | bool | fn.#StringExpression
+	GroupPermission!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ResourceInstance: close({
-	Id!:                    string | fn.#StringExpression
-	Name!:                  string | fn.#StringExpression
+	Id!:                    string | number | bool | fn.#StringExpression
+	Name!:                  string | number | bool | fn.#StringExpression
 	ResourceDataContainer!: #ResourceDataContainer
 }) |
 fn.#ObjectExpression
 
 #S3MachineLearningModelResourceData: close({
-	DestinationPath!: string | fn.#StringExpression
+	DestinationPath!: string | number | bool | fn.#StringExpression
 	OwnerSetting?:    #ResourceDownloadOwnerSetting
-	S3Uri!:           string | fn.#StringExpression
+	S3Uri!:           string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SageMakerMachineLearningModelResourceData: close({
-	DestinationPath!: string | fn.#StringExpression
+	DestinationPath!: string | number | bool | fn.#StringExpression
 	OwnerSetting?:    #ResourceDownloadOwnerSetting
-	SageMakerJobArn!: string | fn.#StringExpression
+	SageMakerJobArn!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SecretsManagerSecretResourceData: close({
-	ARN!:                               string | fn.#StringExpression
-	AdditionalStagingLabelsToDownload?: [...string | fn.#StringExpression] | fn.#ListExpression
+	ARN!:                               string | number | bool | fn.#StringExpression
+	AdditionalStagingLabelsToDownload?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression

@@ -7,26 +7,50 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoT::BillingGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::BillingGroup"
-	Properties?: close({
-		BillingGroupName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
-		BillingGroupProperties?: close(
-			{BillingGroupDescription?: strings.MaxRunes(2028) & strings.MinRunes(0) | fn.#StringExpression},
-		) |
+	let properties = close({
+		BillingGroupName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		BillingGroupProperties?: close({
+			BillingGroupDescription?: strings.MaxRunes(2028) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(2028) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
+		}) |
 		fn.#ObjectExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -5,10 +5,7 @@ package GlobalResolver
 import schema "github.com/cueformation/cfn-cue/resources/h816f66a206287b0d:schema"
 
 #Resource:                    schema.#Resource
-#CRResourceStatus:            schema.#CRResourceStatus
 #GlobalResolverIpAddressType: schema.#GlobalResolverIpAddressType
-#IPv4Address:                 schema.#IPv4Address
-#IPv6Address:                 schema.#IPv6Address
 #Region:                      schema.#Region
 #ResourceDescription:         schema.#ResourceDescription
 #ResourceName:                schema.#ResourceName

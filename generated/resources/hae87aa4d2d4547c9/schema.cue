@@ -8,8 +8,8 @@ import (
 	"list"
 	"github.com/cueformation/cfn-cue/iam:iam"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -29,13 +29,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *IAM User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IAM::ManagedPolicy"
-	Properties!: close({
-		Description?:       strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-		Groups?:            list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		ManagedPolicyName?: string | fn.#StringExpression
-		Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^((/[A-Za-z0-9\\.,\\+@=_-]+)*)/$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Groups?:            list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		ManagedPolicyName?: string | number | bool | fn.#StringExpression
+		Path?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^((/[A-Za-z0-9\\.,\\+@=_-]+)*)/$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^((/[A-Za-z0-9\\.,\\+@=_-]+)*)/$" & "\(self)"
+		} |
+		fn.#StringExpression
 		PolicyDocument!: iam.#IdentityPolicyValue
-		Roles?:          list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		Users?:          list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		Roles?:          list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		Users?:          list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

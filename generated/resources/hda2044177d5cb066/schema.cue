@@ -6,34 +6,36 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaPackage::Asset
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaPackage::Asset"
-	Properties!: close({
+	let properties = close({
 		EgressEndpoints?:  [...close({}) | fn.#ObjectExpression] | fn.#ListExpression
-		Id!:               string | fn.#StringExpression
-		PackagingGroupId!: string | fn.#StringExpression
-		ResourceId?:       string | fn.#StringExpression
-		SourceArn!:        string | fn.#StringExpression
-		SourceRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		Id!:               string | number | bool | fn.#StringExpression
+		PackagingGroupId!: string | number | bool | fn.#StringExpression
+		ResourceId?:       string | number | bool | fn.#StringExpression
+		SourceArn!:        string | number | bool | fn.#StringExpression
+		SourceRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#EgressEndpoint: close({
-	PackagingConfigurationId!: string | fn.#StringExpression
-	Url!:                      string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

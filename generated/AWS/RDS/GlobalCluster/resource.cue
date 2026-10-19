@@ -4,6 +4,5 @@ package GlobalCluster
 
 import schema "github.com/cueformation/cfn-cue/resources/hda6fcff6674bf450:schema"
 
-#Resource:       schema.#Resource
-#GlobalEndpoint: schema.#GlobalEndpoint
-#Tag:            schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

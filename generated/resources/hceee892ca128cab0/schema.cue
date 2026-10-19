@@ -7,29 +7,41 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SSMContacts::Contact
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSMContacts::Contact"
-	Properties!: close({
-		Alias!:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-z0-9_\\-\\.]*$" | fn.#StringExpression
-		DisplayName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-\\s]*$" | fn.#StringExpression
-		Plan?:        [...#Stage] | fn.#ListExpression
-		Tags?:        list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-		Type!:        "PERSONAL" | "ESCALATION" | "ONCALL_SCHEDULE" | fn.#StringExpression
+	let properties = close({
+		Alias!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-z0-9_\\-\\.]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-z0-9_\\-\\.]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DisplayName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-\\s]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-\\s]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Plan?: [...#Stage] | fn.#ListExpression
+		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		Type!: "PERSONAL" | "ESCALATION" | "ONCALL_SCHEDULE" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ChannelTargetInfo: close({
-	ChannelId!: string | fn.#StringExpression
+	ChannelId!: string | number | bool | fn.#StringExpression
 	RetryIntervalInMinutes!: int |
 		{
 			string &
@@ -48,7 +60,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #ContactTargetInfo: close({
-	ContactId!:   string | fn.#StringExpression
+	ContactId!:   string | number | bool | fn.#StringExpression
 	IsEssential!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
@@ -68,7 +80,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	RotationIds?: [...string | fn.#StringExpression] | fn.#ListExpression
+	RotationIds?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Targets?:     [...#Targets] | fn.#ListExpression
 	if DurationInMinutes != _|_ if DurationInMinutes."Fn::If" == _|_ {
 		RotationIds?: close({"Fn::If": _}) | error(
@@ -79,8 +91,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\\\\\/a-zA-Z0-9_+=\\-]*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\\\\\/a-zA-Z0-9_+=\\-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\\\\\/a-zA-Z0-9_+=\\-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

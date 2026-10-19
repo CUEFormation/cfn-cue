@@ -49,7 +49,7 @@ import (
 })
 
 #Tag: close({
-	Key?:   string
+	Key?:   =~"^.+" & matchN(0, [=~"^(?:aws:)"]) & string
 	Value?: string
 })
 

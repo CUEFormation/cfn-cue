@@ -1,0 +1,31 @@
+Parameters:
+  Env:
+    Type: String
+    AllowedValues:
+    - prod
+    - dev
+Conditions:
+  Prod:
+    Fn::Equals:
+    - Ref: Env
+    - prod
+  Dev:
+    Fn::Equals:
+    - Ref: Env
+    - dev
+Resources:
+  A:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId: abc123
+      StageName: prod
+  B:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId: abc123
+      StageName: prod
+  C:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId: abc123
+      StageName: dev

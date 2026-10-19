@@ -7,28 +7,55 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::NetworkManager::Link type describes a link.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::NetworkManager::Link"
-	Properties!: close({
+	let properties = close({
 		// The Bandwidth for the link.
-		Bandwidth!:       #Bandwidth
-		Description?:     strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-		GlobalNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-		Provider?:        strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-		SiteId!:          strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-		Tags?:            list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		Type?:            strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		Bandwidth!: #Bandwidth
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		GlobalNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Provider?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SiteId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Type?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Bandwidth: close({
@@ -64,7 +91,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

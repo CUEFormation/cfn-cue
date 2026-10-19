@@ -7,82 +7,127 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::InferenceExperiment
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::InferenceExperiment"
-	Properties!: close({
+	let properties = close({
 		DataStorageConfig?: #DataStorageConfig
-		Description?:       strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
-		DesiredState?:      "Running" | "Completed" | "Cancelled" | fn.#StringExpression
-		EndpointName!:      #EndpointName
-		KmsKey?:            strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-		ModelVariants!:     list.MaxItems(2) & list.MinItems(1) & [...#ModelVariantConfig] | fn.#ListExpression
-		Name!: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" & "\(self)"
+		} |
 		fn.#StringExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		DesiredState?: "Running" | "Completed" | "Cancelled" | fn.#StringExpression
+		EndpointName!: #EndpointName
+		KmsKey?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" & "\(self)"
+		} |
+		fn.#StringExpression
+		ModelVariants!: list.MaxItems(2) & list.MinItems(1) & [...#ModelVariantConfig] | fn.#ListExpression
+		Name!: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(120) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Schedule?:         #InferenceExperimentSchedule
 		ShadowModeConfig?: #ShadowModeConfig
-		StatusReason?:     strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
-		Tags?:             list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-		Type!:             "ShadowMode" | fn.#StringExpression
+		StatusReason?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		Type!: "ShadowMode" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CaptureContentTypeHeader: close({
-	CsvContentTypes?: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*/[a-zA-Z0-9](-*[a-zA-Z0-9.])*" |
-		fn.#StringExpression
-	] |
+	CsvContentTypes?: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(256) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*/[a-zA-Z0-9](-*[a-zA-Z0-9.])*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*/[a-zA-Z0-9](-*[a-zA-Z0-9.])*" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	JsonContentTypes?: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*/[a-zA-Z0-9](-*[a-zA-Z0-9.])*" |
-		fn.#StringExpression
-	] |
+	JsonContentTypes?: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(256) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*/[a-zA-Z0-9](-*[a-zA-Z0-9.])*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*/[a-zA-Z0-9](-*[a-zA-Z0-9.])*" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #DataStorageConfig: close({
 	ContentType?: #CaptureContentTypeHeader
-	Destination!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" | fn.#StringExpression
-	KmsKey?:      strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+	Destination!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/])/?(.*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	KmsKey?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#EndpointMetadata: close({
-	EndpointConfigName?: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" | fn.#StringExpression
-	EndpointName!:       #EndpointName
-	EndpointStatus?: ("Creating" |
-		"Updating" |
-		"SystemUpdating" |
-		"RollingBack" |
-		"InService" |
-		"OutOfService" |
-		"Deleting" |
-		"Failed") &
-		=~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" |
-		fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#EndpointName: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" | fn.#StringExpression
+#EndpointName: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" & "\(self)"
+} |
+fn.#StringExpression
 
 #InferenceExperimentSchedule: close({
-	EndTime?:   string | fn.#StringExpression
-	StartTime?: string | fn.#StringExpression
+	EndTime?:   string | number | bool | fn.#StringExpression
+	StartTime?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -94,8 +139,20 @@ fn.#ObjectExpression
 
 #ModelVariantConfig: close({
 	InfrastructureConfig!: #ModelInfrastructureConfig
-	ModelName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" | fn.#StringExpression
+	ModelName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" & "\(self)"
+	} |
+	fn.#StringExpression
 	VariantName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) &
+		strings.MinRunes(0) &
+		=~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -116,13 +173,20 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	InstanceType!: string | fn.#StringExpression
+	InstanceType!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ShadowModeConfig: close({
 	ShadowModelVariants!: list.MaxItems(1) & list.MinItems(1) & [...#ShadowModelVariantConfig] | fn.#ListExpression
 	SourceModelVariantName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) &
+		strings.MinRunes(0) &
+		=~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -144,12 +208,29 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	ShadowModelVariantName!: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) &
+		strings.MinRunes(0) &
+		=~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -12,6 +12,5 @@ import schema "github.com/cueformation/cfn-cue/resources/hf24a360be9aa4a2d:schem
 #MaintenanceWindowRunCommandParameters:    schema.#MaintenanceWindowRunCommandParameters
 #MaintenanceWindowStepFunctionsParameters: schema.#MaintenanceWindowStepFunctionsParameters
 #NotificationConfig:                       schema.#NotificationConfig
-#ParameterValues:                          schema.#ParameterValues
 #Target:                                   schema.#Target
 #TaskInvocationParameters:                 schema.#TaskInvocationParameters

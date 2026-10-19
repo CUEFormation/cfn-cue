@@ -6,23 +6,47 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A Recovery Plan orchestrates multi-server disaster recovery in AWS Elastic Disaster Recovery.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DRS::RecoveryPlan"
-	Properties!: close({
-		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9 _-]*$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9 _-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9 _-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

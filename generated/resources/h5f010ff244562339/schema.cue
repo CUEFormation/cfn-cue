@@ -7,27 +7,54 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents an AWS IoT SiteWise workspace that provides logical isolation for tasks and pipelines.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTSiteWise::Workspace"
-	Properties!: close({
+	let properties = close({
 		EncryptionConfiguration!: #EncryptionConfiguration
-		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string) &
+		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(1) &
 		=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:[0-9]{12}:key/.+$" |
+		{
+			number | bool
+			_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+				=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+				=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:[0-9]{12}:key/.+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 		WorkspaceDescription?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(0) &
+			=~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		WorkspaceName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		WorkspaceName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #EncryptionConfiguration: close(
@@ -36,7 +63,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

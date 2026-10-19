@@ -3,28 +3,50 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53GlobalResolver::HostedZoneAssociation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53GlobalResolver::HostedZoneAssociation"
-	Properties!: close({
+	let properties = close({
 		HostedZoneId!: #HostedZoneId
 		Name!:         #ResourceName
 		ResourceArn!:  #ResourceArn
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#HostedZoneAssociationStatus: "CREATING" | "OPERATIONAL" | "DELETING" | fn.#StringExpression
+#HostedZoneId: strings.MaxRunes(32) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#HostedZoneId: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
+#ResourceArn: strings.MaxRunes(2048) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#ResourceArn: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-
-#ResourceName: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+#ResourceName: (=~"^(?:([a-zA-Z0-9-_' ']+))" & matchN(0, [=~"^(?:^[0-9]+$)"]) & string |
+=~"^(?s:.)+(?:([a-zA-Z0-9-_' ']+))") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+{
+	number | bool
+	_cfnString: (=~"^(?:([a-zA-Z0-9-_' ']+))" & matchN(0, [=~"^(?:^[0-9]+$)"]) & string |
+	=~"^(?s:.)+(?:([a-zA-Z0-9-_' ']+))") &
+	strings.MaxRunes(64) &
+	strings.MinRunes(1) &
+	"\(self)"
+} |
+fn.#StringExpression

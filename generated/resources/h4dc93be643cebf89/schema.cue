@@ -7,12 +7,10 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,18 +18,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // resource parameters.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::XRay::SamplingRule"
-	Properties?: close({
+	let properties = close({
 		RuleName?:           #RuleName
 		SamplingRule?:       #SamplingRule
 		SamplingRuleRecord?: #SamplingRuleRecord
 		SamplingRuleUpdate?: #SamplingRuleUpdate
 		Tags?:               #Tags
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
-#RuleARN: string | fn.#StringExpression
+#RuleARN: string | number | bool | fn.#StringExpression
 
-#RuleName: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
+#RuleName: strings.MaxRunes(32) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #SamplingRateBoost: close({
 	CooldownWindowMinutes!: int & >=1 |
@@ -75,7 +82,12 @@ fn.#ObjectExpression
 #SamplingRule: close({
 	Attributes?: close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		{[=~".{1,}"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	FixedRate!: <=1 & >=0 |
 		{
@@ -97,8 +109,18 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	HTTPMethod!: strings.MaxRunes(10) & strings.MinRunes(0) | fn.#StringExpression
-	Host!:       strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+	HTTPMethod!: strings.MaxRunes(10) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Host!: strings.MaxRunes(64) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	Priority!: int & <=9999 & >=1 |
 		{
 			string &
@@ -130,13 +152,33 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ResourceARN!:       strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
+	ResourceARN!: strings.MaxRunes(500) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	RuleARN?:           #RuleARN
 	RuleName?:          #RuleName
 	SamplingRateBoost?: #SamplingRateBoost
-	ServiceName!:       strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-	ServiceType!:       strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-	URLPath!:           strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+	ServiceName!: strings.MaxRunes(64) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	ServiceType!: strings.MaxRunes(64) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	URLPath!: strings.MaxRunes(128) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	Version?: int & >=1 |
 		{
 			string &
@@ -156,8 +198,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SamplingRuleRecord: close({
-	CreatedAt?:    string | fn.#StringExpression
-	ModifiedAt?:   string | fn.#StringExpression
+	CreatedAt?:    string | number | bool | fn.#StringExpression
+	ModifiedAt?:   string | number | bool | fn.#StringExpression
 	SamplingRule?: #SamplingRule
 }) |
 fn.#ObjectExpression
@@ -165,7 +207,12 @@ fn.#ObjectExpression
 #SamplingRuleUpdate: close({
 	Attributes?: close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		{[=~".{1,}"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	FixedRate?: <=1 & >=0 |
 		{
@@ -187,8 +234,18 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	HTTPMethod?: strings.MaxRunes(10) | fn.#StringExpression
-	Host?:       strings.MaxRunes(64) | fn.#StringExpression
+	HTTPMethod?: strings.MaxRunes(10) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10) & "\(self)"
+	} |
+	fn.#StringExpression
+	Host?: strings.MaxRunes(64) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & "\(self)"
+	} |
+	fn.#StringExpression
 	Priority?: int & <=9999 & >=1 |
 		{
 			string &
@@ -220,19 +277,49 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ResourceARN?:       strings.MaxRunes(500) | fn.#StringExpression
+	ResourceARN?: strings.MaxRunes(500) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & "\(self)"
+	} |
+	fn.#StringExpression
 	RuleARN?:           #RuleARN
 	RuleName?:          #RuleName
 	SamplingRateBoost?: #SamplingRateBoost
-	ServiceName?:       strings.MaxRunes(64) | fn.#StringExpression
-	ServiceType?:       strings.MaxRunes(64) | fn.#StringExpression
-	URLPath?:           strings.MaxRunes(128) | fn.#StringExpression
+	ServiceName?: strings.MaxRunes(64) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & "\(self)"
+	} |
+	fn.#StringExpression
+	ServiceType?: strings.MaxRunes(64) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & "\(self)"
+	} |
+	fn.#StringExpression
+	URLPath?: strings.MaxRunes(128) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

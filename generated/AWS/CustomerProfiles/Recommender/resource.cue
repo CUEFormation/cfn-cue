@@ -12,7 +12,4 @@ import schema "github.com/cueformation/cfn-cue/resources/hef9e13a9655927ab:schem
 #RecommenderConfig:     schema.#RecommenderConfig
 #RecommenderName:       schema.#RecommenderName
 #RecommenderRecipeName: schema.#RecommenderRecipeName
-#RecommenderStatus:     schema.#RecommenderStatus
-#RecommenderUpdate:     schema.#RecommenderUpdate
 #Tag:                   schema.#Tag
-#TrainingMetrics:       schema.#TrainingMetrics

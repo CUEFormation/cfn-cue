@@ -6,26 +6,38 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type Definition for Resiliency Policy.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ResilienceHub::ResiliencyPolicy"
-	Properties!: close({
+	let properties = close({
 		DataLocationConstraint?: "AnyLocation" | "SameContinent" | "SameCountry" | fn.#StringExpression
 		Policy!:                 #PolicyMap
-		PolicyDescription?:      strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-		PolicyName!:             =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
-		Tags?:                   #TagMap
+		PolicyDescription?: strings.MaxRunes(500) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		PolicyName!: =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" |
+		{
+			number | bool
+			_cfnString: =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: #TagMap
 		Tier!: "MissionCritical" | "Critical" | "Important" | "CoreServices" | "NonCritical" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #FailurePolicy: close({
@@ -70,7 +82,17 @@ fn.#ObjectExpression
 
 #TagMap: close({
 
-	{[=~".{1,128}"]: #TagValue}}) |
+	{[=~".{1,128}"]: #TagValue}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
-#TagValue: strings.MaxRunes(256) | fn.#StringExpression
+#TagValue: strings.MaxRunes(256) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & "\(self)"
+} |
+fn.#StringExpression

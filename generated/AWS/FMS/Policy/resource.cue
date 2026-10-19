@@ -19,7 +19,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h1978bdf731b366e7:schem
 #PolicyOption:              schema.#PolicyOption
 #PolicyTag:                 schema.#PolicyTag
 #PolicyType:                schema.#PolicyType
-#ResourceArn:               schema.#ResourceArn
 #ResourceTag:               schema.#ResourceTag
 #ResourceType:              schema.#ResourceType
 #SecurityServicePolicyData: schema.#SecurityServicePolicyData

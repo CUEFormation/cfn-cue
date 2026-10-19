@@ -6,19 +6,36 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates or updates the auth policy.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::VpcLattice::AuthPolicy"
-	Properties!: close({
-		Policy!: fn.#Object & {...} | strings.MaxRunes(36864) | fn.#StringObjectExpression
+	let properties = close({
+		Policy!: fn.#Object & {...} |
+		strings.MaxRunes(36864) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36864) & "\(self)"
+		} |
+		fn.#StringObjectExpression
 		ResourceIdentifier!: strings.MaxRunes(200) &
 		strings.MinRunes(17) &
 		=~"^((((sn)|(svc))-[0-9a-z]{17})|(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:((servicenetwork/sn)|(service/svc))-[0-9a-z]{17}))$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) &
+			strings.MinRunes(17) &
+			=~"^((((sn)|(svc))-[0-9a-z]{17})|(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:((servicenetwork/sn)|(service/svc))-[0-9a-z]{17}))$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

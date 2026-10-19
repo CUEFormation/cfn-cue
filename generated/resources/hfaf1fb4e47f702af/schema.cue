@@ -3,43 +3,47 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::FSx::StorageVirtualMachine
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::FSx::StorageVirtualMachine"
-	Properties!: close({
+	let properties = close({
 		ActiveDirectoryConfiguration?: #ActiveDirectoryConfiguration
-		FileSystemId!:                 string | fn.#StringExpression
-		Name!:                         string | fn.#StringExpression
-		RootVolumeSecurityStyle?:      string | fn.#StringExpression
-		SvmAdminPassword?:             string | fn.#StringExpression
+		FileSystemId!:                 string | number | bool | fn.#StringExpression
+		Name!:                         string | number | bool | fn.#StringExpression
+		RootVolumeSecurityStyle?:      string | number | bool | fn.#StringExpression
+		SvmAdminPassword?:             string | number | bool | fn.#StringExpression
 		Tags?:                         [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ActiveDirectoryConfiguration: close({
-	NetBiosName?:                             string | fn.#StringExpression
+	NetBiosName?:                             string | number | bool | fn.#StringExpression
 	SelfManagedActiveDirectoryConfiguration?: #SelfManagedActiveDirectoryConfiguration
 }) |
 fn.#ObjectExpression
 
 #SelfManagedActiveDirectoryConfiguration: close({
-	DnsIps?:                              [...string | fn.#StringExpression] | fn.#ListExpression
-	DomainJoinServiceAccountSecret?:      string | fn.#StringExpression
-	DomainName?:                          string | fn.#StringExpression
-	FileSystemAdministratorsGroup?:       string | fn.#StringExpression
-	OrganizationalUnitDistinguishedName?: string | fn.#StringExpression
-	Password?:                            string | fn.#StringExpression
-	UserName?:                            string | fn.#StringExpression
+	DnsIps?:                              [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	DomainJoinServiceAccountSecret?:      string | number | bool | fn.#StringExpression
+	DomainName?:                          string | number | bool | fn.#StringExpression
+	FileSystemAdministratorsGroup?:       string | number | bool | fn.#StringExpression
+	OrganizationalUnitDistinguishedName?: string | number | bool | fn.#StringExpression
+	Password?:                            string | number | bool | fn.#StringExpression
+	UserName?:                            string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

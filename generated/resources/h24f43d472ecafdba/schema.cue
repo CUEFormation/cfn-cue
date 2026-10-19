@@ -7,32 +7,51 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::Agent Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Bedrock::Agent"
-	Properties!: close({
+	let properties = close({
 		ActionGroups?:       [...#AgentActionGroup] | fn.#ListExpression
 		AgentCollaboration?: #AgentCollaboration
 		AgentCollaborators?: [...#AgentCollaborator] | fn.#ListExpression
-		AgentName!:          =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-		AgentResourceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MaxRunes(2048) |
+		AgentName!: =~"^([0-9a-zA-Z][_-]?){1,100}$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-zA-Z][_-]?){1,100}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		AgentResourceRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MaxRunes(2048) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MaxRunes(2048) & "\(self)"
+		} |
 		fn.#StringExpression
 		AutoPrepare?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		CustomOrchestration?: #CustomOrchestration
 		CustomerEncryptionKeyArn?: strings.MaxRunes(2048) &
 		strings.MinRunes(1) &
 		=~"^arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Description?:            strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		FoundationModel?:        #FoundationModel
 		GuardrailConfiguration?: #GuardrailConfiguration
 		IdleSessionTTLInSeconds?: <=5400 & >=60 |
@@ -55,7 +74,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Instruction?:                 strings.MinRunes(40) | fn.#StringExpression
+		Instruction?: strings.MinRunes(40) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(40) & "\(self)"
+		} |
+		fn.#StringExpression
 		KnowledgeBases?:              [...#AgentKnowledgeBase] | fn.#ListExpression
 		MemoryConfiguration?:         #MemoryConfiguration
 		OrchestrationType?:           #OrchestrationType
@@ -71,6 +95,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:          #TagsMap
 		TestAliasTags?: #TagsMap
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #APISchema: matchN(1, [close({S3!: #S3Identifier}), close({Payload!: string | fn.#StringExpression})]) |
@@ -92,11 +120,21 @@ fn.#ValueExpression
 #AdditionalModelRequestFields: fn.#Object & {...} | fn.#ObjectExpression
 
 #AgentActionGroup: close({
-	ActionGroupExecutor?:        #ActionGroupExecutor
-	ActionGroupName!:            =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-	ActionGroupState?:           #ActionGroupState
-	ApiSchema?:                  #APISchema
-	Description?:                strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+	ActionGroupExecutor?: #ActionGroupExecutor
+	ActionGroupName!: =~"^([0-9a-zA-Z][_-]?){1,100}$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-9a-zA-Z][_-]?){1,100}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ActionGroupState?: #ActionGroupState
+	ApiSchema?:        #APISchema
+	Description?: strings.MaxRunes(200) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	FunctionSchema?:             #FunctionSchema
 	ParentActionGroupSignature?: #ActionGroupSignature
 	SkipResourceInUseCheckOnDelete?: bool |
@@ -115,31 +153,36 @@ fn.#ObjectExpression
 #AgentCollaborator: close({
 	AgentDescriptor!: close({
 		AliasArn?: =~"^arn:(aws[a-zA-Z-]*)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:agent-alias/[0-9a-zA-Z]{10}/[0-9a-zA-Z]{10}$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:(aws[a-zA-Z-]*)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:agent-alias/[0-9a-zA-Z]{10}/[0-9a-zA-Z]{10}$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 	}) |
-		fn.#ObjectExpression
-	CollaborationInstruction!: string | fn.#StringExpression
-	CollaboratorName!:         string | fn.#StringExpression
+	fn.#ObjectExpression
+	CollaborationInstruction!: string | number | bool | fn.#StringExpression
+	CollaboratorName!:         string | number | bool | fn.#StringExpression
 	RelayConversationHistory?: #RelayConversationHistory
 }) |
 fn.#ObjectExpression
 
 #AgentKnowledgeBase: close({
-	Description!:        strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-	KnowledgeBaseId!:    =~"^[0-9a-zA-Z]{10}$" | fn.#StringExpression
+	Description!: strings.MaxRunes(200) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	KnowledgeBaseId!: =~"^[0-9a-zA-Z]{10}$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9a-zA-Z]{10}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	KnowledgeBaseState?: #KnowledgeBaseState
 }) |
 fn.#ObjectExpression
-
-#AgentStatus: "CREATING" |
-	"PREPARING" |
-	"PREPARED" |
-	"NOT_PREPARED" |
-	"DELETING" |
-	"FAILED" |
-	"VERSIONING" |
-	"UPDATING" |
-	fn.#StringExpression
 
 #CreationMode: "DEFAULT" | "OVERRIDDEN" | fn.#StringExpression
 
@@ -152,11 +195,28 @@ fn.#ObjectExpression
 #FoundationModel: strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:(([0-9]{12}:custom-model/[a-z0-9-]{1,63}[.]{1}[a-z0-9-]{1,63}(([:][a-z0-9-]{1,63}){0,2})?/[a-z0-9]{12})|(:foundation-model/([a-z0-9-]{1,63}[.]{1}[a-z0-9-]{1,63}([.]?[a-z0-9-]{1,63})([:][a-z0-9-]{1,63}){0,2}))|([0-9]{12}:(inference-profile|application-inference-profile)/[a-zA-Z0-9-:.]+))|(([a-z0-9-]{1,63}[.]{1}[a-z0-9-]{1,63}([.]?[a-z0-9-]{1,63})([:][a-z0-9-]{1,63}){0,2}))|(([0-9a-zA-Z][_-]?)+)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:(([0-9]{12}:custom-model/[a-z0-9-]{1,63}[.]{1}[a-z0-9-]{1,63}(([:][a-z0-9-]{1,63}){0,2})?/[a-z0-9]{12})|(:foundation-model/([a-z0-9-]{1,63}[.]{1}[a-z0-9-]{1,63}([.]?[a-z0-9-]{1,63})([:][a-z0-9-]{1,63}){0,2}))|([0-9]{12}:(inference-profile|application-inference-profile)/[a-zA-Z0-9-:.]+))|(([a-z0-9-]{1,63}[.]{1}[a-z0-9-]{1,63}([.]?[a-z0-9-]{1,63})([:][a-z0-9-]{1,63}){0,2}))|(([0-9a-zA-Z][_-]?)+)$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #Function: close({
-	Description?:         strings.MaxRunes(1200) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:                =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
+	Description?: strings.MaxRunes(1200) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1200) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: =~"^([0-9a-zA-Z][_-]?){1,100}$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-9a-zA-Z][_-]?){1,100}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Parameters?:          #ParameterMap
 	RequireConfirmation?: #RequireConfirmation
 }) |
@@ -167,8 +227,19 @@ fn.#ObjectExpression
 #GuardrailConfiguration: close({
 	GuardrailIdentifier?: strings.MaxRunes(2048) &
 	=~"^(([a-z0-9]+)|(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:guardrail/[a-z0-9]+))$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		=~"^(([a-z0-9]+)|(arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:guardrail/[a-z0-9]+))$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	GuardrailVersion?: =~"^(([0-9]{1,8})|(DRAFT))$" | fn.#StringExpression
+	GuardrailVersion?: =~"^(([0-9]{1,8})|(DRAFT))$" |
+	{
+		number | bool
+		_cfnString: =~"^(([0-9]{1,8})|(DRAFT))$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -193,7 +264,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	StopSequences?: list.MaxItems(4) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+	StopSequences?: list.MaxItems(4) & [...] & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Temperature?: <=1 & >=0 |
 		{
 			string &
@@ -289,6 +360,12 @@ fn.#ObjectExpression
 #OrchestrationExecutor: close({
 	Lambda!: strings.MaxRunes(2048) &
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:[a-z0-9-]{1,20}:\\d{12}:function:[a-zA-Z0-9-_\\.]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		=~"^arn:(aws[a-zA-Z-]*)?:lambda:[a-z0-9-]{1,20}:\\d{12}:function:[a-zA-Z0-9-_\\.]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -296,32 +373,51 @@ fn.#ObjectExpression
 #OrchestrationType: "DEFAULT" | "CUSTOM_ORCHESTRATION" | fn.#StringExpression
 
 #ParameterDetail: close({
-	Description?: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-	Required?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Type!:        #Type
+	Description?: strings.MaxRunes(500) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Required?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Type!:     #Type
 }) |
 fn.#ObjectExpression
 
 #ParameterMap: close({
 
-	{[=~"^([0-9a-zA-Z][_-]?){1,100}$"]: #ParameterDetail}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{[=~"^([0-9a-zA-Z][_-]?){1,100}$"]: #ParameterDetail}
+}) |
 fn.#ObjectExpression
 
 #PromptConfiguration: close({
 	AdditionalModelRequestFields?: #AdditionalModelRequestFields
-	BasePromptTemplate?:           strings.MaxRunes(100000) & strings.MinRunes(1) | fn.#StringExpression
-	FoundationModel?:              #FoundationModel
-	InferenceConfiguration?:       #InferenceConfiguration
-	ParserMode?:                   #CreationMode
-	PromptCreationMode?:           #CreationMode
-	PromptState?:                  #PromptState
-	PromptType?:                   #PromptType
+	BasePromptTemplate?: strings.MaxRunes(100000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	FoundationModel?:        #FoundationModel
+	InferenceConfiguration?: #InferenceConfiguration
+	ParserMode?:             #CreationMode
+	PromptCreationMode?:     #CreationMode
+	PromptState?:            #PromptState
+	PromptType?:             #PromptType
 }) |
 fn.#ObjectExpression
 
 #PromptOverrideConfiguration: close({
 	OverrideLambda?: strings.MaxRunes(2048) &
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:[a-z0-9-]{1,20}:\\d{12}:function:[a-zA-Z0-9-_\\.]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		=~"^arn:(aws[a-zA-Z-]*)?:lambda:[a-z0-9-]{1,20}:\\d{12}:function:[a-zA-Z0-9-_\\.]+(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	PromptConfigurations!: list.MaxItems(10) & [...#PromptConfiguration] | fn.#ListExpression
 }) |
@@ -342,11 +438,31 @@ fn.#ObjectExpression
 #RequireConfirmation: "ENABLED" | "DISABLED" | fn.#StringExpression
 
 #S3Identifier: close({
-	S3BucketName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" |
+	S3BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) &
+		=~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	S3ObjectKey?: strings.MaxRunes(1024) &
 	strings.MinRunes(1) &
 	=~"^[\\.\\-\\!\\*\\_\\'\\(\\)a-zA-Z0-9][\\.\\-\\!\\*\\_\\'\\(\\)\\/a-zA-Z0-9]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^[\\.\\-\\!\\*\\_\\'\\(\\)a-zA-Z0-9][\\.\\-\\!\\*\\_\\'\\(\\)\\/a-zA-Z0-9]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -376,8 +492,19 @@ fn.#ObjectExpression
 
 #TagsMap: close({
 
-	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
-	fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #Type: "string" | "number" | "integer" | "boolean" | "array" | fn.#StringExpression

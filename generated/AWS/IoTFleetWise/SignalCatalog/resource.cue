@@ -10,7 +10,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h5bb0d57d2c25795a:schem
 #Attribute:     schema.#Attribute
 #Branch:        schema.#Branch
 #Node:          schema.#Node
-#NodeCounts:    schema.#NodeCounts
 #NodeDataType:  schema.#NodeDataType
 #Sensor:        schema.#Sensor
 #Tag:           schema.#Tag

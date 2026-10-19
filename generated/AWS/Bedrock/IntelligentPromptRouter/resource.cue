@@ -5,8 +5,6 @@ package IntelligentPromptRouter
 import schema "github.com/cueformation/cfn-cue/resources/h6c261f3ce62bf0c3:schema"
 
 #Resource:                schema.#Resource
-#PromptRouterStatus:      schema.#PromptRouterStatus
 #PromptRouterTargetModel: schema.#PromptRouterTargetModel
-#PromptRouterType:        schema.#PromptRouterType
 #RoutingCriteria:         schema.#RoutingCriteria
 #Tag:                     schema.#Tag

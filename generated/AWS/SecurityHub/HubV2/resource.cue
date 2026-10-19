@@ -4,7 +4,6 @@ package HubV2
 
 import schema "github.com/cueformation/cfn-cue/resources/h1997ae873297ca5d:schema"
 
-#Resource:          schema.#Resource
-#ISO8601DateString: schema.#ISO8601DateString
-#NetworkScanning:   schema.#NetworkScanning
-#Tags:              schema.#Tags
+#Resource:        schema.#Resource
+#NetworkScanning: schema.#NetworkScanning
+#Tags:            schema.#Tags

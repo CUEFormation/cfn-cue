@@ -50,10 +50,20 @@ func TestCurrentResources(t *testing.T) {
 	validate(t, s, `{Resources:{Role:{Type:"AWS::IAM::Role",Properties:{RoleName:"missing-assume-role-policy"}}}}`, false)
 	validate(t, s, `{Resources:{Role:{Type:"AWS::IAM::Role",Properties:{AssumeRolePolicyDocument:{Statement:[{Effect:"Allow",Principal:{Service:"lambda.amazonaws.com"},Action:"sts:AssumeRole",Resource:"*"}]}}}}}`, false)
 	validate(t, s, `{Resources:{Bucket:{Type:"AWS::DoesNotExist::Thing"}}}`, false)
+	bucket := func(properties string) string {
+		return `{Conditions:{C:true,D:true,E:true},Resources:{Bucket:{Type:"AWS::S3::Bucket",Properties:` + properties + `}}}`
+	}
+	validate(t, s, bucket(`{"Fn::If":["C",{"Fn::If":["D",{BucketName:"one-bucket"},{BucketName:"two-bucket"}]},{}]}`), true)
+	validate(t, s, bucket(`{"Fn::If":["C",{"Fn::If":["D",{"Fn::If":["E",{},{Ref:"AWS::NoValue"}]},{BucketName:"two-bucket"}]},{Ref:"AWS::NoValue"}]}`), true)
+	validate(t, s, bucket(`{"Fn::If":["C",{"Fn::If":["D",{AccessControl:"DefinitelyNotAnACL"},{}]},{}]}`), false)
+	validate(t, s, bucket(`{"Fn::If":["C",{"Fn::If":["D",{Arn:"read-only"},{}]},{}]}`), false)
+	validate(t, s, bucket(`{"Fn::If":["C",{"Fn::If":["D",{}]},{}]}`), false)
+	validate(t, s, bucket(`{"Fn::If":["C",{"Fn::If":["D",{},{}],BucketName:"x"},{}]}`), false)
+	validate(t, s, bucket(`{"Fn::If":["C",{"Fn::Bogus":["D",{},{}]},{}]}`), false)
 	// The per-type package re-exports the same schema without loading a region.
-	bucket := build(t, checkDir, "./AWS/S3/Bucket")
-	r := bucket.LookupPath(cue.MakePath(cue.Def("Resource")))
+	perType := build(t, checkDir, "./AWS/S3/Bucket")
+	r := perType.LookupPath(cue.MakePath(cue.Def("Resource")))
 	validate(t, r, `{Type:"AWS::S3::Bucket",Properties:{BucketName:{"Fn::Sub":"${Name}-bucket"},Tags:[{Key:"Name",Value:{Ref:"Name"}}]}}`, true)
 	validate(t, r, `{Type:"AWS::S3::Bucket",Properties:{AccessControl:"DefinitelyNotAnACL"}}`, false)
-	validate(t, bucket.LookupPath(cue.MakePath(cue.Def("Tag"))), `{Key:"Name",Value:"v"}`, true)
+	validate(t, perType.LookupPath(cue.MakePath(cue.Def("Tag"))), `{Key:"Name",Value:"v"}`, true)
 }

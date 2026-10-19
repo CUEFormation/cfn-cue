@@ -12,14 +12,11 @@ import schema "github.com/cueformation/cfn-cue/resources/h099e126129fcb46c:schem
 #EvaluatorConfig:                   schema.#EvaluatorConfig
 #EvaluatorLevel:                    schema.#EvaluatorLevel
 #EvaluatorModelConfig:              schema.#EvaluatorModelConfig
-#EvaluatorStatus:                   schema.#EvaluatorStatus
-#EvaluatorType:                     schema.#EvaluatorType
 #InferenceConfiguration:            schema.#InferenceConfiguration
 #LambdaEvaluatorConfig:             schema.#LambdaEvaluatorConfig
 #LlmAsAJudgeEvaluatorConfig:        schema.#LlmAsAJudgeEvaluatorConfig
 #NumericalScaleDefinition:          schema.#NumericalScaleDefinition
 #OpenResponsesEvaluatorModelConfig: schema.#OpenResponsesEvaluatorModelConfig
-#Provider:                          schema.#Provider
 #RatingScale:                       schema.#RatingScale
 #ReasoningConfiguration:            schema.#ReasoningConfiguration
 #Tag:                               schema.#Tag

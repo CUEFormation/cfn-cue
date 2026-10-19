@@ -4,22 +4,17 @@ package DataflowEndpointGroupV2
 
 import schema "github.com/cueformation/cfn-cue/resources/ha3fc2798aeb3e8b6:schema"
 
-#Resource:                                     schema.#Resource
-#AgentStatus:                                  schema.#AgentStatus
-#AuditResults:                                 schema.#AuditResults
-#ConnectionDetails:                            schema.#ConnectionDetails
-#CreateEndpointDetails:                        schema.#CreateEndpointDetails
-#DownlinkAwsGroundStationAgentEndpoint:        schema.#DownlinkAwsGroundStationAgentEndpoint
-#DownlinkAwsGroundStationAgentEndpointDetails: schema.#DownlinkAwsGroundStationAgentEndpointDetails
-#DownlinkConnectionDetails:                    schema.#DownlinkConnectionDetails
-#DownlinkDataflowDetails:                      schema.#DownlinkDataflowDetails
-#EndpointDetails:                              schema.#EndpointDetails
-#IntegerRange:                                 schema.#IntegerRange
-#RangedConnectionDetails:                      schema.#RangedConnectionDetails
-#RangedSocketAddress:                          schema.#RangedSocketAddress
-#SocketAddress:                                schema.#SocketAddress
-#Tag:                                          schema.#Tag
-#UplinkAwsGroundStationAgentEndpoint:          schema.#UplinkAwsGroundStationAgentEndpoint
-#UplinkAwsGroundStationAgentEndpointDetails:   schema.#UplinkAwsGroundStationAgentEndpointDetails
-#UplinkConnectionDetails:                      schema.#UplinkConnectionDetails
-#UplinkDataflowDetails:                        schema.#UplinkDataflowDetails
+#Resource:                              schema.#Resource
+#ConnectionDetails:                     schema.#ConnectionDetails
+#CreateEndpointDetails:                 schema.#CreateEndpointDetails
+#DownlinkAwsGroundStationAgentEndpoint: schema.#DownlinkAwsGroundStationAgentEndpoint
+#DownlinkConnectionDetails:             schema.#DownlinkConnectionDetails
+#DownlinkDataflowDetails:               schema.#DownlinkDataflowDetails
+#IntegerRange:                          schema.#IntegerRange
+#RangedConnectionDetails:               schema.#RangedConnectionDetails
+#RangedSocketAddress:                   schema.#RangedSocketAddress
+#SocketAddress:                         schema.#SocketAddress
+#Tag:                                   schema.#Tag
+#UplinkAwsGroundStationAgentEndpoint:   schema.#UplinkAwsGroundStationAgentEndpoint
+#UplinkConnectionDetails:               schema.#UplinkConnectionDetails
+#UplinkDataflowDetails:                 schema.#UplinkDataflowDetails

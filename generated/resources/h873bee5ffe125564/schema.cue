@@ -3,49 +3,101 @@
 package schema
 
 import (
-	"time"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DevOpsAgent::AgentSpace
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DevOpsAgent::AgentSpace"
-	Properties!: close({
+	let properties = close({
 		Description?: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\p{L}\\p{N}\\p{P}\\p{S}\\p{Z}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{N}\\p{P}\\p{S}\\p{Z}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(1) &
 		=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:[0-9]{12}:key/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:[0-9]{12}:key/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Locale?: strings.MaxRunes(35) & strings.MinRunes(2) & =~"^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8})*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(35) & strings.MinRunes(2) & =~"^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8})*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\p{L}\\p{N}\\p{P}\\p{S}\\p{Z}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{N}\\p{P}\\p{S}\\p{Z}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		OperatorApp?: close({
 			Iam?: close({
-				OperatorAppRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-					fn.#StringExpression
+				OperatorAppRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+				{
+					number | bool
+					_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+				} |
+				fn.#StringExpression
 			}) |
-				fn.#ObjectExpression
+			fn.#ObjectExpression
 			Idc?: close({
-				IdcInstanceArn!: string | fn.#StringExpression
-				OperatorAppRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-					fn.#StringExpression
+				IdcInstanceArn!: string | number | bool | fn.#StringExpression
+				OperatorAppRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+				{
+					number | bool
+					_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+				} |
+				fn.#StringExpression
 			}) |
 			fn.#ObjectExpression
 			Idp?: close({
-				ClientId!:     strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-				ClientSecret!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-				IssuerUrl!:    =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
-				OperatorAppRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-					fn.#StringExpression
+				ClientId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+				} |
+				fn.#StringExpression
+				ClientSecret!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+				} |
+				fn.#StringExpression
+				IssuerUrl!: =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" |
+				{
+					number | bool
+					_cfnString: =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" & "\(self)"
+				} |
+				fn.#StringExpression
+				OperatorAppRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+				{
+					number | bool
+					_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+				} |
+				fn.#StringExpression
 				Provider!: "okta" | "entra" | fn.#StringExpression
 			}) |
 			fn.#ObjectExpression
@@ -54,45 +106,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Preferences?: #Preferences
 		Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
-
-#IamAuthConfiguration: close({
-	CreatedAt?: time.Time | fn.#StringExpression
-	OperatorAppRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	UpdatedAt?: time.Time | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#IdcAuthConfiguration: close({
-	CreatedAt?:         time.Time | fn.#StringExpression
-	IdcApplicationArn?: string | fn.#StringExpression
-	IdcInstanceArn!:    string | fn.#StringExpression
-	OperatorAppRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	UpdatedAt?: time.Time | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#IdpAuthConfiguration: close({
-	ClientId!:     strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecret!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	CreatedAt?:    time.Time | fn.#StringExpression
-	IssuerUrl!:    =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
-	OperatorAppRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Provider!:    "okta" | "entra" | fn.#StringExpression
-	UpdatedAt?:   time.Time | fn.#StringExpression
-	UserIdClaim?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#OperatorApp: close({
-	Iam?: #IamAuthConfiguration
-	Idc?: #IdcAuthConfiguration
-	Idp?: #IdpAuthConfiguration
-}) |
-fn.#ObjectExpression
 
 #Preferences: close(
 	{ElevatedActionsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
@@ -100,7 +118,17 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

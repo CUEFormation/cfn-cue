@@ -143,7 +143,10 @@ import (
 	Handler?: strings.MaxRunes(128) &
 	strings.MinRunes(0) &
 	=~"^(([0-9a-zA-Z_-]+(\\/|\\.))*[0-9A-Za-z_\\\\-]+(\\.|::)[A-Za-z_][A-Za-z0-9_]*)?$"
-	S3Bucket?:          strings.MaxRunes(1024) & strings.MinRunes(1)
+	S3Bucket?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(1)
 	S3Key?:             strings.MaxRunes(1024) & strings.MinRunes(1)
 	S3ObjectVersion?:   string
 	Script?:            string

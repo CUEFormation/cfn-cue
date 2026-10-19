@@ -5,7 +5,6 @@ package AccessGrant
 import schema "github.com/cueformation/cfn-cue/resources/h85332053108e55ee:schema"
 
 #Resource:                          schema.#Resource
-#AccessGrantArn:                    schema.#AccessGrantArn
 #AccessGrantsLocationConfiguration: schema.#AccessGrantsLocationConfiguration
 #Grantee:                           schema.#Grantee
 #Tag:                               schema.#Tag

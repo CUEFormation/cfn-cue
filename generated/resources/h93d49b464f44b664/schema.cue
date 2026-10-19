@@ -3,13 +3,24 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource used to control (enable/disable) DNSSEC in a specific hosted zone.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53::DNSSEC"
-	Properties!: close({HostedZoneId!: =~"^[A-Z0-9]{1,32}$" | fn.#StringExpression})
+	Type!: "AWS::Route53::DNSSEC"
+	let properties = close({
+		HostedZoneId!: =~"^[A-Z0-9]{1,32}$" |
+		{
+			number | bool
+			_cfnString: =~"^[A-Z0-9]{1,32}$" & "\(self)"
+		} |
+		fn.#StringExpression
+	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

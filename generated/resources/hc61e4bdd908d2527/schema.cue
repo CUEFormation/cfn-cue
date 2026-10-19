@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -18,31 +18,54 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // ingest events into CloudTrail from sources outside AWS.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudTrail::Channel"
-	Properties?: close({
+	let properties = close({
 		Destinations?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#Destination] |
 			fn.#ListExpression
-		Name?:   #ChannelName
-		Source?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"(.*)" | fn.#StringExpression
-		Tags?:   list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		Name?: #ChannelName
+		Source?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"(.*)" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"(.*)" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
-#ChannelArn: strings.MaxRunes(256) & strings.MinRunes(3) & =~"(^[a-zA-Z0-9._/\\-:]+$)" | fn.#StringExpression
-
-#ChannelName: strings.MaxRunes(128) & strings.MinRunes(3) & =~"(^[a-zA-Z0-9._\\-]+$)" | fn.#StringExpression
+#ChannelName: strings.MaxRunes(128) & strings.MinRunes(3) & =~"(^[a-zA-Z0-9._\\-]+$)" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(3) & =~"(^[a-zA-Z0-9._\\-]+$)" & "\(self)"
+} |
+fn.#StringExpression
 
 #Destination: close({
-	Location!: strings.MaxRunes(1024) & strings.MinRunes(3) & =~"(^[a-zA-Z0-9._/\\-:]+$)" | fn.#StringExpression
-	Type!:     "EVENT_DATA_STORE" | fn.#StringExpression
+	Location!: strings.MaxRunes(1024) & strings.MinRunes(3) & =~"(^[a-zA-Z0-9._/\\-:]+$)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(3) & =~"(^[a-zA-Z0-9._/\\-:]+$)" & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: "EVENT_DATA_STORE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Timestamp: string | fn.#StringExpression
-
-#UUID: strings.MaxRunes(36) & strings.MinRunes(36) & =~"(^[a-f0-9\\-]+$)" | fn.#StringExpression

@@ -48,7 +48,11 @@ import (
 
 	// A friendly name that lets you easily find a configuration in the Resolver
 	// dashboard in the Route 53 console.
-	Name?: strings.MaxRunes(64) & strings.MinRunes(0)
+	Name?: =~"^([a-zA-Z0-9\\-_' ']+)$" &
+	matchN(0, [=~"^(?:^[0-9]+$)"]) &
+	string &
+	strings.MaxRunes(64) &
+	strings.MinRunes(0)
 
 	// The ARN (Amazon Resource Name) for the Outpost.
 	OutpostArn?: strings.MaxRunes(255) &
@@ -99,7 +103,7 @@ import (
 	Ipv6?: strings.MaxRunes(39) & strings.MinRunes(7)
 
 	// The ID of the subnet that contains the IP address.
-	SubnetId!: strings.MaxRunes(32) & strings.MinRunes(1)
+	SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & (strings.MaxRunes(32) & strings.MinRunes(1))
 })
 
 #Tag: close({

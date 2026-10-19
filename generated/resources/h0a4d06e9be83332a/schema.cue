@@ -8,8 +8,8 @@ import (
 	"list"
 	"struct"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -19,19 +19,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // request.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EMRContainers::JobTemplate"
-	Properties!: close({
+	let properties = close({
 		JobTemplateData!: #JobTemplateData
-		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Configuration: close({
-	Classification!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+	Classification!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
 	Configurations?: list.MaxItems(100) & [...] & [...#Configuration] | fn.#ListExpression
 	Properties?: struct.MaxFields(100) & close({
 
-		{[=~"^.+$"]: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{
+			[=~"^.+$"]: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+			} |
+			fn.#StringExpression
+		}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
@@ -49,29 +75,68 @@ fn.#ObjectExpression
 
 #JobTemplateData: close({
 	ConfigurationOverrides?: #ParametricConfigurationOverrides
-	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	ExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(4) &
 	=~"^(^arn:(aws[a-zA-Z0-9-]*):iam::(\\d{12})?:(role((\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}))[\\w+=,.@-]+)$)|([\\.\\-_\\#A-Za-z0-9\\$\\{\\}]+)$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(4) &
+		=~"^(^arn:(aws[a-zA-Z0-9-]*):iam::(\\d{12})?:(role((\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}))[\\w+=,.@-]+)$)|([\\.\\-_\\#A-Za-z0-9\\$\\{\\}]+)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	JobDriver!: #JobDriver
 	JobTags?: struct.MaxFields(50) & close({
 
-		{[=~"^.+$"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{
+			[=~"^.+$"]: strings.MaxRunes(256) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
+		}
+	}) |
 	fn.#ObjectExpression
 	ParameterConfiguration?: struct.MaxFields(100) & close({
 
-		{[=~"^[\\.\\-_#A-Za-z0-9]+$"]: #TemplateParameterConfiguration}}) |
+		{[=~"^(?:Ref)$"]: error("disallowed")}
+
+		{[=~"^[\\.\\-_#A-Za-z0-9]+$"]: #TemplateParameterConfiguration}
+	}) |
 	fn.#ObjectExpression
 	ReleaseLabel!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^([\\.\\-_/A-Za-z0-9]+|\\$\\{[a-zA-Z]\\w*\\})$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) &
+		strings.MinRunes(1) &
+		=~"^([\\.\\-_/A-Za-z0-9]+|\\$\\{[a-zA-Z]\\w*\\})$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ParametricCloudWatchMonitoringConfiguration: close({
 	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9\\$\\{\\}]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9\\$\\{\\}]+$" & "\(self)"
+	} |
 	fn.#StringExpression
-	LogStreamNamePrefix?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+	LogStreamNamePrefix?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -84,6 +149,10 @@ fn.#ObjectExpression
 #ParametricMonitoringConfiguration: close({
 	CloudWatchMonitoringConfiguration?: #ParametricCloudWatchMonitoringConfiguration
 	PersistentAppUI?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9\\$\\{\\}]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9\\$\\{\\}]+$" & "\(self)"
+	} |
 	fn.#StringExpression
 	S3MonitoringConfiguration?: #ParametricS3MonitoringConfiguration
 }) |
@@ -93,32 +162,79 @@ fn.#ObjectExpression
 	LogUri?: strings.MaxRunes(10280) &
 	strings.MinRunes(1) &
 	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\r\\n\\t]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10280) &
+		strings.MinRunes(1) &
+		=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\r\\n\\t]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SparkSqlJobDriver: close({
-	EntryPoint?:         strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	SparkSqlParameters?: strings.MaxRunes(102400) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+	EntryPoint?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
+	SparkSqlParameters?: strings.MaxRunes(102400) & strings.MinRunes(1) & =~"\\S" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(102400) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SparkSubmitJobDriver: close({
-	EntryPoint!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	EntryPointArguments?: [...strings.MaxRunes(10280) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression] |
+	EntryPoint!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
+	EntryPointArguments?: [...strings.MaxRunes(10280) & strings.MinRunes(1) & =~"\\S" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10280) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	SparkSubmitParameters?: strings.MaxRunes(102400) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+	SparkSubmitParameters?: strings.MaxRunes(102400) & strings.MinRunes(1) & =~"\\S" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(102400) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TemplateParameterConfiguration: close({
-	DefaultValue?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-	Type?:         "NUMBER" | "STRING" | fn.#StringExpression
+	DefaultValue?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
+	Type?: "NUMBER" | "STRING" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

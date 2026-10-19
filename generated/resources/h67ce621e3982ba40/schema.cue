@@ -5,9 +5,10 @@ package schema
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,17 +18,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // findings and resource data from the connected environment.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityHub::Connector"
-	Properties!: close({
-		Description?: =~"\\S" | fn.#StringExpression
-		Name!:        =~"\\S" | fn.#StringExpression
-		Provider!:    #Provider
-		Tags?:        #Tags
+	let properties = close({
+		Description?: =~"\\S" |
+		{
+			number | bool
+			_cfnString: =~"\\S" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: =~"\\S" |
+		{
+			number | bool
+			_cfnString: =~"\\S" & "\(self)"
+		} |
+		fn.#StringExpression
+		Provider!: #Provider
+		Tags?:     #Tags
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AzureProviderConfiguration: close({
-	AWSConfigConnectorArn!: string | fn.#StringExpression
-	AzureRegions!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] |
+	AWSConfigConnectorArn!: string | number | bool | fn.#StringExpression
+	AzureRegions!: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
+		...string | number | bool | fn.#StringExpression
+	] |
 		fn.#ListExpression
 
 	// The scope configuration that defines which Azure resources are monitored.
@@ -37,27 +54,28 @@ fn.#ObjectExpression
 
 #AzureScopeConfiguration: close({
 	ScopeType!: "TENANT" | "SUBSCRIPTION" | fn.#StringExpression
-	ScopeValues?: list.MaxItems(100) & list.UniqueItems() & [...] & [...string | fn.#StringExpression] |
+	ScopeValues?: list.MaxItems(100) & list.UniqueItems() & [...] & [...string | number | bool | fn.#StringExpression] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#ConnectorStatus: string | fn.#StringExpression
-
-#EnablementStatus: string | fn.#StringExpression
-
-#HealthIssue: close({
-	// The error code that identifies the type of health issue.
-	Code!:    #HealthIssueCode
-	Message!: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#HealthIssueCode: string | fn.#StringExpression
-
-#ISO8601DateString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" |
-	fn.#StringExpression
-
 #Provider: close({Azure!: #AzureProviderConfiguration}) | fn.#ObjectExpression
 
-#Tags: {...} | fn.#ObjectExpression
+#Tags: close({
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^(?:aws:)"]: error("disallowed")}
+
+	{
+		[=~"^[a-zA-Z+-=._:/]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
+fn.#ObjectExpression

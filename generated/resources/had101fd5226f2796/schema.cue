@@ -7,39 +7,77 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::DataSync::Agent.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataSync::Agent"
-	Properties?: close({
+	let properties = close({
 		ActivationKey?: strings.MaxRunes(29) & strings.MinRunes(0) & =~"[A-Z0-9]{5}(-[A-Z0-9]{5}){4}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(29) & strings.MinRunes(0) & =~"[A-Z0-9]{5}(-[A-Z0-9]{5}){4}" & "\(self)"
+		} |
 		fn.#StringExpression
-		AgentName?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
-		SecurityGroupArns?: list.MaxItems(1) & list.MinItems(1) & [
-			...strings.MaxRunes(128) &
+		AgentName?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SecurityGroupArns?: list.MaxItems(1) & list.MinItems(1) & [...strings.MaxRunes(128) &
+		strings.MinRunes(0) &
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:security-group/.*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
 			strings.MinRunes(0) &
-			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:security-group/.*$" |
-			fn.#StringExpression
-		] |
+			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:security-group/.*$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		SubnetArns?: list.MaxItems(1) & list.MinItems(1) & [
-			...strings.MaxRunes(128) &
+		SubnetArns?: list.MaxItems(1) & list.MinItems(1) & [...strings.MaxRunes(128) &
+		strings.MinRunes(0) &
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:subnet/.*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
 			strings.MinRunes(0) &
-			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:subnet/.*$" |
-			fn.#StringExpression
-		] |
+			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:subnet/.*$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		Tags?:          list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-		VpcEndpointId?: =~"^vpce-[0-9a-f]{17}$" | fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		VpcEndpointId?: =~"^vpce-[0-9a-f]{17}$" |
+		{
+			number | bool
+			_cfnString: =~"^vpce-[0-9a-f]{17}$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
+	Key!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

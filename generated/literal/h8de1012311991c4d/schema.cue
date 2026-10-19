@@ -5,6 +5,9 @@ package schema
 import (
 	"strings"
 	"list"
+	cfnRuleMath "math"
+	cfnRuleStrconv "strconv"
+	cfnRuleStrings "strings"
 )
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
@@ -35,7 +38,7 @@ import (
 	AttributeDefinitions?: null | bool | number | string | list.MinItems(2) | {...}
 	KeySchema?:            null | bool | number | string | list.MinItems(2) | {...}
 	...
-}, _) & {...} & close({
+}, _) & close({
 	Arn?: string
 
 	// A list of attributes that describe the key schema for the table and indexes.
@@ -180,6 +183,62 @@ import (
 	// Represents the warm throughput (in read units per second and write units per
 	// second) for creating a table.
 	WarmThroughput?: #WarmThroughput
+	// cfn-lint E3638: aws_dynamodb_table/billingmode_exclusive.json
+	if BillingMode != _|_ if ((BillingMode == "PAY_PER_REQUEST") & true) != _|_ {
+		if ProvisionedThroughput != _|_ {
+			if ProvisionedThroughput.ReadCapacityUnits != _|_ {
+				if (((ProvisionedThroughput.ReadCapacityUnits == 0) || (ProvisionedThroughput.ReadCapacityUnits == "0")) &
+					true) == _|_ {
+					error("E3638: when BillingMode is PAY_PER_REQUEST, ProvisionedThroughput capacity units must be 0")
+				}
+			}
+			if ProvisionedThroughput.WriteCapacityUnits != _|_ {
+				if (((ProvisionedThroughput.WriteCapacityUnits == 0) || (ProvisionedThroughput.WriteCapacityUnits == "0")) &
+					true) == _|_ {
+					error("E3638: when BillingMode is PAY_PER_REQUEST, ProvisionedThroughput capacity units must be 0")
+				}
+			}
+		}
+	}
+
+	// cfn-lint E3639: aws_dynamodb_table/billingmode_provisioned_dependent.json
+	if (BillingMode == _|_) || (((BillingMode == "PAY_PER_REQUEST") & true) == _|_) {
+		if ProvisionedThroughput != _|_ {
+			if ProvisionedThroughput.ReadCapacityUnits != _|_ {
+				if !(((((cfnRuleMath.Abs(ProvisionedThroughput.ReadCapacityUnits) >= 0) & true) == _|_) || (((ProvisionedThroughput.ReadCapacityUnits >= 1) &
+					true) != _|_)) && ((((ProvisionedThroughput.ReadCapacityUnits =~ "^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$") &
+					true) == _|_) || (((cfnRuleStrconv.ParseFloat(
+					cfnRuleStrings.Replace(
+						cfnRuleStrings.TrimSpace(ProvisionedThroughput.ReadCapacityUnits),
+						"_",
+						"",
+						-1,
+					),
+					64,
+				) >= 1) &
+					true) != _|_))) {
+					error("E3639: when BillingMode is PROVISIONED or omitted, ProvisionedThroughput with capacity units of at least 1 is required")
+				}
+			}
+			if ProvisionedThroughput.WriteCapacityUnits != _|_ {
+				if !(((((cfnRuleMath.Abs(ProvisionedThroughput.WriteCapacityUnits) >= 0) & true) == _|_) || (((ProvisionedThroughput.WriteCapacityUnits >= 1) &
+					true) != _|_)) && ((((ProvisionedThroughput.WriteCapacityUnits =~ "^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$") &
+					true) == _|_) || (((cfnRuleStrconv.ParseFloat(
+					cfnRuleStrings.Replace(
+						cfnRuleStrings.TrimSpace(ProvisionedThroughput.WriteCapacityUnits),
+						"_",
+						"",
+						-1,
+					),
+					64,
+				) >= 1) &
+					true) != _|_))) {
+					error("E3639: when BillingMode is PROVISIONED or omitted, ProvisionedThroughput with capacity units of at least 1 is required")
+				}
+			}
+		}
+		ProvisionedThroughput!: _
+	}
 })
 
 // Represents an attribute for describing the schema for the table and indexes.
@@ -459,7 +518,7 @@ import (
 // The S3 bucket that is being imported from.
 #S3BucketSource: close({
 	// The S3 bucket that is being imported from.
-	S3Bucket!: string
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$"
 
 	// The account number of the S3 bucket that is being imported from. If the
 	// bucket is owned by the requester this is optional.

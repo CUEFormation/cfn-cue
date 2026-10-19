@@ -1,0 +1,33 @@
+{
+  "Parameters": {
+    "Mode": {
+      "AllowedValues": [
+        "PAY_PER_REQUEST",
+        "PROVISIONED"
+      ],
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "id",
+            "AttributeType": "S"
+          }
+        ],
+        "BillingMode": {
+          "Ref": "Mode"
+        },
+        "KeySchema": [
+          {
+            "AttributeName": "id",
+            "KeyType": "HASH"
+          }
+        ]
+      },
+      "Type": "AWS::DynamoDB::Table"
+    }
+  }
+}

@@ -7,5 +7,4 @@ import schema "github.com/cueformation/cfn-cue/resources/haa51af588ac64f6f:schem
 #Resource:                    schema.#Resource
 #ElasticChannelConfiguration: schema.#ElasticChannelConfiguration
 #ExpirationSettings:          schema.#ExpirationSettings
-#Identity:                    schema.#Identity
 #Tag:                         schema.#Tag

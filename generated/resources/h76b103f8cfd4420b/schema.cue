@@ -3,42 +3,37 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::Domain
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lightsail::Domain"
-	Properties!: close({
+	let properties = close({
 		DomainEntries?: list.UniqueItems() & [...close({
 			IsAlias?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-			Name!:    string | fn.#StringExpression
-			Target!:  string | fn.#StringExpression
+			Name!:    string | number | bool | fn.#StringExpression
+			Target!:  string | number | bool | fn.#StringExpression
 			Type!:    "A" | "AAAA" | "CNAME" | "MX" | "NS" | "SOA" | "SRV" | "TXT" | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-		DomainName!: string | fn.#StringExpression
+		DomainName!: string | number | bool | fn.#StringExpression
 		Tags?:       list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#DomainEntry: close({
-	Id?:      string | fn.#StringExpression
-	IsAlias?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name!:    string | fn.#StringExpression
-	Target!:  string | fn.#StringExpression
-	Type!:    "A" | "AAAA" | "CNAME" | "MX" | "NS" | "SOA" | "SRV" | "TXT" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

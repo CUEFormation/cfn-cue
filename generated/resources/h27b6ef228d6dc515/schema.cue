@@ -6,8 +6,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -15,16 +15,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // statements that attaches to a Lex bot or bot alias.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lex::ResourcePolicy"
-	Properties!: close({
+	let properties = close({
 		Policy!:      #Policy
 		ResourceArn!: #ResourceArn
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#PhysicalId: string | fn.#StringExpression
+#Policy: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
-#Policy: fn.#Object & {...} | string | fn.#StringObjectExpression
-
-#ResourceArn: strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression
-
-#RevisionId: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^[0-9]+$" | fn.#StringExpression
+#ResourceArn: strings.MaxRunes(1011) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1011) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression

@@ -5,11 +5,9 @@ package CapacityReservation
 import schema "github.com/cueformation/cfn-cue/resources/h0dd7860b8d88036d:schema"
 
 #Resource:                        schema.#Resource
-#Arn:                             schema.#Arn
 #CapacityAssignment:              schema.#CapacityAssignment
 #CapacityAssignmentConfiguration: schema.#CapacityAssignmentConfiguration
 #CapacityAssignments:             schema.#CapacityAssignments
-#CapacityReservationStatus:       schema.#CapacityReservationStatus
 #Tag:                             schema.#Tag
 #WorkgroupName:                   schema.#WorkgroupName
 #WorkgroupNames:                  schema.#WorkgroupNames

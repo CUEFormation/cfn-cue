@@ -14,6 +14,5 @@ import schema "github.com/cueformation/cfn-cue/resources/hc454a8ae9a8af571:schem
 #Logging:             schema.#Logging
 #MicrovmHooks:        schema.#MicrovmHooks
 #MicrovmImageHooks:   schema.#MicrovmImageHooks
-#MicrovmImageState:   schema.#MicrovmImageState
 #Resources:           schema.#Resources
 #Tag:                 schema.#Tag

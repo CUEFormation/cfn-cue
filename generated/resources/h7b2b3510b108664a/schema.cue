@@ -7,8 +7,8 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,9 +17,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // set up and run commands on your instances.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSM::Document"
-	Properties!: close({
-		Attachments?:    list.MaxItems(20) & [...] & [...#AttachmentsSource] | fn.#ListExpression
-		Content!:        fn.#Object & {...} | strings.MinRunes(1) | fn.#StringObjectExpression
+	let properties = close({
+		Attachments?: list.MaxItems(20) & [...] & [...#AttachmentsSource] | fn.#ListExpression
+		Content!: fn.#Object & {...} |
+		strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringObjectExpression
 		DocumentFormat?: "YAML" | "JSON" | "TEXT" | fn.#StringExpression
 		DocumentType?: "ApplicationConfiguration" |
 			"ApplicationConfigurationSchema" |
@@ -37,33 +43,80 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"ProblemAnalysisTemplate" |
 			"Session" |
 			fn.#StringExpression
-		Name?:         =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
-		Requires?:     list.MinItems(1) & [...#DocumentRequires] | fn.#ListExpression
-		Tags?:         list.MaxItems(1000) & [...] & [...#Tag] | fn.#ListExpression
-		TargetType?:   strings.MaxRunes(200) & strings.MinRunes(0) & =~"^\\/[\\w\\.\\-\\:\\/]*$" | fn.#StringExpression
+		Name?: =~"^[a-zA-Z0-9_\\-.]{3,128}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_\\-.]{3,128}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Requires?: list.MinItems(1) & [...#DocumentRequires] | fn.#ListExpression
+		Tags?:     list.MaxItems(1000) & [...] & [...#Tag] | fn.#ListExpression
+		TargetType?: strings.MaxRunes(200) & strings.MinRunes(0) & =~"^\\/[\\w\\.\\-\\:\\/]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(0) & =~"^\\/[\\w\\.\\-\\:\\/]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		UpdateMethod?: "Replace" | "NewVersion" | fn.#StringExpression
-		VersionName?:  =~"^[a-zA-Z0-9_\\-.]{1,128}$" | fn.#StringExpression
+		VersionName?: =~"^[a-zA-Z0-9_\\-.]{1,128}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_\\-.]{1,128}$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AttachmentsSource: close({
-	Key?:  "SourceUrl" | "S3FileUrl" | "AttachmentReference" | fn.#StringExpression
-	Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Values?: list.MaxItems(1) & list.MinItems(1) & [
-		...strings.MaxRunes(100000) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	Key?: "SourceUrl" | "S3FileUrl" | "AttachmentReference" | fn.#StringExpression
+	Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Values?: list.MaxItems(1) & list.MinItems(1) & [...strings.MaxRunes(100000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #DocumentRequires: close({
-	Name?:    strings.MaxRunes(200) & =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" | fn.#StringExpression
-	Version?: strings.MaxRunes(8) & =~"([$]LATEST|[$]DEFAULT|^[1-9][0-9]*$)" | fn.#StringExpression
+	Name?: strings.MaxRunes(200) & =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & =~"^[a-zA-Z0-9_\\-.:/]{3,200}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Version?: strings.MaxRunes(8) & =~"([$]LATEST|[$]DEFAULT|^[1-9][0-9]*$)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(8) & =~"([$]LATEST|[$]DEFAULT|^[1-9][0-9]*$)" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

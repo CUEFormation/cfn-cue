@@ -7,23 +7,36 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Deadline::Fleet
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Deadline::Fleet"
-	Properties!: close({
-		Configuration!:     #FleetConfiguration
-		Description?:       strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-		DisplayName!:       strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		FarmId!:            =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
+	let properties = close({
+		Configuration!: #FleetConfiguration
+		Description?: strings.MaxRunes(100) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DisplayName!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		FarmId!: =~"^farm-[0-9a-f]{32}$" |
+		{
+			number | bool
+			_cfnString: =~"^farm-[0-9a-f]{32}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		HostConfiguration?: #HostConfiguration
 		MaxWorkerCount!: int & <=2147483647 & >=0 |
 			{
@@ -61,11 +74,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 			=~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+				=~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AcceleratorCapabilities: close({
@@ -111,8 +134,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #AcceleratorSelection: close({
-	Name!:    "t4" | "a10g" | "l4" | "l40s" | "rtx-pro-server-6000" | fn.#StringExpression
-	Runtime?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	Name!: "t4" | "a10g" | "l4" | "l40s" | "rtx-pro-server-6000" | fn.#StringExpression
+	Runtime?: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -213,9 +241,14 @@ fn.#ObjectExpression
 #CustomerManagedFleetConfiguration: close({
 	AutoScalingConfiguration?: #CustomerManagedAutoScalingConfiguration
 	Mode!:                     #AutoScalingMode
-	StorageProfileId?:         =~"^sp-[0-9a-f]{32}$" | fn.#StringExpression
-	TagPropagationMode?:       #TagPropagationMode
-	WorkerCapabilities!:       #CustomerManagedWorkerCapabilities
+	StorageProfileId?: =~"^sp-[0-9a-f]{32}$" |
+	{
+		number | bool
+		_cfnString: =~"^sp-[0-9a-f]{32}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TagPropagationMode?: #TagPropagationMode
+	WorkerCapabilities!: #CustomerManagedWorkerCapabilities
 }) |
 fn.#ObjectExpression
 
@@ -328,6 +361,13 @@ fn.#ObjectExpression
 	Name!: strings.MaxRunes(100) &
 	strings.MinRunes(1) &
 	=~"^([a-zA-Z][a-zA-Z0-9]{0,63}:)?amount(\\.[a-zA-Z][a-zA-Z0-9]{0,63})+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) &
+		strings.MinRunes(1) &
+		=~"^([a-zA-Z][a-zA-Z0-9]{0,63}:)?amount(\\.[a-zA-Z][a-zA-Z0-9]{0,63})+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -336,17 +376,23 @@ fn.#ObjectExpression
 	Name!: strings.MaxRunes(100) &
 	strings.MinRunes(1) &
 	=~"^([a-zA-Z][a-zA-Z0-9]{0,63}:)?attr(\\.[a-zA-Z][a-zA-Z0-9]{0,63})+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) &
+		strings.MinRunes(1) &
+		=~"^([a-zA-Z][a-zA-Z0-9]{0,63}:)?attr(\\.[a-zA-Z][a-zA-Z0-9]{0,63})+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Values!: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z_]([a-zA-Z0-9_\\-]{0,99})$" | fn.#StringExpression
-	] |
+	Values!: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(100) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z_]([a-zA-Z0-9_\\-]{0,99})$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z_]([a-zA-Z0-9_\\-]{0,99})$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#FleetCapabilities: close({
-	Amounts?:    list.MaxItems(15) & list.MinItems(1) & [...#FleetAmountCapability] | fn.#ListExpression
-	Attributes?: list.MaxItems(15) & list.MinItems(1) & [...#FleetAttributeCapability] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -361,16 +407,13 @@ fn.#ValueExpression
 
 #FleetSoftwareAddOnName: "docker" | fn.#StringExpression
 
-#FleetStatus: "ACTIVE" |
-	"CREATE_IN_PROGRESS" |
-	"UPDATE_IN_PROGRESS" |
-	"CREATE_FAILED" |
-	"UPDATE_FAILED" |
-	"SUSPENDED" |
-	fn.#StringExpression
-
 #HostConfiguration: close({
-	ScriptBody!: strings.MaxRunes(15000) & strings.MinRunes(0) | fn.#StringExpression
+	ScriptBody!: strings.MaxRunes(15000) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(15000) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	ScriptTimeoutSeconds?: int & <=3600 & >=300 |
 		{
 			string &
@@ -459,7 +502,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	MountPath!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	MountPath!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	SizeGiB?: int & <=65536 & >=1 |
 		{
 			string &
@@ -552,23 +600,34 @@ fn.#ObjectExpression
 	InstanceCapabilities!:          #ServiceManagedEc2InstanceCapabilities
 	InstanceMarketOptions!:         #ServiceManagedEc2InstanceMarketOptions
 	PersistentVolumeConfiguration?: #PersistentVolumeConfiguration
-	StorageProfileId?:              =~"^sp-[0-9a-f]{32}$" | fn.#StringExpression
-	VpcConfiguration?:              #VpcConfiguration
+	StorageProfileId?: =~"^sp-[0-9a-f]{32}$" |
+	{
+		number | bool
+		_cfnString: =~"^sp-[0-9a-f]{32}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	VpcConfiguration?: #VpcConfiguration
 }) |
 fn.#ObjectExpression
 
 #ServiceManagedEc2InstanceCapabilities: close({
 	AcceleratorCapabilities?: #AcceleratorCapabilities
-	AllowedInstanceTypes?: list.MaxItems(100) & list.MinItems(1) & [
-		...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	AllowedInstanceTypes?: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	CpuArchitectureType!: #CpuArchitectureType
 	CustomAmounts?:       list.MaxItems(15) & list.MinItems(1) & [...#FleetAmountCapability] | fn.#ListExpression
 	CustomAttributes?:    list.MaxItems(15) & list.MinItems(1) & [...#FleetAttributeCapability] | fn.#ListExpression
-	ExcludedInstanceTypes?: list.MaxItems(100) & list.MinItems(1) & [
-		...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	ExcludedInstanceTypes?: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	MemoryMiB!:      #MemoryMiBRange
 	OsFamily!:       #ServiceManagedFleetOperatingSystemFamily
@@ -583,8 +642,18 @@ fn.#ObjectExpression
 #ServiceManagedFleetOperatingSystemFamily: "LINUX" | "WINDOWS" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -627,7 +696,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VpcConfiguration: close({
-	ResourceConfigurationArns?: [...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression] |
+	ResourceConfigurationArns?: [...strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression

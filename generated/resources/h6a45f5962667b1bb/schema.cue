@@ -3,36 +3,72 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::QuickSight::Flow Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QuickSight::Flow"
-	Properties!: close({
-		AwsAccountId!:   strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-		Description?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		AwsAccountId!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: =~"^[^{}\"\\\\<>]*$" &
+		matchN(0, [=~"^(?:\\s+$)"]) &
+		string &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: =~"^[^{}\"\\\\<>]*$" &
+			matchN(0, [=~"^(?:\\s+$)"]) &
+			string &
+			strings.MaxRunes(1024) &
+			strings.MinRunes(0) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 		FlowDefinition!: fn.#Value
-		Name!:           strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		Permissions?:    [...#Permission] | fn.#ListExpression
+		Name!: =~"^[^{}\"\\\\<>]*$" & matchN(0, [=~"^(?:\\s+$)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^[^{}\"\\\\<>]*$" &
+			matchN(0, [=~"^(?:\\s+$)"]) &
+			string &
+			strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		Permissions?: [...#Permission] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#FlowPublishState: "PUBLISHED" | "DRAFT" | "PENDING_APPROVAL" | fn.#StringExpression
-
 #Permission: close({
-	Actions!:   [...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#StepAliasMapping: close({
-	StepAlias!: string | fn.#StringExpression
-	StepId!:    strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	Actions!: [...strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

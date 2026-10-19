@@ -2,17 +2,19 @@
 
 package schema
 
-import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
+import fn "github.com/cueformation/cfn-cue/fn:fn"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This resource schema represents the LogAnomalyDetectionIntegration resource
 // in the Amazon DevOps Guru.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DevOpsGuru::LogAnomalyDetectionIntegration"
-	Properties?: close({})
+	Type!: "AWS::DevOpsGuru::LogAnomalyDetectionIntegration"
+	let properties = close({})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
-
-#AccountId: =~"^\\d{12}$" | fn.#StringExpression

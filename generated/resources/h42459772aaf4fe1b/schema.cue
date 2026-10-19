@@ -7,29 +7,45 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IVS::Channel
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IVS::Channel"
-	Properties?: close({
+	let properties = close({
 		Authorized?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		ContainerFormat?: "TS" | "FRAGMENTED_MP4" | fn.#StringExpression
 		InsecureIngest?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		LatencyMode?:     "NORMAL" | "LOW" | fn.#StringExpression
 		MultitrackInputConfiguration?: #MultitrackInputConfiguration
-		Name?:   strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
+		Name?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Preset?: "" | "HIGHER_BANDWIDTH_DELIVERY" | "CONSTRAINED_BANDWIDTH_DELIVERY" | fn.#StringExpression
 		RecordingConfigurationArn?: strings.MaxRunes(128) &
 		strings.MinRunes(0) &
 		=~"^$|arn:aws:ivs:[a-z0-9-]+:[0-9]+:recording-configuration/[a-zA-Z0-9-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(0) &
+			=~"^$|arn:aws:ivs:[a-z0-9-]+:[0-9]+:recording-configuration/[a-zA-Z0-9-]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		Type?: "STANDARD" | "BASIC" | "ADVANCED_SD" | "ADVANCED_HD" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #MultitrackInputConfiguration: close({
@@ -40,7 +56,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

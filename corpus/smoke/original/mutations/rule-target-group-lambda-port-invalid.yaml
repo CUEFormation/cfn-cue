@@ -1,0 +1,7 @@
+Resources:
+  Thing:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      TargetType: lambda
+      Port: 80
+      Protocol: HTTP

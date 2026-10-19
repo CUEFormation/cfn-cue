@@ -5,6 +5,5 @@ package ApiKeyCredentialProvider
 import schema "github.com/cueformation/cfn-cue/resources/hfc3a6dea13e2f042:schema"
 
 #Resource:        schema.#Resource
-#ApiKeySecretArn: schema.#ApiKeySecretArn
 #SecretReference: schema.#SecretReference
 #Tag:             schema.#Tag

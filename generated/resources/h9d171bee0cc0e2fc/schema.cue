@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -21,13 +21,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IAM::InstanceProfile"
-	Properties!: close({
-		InstanceProfileName?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^([\\w+=,.@-]+)?$" | fn.#StringExpression
+	let properties = close({
+		InstanceProfileName?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^([\\w+=,.@-]+)?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^([\\w+=,.@-]+)?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Path?: strings.MaxRunes(512) &
 		strings.MinRunes(1) &
 		=~"^(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F})$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) &
+			strings.MinRunes(1) &
+			=~"^(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F})$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Roles!: list.MaxItems(1) & list.UniqueItems() & [...] & [...=~"[a-zA-Z0-9+=,.@\\-_]+" | fn.#StringExpression] |
-			fn.#ListExpression
+		Roles!: list.MaxItems(1) & list.UniqueItems() & [...] & [...=~"[a-zA-Z0-9+=,.@\\-_]+" |
+		{
+			number | bool
+			_cfnString: =~"[a-zA-Z0-9+=,.@\\-_]+" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

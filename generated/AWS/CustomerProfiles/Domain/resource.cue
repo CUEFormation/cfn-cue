@@ -9,15 +9,11 @@ import schema "github.com/cueformation/cfn-cue/resources/hddc2c61efb34d9be:schem
 #AutoMerging:               schema.#AutoMerging
 #ConflictResolution:        schema.#ConflictResolution
 #Consolidation:             schema.#Consolidation
-#DataStore:                 schema.#DataStore
-#DomainStats:               schema.#DomainStats
 #ExportingConfig:           schema.#ExportingConfig
 #JobSchedule:               schema.#JobSchedule
 #Matching:                  schema.#Matching
 #MatchingAttributes:        schema.#MatchingAttributes
 #MatchingRule:              schema.#MatchingRule
 #MatchingRuleAttributeList: schema.#MatchingRuleAttributeList
-#Readiness:                 schema.#Readiness
-#RuleBasedMatching:         schema.#RuleBasedMatching
 #S3ExportingConfig:         schema.#S3ExportingConfig
 #Tag:                       schema.#Tag

@@ -309,7 +309,11 @@ strings.MinRunes(1) &
 // The identifier for the S3 resource.
 #S3Identifier: close({
 	// A bucket in S3.
-	S3BucketName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
+	S3BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
 
 	// A object key in S3.
 	S3ObjectKey?: strings.MaxRunes(1024) &

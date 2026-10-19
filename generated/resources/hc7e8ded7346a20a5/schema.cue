@@ -7,8 +7,8 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,12 +17,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // mitigation.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Shield::DRTAccess"
-	Properties!: close({
-		LogBucketList?: list.MaxItems(10) & [...] & [
-			...strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-		] |
+	let properties = close({
+		LogBucketList?: list.MaxItems(10) & [...] & [...strings.MaxRunes(63) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MaxRunes(2048) |
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MaxRunes(2048) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MaxRunes(2048) & "\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

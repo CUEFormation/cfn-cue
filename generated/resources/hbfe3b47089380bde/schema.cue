@@ -3,27 +3,39 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SNS::Subscription
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SNS::Subscription"
-	Properties!: close({
-		DeliveryPolicy?:     fn.#Object & {...} | string | fn.#StringObjectExpression
-		Endpoint?:           string | fn.#StringExpression
-		FilterPolicy?:       fn.#Object & {...} | string | fn.#StringObjectExpression
-		FilterPolicyScope?:  string | fn.#StringExpression
-		Protocol!:           string | fn.#StringExpression
+	let properties = close({
+		DeliveryPolicy?:     fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		Endpoint?:           string | number | bool | fn.#StringExpression
+		FilterPolicy?:       fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		FilterPolicyScope?:  string | number | bool | fn.#StringExpression
+		Protocol!:           string | number | bool | fn.#StringExpression
 		RawMessageDelivery?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		RedrivePolicy?:      fn.#Object & {...} | string | fn.#StringObjectExpression
-		Region?:             string | fn.#StringExpression
-		ReplayPolicy?:       fn.#Object & {...} | string | fn.#StringObjectExpression
-		SubscriptionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		TopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		RedrivePolicy?:      fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		Region?:             string | number | bool | fn.#StringExpression
+		ReplayPolicy?:       fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		SubscriptionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		TopicArn!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

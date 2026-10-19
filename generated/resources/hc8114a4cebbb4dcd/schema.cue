@@ -6,12 +6,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -24,16 +22,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // the foundation of the OpenAPI Specification.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::RestApi"
-	Properties?: close({
-		ApiKeySourceType?: string | fn.#StringExpression
-		BinaryMediaTypes?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		Body?:             fn.#Object & {...} | string | fn.#StringObjectExpression
+	let properties = matchIf(matchN(0, [matchN(0, [null | bool | number | string | [...] | {
+		Body!: _
+		...
+	}]) & matchN(0, [null | bool | number | string | [...] | {
+		BodyS3Location!: _
+		...
+	}])]), _, {
+		Name!: _
+		...
+	}) & close({
+		ApiKeySourceType?: string | number | bool | fn.#StringExpression
+		BinaryMediaTypes?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		Body?:             fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 		// The Amazon Simple Storage Service (Amazon S3) location that points to an
 		// OpenAPI file, which defines a set of RESTful APIs in JSON or YAML format.
 		BodyS3Location?: #S3Location
-		CloneFrom?:      string | fn.#StringExpression
-		Description?:    string | fn.#StringExpression
+		CloneFrom?:      string | number | bool | fn.#StringExpression
+		Description?:    string | number | bool | fn.#StringExpression
 		DisableExecuteApiEndpoint?: bool |
 			"true" |
 			"True" |
@@ -42,7 +49,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		EndpointAccessMode?: string | fn.#StringExpression
+		EndpointAccessMode?: string | number | bool | fn.#StringExpression
 
 		// A list of the endpoint types and IP address types of the API. Use this
 		// property when creating an API. When importing an existing API, specify the
@@ -65,37 +72,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Mode?: string | fn.#StringExpression
-		Name?: string | fn.#StringExpression
+		Mode?: string | number | bool | fn.#StringExpression
+		Name?: string | number | bool | fn.#StringExpression
 		Parameters?: string |
+		number |
+		bool |
 		close({
 
-			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+			{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#StringObjectExpression
-		Policy?:         fn.#Object & {...} | string | fn.#StringObjectExpression
-		SecurityPolicy?: string | fn.#StringExpression
+		Policy?:         fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		SecurityPolicy?: string | number | bool | fn.#StringExpression
 		Tags?:           [...#Tag] | fn.#ListExpression
-		Version?:        string | fn.#StringExpression
+		Version?:        string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #EndpointConfiguration: close({
-	IpAddressType?:  string | fn.#StringExpression
-	Types?:          list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	VpcEndpointIds?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	IpAddressType?:  string | number | bool | fn.#StringExpression
+	Types?:          list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	VpcEndpointIds?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #S3Location: close({
-	Bucket?:  string | fn.#StringExpression
-	ETag?:    string | fn.#StringExpression
-	Key?:     string | fn.#StringExpression
-	Version?: string | fn.#StringExpression
+	Bucket?:  string | number | bool | fn.#StringExpression
+	ETag?:    string | number | bool | fn.#StringExpression
+	Key?:     string | number | bool | fn.#StringExpression
+	Version?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

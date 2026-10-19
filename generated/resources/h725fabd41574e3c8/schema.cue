@@ -7,22 +7,42 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Route53::CidrCollection.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53::CidrCollection"
-	Properties!: close({
+	let properties = close({
 		Locations?: list.UniqueItems() & [...#Location] | fn.#ListExpression
-		Name!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z_\\-]+$" | fn.#StringExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z_\\-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z_\\-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Location: close({
-	CidrList!:     list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	LocationName!: strings.MaxRunes(16) & strings.MinRunes(1) | fn.#StringExpression
+	CidrList!: list.UniqueItems() & [...fn.#IPv4Network & string |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network & string & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	LocationName!: strings.MaxRunes(16) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(16) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

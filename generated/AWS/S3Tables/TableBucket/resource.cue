@@ -11,7 +11,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h59666100a7b0cf60:schem
 #ReplicationDestination:    schema.#ReplicationDestination
 #ReplicationRule:           schema.#ReplicationRule
 #StorageClassConfiguration: schema.#StorageClassConfiguration
-#TableBucketARN:            schema.#TableBucketARN
 #TableBucketName:           schema.#TableBucketName
 #Tag:                       schema.#Tag
 #UnreferencedFileRemoval:   schema.#UnreferencedFileRemoval

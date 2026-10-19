@@ -3,17 +3,21 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::NetworkInterfacePermission
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::NetworkInterfacePermission"
-	Properties!: close({
-		AwsAccountId!:       string | fn.#StringExpression
-		NetworkInterfaceId!: string | fn.#StringExpression
-		Permission!:         string | fn.#StringExpression
+	let properties = close({
+		AwsAccountId!:       string | number | bool | fn.#StringExpression
+		NetworkInterfaceId!: string | number | bool | fn.#StringExpression
+		Permission!:         string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

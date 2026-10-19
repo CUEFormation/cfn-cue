@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -13,9 +13,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // group
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::TransitGatewayMulticastGroupSource"
-	Properties!: close({
-		GroupIpAddress!:                  string | fn.#StringExpression
-		NetworkInterfaceId!:              string | fn.#StringExpression
-		TransitGatewayMulticastDomainId!: string | fn.#StringExpression
+	let properties = close({
+		GroupIpAddress!:                  string | number | bool | fn.#StringExpression
+		NetworkInterfaceId!:              string | number | bool | fn.#StringExpression
+		TransitGatewayMulticastDomainId!: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

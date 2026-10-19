@@ -8,8 +8,5 @@ import schema "github.com/cueformation/cfn-cue/resources/he8bb0fd69e690c57:schem
 #PublicRouterNetworkInterfaceConfiguration: schema.#PublicRouterNetworkInterfaceConfiguration
 #PublicRouterNetworkInterfaceRule:          schema.#PublicRouterNetworkInterfaceRule
 #RouterNetworkInterfaceConfiguration:       schema.#RouterNetworkInterfaceConfiguration
-#RouterNetworkInterfaceState:               schema.#RouterNetworkInterfaceState
-#RouterNetworkInterfaceType:                schema.#RouterNetworkInterfaceType
 #Tag:                                       schema.#Tag
-#Unit:                                      schema.#Unit
 #VpcRouterNetworkInterfaceConfiguration:    schema.#VpcRouterNetworkInterfaceConfiguration

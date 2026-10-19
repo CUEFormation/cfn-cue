@@ -7,12 +7,10 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -26,7 +24,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // You can only delete empty buckets. Deletion fails for buckets that have contents.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3::Bucket"
-	Properties?: close({
+	let properties = matchIf({
+		AccessControl!: matchN(0, ["Private" | "BucketOwnerFullControl" | "BucketOwnerRead"]) & string | {
+			number | bool
+			_cfnString: matchN(0, ["Private" | "BucketOwnerFullControl" | "BucketOwnerRead"]) & string & "\(self)"
+		}
+		...
+	}, {
+		OwnershipControls!: null |
+		bool |
+		number |
+		string |
+		[...] |
+		{
+			Rules!: null | bool | number | string | list.MinItems(1) | {...} | fn.#ValueExpression
+			...
+		} |
+		fn.#ValueExpression
+		...
+	}, _) & close({
 		AbacStatus?: "Enabled" | "Disabled" | fn.#StringExpression
 
 		// Configures the transfer acceleration state for an Amazon S3 bucket. For more
@@ -53,8 +69,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Buckets](https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-encryption.html)
 		// in the *Amazon S3 User Guide*.
 		BucketEncryption?: #BucketEncryption
-		BucketName?:       strings.MaxRunes(63) & =~"^([a-z0-9][a-z0-9.-]*[a-z0-9])?$" | fn.#StringExpression
-		BucketNamePrefix?: string | fn.#StringExpression
+		BucketName?: =~"(?:^[a-z0-9.\\-]{3,63}\\n?$)|^$" &
+		=~"(?:^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$)|^$" &
+		strings.MaxRunes(63) &
+		=~"^([a-z0-9][a-z0-9.-]*[a-z0-9])?$" |
+		{
+			number | bool
+			_cfnString: =~"(?:^[a-z0-9.\\-]{3,63}\\n?$)|^$" &
+			=~"(?:^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$)|^$" &
+			strings.MaxRunes(63) &
+			=~"^([a-z0-9][a-z0-9.-]*[a-z0-9])?$" &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		BucketNamePrefix?: string | number | bool | fn.#StringExpression
 		BucketNamespace?:  "global" | "account-regional" | fn.#StringExpression
 
 		// Describes the cross-origin access configuration for objects in an Amazon S3
@@ -84,7 +112,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				// must also set ``KmsKeyArn`` to the ARN of a customer managed KMS key in the
 				// same Region where your general purpose bucket is located.
 				EncryptionConfiguration?: #MetadataTableEncryptionConfiguration
-				Role?:                    string | fn.#StringExpression
+				Role?:                    string | number | bool | fn.#StringExpression
 			}) |
 			fn.#ObjectExpression
 			InventoryTableConfiguration?: close({
@@ -106,8 +134,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 		MetadataTableConfiguration?: close({
 			S3TablesDestination!: close({
-				TableBucketArn!: string | fn.#StringExpression
-				TableName!:      string | fn.#StringExpression
+				TableBucketArn!: string | number | bool | fn.#StringExpression
+				TableName!:      string | number | bool | fn.#StringExpression
 			}) |
 			fn.#ObjectExpression
 		}) |
@@ -165,6 +193,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// S3](https://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html).
 		WebsiteConfiguration?: #WebsiteConfiguration
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #AbortIncompleteMultipartUpload: close({
@@ -189,11 +221,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #AccelerateConfiguration: close({AccelerationStatus!: "Enabled" | "Suspended" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-#AccessControlTranslation: close({Owner!: "Destination" & "Destination" | fn.#StringExpression}) | fn.#ObjectExpression
+#AccessControlTranslation: close({
+	Owner!: "Destination" & "Destination" |
+	{
+		number | bool
+		_cfnString: "Destination" & "Destination" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #AnalyticsConfiguration: close({
-	Id!:     string | fn.#StringExpression
-	Prefix?: string | fn.#StringExpression
+	Id!:     string | number | bool | fn.#StringExpression
+	Prefix?: string | number | bool | fn.#StringExpression
 
 	// Contains data related to access patterns to be collected and made available
 	// to analyze the tradeoffs between different storage classes.
@@ -201,23 +241,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	TagFilters?:           list.UniqueItems() & [...#TagFilter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-
-#AnnotationTableConfiguration: close({
-	ConfigurationState!: "ENABLED" | "DISABLED" | fn.#StringExpression
-
-	// The encryption configuration for the annotation table. To encrypt your
-	// annotation table with server-side encryption using AWS Key Management
-	// Service (AWS KMS) keys (SSE-KMS), set ``SseAlgorithm`` to ``aws:kms``. You
-	// must also set ``KmsKeyArn`` to the ARN of a customer managed KMS key in the
-	// same Region where your general purpose bucket is located.
-	EncryptionConfiguration?: #MetadataTableEncryptionConfiguration
-	Role?:                    string | fn.#StringExpression
-	TableArn?:                string | fn.#StringExpression
-	TableName?:               string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#Arn: string | fn.#StringExpression
 
 #BlockedEncryptionTypeList: list.UniqueItems() & [..."NONE" | "SSE-C" | fn.#StringExpression] | fn.#ListExpression
 
@@ -246,12 +269,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CorsRule: close({
-	AllowedHeaders?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	AllowedHeaders?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	AllowedMethods!: list.UniqueItems() & [..."GET" | "PUT" | "HEAD" | "POST" | "DELETE" | fn.#StringExpression] |
 		fn.#ListExpression
-	AllowedOrigins!: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	ExposedHeaders?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	Id?:             strings.MaxRunes(255) | fn.#StringExpression
+	AllowedOrigins!: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	ExposedHeaders?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Id?: strings.MaxRunes(255) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & "\(self)"
+	} |
+	fn.#StringExpression
 	MaxAge?: int & >=0 |
 		{
 			string &
@@ -353,14 +381,15 @@ fn.#ObjectExpression
 #DeleteMarkerReplication: close({Status?: "Disabled" | "Enabled" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Destination: close({
-	BucketAccountId?: string | fn.#StringExpression
-	BucketArn!:       string | fn.#StringExpression
+	BucketAccountId?: string | number | bool | fn.#StringExpression
+	BucketArn!:       string | number | bool | fn.#StringExpression
 	Format!:          "CSV" | "ORC" | "Parquet" | fn.#StringExpression
-	Prefix?:          string | fn.#StringExpression
+	Prefix?:          string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#EncryptionConfiguration: close({ReplicaKmsKeyID!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#EncryptionConfiguration: close({ReplicaKmsKeyID!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #EventBridgeConfiguration: close(
 	{EventBridgeEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
@@ -368,14 +397,19 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #FilterRule: close({
-	Name!:  strings.MaxRunes(1024) | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Name!: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #IntelligentTieringConfiguration: close({
-	Id!:         string | fn.#StringExpression
-	Prefix?:     string | fn.#StringExpression
+	Id!:         string | number | bool | fn.#StringExpression
+	Prefix?:     string | number | bool | fn.#StringExpression
 	Status!:     "Disabled" | "Enabled" | fn.#StringExpression
 	TagFilters?: list.UniqueItems() & [...#TagFilter] | fn.#ListExpression
 	Tierings!:   list.UniqueItems() & [...#Tiering] | fn.#ListExpression
@@ -386,7 +420,7 @@ fn.#ObjectExpression
 	// Contains information about where to publish the inventory results.
 	Destination!:            #Destination
 	Enabled!:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Id!:                     string | fn.#StringExpression
+	Id!:                     string | number | bool | fn.#StringExpression
 	IncludedObjectVersions!: "All" | "Current" | fn.#StringExpression
 	OptionalFields?: list.UniqueItems() & [
 		..."Size" |
@@ -411,41 +445,20 @@ fn.#ObjectExpression
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	Prefix?:            string | fn.#StringExpression
+	Prefix?:            string | number | bool | fn.#StringExpression
 	ScheduleFrequency!: "Daily" | "Weekly" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#InventoryTableConfiguration: close({
-	ConfigurationState!: "ENABLED" | "DISABLED" | fn.#StringExpression
-
-	// The encryption configuration for the inventory table.
-	EncryptionConfiguration?: #MetadataTableEncryptionConfiguration
-	TableArn?:                string | fn.#StringExpression
-	TableName?:               string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#JournalTableConfiguration: close({
-	// The encryption configuration for the journal table.
-	EncryptionConfiguration?: #MetadataTableEncryptionConfiguration
-
-	// The journal table record expiration settings for the journal table.
-	RecordExpiration!: #RecordExpiration
-	TableArn?:         string | fn.#StringExpression
-	TableName?:        string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #LambdaConfiguration: close({
-	Event!: string | fn.#StringExpression
+	Event!: string | number | bool | fn.#StringExpression
 
 	// The filtering rules that determine which objects invoke the AWS Lambda
 	// function. For example, you can create a filter so that only image files with
 	// a ``.jpg`` extension invoke the function when they are added to the Amazon
 	// S3 bucket.
 	Filter?:   #NotificationFilter
-	Function!: string | fn.#StringExpression
+	Function!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -456,8 +469,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #LoggingConfiguration: close({
-	DestinationBucketName?: string | fn.#StringExpression
-	LogFilePrefix?:         string | fn.#StringExpression
+	DestinationBucketName?: string | number | bool | fn.#StringExpression
+	LogFilePrefix?:         string | number | bool | fn.#StringExpression
 
 	// Amazon S3 key format for log objects. Only one format, either
 	// PartitionedPrefix or SimplePrefix, is allowed.
@@ -465,40 +478,13 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#MetadataConfiguration: close({
-	// The annotation table configuration for a metadata configuration.
-	AnnotationTableConfiguration?: #AnnotationTableConfiguration
-
-	// The destination information for the S3 Metadata configuration.
-	Destination?: #MetadataDestination
-
-	// The inventory table configuration for a metadata configuration.
-	InventoryTableConfiguration?: #InventoryTableConfiguration
-
-	// The journal table configuration for a metadata configuration.
-	JournalTableConfiguration!: #JournalTableConfiguration
-}) |
-fn.#ObjectExpression
-
-#MetadataDestination: close({
-	TableBucketArn?:  string | fn.#StringExpression
-	TableBucketType!: "aws" | "customer" | fn.#StringExpression
-	TableNamespace?:  string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#MetadataTableConfiguration: close({
-	// The destination information for the metadata table configuration. The
-	// destination table bucket must be in the same Region and AWS-account as the
-	// general purpose bucket. The specified metadata table name must be unique
-	// within the ``aws_s3_metadata`` namespace in the destination table bucket.
-	S3TablesDestination!: #S3TablesDestination
-}) |
-fn.#ObjectExpression
-
 #MetadataTableEncryptionConfiguration: close({
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	SseAlgorithm!: "aws:kms" | "AES256" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -512,9 +498,9 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #MetricsConfiguration: close({
-	AccessPointArn?: string | fn.#StringExpression
-	Id!:             string | fn.#StringExpression
-	Prefix?:         string | fn.#StringExpression
+	AccessPointArn?: string | number | bool | fn.#StringExpression
+	Id!:             string | number | bool | fn.#StringExpression
+	Prefix?:         string | number | bool | fn.#StringExpression
 	TagFilters?:     list.UniqueItems() & [...#TagFilter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -607,7 +593,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ObjectLockConfiguration: close({
-	ObjectLockEnabled?: "Enabled" & "Enabled" | fn.#StringExpression
+	ObjectLockEnabled?: "Enabled" & "Enabled" |
+	{
+		number | bool
+		_cfnString: "Enabled" & "Enabled" & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// Specifies the Object Lock rule for the specified object. Enable this rule
 	// when you apply ``ObjectLockConfiguration`` to a bucket. If Object Lock is
@@ -652,7 +643,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #QueueConfiguration: close({
-	Event!: string | fn.#StringExpression
+	Event!: string | number | bool | fn.#StringExpression
 
 	// The filtering rules that determine which objects trigger notifications. For
 	// example, you can create a filter so that Amazon S3 sends notifications only
@@ -661,7 +652,7 @@ fn.#ObjectExpression
 	// filtering](https://docs.aws.amazon.com/AmazonS3/latest/user-guide/notification-how-to-filtering.html)
 	// in the *Amazon S3 User Guide*.
 	Filter?: #NotificationFilter
-	Queue!:  string | fn.#StringExpression
+	Queue!:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -684,41 +675,37 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#RedirectAllRequestsTo: matchN(3, [
-	matchN(0, [null | bool | number | string | [...] | {
-		RedirectAllRequestsTo!: _
-		ErrorDocument!:         _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		RedirectAllRequestsTo!: _
-		IndexDocument!:         _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		RedirectAllRequestsTo!: _
-		RoutingRules!:          _
-		...
-	}]) & {...}
-]) & close({
-	HostName!: string | fn.#StringExpression
+#RedirectAllRequestsTo: matchN(3, [matchN(0, [null | bool | number | string | [...] | {
+	RedirectAllRequestsTo!: _
+	ErrorDocument!:         _
+	...
+}]), matchN(0, [null | bool | number | string | [...] | {
+	RedirectAllRequestsTo!: _
+	IndexDocument!:         _
+	...
+}]), matchN(0, [null | bool | number | string | [...] | {
+	RedirectAllRequestsTo!: _
+	RoutingRules!:          _
+	...
+}])]) & close({
+	HostName!: string | number | bool | fn.#StringExpression
 	Protocol?: "http" | "https" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RedirectRule: close({
-	HostName?:             string | fn.#StringExpression
-	HttpRedirectCode?:     string | fn.#StringExpression
+	HostName?:             string | number | bool | fn.#StringExpression
+	HttpRedirectCode?:     string | number | bool | fn.#StringExpression
 	Protocol?:             "http" | "https" | fn.#StringExpression
-	ReplaceKeyPrefixWith?: string | fn.#StringExpression
-	ReplaceKeyWith?:       string | fn.#StringExpression
+	ReplaceKeyPrefixWith?: string | number | bool | fn.#StringExpression
+	ReplaceKeyWith?:       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ReplicaModifications: close({Status!: "Enabled" | "Disabled" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #ReplicationConfiguration: close({
-	Role!: string | fn.#StringExpression
+	Role!: string | number | bool | fn.#StringExpression
 	Rules!: list.UniqueItems() & [
 		...#ReplicationRule & (null | bool | number | strings.MaxRunes(1000) & strings.MinRunes(1) | [...] | {...}) |
 		fn.#ObjectExpression
@@ -734,8 +721,8 @@ fn.#ObjectExpression
 	// in the replication configuration, the replicas are owned by same AWS-account
 	// that owns the source object.
 	AccessControlTranslation?: #AccessControlTranslation
-	Account?:                  string | fn.#StringExpression
-	Bucket!:                   string | fn.#StringExpression
+	Account?:                  string | number | bool | fn.#StringExpression
+	Bucket!:                   string | number | bool | fn.#StringExpression
 
 	// Specifies encryption-related information.
 	EncryptionConfiguration?: #EncryptionConfiguration
@@ -790,8 +777,18 @@ fn.#ObjectExpression
 	// using a V1 replication configuration, add the ``Prefix`` directly as a child
 	// element of the ``Rule`` element.
 	Filter?: #ReplicationRuleFilter
-	Id?:     strings.MaxRunes(255) | fn.#StringExpression
-	Prefix?: strings.MaxRunes(1024) | fn.#StringExpression
+	Id?: strings.MaxRunes(255) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & "\(self)"
+	} |
+	fn.#StringExpression
+	Prefix?: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
 	Priority?: int |
 		{
 			string &
@@ -816,7 +813,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ReplicationRuleAndOperator: close({
-	Prefix?:     string | fn.#StringExpression
+	Prefix?:     string | number | bool | fn.#StringExpression
 	TagFilters?: list.UniqueItems() & [...#TagFilter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -829,7 +826,7 @@ fn.#ObjectExpression
 	// + If you specify a filter based on multiple tags, wrap the ``TagFilter``
 	// elements in an ``And`` tag.
 	And?:    #ReplicationRuleAndOperator
-	Prefix?: string | fn.#StringExpression
+	Prefix?: string | number | bool | fn.#StringExpression
 
 	// A container for specifying a tag key and value.
 	// The rule applies only to objects that have the tag in their tag set.
@@ -880,8 +877,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RoutingRuleCondition: close({
-	HttpErrorCodeReturnedEquals?: string | fn.#StringExpression
-	KeyPrefixEquals?:             string | fn.#StringExpression
+	HttpErrorCodeReturnedEquals?: string | number | bool | fn.#StringExpression
+	KeyPrefixEquals?:             string | number | bool | fn.#StringExpression
 }) & matchN(>=1, [{HttpErrorCodeReturnedEquals!: _}, {KeyPrefixEquals!: _}]) |
 fn.#ObjectExpression
 
@@ -910,7 +907,12 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	ExpiredObjectDeleteMarker?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Id?:                        strings.MaxRunes(255) | fn.#StringExpression
+	Id?: strings.MaxRunes(255) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// Specifies when noncurrent object versions expire. Upon expiration, S3
 	// permanently deletes the noncurrent object versions. You set this lifecycle
@@ -940,11 +942,21 @@ fn.#ObjectExpression
 	// ``NoncurrentVersionTransitions`` property.
 	NoncurrentVersionTransition?:  #NoncurrentVersionTransition
 	NoncurrentVersionTransitions?: list.UniqueItems() & [...#NoncurrentVersionTransition] | fn.#ListExpression
-	ObjectSizeGreaterThan?:        strings.MaxRunes(20) & =~"[0-9]+" | fn.#StringExpression
-	ObjectSizeLessThan?:           strings.MaxRunes(20) & =~"[0-9]+" | fn.#StringExpression
-	Prefix?:                       string | fn.#StringExpression
-	Status!:                       "Enabled" | "Disabled" | fn.#StringExpression
-	TagFilters?:                   list.UniqueItems() & [...#TagFilter] | fn.#ListExpression
+	ObjectSizeGreaterThan?: strings.MaxRunes(20) & =~"[0-9]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(20) & =~"[0-9]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	ObjectSizeLessThan?: strings.MaxRunes(20) & =~"[0-9]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(20) & =~"[0-9]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	Prefix?:     string | number | bool | fn.#StringExpression
+	Status!:     "Enabled" | "Disabled" | fn.#StringExpression
+	TagFilters?: list.UniqueItems() & [...#TagFilter] | fn.#ListExpression
 
 	// (Deprecated.) Specifies when an object transitions to a specified storage
 	// class. If you specify an expiration and transition time, you must use the
@@ -968,18 +980,24 @@ fn.#ObjectExpression
 
 #S3KeyFilter: close({Rules!: list.UniqueItems() & [...#FilterRule] | fn.#ListExpression}) | fn.#ObjectExpression
 
-#S3TablesDestination: close({
-	TableArn?:       string | fn.#StringExpression
-	TableBucketArn!: string | fn.#StringExpression
-	TableName!:      string | fn.#StringExpression
-	TableNamespace?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #ServerSideEncryptionByDefault: close({
-	KMSMasterKeyID?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
+	KMSMasterKeyID?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+	} |
+	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+			"\(self)"
+	} |
+	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	SSEAlgorithm!: "aws:kms" | "AES256" | "aws:kms:dsse" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -1027,18 +1045,28 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TagFilter: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#TargetObjectKeyFormat: fn.#Object & {...} & matchN(1, [
+#TargetObjectKeyFormat: fn.#Object & matchN(1, [
 	close({SimplePrefix!: close({}) | fn.#ObjectExpression}), close({PartitionedPrefix!: #PartitionedPrefix}),
 ]) |
 fn.#ObjectExpression
@@ -1063,13 +1091,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TopicConfiguration: close({
-	Event!: string | fn.#StringExpression
+	Event!: string | number | bool | fn.#StringExpression
 
 	// The filtering rules that determine for which objects to send notifications.
 	// For example, you can create a filter so that Amazon S3 sends notifications
 	// only when image files with a ``.jpg`` extension are added to the bucket.
 	Filter?: #NotificationFilter
-	Topic!:  string | fn.#StringExpression
+	Topic!:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1106,8 +1134,8 @@ fn.#ObjectExpression
 #VersioningConfiguration: close({Status!: "Enabled" | "Suspended" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #WebsiteConfiguration: close({
-	ErrorDocument?: string | fn.#StringExpression
-	IndexDocument?: string | fn.#StringExpression
+	ErrorDocument?: string | number | bool | fn.#StringExpression
+	IndexDocument?: string | number | bool | fn.#StringExpression
 
 	// The redirect behavior for every request to this bucket's website endpoint.
 	// If you specify this property, you can't specify any other property.
@@ -1117,4 +1145,9 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #iso8601UTC: =~"^(\\d{4})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^(\\d{4})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" &
+		"\(self)"
+} |
+fn.#StringExpression

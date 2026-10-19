@@ -1,0 +1,43 @@
+{
+  "Conditions": {
+    "Dev": {
+      "Fn::Equals": [
+        {
+          "Ref": "Env"
+        },
+        "dev"
+      ]
+    },
+    "Prod": {
+      "Fn::Equals": [
+        {
+          "Ref": "Env"
+        },
+        "prod"
+      ]
+    }
+  },
+  "Parameters": {
+    "Env": {
+      "AllowedValues": [
+        "prod",
+        "dev"
+      ],
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "A": {
+      "Properties": {
+        "QueueName": "app"
+      },
+      "Type": "AWS::SQS::Queue"
+    },
+    "B": {
+      "Properties": {
+        "QueueName": "app"
+      },
+      "Type": "AWS::SQS::Queue"
+    }
+  }
+}

@@ -17,7 +17,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hd2a22e649099ec6e:schem
 #MembershipProtectedQueryResultConfiguration:    schema.#MembershipProtectedQueryResultConfiguration
 #MembershipQueryComputePaymentConfig:            schema.#MembershipQueryComputePaymentConfig
 #MembershipQueryLogStatus:                       schema.#MembershipQueryLogStatus
-#MembershipStatus:                               schema.#MembershipStatus
 #MembershipSyntheticDataGenerationPaymentConfig: schema.#MembershipSyntheticDataGenerationPaymentConfig
 #ProtectedJobS3OutputConfigurationInput:         schema.#ProtectedJobS3OutputConfigurationInput
 #ProtectedQueryS3OutputConfiguration:            schema.#ProtectedQueryS3OutputConfiguration

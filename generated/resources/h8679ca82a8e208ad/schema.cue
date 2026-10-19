@@ -3,24 +3,28 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DMS::ReplicationSubnetGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DMS::ReplicationSubnetGroup"
-	Properties!: close({
-		ReplicationSubnetGroupDescription!: string | fn.#StringExpression
-		ReplicationSubnetGroupIdentifier?:  string | fn.#StringExpression
-		SubnetIds!:                         [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		ReplicationSubnetGroupDescription!: string | number | bool | fn.#StringExpression
+		ReplicationSubnetGroupIdentifier?:  string | number | bool | fn.#StringExpression
+		SubnetIds!:                         [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Tags?:                              [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

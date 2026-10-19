@@ -6,17 +6,52 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Oam::Sink
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Oam::Sink"
-	Properties!: close({
-		Name!:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-		Policy?: fn.#Object & {...} | string | fn.#StringObjectExpression
-		Tags?:   {...} | fn.#ObjectExpression
+	let properties = close({
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Policy?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		Tags?: close({
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^(?:aws:.*)"]: error("disallowed")}
+
+			{
+				[=~"^.{1,128}$"]: =~"^.{0,256}$" &
+				matchN(0, [=~"^(?:aws:.*)"]) &
+				string &
+				strings.MaxRunes(256) &
+				strings.MinRunes(0) |
+				{
+					number | bool
+					_cfnString: =~"^.{0,256}$" &
+					matchN(0, [=~"^(?:aws:.*)"]) &
+					string &
+					strings.MaxRunes(256) &
+					strings.MinRunes(0) &
+					"\(self)"
+				} |
+				fn.#StringExpression
+			}
+		}) |
+		fn.#ObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

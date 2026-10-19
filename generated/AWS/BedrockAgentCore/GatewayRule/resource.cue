@@ -9,7 +9,6 @@ import schema "github.com/cueformation/cfn-cue/resources/ha8de23079240bb1b:schem
 #Condition:                    schema.#Condition
 #ConfigurationBundleAction:    schema.#ConfigurationBundleAction
 #ConfigurationBundleReference: schema.#ConfigurationBundleReference
-#GatewayRuleStatus:            schema.#GatewayRuleStatus
 #IamPrincipal:                 schema.#IamPrincipal
 #MatchPaths:                   schema.#MatchPaths
 #MatchPrincipalEntry:          schema.#MatchPrincipalEntry
@@ -18,7 +17,6 @@ import schema "github.com/cueformation/cfn-cue/resources/ha8de23079240bb1b:schem
 #RouteToTargetAction:          schema.#RouteToTargetAction
 #StaticOverride:               schema.#StaticOverride
 #StaticRoute:                  schema.#StaticRoute
-#SystemManagedBlock:           schema.#SystemManagedBlock
 #TargetTrafficSplitEntry:      schema.#TargetTrafficSplitEntry
 #TrafficSplitEntry:            schema.#TrafficSplitEntry
 #TrafficSplitMetadataMap:      schema.#TrafficSplitMetadataMap

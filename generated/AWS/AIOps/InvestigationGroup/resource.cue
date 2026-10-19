@@ -8,8 +8,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hfaff1e63a86972cb:schem
 #ChatbotNotificationChannel:       schema.#ChatbotNotificationChannel
 #CrossAccountConfiguration:        schema.#CrossAccountConfiguration
 #EncryptionConfigMap:              schema.#EncryptionConfigMap
-#InvestigationGroupArn:            schema.#InvestigationGroupArn
 #RoleArn:                          schema.#RoleArn
 #StringWithPatternAndLengthLimits: schema.#StringWithPatternAndLengthLimits
 #Tag:                              schema.#Tag
-#Timestamp:                        schema.#Timestamp

@@ -4,7 +4,6 @@ package CapacityReservation
 
 import schema "github.com/cueformation/cfn-cue/resources/h0f933e80c17a2414:schema"
 
-#Resource:           schema.#Resource
-#CapacityAllocation: schema.#CapacityAllocation
-#Tag:                schema.#Tag
-#TagSpecification:   schema.#TagSpecification
+#Resource:         schema.#Resource
+#Tag:              schema.#Tag
+#TagSpecification: schema.#TagSpecification

@@ -3,30 +3,32 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::FSx::Volume
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::FSx::Volume"
-	Properties!: close({
-		BackupId?:             string | fn.#StringExpression
-		Name!:                 string | fn.#StringExpression
+	let properties = close({
+		BackupId?:             string | number | bool | fn.#StringExpression
+		Name!:                 string | number | bool | fn.#StringExpression
 		OntapConfiguration?:   #OntapConfiguration
 		OpenZFSConfiguration?: #OpenZFSConfiguration
 		Tags?:                 [...#Tag] | fn.#ListExpression
-		VolumeType?:           string | fn.#StringExpression
+		VolumeType?:           string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AggregateConfiguration: close({
-	Aggregates?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Aggregates?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	ConstituentsPerAggregate?: int |
 		{
 			string &
@@ -45,7 +47,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #AutocommitPeriod: close({
-	Type!: string | fn.#StringExpression
+	Type!: string | number | bool | fn.#StringExpression
 	Value?: int |
 		{
 			string &
@@ -64,8 +66,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ClientConfigurations: close({
-	Clients!: string | fn.#StringExpression
-	Options!: [...string | fn.#StringExpression] | fn.#ListExpression
+	Clients!: string | number | bool | fn.#StringExpression
+	Options!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -73,28 +75,28 @@ fn.#ObjectExpression
 
 #OntapConfiguration: close({
 	AggregateConfiguration?:   #AggregateConfiguration
-	CopyTagsToBackups?:        string | fn.#StringExpression
-	JunctionPath?:             string | fn.#StringExpression
-	OntapVolumeType?:          string | fn.#StringExpression
-	SecurityStyle?:            string | fn.#StringExpression
-	SizeInBytes?:              string | fn.#StringExpression
-	SizeInMegabytes?:          string | fn.#StringExpression
+	CopyTagsToBackups?:        string | number | bool | fn.#StringExpression
+	JunctionPath?:             string | number | bool | fn.#StringExpression
+	OntapVolumeType?:          string | number | bool | fn.#StringExpression
+	SecurityStyle?:            string | number | bool | fn.#StringExpression
+	SizeInBytes?:              string | number | bool | fn.#StringExpression
+	SizeInMegabytes?:          string | number | bool | fn.#StringExpression
 	SnaplockConfiguration?:    #SnaplockConfiguration
-	SnapshotPolicy?:           string | fn.#StringExpression
-	StorageEfficiencyEnabled?: string | fn.#StringExpression
-	StorageVirtualMachineId!:  string | fn.#StringExpression
+	SnapshotPolicy?:           string | number | bool | fn.#StringExpression
+	StorageEfficiencyEnabled?: string | number | bool | fn.#StringExpression
+	StorageVirtualMachineId!:  string | number | bool | fn.#StringExpression
 	TieringPolicy?:            #TieringPolicy
-	VolumeStyle?:              string | fn.#StringExpression
+	VolumeStyle?:              string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OpenZFSConfiguration: close({
 	CopyTagsToSnapshots?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DataCompressionType?: string | fn.#StringExpression
+	DataCompressionType?: string | number | bool | fn.#StringExpression
 	NfsExports?:          [...#NfsExports] | fn.#ListExpression
-	Options?:             [...string | fn.#StringExpression] | fn.#ListExpression
+	Options?:             [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	OriginSnapshot?:      #OriginSnapshot
-	ParentVolumeId!:      string | fn.#StringExpression
+	ParentVolumeId!:      string | number | bool | fn.#StringExpression
 	ReadOnly?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RecordSizeKiB?: int |
 		{
@@ -143,13 +145,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #OriginSnapshot: close({
-	CopyStrategy!: string | fn.#StringExpression
-	SnapshotARN!:  string | fn.#StringExpression
+	CopyStrategy!: string | number | bool | fn.#StringExpression
+	SnapshotARN!:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RetentionPeriod: close({
-	Type!: string | fn.#StringExpression
+	Type!: string | number | bool | fn.#StringExpression
 	Value?: int |
 		{
 			string &
@@ -168,12 +170,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SnaplockConfiguration: close({
-	AuditLogVolume?:          string | fn.#StringExpression
+	AuditLogVolume?:          string | number | bool | fn.#StringExpression
 	AutocommitPeriod?:        #AutocommitPeriod
-	PrivilegedDelete?:        string | fn.#StringExpression
+	PrivilegedDelete?:        string | number | bool | fn.#StringExpression
 	RetentionPeriod?:         #SnaplockRetentionPeriod
-	SnaplockType!:            string | fn.#StringExpression
-	VolumeAppendModeEnabled?: string | fn.#StringExpression
+	SnaplockType!:            string | number | bool | fn.#StringExpression
+	VolumeAppendModeEnabled?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -185,8 +187,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -205,7 +207,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Name?: string | fn.#StringExpression
+	Name?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -238,6 +240,6 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Type!: string | fn.#StringExpression
+	Type!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

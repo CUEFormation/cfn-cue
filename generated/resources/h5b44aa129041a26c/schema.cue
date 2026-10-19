@@ -7,12 +7,10 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // use to create Storage Lens configurations.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3::StorageLens"
-	Properties!: close({
+	let properties = close({
 		StorageLensConfiguration!: close({
 			AccountLevel!:               #AccountLevel
 			AwsOrg?:                     #AwsOrg
@@ -30,11 +28,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			Id!:                         #Id
 			Include?:                    #BucketsAndRegions
 			IsEnabled!:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-			PrefixDelimiter?: string | fn.#StringExpression
+			PrefixDelimiter?: string | number | bool | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AccountLevel: close({
@@ -68,7 +70,7 @@ fn.#ObjectExpression
 ) |
 	fn.#ObjectExpression
 
-#Arn: string | fn.#StringExpression
+#Arn: string | number | bool | fn.#StringExpression
 
 #AwsOrg: close({Arn!: #Arn}) | fn.#ObjectExpression
 
@@ -84,7 +86,7 @@ fn.#ObjectExpression
 
 #BucketsAndRegions: close({
 	Buckets?: list.UniqueItems() & [...#Arn] | fn.#ListExpression
-	Regions?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	Regions?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -105,12 +107,15 @@ fn.#ObjectExpression
 ) |
 	fn.#ObjectExpression
 
-#Encryption: fn.#Object & {...} & matchN(1, [
-	close({SSES3!: close({}) | fn.#ObjectExpression}), close({SSEKMS!: #SSEKMS}),
-]) |
+#Encryption: fn.#Object & matchN(1, [close({SSES3!: close({}) | fn.#ObjectExpression}), close({SSEKMS!: #SSEKMS})]) |
 fn.#ObjectExpression
 
-#Id: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_.]+$" | fn.#StringExpression
+#Id: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_.]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_.]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #PrefixLevel: close({StorageMetrics!: #PrefixLevelStorageMetrics}) | fn.#ObjectExpression
 
@@ -121,19 +126,19 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #S3BucketDestination: close({
-	AccountId!:           string | fn.#StringExpression
-	Arn!:                 string | fn.#StringExpression
+	AccountId!:           string | number | bool | fn.#StringExpression
+	Arn!:                 string | number | bool | fn.#StringExpression
 	Encryption?:          #Encryption
 	Format!:              "CSV" | "Parquet" | fn.#StringExpression
 	OutputSchemaVersion!: "V_1" | fn.#StringExpression
-	Prefix?:              string | fn.#StringExpression
+	Prefix?:              string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#SSEKMS: close({KeyId!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#SSEKMS: close({KeyId!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #SelectionCriteria: close({
-	Delimiter?: string | fn.#StringExpression
+	Delimiter?: string | number | bool | fn.#StringExpression
 	MaxDepth?: int |
 		{
 			string &
@@ -170,27 +175,13 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#StorageLensConfiguration: close({
-	AccountLevel!:               #AccountLevel
-	AwsOrg?:                     #AwsOrg
-	DataExport?:                 #DataExport
-	Exclude?:                    #BucketsAndRegions
-	ExpandedPrefixesDataExport?: #StorageLensExpandedPrefixesDataExport
-	Id!:                         #Id
-	Include?:                    #BucketsAndRegions
-	IsEnabled!:                  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PrefixDelimiter?:            string | fn.#StringExpression
-	StorageLensArn?:             string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #StorageLensExpandedPrefixesDataExport: close({
 	S3BucketDestination?:         #S3BucketDestination
 	StorageLensTableDestination?: #StorageLensTableDestination
 }) |
 fn.#ObjectExpression
 
-#StorageLensGroupArn: string | fn.#StringExpression
+#StorageLensGroupArn: string | number | bool | fn.#StringExpression
 
 #StorageLensGroupLevel: close({StorageLensGroupSelectionCriteria?: #StorageLensGroupSelectionCriteria}) |
 	fn.#ObjectExpression
@@ -208,7 +199,35 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: =~"^[a-zA-Z0-9\\s\\_\\.\\/\\=\\+\\-\\@\\:]+$" &
+	matchN(0, [=~"^(?:aws:.*)"]) &
+	string &
+	strings.MaxRunes(127) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9\\s\\_\\.\\/\\=\\+\\-\\@\\:]+$" &
+		matchN(0, [=~"^(?:aws:.*)"]) &
+		string &
+		strings.MaxRunes(127) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: =~"^[a-zA-Z0-9\\s\\_\\.\\/\\=\\+\\-\\@\\:]+$" &
+	matchN(0, [=~"^(?:aws:.*)"]) &
+	string &
+	strings.MaxRunes(255) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9\\s\\_\\.\\/\\=\\+\\-\\@\\:]+$" &
+		matchN(0, [=~"^(?:aws:.*)"]) &
+		string &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

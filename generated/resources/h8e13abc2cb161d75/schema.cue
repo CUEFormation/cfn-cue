@@ -7,12 +7,10 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -21,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // thresholds are breached.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudWatch::LogAlarm"
-	Properties!: close({
+	let properties = close({
 		ActionLogLineCount?: int & <=50 & >=0 |
 			{
 				string &
@@ -40,12 +38,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		ActionLogLineRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		ActionsEnabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		AlarmActions?:     [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-		AlarmDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		AlarmName?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		ActionLogLineRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ActionsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AlarmActions?: [...strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		AlarmDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		AlarmName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ComparisonOperator!: "GreaterThanOrEqualToThreshold" |
 			"GreaterThanThreshold" |
 			"GreaterThanUpperThreshold" |
@@ -54,9 +72,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"LessThanOrEqualToThreshold" |
 			"LessThanThreshold" |
 			fn.#StringExpression
-		InsufficientDataActions?: [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] |
+		InsufficientDataActions?: [...strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		OKActions?: [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		OKActions?: [...strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		QueryResultsToAlarm!: int & >=1 |
 			{
 				string &
@@ -114,13 +143,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		TreatMissingData?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		TreatMissingData?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The warm-up configuration for the alarm. During the warm-up period, the alarm
 		// stays in INSUFFICIENT_DATA and doesn't perform alarm actions. For more
 		// information, see Alarm warm-up periods in the Amazon CloudWatch User Guide.
 		WarmUpConfiguration?: #WarmUpConfiguration
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ScheduleConfiguration: close({
@@ -140,7 +178,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	ScheduleExpression!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	ScheduleExpression!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	StartTimeOffset!: int & <=2592000 & >=1 |
 		{
 			string &
@@ -161,24 +204,54 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #ScheduledQueryConfiguration: close({
-	AggregationExpression!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	LogGroupIdentifiers?: list.MaxItems(50) & list.MinItems(1) & [
-		...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	AggregationExpression!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	LogGroupIdentifiers?: list.MaxItems(50) & list.MinItems(1) & [...strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	QueryString!: strings.MaxRunes(10000) & strings.MinRunes(0) | fn.#StringExpression
+	QueryString!: strings.MaxRunes(10000) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// The schedule configuration.
 	ScheduleConfiguration!: #ScheduleConfiguration
-	ScheduledQueryRoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+	ScheduledQueryRoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

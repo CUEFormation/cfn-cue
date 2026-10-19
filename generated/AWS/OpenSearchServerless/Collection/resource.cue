@@ -8,7 +8,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h98ef7ee7017e779a:schem
 #CollectionType:               schema.#CollectionType
 #DeletionProtection:           schema.#DeletionProtection
 #EncryptionConfig:             schema.#EncryptionConfig
-#FipsEndpoints:                schema.#FipsEndpoints
 #ServerlessVectorAcceleration: schema.#ServerlessVectorAcceleration
 #StandbyReplicas:              schema.#StandbyReplicas
 #Tag:                          schema.#Tag

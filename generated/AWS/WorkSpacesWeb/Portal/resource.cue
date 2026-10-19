@@ -6,9 +6,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h74501e0362ed24a5:schem
 
 #Resource:             schema.#Resource
 #AuthenticationType:   schema.#AuthenticationType
-#BrowserType:          schema.#BrowserType
 #EncryptionContextMap: schema.#EncryptionContextMap
 #InstanceType:         schema.#InstanceType
-#PortalStatus:         schema.#PortalStatus
-#RendererType:         schema.#RendererType
 #Tag:                  schema.#Tag

@@ -7,27 +7,25 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::VerifiedAccessEndpoint resource creates an AWS EC2 Verified Access Endpoint.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::VerifiedAccessEndpoint"
-	Properties!: close({
-		ApplicationDomain?: string | fn.#StringExpression
+	let properties = close({
+		ApplicationDomain?: string | number | bool | fn.#StringExpression
 		AttachmentType!:    "vpc" | fn.#StringExpression
 
 		// The options for cidr type endpoint.
 		CidrOptions?:          #CidrOptions
-		Description?:          string | fn.#StringExpression
-		DomainCertificateArn?: string | fn.#StringExpression
-		EndpointDomainPrefix?: string | fn.#StringExpression
+		Description?:          string | number | bool | fn.#StringExpression
+		DomainCertificateArn?: string | number | bool | fn.#StringExpression
+		EndpointDomainPrefix?: string | number | bool | fn.#StringExpression
 		EndpointType!:         "cidr" | "load-balancer" | "network-interface" | "rds" | fn.#StringExpression
 
 		// The load balancer details if creating the AWS Verified Access endpoint as load-balancer type.
@@ -35,7 +33,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		// The options for network-interface type endpoint.
 		NetworkInterfaceOptions?: #NetworkInterfaceOptions
-		PolicyDocument?:          string | fn.#StringExpression
+		PolicyDocument?:          string | number | bool | fn.#StringExpression
 		PolicyEnabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 		// The options for rds type endpoint.
@@ -45,12 +43,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// The configuration options for customer provided KMS encryption.
 		SseSpecification?:      #SseSpecification
 		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		VerifiedAccessGroupId!: string | fn.#StringExpression
+		VerifiedAccessGroupId!: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CidrOptions: close({
-	Cidr?:       string | fn.#StringExpression
+	Cidr?: fn.#IPv4Network & string |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network & string & "\(self)"
+	} |
+	fn.#StringExpression
 	PortRanges?: list.UniqueItems() & [...#PortRange] | fn.#ListExpression
 	Protocol?:   "http" | "https" | "tcp" | fn.#StringExpression
 	SubnetIds?:  list.UniqueItems() & [...#SubnetId] | fn.#ListExpression
@@ -58,7 +65,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #LoadBalancerOptions: close({
-	LoadBalancerArn?: string | fn.#StringExpression
+	LoadBalancerArn?: string | number | bool | fn.#StringExpression
 	Port?: int & <=65535 & >=1 |
 		{
 			string &
@@ -82,7 +89,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #NetworkInterfaceOptions: close({
-	NetworkInterfaceId?: string | fn.#StringExpression
+	NetworkInterfaceId?: string | number | bool | fn.#StringExpression
 	Port?: int & <=65535 & >=1 |
 		{
 			string &
@@ -158,28 +165,46 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	Protocol?:         "http" | "https" | "tcp" | fn.#StringExpression
-	RdsDbClusterArn?:  string | fn.#StringExpression
-	RdsDbInstanceArn?: string | fn.#StringExpression
-	RdsDbProxyArn?:    string | fn.#StringExpression
-	RdsEndpoint?:      string | fn.#StringExpression
+	RdsDbClusterArn?:  string | number | bool | fn.#StringExpression
+	RdsDbInstanceArn?: string | number | bool | fn.#StringExpression
+	RdsDbProxyArn?:    string | number | bool | fn.#StringExpression
+	RdsEndpoint?:      string | number | bool | fn.#StringExpression
 	SubnetIds?:        list.UniqueItems() & [...#SubnetId] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#SecurityGroupId: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-	fn.#StringExpression
+#SecurityGroupId: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+{
+	number | bool
+	_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+} |
+fn.#StringExpression
 
 #SseSpecification: close({
 	CustomerManagedKeyEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#SubnetId: string | fn.#StringExpression
+#SubnetId: string | number | bool | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

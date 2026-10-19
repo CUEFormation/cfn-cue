@@ -7,8 +7,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h032066e4fe590ddc:schem
 #Resource:               schema.#Resource
 #Description:            schema.#Description
 #InvoiceReceiver:        schema.#InvoiceReceiver
-#InvoiceUnitArn:         schema.#InvoiceUnitArn
-#LastModified:           schema.#LastModified
 #Name:                   schema.#Name
 #ResourceTag:            schema.#ResourceTag
 #ResourceTags:           schema.#ResourceTags

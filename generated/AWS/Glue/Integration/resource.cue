@@ -9,4 +9,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h38ef07a7ea8a9081:schem
 #IntegrationConfig:                         schema.#IntegrationConfig
 #SourceProperties:                          schema.#SourceProperties
 #Tag:                                       schema.#Tag
-#Tags:                                      schema.#Tags

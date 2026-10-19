@@ -8,10 +8,8 @@ import schema "github.com/cueformation/cfn-cue/resources/h12f309b1c04faf87:schem
 #CognitoGroupConfiguration:               schema.#CognitoGroupConfiguration
 #CognitoUserPoolConfiguration:            schema.#CognitoUserPoolConfiguration
 #IdentitySourceConfiguration:             schema.#IdentitySourceConfiguration
-#IdentitySourceDetails:                   schema.#IdentitySourceDetails
 #OpenIdConnectAccessTokenConfiguration:   schema.#OpenIdConnectAccessTokenConfiguration
 #OpenIdConnectConfiguration:              schema.#OpenIdConnectConfiguration
 #OpenIdConnectGroupConfiguration:         schema.#OpenIdConnectGroupConfiguration
 #OpenIdConnectIdentityTokenConfiguration: schema.#OpenIdConnectIdentityTokenConfiguration
 #OpenIdConnectTokenSelection:             schema.#OpenIdConnectTokenSelection
-#OpenIdIssuer:                            schema.#OpenIdIssuer

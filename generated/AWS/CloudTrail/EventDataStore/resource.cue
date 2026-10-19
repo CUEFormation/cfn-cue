@@ -10,4 +10,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h57818fbc2c33ea7b:schem
 #ContextKeySelector:    schema.#ContextKeySelector
 #InsightSelector:       schema.#InsightSelector
 #Tag:                   schema.#Tag
-#Timestamp:             schema.#Timestamp

@@ -7,26 +7,38 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::RDS::DBProxyTargetGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RDS::DBProxyTargetGroup"
-	Properties!: close({
+	let properties = close({
 		ConnectionPoolConfigurationInfo?: #ConnectionPoolConfigurationInfoFormat
-		DBClusterIdentifiers?:            [...string | fn.#StringExpression] | fn.#ListExpression
-		DBInstanceIdentifiers?:           [...string | fn.#StringExpression] | fn.#ListExpression
-		DBProxyName!:     strings.MaxRunes(64) & strings.MinRunes(1) & =~"[A-z][0-z]*" | fn.#StringExpression
-		Tags?:            list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TargetGroupName!: "default" & (strings.MaxRunes(63) & strings.MinRunes(1)) | fn.#StringExpression
+		DBClusterIdentifiers?:            [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		DBInstanceIdentifiers?:           [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		DBProxyName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[A-z][0-z]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[A-z][0-z]*" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetGroupName!: "default" & (strings.MaxRunes(63) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: "default" & strings.MaxRunes(63) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ConnectionPoolConfigurationInfoFormat: close({
@@ -44,7 +56,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	InitQuery?: string | fn.#StringExpression
+	InitQuery?: string | number | bool | fn.#StringExpression
 	MaxConnectionsPercent?: int & <=100 & >=0 |
 		{
 			string &
@@ -77,12 +89,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	SessionPinningFilters?: [...string | fn.#StringExpression] | fn.#ListExpression
+	SessionPinningFilters?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: =~"^[\\p{L}\\p{Z}\\p{N}_. :/=+\\-@]+$" &
+	matchN(0, [=~"^(?:aws:|rds:)"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[\\p{L}\\p{Z}\\p{N}_. :/=+\\-@]+$" &
+		matchN(0, [=~"^(?:aws:|rds:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value?: =~"^[\\p{L}\\p{Z}\\p{N}_. :/=+\\-@]+$" &
+	matchN(0, [=~"^(?:aws:|rds:)"]) &
+	string &
+	strings.MaxRunes(256) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[\\p{L}\\p{Z}\\p{N}_. :/=+\\-@]+$" &
+		matchN(0, [=~"^(?:aws:|rds:)"]) &
+		string &
+		strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

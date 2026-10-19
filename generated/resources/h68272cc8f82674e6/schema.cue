@@ -6,8 +6,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,24 +16,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The key value store holds keys and their corresponding values.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::KeyValueStore"
-	Properties!: close({
-		Comment?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		Comment?: strings.MaxRunes(128) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The import source for the key value store.
 		ImportSource?: #ImportSource
-		Name!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
-		Tags?:         [...#Tag] | fn.#ListExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ImportSource: close({
-	SourceArn!:  string | fn.#StringExpression
+	SourceArn!:  string | number | bool | fn.#StringExpression
 	SourceType!: "S3" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

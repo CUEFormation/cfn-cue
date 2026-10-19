@@ -3,24 +3,28 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAFRegional::Rule
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WAFRegional::Rule"
-	Properties!: close({
-		MetricName!: string | fn.#StringExpression
-		Name!:       string | fn.#StringExpression
+	let properties = close({
+		MetricName!: string | number | bool | fn.#StringExpression
+		Name!:       string | number | bool | fn.#StringExpression
 		Predicates?: [...#Predicate] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Predicate: close({
-	DataId!:  string | fn.#StringExpression
+	DataId!:  string | number | bool | fn.#StringExpression
 	Negated!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Type!:    string | fn.#StringExpression
+	Type!:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

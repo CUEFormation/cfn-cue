@@ -5,6 +5,5 @@ package Domain
 import schema "github.com/cueformation/cfn-cue/resources/hb02729e2ee515e64:schema"
 
 #Resource:            schema.#Resource
-#Certificate:         schema.#Certificate
 #CertificateSettings: schema.#CertificateSettings
 #SubDomainSetting:    schema.#SubDomainSetting

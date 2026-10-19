@@ -7,5 +7,4 @@ import schema "github.com/cueformation/cfn-cue/resources/h515a0d27055701bb:schem
 #Resource:          schema.#Resource
 #AddOn:             schema.#AddOn
 #AutoSnapshotAddOn: schema.#AutoSnapshotAddOn
-#Location:          schema.#Location
 #Tag:               schema.#Tag

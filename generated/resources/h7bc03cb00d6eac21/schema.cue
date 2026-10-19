@@ -3,17 +3,21 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ApiGateway::Resource`` resource creates a resource in an API.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::Resource"
-	Properties!: close({
-		ParentId!:  string | fn.#StringExpression
-		PathPart!:  string | fn.#StringExpression
-		RestApiId!: string | fn.#StringExpression
+	let properties = close({
+		ParentId!:  string | number | bool | fn.#StringExpression
+		PathPart!:  string | number | bool | fn.#StringExpression
+		RestApiId!: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

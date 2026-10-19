@@ -7,28 +7,47 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::ApprovalPolicy Resource Type.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QuickSight::ApprovalPolicy"
-	Properties!: close({
+	let properties = close({
 		Actions!:        list.MaxItems(10) & list.MinItems(1) & [..."SHARE" | fn.#ValueExpression] | fn.#ListExpression
 		ApplicableTo!:   #ApplicableTo
-		ApprovalGroups!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+		ApprovalGroups!: list.MinItems(1) & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		AssetTypes!: list.MinItems(1) & [..."AGENT" | "KNOWLEDGE_BASE" | "SPACE" | fn.#ValueExpression] |
 			fn.#ListExpression
-		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		Name!:        strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		PolicyId!:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		PolicyId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ApplicableTo: close({
-	GroupArns?: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+	GroupArns?: list.MinItems(1) & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Type!:      "GROUP" | fn.#ValueExpression
 }) |
 fn.#ObjectExpression

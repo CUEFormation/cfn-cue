@@ -6,32 +6,80 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DirectoryService::MicrosoftAD
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DirectoryService::MicrosoftAD"
-	Properties!: close({
+	let properties = close({
 		CreateAlias?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Edition?:     "Enterprise" | "Standard" | fn.#StringExpression
 		EnableSso?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Name!:        =~"^([a-zA-Z0-9]+[\\\\.-])+([a-zA-Z0-9])+$" | fn.#StringExpression
-		Password?:    string | fn.#StringExpression
-		ShortName?:   =~"^[^\\\\/:*?\"<>|.]+[^\\\\/:*?\"<>|]*$" | fn.#StringExpression
+		Name!: =~"^([a-zA-Z0-9]+[\\\\.-])+([a-zA-Z0-9])+$" |
+		{
+			number | bool
+			_cfnString: =~"^([a-zA-Z0-9]+[\\\\.-])+([a-zA-Z0-9])+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Password?: =~"^(?:^.{8,64}$)" & =~"^(?:.*\\d)" & =~"^(?:.*[A-Z])" & =~"^(?:.*[a-z])" |
+		{
+			number | bool
+			_cfnString: =~"^(?:^.{8,64}$)" & =~"^(?:.*\\d)" & =~"^(?:.*[A-Z])" & =~"^(?:.*[a-z])" & "\(self)"
+		} |
+		=~"^(?:^.{8,64}$)" & =~"^(?:.*\\d)" & =~"^(?:.*[^A-Za-z0-9\\s])" & =~"^(?:.*[a-z])" |
+		{
+			number | bool
+			_cfnString: =~"^(?:^.{8,64}$)" & =~"^(?:.*\\d)" & =~"^(?:.*[^A-Za-z0-9\\s])" & =~"^(?:.*[a-z])" & "\(self)"
+		} |
+		=~"^(?:^.{8,64}$)" & =~"^(?:.*[^A-Za-z0-9\\s])" & =~"^(?:.*[A-Z])" & =~"^(?:.*[a-z])" |
+		{
+			number | bool
+			_cfnString: =~"^(?:^.{8,64}$)" &
+				=~"^(?:.*[^A-Za-z0-9\\s])" &
+				=~"^(?:.*[A-Z])" &
+				=~"^(?:.*[a-z])" &
+				"\(self)"
+		} |
+		=~"^(?:^.{8,64}$)" & =~"^(?:.*\\d)" & =~"^(?:.*[A-Z])" & =~"^(?:.*[^A-Za-z0-9\\s])" |
+		{
+			number | bool
+			_cfnString: =~"^(?:^.{8,64}$)" & =~"^(?:.*\\d)" & =~"^(?:.*[A-Z])" & =~"^(?:.*[^A-Za-z0-9\\s])" & "\(self)"
+		} |
+		fn.#StringExpression
+		ShortName?: =~"^[^\\\\/:*?\"<>|.]+[^\\\\/:*?\"<>|]*$" |
+		{
+			number | bool
+			_cfnString: =~"^[^\\\\/:*?\"<>|.]+[^\\\\/:*?\"<>|]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Specifies the VPC settings of the Microsoft AD directory server in AWS.
 		VpcSettings!: #VpcSettings
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #VpcSettings: close({
-	SubnetIds!: list.UniqueItems() & [...=~"^(subnet-[0-9a-f]{8}|subnet-[0-9a-f]{17})$" | fn.#StringExpression] |
-		fn.#ListExpression
-	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^(vpc-[0-9a-f]{8}|vpc-[0-9a-f]{17})$" |
-		fn.#StringExpression
+	SubnetIds!: list.UniqueItems() & [...=~"^(subnet-[0-9a-f]{8}|subnet-[0-9a-f]{17})$" |
+	{
+		number | bool
+		_cfnString: =~"^(subnet-[0-9a-f]{8}|subnet-[0-9a-f]{17})$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & =~"^(vpc-[0-9a-f]{8}|vpc-[0-9a-f]{17})$" |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+			=~"^(vpc-[0-9a-f]{8}|vpc-[0-9a-f]{17})$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

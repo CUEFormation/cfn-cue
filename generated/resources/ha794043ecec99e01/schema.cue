@@ -7,24 +7,42 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The resource schema to create a CodeArtifact domain.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodeArtifact::Domain"
-	Properties!: close({
+	let properties = close({
 		DomainName!: strings.MaxRunes(50) & strings.MinRunes(2) & =~"^([a-z][a-z0-9\\-]{0,48}[a-z0-9])$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(2) & =~"^([a-z][a-z0-9\\-]{0,48}[a-z0-9])$" & "\(self)"
+		} |
 		fn.#StringExpression
 		PermissionsPolicyDocument?: fn.#Object & {...} | fn.#ObjectExpression
 		Tags?:                      list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\P{C}+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\P{C}*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\P{C}+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\P{C}+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\P{C}*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\P{C}*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

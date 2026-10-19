@@ -4,12 +4,7 @@ package DBInstance
 
 import schema "github.com/cueformation/cfn-cue/resources/h1961d0ebac37774f:schema"
 
-#Resource:                schema.#Resource
-#AdditionalStorageVolume: schema.#AdditionalStorageVolume
-#CertificateDetails:      schema.#CertificateDetails
-#DBInstanceRole:          schema.#DBInstanceRole
-#DBInstanceStatusInfo:    schema.#DBInstanceStatusInfo
-#Endpoint:                schema.#Endpoint
-#MasterUserSecret:        schema.#MasterUserSecret
-#ProcessorFeature:        schema.#ProcessorFeature
-#Tag:                     schema.#Tag
+#Resource:         schema.#Resource
+#DBInstanceRole:   schema.#DBInstanceRole
+#ProcessorFeature: schema.#ProcessorFeature
+#Tag:              schema.#Tag

@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -14,10 +14,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // region.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityHub::PolicyAssociation"
-	Properties!: close({
+	let properties = close({
 		ConfigurationPolicyId!: =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$|^SELF_MANAGED_SECURITY_HUB$" |
-			fn.#StringExpression
-		TargetId!:   string | fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$|^SELF_MANAGED_SECURITY_HUB$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		TargetId!:   string | number | bool | fn.#StringExpression
 		TargetType!: "ACCOUNT" | "ORGANIZATIONAL_UNIT" | "ROOT" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

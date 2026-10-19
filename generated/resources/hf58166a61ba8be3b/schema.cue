@@ -7,25 +7,68 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a case in the specified Cases domain.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cases::Case"
-	Properties!: close({
-		CustomerId!: strings.MaxRunes(4100) | fn.#StringExpression
-		DomainId!:   strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:       list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-		TemplateId!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-		Title!:      strings.MaxRunes(4100) | fn.#StringExpression
+	let properties = close({
+		CustomerId!: strings.MaxRunes(4100) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4100) & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainId!: strings.MaxRunes(500) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		TemplateId!: strings.MaxRunes(500) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Title!: strings.MaxRunes(4100) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4100) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & =~"^([a-zA-Z0-9 _.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: =~"^[a-zA-Z0-9 _.:/=+\\-@]+$" &
+	matchN(0, [=~"^(?:[aA][wW][sS]:)"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9 _.:/=+\\-@]+$" &
+		matchN(0, [=~"^(?:[aA][wW][sS]:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & =~"^([a-zA-Z0-9 _.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & =~"^([a-zA-Z0-9 _.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -3,16 +3,20 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::VPCEndpointServicePermissions
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::VPCEndpointServicePermissions"
-	Properties!: close({
-		AllowedPrincipals?: [...string | fn.#StringExpression] | fn.#ListExpression
-		ServiceId!:         string | fn.#StringExpression
+	let properties = close({
+		AllowedPrincipals?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		ServiceId!:         string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

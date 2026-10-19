@@ -6,19 +6,37 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoT::EncryptionConfiguration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::EncryptionConfiguration"
-	Properties!: close({
+	let properties = close({
 		EncryptionType!: "CUSTOMER_MANAGED_KMS_KEY" | "AWS_OWNED_KMS_KEY" | fn.#StringExpression
-		KmsAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		KmsAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

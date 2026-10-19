@@ -3,44 +3,66 @@
 package schema
 
 import (
-	"time"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Vectors::VectorBucket
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3Vectors::VectorBucket"
-	Properties?: close({
+	let properties = close({
 		EncryptionConfiguration?: #EncryptionConfiguration
 		Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		VectorBucketName?:        #VectorBucketName
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
-#CreationTime: time.Time | fn.#StringExpression
-
 #EncryptionConfiguration: close({
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^(arn:aws[-a-z0-9]*:kms:[-a-z0-9]*:[0-9]{12}:key/.+)$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^(arn:aws[-a-z0-9]*:kms:[-a-z0-9]*:[0-9]{12}:key/.+)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	SseType?: "AES256" | "aws:kms" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#VectorBucketArn: string | fn.#StringExpression
-
-#VectorBucketName: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+#VectorBucketName: strings.MaxRunes(63) & strings.MinRunes(3) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & "\(self)"
+} |
+fn.#StringExpression

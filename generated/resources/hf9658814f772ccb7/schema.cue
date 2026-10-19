@@ -6,42 +6,41 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::InstanceConnectEndpoint
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::InstanceConnectEndpoint"
-	Properties!: close({
-		ClientToken?:      string | fn.#StringExpression
+	let properties = close({
+		ClientToken?:      string | number | bool | fn.#StringExpression
 		PreserveClientIp?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		SecurityGroupIds?: list.MaxItems(16) & list.UniqueItems() & [...] & [...#SecurityGroupId] | fn.#ListExpression
-		SubnetId!:         string | fn.#StringExpression
-		Tags?:             [...#Tag] | fn.#ListExpression
+		SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#InstanceConnectEndpointDnsNames: close({
-	DnsName?:     string | fn.#StringExpression
-	FipsDnsName?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#InstanceConnectEndpointPublicDnsNames: close({
-	Dualstack?: #InstanceConnectEndpointDnsNames & fn.#Object & {...} | fn.#ObjectExpression
-	Ipv4?:      #InstanceConnectEndpointDnsNames & fn.#Object & {...} | fn.#ObjectExpression
-}) |
-fn.#ObjectExpression
-
-#NetworkInterfaceId: string | fn.#StringExpression
-
-#SecurityGroupId: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-	fn.#StringExpression
+#SecurityGroupId: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+{
+	number | bool
+	_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

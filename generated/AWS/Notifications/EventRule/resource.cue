@@ -4,8 +4,4 @@ package EventRule
 
 import schema "github.com/cueformation/cfn-cue/resources/h3a256aaf82dd936d:schema"
 
-#Resource:               schema.#Resource
-#EventRuleStatus:        schema.#EventRuleStatus
-#EventRuleStatusSummary: schema.#EventRuleStatusSummary
-#StatusSummaryByRegion:  schema.#StatusSummaryByRegion
-#Unit:                   schema.#Unit
+#Resource: schema.#Resource

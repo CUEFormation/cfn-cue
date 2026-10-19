@@ -6,4 +6,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h5ae3322e28167abc:schem
 
 #Resource:          schema.#Resource
 #KafkaVersionsList: schema.#KafkaVersionsList
-#LatestRevision:    schema.#LatestRevision

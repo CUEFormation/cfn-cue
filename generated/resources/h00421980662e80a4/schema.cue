@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,17 +17,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *API Gateway Developer Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGatewayV2::VpcLink"
-	Properties!: close({
-		Name!: string | fn.#StringExpression
-		SecurityGroupIds?: [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
-		SubnetIds!: [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		Name!: string | number | bool | fn.#StringExpression
+		SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		SubnetIds!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Tags?: close({
 
-			{[=~".*"]: string | fn.#StringExpression}}) |
+			{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

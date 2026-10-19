@@ -37,12 +37,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h2f8a316726871efb:schem
 #GlobalAuroraDefaultBehavior:              schema.#GlobalAuroraDefaultBehavior
 #GlobalAuroraUngraceful:                   schema.#GlobalAuroraUngraceful
 #GlobalAuroraUngracefulBehavior:           schema.#GlobalAuroraUngracefulBehavior
-#HealthCheckIds:                           schema.#HealthCheckIds
-#HealthCheckRecordNames:                   schema.#HealthCheckRecordNames
-#HealthCheckRegions:                       schema.#HealthCheckRegions
-#HealthCheckState:                         schema.#HealthCheckState
-#HealthChecks:                             schema.#HealthChecks
-#HostedZoneIds:                            schema.#HostedZoneIds
 #KubernetesResourceType:                   schema.#KubernetesResourceType
 #KubernetesScalingApplication:             schema.#KubernetesScalingApplication
 #KubernetesScalingResource:                schema.#KubernetesScalingResource

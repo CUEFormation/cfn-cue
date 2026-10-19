@@ -4,6 +4,5 @@ package DomainVerification
 
 import schema "github.com/cueformation/cfn-cue/resources/hbc6bc22050153eea:schema"
 
-#Resource:        schema.#Resource
-#Tag:             schema.#Tag
-#TxtMethodConfig: schema.#TxtMethodConfig
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

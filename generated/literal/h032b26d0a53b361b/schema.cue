@@ -99,7 +99,14 @@ import (
 // ``NoDevice``, or ``VirtualName``.
 // ``BlockDeviceMapping`` is a property of [AWS::EC2::LaunchTemplate
 // LaunchTemplateData](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-launchtemplatedata.html).
-#BlockDeviceMapping: close({
+#BlockDeviceMapping: matchIf({
+	Ebs?:         error("disallowed")
+	VirtualName!: _
+	...
+}, {
+	VirtualName?: null | bool | number | =~"^ephemeral([0-9]|[1][0-9]|[2][0-3])$" | [...] | {...}
+	...
+}, _) & (close({
 	// The device name (for example, /dev/sdh or xvdh).
 	DeviceName?: string
 
@@ -128,7 +135,7 @@ import (
 			"NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice",
 		)
 	}
-}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}])
+}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}]))
 
 // Specifies an instance's Capacity Reservation targeting option. You can
 // specify only one option at a time.
@@ -233,7 +240,25 @@ import (
 // Parameters for a block device for an EBS volume in an Amazon EC2 launch template.
 // ``Ebs`` is a property of [AWS::EC2::LaunchTemplate
 // BlockDeviceMapping](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-launchtemplate-blockdevicemapping.html).
-#Ebs: close({
+#Ebs: matchIf({
+	VolumeType!: "io1"
+	...
+}, {
+	Iops!: null | bool | <=64000 & >=100 | string | [...] | {...}
+	...
+}, _) & matchIf({
+	VolumeType!: "io2"
+	...
+}, {
+	Iops!: null | bool | <=256000 & >=100 | string | [...] | {...}
+	...
+}, _) & matchIf({
+	VolumeType!: "gp3"
+	...
+}, {
+	Iops?: null | bool | <=16000 & >=3000 | string | [...] | {...}
+	...
+}, _) & close({
 	// Indicates whether the EBS volume is deleted on instance termination.
 	DeleteOnTermination?: bool
 	EbsCardIndex?:        int
@@ -262,7 +287,9 @@ import (
 
 	// Identifier (key ID, key alias, key ARN, or alias ARN) of the customer managed
 	// KMS key to use for EBS encryption.
-	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 
 	// The ID of the snapshot.
 	SnapshotId?: string
@@ -1271,7 +1298,7 @@ import (
 	SecondaryPrivateIpAddressCount?: int
 
 	// The ID of the subnet for the network interface.
-	SubnetId?: string
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 	if AssociateCarrierIpAddress != _|_ if AssociateCarrierIpAddress."Fn::If" == _|_ {
 		NetworkInterfaceId?: close({"Fn::If": _}) | error(
 			"NetworkInterfaceId cannot be used with AssociateCarrierIpAddress",

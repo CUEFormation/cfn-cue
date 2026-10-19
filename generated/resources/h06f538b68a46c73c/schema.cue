@@ -3,86 +3,32 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::TransitGatewayConnectPeer
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::TransitGatewayConnectPeer"
-	Properties!: close({
+	let properties = close({
 		ConnectPeerConfiguration!: close({
-			InsideCidrBlocks!:      [...string | fn.#StringExpression] | fn.#ListExpression
-			PeerAddress!:           string | fn.#StringExpression
-			TransitGatewayAddress?: string | fn.#StringExpression
+			InsideCidrBlocks!:      [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+			PeerAddress!:           string | number | bool | fn.#StringExpression
+			TransitGatewayAddress?: string | number | bool | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		Tags?:                       [...#Tag] | fn.#ListExpression
-		TransitGatewayAttachmentId!: string | fn.#StringExpression
+		TransitGatewayAttachmentId!: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#TransitGatewayAttachmentBgpConfiguration: close({
-	BgpStatus?:   string | fn.#StringExpression
-	PeerAddress?: string | fn.#StringExpression
-	PeerAsn?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	TransitGatewayAddress?: string | fn.#StringExpression
-	TransitGatewayAsn?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
-#TransitGatewayConnectPeerConfiguration: close({
-	BgpConfigurations?:     [...#TransitGatewayAttachmentBgpConfiguration] | fn.#ListExpression
-	InsideCidrBlocks!:      [...string | fn.#StringExpression] | fn.#ListExpression
-	PeerAddress!:           string | fn.#StringExpression
-	Protocol?:              string | fn.#StringExpression
-	TransitGatewayAddress?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

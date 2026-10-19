@@ -8,7 +8,5 @@ import schema "github.com/cueformation/cfn-cue/resources/h1b90e60edec1e294:schem
 #AzureBlobSasConfiguration:    schema.#AzureBlobSasConfiguration
 #AzureFederatedIdentityConfig: schema.#AzureFederatedIdentityConfig
 #AzureOidcConfig:              schema.#AzureOidcConfig
-#CmkSecretConfig:              schema.#CmkSecretConfig
 #CustomSecretConfig:           schema.#CustomSecretConfig
-#ManagedSecretConfig:          schema.#ManagedSecretConfig
 #Tag:                          schema.#Tag

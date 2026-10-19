@@ -7,24 +7,48 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lambda::Alias
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lambda::Alias"
-	Properties!: close({
-		Description?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		FunctionName!: string | fn.#StringExpression
-		FunctionVersion!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(\\$LATEST(\\.PUBLISHED)?|[0-9]*)$" |
+	let properties = close({
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
 		fn.#StringExpression
-		Name!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		FunctionName!: string | number | bool | fn.#StringExpression
+		FunctionVersion!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(\\$LATEST(\\.PUBLISHED)?|[0-9]*)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(0) &
+			=~"^(\\$LATEST(\\.PUBLISHED)?|[0-9]*)$" &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		Name!: =~"^([a-zA-Z0-9-_]+)$" &
+		matchN(0, [=~"^(?:^[0-9]+$)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^([a-zA-Z0-9-_]+)$" &
+			matchN(0, [=~"^(?:^[0-9]+$)"]) &
+			string &
+			strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 
 		// Specifies a provisioned concurrency configuration for a function's alias.
 		ProvisionedConcurrencyConfig?: #ProvisionedConcurrencyConfiguration
@@ -37,6 +61,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			)
 		}
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AliasRoutingConfiguration: close(
@@ -63,7 +91,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 
 #VersionWeight: close({
-	FunctionVersion!: string | fn.#StringExpression
+	FunctionVersion!: string | number | bool | fn.#StringExpression
 	FunctionWeight!: number |
 		{
 			string &

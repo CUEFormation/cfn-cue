@@ -89,7 +89,10 @@ import "strings"
 
 #SourceBundle: close({
 	// The Amazon S3 bucket where the data is located.
-	S3Bucket!: strings.MaxRunes(255) & strings.MinRunes(0)
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(255) &
+	strings.MinRunes(0)
 
 	// The Amazon S3 key where the data is located.
 	S3Key!: strings.MaxRunes(1024) & strings.MinRunes(0)

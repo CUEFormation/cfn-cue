@@ -4,8 +4,6 @@ package ResourceShare
 
 import schema "github.com/cueformation/cfn-cue/resources/he52bb6d2edc838b9:schema"
 
-#Resource:                        schema.#Resource
-#PermissionArnTemplateParameters: schema.#PermissionArnTemplateParameters
-#PermissionTemplateParameter:     schema.#PermissionTemplateParameter
-#ResourceShareConfiguration:      schema.#ResourceShareConfiguration
-#Tag:                             schema.#Tag
+#Resource:                   schema.#Resource
+#ResourceShareConfiguration: schema.#ResourceShareConfiguration
+#Tag:                        schema.#Tag

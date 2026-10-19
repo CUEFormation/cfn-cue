@@ -1,0 +1,16 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "ContainerDefinitions": [
+          {
+            "Essential": "false",
+            "Image": "nginx",
+            "Name": "web"
+          }
+        ]
+      },
+      "Type": "AWS::ECS::TaskDefinition"
+    }
+  }
+}

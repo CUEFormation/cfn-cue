@@ -101,8 +101,11 @@ import (
 })
 
 #CloudWatchLoggingOptions: close({
-	Enabled?:       bool
-	LogGroupName?:  strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[\\.\\-_/#A-Za-z0-9]*$"
+	Enabled?: bool
+	LogGroupName?: =~"(?:^[\\.\\-_\\/#A-Za-z0-9]{1,512}$)|^$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(0) &
+	=~"^[\\.\\-_/#A-Za-z0-9]*$"
 	LogStreamName?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[^:*]*$"
 })
 
@@ -136,14 +139,14 @@ import (
 	DatabaseSourceVPCConfiguration!:            #DatabaseSourceVPCConfiguration
 	Databases!:                                 #Databases
 	Digest?:                                    strings.MaxRunes(512) & strings.MinRunes(1) & =~".*"
-	Endpoint!:                                  strings.MaxRunes(255) & strings.MinRunes(1)
-	Port!:                                      int & <=65535 & >=0
-	PublicCertificate?:                         strings.MaxRunes(4096) & strings.MinRunes(1) & =~".*"
-	SSLMode?:                                   "Disabled" | "Enabled"
-	SnapshotWatermarkTable!:                    #DatabaseTableName
-	SurrogateKeys?:                             [...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$"]
-	Tables!:                                    #DatabaseTables
-	Type!:                                      "MySQL" | "PostgreSQL"
+	Endpoint!:          =~"^.+" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(255) & strings.MinRunes(1)
+	Port!:              int & <=65535 & >=0
+	PublicCertificate?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~".*"
+	SSLMode?:           "Disabled" | "Enabled"
+	SnapshotWatermarkTable!: #DatabaseTableName
+	SurrogateKeys?:          [...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\S+$"]
+	Tables!:                 #DatabaseTables
+	Type!:                   "MySQL" | "PostgreSQL"
 })
 
 #DatabaseSourceVPCConfiguration: close({VpcEndpointServiceName!: #VpcEndpointServiceName})
@@ -242,16 +245,20 @@ import (
 	S3BackupMode?:          "Disabled" | "Enabled"
 })
 
-#HiveJsonSerDe: close({TimestampFormats?: list.UniqueItems() & [...strings.MaxRunes(1024) & strings.MinRunes(1)]})
+#HiveJsonSerDe: close({
+	TimestampFormats?: list.UniqueItems() & [
+		...=~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(1024) & strings.MinRunes(1)
+	]
+})
 
 #HttpEndpointCommonAttribute: close({
-	AttributeName!:  strings.MaxRunes(256) & strings.MinRunes(1)
+	AttributeName!:  =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(256) & strings.MinRunes(1)
 	AttributeValue!: strings.MaxRunes(1024) & strings.MinRunes(0)
 })
 
 #HttpEndpointConfiguration: close({
 	AccessKey?: strings.MaxRunes(4096) & strings.MinRunes(0)
-	Name?:      strings.MaxRunes(256) & strings.MinRunes(1)
+	Name?:      =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(256) & strings.MinRunes(1)
 	Url!:       strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^https://"
 })
 
@@ -378,7 +385,12 @@ import (
 		"NumberOfRetries" |
 		"RoleArn" |
 		"SubRecordType"
-	ParameterValue!: string & (strings.MaxRunes(5120) & strings.MinRunes(1))
+	ParameterValue!: =~"^.+$" &
+	matchN(0, [=~"^(?:\\s*$)"]) &
+	string &
+	string &
+	strings.MaxRunes(5120) &
+	strings.MinRunes(1)
 })
 
 #RedshiftDestinationConfiguration: close({
@@ -517,7 +529,11 @@ import (
 #TableCreationConfiguration: close({Enabled?: bool})
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!: =~"^[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@%]*$" &
+	matchN(0, [=~"^(?:aws:)"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@%]*$"
 })
 

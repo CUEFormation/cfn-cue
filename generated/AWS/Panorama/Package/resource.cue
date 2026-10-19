@@ -5,10 +5,6 @@ package Package
 import schema "github.com/cueformation/cfn-cue/resources/h411b0e022cb247cf:schema"
 
 #Resource:        schema.#Resource
-#NodePackageArn:  schema.#NodePackageArn
-#NodePackageId:   schema.#NodePackageId
 #NodePackageName: schema.#NodePackageName
-#StorageLocation: schema.#StorageLocation
 #Tag:             schema.#Tag
 #TagList:         schema.#TagList
-#Timestamp:       schema.#Timestamp

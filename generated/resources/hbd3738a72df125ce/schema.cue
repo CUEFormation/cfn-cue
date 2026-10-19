@@ -3,35 +3,39 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates and manages an Amazon FPGA Image (AFI) from a design checkpoint (DCP).
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::FpgaImage"
-	Properties?: close({
-		Description?: string | fn.#StringExpression
+	let properties = close({
+		Description?: string | number | bool | fn.#StringExpression
 
 		// The location of the encrypted design checkpoint in Amazon S3. The input must be a tarball.
 		InputStorageLocation?: #StorageLocation
 
 		// The location in Amazon S3 for the output logs.
 		LogsStorageLocation?: #StorageLocation
-		Name?:                string | fn.#StringExpression
+		Name?:                string | number | bool | fn.#StringExpression
 		Tags?:                [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #StorageLocation: close({
-	Bucket?: string | fn.#StringExpression
-	Key?:    string | fn.#StringExpression
+	Bucket?: string | number | bool | fn.#StringExpression
+	Key?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -6,28 +6,46 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The `AWS::Redshift::ScheduledAction` resource creates an Amazon Redshift Scheduled Action.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Redshift::ScheduledAction"
-	Properties!: close({
+	let properties = close({
 		Enable?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 		// The end time in UTC of the scheduled action. After this time, the scheduled
 		// action does not trigger.
-		EndTime?:                    #timestamp
-		IamRole?:                    strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-		Schedule?:                   strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-		ScheduledActionDescription?: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-		ScheduledActionName!:        strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		EndTime?: #timestamp
+		IamRole?: strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Schedule?: strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		ScheduledActionDescription?: strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		ScheduledActionName!: strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The start time in UTC of the scheduled action. Before this time, the
 		// scheduled action does not trigger.
@@ -36,15 +54,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// A JSON format string of the Amazon Redshift API operation with input parameters.
 		TargetAction?: #ScheduledActionType
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#PauseClusterMessage: close({ClusterIdentifier!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#PauseClusterMessage: close({ClusterIdentifier!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #ResizeClusterMessage: close({
 	Classic?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ClusterIdentifier!: string | fn.#StringExpression
-	ClusterType?:       string | fn.#StringExpression
-	NodeType?:          string | fn.#StringExpression
+	ClusterIdentifier!: string | number | bool | fn.#StringExpression
+	ClusterType?:       string | number | bool | fn.#StringExpression
+	NodeType?:          string | number | bool | fn.#StringExpression
 	NumberOfNodes?: int |
 		{
 			string &
@@ -62,9 +84,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#ResumeClusterMessage: close({ClusterIdentifier!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#ResumeClusterMessage: close({ClusterIdentifier!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
-#ScheduledActionType: fn.#Object & {...} & matchN(1, [close(
+#ScheduledActionType: fn.#Object & matchN(1, [close(
 	{ResizeCluster?: #ResizeClusterMessage},
 ), close(
 	{PauseCluster?: #PauseClusterMessage},
@@ -73,4 +95,4 @@ fn.#ObjectExpression
 )]) |
 fn.#ObjectExpression
 
-#timestamp: string | fn.#StringExpression
+#timestamp: string | number | bool | fn.#StringExpression

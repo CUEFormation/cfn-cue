@@ -6,9 +6,7 @@ import schema "github.com/cueformation/cfn-cue/resources/h3b73812fae6beb98:schem
 
 #Resource:      schema.#Resource
 #Description:   schema.#Description
-#EndpointId:    schema.#EndpointId
 #ResourceArn:   schema.#ResourceArn
-#ResourceId:    schema.#ResourceId
 #SubnetMapping: schema.#SubnetMapping
 #Tag:           schema.#Tag
 #VpcId:         schema.#VpcId

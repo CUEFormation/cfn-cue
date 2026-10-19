@@ -4,34 +4,5 @@ package PromptVersion
 
 import schema "github.com/cueformation/cfn-cue/resources/h37363e336fed1ed8:schema"
 
-#Resource:                          schema.#Resource
-#AdditionalModelRequestFields:      schema.#AdditionalModelRequestFields
-#AnyToolChoice:                     schema.#AnyToolChoice
-#AutoToolChoice:                    schema.#AutoToolChoice
-#CachePointBlock:                   schema.#CachePointBlock
-#CachePointType:                    schema.#CachePointType
-#ChatPromptTemplateConfiguration:   schema.#ChatPromptTemplateConfiguration
-#ContentBlock:                      schema.#ContentBlock
-#ConversationRole:                  schema.#ConversationRole
-#Message:                           schema.#Message
-#PromptAgentResource:               schema.#PromptAgentResource
-#PromptGenAiResource:               schema.#PromptGenAiResource
-#PromptInferenceConfiguration:      schema.#PromptInferenceConfiguration
-#PromptInputVariable:               schema.#PromptInputVariable
-#PromptMetadataEntry:               schema.#PromptMetadataEntry
-#PromptMetadataKey:                 schema.#PromptMetadataKey
-#PromptMetadataList:                schema.#PromptMetadataList
-#PromptMetadataValue:               schema.#PromptMetadataValue
-#PromptModelInferenceConfiguration: schema.#PromptModelInferenceConfiguration
-#PromptTemplateConfiguration:       schema.#PromptTemplateConfiguration
-#PromptTemplateType:                schema.#PromptTemplateType
-#PromptVariant:                     schema.#PromptVariant
-#SpecificToolChoice:                schema.#SpecificToolChoice
-#SystemContentBlock:                schema.#SystemContentBlock
-#TagsMap:                           schema.#TagsMap
-#TextPromptTemplateConfiguration:   schema.#TextPromptTemplateConfiguration
-#Tool:                              schema.#Tool
-#ToolChoice:                        schema.#ToolChoice
-#ToolConfiguration:                 schema.#ToolConfiguration
-#ToolInputSchema:                   schema.#ToolInputSchema
-#ToolSpecification:                 schema.#ToolSpecification
+#Resource: schema.#Resource
+#TagsMap:  schema.#TagsMap

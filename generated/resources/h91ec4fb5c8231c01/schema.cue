@@ -3,35 +3,45 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for Alexa::ASK::Skill
 #Resource: base.#ResourceAttributes & {
 	Type!: "Alexa::ASK::Skill"
-	Properties!: close({
+	let properties = close({
 		AuthenticationConfiguration!: #AuthenticationConfiguration
 		SkillPackage!:                #SkillPackage
-		VendorId!:                    string | fn.#StringExpression
+		VendorId!:                    string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AuthenticationConfiguration: close({
-	ClientId!:     string | fn.#StringExpression
-	ClientSecret!: string | fn.#StringExpression
-	RefreshToken!: string | fn.#StringExpression
+	ClientId!:     string | number | bool | fn.#StringExpression
+	ClientSecret!: string | number | bool | fn.#StringExpression
+	RefreshToken!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Overrides: close({Manifest?: fn.#Object & {...} | string | fn.#StringObjectExpression}) | fn.#ObjectExpression
+#Overrides: close({Manifest?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression}) |
+fn.#ObjectExpression
 
 #SkillPackage: close({
-	Overrides?:       #Overrides
-	S3Bucket!:        string | fn.#StringExpression
-	S3BucketRole?:    string | fn.#StringExpression
-	S3Key!:           string | fn.#StringExpression
-	S3ObjectVersion?: string | fn.#StringExpression
+	Overrides?: #Overrides
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	S3BucketRole?:    string | number | bool | fn.#StringExpression
+	S3Key!:           string | number | bool | fn.#StringExpression
+	S3ObjectVersion?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -12,5 +12,5 @@ package schema
 	NetworkAclId!: string
 
 	// The ID of the subnet
-	SubnetId!: string
+	SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })

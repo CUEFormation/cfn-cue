@@ -8,8 +8,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h25ab0343333b54d0:schem
 #CredentialArn:            schema.#CredentialArn
 #CustomRoleArn:            schema.#CustomRoleArn
 #EcrRepositoryPrefix:      schema.#EcrRepositoryPrefix
-#PullThroughCacheRule:     schema.#PullThroughCacheRule
-#RegistryId:               schema.#RegistryId
 #UpstreamRegistry:         schema.#UpstreamRegistry
 #UpstreamRegistryUrl:      schema.#UpstreamRegistryUrl
 #UpstreamRepositoryPrefix: schema.#UpstreamRepositoryPrefix

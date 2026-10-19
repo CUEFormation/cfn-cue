@@ -4,6 +4,5 @@ package ScheduleGroup
 
 import schema "github.com/cueformation/cfn-cue/resources/h0183b32826044ae0:schema"
 
-#Resource:           schema.#Resource
-#ScheduleGroupState: schema.#ScheduleGroupState
-#Tag:                schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

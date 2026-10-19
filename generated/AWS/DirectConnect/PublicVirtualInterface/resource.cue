@@ -5,5 +5,4 @@ package PublicVirtualInterface
 import schema "github.com/cueformation/cfn-cue/resources/h63be29cdd8e06c83:schema"
 
 #Resource: schema.#Resource
-#BgpPeer:  schema.#BgpPeer
 #Tag:      schema.#Tag

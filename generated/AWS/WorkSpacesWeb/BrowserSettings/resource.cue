@@ -8,5 +8,4 @@ import schema "github.com/cueformation/cfn-cue/resources/h946b67582a23cba1:schem
 #Category:                  schema.#Category
 #EncryptionContextMap:      schema.#EncryptionContextMap
 #Tag:                       schema.#Tag
-#Unit:                      schema.#Unit
 #WebContentFilteringPolicy: schema.#WebContentFilteringPolicy

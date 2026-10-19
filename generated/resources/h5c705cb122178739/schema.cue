@@ -7,29 +7,62 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Config::OrganizationConformancePack.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Config::OrganizationConformancePack"
-	Properties!: close({
+	let properties = close({
 		ConformancePackInputParameters?: list.MaxItems(60) & [...] & [...#ConformancePackInputParameter] |
 			fn.#ListExpression
-		DeliveryS3Bucket?:    strings.MaxRunes(63) & strings.MinRunes(0) | fn.#StringExpression
-		DeliveryS3KeyPrefix?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		ExcludedAccounts?:    list.MaxItems(1000) & [...] & [...#AccountId] | fn.#ListExpression
-		OrganizationConformancePackName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z][-a-zA-Z0-9]*" |
+		DeliveryS3Bucket?: strings.MaxRunes(63) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(0) & "\(self)"
+		} |
 		fn.#StringExpression
-		Tags?:          list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-		TemplateBody?:  strings.MaxRunes(51200) & strings.MinRunes(1) | fn.#StringExpression
-		TemplateS3Uri?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"s3://.*" | fn.#StringExpression
+		DeliveryS3KeyPrefix?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		ExcludedAccounts?: list.MaxItems(1000) & [...] & [...#AccountId] | fn.#ListExpression
+		OrganizationConformancePackName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z][-a-zA-Z0-9]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z][-a-zA-Z0-9]*" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		TemplateBody?: strings.MaxRunes(51200) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(51200) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		TemplateS3Uri?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"s3://.*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"s3://.*" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#AccountId: =~"^\\d{12}$" | fn.#StringExpression
+#AccountId: =~"^\\d{12}$" |
+{
+	number | bool
+	_cfnString: =~"^\\d{12}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #ConformancePackInputParameter: {
 	ParameterName!:  #ParameterName
@@ -37,12 +70,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	...
 } | fn.#ObjectExpression
 
-#ParameterName: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+#ParameterName: strings.MaxRunes(255) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression
 
-#ParameterValue: strings.MaxRunes(4096) & strings.MinRunes(0) | fn.#StringExpression
+#ParameterValue: strings.MaxRunes(4096) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(4096) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

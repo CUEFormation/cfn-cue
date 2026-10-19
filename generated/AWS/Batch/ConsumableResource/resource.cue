@@ -5,5 +5,4 @@ package ConsumableResource
 import schema "github.com/cueformation/cfn-cue/resources/hc53d3276caeabdd2:schema"
 
 #Resource:     schema.#Resource
-#ResourceArn:  schema.#ResourceArn
 #ResourceType: schema.#ResourceType

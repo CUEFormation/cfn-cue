@@ -3,23 +3,27 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Describes a VPN concentrator.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::VPNConcentrator"
-	Properties!: close({
+	let properties = close({
 		Tags?:             [...#Tag] | fn.#ListExpression
-		TransitGatewayId?: string | fn.#StringExpression
-		Type!:             string | fn.#StringExpression
+		TransitGatewayId?: string | number | bool | fn.#StringExpression
+		Type!:             string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

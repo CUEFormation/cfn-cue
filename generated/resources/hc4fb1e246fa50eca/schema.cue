@@ -7,15 +7,15 @@ import (
 	"list"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SES::Tenant
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SES::Tenant"
-	Properties!: close({
+	let properties = close({
 		// The reputation configuration for the tenant. Sending status remains managed by SES.
 		ReputationEntity?:     #ReputationEntity
 		ResourceAssociations?: [...] & [...#ResourceAssociation] | fn.#ListExpression
@@ -23,23 +23,54 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// The suppression attributes for the tenant.
 		SuppressionAttributes?: #TenantSuppressionAttributes
 		Tags?:                  list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-		TenantName!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-_]+$" | fn.#StringExpression
+		TenantName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-_]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w\\-_]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ReputationEntity: close({Policy!: #ReputationPolicy}) | fn.#ObjectExpression
 
 #ReputationPolicy: close({
 	ReputationEntityPolicy!: =~"^arn:[a-z0-9-]+:ses:[a-z0-9-]+:aws:reputation-policy/(none|standard|strict)$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:[a-z0-9-]+:ses:[a-z0-9-]+:aws:reputation-policy/(none|standard|strict)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
-#ResourceAssociation: close({ResourceArn!: strings.MinRunes(1) | fn.#StringExpression}) | fn.#ObjectExpression
+#ResourceAssociation: close({
+	ResourceArn!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

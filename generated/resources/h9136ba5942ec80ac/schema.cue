@@ -6,27 +6,57 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ServiceCatalog::LaunchRoleConstraint
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ServiceCatalog::LaunchRoleConstraint"
-	Properties!: close({
-		AcceptLanguage?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-		Description?:    strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
-		LocalRoleName?:  string | fn.#StringExpression
-		PortfolioId!:    strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" | fn.#StringExpression
-		ProductId!:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" | fn.#StringExpression
-		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	let properties = close({
+		AcceptLanguage?: strings.MaxRunes(100) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(2000) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2000) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		LocalRoleName?: string | number | bool | fn.#StringExpression
+		PortfolioId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ProductId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 			=~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role)\\/.*" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+				=~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role)\\/.*" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		if LocalRoleName != _|_ if LocalRoleName."Fn::If" == _|_ {
 			RoleArn?: close({"Fn::If": _}) | error(
 				"RoleArn cannot be used with LocalRoleName; set exactly one of LocalRoleName, RoleArn",
 			)
 		}
 	}) & matchN(>=1, [{LocalRoleName!: _}, {RoleArn!: _}])
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

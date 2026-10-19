@@ -4,13 +4,12 @@ package TrainingDataset
 
 import schema "github.com/cueformation/cfn-cue/resources/hb0d19f7d067f4fb8:schema"
 
-#Resource:              schema.#Resource
-#ColumnSchema:          schema.#ColumnSchema
-#ColumnType:            schema.#ColumnType
-#DataSource:            schema.#DataSource
-#Dataset:               schema.#Dataset
-#DatasetInputConfig:    schema.#DatasetInputConfig
-#DatasetType:           schema.#DatasetType
-#GlueDataSource:        schema.#GlueDataSource
-#Tag:                   schema.#Tag
-#TrainingDatasetStatus: schema.#TrainingDatasetStatus
+#Resource:           schema.#Resource
+#ColumnSchema:       schema.#ColumnSchema
+#ColumnType:         schema.#ColumnType
+#DataSource:         schema.#DataSource
+#Dataset:            schema.#Dataset
+#DatasetInputConfig: schema.#DatasetInputConfig
+#DatasetType:        schema.#DatasetType
+#GlueDataSource:     schema.#GlueDataSource
+#Tag:                schema.#Tag

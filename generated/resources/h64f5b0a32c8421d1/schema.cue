@@ -6,22 +6,40 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::PCAConnectorAD::ServicePrincipalName Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::PCAConnectorAD::ServicePrincipalName"
-	Properties!: close({
+	let properties = close({
 		ConnectorArn!: strings.MaxRunes(200) &
 		strings.MinRunes(5) &
 		=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:connector(\\/[\\w-]+)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) &
+			strings.MinRunes(5) &
+			=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:connector(\\/[\\w-]+)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		DirectoryRegistrationArn!: strings.MaxRunes(200) &
 		strings.MinRunes(5) &
 		=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:directory-registration(\\/[\\w-]+)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) &
+			strings.MinRunes(5) &
+			=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:directory-registration(\\/[\\w-]+)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

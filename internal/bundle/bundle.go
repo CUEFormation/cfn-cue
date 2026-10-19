@@ -21,6 +21,14 @@ type SchemaInfo struct {
 	Type               string `json:"type"`
 	SHA256             string `json:"sha256"`
 	PropertiesRequired bool   `json:"propertiesRequired"`
+	// Attributes lists the Fn::GetAtt names (see generate.Attributes).
+	// Manifests from earlier generators omit it, which a reader must treat as
+	// unknown.
+	Attributes []string `json:"attributes"`
+	// PrimaryIdentifier lists the writable top-level properties that make
+	// up the resource's primary identifier (see generate.PrimaryIdentifier).
+	// It is omitted when the template cannot set the whole identifier.
+	PrimaryIdentifier []string `json:"primaryIdentifier,omitempty"`
 }
 
 type Diagnostic struct {
@@ -38,6 +46,7 @@ type Manifest struct {
 	LanguageExtensions bool                         `json:"languageExtensions"`
 	IncludeSAM         bool                         `json:"includeSAM"`
 	IAMPolicies        bool                         `json:"iamPolicies"`
+	CfnLintRules       bool                         `json:"cfnLintRules"`
 	Regions            map[string]map[string]string `json:"regions"`
 	Schemas            map[string]SchemaInfo        `json:"schemas"`
 	Diagnostics        []Diagnostic                 `json:"diagnostics"`

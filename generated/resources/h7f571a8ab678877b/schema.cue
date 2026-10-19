@@ -7,41 +7,74 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoTAnalytics::Dataset
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTAnalytics::Dataset"
-	Properties!: close({
-		Actions!:                 list.MaxItems(1) & list.MinItems(1) & [...#Action] | fn.#ListExpression
-		ContentDeliveryRules?:    list.MaxItems(20) & [...] & [...#DatasetContentDeliveryRule] | fn.#ListExpression
-		DatasetName?:             strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Actions!:              list.MaxItems(1) & list.MinItems(1) & [...#Action] | fn.#ListExpression
+		ContentDeliveryRules?: list.MaxItems(20) & [...] & [...#DatasetContentDeliveryRule] | fn.#ListExpression
+		DatasetName?: =~"^(^[a-zA-Z0-9_]+$)" &
+		matchN(0, [=~"^(?:_{2})"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^(^[a-zA-Z0-9_]+$)" &
+			matchN(0, [=~"^(?:_{2})"]) &
+			string &
+			strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 		LateDataRules?:           list.MaxItems(1) & list.MinItems(1) & [...#LateDataRule] | fn.#ListExpression
 		RetentionPeriod?:         #RetentionPeriod
 		Tags?:                    list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 		Triggers?:                list.MaxItems(5) & [...] & [...#Trigger] | fn.#ListExpression
 		VersioningConfiguration?: #VersioningConfiguration
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Action: close({
-	ActionName!:      strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" | fn.#StringExpression
+	ActionName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ContainerAction?: #ContainerAction
 	QueryAction?:     #QueryAction
 }) |
 fn.#ObjectExpression
 
 #ContainerAction: close({
-	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	ExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Image!:                 strings.MaxRunes(255) | fn.#StringExpression
+	Image!: strings.MaxRunes(255) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & "\(self)"
+	} |
+	fn.#StringExpression
 	ResourceConfiguration!: #ResourceConfiguration
 	Variables?:             list.MaxItems(50) & [...] & [...#Variable] | fn.#ListExpression
 }) |
@@ -49,7 +82,7 @@ fn.#ObjectExpression
 
 #DatasetContentDeliveryRule: close({
 	Destination!: #DatasetContentDeliveryRuleDestination
-	EntryName?:   string | fn.#StringExpression
+	EntryName?:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -59,7 +92,23 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DatasetContentVersionValue: close({DatasetName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression}) |
+#DatasetContentVersionValue: close({
+	DatasetName!: =~"^(^[a-zA-Z0-9_]+$)" &
+	matchN(0, [=~"^(?:_{2})"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^(^[a-zA-Z0-9_]+$)" &
+		matchN(0, [=~"^(?:_{2})"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #DeltaTime: close({
@@ -77,7 +126,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TimeExpression!: string | fn.#StringExpression
+	TimeExpression!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -104,32 +153,67 @@ fn.#ObjectExpression
 #Filter: close({DeltaTime?: #DeltaTime}) | fn.#ObjectExpression
 
 #GlueConfiguration: close({
-	DatabaseName!: strings.MaxRunes(150) & strings.MinRunes(1) | fn.#StringExpression
-	TableName!:    strings.MaxRunes(150) & strings.MinRunes(1) | fn.#StringExpression
+	DatabaseName!: strings.MaxRunes(150) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(150) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TableName!: strings.MaxRunes(150) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(150) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #IotEventsDestinationConfiguration: close({
-	InputName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	InputName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LateDataRule: close({
 	RuleConfiguration!: #LateDataRuleConfiguration
-	RuleName?:          strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" | fn.#StringExpression
+	RuleName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LateDataRuleConfiguration: close({DeltaTimeSessionWindowConfiguration?: #DeltaTimeSessionWindowConfiguration}) |
 	fn.#ObjectExpression
 
-#OutputFileUriValue: close({FileName!: =~"^[\\w\\.-]{1,255}$" | fn.#StringExpression}) | fn.#ObjectExpression
+#OutputFileUriValue: close({
+	FileName!: =~"^[\\w\\.-]{1,255}$" |
+	{
+		number | bool
+		_cfnString: =~"^[\\w\\.-]{1,255}$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #QueryAction: close({
 	Filters?:  list.MaxItems(1) & [...] & [...#Filter] | fn.#ListExpression
-	SqlQuery!: string | fn.#StringExpression
+	SqlQuery!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -176,19 +260,46 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #S3DestinationConfiguration: close({
-	Bucket!:            strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9.\\-_]*$" | fn.#StringExpression
+	Bucket!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9.\\-_]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9.\\-_]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	GlueConfiguration?: #GlueConfiguration
-	Key!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!_.*'()/{}:-]*$" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	Key!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!_.*'()/{}:-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!_.*'()/{}:-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Schedule: close({ScheduleExpression!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Schedule: close({ScheduleExpression!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -198,7 +309,23 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#TriggeringDataset: close({DatasetName!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression}) |
+#TriggeringDataset: close({
+	DatasetName!: =~"^(^[a-zA-Z0-9_]+$)" &
+	matchN(0, [=~"^(?:_{2})"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^(^[a-zA-Z0-9_]+$)" &
+		matchN(0, [=~"^(?:_{2})"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Variable: close({
@@ -223,8 +350,18 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	OutputFileUriValue?: #OutputFileUriValue
-	StringValue?:        strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	VariableName!:       strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	StringValue?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	VariableName!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

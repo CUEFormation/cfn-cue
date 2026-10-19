@@ -4,7 +4,5 @@ package Asset
 
 import schema "github.com/cueformation/cfn-cue/resources/h543bd16429dedee9:schema"
 
-#Resource:       schema.#Resource
-#AssetHierarchy: schema.#AssetHierarchy
-#AssetProperty:  schema.#AssetProperty
-#Tag:            schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

@@ -7,25 +7,58 @@ import (
 	"strings"
 	"struct"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema for AWS::ServiceCatalogAppRegistry::AttributeGroup.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ServiceCatalogAppRegistry::AttributeGroup"
-	Properties!: close({
+	let properties = close({
 		Attributes!: fn.#Object & {...} |
 		strings.MaxRunes(8000) & strings.MinRunes(1) & =~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(8000) &
+			strings.MinRunes(1) &
+			=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" &
+			"\(self)"
+		} |
 		fn.#StringObjectExpression
-		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		Name!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\w+" | fn.#StringExpression
-		Tags?:        #Tags
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\w+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\w+" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: #Tags
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tags: struct.MaxFields(50) & close({
 
-	{[=~"^[a-zA-Z+-=._:/]+$"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[a-zA-Z+-=._:/]+$"]: strings.MaxRunes(256) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression

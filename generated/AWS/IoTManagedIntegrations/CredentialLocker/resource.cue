@@ -6,4 +6,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h54ed90d324b0f99d:schem
 
 #Resource: schema.#Resource
 #TagsMap:  schema.#TagsMap
-#Unit:     schema.#Unit

@@ -7,6 +7,5 @@ import schema "github.com/cueformation/cfn-cue/resources/hafa6ad7c7c43d695:schem
 #Resource:            schema.#Resource
 #ETagAlgorithmFamily: schema.#ETagAlgorithmFamily
 #EncryptionType:      schema.#EncryptionType
-#SequenceStoreStatus: schema.#SequenceStoreStatus
 #SseConfig:           schema.#SseConfig
 #TagMap:              schema.#TagMap

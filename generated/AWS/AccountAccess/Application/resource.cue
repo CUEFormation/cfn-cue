@@ -4,7 +4,5 @@ package Application
 
 import schema "github.com/cueformation/cfn-cue/resources/h2510dbadbd2100d4:schema"
 
-#Resource:       schema.#Resource
-#IdentityCenter: schema.#IdentityCenter
-#IdentitySource: schema.#IdentitySource
-#Tag:            schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

@@ -7,24 +7,38 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Aws Route53 Recovery Readiness Check Schema and API specification.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53RecoveryReadiness::ReadinessCheck"
-	Properties?: close({
-		ReadinessCheckName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
-		ResourceSetName?:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" | fn.#StringExpression
+	let properties = close({
+		ReadinessCheckName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		ResourceSetName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: [...#Tag & (null | bool | number | string | list.MaxItems(20) | {...}) | fn.#ObjectExpression] |
 		fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

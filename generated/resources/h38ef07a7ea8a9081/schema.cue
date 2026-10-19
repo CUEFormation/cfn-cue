@@ -7,50 +7,119 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Integration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::Integration"
-	Properties!: close({
+	let properties = close({
 		AdditionalEncryptionContext?: #IntegrationAdditionalEncryptionContextMap
-		DataFilter?:                  strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		Description?:       strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
-		IntegrationConfig?: #IntegrationConfig
-		IntegrationName!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		DataFilter?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
 		fn.#StringExpression
-		SourceArn!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:aws:.*:.*:[0-9]+:.*" | fn.#StringExpression
-		Tags?:      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TargetArn!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:aws:.*:.*:[0-9]+:.*" | fn.#StringExpression
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\S\\s]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\S\\s]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		IntegrationConfig?: #IntegrationConfig
+		IntegrationName!: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+				=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+				=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		SourceArn!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:aws:.*:.*:[0-9]+:.*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:aws:.*:.*:[0-9]+:.*" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetArn!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:aws:.*:.*:[0-9]+:.*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"arn:aws:.*:.*:[0-9]+:.*" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #IntegrationAdditionalEncryptionContextMap: close({
 
-	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(131072) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #IntegrationConfig: close({
-	ContinuousSync?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RefreshInterval?:  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	ContinuousSync?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	RefreshInterval?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	SourceProperties?: #SourceProperties
 }) |
 fn.#ObjectExpression
 
 #SourceProperties: close({
 
-	{[=~"^[\\s\\S]*$"]: string | fn.#StringExpression}}) |
-fn.#ObjectExpression
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
 
-#Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	{[=~"^[\\s\\S]*$"]: string | number | bool | fn.#StringExpression}
 }) |
 fn.#ObjectExpression
 
-#Tags: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+#Tag: close({
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression

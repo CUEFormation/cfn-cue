@@ -6,4 +6,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h203fe5998d1cce31:schem
 
 #Resource:             schema.#Resource
 #EnvironmentParameter: schema.#EnvironmentParameter
-#EnvironmentStatus:    schema.#EnvironmentStatus

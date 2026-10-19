@@ -4,8 +4,6 @@ package LandingZone
 
 import schema "github.com/cueformation/cfn-cue/resources/h6ca58985c60a520c:schema"
 
-#Resource:               schema.#Resource
-#LandingZoneDriftStatus: schema.#LandingZoneDriftStatus
-#LandingZoneStatus:      schema.#LandingZoneStatus
-#RemediationTypes:       schema.#RemediationTypes
-#Tag:                    schema.#Tag
+#Resource:         schema.#Resource
+#RemediationTypes: schema.#RemediationTypes
+#Tag:              schema.#Tag

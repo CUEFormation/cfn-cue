@@ -5,12 +5,8 @@ package NetworkConnector
 import schema "github.com/cueformation/cfn-cue/resources/hbbe5c7ab887c7e0a:schema"
 
 #Resource:               schema.#Resource
-#Arn:                    schema.#Arn
 #Config:                 schema.#Config
-#LatestVersion:          schema.#LatestVersion
-#LatestVersionArn:       schema.#LatestVersionArn
 #Name:                   schema.#Name
 #RoleArn:                schema.#RoleArn
-#State:                  schema.#State
 #Tag:                    schema.#Tag
 #VpcEgressConfiguration: schema.#VpcEgressConfiguration

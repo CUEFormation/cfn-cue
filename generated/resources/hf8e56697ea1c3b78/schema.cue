@@ -3,12 +3,10 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,8 +14,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // application to a specified environment
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::M2::Deployment"
-	Properties!: close({
-		ApplicationId!: =~"^\\S{1,80}$" | fn.#StringExpression
+	let properties = close({
+		ApplicationId!: =~"^\\S{1,80}$" |
+		{
+			number | bool
+			_cfnString: =~"^\\S{1,80}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ApplicationVersion!: int & >=1 |
 			{
 				string &
@@ -35,6 +38,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		EnvironmentId!: =~"^\\S{1,80}$" | fn.#StringExpression
+		EnvironmentId!: =~"^\\S{1,80}$" |
+		{
+			number | bool
+			_cfnString: =~"^\\S{1,80}$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

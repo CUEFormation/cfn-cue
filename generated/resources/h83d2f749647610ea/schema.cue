@@ -8,12 +8,10 @@ import (
 	"list"
 	"struct"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -22,15 +20,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Application](https://docs.aws.amazon.com/kinesisanalytics/latest/java/getting-started.html).
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::KinesisAnalyticsV2::Application"
-	Properties!: close({
+	let properties = close({
 		// Use this parameter to configure the application.
 		ApplicationConfiguration?: #ApplicationConfiguration
-		ApplicationDescription?:   strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		ApplicationDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Used to configure start of maintenance window.
 		ApplicationMaintenanceConfiguration?: #ApplicationMaintenanceConfiguration
 		ApplicationMode?:                     "INTERACTIVE" | "STREAMING" | fn.#StringExpression
-		ApplicationName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+		ApplicationName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Specifies run configuration (start parameters) of a Kinesis Data Analytics
 		// application. Evaluated on update for RUNNING applications an only.
@@ -55,6 +63,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ServiceExecutionRole!: #Arn
 		Tags?:                 list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ApplicationCodeConfiguration: close({
@@ -99,22 +111,39 @@ fn.#ObjectExpression
 	KeyId?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^(?:arn:.*:kms:.*:.*:(?:key\\/.*|alias\\/.*)|alias\\/.*|(?i)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^(?:arn:.*:kms:.*:.*:(?:key\\/.*|alias\\/.*)|alias\\/.*|(?i)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	KeyType!: "AWS_OWNED_KEY" | "CUSTOMER_MANAGED_KEY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ApplicationMaintenanceConfiguration: close(
-	{ApplicationMaintenanceWindowStartTime!: =~"^([01][0-9]|2[0-3]):[0-5][0-9]$" | fn.#StringExpression},
-) |
-	fn.#ObjectExpression
+#ApplicationMaintenanceConfiguration: close({
+	ApplicationMaintenanceWindowStartTime!: =~"^([01][0-9]|2[0-3]):[0-5][0-9]$" |
+	{
+		number | bool
+		_cfnString: =~"^([01][0-9]|2[0-3]):[0-5][0-9]$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #ApplicationRestoreConfiguration: close({
 	ApplicationRestoreType!: "SKIP_RESTORE_FROM_SNAPSHOT" |
 		"RESTORE_FROM_LATEST_SNAPSHOT" |
 		"RESTORE_FROM_CUSTOM_SNAPSHOT" |
 		fn.#StringExpression
-	SnapshotName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+	SnapshotName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -128,11 +157,26 @@ fn.#ObjectExpression
 ) |
 	fn.#ObjectExpression
 
-#Arn: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:.*$" | fn.#StringExpression
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:.*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:.*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #CSVMappingParameters: close({
-	RecordColumnDelimiter!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	RecordRowDelimiter!:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	RecordColumnDelimiter!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	RecordRowDelimiter!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -185,8 +229,13 @@ fn.#ObjectExpression
 #CodeContent: close({
 	// Information about the Amazon S3 bucket that contains the application code.
 	S3ContentLocation?: #S3ContentLocation
-	TextContent?:       strings.MaxRunes(102400) & strings.MinRunes(1) | fn.#StringExpression
-	ZipFileContent?:    string | fn.#StringExpression
+	TextContent?: strings.MaxRunes(102400) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(102400) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ZipFileContent?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -263,7 +312,12 @@ fn.#ObjectExpression
 	// If the streaming source is an Amazon Kinesis data stream, identifies the
 	// stream's Amazon Resource Name (ARN).
 	KinesisStreamsInput?: #KinesisStreamsInput
-	NamePrefix!:          strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[^-\\s<>&]*$" | fn.#StringExpression
+	NamePrefix!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[^-\\s<>&]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[^-\\s<>&]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -301,15 +355,32 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #InputSchema: close({
-	RecordColumns!:  list.MaxItems(1000) & list.MinItems(1) & [...#RecordColumn] | fn.#ListExpression
-	RecordEncoding?: "UTF-8" & (strings.MaxRunes(5) & strings.MinRunes(5)) | fn.#StringExpression
+	RecordColumns!: list.MaxItems(1000) & list.MinItems(1) & [...#RecordColumn] | fn.#ListExpression
+	RecordEncoding?: "UTF-8" & (strings.MaxRunes(5) & strings.MinRunes(5)) |
+	{
+		number | bool
+		_cfnString: "UTF-8" & strings.MaxRunes(5) & strings.MinRunes(5) & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// Specifies the format of the records on the streaming source.
 	RecordFormat!: #RecordFormat
 }) |
 fn.#ObjectExpression
 
-#JSONMappingParameters: close({RecordRowPath!: strings.MaxRunes(65535) & strings.MinRunes(1) | fn.#StringExpression}) |
+#JSONMappingParameters: close({
+	RecordRowPath!: =~"^.*$" & =~"^(?:^\\$)" & =~"^(?:^\\S+$)" & strings.MaxRunes(65535) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^.*$" &
+		=~"^(?:^\\$)" &
+		=~"^(?:^\\S+$)" &
+		strings.MaxRunes(65535) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #KinesisFirehoseInput: close({
@@ -335,9 +406,24 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #MavenReference: close({
-	ArtifactId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	GroupId!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	Version!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+	ArtifactId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	GroupId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Version!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -385,15 +471,35 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PropertyGroup: close({
-	PropertyGroupId?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	PropertyMap?:     struct.MaxFields(50) & {...} | fn.#ObjectExpression
+	PropertyGroupId?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	PropertyMap?: struct.MaxFields(50) & {...} | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 #RecordColumn: close({
-	Mapping?: strings.MaxRunes(65535) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^-\\s<>&]*$" | fn.#StringExpression
-	SqlType!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	Mapping?: strings.MaxRunes(65535) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(65535) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^-\\s<>&]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^-\\s<>&]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SqlType!: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -417,7 +523,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #S3ContentBaseLocation: close({
-	BasePath?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/!-_.*'()]+$" | fn.#StringExpression
+	BasePath?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/!-_.*'()]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z0-9/!-_.*'()]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// The Amazon Resource Name (ARN) of the S3 bucket.
 	BucketARN!: #Arn
@@ -426,9 +537,19 @@ fn.#ObjectExpression
 
 #S3ContentLocation: close({
 	// The Amazon Resource Name (ARN) for the S3 bucket containing the application code.
-	BucketARN!:     #Arn
-	FileKey!:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	ObjectVersion?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	BucketARN!: #Arn
+	FileKey!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ObjectVersion?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -436,18 +557,31 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VpcConfiguration: close({
-	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
+	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SubnetIds!: list.MaxItems(16) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
 		fn.#ListExpression
-	SubnetIds!: list.MaxItems(16) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 

@@ -4,5 +4,4 @@ package Scene
 
 import schema "github.com/cueformation/cfn-cue/resources/hfb21f7ef5ccde234:schema"
 
-#Resource:       schema.#Resource
-#DateTimeFormat: schema.#DateTimeFormat
+#Resource: schema.#Resource

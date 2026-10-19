@@ -7,6 +7,5 @@ import schema "github.com/cueformation/cfn-cue/resources/hcb2d5e2a43c93292:schem
 #Resource:             schema.#Resource
 #LinksType:            schema.#LinksType
 #TermsEnforcementType: schema.#TermsEnforcementType
-#TermsIdType:          schema.#TermsIdType
 #TermsNameType:        schema.#TermsNameType
 #TermsSourceType:      schema.#TermsSourceType

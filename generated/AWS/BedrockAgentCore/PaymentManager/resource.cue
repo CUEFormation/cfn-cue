@@ -10,7 +10,5 @@ import schema "github.com/cueformation/cfn-cue/resources/h4080a510edb32297:schem
 #ClaimMatchValueType:              schema.#ClaimMatchValueType
 #CustomClaimValidationType:        schema.#CustomClaimValidationType
 #CustomJWTAuthorizerConfiguration: schema.#CustomJWTAuthorizerConfiguration
-#PaymentManagerStatus:             schema.#PaymentManagerStatus
 #PaymentsAuthorizerType:           schema.#PaymentsAuthorizerType
 #Tag:                              schema.#Tag
-#WorkloadIdentityDetails:          schema.#WorkloadIdentityDetails

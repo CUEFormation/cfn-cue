@@ -1,0 +1,17 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "AccessControl": "PublicRead",
+        "OwnershipControls": {
+          "Rules": [
+            {
+              "ObjectOwnership": "ObjectWriter"
+            }
+          ]
+        }
+      },
+      "Type": "AWS::S3::Bucket"
+    }
+  }
+}

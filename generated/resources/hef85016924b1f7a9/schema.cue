@@ -6,20 +6,23 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for a Device Farm Network Profile
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DeviceFarm::NetworkProfile"
-	Properties!: close({
-		Description?: strings.MaxRunes(16384) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(16384) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(16384) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		DownlinkBandwidthBits?: int & <=104857600 & >=0 |
 			{
 				string &
@@ -92,9 +95,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name!:       strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		ProjectArn!: strings.MaxRunes(1011) & strings.MinRunes(32) & =~"^arn:.+" | fn.#StringExpression
-		Tags?:       [...#Tag] | fn.#ListExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ProjectArn!: strings.MaxRunes(1011) & strings.MinRunes(32) & =~"^arn:.+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1011) & strings.MinRunes(32) & =~"^arn:.+" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
 		UplinkBandwidthBits?: int & <=104857600 & >=0 |
 			{
 				string &
@@ -168,10 +181,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

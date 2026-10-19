@@ -3,25 +3,29 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::PinpointEmail::ConfigurationSet
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::PinpointEmail::ConfigurationSet"
-	Properties!: close({
+	let properties = close({
 		DeliveryOptions?:   #DeliveryOptions
-		Name!:              string | fn.#StringExpression
+		Name!:              string | number | bool | fn.#StringExpression
 		ReputationOptions?: #ReputationOptions
 		SendingOptions?:    #SendingOptions
 		Tags?:              [...#Tags] | fn.#ListExpression
 		TrackingOptions?:   #TrackingOptions
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#DeliveryOptions: close({SendingPoolName?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#DeliveryOptions: close({SendingPoolName?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #ReputationOptions: close(
 	{ReputationMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
@@ -34,9 +38,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 
 #Tags: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#TrackingOptions: close({CustomRedirectDomain?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#TrackingOptions: close({CustomRedirectDomain?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression

@@ -6,24 +6,37 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
-	"struct"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Location::PlaceIndex Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Location::PlaceIndex"
-	Properties!: close({
-		DataSource!:              string | fn.#StringExpression
+	let properties = close({
+		DataSource!:              string | number | bool | fn.#StringExpression
 		DataSourceConfiguration?: #DataSourceConfiguration
-		Description?:             strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-		IndexName!:               strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" | fn.#StringExpression
-		PricingPlan?:             #PricingPlan
-		Tags?:                    list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		IndexName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-._\\w]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		PricingPlan?: #PricingPlan
+		Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #DataSourceConfiguration: close({IntendedUse?: #IntendedUse}) | fn.#ObjectExpression
@@ -33,18 +46,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #PricingPlan: "RequestBasedUsage" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z+-=._:/]+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9 _=@:.+-/]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z+-=._:/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z+-=._:/]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9 _=@:.+-/]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9 _=@:.+-/]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#TagMap: struct.MaxFields(50) & close({
-
-	{[=~"^([\\p{L}\\p{Z}\\p{N}_.,:/=+\\-@]*)$"]: strings.MaxRunes(256) &
-	strings.MinRunes(0) &
-	=~"^([\\p{L}\\p{Z}\\p{N}_.,:/=+\\-@]*)$" |
-	fn.#StringExpression}}) |
-fn.#ObjectExpression
-
-#iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
-	fn.#StringExpression

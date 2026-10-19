@@ -6,13 +6,24 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53Resolver::ResolverDNSSECConfig.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Route53Resolver::ResolverDNSSECConfig"
-	Properties?: close({ResourceId?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression})
+	Type!: "AWS::Route53Resolver::ResolverDNSSECConfig"
+	let properties = close({
+		ResourceId?: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }

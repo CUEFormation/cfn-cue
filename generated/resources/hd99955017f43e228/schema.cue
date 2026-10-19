@@ -6,20 +6,43 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Detective::MemberInvitation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Detective::MemberInvitation"
-	Properties!: close({
+	let properties = close({
 		DisableEmailNotification?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		GraphArn!: =~"arn:aws(-[\\w]+)*:detective:(([a-z]+-)+[0-9]+):[0-9]{12}:graph:[0-9a-f]{32}" |
-			fn.#StringExpression
-		MemberEmailAddress!: =~".*@.*" | fn.#StringExpression
-		MemberId!:           =~"[0-9]{12}" | fn.#StringExpression
-		Message?:            strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"arn:aws(-[\\w]+)*:detective:(([a-z]+-)+[0-9]+):[0-9]{12}:graph:[0-9a-f]{32}" & "\(self)"
+		} |
+		fn.#StringExpression
+		MemberEmailAddress!: =~".*@.*" |
+		{
+			number | bool
+			_cfnString: =~".*@.*" & "\(self)"
+		} |
+		fn.#StringExpression
+		MemberId!: =~"[0-9]{12}" |
+		{
+			number | bool
+			_cfnString: =~"[0-9]{12}" & "\(self)"
+		} |
+		fn.#StringExpression
+		Message?: strings.MaxRunes(1000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

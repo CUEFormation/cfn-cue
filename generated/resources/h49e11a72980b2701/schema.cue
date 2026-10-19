@@ -3,31 +3,35 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CodeStar::GitHubRepository
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodeStar::GitHubRepository"
-	Properties!: close({
+	let properties = close({
 		Code?:                  #Code
-		ConnectionArn?:         string | fn.#StringExpression
+		ConnectionArn?:         string | number | bool | fn.#StringExpression
 		EnableIssues?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		IsPrivate?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		RepositoryAccessToken?: string | fn.#StringExpression
-		RepositoryDescription?: string | fn.#StringExpression
-		RepositoryName!:        string | fn.#StringExpression
-		RepositoryOwner!:       string | fn.#StringExpression
+		RepositoryAccessToken?: string | number | bool | fn.#StringExpression
+		RepositoryDescription?: string | number | bool | fn.#StringExpression
+		RepositoryName!:        string | number | bool | fn.#StringExpression
+		RepositoryOwner!:       string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Code: close({S3!: #S3}) | fn.#ObjectExpression
 
 #S3: close({
-	Bucket!:        string | fn.#StringExpression
-	Key!:           string | fn.#StringExpression
-	ObjectVersion?: string | fn.#StringExpression
+	Bucket!:        string | number | bool | fn.#StringExpression
+	Key!:           string | number | bool | fn.#StringExpression
+	ObjectVersion?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

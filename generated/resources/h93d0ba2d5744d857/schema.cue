@@ -6,8 +6,8 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -31,18 +31,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *API Reference*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSM::Parameter"
-	Properties!: close({
-		AllowedPattern?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		DataType?:    ("text" | "aws:ec2:image") & (strings.MaxRunes(128) & strings.MinRunes(0)) | fn.#StringExpression
-		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		Name?:        strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		Policies?:    strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		AllowedPattern?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DataType?: ("text" | "aws:ec2:image") & (strings.MaxRunes(128) & strings.MinRunes(0)) |
+		{
+			number | bool
+			_cfnString: ("text" | "aws:ec2:image") & strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Policies?: strings.MaxRunes(4096) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: close({
 
-			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | number | bool | fn.#StringExpression}
+		}) |
 		fn.#ObjectExpression
 		Tier?:  "Standard" | "Advanced" | "Intelligent-Tiering" | fn.#StringExpression
 		Type!:  "String" | "StringList" | fn.#StringExpression
-		Value!: string | fn.#StringExpression
+		Value!: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

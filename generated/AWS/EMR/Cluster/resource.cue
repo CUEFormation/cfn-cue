@@ -10,7 +10,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hff696192057a9047:schem
 #AutoTerminationPolicy:                   schema.#AutoTerminationPolicy
 #BootstrapActionConfig:                   schema.#BootstrapActionConfig
 #CloudWatchAlarmDefinition:               schema.#CloudWatchAlarmDefinition
-#CloudWatchLogConfiguration:              schema.#CloudWatchLogConfiguration
 #ComputeLimits:                           schema.#ComputeLimits
 #Configuration:                           schema.#Configuration
 #EbsBlockDeviceConfig:                    schema.#EbsBlockDeviceConfig

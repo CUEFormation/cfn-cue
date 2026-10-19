@@ -7,32 +7,74 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::SageMaker::Device
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::Device"
-	Properties!: close({
+	let properties = close({
 		// The Edge Device you want to register against a device fleet
 		Device?: #Device
 		DeviceFleetName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*_*[a-zA-Z0-9])*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*_*[a-zA-Z0-9])*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Device: close({
-	Description?:  strings.MaxRunes(40) & strings.MinRunes(1) & =~"[\\S\\s]+" | fn.#StringExpression
-	DeviceName!:   strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" | fn.#StringExpression
-	IotThingName?: strings.MaxRunes(128) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
+	Description?: strings.MaxRunes(40) & strings.MinRunes(1) & =~"[\\S\\s]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(40) & strings.MinRunes(1) & =~"[\\S\\s]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	DeviceName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	IotThingName?: strings.MaxRunes(128) & =~"[a-zA-Z0-9:_-]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & =~"[a-zA-Z0-9:_-]+" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" &
+	matchN(0, [=~"^(?:aws:)"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

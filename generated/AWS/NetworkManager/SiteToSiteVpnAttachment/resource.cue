@@ -4,7 +4,5 @@ package SiteToSiteVpnAttachment
 
 import schema "github.com/cueformation/cfn-cue/resources/h53dae15f7891910e:schema"
 
-#Resource:                           schema.#Resource
-#ProposedNetworkFunctionGroupChange: schema.#ProposedNetworkFunctionGroupChange
-#ProposedSegmentChange:              schema.#ProposedSegmentChange
-#Tag:                                schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

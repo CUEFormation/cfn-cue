@@ -6,32 +6,71 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GlobalAccelerator::CrossAccountAttachment
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GlobalAccelerator::CrossAccountAttachment"
-	Properties!: close({
-		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{0,64}$" | fn.#StringExpression
-		Principals?: [...strings.MaxRunes(256) & strings.MinRunes(0) & =~"^(^\\d{12}$|arn:.*)$" | fn.#StringExpression] |
+	let properties = close({
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{0,64}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]{0,64}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Principals?: [...strings.MaxRunes(256) & strings.MinRunes(0) & =~"^(^\\d{12}$|arn:.*)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^(^\\d{12}$|arn:.*)$" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		Resources?: [..._#defs."/$defs/Properties/definitions/Resource"] | fn.#ListExpression
 		Tags?:      [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 _#defs: "/$defs/Properties/definitions/Resource": close({
-	Cidr?:       strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	EndpointId?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	Region?:     strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	Cidr?: fn.#IPv4Network & string & strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network & string & strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	EndpointId?: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Region?: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

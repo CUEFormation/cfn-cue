@@ -6,7 +6,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hf7e19efabd76022d:schem
 
 #Resource:                       schema.#Resource
 #AbortIncompleteMultipartUpload: schema.#AbortIncompleteMultipartUpload
-#Arn:                            schema.#Arn
 #BucketEncryption:               schema.#BucketEncryption
 #Destination:                    schema.#Destination
 #InventoryConfiguration:         schema.#InventoryConfiguration

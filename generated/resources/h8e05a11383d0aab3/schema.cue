@@ -3,52 +3,56 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CloudFront::StreamingDistribution
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::StreamingDistribution"
-	Properties!: close({
+	let properties = close({
 		StreamingDistributionConfig!: #StreamingDistributionConfig
 		Tags!:                        [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Logging: close({
-	Bucket!:  string | fn.#StringExpression
+	Bucket!:  string | number | bool | fn.#StringExpression
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Prefix!:  string | fn.#StringExpression
+	Prefix!:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #S3Origin: close({
-	DomainName!:           string | fn.#StringExpression
-	OriginAccessIdentity!: string | fn.#StringExpression
+	DomainName!:           string | number | bool | fn.#StringExpression
+	OriginAccessIdentity!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #StreamingDistributionConfig: close({
-	Aliases?:        [...string | fn.#StringExpression] | fn.#ListExpression
-	Comment!:        string | fn.#StringExpression
+	Aliases?:        [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Comment!:        string | number | bool | fn.#StringExpression
 	Enabled!:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Logging?:        #Logging
-	PriceClass?:     string | fn.#StringExpression
+	PriceClass?:     string | number | bool | fn.#StringExpression
 	S3Origin!:       #S3Origin
 	TrustedSigners!: #TrustedSigners
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TrustedSigners: close({
-	AwsAccountNumbers?: [...string | fn.#StringExpression] | fn.#ListExpression
+	AwsAccountNumbers?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Enabled!:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression

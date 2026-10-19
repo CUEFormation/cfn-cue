@@ -5,7 +5,6 @@ package FirewallDomainList
 import schema "github.com/cueformation/cfn-cue/resources/h022e8915baa93595:schema"
 
 #Resource:            schema.#Resource
-#CRResourceStatus:    schema.#CRResourceStatus
 #Domains:             schema.#Domains
 #ResourceDescription: schema.#ResourceDescription
 #ResourceName:        schema.#ResourceName

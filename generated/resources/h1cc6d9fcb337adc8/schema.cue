@@ -7,56 +7,91 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents an association between an ID mapping workflow and a collaboration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CleanRooms::IdMappingTable"
-	Properties!: close({
+	let properties = close({
 		Description?: strings.MaxRunes(255) &
 		=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) &
+			=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		InputReferenceConfig!: #IdMappingTableInputReferenceConfig
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(4) &
 		=~"^arn:aws:kms:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:key/[a-zA-Z0-9-]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(4) &
+			=~"^arn:aws:kms:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:key/[a-zA-Z0-9-]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		MembershipIdentifier!: #UUID
-		Name!: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" | fn.#StringExpression
+		Name!: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #IdMappingTableInputReferenceConfig: close({
 	InputReferenceArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(idmappingworkflow/.*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(idmappingworkflow/.*)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	ManageResourcePolicies!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-#IdMappingTableInputReferenceProperties: close({
-	IdMappingTableInputSource!: list.MaxItems(2) & list.MinItems(2) & [...#IdMappingTableInputSource] |
-		fn.#ListExpression
-}) |
-	fn.#ObjectExpression
-
-#IdMappingTableInputSource: close({
-	IdNamespaceAssociationId!: string | fn.#StringExpression
-	Type!:                     "SOURCE" | "TARGET" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #UUID: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(36) &
+	strings.MinRunes(36) &
+	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+	"\(self)"
+} |
 fn.#StringExpression

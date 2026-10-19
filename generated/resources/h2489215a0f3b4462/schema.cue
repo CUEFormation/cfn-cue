@@ -7,27 +7,43 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::QBusiness::Plugin Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QBusiness::Plugin"
-	Properties!: close({
+	let properties = close({
 		ApplicationId?: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" & "\(self)"
+		} |
 		fn.#StringExpression
 		AuthConfiguration!:         #PluginAuthConfiguration
 		CustomPluginConfiguration?: #CustomPluginConfiguration
 		DisplayName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		ServerUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$" & "\(self)"
+		} |
 		fn.#StringExpression
 		State?: #PluginState
 		Tags?:  list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 		Type!:  #PluginType
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #APISchema: matchN(1, [close({Payload!: string | fn.#StringExpression}), close({S3!: #S3})]) | fn.#ValueExpression
@@ -35,28 +51,66 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #APISchemaType: "OPEN_API_V3" | fn.#StringExpression
 
 #BasicAuthConfiguration: close({
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(1284) &
+		strings.MinRunes(0) &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	SecretArn!: strings.MaxRunes(1284) & strings.MinRunes(0) | fn.#StringExpression
+	SecretArn!: strings.MaxRunes(1284) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1284) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CustomPluginConfiguration: close({
 	ApiSchema!:     #APISchema
 	ApiSchemaType!: #APISchemaType
-	Description!:   strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+	Description!: strings.MaxRunes(200) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#NoAuthConfiguration: fn.#Object & {...} | string | fn.#StringObjectExpression
+#NoAuthConfiguration: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 #OAuth2ClientCredentialConfiguration: close({
 	AuthorizationUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$" & "\(self)"
+	} |
 	fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(1284) &
+		strings.MinRunes(0) &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	SecretArn!: strings.MaxRunes(1284) & strings.MinRunes(0) | fn.#StringExpression
-	TokenUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$" | fn.#StringExpression
+	SecretArn!: strings.MaxRunes(1284) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1284) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	TokenUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file)://([^\\s]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -68,15 +122,6 @@ fn.#ObjectExpression
 	{NoAuthConfiguration!: #NoAuthConfiguration},
 )]) |
 fn.#ValueExpression
-
-#PluginBuildStatus: "READY" |
-	"CREATE_IN_PROGRESS" |
-	"CREATE_FAILED" |
-	"UPDATE_IN_PROGRESS" |
-	"UPDATE_FAILED" |
-	"DELETE_IN_PROGRESS" |
-	"DELETE_FAILED" |
-	fn.#StringExpression
 
 #PluginState: "ENABLED" | "DISABLED" | fn.#StringExpression
 
@@ -101,13 +146,32 @@ fn.#ValueExpression
 
 #S3: close({
 	Bucket!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" & "\(self)"
+	} |
 	fn.#StringExpression
-	Key!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

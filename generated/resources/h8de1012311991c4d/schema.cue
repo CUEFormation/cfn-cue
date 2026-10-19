@@ -7,12 +7,15 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
+import (
+	cfnScalarStrconv "strconv"
+	cfnRuleStrings "strings"
+	cfnRuleMath "math"
+	cfnRuleStrconv "strconv"
+)
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -37,14 +40,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // changes.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DynamoDB::Table"
-	Properties!: matchIf({
+	let properties = matchIf({
 		LocalSecondaryIndexes!: list.MinItems(1) | fn.#ListExpression
 		...
 	}, {
 		AttributeDefinitions?: null | bool | number | string | list.MinItems(2) | {...} | fn.#ValueExpression
 		KeySchema?:            null | bool | number | string | list.MinItems(2) | {...} | fn.#ValueExpression
 		...
-	}, _) & {...} & close({
+	}, _) & close({
 		AttributeDefinitions?: list.UniqueItems() & [...#AttributeDefinition] | fn.#ListExpression
 		BillingMode?:          "PAY_PER_REQUEST" | "PROVISIONED" | fn.#StringExpression
 
@@ -116,8 +119,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// enables streaming.
 		StreamSpecification?: #StreamSpecification
 		TableClass?:          "STANDARD" | "STANDARD_INFREQUENT_ACCESS" | fn.#StringExpression
-		TableName?:           strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:                [...#Tag] | fn.#ListExpression
+		TableName?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
 
 		// Specifies the Time to Live (TTL) settings for the table.
 		// For detailed information about the limits in DynamoDB, see [Limits in Amazon
@@ -129,11 +137,116 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Represents the warm throughput (in read units per second and write units per
 		// second) for creating a table.
 		WarmThroughput?: #WarmThroughput
+		// cfn-lint E3638: aws_dynamodb_table/billingmode_exclusive.json
+		if BillingMode != _|_ if ((BillingMode == "PAY_PER_REQUEST") & true) != _|_ if (((len(BillingMode) == 1) && (len([for cfnRuleKey, _ in BillingMode if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+			cfnRuleKey,
+			"Fn::",
+		) {
+			0
+		}]) == 1)) &
+		true) == _|_ {
+			if ProvisionedThroughput != _|_ {
+				if ProvisionedThroughput.ReadCapacityUnits != _|_ {
+					if !(((((len(ProvisionedThroughput.ReadCapacityUnits) == 1) && (len([for cfnRuleKey, _ in ProvisionedThroughput.ReadCapacityUnits if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+						cfnRuleKey,
+						"Fn::",
+					) {
+						0
+					}]) == 1)) &
+					true) != _|_) || (((ProvisionedThroughput.ReadCapacityUnits =~ "^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*\\n?$") &
+						true) != _|_) || ((((ProvisionedThroughput.ReadCapacityUnits == 0) || (ProvisionedThroughput.ReadCapacityUnits == "0")) &
+						true) != _|_)) {
+						error("E3638: when BillingMode is PAY_PER_REQUEST, ProvisionedThroughput capacity units must be 0")
+					}
+				}
+				if ProvisionedThroughput.WriteCapacityUnits != _|_ {
+					if !(((((len(ProvisionedThroughput.WriteCapacityUnits) == 1) && (len([for cfnRuleKey, _ in ProvisionedThroughput.WriteCapacityUnits if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+						cfnRuleKey,
+						"Fn::",
+					) {
+						0
+					}]) == 1)) &
+					true) != _|_) || (((ProvisionedThroughput.WriteCapacityUnits =~ "^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*\\n?$") &
+						true) != _|_) || ((((ProvisionedThroughput.WriteCapacityUnits == 0) || (ProvisionedThroughput.WriteCapacityUnits == "0")) &
+						true) != _|_)) {
+						error("E3638: when BillingMode is PAY_PER_REQUEST, ProvisionedThroughput capacity units must be 0")
+					}
+				}
+			}
+		}
+
+		// cfn-lint E3639: aws_dynamodb_table/billingmode_provisioned_dependent.json
+		if (BillingMode == _|_) || (((BillingMode == "PAY_PER_REQUEST") & true) == _|_) if (((len(BillingMode) == 1) && (len([for cfnRuleKey, _ in BillingMode if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+			cfnRuleKey,
+			"Fn::",
+		) {
+			0
+		}]) == 1)) &
+		true) == _|_ {
+			if ProvisionedThroughput != _|_ {
+				if ProvisionedThroughput.ReadCapacityUnits != _|_ {
+					if !(((((len(ProvisionedThroughput.ReadCapacityUnits) == 1) && (len([for cfnRuleKey, _ in ProvisionedThroughput.ReadCapacityUnits if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+						cfnRuleKey,
+						"Fn::",
+					) {
+						0
+					}]) == 1)) &
+					true) != _|_) || (((ProvisionedThroughput.ReadCapacityUnits =~ "^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*\\n?$") &
+						true) != _|_) || (((((cfnRuleMath.Abs(ProvisionedThroughput.ReadCapacityUnits) >= 0) & true) == _|_) || (((ProvisionedThroughput.ReadCapacityUnits >= 1) &
+						true) != _|_)) && ((((ProvisionedThroughput.ReadCapacityUnits =~ "^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$") &
+						true) == _|_) || (((cfnRuleStrconv.ParseFloat(
+						cfnRuleStrings.Replace(
+							cfnRuleStrings.TrimSpace(ProvisionedThroughput.ReadCapacityUnits),
+							"_",
+							"",
+							-1,
+						),
+						64,
+					) >= 1) &
+						true) != _|_)))) {
+						error("E3639: when BillingMode is PROVISIONED or omitted, ProvisionedThroughput with capacity units of at least 1 is required")
+					}
+				}
+				if ProvisionedThroughput.WriteCapacityUnits != _|_ {
+					if !(((((len(ProvisionedThroughput.WriteCapacityUnits) == 1) && (len([for cfnRuleKey, _ in ProvisionedThroughput.WriteCapacityUnits if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+						cfnRuleKey,
+						"Fn::",
+					) {
+						0
+					}]) == 1)) &
+					true) != _|_) || (((ProvisionedThroughput.WriteCapacityUnits =~ "^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*\\n?$") &
+						true) != _|_) || (((((cfnRuleMath.Abs(ProvisionedThroughput.WriteCapacityUnits) >= 0) & true) == _|_) || (((ProvisionedThroughput.WriteCapacityUnits >= 1) &
+						true) != _|_)) && ((((ProvisionedThroughput.WriteCapacityUnits =~ "^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$") &
+						true) == _|_) || (((cfnRuleStrconv.ParseFloat(
+						cfnRuleStrings.Replace(
+							cfnRuleStrings.TrimSpace(ProvisionedThroughput.WriteCapacityUnits),
+							"_",
+							"",
+							-1,
+						),
+						64,
+					) >= 1) &
+						true) != _|_)))) {
+						error("E3639: when BillingMode is PROVISIONED or omitted, ProvisionedThroughput with capacity units of at least 1 is required")
+					}
+				}
+			}
+			ProvisionedThroughput!: _
+		}
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AttributeDefinition: close({
-	AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	AttributeType!: "B" | "N" | "S" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -145,27 +258,24 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Csv: close({
-	Delimiter?:  string | fn.#StringExpression
-	HeaderList?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	Delimiter?:  string | number | bool | fn.#StringExpression
+	HeaderList?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-
-#DeprecatedHashKeyElement: close({
-	AttributeName!: string | fn.#StringExpression
-	AttributeType!: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#DeprecatedKeySchema: close({HashKeyElement!: #DeprecatedHashKeyElement}) | fn.#ObjectExpression
 
 #GlobalSecondaryIndex: close({
 	// The settings used to specify whether to enable CloudWatch Contributor
 	// Insights for the global table and define which events to monitor.
 	ContributorInsightsSpecification?: #ContributorInsightsSpecification
-	IndexName!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+	IndexName!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	KeySchema!: list.MinItems(1) & list.UniqueItems() & [...close({
-		AttributeName!: string | fn.#StringExpression
-		KeyType!:       string | fn.#StringExpression
+		AttributeName!: string | number | bool | fn.#StringExpression
+		KeyType!:       string | number | bool | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
@@ -200,8 +310,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ImportSourceSpecification: close({
-	InputCompressionType?: string | fn.#StringExpression
-	InputFormat!:          string | fn.#StringExpression
+	InputCompressionType?: string | number | bool | fn.#StringExpression
+	InputFormat!:          string | number | bool | fn.#StringExpression
 
 	// Additional properties that specify how the input is formatted,
 	InputFormatOptions?: #InputFormatOptions
@@ -227,25 +337,9 @@ fn.#ObjectExpression
 		KeyType!: "RANGE" | fn.#StringExpression
 		...
 	} | fn.#ObjectExpression
-	[>=2 | {
-		string &
-			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatFloat(
-					cfnScalarStrconv.ParseFloat(
-						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-						64,
-					) &
-						>=2,
-					"g",
-					-1,
-					64,
-				))*0 + 1,
-			)
-	}]: close({
-		AttributeName!: string | fn.#StringExpression
-		KeyType!:       string | fn.#StringExpression
+	[>=2]: close({
+		AttributeName!: string | number | bool | fn.#StringExpression
+		KeyType!:       string | number | bool | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 } |
@@ -253,12 +347,17 @@ fn.#ListExpression
 
 #KinesisStreamSpecification: close({
 	ApproximateCreationDateTimePrecision?: "MICROSECOND" | "MILLISECOND" | fn.#StringExpression
-	StreamArn!:                            string | fn.#StringExpression
+	StreamArn!:                            string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LocalSecondaryIndex: close({
-	IndexName!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+	IndexName!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	KeySchema!: #KeySchema & (null | bool | number | string | list.MaxItems(2) & list.MinItems(2) | {...}) |
 	fn.#ListExpression
 
@@ -330,7 +429,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Projection: close({
-	NonKeyAttributes?: [...] & [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] |
+	NonKeyAttributes?: [...] & [...strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	ProjectionType?: "ALL" | "INCLUDE" | "KEYS_ONLY" | fn.#StringExpression
 }) |
@@ -370,13 +474,18 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ResourcePolicy: close({PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression}) |
+#ResourcePolicy: close({PolicyDocument!: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression}) |
 fn.#ObjectExpression
 
 #S3BucketSource: close({
-	S3Bucket!:      string | fn.#StringExpression
-	S3BucketOwner?: string | fn.#StringExpression
-	S3KeyPrefix?:   string | fn.#StringExpression
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	S3BucketOwner?: string | number | bool | fn.#StringExpression
+	S3KeyPrefix?:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -386,14 +495,24 @@ fn.#ObjectExpression
 		SSEType!: _
 	}
 	{}
-	"KMSMasterKeyId"?: string & string | fn.#StringExpression
-	SSEEnabled!:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SSEType?:          "KMS" | fn.#StringExpression
+	"KMSMasterKeyId"?: string & string |
+	{
+		number | bool
+		_cfnString: string & string & "\(self)"
+	} |
+	fn.#StringExpression
+	SSEEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SSEType?:    "KMS" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SearchSchemaElement: close({
-	AttributeName!:           strings.MaxRunes(65535) & strings.MinRunes(0) | fn.#StringExpression
+	AttributeName!: strings.MaxRunes(65535) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(65535) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	SearchSchemaElementType!: "HASH" | "INLINE_FILTER" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -423,18 +542,35 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TimeToLiveSpecification: close({
-	AttributeName?: string | fn.#StringExpression
+	AttributeName?: string | number | bool | fn.#StringExpression
 	Enabled!:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-#VectorAttribute: close({AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression}) |
+#VectorAttribute: close({
+	AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #VectorIndex: close({
@@ -455,10 +591,15 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	DistanceFunction!: "COSINE" | "DOT_PRODUCT" | "EUCLIDEAN" | fn.#StringExpression
-	IndexName!:        strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	Projection!:       #Projection
-	SearchSchema?:     list.MinItems(1) & list.UniqueItems() & [...#SearchSchemaElement] | fn.#ListExpression
-	VectorAttribute!:  #VectorAttribute
+	IndexName!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Projection!:      #Projection
+	SearchSchema?:    list.MinItems(1) & list.UniqueItems() & [...#SearchSchemaElement] | fn.#ListExpression
+	VectorAttribute!: #VectorAttribute
 }) |
 fn.#ObjectExpression
 

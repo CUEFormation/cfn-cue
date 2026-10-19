@@ -2,7 +2,10 @@
 
 package schema
 
-import "strings"
+import (
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
+)
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,7 +19,7 @@ import "strings"
 	// exactly as the service returns it: Amazon EC2 stores an IPv6 CIDR in RFC
 	// 5952 compressed form, and a noncanonical spelling of the same range is
 	// reported as drift because this property is create-only and read back.
-	Cidr!: string
+	Cidr!: fn.#IPv4Network & string
 
 	// The description of the subnet CIDR reservation.
 	Description?: string
@@ -33,7 +36,7 @@ import "strings"
 	SubnetCidrReservationId?: string
 
 	// The identifier of the subnet the CIDR range is reserved in.
-	SubnetId!: string
+	SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 
 	// The tags assigned to the subnet CIDR reservation.
 	Tags?: [...#Tag]
@@ -43,7 +46,7 @@ import "strings"
 	// The key of the tag. Amazon EC2 reserves keys beginning with 'aws:' for
 	// internal use and rejects them for this resource. Amazon EC2 accepts a
 	// maximum of 128 Unicode characters.
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!: =~"^.+$" & matchN(0, [=~"^(?:[aA][wW][sS]:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// The value of the tag. Amazon EC2 accepts a maximum of 256 Unicode characters.
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)

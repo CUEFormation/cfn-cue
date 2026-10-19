@@ -4,12 +4,11 @@ package IntegrationAssociation
 
 import schema "github.com/cueformation/cfn-cue/resources/h5ba801aebdae2fc2:schema"
 
-#Resource:                 schema.#Resource
-#InstanceId:               schema.#InstanceId
-#IntegrationArn:           schema.#IntegrationArn
-#IntegrationAssociationId: schema.#IntegrationAssociationId
-#IntegrationType:          schema.#IntegrationType
-#SourceApplicationName:    schema.#SourceApplicationName
-#SourceApplicationUrl:     schema.#SourceApplicationUrl
-#SourceType:               schema.#SourceType
-#Tag:                      schema.#Tag
+#Resource:              schema.#Resource
+#InstanceId:            schema.#InstanceId
+#IntegrationArn:        schema.#IntegrationArn
+#IntegrationType:       schema.#IntegrationType
+#SourceApplicationName: schema.#SourceApplicationName
+#SourceApplicationUrl:  schema.#SourceApplicationUrl
+#SourceType:            schema.#SourceType
+#Tag:                   schema.#Tag

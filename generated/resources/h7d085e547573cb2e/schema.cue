@@ -7,31 +7,71 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Transfer::Certificate
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Transfer::Certificate"
-	Properties!: close({
-		ActiveDate?: string | fn.#StringExpression
+	let properties = close({
+		ActiveDate?: string | number | bool | fn.#StringExpression
 		Certificate!: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"^[\\t\\n\\r\\x{0020}-\\x{00FF}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(16384) &
+			strings.MinRunes(1) &
+			=~"^[\\t\\n\\r\\x{0020}-\\x{00FF}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		CertificateChain?: strings.MaxRunes(2097152) & strings.MinRunes(1) & =~"^[\\t\\n\\r\\x{0020}-\\x{00FF}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2097152) &
+			strings.MinRunes(1) &
+			=~"^[\\t\\n\\r\\x{0020}-\\x{00FF}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Description?:  strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[\\x{0021}-\\x{007E}]+$" | fn.#StringExpression
-		InactiveDate?: string | fn.#StringExpression
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[\\x{0021}-\\x{007E}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[\\x{0021}-\\x{007E}]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		InactiveDate?: string | number | bool | fn.#StringExpression
 		PrivateKey?: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"^[\\t\\n\\r\\x{0020}-\\x{00FF}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(16384) &
+			strings.MinRunes(1) &
+			=~"^[\\t\\n\\r\\x{0020}-\\x{00FF}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?:  list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		Usage!: "SIGNING" | "ENCRYPTION" | "TLS" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

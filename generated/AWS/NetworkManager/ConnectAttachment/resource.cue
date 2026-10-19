@@ -4,8 +4,6 @@ package ConnectAttachment
 
 import schema "github.com/cueformation/cfn-cue/resources/haedebfc9a7a34eb6:schema"
 
-#Resource:                           schema.#Resource
-#ConnectAttachmentOptions:           schema.#ConnectAttachmentOptions
-#ProposedNetworkFunctionGroupChange: schema.#ProposedNetworkFunctionGroupChange
-#ProposedSegmentChange:              schema.#ProposedSegmentChange
-#Tag:                                schema.#Tag
+#Resource:                 schema.#Resource
+#ConnectAttachmentOptions: schema.#ConnectAttachmentOptions
+#Tag:                      schema.#Tag

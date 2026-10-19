@@ -4,10 +4,6 @@ package UserProfile
 
 import schema "github.com/cueformation/cfn-cue/resources/hcc36c603959ce474:schema"
 
-#Resource:              schema.#Resource
-#IamUserProfileDetails: schema.#IamUserProfileDetails
-#SsoUserProfileDetails: schema.#SsoUserProfileDetails
-#UserProfileDetails:    schema.#UserProfileDetails
-#UserProfileStatus:     schema.#UserProfileStatus
-#UserProfileType:       schema.#UserProfileType
-#UserType:              schema.#UserType
+#Resource:          schema.#Resource
+#UserProfileStatus: schema.#UserProfileStatus
+#UserType:          schema.#UserType

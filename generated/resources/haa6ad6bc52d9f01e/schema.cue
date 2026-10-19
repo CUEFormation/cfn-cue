@@ -6,24 +6,41 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::QuickSight::LimitsProfile Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QuickSight::LimitsProfile"
-	Properties!: close({
-		AccountId!:      strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-		Description?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		ProfileName!:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		AccountId!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		ProfileName!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ResourceLimits!: #ResourceLimitsMap
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #LimitUnit: "MB" | "GB" | "HOURS" | "DAYS" | fn.#StringExpression
@@ -54,7 +71,10 @@ fn.#ObjectExpression
 
 #ResourceLimitsMap: close({
 
-	{[=~".+"]: #ProfileLimitValue}}) |
-fn.#ObjectExpression
+	{[=~".+"]: #ProfileLimitValue}
 
-#ResourceType: "INDEX_STORAGE" | "AGENT_HOURS" | fn.#StringExpression
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
+fn.#ObjectExpression

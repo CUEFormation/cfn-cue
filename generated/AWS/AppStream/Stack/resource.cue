@@ -10,7 +10,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h54e20390c619237b:schem
 #AgentAccessSetting:          schema.#AgentAccessSetting
 #ApplicationSettings:         schema.#ApplicationSettings
 #ContentRedirection:          schema.#ContentRedirection
-#StorageConnector:            schema.#StorageConnector
 #StreamingExperienceSettings: schema.#StreamingExperienceSettings
 #Tag:                         schema.#Tag
 #UrlRedirectionConfig:        schema.#UrlRedirectionConfig

@@ -5,5 +5,4 @@ package AnomalyMonitor
 import schema "github.com/cueformation/cfn-cue/resources/h264689f8c3c0d3de:schema"
 
 #Resource:    schema.#Resource
-#Arn:         schema.#Arn
 #ResourceTag: schema.#ResourceTag

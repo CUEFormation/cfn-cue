@@ -1,0 +1,10 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "BucketName": "my..bucket"
+      },
+      "Type": "AWS::S3::Bucket"
+    }
+  }
+}

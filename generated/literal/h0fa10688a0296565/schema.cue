@@ -27,7 +27,8 @@ import (
 
 #AccessToken: strings.MaxRunes(100) & strings.MinRunes(0)
 
-#ResourceName: strings.MaxRunes(64) & strings.MinRunes(1)
+#ResourceName: (=~"^(?:([a-zA-Z0-9-_' ']+))" & matchN(0, [=~"^(?:^[0-9]+$)"]) & string |
+=~"^(?s:.)+(?:([a-zA-Z0-9-_' ']+))") & (strings.MaxRunes(64) & strings.MinRunes(1))
 
 #Tag: close({
 	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)

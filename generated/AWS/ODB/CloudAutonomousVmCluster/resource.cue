@@ -5,6 +5,5 @@ package CloudAutonomousVmCluster
 import schema "github.com/cueformation/cfn-cue/resources/h60f25910f6ea52d4:schema"
 
 #Resource:          schema.#Resource
-#IamRole:           schema.#IamRole
 #MaintenanceWindow: schema.#MaintenanceWindow
 #Tag:               schema.#Tag

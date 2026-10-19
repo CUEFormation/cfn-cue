@@ -15,7 +15,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h4ee79b1989ddf853:schem
 #FlowTransitEncryptionKeyType:               schema.#FlowTransitEncryptionKeyType
 #ForwardErrorCorrectionState:                schema.#ForwardErrorCorrectionState
 #MaintenanceConfiguration:                   schema.#MaintenanceConfiguration
-#MaintenanceType:                            schema.#MaintenanceType
 #MediaConnectFlowRouterOutputConfiguration:  schema.#MediaConnectFlowRouterOutputConfiguration
 #MediaLiveInputPipelineId:                   schema.#MediaLiveInputPipelineId
 #MediaLiveInputRouterOutputConfiguration:    schema.#MediaLiveInputRouterOutputConfiguration
@@ -28,10 +27,7 @@ import schema "github.com/cueformation/cfn-cue/resources/h4ee79b1989ddf853:schem
 #RouterOutputConfiguration:                  schema.#RouterOutputConfiguration
 #RouterOutputProtocol:                       schema.#RouterOutputProtocol
 #RouterOutputProtocolConfiguration:          schema.#RouterOutputProtocolConfiguration
-#RouterOutputRoutedState:                    schema.#RouterOutputRoutedState
-#RouterOutputState:                          schema.#RouterOutputState
 #RouterOutputTier:                           schema.#RouterOutputTier
-#RouterOutputType:                           schema.#RouterOutputType
 #RoutingScope:                               schema.#RoutingScope
 #RtmpPushRouterOutputConfiguration:          schema.#RtmpPushRouterOutputConfiguration
 #RtpRouterOutputConfiguration:               schema.#RtpRouterOutputConfiguration

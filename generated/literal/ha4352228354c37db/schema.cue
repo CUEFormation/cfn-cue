@@ -21,7 +21,7 @@ import (
 
 	// A description of the event source. Control characters and Unicode line
 	// separators are not allowed.
-	Description?: strings.MaxRunes(512)
+	Description?: =~"^[^\\x{0000}-\\x{001F}\\x{007F}-\\x{009F}\\x{2028}\\x{2029}]*$" & strings.MaxRunes(512)
 
 	// The ARN of the custom event bus the event source forwards onto.
 	EventBusArn!: strings.MaxRunes(1011) &
@@ -43,7 +43,11 @@ import (
 	// The name of the event source. The first character must be alphanumeric; the
 	// remaining characters may also include '.', '-', and '_'. Names cannot begin
 	// with the reserved aws. prefix.
-	Name!: strings.MaxRunes(256) & strings.MinRunes(1)
+	Name!: =~"^[A-Za-z0-9][\\.\\-_A-Za-z0-9]*$" &
+	matchN(0, [=~"^(?:aws\\.)"]) &
+	string &
+	strings.MaxRunes(256) &
+	strings.MinRunes(1)
 
 	// Whether the event bus owner has revoked this event source. Revocation is
 	// permanent: a revoked event source cannot be updated, but it can be deleted.
@@ -132,8 +136,8 @@ import (
 #Tag: close({
 	// The tag key. Unique per resource; keys are case sensitive. No leading or
 	// trailing whitespace (interior whitespace is allowed).
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!: =~"^\\S([\\s\\S]*\\S)?$" & (strings.MaxRunes(128) & strings.MinRunes(1))
 
 	// The tag value. May be empty. No leading or trailing whitespace (interior whitespace is allowed).
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
+	Value!: =~"^(\\S([\\s\\S]*\\S)?)?$" & (strings.MaxRunes(256) & strings.MinRunes(0))
 })

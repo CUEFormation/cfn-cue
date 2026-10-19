@@ -3,32 +3,63 @@
 package schema
 
 import (
-	"time"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTTwinMaker::SyncJob
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTTwinMaker::SyncJob"
-	Properties!: close({
+	let properties = close({
 		SyncRole!: strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"arn:((aws)|(aws-cn)|(aws-us-gov)):iam::[0-9]{12}:role/.*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"arn:((aws)|(aws-cn)|(aws-us-gov)):iam::[0-9]{12}:role/.*" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		SyncSource!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z_0-9]+$" | fn.#StringExpression
+		SyncSource!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z_0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z_0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: close({
 
-			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: strings.MaxRunes(256) & strings.MinRunes(1) |
-			fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{
+				[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: strings.MaxRunes(256) & strings.MinRunes(1) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+				} |
+				fn.#StringExpression
+			}
+		}) |
 		fn.#ObjectExpression
 		WorkspaceId!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z_0-9][a-zA-Z_\\-0-9]*[a-zA-Z0-9]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			=~"[a-zA-Z_0-9][a-zA-Z_\\-0-9]*[a-zA-Z0-9]+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
-
-#DateTimeFormat: time.Time | fn.#StringExpression

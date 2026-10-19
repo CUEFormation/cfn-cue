@@ -5,5 +5,4 @@ package FuotaTask
 import schema "github.com/cueformation/cfn-cue/resources/hfc43c77f34986ac9:schema"
 
 #Resource: schema.#Resource
-#LoRaWAN:  schema.#LoRaWAN
 #Tag:      schema.#Tag

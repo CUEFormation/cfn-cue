@@ -87,7 +87,7 @@ import (
 
 #CloudwatchLogsAction: close({
 	BatchMode?:    bool
-	LogGroupName!: string
+	LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$"
 	RoleArn!:      =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 })
 
@@ -256,7 +256,7 @@ import (
 #RoleArn: string
 
 #S3Action: close({
-	BucketName!: string
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$"
 	CannedAcl?:  #CannedAccessControlList
 	Key!:        string
 	RoleArn!:    =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"

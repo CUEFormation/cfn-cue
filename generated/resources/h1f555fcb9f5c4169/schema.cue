@@ -6,8 +6,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,9 +20,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Amazon Elastic Container Registry User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ECR::RegistryPolicy"
-	Properties!: close(
-		{PolicyText!: fn.#Object & {...} | strings.MaxRunes(10240) & strings.MinRunes(0) | fn.#StringObjectExpression},
-	)
+	let properties = close({
+		PolicyText!: fn.#Object & {...} |
+		strings.MaxRunes(10240) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(10240) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringObjectExpression
+	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
-
-#RegistryId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression

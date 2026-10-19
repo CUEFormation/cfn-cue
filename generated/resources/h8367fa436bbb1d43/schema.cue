@@ -7,30 +7,56 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppConfig::ExperimentDefinition
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppConfig::ExperimentDefinition"
-	Properties!: close({
-		ApplicationIdentifier!:          strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		AudienceDescription?:            strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		AudienceRule!:                   strings.MaxRunes(16384) & strings.MinRunes(1) | fn.#StringExpression
-		ConfigurationProfileIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		ApplicationIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		AudienceDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		AudienceRule!: strings.MaxRunes(16384) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(16384) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ConfigurationProfileIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Control!: close({
 			AttributeValues?: close({
 
-				{[=~"^[a-zA-Z0-9._-]+$"]: #AttributeValue}}) |
+				{[=~"^(?:Ref)$"]: error("disallowed")}
+
+				{[=~"^[a-zA-Z0-9._-]+$"]: #AttributeValue}
+			}) |
 			fn.#ObjectExpression
-			Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-			Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
+			Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 			Weight!: >=0 |
 				{
 					string &
@@ -52,19 +78,57 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				fn.#NumberExpression
 		}) |
 		fn.#ObjectExpression
-		EnvironmentIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		FlagKey!:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-zA-Z0-9_-]{1,64}$" | fn.#StringExpression
-		Hypothesis?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		LaunchCriteria?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		Name!:           strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		EnvironmentIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		FlagKey!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-zA-Z0-9_-]{1,64}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-z][a-zA-Z0-9_-]{1,64}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Hypothesis?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		LaunchCriteria?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: =~"^.{1,64}$" & matchN(0, [=~"^(?:AWS\\.)"]) & string & strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^.{1,64}$" &
+			matchN(0, [=~"^(?:AWS\\.)"]) &
+			string &
+			strings.MaxRunes(64) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		Treatments!: list.MaxItems(5) & list.MinItems(1) & [...close({
 			AttributeValues?: close({
 
-				{[=~"^[a-zA-Z0-9._-]+$"]: #AttributeValue}}) |
+				{[=~"^(?:Ref)$"]: error("disallowed")}
+
+				{[=~"^[a-zA-Z0-9._-]+$"]: #AttributeValue}
+			}) |
 			fn.#ObjectExpression
-			Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-			Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
+			Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 			Weight!: >=0 |
 				{
 					string &
@@ -88,6 +152,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression] |
 		fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AttributeValue: close({
@@ -133,43 +201,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	StringArray?: [...string | fn.#StringExpression] | fn.#ListExpression
-	StringValue?: string | fn.#StringExpression
+	StringArray?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	StringValue?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#Treatment: close({
-	AttributeValues?: close({
-
-		{[=~"^[a-zA-Z0-9._-]+$"]: #AttributeValue}}) |
-	fn.#ObjectExpression
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Key?:         string | fn.#StringExpression
-	Weight!: >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							>=0,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

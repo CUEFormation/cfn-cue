@@ -4,6 +4,7 @@ package schema
 
 import (
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
 
@@ -36,7 +37,11 @@ import (
 	DeleteAssociatedResources?: bool
 
 	// The user-friendly name of the ODB network.
-	DisplayName?: strings.MaxRunes(255) & strings.MinRunes(1)
+	DisplayName?: =~"^[a-zA-Z_][a-zA-Z0-9_-]*$" &
+	matchN(0, [=~"^(?s:.){1}(?:.*--)"]) &
+	string &
+	strings.MaxRunes(255) &
+	strings.MinRunes(1)
 
 	// The list of EC2 placement group IDs associated with your ODB network.
 	Ec2PlacementGroupIds?: [...string]
@@ -180,7 +185,7 @@ import (
 	// The Zero-ETL access configuration.
 	ZeroEtlAccess?: close({
 		// The CIDR block for the Zero-ETL access.
-		Cidr?: string
+		Cidr?: fn.#IPv4Network & string
 
 		// The status of the Zero-ETL access.
 		Status?: #ManagedResourceStatus

@@ -96,7 +96,10 @@ import (
 #CloudWatchOutputConfig: close({
 	// The CloudWatch log group name for evaluation results. Omit to use the
 	// service-managed default log group.
-	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]+$"
+	LogGroupName?: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"^[.\\-_/#A-Za-z0-9]+$"
 
 	// The CloudWatch metrics namespace for evaluation result metrics. Omit to use
 	// the service-managed default namespace.
@@ -192,6 +195,6 @@ import (
 })
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!:   =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

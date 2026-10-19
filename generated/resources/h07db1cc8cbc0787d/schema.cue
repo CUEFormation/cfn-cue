@@ -3,22 +3,24 @@
 package schema
 
 import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApplicationSignals::GroupingConfiguration
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApplicationSignals::GroupingConfiguration"
-	Properties!: close({GroupingAttributeDefinitions!: #GroupingAttributeDefinitions})
+	Type!: "AWS::ApplicationSignals::GroupingConfiguration"
+	let properties = close({GroupingAttributeDefinitions!: #GroupingAttributeDefinitions})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
-
-#AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
 
 #GroupingAttributeDefinition: close({
 	DefaultGroupingValue?: #GroupingString
@@ -29,6 +31,9 @@ fn.#ObjectExpression
 
 #GroupingAttributeDefinitions: [...#GroupingAttributeDefinition] | fn.#ListExpression
 
-#GroupingString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+\\-=\\._:/@]*$" | fn.#StringExpression
-
-#Timestamp: string | fn.#StringExpression
+#GroupingString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+\\-=\\._:/@]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+\\-=\\._:/@]*$" & "\(self)"
+} |
+fn.#StringExpression

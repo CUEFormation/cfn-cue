@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,19 +17,56 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // workflows.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::Experiment"
-	Properties!: close({
-		Description?: strings.MaxRunes(3072) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(3072) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(3072) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		DisplayName?: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(120) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ExperimentName!: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(120) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & [...] & [...close({
 			Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) &
+				strings.MinRunes(1) &
+				=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) &
+				strings.MinRunes(0) &
+				=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

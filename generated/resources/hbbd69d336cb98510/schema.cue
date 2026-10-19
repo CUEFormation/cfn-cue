@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -15,8 +15,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [AWS::EC2::RouteTable](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-routetable.html).
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::SubnetRouteTableAssociation"
-	Properties!: close({
-		RouteTableId!: string | fn.#StringExpression
-		SubnetId!:     string | fn.#StringExpression
+	let properties = close({
+		RouteTableId!: string | number | bool | fn.#StringExpression
+		SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

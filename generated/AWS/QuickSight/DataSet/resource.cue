@@ -94,7 +94,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h633a1fcd7109459e:schem
 #LookbackWindow:                          schema.#LookbackWindow
 #LookbackWindowSizeUnit:                  schema.#LookbackWindowSizeUnit
 #NewDefaultValues:                        schema.#NewDefaultValues
-#OutputColumn:                            schema.#OutputColumn
 #OutputColumnNameOverride:                schema.#OutputColumnNameOverride
 #OverrideDatasetParameterOperation:       schema.#OverrideDatasetParameterOperation
 #ParentDataSet:                           schema.#ParentDataSet

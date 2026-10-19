@@ -6,9 +6,7 @@ import schema "github.com/cueformation/cfn-cue/resources/ha6252129f7c7a4ab:schem
 
 #Resource:               schema.#Resource
 #PackageVersionArtifact: schema.#PackageVersionArtifact
-#PackageVersionStatus:   schema.#PackageVersionStatus
 #ResourceAttributes:     schema.#ResourceAttributes
 #S3Location:             schema.#S3Location
 #Sbom:                   schema.#Sbom
-#SbomValidationStatus:   schema.#SbomValidationStatus
 #Tag:                    schema.#Tag

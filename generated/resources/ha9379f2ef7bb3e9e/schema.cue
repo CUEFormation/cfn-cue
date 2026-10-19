@@ -6,8 +6,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,13 +16,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // share a resource.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::VpcLattice::ResourcePolicy"
-	Properties!: close({
+	let properties = close({
 		Policy!: fn.#Object & {...} |
 		strings.MaxRunes(10000) & strings.MinRunes(1) & =~"^.*\\S.*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(10000) & strings.MinRunes(1) & =~"^.*\\S.*$" & "\(self)"
+		} |
 		fn.#StringObjectExpression
 		ResourceArn!: strings.MaxRunes(200) &
 		strings.MinRunes(20) &
 		=~"^arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:((servicenetwork/sn)|(service/svc)|(resourceconfiguration/rcfg))-[0-9a-z]{17}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) &
+			strings.MinRunes(20) &
+			=~"^arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:((servicenetwork/sn)|(service/svc)|(resourceconfiguration/rcfg))-[0-9a-z]{17}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

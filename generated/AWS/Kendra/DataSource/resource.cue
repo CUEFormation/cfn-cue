@@ -7,7 +7,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hf8c8ff8262edb180:schem
 #Resource:                                              schema.#Resource
 #AccessControlListConfiguration:                        schema.#AccessControlListConfiguration
 #AclConfiguration:                                      schema.#AclConfiguration
-#Arn:                                                   schema.#Arn
 #ChangeDetectingColumns:                                schema.#ChangeDetectingColumns
 #ColumnConfiguration:                                   schema.#ColumnConfiguration
 #ColumnName:                                            schema.#ColumnName
@@ -58,7 +57,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hf8c8ff8262edb180:schem
 #ExcludeUserAccountsList:                               schema.#ExcludeUserAccountsList
 #GoogleDriveConfiguration:                              schema.#GoogleDriveConfiguration
 #HookConfiguration:                                     schema.#HookConfiguration
-#Id:                                                    schema.#Id
 #IndexFieldName:                                        schema.#IndexFieldName
 #IndexId:                                               schema.#IndexId
 #InlineConfigurations:                                  schema.#InlineConfigurations

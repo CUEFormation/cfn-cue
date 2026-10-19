@@ -8,8 +8,8 @@ import (
 	"struct"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,25 +17,68 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // recommenders and filters under an Amazon Connect Customer Profiles domain.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CustomerProfiles::RecommenderSchema"
-	Properties!: close({
-		DomainName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	let properties = close({
+		DomainName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Fields!: struct.MaxFields(2) & struct.MinFields(1) & close({
 
-			{[=~"^.+$"]: list.MaxItems(9) & list.MinItems(1) & [...#RecommenderSchemaField] | fn.#ListExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^.+$"]: list.MaxItems(9) & list.MinItems(1) & [...#RecommenderSchemaField] | fn.#ListExpression}
+		}) |
 		fn.#ObjectExpression
-		RecommenderSchemaName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		RecommenderSchemaName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: list.MaxItems(50) & [...close({
-			Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-			Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+			Key!: =~"^[a-zA-Z+-=._:/]+$" &
+			matchN(0, [=~"^(?:aws:)"]) &
+			string &
+			strings.MaxRunes(128) &
+			strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+				matchN(0, [=~"^(?:aws:)"]) &
+				string &
+				strings.MaxRunes(128) &
+				strings.MinRunes(1) &
+				"\(self)"
+			} |
+			fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #RecommenderSchemaField: close({
-	ContentType?:     "STRING" | "NUMBER" | fn.#StringExpression
-	FeatureType?:     "TEXTUAL" | "CATEGORICAL" | fn.#StringExpression
-	TargetFieldName!: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+	ContentType?: "STRING" | "NUMBER" | fn.#StringExpression
+	FeatureType?: "TEXTUAL" | "CATEGORICAL" | fn.#StringExpression
+	TargetFieldName!: strings.MaxRunes(1000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

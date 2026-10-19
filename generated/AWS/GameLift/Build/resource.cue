@@ -5,6 +5,5 @@ package Build
 import schema "github.com/cueformation/cfn-cue/resources/h05200686dbc4258c:schema"
 
 #Resource:        schema.#Resource
-#S3Location:      schema.#S3Location
 #StorageLocation: schema.#StorageLocation
 #Tag:             schema.#Tag

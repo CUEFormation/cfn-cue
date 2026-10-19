@@ -6,42 +6,44 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaConnect::Bridge
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaConnect::Bridge"
-	Properties!: close({
+	let properties = close({
 		EgressGatewayBridge?:  #EgressGatewayBridge & fn.#Object & {...} | fn.#ObjectExpression
 		IngressGatewayBridge?: #IngressGatewayBridge & fn.#Object & {...} | fn.#ObjectExpression
-		Name!:                 string | fn.#StringExpression
+		Name!:                 string | number | bool | fn.#StringExpression
 		Outputs?:              list.MaxItems(2) & [...] & [...#BridgeOutput] | fn.#ListExpression
-		PlacementArn!:         string | fn.#StringExpression
+		PlacementArn!:         string | number | bool | fn.#StringExpression
 		SourceFailoverConfig?: #FailoverConfig
 		Sources!:              list.MaxItems(2) & [...] & [...#BridgeSource] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #BridgeFlowSource: close({
-	FlowArn!: string | fn.#StringExpression
+	FlowArn!: string | number | bool | fn.#StringExpression
 
 	// The name of the VPC interface attachment to use for this source.
 	FlowVpcInterfaceAttachment?: #VpcInterfaceAttachment
-	Name!:                       string | fn.#StringExpression
+	Name!:                       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #BridgeNetworkOutput: close({
-	IpAddress!:   string | fn.#StringExpression
-	Name!:        string | fn.#StringExpression
-	NetworkName!: string | fn.#StringExpression
+	IpAddress!:   string | number | bool | fn.#StringExpression
+	Name!:        string | number | bool | fn.#StringExpression
+	NetworkName!: string | number | bool | fn.#StringExpression
 	Port!: int |
 		{
 			string &
@@ -77,12 +79,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #BridgeNetworkSource: close({
-	MulticastIp!: string | fn.#StringExpression
+	MulticastIp!: string | number | bool | fn.#StringExpression
 
 	// The settings related to the multicast source.
 	MulticastSourceSettings?: #MulticastSourceSettings
-	Name!:                    string | fn.#StringExpression
-	NetworkName!:             string | fn.#StringExpression
+	Name!:                    string | number | bool | fn.#StringExpression
+	NetworkName!:             string | number | bool | fn.#StringExpression
 	Port!: int |
 		{
 			string &
@@ -110,19 +112,6 @@ fn.#ObjectExpression
 	NetworkSource?: #BridgeNetworkSource
 }) |
 fn.#ObjectExpression
-
-#BridgeStateEnum: "CREATING" |
-	"STANDBY" |
-	"STARTING" |
-	"DEPLOYING" |
-	"ACTIVE" |
-	"STOPPING" |
-	"DELETING" |
-	"DELETED" |
-	"START_FAILED" |
-	"START_PENDING" |
-	"UPDATING" |
-	fn.#StringExpression
 
 #EgressGatewayBridge: close({
 	MaxBitrate!: int |
@@ -190,10 +179,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#MulticastSourceSettings: close({MulticastSourceIp?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#MulticastSourceSettings: close({MulticastSourceIp?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #ProtocolEnum: "rtp-fec" | "rtp" | "udp" | fn.#StringExpression
 
-#SourcePriority: close({PrimarySource?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#SourcePriority: close({PrimarySource?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
-#VpcInterfaceAttachment: close({VpcInterfaceName?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#VpcInterfaceAttachment: close({VpcInterfaceName?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression

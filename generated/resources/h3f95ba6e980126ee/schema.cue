@@ -7,27 +7,43 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for SSO InstanceAccessControlAttributeConfiguration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSO::InstanceAccessControlAttributeConfiguration"
-	Properties!: close({
+	let properties = close({
 		AccessControlAttributes?: #AccessControlAttributeList
 		InstanceAccessControlAttributeConfiguration?: close({AccessControlAttributes!: #AccessControlAttributeList}) |
 			fn.#ObjectExpression
 		InstanceArn!: strings.MaxRunes(1224) &
 		strings.MinRunes(10) &
 		=~"arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1224) &
+			strings.MinRunes(10) &
+			=~"arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AccessControlAttribute: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]+" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]+" & "\(self)"
+	} |
+	fn.#StringExpression
 	Value!: #AccessControlAttributeValue
 }) |
 fn.#ObjectExpression
@@ -39,6 +55,13 @@ fn.#ObjectExpression
 #AccessControlAttributeValueSource: strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@\\[\\]\\{\\}\\$\\\\\"]*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) &
+	strings.MinRunes(0) &
+	=~"[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@\\[\\]\\{\\}\\$\\\\\"]*" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #AccessControlAttributeValueSourceList: list.MaxItems(1) & [...#AccessControlAttributeValueSource] | fn.#ListExpression

@@ -7,26 +7,35 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Associate a set of ECS Capacity Providers with a specified ECS Cluster
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ECS::ClusterCapacityProviderAssociations"
-	Properties!: close({
+	let properties = close({
 		CapacityProviders?:               #CapacityProviders
 		Cluster!:                         #Cluster
 		DefaultCapacityProviderStrategy!: #DefaultCapacityProviderStrategy
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#CapacityProvider: "FARGATE" | "FARGATE_SPOT" | strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+#CapacityProvider: "FARGATE" |
+"FARGATE_SPOT" |
+strings.MaxRunes(2048) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #CapacityProviderStrategy: close({
 	Base?: int & <=100000 & >=0 |
@@ -67,6 +76,11 @@ fn.#ObjectExpression
 
 #CapacityProviders: list.UniqueItems() & [...#CapacityProvider] | fn.#ListExpression
 
-#Cluster: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+#Cluster: strings.MaxRunes(2048) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #DefaultCapacityProviderStrategy: [...#CapacityProviderStrategy] | fn.#ListExpression

@@ -7,30 +7,52 @@ import (
 	"list"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::UserPoolIdentityProvider
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cognito::UserPoolIdentityProvider"
-	Properties!: close({
+	let properties = close({
 		AttributeMapping?: close({
 
-			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | number | bool | fn.#StringExpression}
+		}) |
 		fn.#ObjectExpression
-		IdpIdentifiers?: list.MaxItems(50) & [...] & [
-			...strings.MaxRunes(40) & strings.MinRunes(1) & =~"^[\\w\\s+=.@-]+$" | fn.#StringExpression
-		] |
+		IdpIdentifiers?: list.MaxItems(50) & [...] & [...strings.MaxRunes(40) &
+		strings.MinRunes(1) &
+		=~"^[\\w\\s+=.@-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(40) & strings.MinRunes(1) & =~"^[\\w\\s+=.@-]+$" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		ProviderDetails!: close({
 
-			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | number | bool | fn.#StringExpression}
+		}) |
 		fn.#ObjectExpression
 		ProviderName!: strings.MaxRunes(32) &
 		strings.MinRunes(1) &
 		=~"^[^_\\p{Z}][\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}][^_\\p{Z}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32) &
+			strings.MinRunes(1) &
+			=~"^[^_\\p{Z}][\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}][^_\\p{Z}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ProviderType!: "Facebook" |
 			"Google" |
@@ -39,6 +61,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"SAML" |
 			"SignInWithApple" |
 			fn.#StringExpression
-		UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
+		UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

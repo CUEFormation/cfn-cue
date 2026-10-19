@@ -3,39 +3,44 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WorkSpaces::ConnectionAlias
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WorkSpaces::ConnectionAlias"
-	Properties!: close({
+	let properties = close({
 		ConnectionString!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[.0-9a-zA-Z\\-]{1,255}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[.0-9a-zA-Z\\-]{1,255}$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#ConnectionAliasAssociation: close({
-	AssociatedAccountId?: string | fn.#StringExpression
-	AssociationStatus?: "NOT_ASSOCIATED" |
-		"PENDING_ASSOCIATION" |
-		"ASSOCIATED_WITH_OWNER_ACCOUNT" |
-		"ASSOCIATED_WITH_SHARED_ACCOUNT" |
-		"PENDING_DISASSOCIATION" |
-		fn.#StringExpression
-	ConnectionIdentifier?: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	ResourceId?:           strings.MaxRunes(1000) & strings.MinRunes(1) & =~".+" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

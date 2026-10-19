@@ -1,0 +1,28 @@
+Parameters:
+  Name:
+    Type: String
+Conditions:
+  Named:
+    Fn::Not:
+    - Fn::Equals:
+      - Ref: Name
+      - ''
+  Versioned:
+    Fn::Equals:
+    - Ref: Name
+    - versioned
+  Private:
+    Fn::Equals:
+    - Ref: Name
+    - private
+Resources:
+  Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      Fn::If:
+      - Named
+      - Fn::If:
+        - Versioned
+        - BucketName: one-bucket
+        - BucketName: two-bucket
+      - {}

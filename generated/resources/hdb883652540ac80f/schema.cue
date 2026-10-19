@@ -7,48 +7,96 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::Database
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lightsail::Database"
-	Properties!: close({
-		AvailabilityZone?:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		BackupRetention?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		CaCertificateIdentifier?: string | fn.#StringExpression
-		MasterDatabaseName!:      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		MasterUserPassword?:      strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-		MasterUsername!:          strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-		PreferredBackupWindow?:   string | fn.#StringExpression
-		PreferredMaintenanceWindow?: string | fn.#StringExpression
+		CaCertificateIdentifier?: string | number | bool | fn.#StringExpression
+		MasterDatabaseName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		MasterUserPassword?: strings.MaxRunes(63) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		MasterUsername!: strings.MaxRunes(63) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		PreferredBackupWindow?:      string | number | bool | fn.#StringExpression
+		PreferredMaintenanceWindow?: string | number | bool | fn.#StringExpression
 		PubliclyAccessible?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		RelationalDatabaseBlueprintId!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		RelationalDatabaseBundleId!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		RelationalDatabaseBlueprintId!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		RelationalDatabaseBundleId!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		RelationalDatabaseName!: strings.MaxRunes(255) & strings.MinRunes(2) & =~"\\w[\\w\\-]*\\w" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(2) & =~"\\w[\\w\\-]*\\w" & "\(self)"
+		} |
 		fn.#StringExpression
 		RelationalDatabaseParameters?: list.UniqueItems() & [...#RelationalDatabaseParameter] | fn.#ListExpression
 		RotateMasterUserPassword?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Tags?:                     list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #RelationalDatabaseParameter: close({
-	AllowedValues?:  string | fn.#StringExpression
-	ApplyMethod?:    string | fn.#StringExpression
-	ApplyType?:      string | fn.#StringExpression
-	DataType?:       string | fn.#StringExpression
-	Description?:    string | fn.#StringExpression
+	AllowedValues?:  string | number | bool | fn.#StringExpression
+	ApplyMethod?:    string | number | bool | fn.#StringExpression
+	ApplyType?:      string | number | bool | fn.#StringExpression
+	DataType?:       string | number | bool | fn.#StringExpression
+	Description?:    string | number | bool | fn.#StringExpression
 	IsModifiable?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ParameterName?:  string | fn.#StringExpression
-	ParameterValue?: string | fn.#StringExpression
+	ParameterName?:  string | number | bool | fn.#StringExpression
+	ParameterValue?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

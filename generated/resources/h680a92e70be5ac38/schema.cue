@@ -6,19 +6,15 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::ImageVersion
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::ImageVersion"
-	Properties!: close({
+	let properties = close({
 		Alias?:           #Alias
 		Aliases?:         #Aliases
 		BaseImage!:       #BaseImage
@@ -31,56 +27,65 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ReleaseNotes?:    #ReleaseNotes
 		VendorGuidance?:  #VendorGuidance
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Alias: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#Alias: =~"^([a-zA-Z0-9-_.]+)$" & matchN(0, [=~"^(?:^[.-])"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: =~"^([a-zA-Z0-9-_.]+)$" &
+	matchN(0, [=~"^(?:^[.-])"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1) &
+	"\(self)"
+} |
+fn.#StringExpression
 
 #Aliases: [...#Alias] | fn.#ListExpression
 
-#BaseImage: strings.MaxRunes(255) & strings.MinRunes(1) & =~".+" | fn.#StringExpression
-
-#ContainerImage: strings.MaxRunes(255) & strings.MinRunes(1) & =~".+" | fn.#StringExpression
+#BaseImage: strings.MaxRunes(255) & strings.MinRunes(1) & =~".+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~".+" & "\(self)"
+} |
+fn.#StringExpression
 
 #Horovod: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-#ImageArn: strings.MaxRunes(256) &
-strings.MinRunes(1) &
-=~"^arn:aws(-[\\w]+)*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:image\\/[a-zA-Z0-9]([-.]?[a-zA-Z0-9])*$" |
-fn.#StringExpression
-
-#ImageName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[A-Za-z0-9]([-.]?[A-Za-z0-9])*$" | fn.#StringExpression
-
-#ImageVersionArn: strings.MaxRunes(256) &
-strings.MinRunes(1) &
-=~"^arn:aws(-[\\w]+)*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:image-version\\/[a-zA-Z0-9]([-.]?[a-zA-Z0-9])*\\/[0-9]+$" |
+#ImageName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[A-Za-z0-9]([-.]?[A-Za-z0-9])*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[A-Za-z0-9]([-.]?[A-Za-z0-9])*$" & "\(self)"
+} |
 fn.#StringExpression
 
 #JobType: "TRAINING" | "INFERENCE" | "NOTEBOOK_KERNEL" | fn.#StringExpression
 
 #MLFramework: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z]+ ?\\d+\\.\\d+(\\.\\d+)?$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z]+ ?\\d+\\.\\d+(\\.\\d+)?$" & "\(self)"
+} |
 fn.#StringExpression
 
 #Processor: "CPU" | "GPU" | fn.#StringExpression
 
 #ProgrammingLang: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z]+ ?\\d+\\.\\d+(\\.\\d+)?$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z]+ ?\\d+\\.\\d+(\\.\\d+)?$" & "\(self)"
+} |
 fn.#StringExpression
 
-#ReleaseNotes: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
+#ReleaseNotes: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*" & "\(self)"
+} |
+fn.#StringExpression
 
 #VendorGuidance: "NOT_PROVIDED" | "STABLE" | "TO_BE_ARCHIVED" | "ARCHIVED" | fn.#StringExpression
-
-#Version: int & >=1 |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatInt(
-					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-						int &
-						>=1,
-					10,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression

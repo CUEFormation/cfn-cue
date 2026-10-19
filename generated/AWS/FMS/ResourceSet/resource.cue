@@ -5,6 +5,5 @@ package ResourceSet
 import schema "github.com/cueformation/cfn-cue/resources/h5a3658f4c5dbb839:schema"
 
 #Resource:     schema.#Resource
-#Base62Id:     schema.#Base62Id
 #ResourceType: schema.#ResourceType
 #Tag:          schema.#Tag

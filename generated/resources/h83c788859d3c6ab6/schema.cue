@@ -3,21 +3,19 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppSync::ApiKey
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppSync::ApiKey"
-	Properties!: close({
-		ApiId!:       string | fn.#StringExpression
-		Description?: string | fn.#StringExpression
+	let properties = close({
+		ApiId!:       string | number | bool | fn.#StringExpression
+		Description?: string | number | bool | fn.#StringExpression
 		Expires?: number |
 			{
 				string &
@@ -38,4 +36,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

@@ -7,25 +7,32 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates an AWS Firewall Manager policy.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::FMS::Policy"
-	Properties!: close({
+	let properties = close({
 		DeleteAllPolicyResources?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		ExcludeMap?:               #IEMap
 		ExcludeResourceTags!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		IncludeMap?:               #IEMap
-		PolicyDescription?:        strings.MaxRunes(256) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]+)$" | fn.#StringExpression
+		PolicyDescription?: strings.MaxRunes(256) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]+)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]+)$" & "\(self)"
+		} |
+		fn.#StringExpression
 		PolicyName!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]+)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([a-zA-Z0-9_.:/=+\\-@\\s]+)$" & "\(self)"
+		} |
 		fn.#StringExpression
 		RemediationEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		ResourceSetIds?:     list.UniqueItems() & [...#Base62Id] | fn.#ListExpression
@@ -37,11 +44,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		SecurityServicePolicyData!: #SecurityServicePolicyData
 		Tags?:                      [...#PolicyTag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^([0-9]*)$" | fn.#StringExpression
+#AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^([0-9]*)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^([0-9]*)$" & "\(self)"
+} |
+fn.#StringExpression
 
-#Base62Id: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^[a-z0-9A-Z]{22}$" | fn.#StringExpression
+#Base62Id: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^[a-z0-9A-Z]{22}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^[a-z0-9A-Z]{22}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #FirewallDeploymentModel: "DISTRIBUTED" | "CENTRALIZED" | fn.#StringExpression
 
@@ -51,13 +72,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#ManagedServiceData: strings.MaxRunes(30000) & strings.MinRunes(1) | fn.#StringExpression
+#ManagedServiceData: strings.MaxRunes(30000) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(30000) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #NetworkAclCommonPolicy: close({NetworkAclEntrySet!: #NetworkAclEntrySet}) | fn.#ObjectExpression
 
 #NetworkAclEntry: close({
-	CidrBlock?: =~"^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$" |
-		fn.#StringExpression
+	CidrBlock?: fn.#IPv4Network &
+		string &
+		=~"^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$" |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network &
+			string &
+			=~"^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	Egress!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IcmpTypeCode?: close({
 		Code!: int & <=255 & >=0 |
@@ -98,8 +133,17 @@ fn.#ObjectExpression
 			fn.#NumberExpression
 	}) |
 	fn.#ObjectExpression
-	Ipv6CidrBlock?: =~"^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))(/(1[0-2]|[0-9]))?$" |
-		fn.#StringExpression
+	Ipv6CidrBlock?: fn.#IPv6Network &
+		string &
+		=~"^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))(/(1[0-2]|[0-9]))?$" |
+	{
+		number | bool
+		_cfnString: fn.#IPv6Network &
+			string &
+			=~"^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))(/(1[0-2]|[0-9]))?$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	PortRange?: close({
 		From!: int & <=65535 & >=0 |
 			{
@@ -139,7 +183,12 @@ fn.#ObjectExpression
 			fn.#NumberExpression
 	}) |
 	fn.#ObjectExpression
-	Protocol!:   =~"^(tcp|udp|icmp|-1|([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]))$" | fn.#StringExpression
+	Protocol!: =~"^(tcp|udp|icmp|-1|([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]))$" |
+	{
+		number | bool
+		_cfnString: =~"^(tcp|udp|icmp|-1|([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]))$" & "\(self)"
+	} |
+	fn.#StringExpression
 	RuleAction!: "allow" | "deny" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -164,6 +213,10 @@ fn.#ObjectExpression
 #NetworkFirewallPolicy: close({FirewallDeploymentModel!: #FirewallDeploymentModel}) | fn.#ObjectExpression
 
 #OrganizationalUnitId: strings.MaxRunes(68) & strings.MinRunes(16) & =~"^(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32})$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(68) & strings.MinRunes(16) & =~"^(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32})$" & "\(self)"
+} |
 fn.#StringExpression
 
 #PolicyOption: close({
@@ -187,8 +240,18 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #PolicyTag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & =~"^([^\\s]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & =~"^([^\\s]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & =~"^([^\\s]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -205,15 +268,28 @@ fn.#ObjectExpression
 	"NETWORK_ACL_COMMON" |
 	fn.#StringExpression
 
-#ResourceArn: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([^\\s]*)$" | fn.#StringExpression
-
 #ResourceTag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ResourceType: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$" | fn.#StringExpression
+#ResourceType: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([^\\s]*)$" & "\(self)"
+} |
+fn.#StringExpression
 
 #SecurityServicePolicyData: close({
 	ManagedServiceData?: #ManagedServiceData

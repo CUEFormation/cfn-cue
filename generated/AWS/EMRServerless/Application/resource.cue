@@ -37,7 +37,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hdee48d51cddadcdb:schem
 #S3MonitoringConfiguration:                 schema.#S3MonitoringConfiguration
 #SchedulerConfiguration:                    schema.#SchedulerConfiguration
 #SecurityGroupId:                           schema.#SecurityGroupId
-#SensitivePropertiesKeyValuePair:           schema.#SensitivePropertiesKeyValuePair
 #SensitivePropertiesMap:                    schema.#SensitivePropertiesMap
 #SubnetId:                                  schema.#SubnetId
 #Tag:                                       schema.#Tag

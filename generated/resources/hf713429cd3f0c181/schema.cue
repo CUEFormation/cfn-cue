@@ -7,49 +7,97 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::SageMaker::Model
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::Model"
-	Properties?: close({
+	let properties = close({
 		Containers?:             list.MaxItems(15) & [...] & [...#ContainerDefinition] | fn.#ListExpression
 		EnableNetworkIsolation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		InferenceExecutionConfig?: #InferenceExecutionConfig
 		ModelName?: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) &
+			strings.MinRunes(0) &
+			=~"^[a-zA-Z0-9]([\\-a-zA-Z0-9]*[a-zA-Z0-9])?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		PrimaryContainer?: #ContainerDefinition
 		Tags?:             list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 		VpcConfig?:        #VpcConfig
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #ContainerDefinition: close({
 	ContainerHostname?: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" & "\(self)"
+	} |
 	fn.#StringExpression
-	Environment?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	Image?:       strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\S]+$" | fn.#StringExpression
+	Environment?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+	Image?: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\S]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\S]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ImageConfig?: #ImageConfig
 	InferenceSpecificationName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" & "\(self)"
+	} |
 	fn.#StringExpression
 	Mode?:            "SingleModel" | "MultiModel" | fn.#StringExpression
 	ModelDataSource?: #ModelDataSource
 	ModelDataUrl?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" & "\(self)"
+	} |
 	fn.#StringExpression
-	ModelPackageName?: strings.MaxRunes(176) & strings.MinRunes(1) | fn.#StringExpression
+	ModelPackageName?: strings.MaxRunes(176) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(176) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	MultiModelConfig?: #MultiModelConfig
 }) |
 fn.#ObjectExpression
 
-#HubAccessConfig: close({HubContentArn!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression}) |
+#HubAccessConfig: close({
+	HubContentArn!: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #ImageConfig: close({
@@ -69,9 +117,14 @@ fn.#ObjectExpression
 
 #MultiModelConfig: close({ModelCacheSetting?: "Enabled" | "Disabled" | fn.#StringExpression}) | fn.#ObjectExpression
 
-#RepositoryAuthConfig: close(
-	{RepositoryCredentialsProviderArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#RepositoryAuthConfig: close({
+	RepositoryCredentialsProviderArn!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #S3DataSource: close({
@@ -79,28 +132,59 @@ fn.#ObjectExpression
 	HubAccessConfig?:   #HubAccessConfig
 	ModelAccessConfig?: #ModelAccessConfig
 	S3DataType!:        "S3Prefix" | "S3Object" | fn.#StringExpression
-	S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" | fn.#StringExpression
+	S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VpcConfig: close({
-	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(0) &
+	=~"^[-0-9a-zA-Z]+$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(32) &
 		strings.MinRunes(0) &
-		=~"^[-0-9a-zA-Z]+$" |
-		fn.#StringExpression
-	] |
+		=~"^[-0-9a-zA-Z]+$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Subnets!: list.MaxItems(16) & list.MinItems(1) & [
-		...strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[-0-9a-zA-Z]+$" | fn.#StringExpression
-	] |
+	Subnets!: list.MaxItems(16) & list.MinItems(1) & [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(0) &
+	=~"^[-0-9a-zA-Z]+$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"^[-0-9a-zA-Z]+$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression

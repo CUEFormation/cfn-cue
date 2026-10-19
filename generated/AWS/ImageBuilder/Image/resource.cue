@@ -11,7 +11,6 @@ import schema "github.com/cueformation/cfn-cue/resources/habd1636078c26c31:schem
 #ImagePipelineExecutionSettings: schema.#ImagePipelineExecutionSettings
 #ImageScanningConfiguration:     schema.#ImageScanningConfiguration
 #ImageTestsConfiguration:        schema.#ImageTestsConfiguration
-#LatestVersion:                  schema.#LatestVersion
 #WorkflowConfiguration:          schema.#WorkflowConfiguration
 #WorkflowParameter:              schema.#WorkflowParameter
 #WorkflowParameterValue:         schema.#WorkflowParameterValue

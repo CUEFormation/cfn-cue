@@ -4,5 +4,4 @@ package SecurityGroupVpcAssociation
 
 import schema "github.com/cueformation/cfn-cue/resources/h8a64dcaf6c56b0bb:schema"
 
-#Resource:                         schema.#Resource
-#SecurityGroupVpcAssociationState: schema.#SecurityGroupVpcAssociationState
+#Resource: schema.#Resource

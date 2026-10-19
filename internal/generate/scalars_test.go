@@ -14,11 +14,18 @@ import (
 
 func TestScalarCompatibilityAST(t *testing.T) {
 	source := `package schema
+ import "strings"
  #Port: int & >=-1 & <=65535
  #Ratio: number & >0 & <2
  #IntegerEnum: int & (2|4)
  #BooleanEnum: bool & true
  #Properties: {
+  Size?: =~"^[0-9]+$" & strings.MaxRunes(3)
+  Flag?: =~"^(true|false)$"
+  Protocol?: "tcp" | "-1" | "true" | "1.5" | "01"
+  Const?: "SIMPLE" & string
+  Mixed?: =~"^[a-z]+$" | int & >=0
+  StringOrInt?: string | int & >=0
   Enabled?: bool
   Count?: int & >=1 & <=4
   Port?: #Port
@@ -63,7 +70,30 @@ func TestScalarCompatibilityAST(t *testing.T) {
 		{"string-or-object", `{StringOrObject:{Count:"2"}}`, true},
 		{"string-or-object-bound", `{StringOrObject:{Count:"5"}}`, false},
 		{"nested-reference-items", `{Nested:{Ports:["22","80"],Map:{one:"443"}}}`, true},
-		{"string-strict", `{Name:22}`, false},
+		{"string-from-number", `{Name:22,Size:"12"}`, true},
+		{"string-from-bool", `{Name:true}`, true},
+		{"string-form-pattern", `{Size:12}`, true},
+		{"string-form-negative", `{Size:-1}`, false},
+		{"string-form-fraction", `{Size:1.5}`, false},
+		{"string-form-length", `{Size:1234}`, false},
+		{"string-form-bool", `{Size:true}`, false},
+		{"string-form-true", `{Flag:true}`, true},
+		{"string-form-number", `{Flag:1}`, false},
+		{"string-enum", `{Protocol:"-1"}`, true},
+		{"string-enum-number", `{Protocol:-1}`, true},
+		{"string-enum-bool", `{Protocol:true}`, true},
+		{"string-enum-float", `{Protocol:1.5}`, true},
+		{"string-enum-other-number", `{Protocol:1}`, false},
+		{"string-enum-noncanonical", `{Protocol:"01"}`, true},
+		{"string-const", `{Const:"SIMPLE"}`, true},
+		{"string-or-int-negative", `{StringOrInt:-1}`, false},
+		{"string-or-int-bool", `{StringOrInt:false}`, true},
+		{"string-or-int-quoted", `{StringOrInt:"-1"}`, true},
+		{"numeric-sibling", `{Mixed:2}`, true},
+		{"numeric-sibling-bound", `{Mixed:-2}`, false},
+		{"numeric-sibling-quoted", `{Mixed:"2"}`, true},
+		{"string-null", `{Name:null}`, false},
+		{"string-list", `{Name:[1]}`, false},
 		{"malformed-bool", `{Enabled:"yes"}`, false},
 		{"mixed-bool-case", `{Enabled:"tRuE"}`, false},
 		{"bool-shortcuts", `{Enabled:"1"}`, false},
@@ -310,6 +340,8 @@ func TestTemplateParameterQuotedScalars(t *testing.T) {
 		{`{Type:"String",NoEcho:"yes"}`, false},
 		{`{Type:"String",NoEcho:"1"}`, false},
 		{`{Type:"String",Description:18}`, false},
+		{`{Type:"String",AllowedValues:[true,false],Default:true}`, true},
+		{`{Type:"String",AllowedValues:[[true]]}`, false},
 	}
 	for _, tc := range cases {
 		validate(t, parameter, tc.data, tc.valid)
@@ -320,4 +352,59 @@ func TestTemplateParameterQuotedScalars(t *testing.T) {
 	schema := build(t, out, "./regions/us-east-1").LookupPath(cue.MakePath(cue.Def("Template")))
 	validate(t, schema, `{Parameters:{Text:{Type:"String",MinLength:"18",MaxLength:"64",NoEcho:"TRUE"},Amount:{Type:"Number",MinValue:"-3.5",MaxValue:"2.5e3"}},Resources:{Thing:{Type:"AWS::Test::Thing",Properties:{Name:"one"}}}}`, true)
 	validate(t, schema, `{Parameters:{Text:{Type:"String",MinLength:"-1"}},Resources:{Thing:{Type:"AWS::Test::Thing",Properties:{Name:"one"}}}}`, false)
+}
+
+func TestTemplateNames(t *testing.T) {
+	out := filepath.Join(t.TempDir(), "generated")
+	if _, err := Generate(fixture(t), Options{Out: out, Regions: []string{"us-east-1"}}); err != nil {
+		t.Fatal(err)
+	}
+	schema := build(t, out, "./regions/us-east-1").LookupPath(cue.MakePath(cue.Def("Template")))
+	resources := `Resources:{Thing:{Type:"AWS::Test::Thing",Condition:"2Create",Properties:{Name:"one"}}}`
+	validate(t, schema, `{Conditions:{"2Create":true},`+resources+`}`, true)
+	validate(t, schema, `{Conditions:{"NAT&3AZ_Condition":true},`+resources+`}`, true)
+	validate(t, schema, `{Conditions:{"2-Create":true},`+resources+`}`, false)
+	validate(t, schema, `{Parameters:{"2Name":{Type:"String"}},`+resources+`}`, true)
+	validate(t, schema, `{Parameters:{"Name&":{Type:"String"}},`+resources+`}`, false)
+	validate(t, schema, `{Resources:{"5xxAlarm":{Type:"AWS::Test::Thing",Properties:{Name:"one"}}}}`, true)
+	validate(t, schema, `{Resources:{"Thing_1":{Type:"AWS::Test::Thing",Properties:{Name:"one"}}}}`, false)
+}
+
+func TestConditionalTemplateValues(t *testing.T) {
+	out := filepath.Join(t.TempDir(), "generated")
+	if _, err := Generate(fixture(t), Options{Out: out, Regions: []string{"us-east-1"}}); err != nil {
+		t.Fatal(err)
+	}
+	schema := build(t, out, "./regions/us-east-1").LookupPath(cue.MakePath(cue.Def("Template")))
+	thing := func(attributes string) string {
+		return `{Resources:{Thing:{Type:"AWS::Test::Thing",` + attributes + `}}}`
+	}
+	validate(t, schema, thing(`Properties:{"Fn::If":["Big",{Name:"one",Count:4},{Ref:"AWS::NoValue"}]}`), true)
+	validate(t, schema, thing(`Properties:{"Fn::If":["Big",{Name:"one"},{Name:"two"}]}`), true)
+	validate(t, schema, thing(`Properties:{"Fn::If":["Big",{Name:"one",Count:5},{Name:"two"}]}`), false)
+	validate(t, schema, thing(`Properties:{"Fn::If":["Big",{Name:"one"}]}`), false)
+	validate(t, schema, thing(`Properties:{"Fn::If":["Big",{Name:"one"},{Name:"two"}],Count:1}`), false)
+	validate(t, schema, thing(`Properties:{}`), false)
+	// Nested Fn::If keeps the exact properties schema at every literal leaf.
+	validate(t, schema, thing(`Properties:{"Fn::If":["Big",{"Fn::If":["Small",{Name:"one"},{Name:"two",Count:4}]},{Ref:"AWS::NoValue"}]}`), true)
+	validate(t, schema, thing(`Properties:{"Fn::If":["A",{Ref:"AWS::NoValue"},{"Fn::If":["B",{"Fn::If":["C",{Name:"one"},{Ref:"AWS::NoValue"}]},{Name:"two"}]}]}`), true)
+	validate(t, schema, thing(`Properties:{"Fn::If":["A",{"Fn::If":["B",{"Fn::If":["C",{Name:"one",Count:5},{Name:"two"}]},{Name:"two"}]},{Name:"one"}]}`), false)
+	validate(t, schema, thing(`Properties:{"Fn::If":["A",{"Fn::If":["B",{Name:"three"},{Name:"two"}]},{Name:"one"}]}`), false)
+	validate(t, schema, thing(`Properties:{"Fn::If":["A",{"Fn::If":["B",{Name:"one",Bogus:1},{Name:"two"}]},{Name:"one"}]}`), false)
+	validate(t, schema, thing(`Properties:{"Fn::If":["A",{"Fn::If":["B",{}]},{Name:"one"}]}`), false)
+	validate(t, schema, thing(`Properties:{"Fn::If":["A",{"Fn::If":["B",{Name:"one"},{Name:"two"}],Name:"one"},{Name:"one"}]}`), false)
+	validate(t, schema, thing(`Properties:{"Fn::If":["A",{"Fn::If":[{Ref:"B"},{Name:"one"},{Name:"two"}]},{Name:"one"}]}`), false)
+	validate(t, schema, thing(`Properties:{"Fn::If":["A",{"Fn::Sub":"x"},{Name:"one"}]}`), false)
+	validate(t, schema, thing(`Properties:{"Fn::If":["A",{"Fn::If":["B",{Ref:"P"},{Name:"one"}]},{Name:"one"}]}`), false)
+	validate(t, schema, thing(`Properties:{"Fn::If":["A",{"Fn::If":["B",{},{Name:"one"}]},{Name:"one"}]}`), false)
+	validate(t, schema, thing(`Properties:{Ref:"AWS::NoValue"}`), false)
+	validate(t, schema, thing(`Properties:{Name:"one"},UpdatePolicy:{"Fn::If":["Big",{AutoScalingReplacingUpdate:{WillReplace:true}},{Ref:"AWS::NoValue"}]}`), true)
+	validate(t, schema, thing(`Properties:{Name:"one"},CreationPolicy:{"Fn::If":["Big",{ResourceSignal:{Count:1}},{Ref:"AWS::NoValue"}]}`), true)
+	validate(t, schema, thing(`Properties:{Name:"one"},UpdatePolicy:{"Fn::If":["Big",{"Fn::If":["Small",{},{Ref:"AWS::NoValue"}]},{}]}`), true)
+	validate(t, schema, thing(`Properties:{Name:"one"},UpdatePolicy:{Ref:"Policy"}`), false)
+	validate(t, schema, thing(`Properties:{Name:"one"},UpdatePolicy:{"Fn::If":["Big",{Ref:"Policy"},{}]}`), false)
+	validate(t, schema, thing(`Properties:{Name:"one"},CreationPolicy:{"Fn::FindInMap":["A","B","C"]}`), false)
+	mapping := `Mappings:{Engine:{mysql:{PerformanceInsights:true,Ports:[3306,true,"x"]}}},Resources:{Thing:{Type:"AWS::Test::Thing",Properties:{Name:"one"}}}`
+	validate(t, schema, `{`+mapping+`}`, true)
+	validate(t, schema, `{Mappings:{Engine:{mysql:{Nested:{A:"b"}}}},Resources:{Thing:{Type:"AWS::Test::Thing",Properties:{Name:"one"}}}}`, false)
 }

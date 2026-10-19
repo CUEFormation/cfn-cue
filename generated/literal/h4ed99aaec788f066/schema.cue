@@ -204,7 +204,9 @@ import (
 #MonitoringOutputConfig: close({
 	// The AWS Key Management Service (AWS KMS) key that Amazon SageMaker uses to
 	// encrypt the model artifacts at rest using Amazon S3 server-side encryption.
-	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~".*"
@@ -295,5 +297,10 @@ import (
 	]
 
 	// The ID of the subnets in the VPC to which you want to connect to your monitoring jobs.
-	Subnets!: list.MaxItems(16) & list.MinItems(1) & [...strings.MaxRunes(32) & strings.MinRunes(0) & =~"[-0-9a-zA-Z]+"]
+	Subnets!: list.MaxItems(16) & list.MinItems(1) & [
+		...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"[-0-9a-zA-Z]+"
+	]
 })

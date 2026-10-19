@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -15,13 +15,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *API Gateway Developer Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGatewayV2::IntegrationResponse"
-	Properties!: close({
-		ApiId!:                       string | fn.#StringExpression
-		ContentHandlingStrategy?:     string | fn.#StringExpression
-		IntegrationId!:               string | fn.#StringExpression
-		IntegrationResponseKey!:      string | fn.#StringExpression
-		ResponseParameters?:          fn.#Object & {...} | string | fn.#StringObjectExpression
-		ResponseTemplates?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-		TemplateSelectionExpression?: string | fn.#StringExpression
+	let properties = close({
+		ApiId!:                       string | number | bool | fn.#StringExpression
+		ContentHandlingStrategy?:     string | number | bool | fn.#StringExpression
+		IntegrationId!:               string | number | bool | fn.#StringExpression
+		IntegrationResponseKey!:      string | number | bool | fn.#StringExpression
+		ResponseParameters?:          fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		ResponseTemplates?:           fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		TemplateSelectionExpression?: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

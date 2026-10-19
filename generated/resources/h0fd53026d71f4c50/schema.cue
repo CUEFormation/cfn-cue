@@ -7,23 +7,31 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DataSync::LocationFSxONTAP.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataSync::LocationFSxONTAP"
-	Properties!: close({
+	let properties = close({
 		Protocol?: close({
 			NFS?: #NFS
 			SMB?: close({
 				CmkSecretConfig?: close({
-					KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+					KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 					strings.MaxRunes(2048) &
 					strings.MinRunes(0) &
 					=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" |
+					{
+						number | bool
+						_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+						strings.MaxRunes(2048) &
+						strings.MinRunes(0) &
+						=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" &
+						"\(self)"
+					} |
 					fn.#StringExpression
 				}) |
 				fn.#ObjectExpression
@@ -31,61 +39,95 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				Domain?: strings.MaxRunes(253) &
 				strings.MinRunes(0) &
 				=~"^([A-Za-z0-9]+[A-Za-z0-9-.]*)*[A-Za-z0-9-]*[A-Za-z0-9]$" |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(253) &
+					strings.MinRunes(0) &
+					=~"^([A-Za-z0-9]+[A-Za-z0-9-.]*)*[A-Za-z0-9-]*[A-Za-z0-9]$" &
+					"\(self)"
+				} |
 				fn.#StringExpression
 				MountOptions!: #SmbMountOptions
-				Password?:     strings.MaxRunes(104) & =~"^.{0,104}$" | fn.#StringExpression
-				User!:         strings.MaxRunes(104) & =~"^[^\\x5B\\x5D\\\\/:;|=,+*?]{1,104}$" | fn.#StringExpression
+				Password?: strings.MaxRunes(104) & =~"^.{0,104}$" |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(104) & =~"^.{0,104}$" & "\(self)"
+				} |
+				fn.#StringExpression
+				User!: strings.MaxRunes(104) & =~"^[^\\x5B\\x5D\\\\/:;|=,+*?]{1,104}$" |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(104) & =~"^[^\\x5B\\x5D\\\\/:;|=,+*?]{1,104}$" & "\(self)"
+				} |
+				fn.#StringExpression
 			}) |
 			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-		SecurityGroupArns!: list.MaxItems(5) & list.MinItems(1) & [
-			...strings.MaxRunes(128) &
+		SecurityGroupArns!: list.MaxItems(5) & list.MinItems(1) & [...strings.MaxRunes(128) &
+		strings.MinRunes(0) &
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:security-group/sg-[a-f0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
 			strings.MinRunes(0) &
-			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:security-group/sg-[a-f0-9]+$" |
-			fn.#StringExpression
-		] |
+			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:security-group/sg-[a-f0-9]+$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		StorageVirtualMachineArn!: strings.MaxRunes(162) &
 		strings.MinRunes(0) &
 		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):fsx:[a-z\\-0-9]+:[0-9]{12}:storage-virtual-machine/fs-[0-9a-f]+/svm-[0-9a-f]{17,}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(162) &
+			strings.MinRunes(0) &
+			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):fsx:[a-z\\-0-9]+:[0-9]{12}:storage-virtual-machine/fs-[0-9a-f]+/svm-[0-9a-f]{17,}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4096) &
+			strings.MinRunes(0) &
+			=~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#CmkSecretConfig: close({
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(0) &
-	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):kms:[a-z-0-9]+:[0-9]{12}:key/.*|)$" |
-	fn.#StringExpression
-	SecretArn?: strings.MaxRunes(2048) &
-	strings.MinRunes(0) &
-	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$" |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #CustomSecretConfig: close({
-	SecretAccessRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecretAccessRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*|)$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*|)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	SecretArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$" |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#ManagedSecretConfig: close({
-	SecretArn!: strings.MaxRunes(2048) &
-	strings.MinRunes(0) &
-	=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^(arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):secretsmanager:[a-z-0-9]+:[0-9]{12}:secret:.*|)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -95,28 +137,20 @@ fn.#ObjectExpression
 #NfsMountOptions: close({Version?: "AUTOMATIC" | "NFS3" | "NFS4_0" | "NFS4_1" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-#Protocol: close({
-	NFS?: #NFS
-	SMB?: #SMB
-}) |
-fn.#ObjectExpression
-
-#SMB: close({
-	CmkSecretConfig?:    #CmkSecretConfig
-	CustomSecretConfig?: #CustomSecretConfig
-	Domain?: strings.MaxRunes(253) & strings.MinRunes(0) & =~"^([A-Za-z0-9]+[A-Za-z0-9-.]*)*[A-Za-z0-9-]*[A-Za-z0-9]$" |
-	fn.#StringExpression
-	ManagedSecretConfig?: #ManagedSecretConfig
-	MountOptions!:        #SmbMountOptions
-	Password?:            strings.MaxRunes(104) & =~"^.{0,104}$" | fn.#StringExpression
-	User!:                strings.MaxRunes(104) & =~"^[^\\x5B\\x5D\\\\/:;|=,+*?]{1,104}$" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #SmbMountOptions: close({Version?: "AUTOMATIC" | "SMB2" | "SMB3" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
+	Key!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

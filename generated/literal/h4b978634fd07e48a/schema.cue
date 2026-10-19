@@ -74,9 +74,12 @@ import (
 #ProcessingConfiguration: close({AuditLog!: #AuditLogProcessingConfiguration})
 
 // Contains information about an Amazon S3 bucket.
-#S3Bucket: close({
+#S3Bucket: matchN(2, [{...}, {...}]) & close({
 	// The name of the Amazon S3 bucket.
-	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3)
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3)
 
 	// The object key to use.
 	Prefix?: strings.MaxRunes(120) & strings.MinRunes(1)

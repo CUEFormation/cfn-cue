@@ -7,21 +7,32 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::DocDB::GlobalCluster resource represents an Amazon DocumentDB Global Cluster.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DocDB::GlobalCluster"
-	Properties!: close({
+	let properties = close({
 		DeletionProtection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Engine?:             "docdb" | fn.#StringExpression
-		EngineVersion?:      string | fn.#StringExpression
+		EngineVersion?:      string | number | bool | fn.#StringExpression
 		GlobalClusterIdentifier!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		SourceDBClusterIdentifier?: matchN(1, [=~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$", string]) | fn.#StringExpression
+		SourceDBClusterIdentifier?: matchN(1, [
+			=~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$",
+			=~"^arn.*" & =~"^(?:.{40,128}$)",
+		]) |
+		fn.#StringExpression
 		StorageEncrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Tags?:             list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		if Engine != _|_ if Engine."Fn::If" == _|_ {
@@ -30,10 +41,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			)
 		}
 	}) & matchN(>=1, [{Engine!: _}, {SourceDBClusterIdentifier!: _}])
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

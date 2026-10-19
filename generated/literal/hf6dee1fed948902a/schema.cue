@@ -48,7 +48,13 @@ import (
 	{EntityTypes?: list.MaxItems(25) & list.MinItems(1) & list.UniqueItems() & [...#EntityTypesListItem]},
 )
 
-#EntityTypesListItem: close({Type!: strings.MaxRunes(64) & strings.MinRunes(1)})
+#EntityTypesListItem: close({
+	Type!: =~"^[^\\n\\r\\t,]+$" &
+	matchN(0, [=~"^(?:[^\\n\\r\\t,]*\\\\n|\\\\r|\\\\t)"]) &
+	string &
+	strings.MaxRunes(64) &
+	strings.MinRunes(1)
+})
 
 #KmsKeyId: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^\\p{ASCII}+$"
 
@@ -71,6 +77,9 @@ import (
 		=~"[-0-9a-zA-Z]+"
 	]
 	Subnets!: list.MaxItems(16) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(32) & strings.MinRunes(1) & =~"[-0-9a-zA-Z]+"
+		...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(1) &
+		=~"[-0-9a-zA-Z]+"
 	]
 })

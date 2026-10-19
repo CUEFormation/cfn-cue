@@ -21,7 +21,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h894ff24f50cfbfc0:schem
 #BotAliasLocaleSettings:                    schema.#BotAliasLocaleSettings
 #BotAliasLocaleSettingsItem:                schema.#BotAliasLocaleSettingsItem
 #BotAliasLocaleSettingsList:                schema.#BotAliasLocaleSettingsList
-#BotArn:                                    schema.#BotArn
 #BotLocale:                                 schema.#BotLocale
 #BotMember:                                 schema.#BotMember
 #Button:                                    schema.#Button
@@ -30,7 +29,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h894ff24f50cfbfc0:schem
 #CompositeSlotTypeSetting:                  schema.#CompositeSlotTypeSetting
 #Condition:                                 schema.#Condition
 #ConditionExpression:                       schema.#ConditionExpression
-#Conditional:                               schema.#Conditional
 #ConditionalBranch:                         schema.#ConditionalBranch
 #ConditionalBranches:                       schema.#ConditionalBranches
 #ConditionalSpecification:                  schema.#ConditionalSpecification
@@ -43,7 +41,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h894ff24f50cfbfc0:schem
 #CustomVocabularyItem:                      schema.#CustomVocabularyItem
 #CustomVocabularyItems:                     schema.#CustomVocabularyItems
 #DTMFSpecification:                         schema.#DTMFSpecification
-#DataPrivacy:                               schema.#DataPrivacy
 #DeepgramModelId:                           schema.#DeepgramModelId
 #DeepgramSpeechModelConfig:                 schema.#DeepgramSpeechModelConfig
 #DefaultConditionalBranch:                  schema.#DefaultConditionalBranch
@@ -55,7 +52,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h894ff24f50cfbfc0:schem
 #DialogState:                               schema.#DialogState
 #DisplayName:                               schema.#DisplayName
 #ElicitationCodeHookInvocationSetting:      schema.#ElicitationCodeHookInvocationSetting
-#ErrorLogSettings:                          schema.#ErrorLogSettings
 #ExternalSourceSetting:                     schema.#ExternalSourceSetting
 #FulfillmentCodeHookSetting:                schema.#FulfillmentCodeHookSetting
 #FulfillmentStartResponseSpecification:     schema.#FulfillmentStartResponseSpecification
@@ -64,8 +60,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h894ff24f50cfbfc0:schem
 #GenerativeAISettings:                      schema.#GenerativeAISettings
 #GrammarSlotTypeSetting:                    schema.#GrammarSlotTypeSetting
 #GrammarSlotTypeSource:                     schema.#GrammarSlotTypeSource
-#Id:                                        schema.#Id
-#IdleSessionTTLInSeconds:                   schema.#IdleSessionTTLInSeconds
 #ImageResponseCard:                         schema.#ImageResponseCard
 #InitialResponseSetting:                    schema.#InitialResponseSetting
 #InputContext:                              schema.#InputContext

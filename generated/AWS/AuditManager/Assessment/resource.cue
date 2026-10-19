@@ -10,7 +10,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h2ec45fb92acc2103:schem
 #AWSServiceName:                  schema.#AWSServiceName
 #AccountId:                       schema.#AccountId
 #AccountName:                     schema.#AccountName
-#AssessmentArn:                   schema.#AssessmentArn
 #AssessmentDescription:           schema.#AssessmentDescription
 #AssessmentName:                  schema.#AssessmentName
 #AssessmentReportDestinationType: schema.#AssessmentReportDestinationType

@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,11 +17,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // ``NetworkInterfaceId``, or ``PrivateIpAddress``.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::EIPAssociation"
-	Properties?: close({
-		AllocationId?:       string | fn.#StringExpression
-		EIP?:                string & string | fn.#StringExpression
-		InstanceId?:         string | fn.#StringExpression
-		NetworkInterfaceId?: string | fn.#StringExpression
-		PrivateIpAddress?:   string | fn.#StringExpression
+	let properties = close({
+		AllocationId?: string | number | bool | fn.#StringExpression
+		EIP?: string & string |
+		{
+			number | bool
+			_cfnString: string & string & "\(self)"
+		} |
+		fn.#StringExpression
+		InstanceId?:         string | number | bool | fn.#StringExpression
+		NetworkInterfaceId?: string | number | bool | fn.#StringExpression
+		PrivateIpAddress?:   string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }

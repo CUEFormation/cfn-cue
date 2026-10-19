@@ -6,23 +6,47 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ServiceCatalog::StackSetConstraint
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ServiceCatalog::StackSetConstraint"
-	Properties!: close({
-		AcceptLanguage?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-		AccountList!:    [...string | fn.#StringExpression] | fn.#ListExpression
-		AdminRole!:      string | fn.#StringExpression
-		Description!:    strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
-		ExecutionRole!:  string | fn.#StringExpression
-		PortfolioId!:    strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" | fn.#StringExpression
-		ProductId!:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" | fn.#StringExpression
-		RegionList!:     [...string | fn.#StringExpression] | fn.#ListExpression
-		StackInstanceControl!: string | fn.#StringExpression
+	let properties = close({
+		AcceptLanguage?: strings.MaxRunes(100) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		AccountList!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		AdminRole!:   string | number | bool | fn.#StringExpression
+		Description!: strings.MaxRunes(2000) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2000) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		ExecutionRole!: string | number | bool | fn.#StringExpression
+		PortfolioId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ProductId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		RegionList!:           [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		StackInstanceControl!: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

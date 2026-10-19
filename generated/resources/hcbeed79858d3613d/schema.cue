@@ -6,21 +6,19 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WorkSpaces::Workspace
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WorkSpaces::Workspace"
-	Properties!: close({
-		BundleId!:    string | fn.#StringExpression
-		DirectoryId!: string | fn.#StringExpression
+	let properties = close({
+		BundleId!:    string | number | bool | fn.#StringExpression
+		DirectoryId!: string | number | bool | fn.#StringExpression
 		RootVolumeEncryptionEnabled?: bool |
 			"true" |
 			"True" |
@@ -30,7 +28,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"FALSE" |
 			fn.#BooleanExpression
 		Tags?:     [...#Tag] | fn.#ListExpression
-		UserName!: string | fn.#StringExpression
+		UserName!: string | number | bool | fn.#StringExpression
 		UserVolumeEncryptionEnabled?: bool |
 			"true" |
 			"True" |
@@ -39,19 +37,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		VolumeEncryptionKey?: string | fn.#StringExpression
+		VolumeEncryptionKey?: string | number | bool | fn.#StringExpression
 		WorkspaceProperties?: #WorkspaceProperties
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #WorkspaceProperties: close({
-	ComputeTypeName?: string | fn.#StringExpression
+	ComputeTypeName?: string | number | bool | fn.#StringExpression
 	RootVolumeSizeGib?: int |
 		{
 			string &
@@ -66,7 +78,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	RunningMode?: string | fn.#StringExpression
+	RunningMode?: string | number | bool | fn.#StringExpression
 	RunningModeAutoStopTimeoutInMinutes?: int |
 		{
 			string &

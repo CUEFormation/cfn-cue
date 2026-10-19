@@ -49,11 +49,13 @@ strings.MinRunes(1) &
 #Description: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.+$"
 
 #EncryptionConfiguration: close({
-	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
-	Type!:     "AWS_MANAGED_KEY" | "CUSTOMER_MANAGED_KEY"
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
+	Type!: "AWS_MANAGED_KEY" | "CUSTOMER_MANAGED_KEY"
 })
 
-#LoggingConfiguration: close({LogGroupName!: strings.MinRunes(1)})
+#LoggingConfiguration: close({LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" & strings.MinRunes(1)})
 
 #Name: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+[a-zA-Z0-9\\.\\-_]*$"
 

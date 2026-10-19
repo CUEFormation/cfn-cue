@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -15,17 +15,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *API Gateway Developer Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::GatewayResponse"
-	Properties!: close({
+	let properties = close({
 		ResponseParameters?: close({
 
-			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+			{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 		ResponseTemplates?: close({
 
-			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+			{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
-		ResponseType!: string | fn.#StringExpression
-		RestApiId!:    string | fn.#StringExpression
-		StatusCode?:   string | fn.#StringExpression
+		ResponseType!: string | number | bool | fn.#StringExpression
+		RestApiId!:    string | number | bool | fn.#StringExpression
+		StatusCode?:   string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

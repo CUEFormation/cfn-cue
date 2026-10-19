@@ -6,25 +6,33 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElasticBeanstalk::ApplicationVersion
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ElasticBeanstalk::ApplicationVersion"
-	Properties!: close({
-		ApplicationName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		ApplicationName!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Settings for an AWS CodeBuild build that packages and builds an application
 		// version from source code.
 		BuildConfiguration?: #BuildConfiguration
-		Description?:        strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+		Description?: strings.MaxRunes(200) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Configuration for image-based application versions.
 		ImageConfiguration?: #ImageConfiguration
@@ -33,13 +41,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// The Amazon S3 bucket and key that identify the location of the source bundle for this version.
 		SourceBundle?: #SourceBundle
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #BuildConfiguration: close({
-	ArtifactName?:         string | fn.#StringExpression
-	CodeBuildServiceRole!: =~"\\S" | fn.#StringExpression
+	ArtifactName?: string | number | bool | fn.#StringExpression
+	CodeBuildServiceRole!: =~"\\S" |
+	{
+		number | bool
+		_cfnString: =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
 	ComputeType?: "BUILD_GENERAL1_SMALL" | "BUILD_GENERAL1_MEDIUM" | "BUILD_GENERAL1_LARGE" | fn.#StringExpression
-	Image!:       =~"\\S" | fn.#StringExpression
+	Image!: =~"\\S" |
+	{
+		number | bool
+		_cfnString: =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
 	TimeoutInMinutes?: int |
 		{
 			string &
@@ -58,11 +80,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #ImageBuildConfiguration: close({
-	Architecture?:         "amd64" | "arm64" | fn.#StringExpression
-	Buildpack?:            string | fn.#StringExpression
-	CodeBuildServiceRole!: =~"\\S" | fn.#StringExpression
+	Architecture?: "amd64" | "arm64" | fn.#StringExpression
+	Buildpack?:    string | number | bool | fn.#StringExpression
+	CodeBuildServiceRole!: =~"\\S" |
+	{
+		number | bool
+		_cfnString: =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
 	ComputeType?: "BUILD_GENERAL1_SMALL" | "BUILD_GENERAL1_MEDIUM" | "BUILD_GENERAL1_LARGE" | fn.#StringExpression
-	DockerfileLocation?: string | fn.#StringExpression
+	DockerfileLocation?: string | number | bool | fn.#StringExpression
 	TimeoutInMinutes?: int |
 		{
 			string &
@@ -93,10 +120,27 @@ fn.#ObjectExpression
 }) & matchN(>=1, [{Source!: _}, {Build!: _}]) |
 fn.#ObjectExpression
 
-#ImageSource: close({Uri?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#ImageSource: close({Uri?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #SourceBundle: close({
-	S3Bucket!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	S3Key!:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(255) &
+	strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(255) &
+		strings.MinRunes(0) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	S3Key!: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

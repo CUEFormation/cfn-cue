@@ -6,19 +6,30 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type Definition for AWS::S3Outposts::BucketPolicy
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3Outposts::BucketPolicy"
-	Properties!: close({
+	let properties = close({
 		Bucket!: strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:[^:]+:s3-outposts:[a-zA-Z0-9\\-]+:\\d{12}:outpost\\/[^:]+\\/bucket\\/[^:]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:[^:]+:s3-outposts:[a-zA-Z0-9\\-]+:\\d{12}:outpost\\/[^:]+\\/bucket\\/[^:]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
+		PolicyDocument!: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

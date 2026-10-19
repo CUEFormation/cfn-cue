@@ -6,14 +6,37 @@ for byte. The source lock pins Git commits, archive checksums, licenses, and pat
 filters. Each downloaded template records its source URL and original and
 normalized SHA-256 checksums.
 
-The initial sources are AWS's
-[CloudFormation examples](https://github.com/aws-cloudformation/aws-cloudformation-templates)
-and cfn-lint's
-[good fixtures](https://github.com/aws-cloudformation/cfn-lint/tree/main/test/fixtures/templates/good).
-“Good” is an upstream directory name, not a guarantee that every fixture passes
-standalone linting with today's schemas. Some rely on test-specific configuration.
-AWS's examples use `.yaml` as the source of truth; generated JSON copies and
-unrelated `.yml` configuration files are excluded.
+The locked sources are:
+
+| ID | Source | Templates |
+| --- | --- | --- |
+| `aws-examples` | AWS's [CloudFormation examples](https://github.com/aws-cloudformation/aws-cloudformation-templates) | 151 |
+| `cfn-lint-good` | cfn-lint's [good fixtures](https://github.com/aws-cloudformation/cfn-lint/tree/main/test/fixtures/templates/good) | 99 |
+| `cfn-lint-bad` | cfn-lint's [bad fixtures](https://github.com/aws-cloudformation/cfn-lint/tree/main/test/fixtures/templates/bad) | 98 |
+| `cfn-lint-snapshot` | cfn-lint's quickstart, integration, and public snapshot templates | 44 |
+| `widdix` | [widdix/aws-cf-templates](https://github.com/widdix/aws-cf-templates) | 65 |
+| `sam-translator-output` | SAM's [translator output](https://github.com/aws/serverless-application-model/tree/develop/tests/translator/output) for the `aws` partition | 567 |
+| `troposphere-examples` | troposphere's [example output](https://github.com/cloudtools/troposphere/tree/main/tests/examples_output) | 88 |
+| `checkov-tests` | checkov's [CloudFormation test templates](https://github.com/bridgecrewio/checkov/tree/main/tests/cloudformation) | 431 |
+| `cfn-nag-tests` | cfn_nag's [test templates](https://github.com/stelligent/cfn_nag/tree/master/spec/test_templates) | 713 |
+| `rain-tests` | Rain's [test templates](https://github.com/aws-cloudformation/rain/tree/main/test/templates) | 86 |
+
+“Good” and “bad” are upstream directory names, not guarantees about standalone
+linting with today's schemas. Some fixtures rely on test-specific configuration,
+and several bad fixtures deliberately fail to parse. AWS's examples use `.yaml`
+as the source of truth; generated JSON copies and unrelated `.yml` configuration
+files are excluded, apart from seven JSON and `.yml` templates that have no
+`.yaml` counterpart. Three of these, the StackSets `*-pkg.json` files, are
+Rain-packaged outputs of YAML sources, kept because the sources use Rain
+directives (`!Rain::Module`, `!Rain::Embed`) and only the packaged form is plain
+CloudFormation. SAM's translator output is CloudFormation produced by the SAM
+transform; its error cases are not templates and are excluded. The `aws-cn`
+and `aws-us-gov` partition copies are excluded because surveys check commercial
+regions. troposphere's output is generated JSON with a `.template` extension.
+checkov and cfn_nag are security scanners, so many of their fixtures are
+deliberately insecure but schema-valid; a few are deliberately malformed. A few of
+Rain's templates use Rain-specific directives such as `Rain::Module`, which
+CloudFormation itself does not accept.
 
 ## Quick start
 
@@ -32,7 +55,8 @@ or newer dependencies. An offline version check rejects stale or manually
 upgraded Python packages and points back to setup.
 
 `test` runs formatting checks, Go tests and vet, the pinned S3/IAM integration,
-Python parser/provenance tests, and the 46-template contract in two regions. The
+Python parser/provenance tests, the 88-template contract in two regions, and
+the semantic reference contract. The 88-template
 contract runs twice: through `cfn-cue-validate`, which loads only the resource
 packages a template uses, and against each region's complete `#Template`.
 Expected failures remain explicit. The final report is
@@ -111,7 +135,7 @@ python3 -m venv .venv
 go build -o bin/cfn-cue-validate ./cmd/cfn-cue-validate
 ```
 
-The Go library stays pinned to CUE v0.18.0-alpha.3. The Python dependency lock pins
+The Go library stays pinned to CUE v0.18.0-rc.1. The Python dependency lock pins
 cfn-lint 1.57.2 and its transitive packages with hashes. Run the Python harness
 using that environment, rather than an independently upgraded global cfn-lint.
 
@@ -121,7 +145,7 @@ using that environment, rather than an independently upgraded global cfn-lint.
 .venv/bin/python corpus/corpus.py fetch
 ```
 
-This downloads two pinned ZIP archives into `.corpus-cache/` and writes
+This downloads each source's pinned ZIP archive into `.corpus-cache/` and writes
 `.corpus/index.json`, `.corpus/licenses/`, `.corpus/original/`, and
 `.corpus/normalized/`. Downloads and archive members have size limits, checksum
 verification, and path checks. Cached archives support offline repetition.
@@ -199,6 +223,19 @@ schema import. The provider's required properties and intrinsic rules still
 apply. Missing provider schemas remain unsupported, while malformed custom names
 and null/non-string Transform entries are invalid.
 
+When resources fail in different ways, the result doesn't depend on map order.
+The validator checks every resource in logical-ID order and keeps all problems.
+Status precedence is `error`, then `invalid`, then `unsupported`. A malformed
+logical ID, a missing or non-string `Type`, or a malformed custom name makes
+the template invalid without schema evaluation. Otherwise the supported
+resources and template sections are evaluated even when other resource types
+have no schema; unsupported resources still get the generic resource attribute
+checks. A failure there is `invalid`, and the message ends with one
+`not checked: resource ...` line per unsupported resource. The result is
+`unsupported` only when everything checkable passes; its message lists each
+missing type. Transform and unexpanded-construct checks run first and are
+unchanged.
+
 Tool SHA-256 fingerprints are checked at startup and completion. Between engine
 calls, the harness checks file identity, size, nanosecond mtime and ctime to detect
 rebuilds without repeatedly reading the validator binary. Each original and
@@ -211,7 +248,8 @@ mandatory error rules. It disables source-provided cfn-lint configuration, so
 downloaded metadata cannot load custom rule code or hide errors. cfn-lint may
 perform its built-in SAM/LanguageExtensions processing. Custom macros,
 `Fn::ForEach` expansion in CUE, SAM expansion in CUE, nested stack content,
-reference resolution, and deployment behavior remain outside this CUE check.
+and deployment behavior remain outside this CUE check. Reference resolution
+is a separate, opt-in semantic pass (`--checks`).
 Missing types, transforms, and loops are reported as unsupported. No AWS
 credentials are needed; nothing is deployed or fetched from `TemplateURL`.
 
@@ -226,7 +264,12 @@ Each report contains:
 - `run.json`: input and tool fingerprints; resuming with changed inputs is refused.
 
 Results distinguish agreement, disagreements in either direction, unsupported
-inputs, normalization errors, tool failures, and timeouts. Resource coverage
+inputs, normalization errors, tool failures, and timeouts. When CUE accepts a
+template and cfn-lint's only errors are Lambda runtime lifecycle rules (E2531,
+E2533), the result is `cue-accepts-lint-lifecycle-only`. Those rules compare
+the runtime's AWS deprecation dates with today's date, so they change over
+time without any change to the template. The Markdown report counts these
+results but leaves them out of the cases requiring attention. Resource coverage
 encountered in a failing template is separate from coverage in accepted
 templates. Passing both validators is evidence of compatibility, not proof of
 deployability: cfn-lint performs best-effort semantic analysis, and the converter
@@ -239,11 +282,20 @@ negative examples and documented known disagreements. Missing cases, unexecuted
 expectations, or changed results fail the contract; no automatic baseline
 updates occur.
 
-The checked-in `smoke/` corpus contains 46 templates: 11 pinned upstream examples
-and 35 project-authored cases, with 92 expectations across two regions. Cases
+The checked-in `smoke/` corpus contains 96 templates: 11 pinned upstream examples
+and 85 project-authored cases, with 192 expectations across two regions. Cases
 cover scalar compatibility, formats, nested intrinsics, required properties,
 enums, unknown/read-only fields, wrong function results and arguments, custom
-resource aliases and ServiceToken requirements, and invalid Transform values.
+resource aliases, ServiceToken requirements, conditional custom properties,
+and invalid Transform values. Template grammar cases from the full survey cover
+logical IDs that start with a digit, `&` in condition names, `Fn::If` around
+`Properties` (including nested `Fn::If`) and `UpdatePolicy`,
+and boolean mapping values. Dynamic reference cases check that a resolved
+password skips AmazonMQ's pattern, while a literal or unknown resolver does not.
+Format cases cover a CIDR with host bits set, a KMS key ID and an S3 bucket name.
+Service rule cases (`rule-*`) cover rules taken from cfn-lint's extension schemas,
+including the condition shapes that needed rewriting for CUE, and the ECS,
+DynamoDB and RDS rules compiled to field-scoped comprehensions.
 The read-only property and malformed custom type name disagreements with cfn-lint
 remain documented. Expected failures are explicit and annotated.
 
@@ -253,6 +305,26 @@ remain documented. Expected failures are explicit and annotated.
   --regions us-east-1,us-west-2 --resources none --timeout 15 \
   --expect corpus/smoke/expectations.json --report .corpus-smoke-report
 ```
+
+The checked-in `semantic/` corpus contains 34 project-authored reference cases,
+with 68 expectations across two regions. It runs with `--checks all`, so the
+validator applies the CUE schemas and the [semantic pass](../docs/semantic-validation.md).
+Cases cover undefined `Ref`, `GetAtt` and `Sub` names, attribute names
+(including nested stack outputs and custom resources), `DependsOn`, condition
+and mapping names, dependency cycles, and references to conditional resources.
+Five cases record deliberate differences from cfn-lint, which ignores conditions
+when it reports cycles and `DependsOn` targets. `corpus/make_semantic.py`
+generates the cases without downloads (`./scripts/corpus.sh regenerate-semantic`).
+
+```sh
+.venv/bin/python corpus/corpus.py run --corpus corpus/semantic --limit 0 \
+  --regions us-east-1,us-west-2 --resources none --timeout 15 --checks all \
+  --expect corpus/semantic/expectations.json --report .corpus-semantic-report
+```
+
+`--checks` (`structural`, `semantic` or `all`) applies to any run, including
+the full survey. The default is `structural`. Isolated resource checks are
+always structural, because semantic checks need the whole template.
 
 CI runs this small offline corpus after installing pinned dependencies, rather
 than relying on network downloads of moving examples. To rebuild it, fetch the

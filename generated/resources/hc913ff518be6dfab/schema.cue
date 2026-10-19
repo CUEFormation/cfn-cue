@@ -7,30 +7,56 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SMSVOICE::ConfigurationSet
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SMSVOICE::ConfigurationSet"
-	Properties?: close({
-		ConfigurationSetName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
-		DefaultSenderId?:      =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
-		EventDestinations?:    list.MaxItems(5) & [...#EventDestination] | fn.#ListExpression
+	let properties = close({
+		ConfigurationSetName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DefaultSenderId?: =~"^[A-Za-z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: =~"^[A-Za-z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		EventDestinations?:      list.MaxItems(5) & [...#EventDestination] | fn.#ListExpression
 		MessageFeedbackEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		ProtectConfigurationId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #CloudWatchLogsDestination: close({
-	IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:\\S+$" |
-		fn.#StringExpression
-	LogGroupArn!: =~"^arn:\\S+$" | fn.#StringExpression
+	IamRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"^arn:\\S+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"^arn:\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LogGroupArn!: =~"^arn:\\S+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -39,12 +65,17 @@ fn.#ObjectExpression
 	// CloudWatch event destination.
 	CloudWatchLogsDestination?: #CloudWatchLogsDestination
 	Enabled!:                   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EventDestinationName!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" | fn.#StringExpression
+	EventDestinationName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// An object that contains IamRoleArn and DeliveryStreamArn associated with an
 	// Amazon Kinesis Firehose event destination.
 	KinesisFirehoseDestination?: #KinesisFirehoseDestination
-	MatchingEventTypes!:         list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	MatchingEventTypes!: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 
 	// An object that contains SNS TopicArn event destination.
 	SnsDestination?: #SnsDestination
@@ -65,22 +96,43 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #KinesisFirehoseDestination: close({
-	DeliveryStreamArn!: =~"^arn:\\S+$" | fn.#StringExpression
-	IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:\\S+$" |
-		fn.#StringExpression
+	DeliveryStreamArn!: =~"^arn:\\S+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	IamRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"^arn:\\S+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"^arn:\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SnsDestination: close({
-	TopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:\\S+$" |
-		fn.#StringExpression
+	TopicArn!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & =~"^arn:\\S+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & =~"^arn:\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

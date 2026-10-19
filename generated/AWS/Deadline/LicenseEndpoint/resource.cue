@@ -4,6 +4,5 @@ package LicenseEndpoint
 
 import schema "github.com/cueformation/cfn-cue/resources/h27dc1a507bf43426:schema"
 
-#Resource:              schema.#Resource
-#LicenseEndpointStatus: schema.#LicenseEndpointStatus
-#Tag:                   schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

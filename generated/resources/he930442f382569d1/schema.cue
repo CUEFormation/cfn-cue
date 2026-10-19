@@ -7,29 +7,64 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // <p>Represents a resource policy that allows or denies access to an origin endpoint.</p>
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaPackageV2::OriginEndpointPolicy"
-	Properties!: close({
+	let properties = close({
 		CdnAuthConfiguration?: #CdnAuthConfiguration
-		ChannelGroupName!:     strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		ChannelName!:          strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		OriginEndpointName!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		Policy!:               fn.#Object & {...} | strings.MaxRunes(6144) | fn.#StringObjectExpression
+		ChannelGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ChannelName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		OriginEndpointName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Policy!: fn.#Object & {...} |
+		strings.MaxRunes(6144) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(6144) & "\(self)"
+		} |
+		fn.#StringObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CdnAuthConfiguration: close({
-	CdnIdentifierSecretArns!: list.MaxItems(100) & list.MinItems(1) & [
-		...strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	] |
+	CdnIdentifierSecretArns!: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(2048) & strings.MinRunes(20) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	SecretsRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	SecretsRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

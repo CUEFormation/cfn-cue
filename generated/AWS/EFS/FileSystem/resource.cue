@@ -4,11 +4,8 @@ package FileSystem
 
 import schema "github.com/cueformation/cfn-cue/resources/h0eea966143f13ff3:schema"
 
-#Resource:                 schema.#Resource
-#Arn:                      schema.#Arn
-#BackupPolicy:             schema.#BackupPolicy
-#ElasticFileSystemTag:     schema.#ElasticFileSystemTag
-#FileSystemProtection:     schema.#FileSystemProtection
-#LifecyclePolicy:          schema.#LifecyclePolicy
-#ReplicationConfiguration: schema.#ReplicationConfiguration
-#ReplicationDestination:   schema.#ReplicationDestination
+#Resource:             schema.#Resource
+#BackupPolicy:         schema.#BackupPolicy
+#ElasticFileSystemTag: schema.#ElasticFileSystemTag
+#FileSystemProtection: schema.#FileSystemProtection
+#LifecyclePolicy:      schema.#LifecyclePolicy

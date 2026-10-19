@@ -6,11 +6,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hc9ed22baa83301c2:schem
 
 #Resource:                schema.#Resource
 #ConfigParameter:         schema.#ConfigParameter
-#Endpoint:                schema.#Endpoint
-#NetworkInterface:        schema.#NetworkInterface
 #PerformanceTarget:       schema.#PerformanceTarget
 #PerformanceTargetStatus: schema.#PerformanceTargetStatus
 #Tag:                     schema.#Tag
-#VpcEndpoint:             schema.#VpcEndpoint
-#Workgroup:               schema.#Workgroup
-#WorkgroupStatus:         schema.#WorkgroupStatus

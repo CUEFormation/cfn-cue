@@ -7,31 +7,59 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The resource schema to create a CodeArtifact package group.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodeArtifact::PackageGroup"
-	Properties!: close({
-		ContactInfo?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
-		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
-		DomainName!: strings.MaxRunes(50) & strings.MinRunes(2) & =~"^([a-z][a-z0-9\\-]{0,48}[a-z0-9])$" |
+	let properties = close({
+		ContactInfo?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" & "\(self)"
+		} |
 		fn.#StringExpression
-		DomainOwner?:         strings.MaxRunes(12) & strings.MinRunes(12) & =~"[0-9]{12}" | fn.#StringExpression
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainName!: strings.MaxRunes(50) & strings.MinRunes(2) & =~"^([a-z][a-z0-9\\-]{0,48}[a-z0-9])$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(2) & =~"^([a-z][a-z0-9\\-]{0,48}[a-z0-9])$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainOwner?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"[0-9]{12}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"[0-9]{12}" & "\(self)"
+		} |
+		fn.#StringExpression
 		OriginConfiguration?: #OriginConfiguration & fn.#Object & {...} | fn.#ObjectExpression
-		Pattern!:             strings.MaxRunes(520) & strings.MinRunes(2) | fn.#StringExpression
-		Tags?:                list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		Pattern!: strings.MaxRunes(520) & strings.MinRunes(2) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(520) & strings.MinRunes(2) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #OriginConfiguration: close({Restrictions!: #Restrictions & fn.#Object & {...} | fn.#ObjectExpression}) |
 fn.#ObjectExpression
 
 #RestrictionType: close({
-	Repositories?:    [...string | fn.#StringExpression] | fn.#ListExpression
+	Repositories?:    [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	RestrictionMode!: "ALLOW" | "BLOCK" | "ALLOW_SPECIFIC_REPOSITORIES" | "INHERIT" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -44,7 +72,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\P{C}+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\P{C}*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\P{C}+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\P{C}+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\P{C}*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\P{C}*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -50,11 +50,9 @@ import schema "github.com/cueformation/cfn-cue/resources/he84cc351e6f79be8:schem
 #DataProtections:                         schema.#DataProtections
 #DefaultAction:                           schema.#DefaultAction
 #EntityDescription:                       schema.#EntityDescription
-#EntityId:                                schema.#EntityId
 #EntityName:                              schema.#EntityName
 #EvaluationWindowSec:                     schema.#EvaluationWindowSec
 #ExcludedRule:                            schema.#ExcludedRule
-#ExcludedRules:                           schema.#ExcludedRules
 #FieldIdentifier:                         schema.#FieldIdentifier
 #FieldToMatch:                            schema.#FieldToMatch
 #FieldToProtect:                          schema.#FieldToProtect
@@ -99,7 +97,6 @@ import schema "github.com/cueformation/cfn-cue/resources/he84cc351e6f79be8:schem
 #PriceAmount:                             schema.#PriceAmount
 #PriceMultiplier:                         schema.#PriceMultiplier
 #Prices:                                  schema.#Prices
-#QueryString:                             schema.#QueryString
 #RateBasedStatement:                      schema.#RateBasedStatement
 #RateBasedStatementCustomKey:             schema.#RateBasedStatementCustomKey
 #RateLimit:                               schema.#RateLimit
@@ -138,14 +135,11 @@ import schema "github.com/cueformation/cfn-cue/resources/he84cc351e6f79be8:schem
 #RuleActionOverride:                      schema.#RuleActionOverride
 #RuleGroupReferenceStatement:             schema.#RuleGroupReferenceStatement
 #RulePriority:                            schema.#RulePriority
-#Rules:                                   schema.#Rules
 #Scope:                                   schema.#Scope
 #SearchString:                            schema.#SearchString
 #SearchStringBase64:                      schema.#SearchStringBase64
 #SensitivityLevel:                        schema.#SensitivityLevel
 #SensitivityToAct:                        schema.#SensitivityToAct
-#SingleHeader:                            schema.#SingleHeader
-#SingleQueryArgument:                     schema.#SingleQueryArgument
 #SizeConstraintStatement:                 schema.#SizeConstraintStatement
 #SizeInspectionLimit:                     schema.#SizeInspectionLimit
 #SqliMatchStatement:                      schema.#SqliMatchStatement
@@ -156,7 +150,6 @@ import schema "github.com/cueformation/cfn-cue/resources/he84cc351e6f79be8:schem
 #TextTransformationType:                  schema.#TextTransformationType
 #TokenDomains:                            schema.#TokenDomains
 #UriFragment:                             schema.#UriFragment
-#UriPath:                                 schema.#UriPath
 #UsageOfAction:                           schema.#UsageOfAction
 #VisibilityConfig:                        schema.#VisibilityConfig
 #WalletAddress:                           schema.#WalletAddress

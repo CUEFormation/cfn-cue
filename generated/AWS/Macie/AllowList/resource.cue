@@ -6,7 +6,5 @@ import schema "github.com/cueformation/cfn-cue/resources/he604b1653f7b96b3:schem
 
 #Resource:    schema.#Resource
 #Criteria:    schema.#Criteria
-#Regex:       schema.#Regex
 #S3WordsList: schema.#S3WordsList
-#Status:      schema.#Status
 #Tag:         schema.#Tag

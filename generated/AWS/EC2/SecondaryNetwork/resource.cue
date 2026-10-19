@@ -4,6 +4,5 @@ package SecondaryNetwork
 
 import schema "github.com/cueformation/cfn-cue/resources/hd80829b4582bbe62:schema"
 
-#Resource:                 schema.#Resource
-#Ipv4CidrBlockAssociation: schema.#Ipv4CidrBlockAssociation
-#Tag:                      schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

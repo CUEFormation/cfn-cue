@@ -3,19 +3,17 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoTThingsGraph::FlowTemplate
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTThingsGraph::FlowTemplate"
-	Properties!: close({
+	let properties = close({
 		CompatibleNamespaceVersion?: number |
 			{
 				string &
@@ -37,10 +35,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		Definition!: #DefinitionDocument
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #DefinitionDocument: close({
-	Language!: string | fn.#StringExpression
-	Text!:     string | fn.#StringExpression
+	Language!: string | number | bool | fn.#StringExpression
+	Text!:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

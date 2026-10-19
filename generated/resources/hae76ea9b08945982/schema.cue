@@ -7,38 +7,86 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::CloudFormation::ChangeSet
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFormation::ChangeSet"
-	Properties!: close({
+	let properties = close({
 		Capabilities?: [..."CAPABILITY_IAM" | "CAPABILITY_NAMED_IAM" | "CAPABILITY_AUTO_EXPAND" | fn.#StringExpression] |
 			fn.#ListExpression
-		ChangeSetName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][-a-zA-Z0-9]*$" | fn.#StringExpression
-		ChangeSetType?: "CREATE" | "UPDATE" | "IMPORT" | fn.#StringExpression
-		DeploymentMode?:          "REVERT_DRIFT" | fn.#StringExpression
-		Description?:             strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		ChangeSetName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][-a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z][-a-zA-Z0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ChangeSetType?:  "CREATE" | "UPDATE" | "IMPORT" | fn.#StringExpression
+		DeploymentMode?: "REVERT_DRIFT" | fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ImportExistingResources?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		IncludeNestedStacks?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		NotificationARNs?:        list.MaxItems(5) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-		OnStackFailure?:          "DO_NOTHING" | "ROLLBACK" | "DELETE" | fn.#StringExpression
-		RoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		NotificationARNs?: list.MaxItems(5) & [...] & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
+		OnStackFailure?: "DO_NOTHING" | "ROLLBACK" | "DELETE" | fn.#StringExpression
+		RoleARN?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		StackName!: strings.MinRunes(1) &
 		=~"^([a-zA-Z][-a-zA-Z0-9]*)|(arn:\\b(aws|aws-us-gov|aws-cn)\\b:[-a-zA-Z0-9:/._+]*)$" |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) &
+			=~"^([a-zA-Z][-a-zA-Z0-9]*)|(arn:\\b(aws|aws-us-gov|aws-cn)\\b:[-a-zA-Z0-9:/._+]*)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & [...] & [...close({
-			Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-			Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+			Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-		TemplateBody?:        strings.MinRunes(1) | fn.#StringExpression
-		TemplateURL?:         strings.MaxRunes(5120) & strings.MinRunes(1) | fn.#StringExpression
+		TemplateBody?: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		TemplateURL?: strings.MaxRunes(5120) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(5120) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		UsePreviousTemplate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

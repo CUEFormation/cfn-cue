@@ -7,26 +7,50 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a custom framework in AWS Audit Manager.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AuditManager::AssessmentFramework"
-	Properties!: close({
-		ComplianceType?: strings.MaxRunes(100) & strings.MinRunes(0) & =~"^[\\w\\W\\s\\S]*$" | fn.#StringExpression
-		ControlSets!:    list.MinItems(1) & [...#ControlSet] | fn.#ListExpression
-		Description?:    strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\w\\W\\s\\S]*$" | fn.#StringExpression
-		Name!:           strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[^\\\\]*$" | fn.#StringExpression
-		Tags?:           list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	let properties = close({
+		ComplianceType?: strings.MaxRunes(100) & strings.MinRunes(0) & =~"^[\\w\\W\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & =~"^[\\w\\W\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ControlSets!: list.MinItems(1) & [...#ControlSet] | fn.#ListExpression
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\w\\W\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\w\\W\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[^\\\\]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[^\\\\]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ControlSet: close({
 	Controls!: list.MinItems(1) & [...#ControlSetControl] | fn.#ListExpression
-	Name!:     strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[^\\\\_]*$" | fn.#StringExpression
+	Name!: strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[^\\\\_]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[^\\\\_]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -34,12 +58,34 @@ fn.#ObjectExpression
 	Id!: strings.MaxRunes(36) &
 	strings.MinRunes(36) &
 	=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(36) &
+		strings.MinRunes(36) &
+		=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

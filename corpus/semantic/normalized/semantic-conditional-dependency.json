@@ -1,0 +1,48 @@
+{
+  "Conditions": {
+    "Dev": {
+      "Fn::Equals": [
+        {
+          "Ref": "Env"
+        },
+        "dev"
+      ]
+    },
+    "Prod": {
+      "Fn::Equals": [
+        {
+          "Ref": "Env"
+        },
+        "prod"
+      ]
+    }
+  },
+  "Parameters": {
+    "Env": {
+      "AllowedValues": [
+        "prod",
+        "dev"
+      ],
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "A": {
+      "Metadata": {
+        "Wait": {
+          "Fn::If": [
+            "Prod",
+            {
+              "Ref": "B"
+            },
+            ""
+          ]
+        }
+      },
+      "Type": "AWS::SQS::Queue"
+    },
+    "B": {
+      "Type": "AWS::SQS::Queue"
+    }
+  }
+}

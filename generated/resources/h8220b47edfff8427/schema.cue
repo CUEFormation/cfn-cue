@@ -8,12 +8,10 @@ import (
 	"list"
 	"time"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -21,11 +19,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Manager license configurations.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::LicenseManager::ReportGenerator"
-	Properties!: close({
-		Description?:         string | fn.#StringExpression
-		ReportContext!:       #ReportContext
-		ReportFrequency!:     #ReportFrequency
-		ReportGeneratorName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Description?:     string | number | bool | fn.#StringExpression
+		ReportContext!:   #ReportContext
+		ReportFrequency!: #ReportFrequency
+		ReportGeneratorName!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ReportType!: [
 			..."LicenseConfigurationSummaryReport" |
 				"LicenseConfigurationUsageReport" |
@@ -35,12 +38,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#ListExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ReportContext: close({
-	LicenseAssetGroupArns?: [...strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression] |
+	LicenseAssetGroupArns?: [...strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	LicenseConfigurationArns?: [...strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression] |
+	LicenseConfigurationArns?: [...strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	ReportEndDate?:   time.Time | fn.#StringExpression
 	ReportStartDate?: time.Time | fn.#StringExpression
@@ -66,14 +83,8 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#S3Location: close({
-	Bucket?:    string | fn.#StringExpression
-	KeyPrefix?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

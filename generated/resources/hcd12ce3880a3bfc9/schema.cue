@@ -3,17 +3,21 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::UserPoolUserToGroupAttachment
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cognito::UserPoolUserToGroupAttachment"
-	Properties!: close({
-		GroupName!:  string | fn.#StringExpression
-		UserPoolId!: string | fn.#StringExpression
-		Username!:   string | fn.#StringExpression
+	let properties = close({
+		GroupName!:  string | number | bool | fn.#StringExpression
+		UserPoolId!: string | number | bool | fn.#StringExpression
+		Username!:   string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

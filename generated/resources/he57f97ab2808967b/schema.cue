@@ -6,17 +6,28 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppSync::DomainNameApiAssociation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppSync::DomainNameApiAssociation"
-	Properties!: close({
-		ApiId!: string | fn.#StringExpression
+	let properties = close({
+		ApiId!: string | number | bool | fn.#StringExpression
 		DomainName!: strings.MaxRunes(253) & strings.MinRunes(1) & =~"^(\\*[a-z\\d-]*\\.)?([a-z\\d-]+\\.)+[a-z\\d-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(253) &
+			strings.MinRunes(1) &
+			=~"^(\\*[a-z\\d-]*\\.)?([a-z\\d-]+\\.)+[a-z\\d-]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

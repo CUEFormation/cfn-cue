@@ -26,7 +26,6 @@ import schema "github.com/cueformation/cfn-cue/resources/he078d080c2955fe5:schem
 #LoggingFilter:                     schema.#LoggingFilter
 #MskMonitoringParameters:           schema.#MskMonitoringParameters
 #RedactedFields:                    schema.#RedactedFields
-#RegionStatus:                      schema.#RegionStatus
 #ResourceType:                      schema.#ResourceType
 #RetentionInDays:                   schema.#RetentionInDays
 #Scope:                             schema.#Scope

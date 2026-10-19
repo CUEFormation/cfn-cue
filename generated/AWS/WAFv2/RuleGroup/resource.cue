@@ -31,7 +31,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hadfc3b27e68977b5:schem
 #CustomResponseBodies:               schema.#CustomResponseBodies
 #CustomResponseBody:                 schema.#CustomResponseBody
 #EntityDescription:                  schema.#EntityDescription
-#EntityId:                           schema.#EntityId
 #EntityName:                         schema.#EntityName
 #EvaluationWindowSec:                schema.#EvaluationWindowSec
 #FieldToMatch:                       schema.#FieldToMatch
@@ -54,7 +53,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hadfc3b27e68977b5:schem
 #LabelMatchScope:                    schema.#LabelMatchScope
 #LabelMatchStatement:                schema.#LabelMatchStatement
 #LabelName:                          schema.#LabelName
-#LabelSummary:                       schema.#LabelSummary
 #MapMatchScope:                      schema.#MapMatchScope
 #MonetizationConfig:                 schema.#MonetizationConfig
 #MonetizeAction:                     schema.#MonetizeAction
@@ -94,7 +92,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hadfc3b27e68977b5:schem
 #ResponseStatusCode:                 schema.#ResponseStatusCode
 #Rule:                               schema.#Rule
 #RuleAction:                         schema.#RuleAction
-#RuleGroup:                          schema.#RuleGroup
 #RulePriority:                       schema.#RulePriority
 #Scope:                              schema.#Scope
 #SearchString:                       schema.#SearchString

@@ -4,5 +4,4 @@ package SyncJob
 
 import schema "github.com/cueformation/cfn-cue/resources/hd60f24ba65cd9287:schema"
 
-#Resource:       schema.#Resource
-#DateTimeFormat: schema.#DateTimeFormat
+#Resource: schema.#Resource

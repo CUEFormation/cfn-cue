@@ -6,61 +6,145 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::Amplify::Branch resource creates a new branch within an app.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Amplify::Branch"
-	Properties!: close({
-		AppId!:           strings.MaxRunes(20) & strings.MinRunes(1) & =~"d[a-z0-9]+" | fn.#StringExpression
+	let properties = close({
+		AppId!: strings.MaxRunes(20) & strings.MinRunes(1) & =~"d[a-z0-9]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(20) & strings.MinRunes(1) & =~"d[a-z0-9]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		Backend?:         #Backend
 		BasicAuthConfig?: #BasicAuthConfig
-		BranchName!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
-		BuildSpec?:       strings.MaxRunes(25000) & strings.MinRunes(1) & =~"(?s).+" | fn.#StringExpression
-		ComputeRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		BranchName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"(?s).+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"(?s).+" & "\(self)"
+		} |
+		fn.#StringExpression
+		BuildSpec?: strings.MaxRunes(25000) & strings.MinRunes(1) & =~"(?s).+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(25000) & strings.MinRunes(1) & =~"(?s).+" & "\(self)"
+		} |
+		fn.#StringExpression
+		ComputeRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(1000) &
 		strings.MinRunes(0) &
 		=~"(?s).*" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(1000) &
+			strings.MinRunes(0) &
+			=~"(?s).*" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Description?:              strings.MaxRunes(1000) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"(?s).*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"(?s).*" & "\(self)"
+		} |
+		fn.#StringExpression
 		EnableAutoBuild?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		EnablePerformanceMode?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		EnablePullRequestPreview?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		EnableSkewProtection?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		EnvironmentVariables?:     [...#EnvironmentVariable] | fn.#ListExpression
-		Framework?:                strings.MaxRunes(255) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
-		PullRequestEnvironmentName?: strings.MaxRunes(20) & strings.MinRunes(0) & =~"(?s).*" | fn.#StringExpression
+		Framework?: strings.MaxRunes(255) & strings.MinRunes(0) & =~"(?s).*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"(?s).*" & "\(self)"
+		} |
+		fn.#StringExpression
+		PullRequestEnvironmentName?: strings.MaxRunes(20) & strings.MinRunes(0) & =~"(?s).*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(20) & strings.MinRunes(0) & =~"(?s).*" & "\(self)"
+		} |
+		fn.#StringExpression
 		Stage?: "EXPERIMENTAL" | "BETA" | "PULL_REQUEST" | "PRODUCTION" | "DEVELOPMENT" | fn.#StringExpression
 		Tags?:  [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Backend: close({
 	StackArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws:cloudformation:[a-z0-9-]+:\\d{12}:stack/.+/.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws:cloudformation:[a-z0-9-]+:\\d{12}:stack/.+/.+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #BasicAuthConfig: close({
 	EnableBasicAuth?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Password!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Username!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Password!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Username!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EnvironmentVariable: close({
-	Name!:  strings.MaxRunes(255) & =~"(?s).*" | fn.#StringExpression
-	Value!: strings.MaxRunes(5500) & =~"(?s).*" | fn.#StringExpression
+	Name!: strings.MaxRunes(255) & =~"(?s).*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & =~"(?s).*" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(5500) & =~"(?s).*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(5500) & =~"(?s).*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

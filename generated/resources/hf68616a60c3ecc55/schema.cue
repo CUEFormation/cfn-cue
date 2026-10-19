@@ -7,19 +7,17 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Tables::Table
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3Tables::Table"
-	Properties!: close({
+	let properties = close({
 		Compaction?:                #Compaction
 		IcebergMetadata?:           #IcebergMetadata
 		Namespace!:                 #Namespace
@@ -31,6 +29,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		WithoutMetadata?:           #WithoutMetadata
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Compaction: close({
@@ -83,7 +85,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Name!: string | fn.#StringExpression
+	Name!: string | number | bool | fn.#StringExpression
 	SourceId!: int |
 		{
 			string &
@@ -98,7 +100,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Transform!: string | fn.#StringExpression
+	Transform!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -184,7 +186,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Transform!: string | fn.#StringExpression
+	Transform!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -210,7 +212,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Namespace: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]*$" | fn.#StringExpression
+#Namespace: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[0-9a-z_]*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #OpenTableFormat: "ICEBERG" | fn.#StringExpression
 
@@ -229,16 +236,16 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Name!:     string | fn.#StringExpression
+	Name!:     string | number | bool | fn.#StringExpression
 	Required?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Type!:     string | fn.#StringExpression
+	Type!:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SchemaFieldList: [...#SchemaField] | fn.#ListExpression
 
 #SchemaV2Field: close({
-	Doc?: string | fn.#StringExpression
+	Doc?: string | number | bool | fn.#StringExpression
 	Id!: int |
 		{
 			string &
@@ -253,9 +260,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Name!:     string | fn.#StringExpression
+	Name!:     string | number | bool | fn.#StringExpression
 	Required!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Type!:     string | {...} | fn.#ValueExpression
+	Type!:     string | number | bool | {...} | fn.#ValueExpression
 }) |
 fn.#ObjectExpression
 
@@ -299,25 +306,39 @@ fn.#ObjectExpression
 #StorageClassConfiguration: close({StorageClass?: "STANDARD" | "INTELLIGENT_TIERING" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-#TableARN: string | fn.#StringExpression
+#TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" |
+{
+	number | bool
+	_cfnString: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" & "\(self)"
+} |
+fn.#StringExpression
 
-#TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" | fn.#StringExpression
-
-#TableName: string | fn.#StringExpression
+#TableName: string | number | bool | fn.#StringExpression
 
 #TableProperties: close({
 
-	{[=~"^.+$"]: string | fn.#StringExpression}}) |
-fn.#ObjectExpression
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
 
-#Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
 }) |
 fn.#ObjectExpression
 
-#VersionToken: string | fn.#StringExpression
-
-#WarehouseLocation: string | fn.#StringExpression
+#Tag: close({
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #WithoutMetadata: "Yes" | fn.#StringExpression

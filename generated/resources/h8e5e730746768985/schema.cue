@@ -7,42 +7,66 @@ import (
 	"list"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An object representing an Amazon EKS IdentityProviderConfig.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EKS::IdentityProviderConfig"
-	Properties!: close({
-		ClusterName!:                string | fn.#StringExpression
-		IdentityProviderConfigName?: string | fn.#StringExpression
+	let properties = close({
+		ClusterName!:                string | number | bool | fn.#StringExpression
+		IdentityProviderConfigName?: string | number | bool | fn.#StringExpression
 		Oidc?:                       #OidcIdentityProviderConfig
 		Tags?:                       list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		Type!:                       "oidc" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #OidcIdentityProviderConfig: close({
-	ClientId!:       string | fn.#StringExpression
-	GroupsClaim?:    string | fn.#StringExpression
-	GroupsPrefix?:   string | fn.#StringExpression
-	IssuerUrl!:      string | fn.#StringExpression
+	ClientId!:       string | number | bool | fn.#StringExpression
+	GroupsClaim?:    string | number | bool | fn.#StringExpression
+	GroupsPrefix?:   string | number | bool | fn.#StringExpression
+	IssuerUrl!:      string | number | bool | fn.#StringExpression
 	RequiredClaims?: list.UniqueItems() & [...#RequiredClaim] | fn.#ListExpression
-	UsernameClaim?:  string | fn.#StringExpression
-	UsernamePrefix?: string | fn.#StringExpression
+	UsernameClaim?:  string | number | bool | fn.#StringExpression
+	UsernamePrefix?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RequiredClaim: close({
-	Key!:   strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(63) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(253) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(253) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

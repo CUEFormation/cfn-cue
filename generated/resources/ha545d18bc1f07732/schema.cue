@@ -6,25 +6,59 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for a Device Farm VPCE Configuration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DeviceFarm::VPCEConfiguration"
-	Properties!: close({
-		ServiceDnsName!:               strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:                         [...#Tag] | fn.#ListExpression
-		VpceConfigurationDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		VpceConfigurationName!:        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		VpceServiceName!:              strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		ServiceDnsName!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+		VpceConfigurationDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		VpceConfigurationName!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		VpceServiceName!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

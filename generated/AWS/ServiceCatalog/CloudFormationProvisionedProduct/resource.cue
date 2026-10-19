@@ -5,7 +5,6 @@ package CloudFormationProvisionedProduct
 import schema "github.com/cueformation/cfn-cue/resources/h7e09ce57311dfa3f:schema"
 
 #Resource:                schema.#Resource
-#OutputType:              schema.#OutputType
 #ProvisioningParameter:   schema.#ProvisioningParameter
 #ProvisioningPreferences: schema.#ProvisioningPreferences
 #Tag:                     schema.#Tag

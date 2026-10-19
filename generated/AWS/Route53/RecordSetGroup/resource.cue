@@ -4,10 +4,24 @@ package RecordSetGroup
 
 import schema "github.com/cueformation/cfn-cue/resources/h890149a8578737b7:schema"
 
-#Resource:             schema.#Resource
-#AliasTarget:          schema.#AliasTarget
-#CidrRoutingConfig:    schema.#CidrRoutingConfig
-#Coordinates:          schema.#Coordinates
-#GeoLocation:          schema.#GeoLocation
-#GeoProximityLocation: schema.#GeoProximityLocation
-#RecordSet:            schema.#RecordSet
+#Resource:                schema.#Resource
+#AliasTarget:             schema.#AliasTarget
+#CfnLintE3023AAAARecord:  schema.#CfnLintE3023AAAARecord
+#CfnLintE3023ARecord:     schema.#CfnLintE3023ARecord
+#CfnLintE3023CAARecord:   schema.#CfnLintE3023CAARecord
+#CfnLintE3023CNAMERecord: schema.#CfnLintE3023CNAMERecord
+#CfnLintE3023DSRecord:    schema.#CfnLintE3023DSRecord
+#CfnLintE3023DomainName:  schema.#CfnLintE3023DomainName
+#CfnLintE3023MXRecord:    schema.#CfnLintE3023MXRecord
+#CfnLintE3023NAPTRRecord: schema.#CfnLintE3023NAPTRRecord
+#CfnLintE3023NSRecord:    schema.#CfnLintE3023NSRecord
+#CfnLintE3023PTRRecord:   schema.#CfnLintE3023PTRRecord
+#CfnLintE3023SOARecord:   schema.#CfnLintE3023SOARecord
+#CfnLintE3023SPFRecord:   schema.#CfnLintE3023SPFRecord
+#CfnLintE3023SRVRecord:   schema.#CfnLintE3023SRVRecord
+#CfnLintE3023TXTRecord:   schema.#CfnLintE3023TXTRecord
+#CidrRoutingConfig:       schema.#CidrRoutingConfig
+#Coordinates:             schema.#Coordinates
+#GeoLocation:             schema.#GeoLocation
+#GeoProximityLocation:    schema.#GeoProximityLocation
+#RecordSet:               schema.#RecordSet

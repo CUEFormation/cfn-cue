@@ -78,7 +78,7 @@ import "strings"
 	ScalingConfig?: #ScalingConfig
 
 	// The subnets to use for the Auto Scaling group that is created for your node group.
-	Subnets!: [...string]
+	Subnets!: [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"]
 
 	// The metadata, as key-value pairs, to apply to the node group to assist with
 	// categorization and organization. Follows same schema as Labels for

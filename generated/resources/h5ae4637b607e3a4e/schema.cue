@@ -6,21 +6,24 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Workflow
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::Workflow"
-	Properties?: close({
-		DefaultRunProperties?: fn.#Object & {...} | string | fn.#StringObjectExpression
-		Description?:          strings.MaxRunes(120000) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		DefaultRunProperties?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		Description?: strings.MaxRunes(120000) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(120000) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		MaxConcurrentRuns?: int |
 			{
 				string &
@@ -37,7 +40,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }

@@ -7,8 +7,8 @@ import (
 	"list"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,18 +20,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // IP addresses.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Shield::Protection"
-	Properties!: close({
+	let properties = close({
 		ApplicationLayerAutomaticResponseConfiguration?: #ApplicationLayerAutomaticResponseConfiguration
-		HealthCheckArns?: list.MaxItems(1) & [...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression] |
+		HealthCheckArns?: list.MaxItems(1) & [...strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		Name!:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"[ a-zA-Z0-9_\\.\\-]*" | fn.#StringExpression
-		ResourceArn!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws" | fn.#StringExpression
-		Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[ a-zA-Z0-9_\\.\\-]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[ a-zA-Z0-9_\\.\\-]*" & "\(self)"
+		} |
+		fn.#StringExpression
+		ResourceArn!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn:aws" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ApplicationLayerAutomaticResponseConfiguration: close({
-	Action!: fn.#Object & {...} & matchN(1, [
+	Action!: fn.#Object & matchN(1, [
 		close({Count?: close({}) | fn.#ObjectExpression}), close({Block?: close({}) | fn.#ObjectExpression}),
 	]) |
 	fn.#ObjectExpression
@@ -40,7 +59,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

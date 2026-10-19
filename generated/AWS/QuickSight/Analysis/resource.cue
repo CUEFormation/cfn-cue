@@ -113,7 +113,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h5edae36713632561:schem
 #ConditionalFormattingIconSet:                     schema.#ConditionalFormattingIconSet
 #ConditionalFormattingIconSetType:                 schema.#ConditionalFormattingIconSetType
 #ConditionalFormattingSolidColor:                  schema.#ConditionalFormattingSolidColor
-#ContextMenuOption:                                schema.#ContextMenuOption
 #ContributionAnalysisDefault:                      schema.#ContributionAnalysisDefault
 #CrossDatasetTypes:                                schema.#CrossDatasetTypes
 #CurrencyDisplayFormatConfiguration:               schema.#CurrencyDisplayFormatConfiguration
@@ -690,7 +689,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h5edae36713632561:schem
 #VisualCustomActionOperation:                      schema.#VisualCustomActionOperation
 #VisualCustomActionTrigger:                        schema.#VisualCustomActionTrigger
 #VisualInteractionOptions:                         schema.#VisualInteractionOptions
-#VisualMenuOption:                                 schema.#VisualMenuOption
 #VisualPalette:                                    schema.#VisualPalette
 #VisualSubtitleLabelOptions:                       schema.#VisualSubtitleLabelOptions
 #VisualTitleLabelOptions:                          schema.#VisualTitleLabelOptions
@@ -716,4 +714,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h5edae36713632561:schem
 #WordCloudWordOrientation:                         schema.#WordCloudWordOrientation
 #WordCloudWordPadding:                             schema.#WordCloudWordPadding
 #WordCloudWordScaling:                             schema.#WordCloudWordScaling
-#YAxisOptions:                                     schema.#YAxisOptions

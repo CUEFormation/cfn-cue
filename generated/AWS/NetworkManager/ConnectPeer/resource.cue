@@ -4,9 +4,6 @@ package ConnectPeer
 
 import schema "github.com/cueformation/cfn-cue/resources/h2127b9e32807ccf5:schema"
 
-#Resource:                    schema.#Resource
-#BgpOptions:                  schema.#BgpOptions
-#ConnectPeerBgpConfiguration: schema.#ConnectPeerBgpConfiguration
-#ConnectPeerConfiguration:    schema.#ConnectPeerConfiguration
-#Tag:                         schema.#Tag
-#TunnelProtocol:              schema.#TunnelProtocol
+#Resource:   schema.#Resource
+#BgpOptions: schema.#BgpOptions
+#Tag:        schema.#Tag

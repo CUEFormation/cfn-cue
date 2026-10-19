@@ -12,7 +12,7 @@ import (
 // Resource Type definition for AWS::RedshiftServerless::Snapshot Resource Type.
 #Properties: close({
 	// The namespace the snapshot is associated with.
-	NamespaceName?: strings.MaxRunes(64) & strings.MinRunes(3)
+	NamespaceName?: =~"^.{3,64}$" & =~"^(?:^[a-z0-9-]+$)" & strings.MaxRunes(64) & strings.MinRunes(3)
 
 	// The owner account of the snapshot.
 	OwnerAccount?: string
@@ -24,15 +24,17 @@ import (
 	Snapshot?: #Snapshot
 
 	// The name of the snapshot.
-	SnapshotName!: strings.MaxRunes(64) & strings.MinRunes(3)
+	SnapshotName!: =~"^.{3,64}$" & =~"^(?:^[a-z0-9-]+$)" & strings.MaxRunes(64) & strings.MinRunes(3)
 
 	// An array of key-value pairs to apply to this resource.
 	Tags?: list.MaxItems(200) & [...] & [...#Tag]
 })
 
 #Snapshot: close({
-	AdminUsername?:      string
-	KmsKeyId?:           =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	AdminUsername?: string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 	NamespaceArn?:       string
 	NamespaceName?:      strings.MaxRunes(64) & strings.MinRunes(3) & =~"^[a-z0-9-]+$"
 	OwnerAccount?:       string

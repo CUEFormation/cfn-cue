@@ -6,52 +6,106 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElasticBeanstalk::Environment
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ElasticBeanstalk::Environment"
-	Properties!: close({
-		ApplicationName!:   strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		CNAMEPrefix?:       strings.MaxRunes(63) & strings.MinRunes(4) | fn.#StringExpression
-		Description?:       strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
-		EnvironmentName?:   strings.MaxRunes(40) & strings.MinRunes(4) | fn.#StringExpression
-		OperationsRole?:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		ApplicationName!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		CNAMEPrefix?: strings.MaxRunes(63) & strings.MinRunes(4) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(4) & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(200) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		EnvironmentName?: strings.MaxRunes(40) & strings.MinRunes(4) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(40) & strings.MinRunes(4) & "\(self)"
+		} |
+		fn.#StringExpression
+		OperationsRole?: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		OptionSettings?:    [...#OptionSetting] | fn.#ListExpression
-		PlatformArn?:       string | fn.#StringExpression
-		SolutionStackName?: string | fn.#StringExpression
+		PlatformArn?:       string | number | bool | fn.#StringExpression
+		SolutionStackName?: string | number | bool | fn.#StringExpression
 		Tags?:              [...#Tag] | fn.#ListExpression
-		TemplateName?:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		TemplateName?: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Specifies the tier to use in creating this environment. The environment tier
 		// that you choose determines whether Elastic Beanstalk provisions resources to
 		// support a web application that handles HTTP(S) requests or a web application
 		// that handles background-processing tasks.
-		Tier?:         #Tier
-		VersionLabel?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Tier?: #Tier
+		VersionLabel?: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #OptionSetting: close({
-	Namespace!:    string | fn.#StringExpression
-	OptionName!:   string | fn.#StringExpression
-	ResourceName?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Value?:        string | fn.#StringExpression
+	Namespace!:  string | number | bool | fn.#StringExpression
+	OptionName!: string | number | bool | fn.#StringExpression
+	ResourceName?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tier: close({
-	Name?:    string | fn.#StringExpression
-	Type?:    string | fn.#StringExpression
-	Version?: string | fn.#StringExpression
+	Name?:    string | number | bool | fn.#StringExpression
+	Type?:    string | number | bool | fn.#StringExpression
+	Version?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -4,9 +4,6 @@ package InstanceConnectEndpoint
 
 import schema "github.com/cueformation/cfn-cue/resources/hf9658814f772ccb7:schema"
 
-#Resource:                              schema.#Resource
-#InstanceConnectEndpointDnsNames:       schema.#InstanceConnectEndpointDnsNames
-#InstanceConnectEndpointPublicDnsNames: schema.#InstanceConnectEndpointPublicDnsNames
-#NetworkInterfaceId:                    schema.#NetworkInterfaceId
-#SecurityGroupId:                       schema.#SecurityGroupId
-#Tag:                                   schema.#Tag
+#Resource:        schema.#Resource
+#SecurityGroupId: schema.#SecurityGroupId
+#Tag:             schema.#Tag

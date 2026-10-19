@@ -4,7 +4,6 @@ package Index
 
 import schema "github.com/cueformation/cfn-cue/resources/h5c325913813d6b98:schema"
 
-#Resource:   schema.#Resource
-#IndexState: schema.#IndexState
-#IndexType:  schema.#IndexType
-#TagMap:     schema.#TagMap
+#Resource:  schema.#Resource
+#IndexType: schema.#IndexType
+#TagMap:    schema.#TagMap

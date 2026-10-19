@@ -7,15 +7,15 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DSQL::Cluster
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DSQL::Cluster"
-	Properties?: close({
+	let properties = close({
 		DeletionProtectionEnabled?: bool |
 			"true" |
 			"True" |
@@ -24,22 +24,49 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		KmsEncryptionKey?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:/_-]+$" | fn.#StringExpression
+		KmsEncryptionKey?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:/_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:/_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		MultiRegionProperties?: close({
-			Clusters?: list.UniqueItems() & [
-				...=~"^arn:aws(-[^:]+)?:dsql:[a-z0-9-]{1,20}:[0-9]{12}:cluster/[a-z0-9]{26}$" | fn.#StringExpression
-			] |
-				fn.#ListExpression
-			WitnessRegion?: strings.MaxRunes(50) | fn.#StringExpression
+			Clusters?: list.UniqueItems() & [...=~"^arn:aws(-[^:]+)?:dsql:[a-z0-9-]{1,20}:[0-9]{12}:cluster/[a-z0-9]{26}$" |
+			{
+				number | bool
+				_cfnString: =~"^arn:aws(-[^:]+)?:dsql:[a-z0-9-]{1,20}:[0-9]{12}:cluster/[a-z0-9]{26}$" & "\(self)"
+			} |
+			fn.#StringExpression] |
+			fn.#ListExpression
+			WitnessRegion?: strings.MaxRunes(50) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(50) & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
-		PolicyDocument?: string | fn.#StringExpression
+		PolicyDocument?: string | number | bool | fn.#StringExpression
 		Tags?:           [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

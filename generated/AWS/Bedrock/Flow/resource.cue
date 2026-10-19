@@ -27,9 +27,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h48f447fa55e8d6d4:schem
 #FlowNodeInputCategory:                          schema.#FlowNodeInputCategory
 #FlowNodeOutput:                                 schema.#FlowNodeOutput
 #FlowNodeType:                                   schema.#FlowNodeType
-#FlowStatus:                                     schema.#FlowStatus
-#FlowValidation:                                 schema.#FlowValidation
-#FlowValidations:                                schema.#FlowValidations
 #GuardrailConfiguration:                         schema.#GuardrailConfiguration
 #InlineCodeFlowNodeConfiguration:                schema.#InlineCodeFlowNodeConfiguration
 #InputFlowNodeConfiguration:                     schema.#InputFlowNodeConfiguration

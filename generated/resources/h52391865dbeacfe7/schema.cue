@@ -7,8 +7,8 @@ import (
 	"list"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,17 +16,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // resources to monitor network performance for workloads.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::NetworkFlowMonitor::Monitor"
-	Properties!: close({
-		LocalResources!:  list.MinItems(1) & [...#MonitorLocalResource] | fn.#ListExpression
-		MonitorName!:     strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+	let properties = close({
+		LocalResources!: list.MinItems(1) & [...#MonitorLocalResource] | fn.#ListExpression
+		MonitorName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		RemoteResources?: [...#MonitorRemoteResource] | fn.#ListExpression
-		ScopeArn?:        strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*$" | fn.#StringExpression
-		Tags?:            list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+		ScopeArn?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #MonitorLocalResource: close({
-	Identifier!: string | fn.#StringExpression
+	Identifier!: string | number | bool | fn.#StringExpression
 	Type!: "AWS::EC2::VPC" |
 		"AWS::AvailabilityZone" |
 		"AWS::EC2::Subnet" |
@@ -37,7 +51,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #MonitorRemoteResource: close({
-	Identifier!: string | fn.#StringExpression
+	Identifier!: string | number | bool | fn.#StringExpression
 	Type!: "AWS::EC2::VPC" |
 		"AWS::AvailabilityZone" |
 		"AWS::EC2::Subnet" |
@@ -48,7 +62,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

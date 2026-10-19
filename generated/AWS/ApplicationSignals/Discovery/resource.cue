@@ -4,5 +4,4 @@ package Discovery
 
 import schema "github.com/cueformation/cfn-cue/resources/h3db3108d61067ffa:schema"
 
-#Resource:  schema.#Resource
-#AccountId: schema.#AccountId
+#Resource: schema.#Resource

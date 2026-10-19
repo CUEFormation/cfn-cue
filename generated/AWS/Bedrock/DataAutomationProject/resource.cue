@@ -19,8 +19,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h0955b10951db6975:schem
 #BlueprintStage:                           schema.#BlueprintStage
 #ChannelLabelingConfiguration:             schema.#ChannelLabelingConfiguration
 #CustomOutputConfiguration:                schema.#CustomOutputConfiguration
-#DataAutomationProjectStage:               schema.#DataAutomationProjectStage
-#DataAutomationProjectStatus:              schema.#DataAutomationProjectStatus
 #DesiredModality:                          schema.#DesiredModality
 #DocumentBoundingBox:                      schema.#DocumentBoundingBox
 #DocumentExtractionGranularity:            schema.#DocumentExtractionGranularity
@@ -57,7 +55,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h0955b10951db6975:schem
 #State:                                    schema.#State
 #Tag:                                      schema.#Tag
 #TranscriptConfiguration:                  schema.#TranscriptConfiguration
-#Unit:                                     schema.#Unit
 #VideoBoundingBox:                         schema.#VideoBoundingBox
 #VideoExtractionCategory:                  schema.#VideoExtractionCategory
 #VideoExtractionCategoryType:              schema.#VideoExtractionCategoryType

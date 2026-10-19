@@ -4,7 +4,5 @@ package TransitGatewayRouteTableAttachment
 
 import schema "github.com/cueformation/cfn-cue/resources/he83a360e23ec297a:schema"
 
-#Resource:                           schema.#Resource
-#ProposedNetworkFunctionGroupChange: schema.#ProposedNetworkFunctionGroupChange
-#ProposedSegmentChange:              schema.#ProposedSegmentChange
-#Tag:                                schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

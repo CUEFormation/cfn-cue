@@ -6,16 +6,8 @@ import schema "github.com/cueformation/cfn-cue/resources/h16a2b0851033d3b8:schem
 
 #Resource:                              schema.#Resource
 #EnvironmentConfigurationUserParameter: schema.#EnvironmentConfigurationUserParameter
-#EnvironmentDeploymentDetails:          schema.#EnvironmentDeploymentDetails
-#EnvironmentError:                      schema.#EnvironmentError
-#EnvironmentFailureReasons:             schema.#EnvironmentFailureReasons
 #EnvironmentParameter:                  schema.#EnvironmentParameter
-#EnvironmentResolvedAccount:            schema.#EnvironmentResolvedAccount
 #Member:                                schema.#Member
-#OverallDeploymentStatus:               schema.#OverallDeploymentStatus
-#ProjectDeletionError:                  schema.#ProjectDeletionError
 #ProjectMembershipAssignment:           schema.#ProjectMembershipAssignment
-#ProjectStatus:                         schema.#ProjectStatus
 #ResourceTag:                           schema.#ResourceTag
-#Tags:                                  schema.#Tags
 #UserDesignation:                       schema.#UserDesignation

@@ -6,30 +6,58 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::ResourceExplorer2::View Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ResourceExplorer2::View"
-	Properties!: close({
+	let properties = close({
 		Filters?:            #SearchFilter
 		IncludedProperties?: [...#IncludedProperty] | fn.#ListExpression
-		Scope?:              string | fn.#StringExpression
+		Scope?:              string | number | bool | fn.#StringExpression
 		Tags?:               #TagMap
-		ViewName!:           =~"^[a-zA-Z0-9\\-]{1,64}$" | fn.#StringExpression
+		ViewName!: =~"^[a-zA-Z0-9\\-]{1,64}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9\\-]{1,64}$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#IncludedProperty: close({Name!: strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression}) |
+#IncludedProperty: close({
+	Name!: strings.MaxRunes(1011) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1011) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
-#SearchFilter: close({FilterString!: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression}) |
+#SearchFilter: close({
+	FilterString!: strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #TagMap: close({
 
-	{[=~".+"]: string | fn.#StringExpression}}) |
+	{[=~".+"]: string | number | bool | fn.#StringExpression}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression

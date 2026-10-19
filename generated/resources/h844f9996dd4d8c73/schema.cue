@@ -7,15 +7,15 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Policy Statement defined in AWS Entity Resolution Service
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EntityResolution::PolicyStatement"
-	Properties!: close({
+	let properties = close({
 		Action?:      #StatementActionList
 		Arn!:         #VeniceGlobalArn
 		Condition?:   #StatementCondition
@@ -23,23 +23,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Principal?:   #StatementPrincipalList
 		StatementId!: #StatementId
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #StatementAction: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^(entityresolution:[a-zA-Z0-9]+)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(3) & =~"^(entityresolution:[a-zA-Z0-9]+)$" & "\(self)"
+} |
 fn.#StringExpression
 
 #StatementActionList: list.MinItems(1) & [...#StatementAction] | fn.#ListExpression
 
-#StatementCondition: strings.MaxRunes(40960) & strings.MinRunes(1) | fn.#StringExpression
+#StatementCondition: strings.MaxRunes(40960) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(40960) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #StatementEffect: "Allow" | "Deny" | fn.#StringExpression
 
-#StatementId: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$" | fn.#StringExpression
+#StatementId: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #StatementPrincipal: strings.MaxRunes(64) & strings.MinRunes(12) & =~"^(\\\\d{12})|([a-z0-9\\\\.]+)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(12) & =~"^(\\\\d{12})|([a-z0-9\\\\.]+)$" & "\(self)"
+} |
 fn.#StringExpression
 
 #StatementPrincipalList: list.MinItems(1) & [...#StatementPrincipal] | fn.#ListExpression
 
 #VeniceGlobalArn: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:((schemamapping|matchingworkflow|idmappingworkflow|idnamespace)/[a-zA-Z_0-9-]{1,255})$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:((schemamapping|matchingworkflow|idmappingworkflow|idnamespace)/[a-zA-Z_0-9-]{1,255})$" &
+		"\(self)"
+} |
+fn.#StringExpression

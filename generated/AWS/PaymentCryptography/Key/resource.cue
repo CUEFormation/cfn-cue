@@ -11,10 +11,5 @@ import schema "github.com/cueformation/cfn-cue/resources/h516c70628c4b4d16:schem
 #KeyCheckValueAlgorithm: schema.#KeyCheckValueAlgorithm
 #KeyClass:               schema.#KeyClass
 #KeyModesOfUse:          schema.#KeyModesOfUse
-#KeyOrigin:              schema.#KeyOrigin
-#KeyReplicationState:    schema.#KeyReplicationState
-#KeyState:               schema.#KeyState
 #KeyUsage:               schema.#KeyUsage
-#ReplicationStatus:      schema.#ReplicationStatus
-#ReplicationStatusType:  schema.#ReplicationStatusType
 #Tag:                    schema.#Tag

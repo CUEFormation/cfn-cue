@@ -3,12 +3,10 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -28,13 +26,55 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // as quickly as possible. However, a small delay might occur.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::SecurityGroupEgress"
-	Properties!: close({
-		CidrIp?:                  string | fn.#StringExpression
-		CidrIpv6?:                string | fn.#StringExpression
-		Description?:             string | fn.#StringExpression
-		DestinationPrefixListId?: string | fn.#StringExpression
-		DestinationSecurityGroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+	let properties = matchN(2, [matchIf({
+		IpProtocol!: "1" | ==1 | "icmp"
+		...
+	}, matchIf({
+		FromPort!: ==-1 | "-1"
+		...
+	}, {
+		ToPort!: ==-1 | "-1" | fn.#ValueExpression
+		...
+	}, _), matchIf({
+		ToPort!: ==-1 | "-1"
+		...
+	}, {
+		FromPort!: ==-1 | "-1" | fn.#ValueExpression
+		...
+	}, _) & matchIf({
+		FromPort!: ==-1 | "-1"
+		...
+	}, {
+		ToPort!: ==-1 | "-1" | fn.#ValueExpression
+		...
+	}, _)), matchIf({
+		IpProtocol!: (==1 | "1" | "icmp" | ==6 | "6" | "tcp" | ==17 | "17" | "udp") & (int | string)
+		...
+	}, {
+		FromPort!: _
+		ToPort!:   _
+		...
+	}, _)]) & (close({
+		CidrIp?: fn.#IPv4Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv4Network & string & "\(self)"
+		} |
+		fn.#StringExpression
+		CidrIpv6?: fn.#IPv6Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv6Network & string & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?:             string | number | bool | fn.#StringExpression
+		DestinationPrefixListId?: string | number | bool | fn.#StringExpression
+		DestinationSecurityGroupId?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		FromPort?: int & >=-1 |
 			{
 				string &
@@ -52,9 +92,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		GroupId!: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		IpProtocol!: string | fn.#StringExpression
+		GroupId!: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		IpProtocol!: string | number | bool | fn.#StringExpression
 		ToPort?: int & >=-1 |
 			{
 				string &
@@ -96,5 +140,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				"DestinationSecurityGroupId cannot be used with DestinationPrefixListId; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
 			)
 		}
-	}) & matchN(>=1, [{CidrIp!: _}, {CidrIpv6!: _}, {DestinationPrefixListId!: _}, {DestinationSecurityGroupId!: _}])
+	}) & matchN(>=1, [{CidrIp!: _}, {CidrIpv6!: _}, {DestinationPrefixListId!: _}, {DestinationSecurityGroupId!: _}]))
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

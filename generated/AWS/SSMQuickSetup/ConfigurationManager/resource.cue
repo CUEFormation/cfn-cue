@@ -5,10 +5,5 @@ package ConfigurationManager
 import schema "github.com/cueformation/cfn-cue/resources/h248aadff63c68975:schema"
 
 #Resource:                   schema.#Resource
-#ConfigurationDefinition:    schema.#ConfigurationDefinition
 #ConfigurationParametersMap: schema.#ConfigurationParametersMap
-#Status:                     schema.#Status
-#StatusDetails:              schema.#StatusDetails
-#StatusSummary:              schema.#StatusSummary
-#StatusType:                 schema.#StatusType
 #TagsMap:                    schema.#TagsMap

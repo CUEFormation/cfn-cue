@@ -3,6 +3,7 @@
 package schema
 
 import (
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"strings"
 )
@@ -96,7 +97,7 @@ import (
 })
 
 // Represents a single IPv4 or IPv6 CIDR
-#Cidr: string & string
+#Cidr: fn.#IPv4Network & string | fn.#IPv6Network & string
 
 // An address space to be inserted into this pool. All allocations must be made
 // from this address space.

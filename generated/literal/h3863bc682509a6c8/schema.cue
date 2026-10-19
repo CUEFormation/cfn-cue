@@ -19,7 +19,17 @@ import (
 	CreatedAt?:     string
 	Id?:            strings.MaxRunes(20) & strings.MinRunes(20) & =~"^sn-[0-9a-z]{17}$"
 	LastUpdatedAt?: string
-	Name?:          strings.MaxRunes(63) & strings.MinRunes(3)
+	Name?: =~"^[a-z0-9-]+$" &
+	matchN(0, [=~"^(?:servicenetwork-)"]) &
+	string &
+	matchN(0, [=~"^(?:[-])"]) &
+	string &
+	matchN(0, [=~"^(?:.*[-]$)"]) &
+	string &
+	matchN(0, [=~"^(?:.*[-]{2})"]) &
+	string &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3)
 	SharingConfig?: #SharingConfig
 	Tags?:          list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag]
 })

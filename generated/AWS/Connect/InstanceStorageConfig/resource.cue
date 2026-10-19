@@ -5,7 +5,6 @@ package InstanceStorageConfig
 import schema "github.com/cueformation/cfn-cue/resources/hb65fef83f2f0de73:schema"
 
 #Resource:                    schema.#Resource
-#AssociationId:               schema.#AssociationId
 #BucketName:                  schema.#BucketName
 #EncryptionConfig:            schema.#EncryptionConfig
 #EncryptionType:              schema.#EncryptionType

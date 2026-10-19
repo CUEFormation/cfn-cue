@@ -7,12 +7,10 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -22,7 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // protocol.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaConnect::FlowMediaStream"
-	Properties!: close({
+	let properties = close({
 		Attributes?: #MediaStreamAttributes
 		ClockRate?: int |
 			{
@@ -40,9 +38,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Description?: string | fn.#StringExpression
+		Description?: string | number | bool | fn.#StringExpression
 		FlowArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		MediaStreamId!: int |
 			{
 				string &
@@ -59,18 +62,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		MediaStreamName!: string | fn.#StringExpression
+		MediaStreamName!: string | number | bool | fn.#StringExpression
 		MediaStreamType!: "video" | "audio" | "ancillary-data" | fn.#StringExpression
 		Tags?:            list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		VideoFormat?:     string | fn.#StringExpression
+		VideoFormat?:     string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Fmtp: close({
-	ChannelOrder?:   string | fn.#StringExpression
+	ChannelOrder?:   string | number | bool | fn.#StringExpression
 	Colorimetry?:    "BT601" | "BT709" | "BT2020" | "BT2100" | "ST2065-1" | "ST2065-3" | "XYZ" | fn.#StringExpression
-	ExactFramerate?: string | fn.#StringExpression
-	Par?:            string | fn.#StringExpression
+	ExactFramerate?: string | number | bool | fn.#StringExpression
+	Par?:            string | number | bool | fn.#StringExpression
 	Range?:          "NARROW" | "FULL" | "FULLPROTECT" | fn.#StringExpression
 	ScanMode?:       "progressive" | "interlace" | "progressive-segmented-frame" | fn.#StringExpression
 	Tcs?: "SDR" |
@@ -88,12 +95,22 @@ fn.#ObjectExpression
 
 #MediaStreamAttributes: close({
 	Fmtp?: #Fmtp
-	Lang?: string | fn.#StringExpression
+	Lang?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

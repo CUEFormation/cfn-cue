@@ -4,6 +4,5 @@ package PolicyEngine
 
 import schema "github.com/cueformation/cfn-cue/resources/h3b2961e207e832bb:schema"
 
-#Resource:           schema.#Resource
-#PolicyEngineStatus: schema.#PolicyEngineStatus
-#Tag:                schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

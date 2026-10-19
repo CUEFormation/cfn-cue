@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -12,10 +12,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // certificate authority status.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ACMPCA::CertificateAuthorityActivation"
-	Properties!: close({
-		Certificate!:             string | fn.#StringExpression
-		CertificateAuthorityArn!: string | fn.#StringExpression
-		CertificateChain?:        string | fn.#StringExpression
-		Status?:                  string | fn.#StringExpression
+	let properties = close({
+		Certificate!:             string | number | bool | fn.#StringExpression
+		CertificateAuthorityArn!: string | number | bool | fn.#StringExpression
+		CertificateChain?:        string | number | bool | fn.#StringExpression
+		Status?:                  string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

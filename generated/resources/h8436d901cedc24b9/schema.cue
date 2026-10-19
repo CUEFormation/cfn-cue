@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,8 +17,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // requirements based on customer-defined routing policies.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3::MultiRegionAccessPoint"
-	Properties!: close({
-		Name?: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9][-a-z0-9]{1,48}[a-z0-9]$" | fn.#StringExpression
+	let properties = close({
+		Name?: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9][-a-z0-9]{1,48}[a-z0-9]$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9][-a-z0-9]{1,48}[a-z0-9]$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The PublicAccessBlock configuration that you want to apply to this Multi
 		// Region Access Point. You can enable the configuration options in any
@@ -30,6 +35,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		PublicAccessBlockConfiguration?: #PublicAccessBlockConfiguration
 		Regions!:                        list.MinItems(1) & list.UniqueItems() & [...#Region] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #PublicAccessBlockConfiguration: close({
@@ -41,7 +50,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Region: close({
-	Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9//.//-]*[a-z0-9]$" | fn.#StringExpression
-	BucketAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+	Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9//.//-]*[a-z0-9]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9//.//-]*[a-z0-9]$" & "\(self)"
+	} |
+	fn.#StringExpression
+	BucketAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

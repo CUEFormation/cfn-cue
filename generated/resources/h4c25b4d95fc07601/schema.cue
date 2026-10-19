@@ -6,32 +6,36 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::Neptune::DBInstance resource creates an Amazon Neptune DB instance.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Neptune::DBInstance"
-	Properties!: close({
+	let properties = close({
 		AllowMajorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		AutoMinorVersionUpgrade?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		AvailabilityZone?:         string | fn.#StringExpression
-		DBClusterIdentifier?:      string | fn.#StringExpression
-		DBInstanceClass!:          string | fn.#StringExpression
-		DBInstanceIdentifier?:     string | fn.#StringExpression
-		DBParameterGroupName?:     string | fn.#StringExpression
-		DBSnapshotIdentifier?:     string | fn.#StringExpression
-		DBSubnetGroupName?:        string | fn.#StringExpression
-		PreferredMaintenanceWindow?: string | fn.#StringExpression
+		AvailabilityZone?:         string | number | bool | fn.#StringExpression
+		DBClusterIdentifier?:      string | number | bool | fn.#StringExpression
+		DBInstanceClass!:          string | number | bool | fn.#StringExpression
+		DBInstanceIdentifier?:     string | number | bool | fn.#StringExpression
+		DBParameterGroupName?:     string | number | bool | fn.#StringExpression
+		DBSnapshotIdentifier?:     string | number | bool | fn.#StringExpression
+		DBSubnetGroupName?:        string | number | bool | fn.#StringExpression
+		PreferredMaintenanceWindow?: string | number | bool | fn.#StringExpression
 		PubliclyAccessible?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

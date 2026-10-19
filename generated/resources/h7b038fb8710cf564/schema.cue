@@ -3,27 +3,31 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::KinesisAnalytics::ApplicationReferenceDataSource
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::KinesisAnalytics::ApplicationReferenceDataSource"
-	Properties!: close({
-		ApplicationName!:     string | fn.#StringExpression
+	let properties = close({
+		ApplicationName!:     string | number | bool | fn.#StringExpression
 		ReferenceDataSource!: #ReferenceDataSource
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CSVMappingParameters: close({
-	RecordColumnDelimiter!: string | fn.#StringExpression
-	RecordRowDelimiter!:    string | fn.#StringExpression
+	RecordColumnDelimiter!: string | number | bool | fn.#StringExpression
+	RecordRowDelimiter!:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#JSONMappingParameters: close({RecordRowPath!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#JSONMappingParameters: close({RecordRowPath!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #MappingParameters: close({
 	CSVMappingParameters?:  #CSVMappingParameters
@@ -32,36 +36,40 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RecordColumn: close({
-	Mapping?: string | fn.#StringExpression
-	Name!:    string | fn.#StringExpression
-	SqlType!: string | fn.#StringExpression
+	Mapping?: string | number | bool | fn.#StringExpression
+	Name!:    string | number | bool | fn.#StringExpression
+	SqlType!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RecordFormat: close({
 	MappingParameters?: #MappingParameters
-	RecordFormatType!:  string | fn.#StringExpression
+	RecordFormatType!:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ReferenceDataSource: close({
 	ReferenceSchema!:       #ReferenceSchema
 	S3ReferenceDataSource?: #S3ReferenceDataSource
-	TableName?:             string | fn.#StringExpression
+	TableName?:             string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ReferenceSchema: close({
 	RecordColumns!:  [...#RecordColumn] | fn.#ListExpression
-	RecordEncoding?: string | fn.#StringExpression
+	RecordEncoding?: string | number | bool | fn.#StringExpression
 	RecordFormat!:   #RecordFormat
 }) |
 fn.#ObjectExpression
 
 #S3ReferenceDataSource: close({
-	BucketARN!: string | fn.#StringExpression
-	FileKey!:   string | fn.#StringExpression
-	ReferenceRoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	BucketARN!: string | number | bool | fn.#StringExpression
+	FileKey!:   string | number | bool | fn.#StringExpression
+	ReferenceRoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

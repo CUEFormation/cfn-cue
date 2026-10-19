@@ -5,7 +5,6 @@ package Accessor
 import schema "github.com/cueformation/cfn-cue/resources/h34623fbfe278b892:schema"
 
 #Resource:            schema.#Resource
-#AccessorStatus:      schema.#AccessorStatus
 #AccessorType:        schema.#AccessorType
 #NetworkAccessorType: schema.#NetworkAccessorType
 #Tag:                 schema.#Tag

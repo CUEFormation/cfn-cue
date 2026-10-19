@@ -6,20 +6,39 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::UserPoolReplica
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cognito::UserPoolReplica"
-	Properties!: close({
-		RegionName!: strings.MaxRunes(32) & strings.MinRunes(5) | fn.#StringExpression
-		UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
+	let properties = close({
+		RegionName!: strings.MaxRunes(32) & strings.MinRunes(5) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32) & strings.MinRunes(5) & "\(self)"
+		} |
+		fn.#StringExpression
+		UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		UserPoolTagsAtCreate?: close({
 
-			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | number | bool | fn.#StringExpression}
+		}) |
 		fn.#ObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

@@ -39,7 +39,7 @@ import (
 
 #Alarm: close({
 	// The name of the CloudWatch alarm.
-	AlarmName!: strings.MaxRunes(255) & strings.MinRunes(1)
+	AlarmName!: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
 #AutoRollbackConfig: close({

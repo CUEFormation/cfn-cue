@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,19 +16,64 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Amazon CodeGuru Reviewer service.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodeGuruReviewer::RepositoryAssociation"
-	Properties!: close({
-		BucketName?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^\\S(.*\\S)?$" | fn.#StringExpression
-		ConnectionArn?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:aws(-[\\w]+)*:.+:.+:[0-9]{12}:.+" |
+	let properties = close({
+		BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) &
+		=~"^\\S(.*\\S)?$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+			=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+			strings.MaxRunes(63) &
+			strings.MinRunes(3) &
+			=~"^\\S(.*\\S)?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name!:  strings.MaxRunes(100) & strings.MinRunes(1) & =~"^\\S[\\w.-]*$" | fn.#StringExpression
-		Owner?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^\\S(.*\\S)?$" | fn.#StringExpression
-		Tags?:  list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-		Type!:  "CodeCommit" | "Bitbucket" | "GitHubEnterpriseServer" | "S3Bucket" | fn.#StringExpression
+		ConnectionArn?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:aws(-[\\w]+)*:.+:.+:[0-9]{12}:.+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(0) &
+			=~"arn:aws(-[\\w]+)*:.+:.+:[0-9]{12}:.+" &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^\\S[\\w.-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^\\S[\\w.-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Owner?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^\\S(.*\\S)?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^\\S(.*\\S)?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		Type!: "CodeCommit" | "Bitbucket" | "GitHubEnterpriseServer" | "S3Bucket" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

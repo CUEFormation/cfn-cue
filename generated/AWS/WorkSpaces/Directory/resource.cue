@@ -11,7 +11,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h3732532920f30c29:schem
 #CertificateBasedAuthProperties:     schema.#CertificateBasedAuthProperties
 #DefaultWorkspaceCreationProperties: schema.#DefaultWorkspaceCreationProperties
 #GlobalAcceleratorForDirectory:      schema.#GlobalAcceleratorForDirectory
-#IDCConfig:                          schema.#IDCConfig
 #MicrosoftEntraConfig:               schema.#MicrosoftEntraConfig
 #SamlProperties:                     schema.#SamlProperties
 #SelfservicePermissions:             schema.#SelfservicePermissions

@@ -7,19 +7,17 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A deployment of a solution version that provides real-time recommendations.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Personalize::Campaign"
-	Properties!: close({
+	let properties = close({
 		CampaignConfig?: #CampaignConfig
 		MinProvisionedTPS?: int & >=1 |
 			{
@@ -38,11 +36,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*$" | fn.#StringExpression
+		Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		SolutionVersionArn!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:([a-z\\d-]+):personalize:.*:.*:.+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(0) &
+			=~"arn:([a-z\\d-]+):personalize:.*:.*:.+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CampaignConfig: close({
@@ -56,7 +70,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#BooleanExpression
 	ItemExplorationConfig?: close({
 
-		{[=~"^[a-zA-Z0-9]+$"]: strings.MaxRunes(1000) | fn.#StringExpression}}) |
+		{[=~"^(?:Ref)$"]: error("disallowed")}
+
+		{
+			[=~"^[a-zA-Z0-9]+$"]: strings.MaxRunes(1000) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1000) & "\(self)"
+			} |
+			fn.#StringExpression
+		}
+	}) |
 	fn.#ObjectExpression
 	RankingInfluence?: close({
 
@@ -93,7 +117,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

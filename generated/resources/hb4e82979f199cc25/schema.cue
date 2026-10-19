@@ -7,70 +7,114 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::TestCase
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::TestCase"
-	Properties!: close({
-		Content!:     strings.MaxRunes(256000) & strings.MinRunes(1) | fn.#StringExpression
-		Description?: strings.MaxRunes(500) & =~".*\\S.*" | fn.#StringExpression
+	let properties = close({
+		Content!: strings.MaxRunes(256000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(500) & =~".*\\S.*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & =~".*\\S.*" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Entry point for Testcase.
-		EntryPoint?:         #EntryPoint
-		InitializationData?: strings.MaxRunes(256000) & strings.MinRunes(1) | fn.#StringExpression
+		EntryPoint?: #EntryPoint
+		InitializationData?: strings.MaxRunes(256000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		InstanceArn!: strings.MaxRunes(256) &
 		strings.MinRunes(1) &
 		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(1) &
+			=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name!:   strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+		Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
+		} |
+		fn.#StringExpression
 		Status?: "SAVED" | "PUBLISHED" | fn.#StringExpression
 		Tags?:   list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #EntryPoint: close({
-	ChatEntryPointParameters?: close({FlowId?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}) |
+	ChatEntryPointParameters?: close({
+		FlowId?: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}) |
 	fn.#ObjectExpression
 	Type?: "VOICE_CALL" | "CHAT" | fn.#StringExpression
 	VoiceCallEntryPointParameters?: close({
-		DestinationPhoneNumber?: =~"^\\\\+[1-9]\\\\d{1,14}$" | fn.#StringExpression
-		FlowId?:                 strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-		SourcePhoneNumber?:      =~"^\\\\+[1-9]\\\\d{1,14}$" | fn.#StringExpression
+		DestinationPhoneNumber?: =~"^\\\\+[1-9]\\\\d{1,14}$" |
+		{
+			number | bool
+			_cfnString: =~"^\\\\+[1-9]\\\\d{1,14}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		FlowId?: strings.MaxRunes(500) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		SourcePhoneNumber?: =~"^\\\\+[1-9]\\\\d{1,14}$" |
+		{
+			number | bool
+			_cfnString: =~"^\\\\+[1-9]\\\\d{1,14}$" & "\(self)"
+		} |
+		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Timestamp: number |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatFloat(
-					cfnScalarStrconv.ParseFloat(
-						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-						64,
-					) &
-						number,
-					"g",
-					-1,
-					64,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression

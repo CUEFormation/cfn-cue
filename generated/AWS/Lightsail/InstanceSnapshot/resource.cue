@@ -5,5 +5,4 @@ package InstanceSnapshot
 import schema "github.com/cueformation/cfn-cue/resources/h70155e67def604b2:schema"
 
 #Resource: schema.#Resource
-#Location: schema.#Location
 #Tag:      schema.#Tag

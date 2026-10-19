@@ -8,8 +8,8 @@ import (
 	"list"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,8 +20,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *IAM User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IAM::User"
-	Properties?: close({
-		Groups?: list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		Groups?: list.MaxItems(10) & [...] & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 
 		// Creates a password for the specified IAM user. A password allows an IAM user
 		// to access AWS services through the console.
@@ -34,35 +34,69 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// passwords](https://docs.aws.amazon.com/IAM/latest/UserGuide/Using_ManagingLogins.html)
 		// in the *User Guide*.
 		LoginProfile?: #LoginProfile
-		ManagedPolicyArns?: list.MaxItems(20) & list.UniqueItems() & [...] & [
-			...=~"arn:(aws[a-zA-Z-]*)?:iam::(\\d{12}|aws):policy/[a-zA-Z_0-9+=,.@\\-_/]+" | fn.#StringExpression
-		] |
-			fn.#ListExpression
+		ManagedPolicyArns?: list.MaxItems(20) & list.UniqueItems() & [...] & [...=~"arn:(aws[a-zA-Z-]*)?:iam::(\\d{12}|aws):policy/[a-zA-Z_0-9+=,.@\\-_/]+" |
+		{
+			number | bool
+			_cfnString: =~"arn:(aws[a-zA-Z-]*)?:iam::(\\d{12}|aws):policy/[a-zA-Z_0-9+=,.@\\-_/]+" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		Path?: strings.MaxRunes(512) &
 		strings.MinRunes(1) &
 		=~"^(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F})$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) &
+			strings.MinRunes(1) &
+			=~"^(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F})$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		PermissionsBoundary?: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-		Policies?:            [...#Policy] | fn.#ListExpression
-		Tags?:                list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
-		UserName?:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
+		PermissionsBoundary?: strings.MaxRunes(2048) & strings.MinRunes(20) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
+		} |
+		fn.#StringExpression
+		Policies?: [...#Policy] | fn.#ListExpression
+		Tags?:     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		UserName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #LoginProfile: close({
-	Password!:              string | fn.#StringExpression
+	Password!:              string | number | bool | fn.#StringExpression
 	PasswordResetRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #Policy: close({
 	PolicyDocument!: iam.#IdentityPolicyValue
-	PolicyName!:     string | fn.#StringExpression
+	PolicyName!:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

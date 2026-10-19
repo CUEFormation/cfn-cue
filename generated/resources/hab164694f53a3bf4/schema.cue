@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -12,15 +12,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // endpoint access to a cluster across AWS accounts.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Redshift::EndpointAuthorization"
-	Properties!: close({
+	let properties = close({
 		// The target AWS account ID to grant or revoke access for.
-		Account!:           #AwsAccount
-		ClusterIdentifier!: string | fn.#StringExpression
-		Force?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		VpcIds?:            [...#VpcId] | fn.#ListExpression
+		Account!: #AwsAccount
+		ClusterIdentifier!: =~"^.{1,63}$" & =~"^(?:^[a-z][a-z0-9]*(-[a-z0-9]+)*$)" |
+		{
+			number | bool
+			_cfnString: =~"^.{1,63}$" & =~"^(?:^[a-z][a-z0-9]*(-[a-z0-9]+)*$)" & "\(self)"
+		} |
+		fn.#StringExpression
+		Force?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		VpcIds?: [...#VpcId] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#AwsAccount: =~"^\\d{12}$" | fn.#StringExpression
+#AwsAccount: =~"^\\d{12}$" |
+{
+	number | bool
+	_cfnString: =~"^\\d{12}$" & "\(self)"
+} |
+fn.#StringExpression
 
-#VpcId: =~"^vpc-[A-Za-z0-9]{1,17}$" | fn.#StringExpression
+#VpcId: =~"^vpc-[A-Za-z0-9]{1,17}$" |
+{
+	number | bool
+	_cfnString: =~"^vpc-[A-Za-z0-9]{1,17}$" & "\(self)"
+} |
+fn.#StringExpression

@@ -5,7 +5,7 @@ on:
     inputs:
       cue_version:
         description: CUE CLI version to measure
-        default: v0.18.0-alpha.3
+        default: v0.18.0-rc.1
         required: true
       sizes:
         description: Nested resource counts, with all for the complete region

@@ -8,12 +8,10 @@ import (
 	"struct"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -22,47 +20,124 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // job, training job, or batch transform job.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::TrialComponent"
-	Properties!: close({
+	let properties = close({
 		DisplayName?: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(120) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		InputArtifacts?: struct.MaxFields(60) & close({
 
-			{[=~".{1,128}"]: #TrialComponentArtifact}}) |
+			{[=~".{1,128}"]: #TrialComponentArtifact}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 		MetadataProperties?: #MetadataProperties
 		OutputArtifacts?: struct.MaxFields(60) & close({
 
-			{[=~".{1,128}"]: #TrialComponentArtifact}}) |
+			{[=~".{1,128}"]: #TrialComponentArtifact}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 		Parameters?: struct.MaxFields(300) & close({
 
-			{[=~".{1,320}"]: #TrialComponentParameterValue}}) |
+			{[=~".{1,320}"]: #TrialComponentParameterValue}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 		Status?: #TrialComponentStatus
 		Tags?: list.MaxItems(50) & [...] & [...close({
 			Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) &
+				strings.MinRunes(1) &
+				=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) &
+				strings.MinRunes(0) &
+				=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
 		TrialComponentName!: strings.MaxRunes(120) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(120) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,119}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #MetadataProperties: close({
-	CommitId?:    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	GeneratedBy?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	ProjectId?:   strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Repository?:  strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	CommitId?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	GeneratedBy?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	ProjectId?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Repository?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TrialComponentArtifact: close({
-	MediaType?: strings.MaxRunes(64) & =~"^[-\\w]+\\/[-\\w+]+$" | fn.#StringExpression
-	Value!:     strings.MaxRunes(2048) | fn.#StringExpression
+	MediaType?: strings.MaxRunes(64) & =~"^[-\\w]+\\/[-\\w+]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & =~"^[-\\w]+\\/[-\\w+]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -86,12 +161,22 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	StringValue?: strings.MaxRunes(2500) | fn.#StringExpression
+	StringValue?: strings.MaxRunes(2500) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2500) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TrialComponentStatus: close({
-	Message?:       strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	Message?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	PrimaryStatus?: "InProgress" | "Completed" | "Failed" | "Stopping" | "Stopped" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

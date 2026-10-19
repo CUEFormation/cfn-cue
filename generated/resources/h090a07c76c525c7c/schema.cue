@@ -3,22 +3,26 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::GroupVersion
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Greengrass::GroupVersion"
-	Properties!: close({
-		ConnectorDefinitionVersionArn?:    string | fn.#StringExpression
-		CoreDefinitionVersionArn?:         string | fn.#StringExpression
-		DeviceDefinitionVersionArn?:       string | fn.#StringExpression
-		FunctionDefinitionVersionArn?:     string | fn.#StringExpression
-		GroupId!:                          string | fn.#StringExpression
-		LoggerDefinitionVersionArn?:       string | fn.#StringExpression
-		ResourceDefinitionVersionArn?:     string | fn.#StringExpression
-		SubscriptionDefinitionVersionArn?: string | fn.#StringExpression
+	let properties = close({
+		ConnectorDefinitionVersionArn?:    string | number | bool | fn.#StringExpression
+		CoreDefinitionVersionArn?:         string | number | bool | fn.#StringExpression
+		DeviceDefinitionVersionArn?:       string | number | bool | fn.#StringExpression
+		FunctionDefinitionVersionArn?:     string | number | bool | fn.#StringExpression
+		GroupId!:                          string | number | bool | fn.#StringExpression
+		LoggerDefinitionVersionArn?:       string | number | bool | fn.#StringExpression
+		ResourceDefinitionVersionArn?:     string | number | bool | fn.#StringExpression
+		SubscriptionDefinitionVersionArn?: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

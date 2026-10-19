@@ -13,7 +13,7 @@ import (
 // Resource schema for AWS::SSM::OpsItem.
 #Properties: close({
 	// The category of the OpsItem.
-	Category?: strings.MaxRunes(64) & strings.MinRunes(1)
+	Category?: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(64) & strings.MinRunes(1)
 
 	// The user who created the OpsItem.
 	CreatedBy?: string
@@ -43,10 +43,10 @@ import (
 	Priority?: int & <=5 & >=1
 
 	// The severity of the OpsItem.
-	Severity?: strings.MaxRunes(64) & strings.MinRunes(1)
+	Severity?: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(64) & strings.MinRunes(1)
 
 	// The origin of the OpsItem.
-	Source!: strings.MaxRunes(128) & strings.MinRunes(1)
+	Source!: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// The status of the OpsItem.
 	Status?: string
@@ -55,7 +55,7 @@ import (
 	Tags?: list.MaxItems(1000) & list.UniqueItems() & [...] & [...#Tag]
 
 	// The title of the OpsItem.
-	Title!: strings.MaxRunes(1024) & strings.MinRunes(1)
+	Title!: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(1024) & strings.MinRunes(1)
 
 	// The version of the OpsItem.
 	Version?: string

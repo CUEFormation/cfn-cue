@@ -4,5 +4,4 @@ package RegistryPolicy
 
 import schema "github.com/cueformation/cfn-cue/resources/h1f555fcb9f5c4169:schema"
 
-#Resource:   schema.#Resource
-#RegistryId: schema.#RegistryId
+#Resource: schema.#Resource

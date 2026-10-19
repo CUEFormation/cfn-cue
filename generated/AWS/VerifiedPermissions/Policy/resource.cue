@@ -7,6 +7,5 @@ import schema "github.com/cueformation/cfn-cue/resources/h803a0e0625a85877:schem
 #Resource:                       schema.#Resource
 #EntityIdentifier:               schema.#EntityIdentifier
 #PolicyDefinition:               schema.#PolicyDefinition
-#PolicyType:                     schema.#PolicyType
 #StaticPolicyDefinition:         schema.#StaticPolicyDefinition
 #TemplateLinkedPolicyDefinition: schema.#TemplateLinkedPolicyDefinition

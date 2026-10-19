@@ -6,33 +6,59 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::Events::EventBus
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Events::EventBus"
-	Properties!: close({
-		DeadLetterConfig?: close({Arn?: string | fn.#StringExpression}) | fn.#ObjectExpression
-		Description?:      string | fn.#StringExpression
+	let properties = close({
+		DeadLetterConfig?: close({Arn?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
+		Description?:      string | number | bool | fn.#StringExpression
 		EventSourceName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^aws\\.partner(/[\\.\\-_A-Za-z0-9]+){2,}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(1) &
+			=~"^aws\\.partner(/[\\.\\-_A-Za-z0-9]+){2,}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		KmsKeyIdentifier?: string | fn.#StringExpression
+		KmsKeyIdentifier?: string | number | bool | fn.#StringExpression
 		LogConfig?: close({
 			IncludeDetail?: "FULL" | "NONE" | fn.#StringExpression
 			Level?:         "INFO" | "ERROR" | "TRACE" | "OFF" | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
-		Name!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[/\\.\\-_A-Za-z0-9]+$" | fn.#StringExpression
-		Policy?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[/\\.\\-_A-Za-z0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[/\\.\\-_A-Za-z0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Policy?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		Tags?:   [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

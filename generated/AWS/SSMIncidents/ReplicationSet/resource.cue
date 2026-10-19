@@ -5,7 +5,6 @@ package ReplicationSet
 import schema "github.com/cueformation/cfn-cue/resources/hec866a639503677d:schema"
 
 #Resource:            schema.#Resource
-#Arn:                 schema.#Arn
 #DeletionProtected:   schema.#DeletionProtected
 #RegionConfiguration: schema.#RegionConfiguration
 #RegionList:          schema.#RegionList

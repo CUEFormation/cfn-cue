@@ -4,6 +4,5 @@ package Permission
 
 import schema "github.com/cueformation/cfn-cue/resources/h2e4bf164e561e929:schema"
 
-#Resource:                               schema.#Resource
-#PermissionTemplateParameterDeclaration: schema.#PermissionTemplateParameterDeclaration
-#Tag:                                    schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

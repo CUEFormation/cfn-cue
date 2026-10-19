@@ -7,19 +7,17 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::NotebookInstance
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::NotebookInstance"
-	Properties!: close({
+	let properties = close({
 		AcceleratorTypes?: [
 			..."ml.eia1.large" |
 				"ml.eia1.medium" |
@@ -30,14 +28,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				fn.#StringExpression
 		] |
 			fn.#ListExpression
-		AdditionalCodeRepositories?: list.MaxItems(3) & [...] & [
-			...strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^https://([^/]+)/?(.*)$|^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
-			fn.#StringExpression
-		] |
+		AdditionalCodeRepositories?: list.MaxItems(3) & [...] & [...strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^https://([^/]+)/?(.*)$|^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^https://([^/]+)/?(.*)$|^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		DefaultCodeRepository?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"^https://([^/]+)/?(.*)$|^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^https://([^/]+)/?(.*)$|^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		DirectInternetAccess?: "Disabled" | "Enabled" | fn.#StringExpression
 
@@ -233,36 +245,88 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"ml.trn1.32xlarge" |
 			"ml.trn1n.32xlarge" |
 			fn.#StringExpression
-		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string) &
+		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(0) &
 		=~"^[a-zA-Z0-9:/_-]*$" |
+		{
+			number | bool
+			_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+				=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+				=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(0) &
+			=~"^[a-zA-Z0-9:/_-]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		LifecycleConfigName?: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		NotebookInstanceName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		PlatformIdentifier?: strings.MaxRunes(20) &
 		strings.MinRunes(0) &
 		=~"^(notebook-al1-v1|notebook-al2-v1|notebook-al2-v2|notebook-al2-v3|notebook-al2023-v1)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(20) &
+			strings.MinRunes(0) &
+			=~"^(notebook-al1-v1|notebook-al2-v1|notebook-al2-v2|notebook-al2-v3|notebook-al2023-v1)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		RootAccess?: "Disabled" | "Enabled" | fn.#StringExpression
-		SecurityGroupIds?: list.MaxItems(5) & [...] & [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		SecurityGroupIds?: list.MaxItems(5) & [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"^[-0-9a-zA-Z]+$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 			strings.MaxRunes(32) &
 			strings.MinRunes(0) &
-			=~"^[-0-9a-zA-Z]+$" |
-			fn.#StringExpression
-		] |
+			=~"^[-0-9a-zA-Z]+$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		SubnetId?: strings.MaxRunes(32) & strings.MinRunes(0) & =~"^[-0-9a-zA-Z]+$" | fn.#StringExpression
-		Tags?:     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"^[-0-9a-zA-Z]+$" |
+		{
+			number | bool
+			_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+			strings.MaxRunes(32) &
+			strings.MinRunes(0) &
+			=~"^[-0-9a-zA-Z]+$" &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 		VolumeSizeInGB?: int & <=16384 & >=5 |
 			{
 				string &
@@ -282,15 +346,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #InstanceMetadataServiceConfiguration: close({
-	MinimumInstanceMetadataServiceVersion!: strings.MaxRunes(1) & strings.MinRunes(0) & =~"^1|2$" | fn.#StringExpression
+	MinimumInstanceMetadataServiceVersion!: strings.MaxRunes(1) & strings.MinRunes(0) & =~"^1|2$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1) & strings.MinRunes(0) & =~"^1|2$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

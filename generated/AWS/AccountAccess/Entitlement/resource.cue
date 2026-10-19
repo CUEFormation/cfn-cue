@@ -4,8 +4,6 @@ package Entitlement
 
 import schema "github.com/cueformation/cfn-cue/resources/h7aed699976a26314:schema"
 
-#Resource:                 schema.#Resource
-#Entitlement:              schema.#Entitlement
-#IdentityCenterPrincipal:  schema.#IdentityCenterPrincipal
-#Principal:                schema.#Principal
-#PrincipalRoleEntitlement: schema.#PrincipalRoleEntitlement
+#Resource:                schema.#Resource
+#IdentityCenterPrincipal: schema.#IdentityCenterPrincipal
+#Principal:               schema.#Principal

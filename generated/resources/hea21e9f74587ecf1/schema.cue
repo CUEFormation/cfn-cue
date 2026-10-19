@@ -3,11 +3,11 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -15,21 +15,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // entities under specific business units and teams.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataZone::DomainUnit"
-	Properties!: close({
-		Description?:      strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
-		Name!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w -]+$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w -]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w -]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ParentDomainUnitIdentifier!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-z0-9_-]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
-
-#DomainUnitGroupProperties: close({GroupId?: string | fn.#StringExpression}) | fn.#ObjectExpression
-
-#DomainUnitOwnerProperties: close({
-	Group?: #DomainUnitGroupProperties
-	User?:  #DomainUnitUserProperties
-}) |
-fn.#ObjectExpression
-
-#DomainUnitUserProperties: close({UserId?: string | fn.#StringExpression}) | fn.#ObjectExpression

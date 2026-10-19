@@ -9,7 +9,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h98c66523c2984d1a:schem
 #CompositeComponent:              schema.#CompositeComponent
 #DataType:                        schema.#DataType
 #DataValue:                       schema.#DataValue
-#DateTimeFormat:                  schema.#DateTimeFormat
 #Definition:                      schema.#Definition
 #Property:                        schema.#Property
 #PropertyDefinitionConfiguration: schema.#PropertyDefinitionConfiguration

@@ -7,41 +7,89 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DirectConnect::PublicVirtualInterface
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DirectConnect::PublicVirtualInterface"
-	Properties!: close({
-		AllocatePublicVirtualInterfaceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	let properties = close({
+		AllocatePublicVirtualInterfaceRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 			=~"^arn:aws[a-z-]*:iam::[0-9]{12}:role/.+$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+				=~"^arn:aws[a-z-]*:iam::[0-9]{12}:role/.+$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		BgpPeers!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...close({
-			AddressFamily!:   =~"^(ipv4)|(ipv6)$" | fn.#StringExpression
-			AmazonAddress?:   =~"^[0-9a-fA-F:.]+/[0-9]+$" | fn.#StringExpression
-			Asn!:             =~"^[1-9][0-9]*$" | fn.#StringExpression
-			AuthKey?:         =~"^[A-Za-z0-9\\\\!\"#$%&'()*+,\\-./:;<=>?@\\[\\]\\^_`{|}~]{6,80}$" | fn.#StringExpression
-			CustomerAddress?: =~"^[0-9a-fA-F:.]+/[0-9]+$" | fn.#StringExpression
+			AddressFamily!: =~"^(ipv4)|(ipv6)$" |
+			{
+				number | bool
+				_cfnString: =~"^(ipv4)|(ipv6)$" & "\(self)"
+			} |
+			fn.#StringExpression
+			AmazonAddress?: =~"^[0-9a-fA-F:.]+/[0-9]+$" |
+			{
+				number | bool
+				_cfnString: =~"^[0-9a-fA-F:.]+/[0-9]+$" & "\(self)"
+			} |
+			fn.#StringExpression
+			Asn!: =~"^[1-9][0-9]*$" |
+			{
+				number | bool
+				_cfnString: =~"^[1-9][0-9]*$" & "\(self)"
+			} |
+			fn.#StringExpression
+			AuthKey?: =~"^[A-Za-z0-9\\\\!\"#$%&'()*+,\\-./:;<=>?@\\[\\]\\^_`{|}~]{6,80}$" |
+			{
+				number | bool
+				_cfnString: =~"^[A-Za-z0-9\\\\!\"#$%&'()*+,\\-./:;<=>?@\\[\\]\\^_`{|}~]{6,80}$" & "\(self)"
+			} |
+			fn.#StringExpression
+			CustomerAddress?: =~"^[0-9a-fA-F:.]+/[0-9]+$" |
+			{
+				number | bool
+				_cfnString: =~"^[0-9a-fA-F:.]+/[0-9]+$" & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
 		ConnectionId!: string &
 			=~"^((arn:aws[a-z-]*:directconnect:[a-z0-9-]+:[0-9]{12}:(dxcon/dxcon|dxlag/dxlag))|dx(con|lag))-[a-z0-9A-Z]{8,21}$" |
-			fn.#StringExpression
-		RateLimit?: =~"^[0-9]+\\.?[0-9]*(Mbps|Gbps|Tbps)$" | fn.#StringExpression
-		RouteFilterPrefixes?: list.MinItems(1) & list.UniqueItems() & [
-			...=~"^[0-9a-fA-F:.]+/[0-9]+$" | fn.#StringExpression
-		] |
-			fn.#ListExpression
-		Tags?:                 list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		VirtualInterfaceName!: =~"^[\\w \\-_,\\/]{1,100}$" | fn.#StringExpression
+		{
+			number | bool
+			_cfnString: string &
+				=~"^((arn:aws[a-z-]*:directconnect:[a-z0-9-]+:[0-9]{12}:(dxcon/dxcon|dxlag/dxlag))|dx(con|lag))-[a-z0-9A-Z]{8,21}$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		RateLimit?: =~"^[0-9]+\\.?[0-9]*(Mbps|Gbps|Tbps)$" |
+		{
+			number | bool
+			_cfnString: =~"^[0-9]+\\.?[0-9]*(Mbps|Gbps|Tbps)$" & "\(self)"
+		} |
+		fn.#StringExpression
+		RouteFilterPrefixes?: list.MinItems(1) & list.UniqueItems() & [...=~"^[0-9a-fA-F:.]+/[0-9]+$" |
+		{
+			number | bool
+			_cfnString: =~"^[0-9a-fA-F:.]+/[0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		Tags?: list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		VirtualInterfaceName!: =~"^[\\w \\-_,\\/]{1,100}$" |
+		{
+			number | bool
+			_cfnString: =~"^[\\w \\-_,\\/]{1,100}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Vlan!: int & <=4095 & >=0 |
 			{
 				string &
@@ -61,20 +109,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#BgpPeer: close({
-	AddressFamily!:   =~"^(ipv4)|(ipv6)$" | fn.#StringExpression
-	AmazonAddress?:   =~"^[0-9a-fA-F:.]+/[0-9]+$" | fn.#StringExpression
-	Asn!:             =~"^[1-9][0-9]*$" | fn.#StringExpression
-	AuthKey?:         =~"^[A-Za-z0-9\\\\!\"#$%&'()*+,\\-./:;<=>?@\\[\\]\\^_`{|}~]{6,80}$" | fn.#StringExpression
-	BgpPeerId?:       =~"^dxpeer-[a-z0-9]{8}$" | fn.#StringExpression
-	CustomerAddress?: =~"^[0-9a-fA-F:.]+/[0-9]+$" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

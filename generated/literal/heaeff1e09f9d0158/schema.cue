@@ -2,6 +2,8 @@
 
 package schema
 
+import "github.com/cueformation/cfn-cue/fn:fn"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for for AWS::EC2::TrafficMirrorFilterRule
@@ -10,7 +12,7 @@ package schema
 	Description?: string
 
 	// The destination CIDR block to assign to the Traffic Mirror rule.
-	DestinationCidrBlock!: string
+	DestinationCidrBlock!: fn.#IPv4Network & string
 
 	// The destination port range.
 	DestinationPortRange?: #TrafficMirrorPortRange
@@ -25,7 +27,7 @@ package schema
 	RuleNumber!: int
 
 	// The source CIDR block to assign to the Traffic Mirror Filter rule.
-	SourceCidrBlock!: string
+	SourceCidrBlock!: fn.#IPv4Network & string
 
 	// The source port range.
 	SourcePortRange?: #TrafficMirrorPortRange

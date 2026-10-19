@@ -24,7 +24,10 @@ import "strings"
 #AssociationId: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-a-z0-9]*$"
 
 // A name for the S3 Bucket
-#BucketName: strings.MaxRunes(128) & strings.MinRunes(1)
+#BucketName: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+strings.MaxRunes(128) &
+strings.MinRunes(1)
 
 #EncryptionConfig: close({
 	EncryptionType!: #EncryptionType

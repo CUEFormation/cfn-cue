@@ -7,4 +7,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h4d6cc3612d7c627f:schem
 #Resource:        schema.#Resource
 #AggregationType: schema.#AggregationType
 #Tag:             schema.#Tag
-#iso8601UTC:      schema.#iso8601UTC

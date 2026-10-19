@@ -8,8 +8,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h29eaa2d0c74c0773:schem
 #AssertionDefinition:           schema.#AssertionDefinition
 #AssociatedSystem:              schema.#AssociatedSystem
 #CrossAccountRoleConfiguration: schema.#CrossAccountRoleConfiguration
-#DisasterRecoverySource:        schema.#DisasterRecoverySource
-#EffectivePolicyValues:         schema.#EffectivePolicyValues
 #EksLabelSelector:              schema.#EksLabelSelector
 #EksLabelSelectorRequirement:   schema.#EksLabelSelectorRequirement
 #EksSource:                     schema.#EksSource
@@ -20,6 +18,4 @@ import schema "github.com/cueformation/cfn-cue/resources/h29eaa2d0c74c0773:schem
 #ResourceTag:                   schema.#ResourceTag
 #S3ReportOutputConfiguration:   schema.#S3ReportOutputConfiguration
 #ServiceReportConfiguration:    schema.#ServiceReportConfiguration
-#SloSource:                     schema.#SloSource
 #Tag:                           schema.#Tag
-#TargetSource:                  schema.#TargetSource

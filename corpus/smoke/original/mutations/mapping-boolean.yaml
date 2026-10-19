@@ -1,0 +1,7 @@
+Mappings:
+  Engine:
+    mysql:
+      PerformanceInsights: true
+Resources:
+  Queue:
+    Type: AWS::SQS::Queue

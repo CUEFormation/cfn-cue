@@ -3,3265 +3,1635 @@
 package cf
 
 import base "github.com/cueformation/cfn-cue/template:template"
-
 import AWS_ACMPCA_Certificate "github.com/cueformation/cfn-cue/resources/h5165bb5873aa1a35:schema"
-
 import AWS_ACMPCA_CertificateAuthority "github.com/cueformation/cfn-cue/resources/h9fcfa92780965940:schema"
-
 import AWS_ACMPCA_CertificateAuthorityActivation "github.com/cueformation/cfn-cue/resources/he9cacddc01026abf:schema"
-
 import AWS_ACMPCA_Permission "github.com/cueformation/cfn-cue/resources/hfd640a518e40962e:schema"
-
 import AWS_AIOps_InvestigationGroup "github.com/cueformation/cfn-cue/resources/hfaff1e63a86972cb:schema"
-
 import AWS_APS_AnomalyDetector "github.com/cueformation/cfn-cue/resources/hdb5da0528d90dae6:schema"
-
 import AWS_APS_ResourcePolicy "github.com/cueformation/cfn-cue/resources/hbd256272083f1e0a:schema"
-
 import AWS_APS_RuleGroupsNamespace "github.com/cueformation/cfn-cue/resources/hd83857d2c04ad340:schema"
-
 import AWS_APS_Scraper "github.com/cueformation/cfn-cue/resources/h8ec677c423b3f19e:schema"
-
 import AWS_APS_Workspace "github.com/cueformation/cfn-cue/resources/h34132ff5af28285b:schema"
-
 import AWS_ARCRegionSwitch_Plan "github.com/cueformation/cfn-cue/resources/h2f8a316726871efb:schema"
-
 import AWS_ARCZonalShift_AutoshiftObserverNotificationStatus "github.com/cueformation/cfn-cue/resources/h11376fee0279dcb6:schema"
-
 import AWS_ARCZonalShift_ZonalAutoshiftConfiguration "github.com/cueformation/cfn-cue/resources/hdebdc1e0c1e0fcb3:schema"
-
 import AWS_AWSExternalAnthropic_Workspace "github.com/cueformation/cfn-cue/resources/hb9b9aaf14b3ce55e:schema"
-
 import AWS_AccessAnalyzer_Analyzer "github.com/cueformation/cfn-cue/resources/h6f70b4067903effc:schema"
-
 import AWS_AccountAccess_Application "github.com/cueformation/cfn-cue/resources/h2510dbadbd2100d4:schema"
-
 import AWS_AccountAccess_Entitlement "github.com/cueformation/cfn-cue/resources/h7aed699976a26314:schema"
-
 import AWS_AgentRegistry_Registry "github.com/cueformation/cfn-cue/resources/hd24af14efdd40c17:schema"
-
 import AWS_AgentRegistry_RegistryRecord "github.com/cueformation/cfn-cue/resources/h34ebeb73fa9b145e:schema"
-
 import AWS_AmazonMQ_Broker "github.com/cueformation/cfn-cue/resources/h71b72aaf004c756c:schema"
-
 import AWS_AmazonMQ_Configuration "github.com/cueformation/cfn-cue/resources/hc074283eaa7d7759:schema"
-
 import AWS_AmazonMQ_ConfigurationAssociation "github.com/cueformation/cfn-cue/resources/h9e585c26796fa58f:schema"
-
 import AWS_Amplify_App "github.com/cueformation/cfn-cue/resources/h4db9939380779b5e:schema"
-
 import AWS_Amplify_Branch "github.com/cueformation/cfn-cue/resources/h34ce7e9a57c2373a:schema"
-
 import AWS_Amplify_Domain "github.com/cueformation/cfn-cue/resources/hb02729e2ee515e64:schema"
-
 import AWS_Amplify_Webhook "github.com/cueformation/cfn-cue/resources/hc776f0b2601489c0:schema"
-
 import AWS_AmplifyUIBuilder_Component "github.com/cueformation/cfn-cue/resources/hed6f92ee34cf48c3:schema"
-
 import AWS_AmplifyUIBuilder_Form "github.com/cueformation/cfn-cue/resources/h404b136c05e378ec:schema"
-
 import AWS_AmplifyUIBuilder_Theme "github.com/cueformation/cfn-cue/resources/h5d9f9068123e89fb:schema"
-
 import AWS_ApiGateway_Account "github.com/cueformation/cfn-cue/resources/h30ecdb42ffdd873d:schema"
-
 import AWS_ApiGateway_ApiKey "github.com/cueformation/cfn-cue/resources/hb899a0d240b53d9d:schema"
-
 import AWS_ApiGateway_Authorizer "github.com/cueformation/cfn-cue/resources/h14d4576cb2995a07:schema"
-
 import AWS_ApiGateway_BasePathMapping "github.com/cueformation/cfn-cue/resources/hae693bd078b13b46:schema"
-
 import AWS_ApiGateway_BasePathMappingV2 "github.com/cueformation/cfn-cue/resources/he061928a0352a8cc:schema"
-
 import AWS_ApiGateway_ClientCertificate "github.com/cueformation/cfn-cue/resources/h9230bcf0b306f207:schema"
-
 import AWS_ApiGateway_Deployment "github.com/cueformation/cfn-cue/resources/h75a2510533fcb770:schema"
-
 import AWS_ApiGateway_DocumentationPart "github.com/cueformation/cfn-cue/resources/he84b0919887ff2fb:schema"
-
 import AWS_ApiGateway_DocumentationVersion "github.com/cueformation/cfn-cue/resources/hdef1177843a231e8:schema"
-
 import AWS_ApiGateway_DomainName "github.com/cueformation/cfn-cue/resources/he8eb5eed19ecfb2e:schema"
-
 import AWS_ApiGateway_DomainNameAccessAssociation "github.com/cueformation/cfn-cue/resources/he780b68ae379f2f8:schema"
-
 import AWS_ApiGateway_DomainNameV2 "github.com/cueformation/cfn-cue/resources/hcb46410d8ffc0504:schema"
-
 import AWS_ApiGateway_GatewayResponse "github.com/cueformation/cfn-cue/resources/h5ee1cff343d46bc0:schema"
-
 import AWS_ApiGateway_Method "github.com/cueformation/cfn-cue/resources/haf2b8744618e1ebe:schema"
-
 import AWS_ApiGateway_Model "github.com/cueformation/cfn-cue/resources/hdeefbe65b80a54e6:schema"
-
 import AWS_ApiGateway_RequestValidator "github.com/cueformation/cfn-cue/resources/h5e2382d417d1be5e:schema"
-
 import AWS_ApiGateway_Resource "github.com/cueformation/cfn-cue/resources/h7bc03cb00d6eac21:schema"
-
 import AWS_ApiGateway_RestApi "github.com/cueformation/cfn-cue/resources/hc8114a4cebbb4dcd:schema"
-
 import AWS_ApiGateway_Stage "github.com/cueformation/cfn-cue/resources/ha356cbffb93af5f4:schema"
-
 import AWS_ApiGateway_UsagePlan "github.com/cueformation/cfn-cue/resources/hf2210ee1e5532f1e:schema"
-
 import AWS_ApiGateway_UsagePlanKey "github.com/cueformation/cfn-cue/resources/hbfa3add8b26e8530:schema"
-
 import AWS_ApiGateway_VpcLink "github.com/cueformation/cfn-cue/resources/h1f90bc5bee16e7c2:schema"
-
 import AWS_ApiGatewayV2_Api "github.com/cueformation/cfn-cue/resources/hdc4ae064d6ce6511:schema"
-
 import AWS_ApiGatewayV2_ApiGatewayManagedOverrides "github.com/cueformation/cfn-cue/resources/h1ae12353e8f2e243:schema"
-
 import AWS_ApiGatewayV2_ApiMapping "github.com/cueformation/cfn-cue/resources/h9174be3e50854a59:schema"
-
 import AWS_ApiGatewayV2_Authorizer "github.com/cueformation/cfn-cue/resources/hf3f5f24ce58d19a8:schema"
-
 import AWS_ApiGatewayV2_Deployment "github.com/cueformation/cfn-cue/resources/hb80a583ef6ae88bd:schema"
-
 import AWS_ApiGatewayV2_DomainName "github.com/cueformation/cfn-cue/resources/h3a08600530d8a5de:schema"
-
 import AWS_ApiGatewayV2_Integration "github.com/cueformation/cfn-cue/resources/hdb6c439a900cad01:schema"
-
 import AWS_ApiGatewayV2_IntegrationResponse "github.com/cueformation/cfn-cue/resources/h9da85e0f9f5f0077:schema"
-
 import AWS_ApiGatewayV2_Model "github.com/cueformation/cfn-cue/resources/hdea44ab0acc0b584:schema"
-
 import AWS_ApiGatewayV2_Route "github.com/cueformation/cfn-cue/resources/hf0d425737183819c:schema"
-
 import AWS_ApiGatewayV2_RouteResponse "github.com/cueformation/cfn-cue/resources/h694e17d3e085e4b0:schema"
-
 import AWS_ApiGatewayV2_RoutingRule "github.com/cueformation/cfn-cue/resources/h4edd4b2b1e8a7391:schema"
-
 import AWS_ApiGatewayV2_Stage "github.com/cueformation/cfn-cue/resources/h7ad209d7d756607a:schema"
-
 import AWS_ApiGatewayV2_VpcLink "github.com/cueformation/cfn-cue/resources/h00421980662e80a4:schema"
-
 import AWS_AppConfig_Application "github.com/cueformation/cfn-cue/resources/h427e618e9bd1ed21:schema"
-
 import AWS_AppConfig_ConfigurationProfile "github.com/cueformation/cfn-cue/resources/h1c0e8deb0cf5db3d:schema"
-
 import AWS_AppConfig_Deployment "github.com/cueformation/cfn-cue/resources/h6dcb58bc756e5745:schema"
-
 import AWS_AppConfig_DeploymentStrategy "github.com/cueformation/cfn-cue/resources/h327ac582f95cf99d:schema"
-
 import AWS_AppConfig_Environment "github.com/cueformation/cfn-cue/resources/h0fa5f11c92832a6b:schema"
-
 import AWS_AppConfig_ExperimentDefinition "github.com/cueformation/cfn-cue/resources/h8367fa436bbb1d43:schema"
-
 import AWS_AppConfig_ExperimentRun "github.com/cueformation/cfn-cue/resources/he6a6b774a1978bcb:schema"
-
 import AWS_AppConfig_Extension "github.com/cueformation/cfn-cue/resources/hba0942823d0a232c:schema"
-
 import AWS_AppConfig_ExtensionAssociation "github.com/cueformation/cfn-cue/resources/hacb08bd11a7d0c34:schema"
-
 import AWS_AppConfig_HostedConfigurationVersion "github.com/cueformation/cfn-cue/resources/h6ccba5b5ed963c13:schema"
-
 import AWS_AppFabric_AppAuthorization "github.com/cueformation/cfn-cue/resources/h1f98c5225b47f913:schema"
-
 import AWS_AppFabric_IngestionDestination "github.com/cueformation/cfn-cue/resources/h4b978634fd07e48a:schema"
-
 import AWS_AppFlow_Connector "github.com/cueformation/cfn-cue/resources/h009f1c09ff616b84:schema"
-
 import AWS_AppFlow_ConnectorProfile "github.com/cueformation/cfn-cue/resources/h1da719e514a031c1:schema"
-
 import AWS_AppFlow_Flow "github.com/cueformation/cfn-cue/resources/hf12d97b46529f54a:schema"
-
 import AWS_AppIntegrations_Application "github.com/cueformation/cfn-cue/resources/h471b577aceb4bae8:schema"
-
 import AWS_AppIntegrations_DataIntegration "github.com/cueformation/cfn-cue/resources/h66025b54b1c3a66f:schema"
-
 import AWS_AppIntegrations_EventIntegration "github.com/cueformation/cfn-cue/resources/h55dcb51fc4015778:schema"
-
 import AWS_AppMesh_GatewayRoute "github.com/cueformation/cfn-cue/resources/hb702ec293b02ccb9:schema"
-
 import AWS_AppMesh_Mesh "github.com/cueformation/cfn-cue/resources/h0b001e79261c3af3:schema"
-
 import AWS_AppMesh_Route "github.com/cueformation/cfn-cue/resources/hb3836c74d71f919d:schema"
-
 import AWS_AppMesh_VirtualGateway "github.com/cueformation/cfn-cue/resources/h9223d736ccc6feb0:schema"
-
 import AWS_AppMesh_VirtualNode "github.com/cueformation/cfn-cue/resources/h7eae71e9194143fd:schema"
-
 import AWS_AppMesh_VirtualRouter "github.com/cueformation/cfn-cue/resources/h22e575f395c48d41:schema"
-
 import AWS_AppMesh_VirtualService "github.com/cueformation/cfn-cue/resources/h15862064f26847f0:schema"
-
 import AWS_AppRunner_AutoScalingConfiguration "github.com/cueformation/cfn-cue/resources/hdc9a8ad1a6e810d5:schema"
-
 import AWS_AppRunner_ObservabilityConfiguration "github.com/cueformation/cfn-cue/resources/h5cc20728534faf19:schema"
-
 import AWS_AppRunner_Service "github.com/cueformation/cfn-cue/resources/hd77e636782ab8edd:schema"
-
 import AWS_AppRunner_VpcConnector "github.com/cueformation/cfn-cue/resources/he2120a7cb763e319:schema"
-
 import AWS_AppRunner_VpcIngressConnection "github.com/cueformation/cfn-cue/resources/h992175113ea919c0:schema"
-
 import AWS_AppStream_AppBlock "github.com/cueformation/cfn-cue/resources/h4805dac0763d173f:schema"
-
 import AWS_AppStream_AppBlockBuilder "github.com/cueformation/cfn-cue/resources/hc5697df9a7c14c20:schema"
-
 import AWS_AppStream_Application "github.com/cueformation/cfn-cue/resources/h84d37280925b5ce4:schema"
-
 import AWS_AppStream_ApplicationEntitlementAssociation "github.com/cueformation/cfn-cue/resources/h667889da02b4ba63:schema"
-
 import AWS_AppStream_ApplicationFleetAssociation "github.com/cueformation/cfn-cue/resources/hbc623b15f06f37ad:schema"
-
 import AWS_AppStream_DirectoryConfig "github.com/cueformation/cfn-cue/resources/heacc3ff64d5d9d0f:schema"
-
 import AWS_AppStream_Entitlement "github.com/cueformation/cfn-cue/resources/hc105798f02836f06:schema"
-
 import AWS_AppStream_Fleet "github.com/cueformation/cfn-cue/resources/hb3193feff9c75136:schema"
-
 import AWS_AppStream_ImageBuilder "github.com/cueformation/cfn-cue/resources/hd4ccab03cb250c9b:schema"
-
 import AWS_AppStream_Stack "github.com/cueformation/cfn-cue/resources/h54e20390c619237b:schema"
-
 import AWS_AppStream_StackFleetAssociation "github.com/cueformation/cfn-cue/resources/h5c4bef321cc33d74:schema"
-
 import AWS_AppStream_StackUserAssociation "github.com/cueformation/cfn-cue/resources/hc9900681170ae751:schema"
-
 import AWS_AppStream_User "github.com/cueformation/cfn-cue/resources/hf3b2a206ee753e86:schema"
-
 import AWS_AppSync_Api "github.com/cueformation/cfn-cue/resources/he72ed46456f3921d:schema"
-
 import AWS_AppSync_ApiCache "github.com/cueformation/cfn-cue/resources/h25b88096b0c660ef:schema"
-
 import AWS_AppSync_ApiKey "github.com/cueformation/cfn-cue/resources/h83c788859d3c6ab6:schema"
-
 import AWS_AppSync_ChannelNamespace "github.com/cueformation/cfn-cue/resources/hc336d391de418c99:schema"
-
 import AWS_AppSync_DataSource "github.com/cueformation/cfn-cue/resources/h88de25f13a72d96f:schema"
-
 import AWS_AppSync_DomainName "github.com/cueformation/cfn-cue/resources/h667ea9e91c7c7092:schema"
-
 import AWS_AppSync_DomainNameApiAssociation "github.com/cueformation/cfn-cue/resources/he57f97ab2808967b:schema"
-
 import AWS_AppSync_FunctionConfiguration "github.com/cueformation/cfn-cue/resources/heca160c7f1aa1975:schema"
-
 import AWS_AppSync_GraphQLApi "github.com/cueformation/cfn-cue/resources/h2481f45c5e2be5c1:schema"
-
 import AWS_AppSync_GraphQLSchema "github.com/cueformation/cfn-cue/resources/h2db971c9bee99214:schema"
-
 import AWS_AppSync_Resolver "github.com/cueformation/cfn-cue/resources/h1da64e9d9373f63a:schema"
-
 import AWS_AppSync_SourceApiAssociation "github.com/cueformation/cfn-cue/resources/h5ba668392326746e:schema"
-
 import AWS_ApplicationAutoScaling_ScalableTarget "github.com/cueformation/cfn-cue/resources/h1895e8c86f58be70:schema"
-
 import AWS_ApplicationAutoScaling_ScalingPolicy "github.com/cueformation/cfn-cue/resources/hbcd7e4da0910c41d:schema"
-
 import AWS_ApplicationInsights_Application "github.com/cueformation/cfn-cue/resources/h191d879f853d2ef4:schema"
-
 import AWS_ApplicationSignals_Discovery "github.com/cueformation/cfn-cue/resources/h3db3108d61067ffa:schema"
-
 import AWS_ApplicationSignals_GroupingConfiguration "github.com/cueformation/cfn-cue/resources/h07db1cc8cbc0787d:schema"
-
 import AWS_ApplicationSignals_ServiceLevelObjective "github.com/cueformation/cfn-cue/resources/hb946e96f4c288774:schema"
-
 import AWS_Athena_CapacityReservation "github.com/cueformation/cfn-cue/resources/h0dd7860b8d88036d:schema"
-
 import AWS_Athena_DataCatalog "github.com/cueformation/cfn-cue/resources/h26b802bbbe153af9:schema"
-
 import AWS_Athena_NamedQuery "github.com/cueformation/cfn-cue/resources/hb45bfc4368e75ff8:schema"
-
 import AWS_Athena_PreparedStatement "github.com/cueformation/cfn-cue/resources/h53b3d798e5f9cd59:schema"
-
 import AWS_Athena_WorkGroup "github.com/cueformation/cfn-cue/resources/h21dcc4c1cd7fe2c9:schema"
-
 import AWS_AuditManager_Assessment "github.com/cueformation/cfn-cue/resources/h2ec45fb92acc2103:schema"
-
 import AWS_AutoScaling_AutoScalingGroup "github.com/cueformation/cfn-cue/resources/h9340fcaa3e773ecc:schema"
-
 import AWS_AutoScaling_LaunchConfiguration "github.com/cueformation/cfn-cue/resources/hebf4d084dce94557:schema"
-
 import AWS_AutoScaling_LifecycleHook "github.com/cueformation/cfn-cue/resources/heef7564475816781:schema"
-
 import AWS_AutoScaling_ScalingPolicy "github.com/cueformation/cfn-cue/resources/hbde12f84db708ffe:schema"
-
 import AWS_AutoScaling_ScheduledAction "github.com/cueformation/cfn-cue/resources/h33970d53212b5b31:schema"
-
 import AWS_AutoScaling_WarmPool "github.com/cueformation/cfn-cue/resources/h0f8a566ef6e1b9ef:schema"
-
 import AWS_AutoScalingPlans_ScalingPlan "github.com/cueformation/cfn-cue/resources/h9e22be4bb86316fc:schema"
-
 import AWS_BCM_Dashboard "github.com/cueformation/cfn-cue/resources/h044ed393debcb661:schema"
-
 import AWS_Backup_BackupPlan "github.com/cueformation/cfn-cue/resources/hfdb923d594377838:schema"
-
 import AWS_Backup_BackupSelection "github.com/cueformation/cfn-cue/resources/h32873e890a445385:schema"
-
 import AWS_Backup_BackupVault "github.com/cueformation/cfn-cue/resources/h07a77a4786c7c0e0:schema"
-
 import AWS_Backup_Framework "github.com/cueformation/cfn-cue/resources/h2abc693ed916953d:schema"
-
 import AWS_Backup_LogicallyAirGappedBackupVault "github.com/cueformation/cfn-cue/resources/h5899a1b2ce4debde:schema"
-
 import AWS_Backup_ReportPlan "github.com/cueformation/cfn-cue/resources/h7595cf80dc3114ab:schema"
-
 import AWS_Backup_RestoreTestingPlan "github.com/cueformation/cfn-cue/resources/h607c6b03dfc77631:schema"
-
 import AWS_Backup_RestoreTestingSelection "github.com/cueformation/cfn-cue/resources/h39553f0bef97bc8f:schema"
-
 import AWS_Backup_TieringConfiguration "github.com/cueformation/cfn-cue/resources/h5140fefb404da421:schema"
-
 import AWS_BackupGateway_Hypervisor "github.com/cueformation/cfn-cue/resources/hee7317e303609a99:schema"
-
 import AWS_Batch_ComputeEnvironment "github.com/cueformation/cfn-cue/resources/he955fb1747ae7c60:schema"
-
 import AWS_Batch_ConsumableResource "github.com/cueformation/cfn-cue/resources/hc53d3276caeabdd2:schema"
-
 import AWS_Batch_JobDefinition "github.com/cueformation/cfn-cue/resources/ha99b30af9210ceae:schema"
-
 import AWS_Batch_JobQueue "github.com/cueformation/cfn-cue/resources/hdbba8a03ff10bb49:schema"
-
 import AWS_Batch_QuotaShare "github.com/cueformation/cfn-cue/resources/h348629a2cb335dfe:schema"
-
 import AWS_Batch_SchedulingPolicy "github.com/cueformation/cfn-cue/resources/h56da2060b38e0047:schema"
-
 import AWS_Batch_ServiceEnvironment "github.com/cueformation/cfn-cue/resources/h7bfe45bef38a6369:schema"
-
 import AWS_BcmPricingCalculator_BillScenario "github.com/cueformation/cfn-cue/resources/h2c0fa9f3c4b3f9a2:schema"
-
 import AWS_Bedrock_Agent "github.com/cueformation/cfn-cue/resources/h24f43d472ecafdba:schema"
-
 import AWS_Bedrock_AgentAlias "github.com/cueformation/cfn-cue/resources/h561b29be9793d397:schema"
-
 import AWS_Bedrock_ApplicationInferenceProfile "github.com/cueformation/cfn-cue/resources/h61a88c281d07a14a:schema"
-
 import AWS_Bedrock_Blueprint "github.com/cueformation/cfn-cue/resources/h2bc5b39d083cdff4:schema"
-
 import AWS_Bedrock_DataAutomationProject "github.com/cueformation/cfn-cue/resources/h0955b10951db6975:schema"
-
 import AWS_Bedrock_DataSource "github.com/cueformation/cfn-cue/resources/hfab9d0fe4deb6b63:schema"
-
 import AWS_Bedrock_EnforcedGuardrailConfiguration "github.com/cueformation/cfn-cue/resources/h50d30b4fbe9565ed:schema"
-
 import AWS_Bedrock_Flow "github.com/cueformation/cfn-cue/resources/h48f447fa55e8d6d4:schema"
-
 import AWS_Bedrock_FlowAlias "github.com/cueformation/cfn-cue/resources/h731266b2f8b2adc6:schema"
-
 import AWS_Bedrock_FlowVersion "github.com/cueformation/cfn-cue/resources/h82db4aad661010e9:schema"
-
 import AWS_Bedrock_Guardrail "github.com/cueformation/cfn-cue/resources/he245b84acb92ba4e:schema"
-
 import AWS_Bedrock_GuardrailVersion "github.com/cueformation/cfn-cue/resources/h4d735bc668254826:schema"
-
 import AWS_Bedrock_IntelligentPromptRouter "github.com/cueformation/cfn-cue/resources/h6c261f3ce62bf0c3:schema"
-
 import AWS_Bedrock_KnowledgeBase "github.com/cueformation/cfn-cue/resources/h2170ed174e12bd76:schema"
-
 import AWS_Bedrock_KnowledgeBasePolicy "github.com/cueformation/cfn-cue/resources/h4b3e9ea13978f1ae:schema"
-
 import AWS_Bedrock_Prompt "github.com/cueformation/cfn-cue/resources/h586fcd75e00aafea:schema"
-
 import AWS_Bedrock_PromptVersion "github.com/cueformation/cfn-cue/resources/h37363e336fed1ed8:schema"
-
 import AWS_Bedrock_ResourcePolicy "github.com/cueformation/cfn-cue/resources/h8e858add83cd9963:schema"
-
 import AWS_BedrockAgentCore_ApiKeyCredentialProvider "github.com/cueformation/cfn-cue/resources/hfc3a6dea13e2f042:schema"
-
 import AWS_BedrockAgentCore_BrowserCustom "github.com/cueformation/cfn-cue/resources/h1a71ab28934dffd8:schema"
-
 import AWS_BedrockAgentCore_BrowserProfile "github.com/cueformation/cfn-cue/resources/h1f701f55ad63b290:schema"
-
 import AWS_BedrockAgentCore_CapacityProvider "github.com/cueformation/cfn-cue/resources/h5c3d50ae78ff3424:schema"
-
 import AWS_BedrockAgentCore_CodeInterpreterCustom "github.com/cueformation/cfn-cue/resources/hf8c234d13fefa0b0:schema"
-
 import AWS_BedrockAgentCore_ConfigurationBundle "github.com/cueformation/cfn-cue/resources/ha18dca86ef4b9bbe:schema"
-
 import AWS_BedrockAgentCore_ConsentPortal "github.com/cueformation/cfn-cue/resources/h314a2db9d1720f90:schema"
-
 import AWS_BedrockAgentCore_Dataset "github.com/cueformation/cfn-cue/resources/h127892ff813f2aa4:schema"
-
 import AWS_BedrockAgentCore_Evaluator "github.com/cueformation/cfn-cue/resources/h099e126129fcb46c:schema"
-
 import AWS_BedrockAgentCore_Gateway "github.com/cueformation/cfn-cue/resources/hb002adf67de66b12:schema"
-
 import AWS_BedrockAgentCore_GatewayRateLimit "github.com/cueformation/cfn-cue/resources/h0769d8d725cd7160:schema"
-
 import AWS_BedrockAgentCore_GatewayRule "github.com/cueformation/cfn-cue/resources/ha8de23079240bb1b:schema"
-
 import AWS_BedrockAgentCore_GatewayTarget "github.com/cueformation/cfn-cue/resources/hf867e1d54a22602c:schema"
-
 import AWS_BedrockAgentCore_Harness "github.com/cueformation/cfn-cue/resources/h9aa56266f6e8c87e:schema"
-
 import AWS_BedrockAgentCore_HarnessEndpoint "github.com/cueformation/cfn-cue/resources/hd678f5f0c80e9e76:schema"
-
 import AWS_BedrockAgentCore_Memory "github.com/cueformation/cfn-cue/resources/had696fa2873a8318:schema"
-
 import AWS_BedrockAgentCore_OAuth2CredentialProvider "github.com/cueformation/cfn-cue/resources/h73d3c6fee785b82f:schema"
-
 import AWS_BedrockAgentCore_OnlineEvaluationConfig "github.com/cueformation/cfn-cue/resources/h163c003360e91354:schema"
-
 import AWS_BedrockAgentCore_Policy "github.com/cueformation/cfn-cue/resources/h88e492e105550378:schema"
-
 import AWS_BedrockAgentCore_PolicyEngine "github.com/cueformation/cfn-cue/resources/h3b2961e207e832bb:schema"
-
 import AWS_BedrockAgentCore_ResourcePolicy "github.com/cueformation/cfn-cue/resources/hc958b7abfc1104a7:schema"
-
 import AWS_BedrockAgentCore_Runtime "github.com/cueformation/cfn-cue/resources/h0b63587608f8d57b:schema"
-
 import AWS_BedrockAgentCore_RuntimeEndpoint "github.com/cueformation/cfn-cue/resources/h3d07a740b68bf097:schema"
-
 import AWS_BedrockAgentCore_WorkloadIdentity "github.com/cueformation/cfn-cue/resources/hda272b60037c575f:schema"
-
 import AWS_BedrockMantle_Project "github.com/cueformation/cfn-cue/resources/h2b19ec219c2c48e9:schema"
-
 import AWS_Budgets_Budget "github.com/cueformation/cfn-cue/resources/ha99850f5fdde16e0:schema"
-
 import AWS_Budgets_BudgetsAction "github.com/cueformation/cfn-cue/resources/hce9b5c78f45d2037:schema"
-
 import AWS_CDK_Metadata "github.com/cueformation/cfn-cue/resources/h4764011035779ef3:schema"
-
 import AWS_CE_AnomalyMonitor "github.com/cueformation/cfn-cue/resources/h264689f8c3c0d3de:schema"
-
 import AWS_CE_AnomalySubscription "github.com/cueformation/cfn-cue/resources/h6184977d2f069649:schema"
-
 import AWS_CE_CostCategory "github.com/cueformation/cfn-cue/resources/ha1c49c1a812e5f2e:schema"
-
 import AWS_Cases_CaseRule "github.com/cueformation/cfn-cue/resources/h0f08cf777e6a9c1a:schema"
-
 import AWS_Cases_Domain "github.com/cueformation/cfn-cue/resources/h4330c768b31beeef:schema"
-
 import AWS_Cases_Field "github.com/cueformation/cfn-cue/resources/h5893d48c432c36e9:schema"
-
 import AWS_Cases_Layout "github.com/cueformation/cfn-cue/resources/h6947b7104e54aa9b:schema"
-
 import AWS_Cases_Template "github.com/cueformation/cfn-cue/resources/h1a24619f1fbd48ca:schema"
-
 import AWS_Cassandra_Keyspace "github.com/cueformation/cfn-cue/resources/hf4bf6e6e3799fe0d:schema"
-
 import AWS_Cassandra_Table "github.com/cueformation/cfn-cue/resources/hb54e6661e89c8ae3:schema"
-
 import AWS_Cassandra_Type "github.com/cueformation/cfn-cue/resources/hf80830e85fc31e7b:schema"
-
 import AWS_CertificateManager_Account "github.com/cueformation/cfn-cue/resources/ha3161919c7b9f322:schema"
-
 import AWS_CertificateManager_AcmeDomainValidation "github.com/cueformation/cfn-cue/resources/h23cdcadc7013f3a8:schema"
-
 import AWS_CertificateManager_AcmeEndpoint "github.com/cueformation/cfn-cue/resources/h8bbb25659ce56bc1:schema"
-
 import AWS_CertificateManager_AcmeExternalAccountBinding "github.com/cueformation/cfn-cue/resources/h170bc5e69e569363:schema"
-
 import AWS_CertificateManager_Certificate "github.com/cueformation/cfn-cue/resources/h7cfcf2c9acbd65d3:schema"
-
 import AWS_Chatbot_CustomAction "github.com/cueformation/cfn-cue/resources/hb97eb9e3dd5f142c:schema"
-
 import AWS_Chatbot_MicrosoftTeamsChannelConfiguration "github.com/cueformation/cfn-cue/resources/hd7d5ab1dcfc24672:schema"
-
 import AWS_Chatbot_SlackChannelConfiguration "github.com/cueformation/cfn-cue/resources/h599da9cbec26cb51:schema"
-
 import AWS_Chime_MediaPipelineKinesisVideoStreamPool "github.com/cueformation/cfn-cue/resources/h840fa5d0699d7896:schema"
-
 import AWS_Chime_SipMediaApplication "github.com/cueformation/cfn-cue/resources/h8e6b71bf9f5b4a3a:schema"
-
 import AWS_Chime_VoiceConnector "github.com/cueformation/cfn-cue/resources/h5e8a2cf22b04a484:schema"
-
 import AWS_CleanRooms_AnalysisTemplate "github.com/cueformation/cfn-cue/resources/h730abd05d349c02b:schema"
-
 import AWS_CleanRooms_Collaboration "github.com/cueformation/cfn-cue/resources/ha30a36a9c1e0bda0:schema"
-
 import AWS_CleanRooms_ConfiguredTable "github.com/cueformation/cfn-cue/resources/h47815551fd0d6437:schema"
-
 import AWS_CleanRooms_ConfiguredTableAssociation "github.com/cueformation/cfn-cue/resources/h3613b0329b28d064:schema"
-
 import AWS_CleanRooms_IdMappingTable "github.com/cueformation/cfn-cue/resources/h1cc6d9fcb337adc8:schema"
-
 import AWS_CleanRooms_IdNamespaceAssociation "github.com/cueformation/cfn-cue/resources/h6da403c9332872c6:schema"
-
 import AWS_CleanRooms_IntermediateTable "github.com/cueformation/cfn-cue/resources/h7e660a9ca0009289:schema"
-
 import AWS_CleanRooms_Membership "github.com/cueformation/cfn-cue/resources/hd2a22e649099ec6e:schema"
-
 import AWS_CleanRooms_PrivacyBudgetTemplate "github.com/cueformation/cfn-cue/resources/hb72e139e68abe7a2:schema"
-
 import AWS_CleanRoomsML_ConfiguredModelAlgorithm "github.com/cueformation/cfn-cue/resources/hc1ce8b58a95304bb:schema"
-
 import AWS_CleanRoomsML_ConfiguredModelAlgorithmAssociation "github.com/cueformation/cfn-cue/resources/h726fe277b6e0dd55:schema"
-
 import AWS_CleanRoomsML_TrainingDataset "github.com/cueformation/cfn-cue/resources/hb0d19f7d067f4fb8:schema"
-
 import AWS_Cloud9_EnvironmentEC2 "github.com/cueformation/cfn-cue/resources/h1f78f40a15db8b48:schema"
-
 import AWS_CloudFormation_CustomResource "github.com/cueformation/cfn-cue/resources/hc93cecc5f7f60e14:schema"
-
 import AWS_CloudFormation_GuardHook "github.com/cueformation/cfn-cue/resources/h3ec2df6cb6bad073:schema"
-
 import AWS_CloudFormation_HookDefaultVersion "github.com/cueformation/cfn-cue/resources/h634cc9dcccea92df:schema"
-
 import AWS_CloudFormation_HookTypeConfig "github.com/cueformation/cfn-cue/resources/hbc081059782cac49:schema"
-
 import AWS_CloudFormation_HookVersion "github.com/cueformation/cfn-cue/resources/h53bc91bd4bc7544a:schema"
-
 import AWS_CloudFormation_LambdaHook "github.com/cueformation/cfn-cue/resources/h385b6e26fdbd12cc:schema"
-
 import AWS_CloudFormation_Macro "github.com/cueformation/cfn-cue/resources/h4997f9615a97cef0:schema"
-
 import AWS_CloudFormation_ModuleDefaultVersion "github.com/cueformation/cfn-cue/resources/h4d2e3455d4b6cdde:schema"
-
 import AWS_CloudFormation_ModuleVersion "github.com/cueformation/cfn-cue/resources/h7c12ed24885e6dca:schema"
-
 import AWS_CloudFormation_PublicTypeVersion "github.com/cueformation/cfn-cue/resources/h2ccd087f05c1fe96:schema"
-
 import AWS_CloudFormation_Publisher "github.com/cueformation/cfn-cue/resources/h16c40d786200765f:schema"
-
 import AWS_CloudFormation_ResourceDefaultVersion "github.com/cueformation/cfn-cue/resources/h28643d3cd0cffa9f:schema"
-
 import AWS_CloudFormation_ResourceVersion "github.com/cueformation/cfn-cue/resources/h996afabe9cc42d0f:schema"
-
 import AWS_CloudFormation_Stack "github.com/cueformation/cfn-cue/resources/h4fb294811823d209:schema"
-
 import AWS_CloudFormation_StackSet "github.com/cueformation/cfn-cue/resources/h6bc69beb98e3816c:schema"
-
 import AWS_CloudFormation_TypeActivation "github.com/cueformation/cfn-cue/resources/h7c1f035345157948:schema"
-
 import AWS_CloudFormation_WaitCondition "github.com/cueformation/cfn-cue/resources/h5aa61a5de12c94af:schema"
-
 import AWS_CloudFormation_WaitConditionHandle "github.com/cueformation/cfn-cue/resources/h2c60845d9923c010:schema"
-
 import AWS_CloudFront_AnycastIpList "github.com/cueformation/cfn-cue/resources/hfc6982960c35177d:schema"
-
 import AWS_CloudFront_CachePolicy "github.com/cueformation/cfn-cue/resources/ha2831001640bba3b:schema"
-
 import AWS_CloudFront_CloudFrontOriginAccessIdentity "github.com/cueformation/cfn-cue/resources/h756f99f3e22e87e5:schema"
-
 import AWS_CloudFront_ConnectionFunction "github.com/cueformation/cfn-cue/resources/h7ff57341308ad22b:schema"
-
 import AWS_CloudFront_ConnectionGroup "github.com/cueformation/cfn-cue/resources/h84c664ec037d88cf:schema"
-
 import AWS_CloudFront_ContinuousDeploymentPolicy "github.com/cueformation/cfn-cue/resources/h69a6fd1194eb7974:schema"
-
 import AWS_CloudFront_Distribution "github.com/cueformation/cfn-cue/resources/h14d24ae8a612f0ef:schema"
-
 import AWS_CloudFront_DistributionTenant "github.com/cueformation/cfn-cue/resources/h91b953295442c53d:schema"
-
 import AWS_CloudFront_Function "github.com/cueformation/cfn-cue/resources/ha95a345cfa1dc347:schema"
-
 import AWS_CloudFront_KeyGroup "github.com/cueformation/cfn-cue/resources/ha752f130cdfa97b3:schema"
-
 import AWS_CloudFront_KeyValueStore "github.com/cueformation/cfn-cue/resources/h68272cc8f82674e6:schema"
-
 import AWS_CloudFront_MonitoringSubscription "github.com/cueformation/cfn-cue/resources/hdda609ec9f07dcaf:schema"
-
 import AWS_CloudFront_OriginAccessControl "github.com/cueformation/cfn-cue/resources/h7a567670b613ce42:schema"
-
 import AWS_CloudFront_OriginRequestPolicy "github.com/cueformation/cfn-cue/resources/hca88707c91899447:schema"
-
 import AWS_CloudFront_PublicKey "github.com/cueformation/cfn-cue/resources/h1a68b455ba30f2b8:schema"
-
 import AWS_CloudFront_RealtimeLogConfig "github.com/cueformation/cfn-cue/resources/h746cf02202e6f81c:schema"
-
 import AWS_CloudFront_ResponseHeadersPolicy "github.com/cueformation/cfn-cue/resources/h8633a3e4c033154a:schema"
-
 import AWS_CloudFront_StreamingDistribution "github.com/cueformation/cfn-cue/resources/h8e05a11383d0aab3:schema"
-
 import AWS_CloudFront_TrustStore "github.com/cueformation/cfn-cue/resources/h77d3dfa6d122efbf:schema"
-
 import AWS_CloudFront_VpcOrigin "github.com/cueformation/cfn-cue/resources/h79b130196eebee6f:schema"
-
 import AWS_CloudHSM_Cluster "github.com/cueformation/cfn-cue/resources/h163f703de1026f6c:schema"
-
 import AWS_CloudTrail_Channel "github.com/cueformation/cfn-cue/resources/hc61e4bdd908d2527:schema"
-
 import AWS_CloudTrail_Dashboard "github.com/cueformation/cfn-cue/resources/h125673c4197ee84e:schema"
-
 import AWS_CloudTrail_EventDataStore "github.com/cueformation/cfn-cue/resources/h57818fbc2c33ea7b:schema"
-
 import AWS_CloudTrail_ResourcePolicy "github.com/cueformation/cfn-cue/resources/h87c88dc4472a2de4:schema"
-
 import AWS_CloudTrail_Trail "github.com/cueformation/cfn-cue/resources/h92b0a0f5db6788ed:schema"
-
 import AWS_CloudWatch_Alarm "github.com/cueformation/cfn-cue/resources/he3ce63041315cf44:schema"
-
 import AWS_CloudWatch_AlarmMuteRule "github.com/cueformation/cfn-cue/resources/heaf32e7ed8be6870:schema"
-
 import AWS_CloudWatch_AnomalyDetector "github.com/cueformation/cfn-cue/resources/h565051e50799c49e:schema"
-
 import AWS_CloudWatch_CompositeAlarm "github.com/cueformation/cfn-cue/resources/h47bc3223d6d88916:schema"
-
 import AWS_CloudWatch_Dashboard "github.com/cueformation/cfn-cue/resources/h2bfec87e1eba6a46:schema"
-
 import AWS_CloudWatch_InsightRule "github.com/cueformation/cfn-cue/resources/he0dd7e7a00fbac77:schema"
-
 import AWS_CloudWatch_LogAlarm "github.com/cueformation/cfn-cue/resources/h8e13abc2cb161d75:schema"
-
 import AWS_CloudWatch_MetricStream "github.com/cueformation/cfn-cue/resources/ha056591b3b6254f7:schema"
-
 import AWS_CloudWatch_OTelEnrichment "github.com/cueformation/cfn-cue/resources/he179d3dbf87ca576:schema"
-
 import AWS_CloudWatch_ResourceMetricsConfiguration "github.com/cueformation/cfn-cue/resources/h3e2861e81836d5ac:schema"
-
 import AWS_CodeArtifact_Domain "github.com/cueformation/cfn-cue/resources/ha794043ecec99e01:schema"
-
 import AWS_CodeArtifact_PackageGroup "github.com/cueformation/cfn-cue/resources/h4c56cf30943fa62e:schema"
-
 import AWS_CodeArtifact_Repository "github.com/cueformation/cfn-cue/resources/ha7a0a382e32ad2fb:schema"
-
 import AWS_CodeBuild_Fleet "github.com/cueformation/cfn-cue/resources/h574a407c0563fa4b:schema"
-
 import AWS_CodeBuild_Project "github.com/cueformation/cfn-cue/resources/h736d4b31275ff704:schema"
-
 import AWS_CodeBuild_ReportGroup "github.com/cueformation/cfn-cue/resources/hc07086533b9f1ee6:schema"
-
 import AWS_CodeBuild_SourceCredential "github.com/cueformation/cfn-cue/resources/hb20f9694e8c700ee:schema"
-
 import AWS_CodeCommit_Repository "github.com/cueformation/cfn-cue/resources/hf86b2f36a3ca973b:schema"
-
 import AWS_CodeConnections_Connection "github.com/cueformation/cfn-cue/resources/h8dea7cb361509197:schema"
-
 import AWS_CodeConnections_Host "github.com/cueformation/cfn-cue/resources/heed1000a22999652:schema"
-
 import AWS_CodeDeploy_Application "github.com/cueformation/cfn-cue/resources/h1d497e04e80a5c31:schema"
-
 import AWS_CodeDeploy_DeploymentConfig "github.com/cueformation/cfn-cue/resources/h599ff4f3229061a3:schema"
-
 import AWS_CodeDeploy_DeploymentGroup "github.com/cueformation/cfn-cue/resources/h4e2837ac28312660:schema"
-
 import AWS_CodeGuruProfiler_ProfilingGroup "github.com/cueformation/cfn-cue/resources/hc6b0e5d0968afcf8:schema"
-
 import AWS_CodeGuruReviewer_RepositoryAssociation "github.com/cueformation/cfn-cue/resources/h5008fe4e3df05f08:schema"
-
 import AWS_CodePipeline_CustomActionType "github.com/cueformation/cfn-cue/resources/h949dafe70b900e5f:schema"
-
 import AWS_CodePipeline_Pipeline "github.com/cueformation/cfn-cue/resources/he873dd52992a2fc1:schema"
-
 import AWS_CodePipeline_Webhook "github.com/cueformation/cfn-cue/resources/hd3e561aa2b32c7ea:schema"
-
 import AWS_CodeStar_GitHubRepository "github.com/cueformation/cfn-cue/resources/h49e11a72980b2701:schema"
-
 import AWS_CodeStarConnections_Connection "github.com/cueformation/cfn-cue/resources/h24d5ccecdd3bddb0:schema"
-
 import AWS_CodeStarConnections_RepositoryLink "github.com/cueformation/cfn-cue/resources/h753f2277ad4b3852:schema"
-
 import AWS_CodeStarConnections_SyncConfiguration "github.com/cueformation/cfn-cue/resources/h5c9fd422311692b2:schema"
-
 import AWS_CodeStarNotifications_NotificationRule "github.com/cueformation/cfn-cue/resources/h657cf3c87f04c5d0:schema"
-
 import AWS_Cognito_IdentityPool "github.com/cueformation/cfn-cue/resources/ha90335a576ca39fc:schema"
-
 import AWS_Cognito_IdentityPoolPrincipalTag "github.com/cueformation/cfn-cue/resources/hfc2fe78bfeb26c8e:schema"
-
 import AWS_Cognito_IdentityPoolRoleAttachment "github.com/cueformation/cfn-cue/resources/h56724eb82297a97e:schema"
-
 import AWS_Cognito_LogDeliveryConfiguration "github.com/cueformation/cfn-cue/resources/hb2ac918ac6b42ce7:schema"
-
 import AWS_Cognito_ManagedLoginBranding "github.com/cueformation/cfn-cue/resources/hb85c903f0dabb1a8:schema"
-
 import AWS_Cognito_Terms "github.com/cueformation/cfn-cue/resources/hcb2d5e2a43c93292:schema"
-
 import AWS_Cognito_UserPool "github.com/cueformation/cfn-cue/resources/h5b17d9ae2cc10895:schema"
-
 import AWS_Cognito_UserPoolClient "github.com/cueformation/cfn-cue/resources/hdcc0f233d3435d3c:schema"
-
 import AWS_Cognito_UserPoolDomain "github.com/cueformation/cfn-cue/resources/hc1fce767ee5ce80d:schema"
-
 import AWS_Cognito_UserPoolGroup "github.com/cueformation/cfn-cue/resources/h8d59f88bf658091e:schema"
-
 import AWS_Cognito_UserPoolIdentityProvider "github.com/cueformation/cfn-cue/resources/hba35992b6b838773:schema"
-
 import AWS_Cognito_UserPoolRegionalConfigurationAttachment "github.com/cueformation/cfn-cue/resources/h6c9e612e231ed242:schema"
-
 import AWS_Cognito_UserPoolReplica "github.com/cueformation/cfn-cue/resources/h612ef5d807dda0e5:schema"
-
 import AWS_Cognito_UserPoolResourceServer "github.com/cueformation/cfn-cue/resources/ha0ea4d6da737d19f:schema"
-
 import AWS_Cognito_UserPoolRiskConfigurationAttachment "github.com/cueformation/cfn-cue/resources/hbd2a6c5d7882e40d:schema"
-
 import AWS_Cognito_UserPoolUICustomizationAttachment "github.com/cueformation/cfn-cue/resources/h2072bb8f8b353ea3:schema"
-
 import AWS_Cognito_UserPoolUser "github.com/cueformation/cfn-cue/resources/h4120e8d379181e59:schema"
-
 import AWS_Cognito_UserPoolUserToGroupAttachment "github.com/cueformation/cfn-cue/resources/hcd12ce3880a3bfc9:schema"
-
 import AWS_Comprehend_DocumentClassifier "github.com/cueformation/cfn-cue/resources/h4e15e8d303696068:schema"
-
 import AWS_Comprehend_Flywheel "github.com/cueformation/cfn-cue/resources/hf6dee1fed948902a:schema"
-
 import AWS_ComputeOptimizer_AutomationRule "github.com/cueformation/cfn-cue/resources/h047ecd33344a8c38:schema"
-
 import AWS_Config_AggregationAuthorization "github.com/cueformation/cfn-cue/resources/h141e19f3841b50f5:schema"
-
 import AWS_Config_ConfigRule "github.com/cueformation/cfn-cue/resources/h1fc72217e4dbfe06:schema"
-
 import AWS_Config_ConfigurationAggregator "github.com/cueformation/cfn-cue/resources/h55b69ab4297e6789:schema"
-
 import AWS_Config_ConfigurationRecorder "github.com/cueformation/cfn-cue/resources/h2eb0efb166130e4b:schema"
-
 import AWS_Config_ConformancePack "github.com/cueformation/cfn-cue/resources/h52c118dae98a9c25:schema"
-
 import AWS_Config_Connector "github.com/cueformation/cfn-cue/resources/h91fa5d468431ff09:schema"
-
 import AWS_Config_DeliveryChannel "github.com/cueformation/cfn-cue/resources/h61e01edd61157baf:schema"
-
 import AWS_Config_OrganizationConfigRule "github.com/cueformation/cfn-cue/resources/h050a0b4085aae369:schema"
-
 import AWS_Config_OrganizationConformancePack "github.com/cueformation/cfn-cue/resources/h5c705cb122178739:schema"
-
 import AWS_Config_RemediationConfiguration "github.com/cueformation/cfn-cue/resources/h0f661a045852851e:schema"
-
 import AWS_Config_StoredQuery "github.com/cueformation/cfn-cue/resources/h1176dcbcebdb00b5:schema"
-
 import AWS_Connect_AgentStatus "github.com/cueformation/cfn-cue/resources/hf9ac38a04da99ccd:schema"
-
 import AWS_Connect_ApprovedOrigin "github.com/cueformation/cfn-cue/resources/hd8c6b3ee36d310ee:schema"
-
 import AWS_Connect_ContactFlow "github.com/cueformation/cfn-cue/resources/h658e1a47b9a2274c:schema"
-
 import AWS_Connect_ContactFlowModule "github.com/cueformation/cfn-cue/resources/h42b3383c09cb353e:schema"
-
 import AWS_Connect_ContactFlowModuleAlias "github.com/cueformation/cfn-cue/resources/h9fc0384e65a746a4:schema"
-
 import AWS_Connect_ContactFlowModuleVersion "github.com/cueformation/cfn-cue/resources/h0f5d74e669f0926d:schema"
-
 import AWS_Connect_DataLakeAssociation "github.com/cueformation/cfn-cue/resources/heb07130f63aaf316:schema"
-
 import AWS_Connect_DataTable "github.com/cueformation/cfn-cue/resources/hf49f9760c9db6961:schema"
-
 import AWS_Connect_DataTableAttribute "github.com/cueformation/cfn-cue/resources/hbf241fcd578a8413:schema"
-
 import AWS_Connect_DataTableRecord "github.com/cueformation/cfn-cue/resources/hd994378f96a17ad6:schema"
-
 import AWS_Connect_EmailAddress "github.com/cueformation/cfn-cue/resources/hded8f9fe8312422e:schema"
-
 import AWS_Connect_EvaluationForm "github.com/cueformation/cfn-cue/resources/hb3b3e2d4f301cf2d:schema"
-
 import AWS_Connect_HoursOfOperation "github.com/cueformation/cfn-cue/resources/h185984bf555ce93e:schema"
-
 import AWS_Connect_Instance "github.com/cueformation/cfn-cue/resources/hff3defcf46d09358:schema"
-
 import AWS_Connect_InstanceStorageConfig "github.com/cueformation/cfn-cue/resources/hb65fef83f2f0de73:schema"
-
 import AWS_Connect_IntegrationAssociation "github.com/cueformation/cfn-cue/resources/h5ba801aebdae2fc2:schema"
-
 import AWS_Connect_Metric "github.com/cueformation/cfn-cue/resources/h08cfc9a1da17498f:schema"
-
 import AWS_Connect_Notification "github.com/cueformation/cfn-cue/resources/hb6e9499f8bccb648:schema"
-
 import AWS_Connect_PhoneNumber "github.com/cueformation/cfn-cue/resources/h17e8b435c4f8f405:schema"
-
 import AWS_Connect_PredefinedAttribute "github.com/cueformation/cfn-cue/resources/h07d0ef414568cf62:schema"
-
 import AWS_Connect_Prompt "github.com/cueformation/cfn-cue/resources/h5786931b2c259615:schema"
-
 import AWS_Connect_Queue "github.com/cueformation/cfn-cue/resources/h9d50eae05604737e:schema"
-
 import AWS_Connect_QuickConnect "github.com/cueformation/cfn-cue/resources/h7e88b8d225bf6274:schema"
-
 import AWS_Connect_RoutingProfile "github.com/cueformation/cfn-cue/resources/h83c9383eab5b0b6d:schema"
-
 import AWS_Connect_Rule "github.com/cueformation/cfn-cue/resources/ha5a30d2f7acae716:schema"
-
 import AWS_Connect_SecurityKey "github.com/cueformation/cfn-cue/resources/hc873441e401ff1c2:schema"
-
 import AWS_Connect_SecurityProfile "github.com/cueformation/cfn-cue/resources/h7fc719e6593410d1:schema"
-
 import AWS_Connect_TaskTemplate "github.com/cueformation/cfn-cue/resources/h658491098c983127:schema"
-
 import AWS_Connect_TestCase "github.com/cueformation/cfn-cue/resources/hb4e82979f199cc25:schema"
-
 import AWS_Connect_TrafficDistributionGroup "github.com/cueformation/cfn-cue/resources/h124458b9f59308f7:schema"
-
 import AWS_Connect_User "github.com/cueformation/cfn-cue/resources/hc90e842e4fc50b75:schema"
-
 import AWS_Connect_UserHierarchyGroup "github.com/cueformation/cfn-cue/resources/h662536791ccf9db2:schema"
-
 import AWS_Connect_UserHierarchyStructure "github.com/cueformation/cfn-cue/resources/h0afce443aa31651b:schema"
-
 import AWS_Connect_View "github.com/cueformation/cfn-cue/resources/h0ad103f6f66bd4c2:schema"
-
 import AWS_Connect_ViewVersion "github.com/cueformation/cfn-cue/resources/hdcef8c71a7e1e0b6:schema"
-
 import AWS_Connect_Vocabulary "github.com/cueformation/cfn-cue/resources/h5638fde336f96af6:schema"
-
 import AWS_Connect_Workspace "github.com/cueformation/cfn-cue/resources/hd01de64c5ada1efb:schema"
-
 import AWS_ConnectCampaignsV2_Campaign "github.com/cueformation/cfn-cue/resources/hd0661060000c108d:schema"
-
 import AWS_ControlTower_EnabledBaseline "github.com/cueformation/cfn-cue/resources/hd266007f54cb3cfa:schema"
-
 import AWS_ControlTower_EnabledControl "github.com/cueformation/cfn-cue/resources/h6102e62302f955f3:schema"
-
 import AWS_ControlTower_LandingZone "github.com/cueformation/cfn-cue/resources/h6ca58985c60a520c:schema"
-
 import AWS_CustomerProfiles_CalculatedAttributeDefinition "github.com/cueformation/cfn-cue/resources/h0721a942f1a9abf6:schema"
-
 import AWS_CustomerProfiles_Domain "github.com/cueformation/cfn-cue/resources/hddc2c61efb34d9be:schema"
-
 import AWS_CustomerProfiles_DomainObjectType "github.com/cueformation/cfn-cue/resources/h5d4bd47f9fe556a2:schema"
-
 import AWS_CustomerProfiles_EventStream "github.com/cueformation/cfn-cue/resources/h3490e98339c3f220:schema"
-
 import AWS_CustomerProfiles_EventTrigger "github.com/cueformation/cfn-cue/resources/hef4a553243c345b6:schema"
-
 import AWS_CustomerProfiles_Integration "github.com/cueformation/cfn-cue/resources/h7579eaceaaf9f59e:schema"
-
 import AWS_CustomerProfiles_ObjectType "github.com/cueformation/cfn-cue/resources/h7c2bb8750d577511:schema"
-
 import AWS_CustomerProfiles_Recommender "github.com/cueformation/cfn-cue/resources/hef9e13a9655927ab:schema"
-
 import AWS_CustomerProfiles_SegmentDefinition "github.com/cueformation/cfn-cue/resources/h23e094e51738b835:schema"
-
 import AWS_DAX_Cluster "github.com/cueformation/cfn-cue/resources/haf6cfd00b2ff1297:schema"
-
 import AWS_DAX_ParameterGroup "github.com/cueformation/cfn-cue/resources/h2a58dc0229a5955d:schema"
-
 import AWS_DAX_SubnetGroup "github.com/cueformation/cfn-cue/resources/h5a397854582a9758:schema"
-
 import AWS_DLM_LifecyclePolicy "github.com/cueformation/cfn-cue/resources/h735e6965c938e1af:schema"
-
 import AWS_DMS_Certificate "github.com/cueformation/cfn-cue/resources/h5cc36e087430f6bd:schema"
-
 import AWS_DMS_DataMigration "github.com/cueformation/cfn-cue/resources/h9f8c80568d06a7f0:schema"
-
 import AWS_DMS_DataProvider "github.com/cueformation/cfn-cue/resources/hcf2848e4f44e50b9:schema"
-
 import AWS_DMS_Endpoint "github.com/cueformation/cfn-cue/resources/h0e81472ad96e199b:schema"
-
 import AWS_DMS_EventSubscription "github.com/cueformation/cfn-cue/resources/h4f72ca3f2fc0a997:schema"
-
 import AWS_DMS_InstanceProfile "github.com/cueformation/cfn-cue/resources/h9ad73fda26b48ae9:schema"
-
 import AWS_DMS_MigrationProject "github.com/cueformation/cfn-cue/resources/h0679d37ebfcf9475:schema"
-
 import AWS_DMS_ReplicationConfig "github.com/cueformation/cfn-cue/resources/h9c69ff774634902c:schema"
-
 import AWS_DMS_ReplicationInstance "github.com/cueformation/cfn-cue/resources/h0ed5eabb0bedbc77:schema"
-
 import AWS_DMS_ReplicationSubnetGroup "github.com/cueformation/cfn-cue/resources/h8679ca82a8e208ad:schema"
-
 import AWS_DMS_ReplicationTask "github.com/cueformation/cfn-cue/resources/h58a27b99e5319043:schema"
-
 import AWS_DSQL_Cluster "github.com/cueformation/cfn-cue/resources/h4e590d6464127e47:schema"
-
 import AWS_DataBrew_Dataset "github.com/cueformation/cfn-cue/resources/h39f77d5363e25838:schema"
-
 import AWS_DataBrew_Job "github.com/cueformation/cfn-cue/resources/he8c1ddc90269ac7f:schema"
-
 import AWS_DataBrew_Project "github.com/cueformation/cfn-cue/resources/hf221a42934d34c88:schema"
-
 import AWS_DataBrew_Recipe "github.com/cueformation/cfn-cue/resources/hd9e914ea91089802:schema"
-
 import AWS_DataBrew_Ruleset "github.com/cueformation/cfn-cue/resources/h5438bdfad326a68e:schema"
-
 import AWS_DataBrew_Schedule "github.com/cueformation/cfn-cue/resources/h0a973b9958e7812c:schema"
-
 import AWS_DataExchange_DataSet "github.com/cueformation/cfn-cue/resources/h34871693920f31d0:schema"
-
 import AWS_DataExchange_EventAction "github.com/cueformation/cfn-cue/resources/h3e90b91c1a943f94:schema"
-
 import AWS_DataPipeline_Pipeline "github.com/cueformation/cfn-cue/resources/h808c07b4747d8b80:schema"
-
 import AWS_DataSync_Agent "github.com/cueformation/cfn-cue/resources/had101fd5226f2796:schema"
-
 import AWS_DataSync_LocationAzureBlob "github.com/cueformation/cfn-cue/resources/h1b90e60edec1e294:schema"
-
 import AWS_DataSync_LocationEFS "github.com/cueformation/cfn-cue/resources/h8673b7437ef55c57:schema"
-
 import AWS_DataSync_LocationFSxLustre "github.com/cueformation/cfn-cue/resources/h99195180260edfb8:schema"
-
 import AWS_DataSync_LocationFSxONTAP "github.com/cueformation/cfn-cue/resources/h0fd53026d71f4c50:schema"
-
 import AWS_DataSync_LocationFSxOpenZFS "github.com/cueformation/cfn-cue/resources/hfeee03c1176e7378:schema"
-
 import AWS_DataSync_LocationFSxWindows "github.com/cueformation/cfn-cue/resources/hf384c1563ab0c10c:schema"
-
 import AWS_DataSync_LocationHDFS "github.com/cueformation/cfn-cue/resources/hb6b2b7203a188504:schema"
-
 import AWS_DataSync_LocationNFS "github.com/cueformation/cfn-cue/resources/h525691396196fcc8:schema"
-
 import AWS_DataSync_LocationObjectStorage "github.com/cueformation/cfn-cue/resources/h50a87d24c0a55fa4:schema"
-
 import AWS_DataSync_LocationS3 "github.com/cueformation/cfn-cue/resources/h59dc08ae2fb180ff:schema"
-
 import AWS_DataSync_LocationSMB "github.com/cueformation/cfn-cue/resources/h0e85de07e0cfd58f:schema"
-
 import AWS_DataSync_Task "github.com/cueformation/cfn-cue/resources/h5ce0bc0a4a34bba5:schema"
-
 import AWS_DataZone_Connection "github.com/cueformation/cfn-cue/resources/h4cd7885db897fe5f:schema"
-
 import AWS_DataZone_DataSource "github.com/cueformation/cfn-cue/resources/h933ffbfb222a28cb:schema"
-
 import AWS_DataZone_Domain "github.com/cueformation/cfn-cue/resources/h9f534c0412fb6e85:schema"
-
 import AWS_DataZone_DomainUnit "github.com/cueformation/cfn-cue/resources/hea21e9f74587ecf1:schema"
-
 import AWS_DataZone_Environment "github.com/cueformation/cfn-cue/resources/h203fe5998d1cce31:schema"
-
 import AWS_DataZone_EnvironmentActions "github.com/cueformation/cfn-cue/resources/heb08b59943553138:schema"
-
 import AWS_DataZone_EnvironmentBlueprintConfiguration "github.com/cueformation/cfn-cue/resources/h27641a113402d0b5:schema"
-
 import AWS_DataZone_EnvironmentProfile "github.com/cueformation/cfn-cue/resources/hd1d0804dd818c909:schema"
-
 import AWS_DataZone_FormType "github.com/cueformation/cfn-cue/resources/heb0e85f0d5179e6c:schema"
-
 import AWS_DataZone_GroupProfile "github.com/cueformation/cfn-cue/resources/hdbc39991b9a431d9:schema"
-
 import AWS_DataZone_Owner "github.com/cueformation/cfn-cue/resources/h6bc162c74663dd1f:schema"
-
 import AWS_DataZone_PolicyGrant "github.com/cueformation/cfn-cue/resources/hc7db94cc510c5ff4:schema"
-
 import AWS_DataZone_Project "github.com/cueformation/cfn-cue/resources/h16a2b0851033d3b8:schema"
-
 import AWS_DataZone_ProjectMembership "github.com/cueformation/cfn-cue/resources/h0c6820dc2331ca99:schema"
-
 import AWS_DataZone_ProjectProfile "github.com/cueformation/cfn-cue/resources/h5fa4eb28daa1cd45:schema"
-
 import AWS_DataZone_SubscriptionTarget "github.com/cueformation/cfn-cue/resources/h4e16badac4801e30:schema"
-
 import AWS_DataZone_UserProfile "github.com/cueformation/cfn-cue/resources/hcc36c603959ce474:schema"
-
 import AWS_Deadline_Budget "github.com/cueformation/cfn-cue/resources/h0c1160adbf617b58:schema"
-
 import AWS_Deadline_Farm "github.com/cueformation/cfn-cue/resources/h87242dcfca18681d:schema"
-
 import AWS_Deadline_Fleet "github.com/cueformation/cfn-cue/resources/hb3b1a556a41c7c01:schema"
-
 import AWS_Deadline_LicenseEndpoint "github.com/cueformation/cfn-cue/resources/h27dc1a507bf43426:schema"
-
 import AWS_Deadline_Limit "github.com/cueformation/cfn-cue/resources/h919f8732f657567e:schema"
-
 import AWS_Deadline_MeteredProduct "github.com/cueformation/cfn-cue/resources/h92c9fb13b2e8b861:schema"
-
 import AWS_Deadline_Monitor "github.com/cueformation/cfn-cue/resources/hc3da567e741011f4:schema"
-
 import AWS_Deadline_Queue "github.com/cueformation/cfn-cue/resources/he72bbaa6fcd3ef5e:schema"
-
 import AWS_Deadline_QueueEnvironment "github.com/cueformation/cfn-cue/resources/hc4fa4cd8cef4ff8d:schema"
-
 import AWS_Deadline_QueueFleetAssociation "github.com/cueformation/cfn-cue/resources/h76368e3b6a451337:schema"
-
 import AWS_Deadline_QueueLimitAssociation "github.com/cueformation/cfn-cue/resources/hbf43739759ff485e:schema"
-
 import AWS_Deadline_StorageProfile "github.com/cueformation/cfn-cue/resources/he79191ef6886ca0c:schema"
-
 import AWS_Deadline_Worker "github.com/cueformation/cfn-cue/resources/hf79559c8d1eefb8e:schema"
-
 import AWS_Detective_Graph "github.com/cueformation/cfn-cue/resources/he549cf3019470f37:schema"
-
 import AWS_Detective_MemberInvitation "github.com/cueformation/cfn-cue/resources/hd99955017f43e228:schema"
-
 import AWS_Detective_OrganizationAdmin "github.com/cueformation/cfn-cue/resources/hb7f8318a0b562d89:schema"
-
 import AWS_DevOpsAgent_AgentSpace "github.com/cueformation/cfn-cue/resources/h873bee5ffe125564:schema"
-
 import AWS_DevOpsAgent_Asset "github.com/cueformation/cfn-cue/resources/h1591626f64f61de9:schema"
-
 import AWS_DevOpsAgent_Association "github.com/cueformation/cfn-cue/resources/hde830a0afed1aa34:schema"
-
 import AWS_DevOpsAgent_PrivateConnection "github.com/cueformation/cfn-cue/resources/h107d047ef22e354d:schema"
-
 import AWS_DevOpsAgent_Service "github.com/cueformation/cfn-cue/resources/h58a12dc15086a8cc:schema"
-
 import AWS_DevOpsAgent_Trigger "github.com/cueformation/cfn-cue/resources/h35a8d09dee65f97b:schema"
-
 import AWS_DevOpsGuru_LogAnomalyDetectionIntegration "github.com/cueformation/cfn-cue/resources/h17c2e386eb38bc22:schema"
-
 import AWS_DevOpsGuru_NotificationChannel "github.com/cueformation/cfn-cue/resources/h47e5f69c56eca154:schema"
-
 import AWS_DevOpsGuru_ResourceCollection "github.com/cueformation/cfn-cue/resources/ha45cbebf55b2e1db:schema"
-
 import AWS_DirectConnect_Connection "github.com/cueformation/cfn-cue/resources/hbe420d9280b24925:schema"
-
 import AWS_DirectConnect_DirectConnectGateway "github.com/cueformation/cfn-cue/resources/h043fe743283ba29d:schema"
-
 import AWS_DirectConnect_DirectConnectGatewayAssociation "github.com/cueformation/cfn-cue/resources/he8ce201e75e68e0c:schema"
-
 import AWS_DirectConnect_Lag "github.com/cueformation/cfn-cue/resources/hf2e001ca37694efd:schema"
-
 import AWS_DirectConnect_PrivateVirtualInterface "github.com/cueformation/cfn-cue/resources/hc6ac524c03aef4b7:schema"
-
 import AWS_DirectConnect_PublicVirtualInterface "github.com/cueformation/cfn-cue/resources/h63be29cdd8e06c83:schema"
-
 import AWS_DirectConnect_TransitVirtualInterface "github.com/cueformation/cfn-cue/resources/h310cc44c28ff3c1a:schema"
-
 import AWS_DirectoryService_MicrosoftAD "github.com/cueformation/cfn-cue/resources/h8af3aa4420d07315:schema"
-
 import AWS_DirectoryService_SimpleAD "github.com/cueformation/cfn-cue/resources/hcfb0810ad2891808:schema"
-
 import AWS_DocDB_DBCluster "github.com/cueformation/cfn-cue/resources/h5c79de0dd922b73c:schema"
-
 import AWS_DocDB_DBClusterParameterGroup "github.com/cueformation/cfn-cue/resources/h54374f193e755aac:schema"
-
 import AWS_DocDB_DBInstance "github.com/cueformation/cfn-cue/resources/h9805be5f9745b7cb:schema"
-
 import AWS_DocDB_DBSubnetGroup "github.com/cueformation/cfn-cue/resources/hb2c9167a65a64fbd:schema"
-
 import AWS_DocDB_EventSubscription "github.com/cueformation/cfn-cue/resources/h57207058abfec3bb:schema"
-
 import AWS_DocDB_GlobalCluster "github.com/cueformation/cfn-cue/resources/ha34b33491873621a:schema"
-
 import AWS_DocDBElastic_Cluster "github.com/cueformation/cfn-cue/resources/h3ef44a4baf7a318a:schema"
-
 import AWS_DynamoDB_GlobalTable "github.com/cueformation/cfn-cue/resources/h349d9efd1ac1671d:schema"
-
 import AWS_DynamoDB_Table "github.com/cueformation/cfn-cue/resources/h8de1012311991c4d:schema"
-
 import AWS_EC2_ApplicationStatusCheck "github.com/cueformation/cfn-cue/resources/ha1c80f0cf8c12890:schema"
-
 import AWS_EC2_CapacityManagerDataExport "github.com/cueformation/cfn-cue/resources/hcfd4b9679c2cd9ed:schema"
-
 import AWS_EC2_CapacityReservation "github.com/cueformation/cfn-cue/resources/h0f933e80c17a2414:schema"
-
 import AWS_EC2_CapacityReservationFleet "github.com/cueformation/cfn-cue/resources/h1f4299c89a48d4ff:schema"
-
 import AWS_EC2_CarrierGateway "github.com/cueformation/cfn-cue/resources/h2c093a07d450922d:schema"
-
 import AWS_EC2_ClientVpnAuthorizationRule "github.com/cueformation/cfn-cue/resources/h2e2e6002e2891008:schema"
-
 import AWS_EC2_ClientVpnEndpoint "github.com/cueformation/cfn-cue/resources/hcf986e41aa247bc2:schema"
-
 import AWS_EC2_ClientVpnRoute "github.com/cueformation/cfn-cue/resources/h9b92ccbabc8c1413:schema"
-
 import AWS_EC2_ClientVpnTargetNetworkAssociation "github.com/cueformation/cfn-cue/resources/hd97e809bf84d125c:schema"
-
 import AWS_EC2_CustomerGateway "github.com/cueformation/cfn-cue/resources/hcda9637e4ba3829c:schema"
-
 import AWS_EC2_DHCPOptions "github.com/cueformation/cfn-cue/resources/h68f5e515c22766db:schema"
-
 import AWS_EC2_EC2Fleet "github.com/cueformation/cfn-cue/resources/h13df22ce891c9c15:schema"
-
 import AWS_EC2_EIP "github.com/cueformation/cfn-cue/resources/h9424cc2cdbe0ea3d:schema"
-
 import AWS_EC2_EIPAssociation "github.com/cueformation/cfn-cue/resources/h79f1e9b62a5b2b5d:schema"
-
 import AWS_EC2_EgressOnlyInternetGateway "github.com/cueformation/cfn-cue/resources/hb2cfdbcf327ef113:schema"
-
 import AWS_EC2_EnclaveCertificateIamRoleAssociation "github.com/cueformation/cfn-cue/resources/hdc84a895188dd6d1:schema"
-
 import AWS_EC2_FlowLog "github.com/cueformation/cfn-cue/resources/h7a3686cf8c7483d0:schema"
-
 import AWS_EC2_GatewayRouteTableAssociation "github.com/cueformation/cfn-cue/resources/h12fcfe3bb951f94a:schema"
-
 import AWS_EC2_Host "github.com/cueformation/cfn-cue/resources/h04bf2d4bce59b6a5:schema"
-
 import AWS_EC2_IPAM "github.com/cueformation/cfn-cue/resources/hc1046a5d883b8e03:schema"
-
 import AWS_EC2_IPAMAllocation "github.com/cueformation/cfn-cue/resources/hf45bc3048d36aeb8:schema"
-
 import AWS_EC2_IPAMPool "github.com/cueformation/cfn-cue/resources/ha732aafbdb105060:schema"
-
 import AWS_EC2_IPAMPoolCidr "github.com/cueformation/cfn-cue/resources/hbe95e21dbfc19175:schema"
-
 import AWS_EC2_IPAMPrefixListResolver "github.com/cueformation/cfn-cue/resources/h1af36d774d04faba:schema"
-
 import AWS_EC2_IPAMPrefixListResolverTarget "github.com/cueformation/cfn-cue/resources/h008fa774cc7a05ce:schema"
-
 import AWS_EC2_IPAMResourceDiscovery "github.com/cueformation/cfn-cue/resources/h10e2da22ac714449:schema"
-
 import AWS_EC2_IPAMResourceDiscoveryAssociation "github.com/cueformation/cfn-cue/resources/hda7eacb801891242:schema"
-
 import AWS_EC2_IPAMScope "github.com/cueformation/cfn-cue/resources/hd830ba7c6920695f:schema"
-
 import AWS_EC2_Instance "github.com/cueformation/cfn-cue/resources/h9d166e07ec198cd0:schema"
-
 import AWS_EC2_InstanceConnectEndpoint "github.com/cueformation/cfn-cue/resources/hf9658814f772ccb7:schema"
-
 import AWS_EC2_InternetGateway "github.com/cueformation/cfn-cue/resources/h81a73a951e6c6178:schema"
-
 import AWS_EC2_IpPoolRouteTableAssociation "github.com/cueformation/cfn-cue/resources/h550c862324af9064:schema"
-
 import AWS_EC2_KeyPair "github.com/cueformation/cfn-cue/resources/hfb19617c2bdd26db:schema"
-
 import AWS_EC2_LaunchTemplate "github.com/cueformation/cfn-cue/resources/h032b26d0a53b361b:schema"
-
 import AWS_EC2_LocalGatewayRoute "github.com/cueformation/cfn-cue/resources/h02507fffcd83783f:schema"
-
 import AWS_EC2_LocalGatewayRouteTable "github.com/cueformation/cfn-cue/resources/h62895ece788f6aa8:schema"
-
 import AWS_EC2_LocalGatewayRouteTableVPCAssociation "github.com/cueformation/cfn-cue/resources/h81c85573e8f40847:schema"
-
 import AWS_EC2_LocalGatewayRouteTableVirtualInterfaceGroupAssociation "github.com/cueformation/cfn-cue/resources/hdeea1a2e51023a70:schema"
-
 import AWS_EC2_LocalGatewayVirtualInterface "github.com/cueformation/cfn-cue/resources/h0bc1e2a9fe5f5962:schema"
-
 import AWS_EC2_LocalGatewayVirtualInterfaceGroup "github.com/cueformation/cfn-cue/resources/hfe5e45e295bcae2d:schema"
-
 import AWS_EC2_NatGateway "github.com/cueformation/cfn-cue/resources/hf7047217b3ed6c33:schema"
-
 import AWS_EC2_NetworkAcl "github.com/cueformation/cfn-cue/resources/h47541d62a9458818:schema"
-
 import AWS_EC2_NetworkAclEntry "github.com/cueformation/cfn-cue/resources/h46ee16fa956f8269:schema"
-
 import AWS_EC2_NetworkInsightsAccessScope "github.com/cueformation/cfn-cue/resources/hd5e4ec1939ccd4c0:schema"
-
 import AWS_EC2_NetworkInsightsAccessScopeAnalysis "github.com/cueformation/cfn-cue/resources/h4dbbcfe52fd4a9a3:schema"
-
 import AWS_EC2_NetworkInsightsAnalysis "github.com/cueformation/cfn-cue/resources/h4be00d81c6c9f562:schema"
-
 import AWS_EC2_NetworkInsightsPath "github.com/cueformation/cfn-cue/resources/h17b2b5b3a94aa8f0:schema"
-
 import AWS_EC2_NetworkInterface "github.com/cueformation/cfn-cue/resources/h743479ab64d9fcf0:schema"
-
 import AWS_EC2_NetworkInterfaceAttachment "github.com/cueformation/cfn-cue/resources/h2b138a87e63f1464:schema"
-
 import AWS_EC2_NetworkInterfacePermission "github.com/cueformation/cfn-cue/resources/hff2e70a38f5b49eb:schema"
-
 import AWS_EC2_NetworkPerformanceMetricSubscription "github.com/cueformation/cfn-cue/resources/h8bfa10b29caf27ce:schema"
-
 import AWS_EC2_PlacementGroup "github.com/cueformation/cfn-cue/resources/h0d14fade154ad02f:schema"
-
 import AWS_EC2_PrefixList "github.com/cueformation/cfn-cue/resources/h9ccae27e8cdd7ee1:schema"
-
 import AWS_EC2_Route "github.com/cueformation/cfn-cue/resources/h3f538211f723fcf3:schema"
-
 import AWS_EC2_RouteServer "github.com/cueformation/cfn-cue/resources/h420847507f5f2dab:schema"
-
 import AWS_EC2_RouteServerAssociation "github.com/cueformation/cfn-cue/resources/ha2964a21fab3b09e:schema"
-
 import AWS_EC2_RouteServerEndpoint "github.com/cueformation/cfn-cue/resources/h0bd8f8de3c68b609:schema"
-
 import AWS_EC2_RouteServerPeer "github.com/cueformation/cfn-cue/resources/h1e67f5cee288d84c:schema"
-
 import AWS_EC2_RouteServerPropagation "github.com/cueformation/cfn-cue/resources/hff52a42e854c60a5:schema"
-
 import AWS_EC2_RouteTable "github.com/cueformation/cfn-cue/resources/had3a84b5843804be:schema"
-
 import AWS_EC2_SecurityGroup "github.com/cueformation/cfn-cue/resources/h1eee5de23e01e807:schema"
-
 import AWS_EC2_SecurityGroupEgress "github.com/cueformation/cfn-cue/resources/h1aa4209a229f1f50:schema"
-
 import AWS_EC2_SecurityGroupIngress "github.com/cueformation/cfn-cue/resources/hdb2811bef65b317c:schema"
-
 import AWS_EC2_SecurityGroupVpcAssociation "github.com/cueformation/cfn-cue/resources/h8a64dcaf6c56b0bb:schema"
-
 import AWS_EC2_SnapshotBlockPublicAccess "github.com/cueformation/cfn-cue/resources/hbf71ca727ee5dc52:schema"
-
 import AWS_EC2_SpotFleet "github.com/cueformation/cfn-cue/resources/h306c591b5d776bb0:schema"
-
 import AWS_EC2_SqlHaStandbyDetectedInstance "github.com/cueformation/cfn-cue/resources/h120991479da4cb98:schema"
-
 import AWS_EC2_Subnet "github.com/cueformation/cfn-cue/resources/hda9b8efd578cecd8:schema"
-
 import AWS_EC2_SubnetCidrBlock "github.com/cueformation/cfn-cue/resources/hcdde40dc22a0c33b:schema"
-
 import AWS_EC2_SubnetNetworkAclAssociation "github.com/cueformation/cfn-cue/resources/h67927af6f133ceb8:schema"
-
 import AWS_EC2_SubnetRouteTableAssociation "github.com/cueformation/cfn-cue/resources/hbbd69d336cb98510:schema"
-
 import AWS_EC2_TrafficMirrorFilter "github.com/cueformation/cfn-cue/resources/h9b1eb5e94a66c0f2:schema"
-
 import AWS_EC2_TrafficMirrorFilterRule "github.com/cueformation/cfn-cue/resources/heaeff1e09f9d0158:schema"
-
 import AWS_EC2_TrafficMirrorSession "github.com/cueformation/cfn-cue/resources/h87807f5f29de999d:schema"
-
 import AWS_EC2_TrafficMirrorTarget "github.com/cueformation/cfn-cue/resources/h43c098acb7961fb4:schema"
-
 import AWS_EC2_TransitGateway "github.com/cueformation/cfn-cue/resources/h0182d15dda50dfe3:schema"
-
 import AWS_EC2_TransitGatewayAttachment "github.com/cueformation/cfn-cue/resources/he2f7c0222b2c35ac:schema"
-
 import AWS_EC2_TransitGatewayConnect "github.com/cueformation/cfn-cue/resources/hfd3d1ca033870c47:schema"
-
 import AWS_EC2_TransitGatewayConnectPeer "github.com/cueformation/cfn-cue/resources/h06f538b68a46c73c:schema"
-
 import AWS_EC2_TransitGatewayMeteringPolicy "github.com/cueformation/cfn-cue/resources/hae68ae3a7b32d6bb:schema"
-
 import AWS_EC2_TransitGatewayMeteringPolicyEntry "github.com/cueformation/cfn-cue/resources/h83d7ff91a4f55d15:schema"
-
 import AWS_EC2_TransitGatewayMulticastDomain "github.com/cueformation/cfn-cue/resources/h1b7127197cff025a:schema"
-
 import AWS_EC2_TransitGatewayMulticastDomainAssociation "github.com/cueformation/cfn-cue/resources/h1d4ea4422912682f:schema"
-
 import AWS_EC2_TransitGatewayMulticastGroupMember "github.com/cueformation/cfn-cue/resources/h9516c662433679d4:schema"
-
 import AWS_EC2_TransitGatewayMulticastGroupSource "github.com/cueformation/cfn-cue/resources/h29076fa333225a7a:schema"
-
 import AWS_EC2_TransitGatewayPeeringAttachment "github.com/cueformation/cfn-cue/resources/hfaf7524a2f39581b:schema"
-
 import AWS_EC2_TransitGatewayPolicyTable "github.com/cueformation/cfn-cue/resources/hc7d814ea07c23a6a:schema"
-
 import AWS_EC2_TransitGatewayPolicyTableAssociation "github.com/cueformation/cfn-cue/resources/ha55e1d9541af18de:schema"
-
 import AWS_EC2_TransitGatewayPolicyTableEntry "github.com/cueformation/cfn-cue/resources/h6705cf658e132e3c:schema"
-
 import AWS_EC2_TransitGatewayRoute "github.com/cueformation/cfn-cue/resources/h19073f224096a12c:schema"
-
 import AWS_EC2_TransitGatewayRouteTable "github.com/cueformation/cfn-cue/resources/h25c0480d754d7df7:schema"
-
 import AWS_EC2_TransitGatewayRouteTableAssociation "github.com/cueformation/cfn-cue/resources/h52afcd4a35bad6ee:schema"
-
 import AWS_EC2_TransitGatewayRouteTablePropagation "github.com/cueformation/cfn-cue/resources/hb2dc0ffdd1868756:schema"
-
 import AWS_EC2_TransitGatewayVpcAttachment "github.com/cueformation/cfn-cue/resources/he80130fcec142173:schema"
-
 import AWS_EC2_VPC "github.com/cueformation/cfn-cue/resources/hb43b813fa6ab6f00:schema"
-
 import AWS_EC2_VPCBlockPublicAccessExclusion "github.com/cueformation/cfn-cue/resources/hd3d9dd56adb82582:schema"
-
 import AWS_EC2_VPCBlockPublicAccessOptions "github.com/cueformation/cfn-cue/resources/h2e95d4935e7285c8:schema"
-
 import AWS_EC2_VPCCidrBlock "github.com/cueformation/cfn-cue/resources/hfbb3392fd41d48b0:schema"
-
 import AWS_EC2_VPCDHCPOptionsAssociation "github.com/cueformation/cfn-cue/resources/haf6bfe8b2454dec8:schema"
-
 import AWS_EC2_VPCEncryptionControl "github.com/cueformation/cfn-cue/resources/hcd0933e1c908158f:schema"
-
 import AWS_EC2_VPCEndpoint "github.com/cueformation/cfn-cue/resources/h4b6d8d58b91595d6:schema"
-
 import AWS_EC2_VPCEndpointConnectionNotification "github.com/cueformation/cfn-cue/resources/h7bf0147a71eb3201:schema"
-
 import AWS_EC2_VPCEndpointService "github.com/cueformation/cfn-cue/resources/h1db4c85665de8f73:schema"
-
 import AWS_EC2_VPCEndpointServicePermissions "github.com/cueformation/cfn-cue/resources/h26cb825f5342240b:schema"
-
 import AWS_EC2_VPCGatewayAttachment "github.com/cueformation/cfn-cue/resources/h5deee90cd088167d:schema"
-
 import AWS_EC2_VPCPeeringConnection "github.com/cueformation/cfn-cue/resources/h8f7fc66494eee03f:schema"
-
 import AWS_EC2_VPNConcentrator "github.com/cueformation/cfn-cue/resources/h3191e99030bc1ec4:schema"
-
 import AWS_EC2_VPNConnection "github.com/cueformation/cfn-cue/resources/haa12dce2bbef237a:schema"
-
 import AWS_EC2_VPNConnectionRoute "github.com/cueformation/cfn-cue/resources/h6cba224bb4c3b59e:schema"
-
 import AWS_EC2_VPNGateway "github.com/cueformation/cfn-cue/resources/hb98ad550fefcbc53:schema"
-
 import AWS_EC2_VPNGatewayRoutePropagation "github.com/cueformation/cfn-cue/resources/h38bfa6a5a08e2757:schema"
-
 import AWS_EC2_VerifiedAccessEndpoint "github.com/cueformation/cfn-cue/resources/hf9932f40f4309886:schema"
-
 import AWS_EC2_VerifiedAccessGroup "github.com/cueformation/cfn-cue/resources/he48420394f18e135:schema"
-
 import AWS_EC2_VerifiedAccessInstance "github.com/cueformation/cfn-cue/resources/h3653c5fbd88331d8:schema"
-
 import AWS_EC2_VerifiedAccessTrustProvider "github.com/cueformation/cfn-cue/resources/h14f6b38b78531136:schema"
-
 import AWS_EC2_Volume "github.com/cueformation/cfn-cue/resources/he23cfb1b79c05365:schema"
-
 import AWS_EC2_VolumeAttachment "github.com/cueformation/cfn-cue/resources/h080e1b5b9192211c:schema"
-
 import AWS_ECR_PullThroughCacheRule "github.com/cueformation/cfn-cue/resources/h25ab0343333b54d0:schema"
-
 import AWS_ECR_PullTimeUpdateExclusion "github.com/cueformation/cfn-cue/resources/hfbbcda396375959f:schema"
-
 import AWS_ECR_RegistryPolicy "github.com/cueformation/cfn-cue/resources/h1f555fcb9f5c4169:schema"
-
 import AWS_ECR_RegistryScanningConfiguration "github.com/cueformation/cfn-cue/resources/h53563c740e029e36:schema"
-
 import AWS_ECR_ReplicationConfiguration "github.com/cueformation/cfn-cue/resources/h5667753d7cdce6a0:schema"
-
 import AWS_ECR_Repository "github.com/cueformation/cfn-cue/resources/h3feaf06a6adf4eab:schema"
-
 import AWS_ECR_RepositoryCreationTemplate "github.com/cueformation/cfn-cue/resources/he78e85951d60931c:schema"
-
 import AWS_ECR_SigningConfiguration "github.com/cueformation/cfn-cue/resources/h3d50a0987a90b8f2:schema"
-
 import AWS_ECS_CapacityProvider "github.com/cueformation/cfn-cue/resources/h0c3eb0584e8d2634:schema"
-
 import AWS_ECS_Cluster "github.com/cueformation/cfn-cue/resources/h7d177cdded99bd1e:schema"
-
 import AWS_ECS_ClusterCapacityProviderAssociations "github.com/cueformation/cfn-cue/resources/hc215adb6fd9b20f8:schema"
-
 import AWS_ECS_Daemon "github.com/cueformation/cfn-cue/resources/hb02b98a32fa6b516:schema"
-
 import AWS_ECS_DaemonTaskDefinition "github.com/cueformation/cfn-cue/resources/hddf03085ad005d07:schema"
-
 import AWS_ECS_ExpressGatewayService "github.com/cueformation/cfn-cue/resources/h9f4acda52690488a:schema"
-
 import AWS_ECS_PrimaryTaskSet "github.com/cueformation/cfn-cue/resources/h605b1e4adb551804:schema"
-
 import AWS_ECS_Service "github.com/cueformation/cfn-cue/resources/h00afa9a1fd4462af:schema"
-
 import AWS_ECS_TaskDefinition "github.com/cueformation/cfn-cue/resources/h263661491d78026b:schema"
-
 import AWS_ECS_TaskSet "github.com/cueformation/cfn-cue/resources/h6047a328e3e9f19a:schema"
-
 import AWS_EFS_AccessPoint "github.com/cueformation/cfn-cue/resources/ha53f37d93e732a1c:schema"
-
 import AWS_EFS_FileSystem "github.com/cueformation/cfn-cue/resources/h0eea966143f13ff3:schema"
-
 import AWS_EFS_MountTarget "github.com/cueformation/cfn-cue/resources/ha8f9736329595729:schema"
-
 import AWS_EKS_AccessEntry "github.com/cueformation/cfn-cue/resources/h7e47c035c1923d24:schema"
-
 import AWS_EKS_Addon "github.com/cueformation/cfn-cue/resources/hf314492e0035bc40:schema"
-
 import AWS_EKS_Capability "github.com/cueformation/cfn-cue/resources/h6da5750a5b2e7915:schema"
-
 import AWS_EKS_CertificateAuthority "github.com/cueformation/cfn-cue/resources/h00d10807ee251106:schema"
-
 import AWS_EKS_Cluster "github.com/cueformation/cfn-cue/resources/h917baacf1f83857b:schema"
-
 import AWS_EKS_FargateProfile "github.com/cueformation/cfn-cue/resources/ha75afed3eb49bbfc:schema"
-
 import AWS_EKS_IdentityProviderConfig "github.com/cueformation/cfn-cue/resources/h8e5e730746768985:schema"
-
 import AWS_EKS_Nodegroup "github.com/cueformation/cfn-cue/resources/he703fb10b42108ae:schema"
-
 import AWS_EKS_PodIdentityAssociation "github.com/cueformation/cfn-cue/resources/h5e01d53f20061640:schema"
-
 import AWS_EMR_Cluster "github.com/cueformation/cfn-cue/resources/hff696192057a9047:schema"
-
 import AWS_EMR_InstanceFleetConfig "github.com/cueformation/cfn-cue/resources/h89b6842129aff367:schema"
-
 import AWS_EMR_InstanceGroupConfig "github.com/cueformation/cfn-cue/resources/h710bce07bfebc9a8:schema"
-
 import AWS_EMR_SecurityConfiguration "github.com/cueformation/cfn-cue/resources/h2d45c2f10e0ce54a:schema"
-
 import AWS_EMR_Step "github.com/cueformation/cfn-cue/resources/h3e91fede99af1931:schema"
-
 import AWS_EMR_Studio "github.com/cueformation/cfn-cue/resources/hd54266a6790b938e:schema"
-
 import AWS_EMR_StudioSessionMapping "github.com/cueformation/cfn-cue/resources/h6a9a9d4cf6aa41b1:schema"
-
 import AWS_EMR_WALWorkspace "github.com/cueformation/cfn-cue/resources/he0dcea812dbd9878:schema"
-
 import AWS_EMRContainers_Endpoint "github.com/cueformation/cfn-cue/resources/h62ed6e78adb749ee:schema"
-
 import AWS_EMRContainers_SecurityConfiguration "github.com/cueformation/cfn-cue/resources/h1972a80f23becd23:schema"
-
 import AWS_EMRContainers_VirtualCluster "github.com/cueformation/cfn-cue/resources/h96f20ed069647518:schema"
-
 import AWS_EMRServerless_Application "github.com/cueformation/cfn-cue/resources/hdee48d51cddadcdb:schema"
-
 import AWS_EVS_Environment "github.com/cueformation/cfn-cue/resources/h8c60f012f1cad1e2:schema"
-
 import AWS_ElastiCache_CacheCluster "github.com/cueformation/cfn-cue/resources/h595f574b776b9cd0:schema"
-
 import AWS_ElastiCache_GlobalReplicationGroup "github.com/cueformation/cfn-cue/resources/h9071f8180737e467:schema"
-
 import AWS_ElastiCache_ParameterGroup "github.com/cueformation/cfn-cue/resources/h8892c865e009667c:schema"
-
 import AWS_ElastiCache_ReplicationGroup "github.com/cueformation/cfn-cue/resources/h4eaa9c534366089c:schema"
-
 import AWS_ElastiCache_SecurityGroup "github.com/cueformation/cfn-cue/resources/h7d004dd93412a869:schema"
-
 import AWS_ElastiCache_SecurityGroupIngress "github.com/cueformation/cfn-cue/resources/hd97b81b13bf905fe:schema"
-
 import AWS_ElastiCache_ServerlessCache "github.com/cueformation/cfn-cue/resources/h641c2d60092a1d34:schema"
-
 import AWS_ElastiCache_SubnetGroup "github.com/cueformation/cfn-cue/resources/heccf6aa3b10130d3:schema"
-
 import AWS_ElastiCache_User "github.com/cueformation/cfn-cue/resources/h28bcf6cd80734861:schema"
-
 import AWS_ElastiCache_UserGroup "github.com/cueformation/cfn-cue/resources/h1e928fbc342a3eb4:schema"
-
 import AWS_ElasticBeanstalk_Application "github.com/cueformation/cfn-cue/resources/hf96d8320229cabaa:schema"
-
 import AWS_ElasticBeanstalk_ApplicationVersion "github.com/cueformation/cfn-cue/resources/h51838564502b859f:schema"
-
 import AWS_ElasticBeanstalk_ConfigurationTemplate "github.com/cueformation/cfn-cue/resources/h7fd41d637adce5f5:schema"
-
 import AWS_ElasticBeanstalk_Environment "github.com/cueformation/cfn-cue/resources/h84bf9be0ad8daee7:schema"
-
 import AWS_ElasticLoadBalancing_LoadBalancer "github.com/cueformation/cfn-cue/resources/h2dff9a7c40260df4:schema"
-
 import AWS_ElasticLoadBalancingV2_Listener "github.com/cueformation/cfn-cue/resources/heb55c9f75299f3f2:schema"
-
 import AWS_ElasticLoadBalancingV2_ListenerCertificate "github.com/cueformation/cfn-cue/resources/h610dbc82eec2b7a1:schema"
-
 import AWS_ElasticLoadBalancingV2_ListenerRule "github.com/cueformation/cfn-cue/resources/h8c148f794d84b084:schema"
-
 import AWS_ElasticLoadBalancingV2_LoadBalancer "github.com/cueformation/cfn-cue/resources/hf9510c7382b5ecc0:schema"
-
 import AWS_ElasticLoadBalancingV2_TargetGroup "github.com/cueformation/cfn-cue/resources/ha196aa7f6773240f:schema"
-
 import AWS_ElasticLoadBalancingV2_TrustStore "github.com/cueformation/cfn-cue/resources/h1c85a32871b3afdb:schema"
-
 import AWS_ElasticLoadBalancingV2_TrustStoreRevocation "github.com/cueformation/cfn-cue/resources/h1f343ce3fddeb0d9:schema"
-
 import AWS_Elasticsearch_Domain "github.com/cueformation/cfn-cue/resources/h1d2fa4cc1b5c1df5:schema"
-
 import AWS_EntityResolution_IdMappingWorkflow "github.com/cueformation/cfn-cue/resources/h22a5d799889c8f36:schema"
-
 import AWS_EntityResolution_IdNamespace "github.com/cueformation/cfn-cue/resources/h2f229280b8986b00:schema"
-
 import AWS_EntityResolution_MatchingWorkflow "github.com/cueformation/cfn-cue/resources/h309bef96fb3554e3:schema"
-
 import AWS_EntityResolution_PolicyStatement "github.com/cueformation/cfn-cue/resources/h844f9996dd4d8c73:schema"
-
 import AWS_EntityResolution_SchemaMapping "github.com/cueformation/cfn-cue/resources/h66fa77e5e56a5bb6:schema"
-
 import AWS_EventSchemas_Discoverer "github.com/cueformation/cfn-cue/resources/h76307344883764fa:schema"
-
 import AWS_EventSchemas_Registry "github.com/cueformation/cfn-cue/resources/hc1cdd059dc6ba4d8:schema"
-
 import AWS_EventSchemas_RegistryPolicy "github.com/cueformation/cfn-cue/resources/ha2b0d0d06b6cb98b:schema"
-
 import AWS_EventSchemas_Schema "github.com/cueformation/cfn-cue/resources/ha1bb44c11be9a580:schema"
-
 import AWS_Events_ApiDestination "github.com/cueformation/cfn-cue/resources/h295bf65d087b9866:schema"
-
 import AWS_Events_Archive "github.com/cueformation/cfn-cue/resources/hfe18cfee780735a8:schema"
-
 import AWS_Events_Connection "github.com/cueformation/cfn-cue/resources/hd0df85968cafb831:schema"
-
 import AWS_Events_Endpoint "github.com/cueformation/cfn-cue/resources/hfcfd2f302e2ee44b:schema"
-
 import AWS_Events_EventBus "github.com/cueformation/cfn-cue/resources/heea0afdc41c6b137:schema"
-
 import AWS_Events_EventBusPolicy "github.com/cueformation/cfn-cue/resources/h6bd505a12656a622:schema"
-
 import AWS_Events_Rule "github.com/cueformation/cfn-cue/resources/h17f1d0bd2ac17e93:schema"
-
 import AWS_EventsV2_EventBus "github.com/cueformation/cfn-cue/resources/hb5cdaa99e29b15dc:schema"
-
 import AWS_EventsV2_EventSource "github.com/cueformation/cfn-cue/resources/ha4352228354c37db:schema"
-
 import AWS_EventsV2_ResourcePolicy "github.com/cueformation/cfn-cue/resources/h03c0e68c757c4278:schema"
-
 import AWS_EventsV2_Subscriber "github.com/cueformation/cfn-cue/resources/h81bae7a61a6f333e:schema"
-
 import AWS_Evidently_Experiment "github.com/cueformation/cfn-cue/resources/h95e4d4b9f3e35f56:schema"
-
 import AWS_Evidently_Feature "github.com/cueformation/cfn-cue/resources/h3fe3a3d574d0586a:schema"
-
 import AWS_Evidently_Launch "github.com/cueformation/cfn-cue/resources/ha2da40495dee1a56:schema"
-
 import AWS_Evidently_Project "github.com/cueformation/cfn-cue/resources/hf364fc47a035bee6:schema"
-
 import AWS_Evidently_Segment "github.com/cueformation/cfn-cue/resources/hee4f3cf1af706779:schema"
-
 import AWS_FIS_ExperimentTemplate "github.com/cueformation/cfn-cue/resources/h9e3209e8551fde89:schema"
-
 import AWS_FIS_TargetAccountConfiguration "github.com/cueformation/cfn-cue/resources/h290ee57080b77c2b:schema"
-
 import AWS_FMS_NotificationChannel "github.com/cueformation/cfn-cue/resources/h54c837568ba6c32d:schema"
-
 import AWS_FMS_Policy "github.com/cueformation/cfn-cue/resources/h1978bdf731b366e7:schema"
-
 import AWS_FMS_ResourceSet "github.com/cueformation/cfn-cue/resources/h5a3658f4c5dbb839:schema"
-
 import AWS_FSx_DataRepositoryAssociation "github.com/cueformation/cfn-cue/resources/ha5d95227915ba111:schema"
-
 import AWS_FSx_FileSystem "github.com/cueformation/cfn-cue/resources/heac496c3918e66ed:schema"
-
 import AWS_FSx_S3AccessPointAttachment "github.com/cueformation/cfn-cue/resources/h9d425a936cc2a555:schema"
-
 import AWS_FSx_Snapshot "github.com/cueformation/cfn-cue/resources/h0c48a049cc8e7f7f:schema"
-
 import AWS_FSx_StorageVirtualMachine "github.com/cueformation/cfn-cue/resources/hfaf1fb4e47f702af:schema"
-
 import AWS_FSx_Volume "github.com/cueformation/cfn-cue/resources/hd945cf18bb38cc4c:schema"
-
 import AWS_Forecast_Dataset "github.com/cueformation/cfn-cue/resources/h73a1b8e0ea53b600:schema"
-
 import AWS_Forecast_DatasetGroup "github.com/cueformation/cfn-cue/resources/hb91c3df5eef9329e:schema"
-
 import AWS_GameLift_Alias "github.com/cueformation/cfn-cue/resources/h99d597b7662cb00b:schema"
-
 import AWS_GameLift_Build "github.com/cueformation/cfn-cue/resources/h05200686dbc4258c:schema"
-
 import AWS_GameLift_ContainerFleet "github.com/cueformation/cfn-cue/resources/hd830e1d71ca6521f:schema"
-
 import AWS_GameLift_ContainerGroupDefinition "github.com/cueformation/cfn-cue/resources/he896fb40c0a41527:schema"
-
 import AWS_GameLift_Fleet "github.com/cueformation/cfn-cue/resources/h5618adba88af8d4d:schema"
-
 import AWS_GameLift_GameServerGroup "github.com/cueformation/cfn-cue/resources/h0750fb1b98aaacf8:schema"
-
 import AWS_GameLift_GameSessionQueue "github.com/cueformation/cfn-cue/resources/h7f5c291a84675f4b:schema"
-
 import AWS_GameLift_Location "github.com/cueformation/cfn-cue/resources/h281c69dfb7e77951:schema"
-
 import AWS_GameLift_MatchmakingConfiguration "github.com/cueformation/cfn-cue/resources/hea2b53cbc1175a8d:schema"
-
 import AWS_GameLift_MatchmakingRuleSet "github.com/cueformation/cfn-cue/resources/h299e6a356971f808:schema"
-
 import AWS_GameLift_Script "github.com/cueformation/cfn-cue/resources/hcde85e964f8e90f3:schema"
-
 import AWS_GameLiftStreams_Application "github.com/cueformation/cfn-cue/resources/h53a6d87567a23a06:schema"
-
 import AWS_GameLiftStreams_StreamGroup "github.com/cueformation/cfn-cue/resources/hf8bd81cbe1ae7b29:schema"
-
 import AWS_GlobalAccelerator_Accelerator "github.com/cueformation/cfn-cue/resources/h25d94918d06e0f6f:schema"
-
 import AWS_GlobalAccelerator_CrossAccountAttachment "github.com/cueformation/cfn-cue/resources/h34006d374db2f2d7:schema"
-
 import AWS_GlobalAccelerator_EndpointGroup "github.com/cueformation/cfn-cue/resources/hc5d1aa346ad18a21:schema"
-
 import AWS_GlobalAccelerator_Listener "github.com/cueformation/cfn-cue/resources/hee12f5def6f37c29:schema"
-
 import AWS_Glue_Catalog "github.com/cueformation/cfn-cue/resources/h68bb9b9593ab1989:schema"
-
 import AWS_Glue_Classifier "github.com/cueformation/cfn-cue/resources/h48263506212ea9cc:schema"
-
 import AWS_Glue_Connection "github.com/cueformation/cfn-cue/resources/h0a9d8a67eb51b324:schema"
-
 import AWS_Glue_Crawler "github.com/cueformation/cfn-cue/resources/hd948c31be1939425:schema"
-
 import AWS_Glue_CustomEntityType "github.com/cueformation/cfn-cue/resources/h88f79f753d7d497a:schema"
-
 import AWS_Glue_DataCatalogEncryptionSettings "github.com/cueformation/cfn-cue/resources/h466ae77cbb08475e:schema"
-
 import AWS_Glue_DataQualityRuleset "github.com/cueformation/cfn-cue/resources/h0ce3af187c649454:schema"
-
 import AWS_Glue_Database "github.com/cueformation/cfn-cue/resources/h36b616c0b67d67ba:schema"
-
 import AWS_Glue_DevEndpoint "github.com/cueformation/cfn-cue/resources/he961d62e3224440d:schema"
-
 import AWS_Glue_IdentityCenterConfiguration "github.com/cueformation/cfn-cue/resources/h7bf5242837b6e2dc:schema"
-
 import AWS_Glue_Integration "github.com/cueformation/cfn-cue/resources/h38ef07a7ea8a9081:schema"
-
 import AWS_Glue_IntegrationResourceProperty "github.com/cueformation/cfn-cue/resources/he5cd94805c79df63:schema"
-
 import AWS_Glue_Job "github.com/cueformation/cfn-cue/resources/h819f78390ce0312f:schema"
-
 import AWS_Glue_MLTransform "github.com/cueformation/cfn-cue/resources/h3e5d7a4b8846cf2f:schema"
-
 import AWS_Glue_Partition "github.com/cueformation/cfn-cue/resources/h70502df555a39eee:schema"
-
 import AWS_Glue_Registry "github.com/cueformation/cfn-cue/resources/h5d32d92d27079c10:schema"
-
 import AWS_Glue_Schema "github.com/cueformation/cfn-cue/resources/h3996ea98e1c13853:schema"
-
 import AWS_Glue_SchemaVersion "github.com/cueformation/cfn-cue/resources/haa7ebc42c3390e9e:schema"
-
 import AWS_Glue_SchemaVersionMetadata "github.com/cueformation/cfn-cue/resources/h9bbf2792300be660:schema"
-
 import AWS_Glue_SecurityConfiguration "github.com/cueformation/cfn-cue/resources/h69770719902b8e29:schema"
-
 import AWS_Glue_Session "github.com/cueformation/cfn-cue/resources/hdbe8a2f2b4977508:schema"
-
 import AWS_Glue_Table "github.com/cueformation/cfn-cue/resources/h1718ad5c5cea8f51:schema"
-
 import AWS_Glue_TableOptimizer "github.com/cueformation/cfn-cue/resources/h5712164724d8230a:schema"
-
 import AWS_Glue_Trigger "github.com/cueformation/cfn-cue/resources/hdb3bfd4c3c601286:schema"
-
 import AWS_Glue_UsageProfile "github.com/cueformation/cfn-cue/resources/h6dc0ffb281f4aede:schema"
-
 import AWS_Glue_Workflow "github.com/cueformation/cfn-cue/resources/h5ae4637b607e3a4e:schema"
-
 import AWS_Grafana_Workspace "github.com/cueformation/cfn-cue/resources/h0543738693bf7047:schema"
-
 import AWS_Greengrass_ConnectorDefinition "github.com/cueformation/cfn-cue/resources/hb605961af483d5e5:schema"
-
 import AWS_Greengrass_ConnectorDefinitionVersion "github.com/cueformation/cfn-cue/resources/h751444032b040057:schema"
-
 import AWS_Greengrass_CoreDefinition "github.com/cueformation/cfn-cue/resources/h5214400412883ea7:schema"
-
 import AWS_Greengrass_CoreDefinitionVersion "github.com/cueformation/cfn-cue/resources/ha29a6ba8dc1beca1:schema"
-
 import AWS_Greengrass_DeviceDefinition "github.com/cueformation/cfn-cue/resources/h7142d7558753623d:schema"
-
 import AWS_Greengrass_DeviceDefinitionVersion "github.com/cueformation/cfn-cue/resources/hba92454a029e1743:schema"
-
 import AWS_Greengrass_FunctionDefinition "github.com/cueformation/cfn-cue/resources/hab6dffe1c7a7e094:schema"
-
 import AWS_Greengrass_FunctionDefinitionVersion "github.com/cueformation/cfn-cue/resources/hc57b53f8cb3c483e:schema"
-
 import AWS_Greengrass_Group "github.com/cueformation/cfn-cue/resources/h7b7d84bf5229b707:schema"
-
 import AWS_Greengrass_GroupVersion "github.com/cueformation/cfn-cue/resources/h090a07c76c525c7c:schema"
-
 import AWS_Greengrass_LoggerDefinition "github.com/cueformation/cfn-cue/resources/h3ffec6997f3346ec:schema"
-
 import AWS_Greengrass_LoggerDefinitionVersion "github.com/cueformation/cfn-cue/resources/h03319ab92679efd1:schema"
-
 import AWS_Greengrass_ResourceDefinition "github.com/cueformation/cfn-cue/resources/hf8f72d14b0d0cc07:schema"
-
 import AWS_Greengrass_ResourceDefinitionVersion "github.com/cueformation/cfn-cue/resources/h65f859bf29be7efb:schema"
-
 import AWS_Greengrass_SubscriptionDefinition "github.com/cueformation/cfn-cue/resources/h9faf47ff2282d962:schema"
-
 import AWS_Greengrass_SubscriptionDefinitionVersion "github.com/cueformation/cfn-cue/resources/he3439c810b98265e:schema"
-
 import AWS_GreengrassV2_ComponentVersion "github.com/cueformation/cfn-cue/resources/h968f2820b134a857:schema"
-
 import AWS_GreengrassV2_Deployment "github.com/cueformation/cfn-cue/resources/hb87824eed55ea960:schema"
-
 import AWS_GuardDuty_CustomDetectionRuleAssociation "github.com/cueformation/cfn-cue/resources/hd1cb1e0503b5cd46:schema"
-
 import AWS_GuardDuty_Detector "github.com/cueformation/cfn-cue/resources/h9d2e78c1e9a7cc51:schema"
-
 import AWS_GuardDuty_Filter "github.com/cueformation/cfn-cue/resources/hb46e9c9cc74333d9:schema"
-
 import AWS_GuardDuty_IPSet "github.com/cueformation/cfn-cue/resources/hc86d7c9fe6d1ac28:schema"
-
 import AWS_GuardDuty_MalwareProtectionPlan "github.com/cueformation/cfn-cue/resources/h83bf24150c207080:schema"
-
 import AWS_GuardDuty_Master "github.com/cueformation/cfn-cue/resources/h5d39340332afbe8f:schema"
-
 import AWS_GuardDuty_Member "github.com/cueformation/cfn-cue/resources/h7f2f51c3e29594e7:schema"
-
 import AWS_GuardDuty_PublishingDestination "github.com/cueformation/cfn-cue/resources/h46b1ab9303339ea5:schema"
-
 import AWS_GuardDuty_ThreatEntitySet "github.com/cueformation/cfn-cue/resources/h9564bb4165a2bc9c:schema"
-
 import AWS_GuardDuty_ThreatIntelSet "github.com/cueformation/cfn-cue/resources/h83cc68ce81715d40:schema"
-
 import AWS_GuardDuty_TrustedEntitySet "github.com/cueformation/cfn-cue/resources/hfe0421bc85d18f9d:schema"
-
 import AWS_IAM_AccessKey "github.com/cueformation/cfn-cue/resources/hbf29289b78d371e3:schema"
-
 import AWS_IAM_Group "github.com/cueformation/cfn-cue/resources/h2fe3370385a93df2:schema"
-
 import AWS_IAM_GroupPolicy "github.com/cueformation/cfn-cue/resources/h7411630ceb083532:schema"
-
 import AWS_IAM_InstanceProfile "github.com/cueformation/cfn-cue/resources/h9d171bee0cc0e2fc:schema"
-
 import AWS_IAM_ManagedPolicy "github.com/cueformation/cfn-cue/resources/hae87aa4d2d4547c9:schema"
-
 import AWS_IAM_OIDCProvider "github.com/cueformation/cfn-cue/resources/h05cdf3ac965f476a:schema"
-
 import AWS_IAM_Policy "github.com/cueformation/cfn-cue/resources/he5e537f8148deae4:schema"
-
 import AWS_IAM_Role "github.com/cueformation/cfn-cue/resources/hfc1cc88c36933c6f:schema"
-
 import AWS_IAM_RolePolicy "github.com/cueformation/cfn-cue/resources/hd930ea4463e25855:schema"
-
 import AWS_IAM_SAMLProvider "github.com/cueformation/cfn-cue/resources/heae891304b25d36e:schema"
-
 import AWS_IAM_ServerCertificate "github.com/cueformation/cfn-cue/resources/heae03209bf1fdb48:schema"
-
 import AWS_IAM_ServiceLinkedRole "github.com/cueformation/cfn-cue/resources/h0f32d2585ee03d53:schema"
-
 import AWS_IAM_User "github.com/cueformation/cfn-cue/resources/h35316a53b46073cf:schema"
-
 import AWS_IAM_UserPolicy "github.com/cueformation/cfn-cue/resources/hc759e29d2e6e0d0f:schema"
-
 import AWS_IAM_UserToGroupAddition "github.com/cueformation/cfn-cue/resources/hc2f159876b94abb1:schema"
-
 import AWS_IAM_VirtualMFADevice "github.com/cueformation/cfn-cue/resources/h07b42d36f86250f6:schema"
-
 import AWS_IVS_Channel "github.com/cueformation/cfn-cue/resources/h42459772aaf4fe1b:schema"
-
 import AWS_IVS_EncoderConfiguration "github.com/cueformation/cfn-cue/resources/hdc0127930a40fc7e:schema"
-
 import AWS_IVS_IngestConfiguration "github.com/cueformation/cfn-cue/resources/h6b2221eaf596048c:schema"
-
 import AWS_IVS_PlaybackKeyPair "github.com/cueformation/cfn-cue/resources/h94d4ae7d0d1a8aee:schema"
-
 import AWS_IVS_PlaybackRestrictionPolicy "github.com/cueformation/cfn-cue/resources/hc581162fa24510be:schema"
-
 import AWS_IVS_PublicKey "github.com/cueformation/cfn-cue/resources/h78213a15f5dc5d9d:schema"
-
 import AWS_IVS_RecordingConfiguration "github.com/cueformation/cfn-cue/resources/hb201b650d022bf32:schema"
-
 import AWS_IVS_Stage "github.com/cueformation/cfn-cue/resources/h70f0265e596acfbc:schema"
-
 import AWS_IVS_StorageConfiguration "github.com/cueformation/cfn-cue/resources/h78d56d00e1bda29e:schema"
-
 import AWS_IVS_StreamKey "github.com/cueformation/cfn-cue/resources/ha641a3eeefe52ad0:schema"
-
 import AWS_IVSChat_LoggingConfiguration "github.com/cueformation/cfn-cue/resources/h7fece98e74004a74:schema"
-
 import AWS_IVSChat_Room "github.com/cueformation/cfn-cue/resources/h9c4278cd4e91145b:schema"
-
 import AWS_IdentityStore_Group "github.com/cueformation/cfn-cue/resources/h27a9a4f9fc816c71:schema"
-
 import AWS_IdentityStore_GroupMembership "github.com/cueformation/cfn-cue/resources/h08b78af964a0ff2f:schema"
-
 import AWS_ImageBuilder_Component "github.com/cueformation/cfn-cue/resources/h6885175a1bba3a7c:schema"
-
 import AWS_ImageBuilder_ContainerRecipe "github.com/cueformation/cfn-cue/resources/h36b93d14d6c8fddd:schema"
-
 import AWS_ImageBuilder_DistributionConfiguration "github.com/cueformation/cfn-cue/resources/h572f77c618232490:schema"
-
 import AWS_ImageBuilder_Image "github.com/cueformation/cfn-cue/resources/habd1636078c26c31:schema"
-
 import AWS_ImageBuilder_ImagePipeline "github.com/cueformation/cfn-cue/resources/h36d50bec7a410d26:schema"
-
 import AWS_ImageBuilder_ImageRecipe "github.com/cueformation/cfn-cue/resources/h2f23f8fa69bffed9:schema"
-
 import AWS_ImageBuilder_InfrastructureConfiguration "github.com/cueformation/cfn-cue/resources/h8ad3fefc08e93b3c:schema"
-
 import AWS_ImageBuilder_LifecyclePolicy "github.com/cueformation/cfn-cue/resources/hdd4923c5796a9923:schema"
-
 import AWS_ImageBuilder_Workflow "github.com/cueformation/cfn-cue/resources/h73f9634cc7bb6738:schema"
-
 import AWS_Inspector_AssessmentTarget "github.com/cueformation/cfn-cue/resources/h027344b12e0a580c:schema"
-
 import AWS_Inspector_AssessmentTemplate "github.com/cueformation/cfn-cue/resources/h71a1cf7b87ebad44:schema"
-
 import AWS_Inspector_ResourceGroup "github.com/cueformation/cfn-cue/resources/h3ee5ac2b5d24f4c2:schema"
-
 import AWS_InspectorV2_CisScanConfiguration "github.com/cueformation/cfn-cue/resources/hf847363e6469b802:schema"
-
 import AWS_InspectorV2_CodeSecurityIntegration "github.com/cueformation/cfn-cue/resources/h8c81e89aedcf3bd9:schema"
-
 import AWS_InspectorV2_CodeSecurityScanConfiguration "github.com/cueformation/cfn-cue/resources/h46696a5de732b085:schema"
-
 import AWS_InspectorV2_Connector "github.com/cueformation/cfn-cue/resources/hdb56896404e619ab:schema"
-
 import AWS_InspectorV2_Filter "github.com/cueformation/cfn-cue/resources/h66d231f85af08aa7:schema"
-
 import AWS_InternetMonitor_Monitor "github.com/cueformation/cfn-cue/resources/h98ee62f174d3f25a:schema"
-
 import AWS_Invoicing_InvoiceUnit "github.com/cueformation/cfn-cue/resources/h032066e4fe590ddc:schema"
-
 import AWS_IoT_AccountAuditConfiguration "github.com/cueformation/cfn-cue/resources/hd89a8d8e4acdbd1e:schema"
-
 import AWS_IoT_Authorizer "github.com/cueformation/cfn-cue/resources/h74cef89d4580f46c:schema"
-
 import AWS_IoT_BillingGroup "github.com/cueformation/cfn-cue/resources/h18ec936b741e5837:schema"
-
 import AWS_IoT_CACertificate "github.com/cueformation/cfn-cue/resources/h84c94f99240784fe:schema"
-
 import AWS_IoT_Certificate "github.com/cueformation/cfn-cue/resources/h992e0eda44ae9478:schema"
-
 import AWS_IoT_CertificateProvider "github.com/cueformation/cfn-cue/resources/h454884084d2f439a:schema"
-
 import AWS_IoT_Command "github.com/cueformation/cfn-cue/resources/had4585b6643f1d78:schema"
-
 import AWS_IoT_CustomMetric "github.com/cueformation/cfn-cue/resources/h172c4ac321a37b38:schema"
-
 import AWS_IoT_Dimension "github.com/cueformation/cfn-cue/resources/h7d3515f80e8746fe:schema"
-
 import AWS_IoT_DomainConfiguration "github.com/cueformation/cfn-cue/resources/hecae0ee7068b46f4:schema"
-
 import AWS_IoT_EncryptionConfiguration "github.com/cueformation/cfn-cue/resources/h6ad2580b260c5036:schema"
-
 import AWS_IoT_FleetMetric "github.com/cueformation/cfn-cue/resources/h4d6cc3612d7c627f:schema"
-
 import AWS_IoT_JobTemplate "github.com/cueformation/cfn-cue/resources/h6541279df1dcbaa7:schema"
-
 import AWS_IoT_Logging "github.com/cueformation/cfn-cue/resources/h804884d60b13baa9:schema"
-
 import AWS_IoT_MitigationAction "github.com/cueformation/cfn-cue/resources/hb0e8beeec5c66540:schema"
-
 import AWS_IoT_Policy "github.com/cueformation/cfn-cue/resources/hdbe5fa8fff819ab0:schema"
-
 import AWS_IoT_PolicyPrincipalAttachment "github.com/cueformation/cfn-cue/resources/h57ec8db882df340d:schema"
-
 import AWS_IoT_ProvisioningTemplate "github.com/cueformation/cfn-cue/resources/hc1873e337cf46f86:schema"
-
 import AWS_IoT_ResourceSpecificLogging "github.com/cueformation/cfn-cue/resources/h0653c05fcc577ff1:schema"
-
 import AWS_IoT_RoleAlias "github.com/cueformation/cfn-cue/resources/hbc18c29b3da592ee:schema"
-
 import AWS_IoT_ScheduledAudit "github.com/cueformation/cfn-cue/resources/h6ddcbeea91b54d89:schema"
-
 import AWS_IoT_SecurityProfile "github.com/cueformation/cfn-cue/resources/hfcfbbb4fe231e947:schema"
-
 import AWS_IoT_SoftwarePackage "github.com/cueformation/cfn-cue/resources/h402a236bc05b2da7:schema"
-
 import AWS_IoT_SoftwarePackageVersion "github.com/cueformation/cfn-cue/resources/ha6252129f7c7a4ab:schema"
-
 import AWS_IoT_Stream "github.com/cueformation/cfn-cue/resources/haa382ef446978c9a:schema"
-
 import AWS_IoT_Thing "github.com/cueformation/cfn-cue/resources/h19c035414d35169f:schema"
-
 import AWS_IoT_ThingGroup "github.com/cueformation/cfn-cue/resources/hfd8787503df01324:schema"
-
 import AWS_IoT_ThingPrincipalAttachment "github.com/cueformation/cfn-cue/resources/h6ff48bff31f461dd:schema"
-
 import AWS_IoT_ThingType "github.com/cueformation/cfn-cue/resources/hf5c414b55a8c31ac:schema"
-
 import AWS_IoT_TopicRule "github.com/cueformation/cfn-cue/resources/h55084ac78d9eab9f:schema"
-
 import AWS_IoT_TopicRuleDestination "github.com/cueformation/cfn-cue/resources/hfea6647126c9c089:schema"
-
 import AWS_IoTAnalytics_Channel "github.com/cueformation/cfn-cue/resources/h3c99d4c83f557265:schema"
-
 import AWS_IoTAnalytics_Dataset "github.com/cueformation/cfn-cue/resources/h7f571a8ab678877b:schema"
-
 import AWS_IoTAnalytics_Datastore "github.com/cueformation/cfn-cue/resources/hc6cd8e3180787e4d:schema"
-
 import AWS_IoTAnalytics_Pipeline "github.com/cueformation/cfn-cue/resources/h6cf58046b92e26c7:schema"
-
 import AWS_IoTCoreDeviceAdvisor_SuiteDefinition "github.com/cueformation/cfn-cue/resources/hc2f6d5ebda705dd3:schema"
-
 import AWS_IoTEvents_AlarmModel "github.com/cueformation/cfn-cue/resources/h7858c0dcac3c67d9:schema"
-
 import AWS_IoTEvents_DetectorModel "github.com/cueformation/cfn-cue/resources/h3cc907a7f409ff96:schema"
-
 import AWS_IoTEvents_Input "github.com/cueformation/cfn-cue/resources/h89dcd2445baa8a28:schema"
-
 import AWS_IoTSiteWise_AccessPolicy "github.com/cueformation/cfn-cue/resources/h007ca5e5ef0a1a89:schema"
-
 import AWS_IoTSiteWise_Asset "github.com/cueformation/cfn-cue/resources/h543bd16429dedee9:schema"
-
 import AWS_IoTSiteWise_AssetModel "github.com/cueformation/cfn-cue/resources/h8ba1f6ae57a44e4a:schema"
-
 import AWS_IoTSiteWise_Dashboard "github.com/cueformation/cfn-cue/resources/h53eb05521820d755:schema"
-
 import AWS_IoTSiteWise_Gateway "github.com/cueformation/cfn-cue/resources/ha1f4abb115a03206:schema"
-
 import AWS_IoTSiteWise_Portal "github.com/cueformation/cfn-cue/resources/hc21d8d895fcf2842:schema"
-
 import AWS_IoTSiteWise_Project "github.com/cueformation/cfn-cue/resources/h04fde3d4fabfa1db:schema"
-
 import AWS_IoTThingsGraph_FlowTemplate "github.com/cueformation/cfn-cue/resources/ha1d851b7a67cdc26:schema"
-
 import AWS_IoTTwinMaker_ComponentType "github.com/cueformation/cfn-cue/resources/h76ceaa095e2169de:schema"
-
 import AWS_IoTTwinMaker_Entity "github.com/cueformation/cfn-cue/resources/h98c66523c2984d1a:schema"
-
 import AWS_IoTTwinMaker_Scene "github.com/cueformation/cfn-cue/resources/hfb21f7ef5ccde234:schema"
-
 import AWS_IoTTwinMaker_SyncJob "github.com/cueformation/cfn-cue/resources/hd60f24ba65cd9287:schema"
-
 import AWS_IoTTwinMaker_Workspace "github.com/cueformation/cfn-cue/resources/h018fdc19d92df05d:schema"
-
 import AWS_IoTWireless_Destination "github.com/cueformation/cfn-cue/resources/h578169256289b2d5:schema"
-
 import AWS_IoTWireless_DeviceProfile "github.com/cueformation/cfn-cue/resources/h74a71e97203a6752:schema"
-
 import AWS_IoTWireless_FuotaTask "github.com/cueformation/cfn-cue/resources/hfc43c77f34986ac9:schema"
-
 import AWS_IoTWireless_MulticastGroup "github.com/cueformation/cfn-cue/resources/h3fff04defe384867:schema"
-
 import AWS_IoTWireless_NetworkAnalyzerConfiguration "github.com/cueformation/cfn-cue/resources/hb9b163292d97aa62:schema"
-
 import AWS_IoTWireless_ServiceProfile "github.com/cueformation/cfn-cue/resources/h2bb3db1d6643db98:schema"
-
 import AWS_IoTWireless_TaskDefinition "github.com/cueformation/cfn-cue/resources/h24d994ddbd08c50e:schema"
-
 import AWS_IoTWireless_WirelessDevice "github.com/cueformation/cfn-cue/resources/hfa903b27578afb76:schema"
-
 import AWS_IoTWireless_WirelessGateway "github.com/cueformation/cfn-cue/resources/h3a94782c48b8488d:schema"
-
 import AWS_KMS_Alias "github.com/cueformation/cfn-cue/resources/hca6029e89757759d:schema"
-
 import AWS_KMS_Key "github.com/cueformation/cfn-cue/resources/h88e734780d711c68:schema"
-
 import AWS_KMS_ReplicaKey "github.com/cueformation/cfn-cue/resources/h216a91122ed4b612:schema"
-
 import AWS_KafkaConnect_Connector "github.com/cueformation/cfn-cue/resources/he3bbb844de16a6cb:schema"
-
 import AWS_KafkaConnect_CustomPlugin "github.com/cueformation/cfn-cue/resources/h0eca37390a4279c2:schema"
-
 import AWS_KafkaConnect_WorkerConfiguration "github.com/cueformation/cfn-cue/resources/hd1b346937bacaa70:schema"
-
 import AWS_Kendra_DataSource "github.com/cueformation/cfn-cue/resources/hf8c8ff8262edb180:schema"
-
 import AWS_Kendra_Faq "github.com/cueformation/cfn-cue/resources/ha7c346d39edd95dd:schema"
-
 import AWS_Kendra_FeaturedResultsSet "github.com/cueformation/cfn-cue/resources/hc24128de5b6aab3a:schema"
-
 import AWS_Kendra_Index "github.com/cueformation/cfn-cue/resources/h6427e88e413173ca:schema"
-
 import AWS_Kendra_QuerySuggestionsBlockList "github.com/cueformation/cfn-cue/resources/h8bff982fed0ad3ee:schema"
-
 import AWS_Kendra_Thesaurus "github.com/cueformation/cfn-cue/resources/h4260aab9ad042173:schema"
-
 import AWS_KendraRanking_ExecutionPlan "github.com/cueformation/cfn-cue/resources/h6a3f794f1fbb171b:schema"
-
 import AWS_Kinesis_Channel "github.com/cueformation/cfn-cue/resources/h1ad161adc132b7a0:schema"
-
 import AWS_Kinesis_ResourcePolicy "github.com/cueformation/cfn-cue/resources/h9b58a6222dcad127:schema"
-
 import AWS_Kinesis_Stream "github.com/cueformation/cfn-cue/resources/hbfcac9d3fd69f2e4:schema"
-
 import AWS_Kinesis_StreamConsumer "github.com/cueformation/cfn-cue/resources/h29df358ec7c3fd44:schema"
-
 import AWS_KinesisAnalytics_Application "github.com/cueformation/cfn-cue/resources/h2a7b8e0a5cc3feea:schema"
-
 import AWS_KinesisAnalytics_ApplicationOutput "github.com/cueformation/cfn-cue/resources/h039ebf99a9132a5f:schema"
-
 import AWS_KinesisAnalytics_ApplicationReferenceDataSource "github.com/cueformation/cfn-cue/resources/h7b038fb8710cf564:schema"
-
 import AWS_KinesisAnalyticsV2_Application "github.com/cueformation/cfn-cue/resources/h83d2f749647610ea:schema"
-
 import AWS_KinesisAnalyticsV2_ApplicationCloudWatchLoggingOption "github.com/cueformation/cfn-cue/resources/h585df99626fb3fe9:schema"
-
 import AWS_KinesisAnalyticsV2_ApplicationOutput "github.com/cueformation/cfn-cue/resources/h3d1d9422c21fb190:schema"
-
 import AWS_KinesisAnalyticsV2_ApplicationReferenceDataSource "github.com/cueformation/cfn-cue/resources/h1732375018865dc5:schema"
-
 import AWS_KinesisFirehose_DeliveryStream "github.com/cueformation/cfn-cue/resources/hc0ff0185e6e75ecb:schema"
-
 import AWS_KinesisVideo_SignalingChannel "github.com/cueformation/cfn-cue/resources/hef860ea8a5760443:schema"
-
 import AWS_KinesisVideo_Stream "github.com/cueformation/cfn-cue/resources/ha42d85d5461e0bf8:schema"
-
 import AWS_LakeFormation_DataCellsFilter "github.com/cueformation/cfn-cue/resources/h83f071da734a928d:schema"
-
 import AWS_LakeFormation_DataLakeSettings "github.com/cueformation/cfn-cue/resources/hfed0256dd0aa5243:schema"
-
 import AWS_LakeFormation_Permissions "github.com/cueformation/cfn-cue/resources/hd61e158d46659c77:schema"
-
 import AWS_LakeFormation_PrincipalPermissions "github.com/cueformation/cfn-cue/resources/h8109a11f8eafa3bc:schema"
-
 import AWS_LakeFormation_Resource "github.com/cueformation/cfn-cue/resources/h75fc7a22b8787b80:schema"
-
 import AWS_LakeFormation_Tag "github.com/cueformation/cfn-cue/resources/hdf0671c90a558eda:schema"
-
 import AWS_LakeFormation_TagAssociation "github.com/cueformation/cfn-cue/resources/h92a084c8695611f2:schema"
-
 import AWS_Lambda_Alias "github.com/cueformation/cfn-cue/resources/h74987fe4d8f50ef4:schema"
-
 import AWS_Lambda_CapacityProvider "github.com/cueformation/cfn-cue/resources/h1efd629bf9cec78e:schema"
-
 import AWS_Lambda_CodeSigningConfig "github.com/cueformation/cfn-cue/resources/h3d5663c49609f5e5:schema"
-
 import AWS_Lambda_EventInvokeConfig "github.com/cueformation/cfn-cue/resources/hca99e9ad0da87f1b:schema"
-
 import AWS_Lambda_EventSourceMapping "github.com/cueformation/cfn-cue/resources/hfda57d3016dc05c0:schema"
-
 import AWS_Lambda_Function "github.com/cueformation/cfn-cue/resources/h137fa0c392feb97f:schema"
-
 import AWS_Lambda_LayerVersion "github.com/cueformation/cfn-cue/resources/h1011bdf74150da50:schema"
-
 import AWS_Lambda_LayerVersionPermission "github.com/cueformation/cfn-cue/resources/h5aba518695ee3931:schema"
-
 import AWS_Lambda_MicrovmImage "github.com/cueformation/cfn-cue/resources/hc454a8ae9a8af571:schema"
-
 import AWS_Lambda_NetworkConnector "github.com/cueformation/cfn-cue/resources/hbbe5c7ab887c7e0a:schema"
-
 import AWS_Lambda_Permission "github.com/cueformation/cfn-cue/resources/h273a66a590dfa9f0:schema"
-
 import AWS_Lambda_ResourcePolicy "github.com/cueformation/cfn-cue/resources/ha3b0e39c38dea19c:schema"
-
 import AWS_Lambda_Url "github.com/cueformation/cfn-cue/resources/h192de4d45e935418:schema"
-
 import AWS_Lambda_Version "github.com/cueformation/cfn-cue/resources/h2bb0ad3a1fae9e7b:schema"
-
 import AWS_Lambda_WebFunction "github.com/cueformation/cfn-cue/resources/h738ed2694ad2ff0c:schema"
-
 import AWS_Lambda_WebFunctionEndpoint "github.com/cueformation/cfn-cue/resources/h49d736445a911b0e:schema"
-
 import AWS_Lambda_WebFunctionRevision "github.com/cueformation/cfn-cue/resources/h2c293592864b3faa:schema"
-
 import AWS_LaunchWizard_Deployment "github.com/cueformation/cfn-cue/resources/h77a800a4494fac95:schema"
-
 import AWS_Lex_Bot "github.com/cueformation/cfn-cue/resources/h894ff24f50cfbfc0:schema"
-
 import AWS_Lex_BotAlias "github.com/cueformation/cfn-cue/resources/hbd9038aafc9156bf:schema"
-
 import AWS_Lex_BotVersion "github.com/cueformation/cfn-cue/resources/h6210243fafa642a9:schema"
-
 import AWS_Lex_ResourcePolicy "github.com/cueformation/cfn-cue/resources/h27b6ef228d6dc515:schema"
-
 import AWS_LicenseManager_Grant "github.com/cueformation/cfn-cue/resources/h0aab0d36a087a3ca:schema"
-
 import AWS_LicenseManager_License "github.com/cueformation/cfn-cue/resources/h5679e57ffa9755d0:schema"
-
 import AWS_LicenseManager_LicenseAssetGroup "github.com/cueformation/cfn-cue/resources/h111cd4c1d1606bfe:schema"
-
 import AWS_LicenseManager_LicenseAssetRuleSet "github.com/cueformation/cfn-cue/resources/h5878473028343a0f:schema"
-
 import AWS_Lightsail_Alarm "github.com/cueformation/cfn-cue/resources/h3bb3a2846429b20a:schema"
-
 import AWS_Lightsail_Bucket "github.com/cueformation/cfn-cue/resources/h465a8fb9ee058955:schema"
-
 import AWS_Lightsail_Certificate "github.com/cueformation/cfn-cue/resources/hfa637f491354b83b:schema"
-
 import AWS_Lightsail_Container "github.com/cueformation/cfn-cue/resources/h17614dbf0575867a:schema"
-
 import AWS_Lightsail_Database "github.com/cueformation/cfn-cue/resources/hdb883652540ac80f:schema"
-
 import AWS_Lightsail_DatabaseSnapshot "github.com/cueformation/cfn-cue/resources/hefa46691b9d30304:schema"
-
 import AWS_Lightsail_Disk "github.com/cueformation/cfn-cue/resources/h515a0d27055701bb:schema"
-
 import AWS_Lightsail_DiskSnapshot "github.com/cueformation/cfn-cue/resources/hf96ef50d012a8048:schema"
-
 import AWS_Lightsail_Instance "github.com/cueformation/cfn-cue/resources/hef09262e04db072f:schema"
-
 import AWS_Lightsail_InstanceSnapshot "github.com/cueformation/cfn-cue/resources/h70155e67def604b2:schema"
-
 import AWS_Lightsail_LoadBalancer "github.com/cueformation/cfn-cue/resources/h2b133a99a215a2c3:schema"
-
 import AWS_Lightsail_LoadBalancerTlsCertificate "github.com/cueformation/cfn-cue/resources/hc89027fb2254f0b5:schema"
-
 import AWS_Lightsail_StaticIp "github.com/cueformation/cfn-cue/resources/h568b16eb2f6da8fe:schema"
-
 import AWS_Location_APIKey "github.com/cueformation/cfn-cue/resources/h4089715a7b0b3686:schema"
-
 import AWS_Location_GeofenceCollection "github.com/cueformation/cfn-cue/resources/hc57e2e5144d5d7b9:schema"
-
 import AWS_Location_Map "github.com/cueformation/cfn-cue/resources/hd25aa22d9630043d:schema"
-
 import AWS_Location_PlaceIndex "github.com/cueformation/cfn-cue/resources/h1b966115d9448639:schema"
-
 import AWS_Location_RouteCalculator "github.com/cueformation/cfn-cue/resources/hd01c89076a90376d:schema"
-
 import AWS_Location_Tracker "github.com/cueformation/cfn-cue/resources/h76216290cfa8d3e5:schema"
-
 import AWS_Location_TrackerConsumer "github.com/cueformation/cfn-cue/resources/h850b0e06969bc58b:schema"
-
 import AWS_Logs_AccountPolicy "github.com/cueformation/cfn-cue/resources/hea646fd6d5717092:schema"
-
 import AWS_Logs_Delivery "github.com/cueformation/cfn-cue/resources/h409b2fa45e9e1172:schema"
-
 import AWS_Logs_DeliveryDestination "github.com/cueformation/cfn-cue/resources/hca0a7f6abd27d592:schema"
-
 import AWS_Logs_DeliverySource "github.com/cueformation/cfn-cue/resources/ha8254b2e69e687eb:schema"
-
 import AWS_Logs_Destination "github.com/cueformation/cfn-cue/resources/h3ba9ed20f78c7eca:schema"
-
 import AWS_Logs_Integration "github.com/cueformation/cfn-cue/resources/ha8ec90cfd9453dc0:schema"
-
 import AWS_Logs_LogAnomalyDetector "github.com/cueformation/cfn-cue/resources/h024b5cd71f44db6c:schema"
-
 import AWS_Logs_LogGroup "github.com/cueformation/cfn-cue/resources/h8614d83fb64a3f33:schema"
-
 import AWS_Logs_LogStream "github.com/cueformation/cfn-cue/resources/h7d6c7fa55c5f9ad4:schema"
-
 import AWS_Logs_MetricFilter "github.com/cueformation/cfn-cue/resources/h486e9657f2eb4e0e:schema"
-
 import AWS_Logs_QueryDefinition "github.com/cueformation/cfn-cue/resources/h9f91a8cf18531dd5:schema"
-
 import AWS_Logs_ResourcePolicy "github.com/cueformation/cfn-cue/resources/h0f275b33894abe0b:schema"
-
 import AWS_Logs_ScheduledQuery "github.com/cueformation/cfn-cue/resources/h83877101a5434355:schema"
-
 import AWS_Logs_StorageTierPolicy "github.com/cueformation/cfn-cue/resources/hd7c34179aa7a079e:schema"
-
 import AWS_Logs_SubscriptionFilter "github.com/cueformation/cfn-cue/resources/hf699de1429130d15:schema"
-
 import AWS_Logs_Transformer "github.com/cueformation/cfn-cue/resources/h05fedab9f86384e2:schema"
-
 import AWS_LookoutVision_Project "github.com/cueformation/cfn-cue/resources/h8705984b143d1d4d:schema"
-
 import AWS_M2_Application "github.com/cueformation/cfn-cue/resources/h062a88fa3ce58c90:schema"
-
 import AWS_M2_Deployment "github.com/cueformation/cfn-cue/resources/hf8e56697ea1c3b78:schema"
-
 import AWS_M2_Environment "github.com/cueformation/cfn-cue/resources/h6105250d72ebef66:schema"
-
 import AWS_MSK_BatchScramSecret "github.com/cueformation/cfn-cue/resources/hb68c9a1a87dfd16e:schema"
-
 import AWS_MSK_Channel "github.com/cueformation/cfn-cue/resources/h21cf338a47e18bcd:schema"
-
 import AWS_MSK_Cluster "github.com/cueformation/cfn-cue/resources/h54208828ed9bbe65:schema"
-
 import AWS_MSK_ClusterPolicy "github.com/cueformation/cfn-cue/resources/hd40e94d96303d9e8:schema"
-
 import AWS_MSK_Configuration "github.com/cueformation/cfn-cue/resources/h5ae3322e28167abc:schema"
-
 import AWS_MSK_Replicator "github.com/cueformation/cfn-cue/resources/h035c0b2017cea15e:schema"
-
 import AWS_MSK_ServerlessCluster "github.com/cueformation/cfn-cue/resources/h4e1e433bc3e17d78:schema"
-
 import AWS_MSK_Topic "github.com/cueformation/cfn-cue/resources/h3894c444e76ce4c7:schema"
-
 import AWS_MSK_VpcConnection "github.com/cueformation/cfn-cue/resources/h5f6067e7b683be93:schema"
-
 import AWS_MWAA_Environment "github.com/cueformation/cfn-cue/resources/h0dc278ecc548cce6:schema"
-
 import AWS_MWAAServerless_Workflow "github.com/cueformation/cfn-cue/resources/h61984f37545be0d2:schema"
-
 import AWS_Macie_AllowList "github.com/cueformation/cfn-cue/resources/he604b1653f7b96b3:schema"
-
 import AWS_Macie_CustomDataIdentifier "github.com/cueformation/cfn-cue/resources/h2474eed2490236bc:schema"
-
 import AWS_Macie_FindingsFilter "github.com/cueformation/cfn-cue/resources/h3abbf840b37fa128:schema"
-
 import AWS_Macie_Session "github.com/cueformation/cfn-cue/resources/h108b2d2e7356102b:schema"
-
 import AWS_ManagedBlockchain_Accessor "github.com/cueformation/cfn-cue/resources/h34623fbfe278b892:schema"
-
 import AWS_ManagedBlockchain_Member "github.com/cueformation/cfn-cue/resources/h6e133e9a17359339:schema"
-
 import AWS_ManagedBlockchain_Node "github.com/cueformation/cfn-cue/resources/h03fa9f8e1a3f6181:schema"
-
 import AWS_MediaConnect_Bridge "github.com/cueformation/cfn-cue/resources/hd5326e53ac9f981b:schema"
-
 import AWS_MediaConnect_BridgeOutput "github.com/cueformation/cfn-cue/resources/he6f6dc798778c92a:schema"
-
 import AWS_MediaConnect_BridgeSource "github.com/cueformation/cfn-cue/resources/he943110631a29e3c:schema"
-
 import AWS_MediaConnect_Flow "github.com/cueformation/cfn-cue/resources/ha029ae1f3110cd5c:schema"
-
 import AWS_MediaConnect_FlowEntitlement "github.com/cueformation/cfn-cue/resources/he03ba37bc2e3ae80:schema"
-
 import AWS_MediaConnect_FlowOutput "github.com/cueformation/cfn-cue/resources/h114a95a58499b12f:schema"
-
 import AWS_MediaConnect_FlowSource "github.com/cueformation/cfn-cue/resources/h01762363f3edfd39:schema"
-
 import AWS_MediaConnect_FlowVpcInterface "github.com/cueformation/cfn-cue/resources/h3acb8916f984c2f0:schema"
-
 import AWS_MediaConnect_Gateway "github.com/cueformation/cfn-cue/resources/hfc1c86db2c69fbd1:schema"
-
 import AWS_MediaConnect_RouterInput "github.com/cueformation/cfn-cue/resources/hdcc7c01fc8360b02:schema"
-
 import AWS_MediaConnect_RouterNetworkInterface "github.com/cueformation/cfn-cue/resources/he8bb0fd69e690c57:schema"
-
 import AWS_MediaConnect_RouterOutput "github.com/cueformation/cfn-cue/resources/h4ee79b1989ddf853:schema"
-
 import AWS_MediaConvert_JobTemplate "github.com/cueformation/cfn-cue/resources/h1df619b3eef4cb87:schema"
-
 import AWS_MediaConvert_Preset "github.com/cueformation/cfn-cue/resources/h7216772f333bfde7:schema"
-
 import AWS_MediaConvert_Queue "github.com/cueformation/cfn-cue/resources/hf8486aba41b2d2d4:schema"
-
 import AWS_MediaLive_Channel "github.com/cueformation/cfn-cue/resources/hb4173fb508daaca9:schema"
-
 import AWS_MediaLive_ChannelPlacementGroup "github.com/cueformation/cfn-cue/resources/hd662094507dd4efe:schema"
-
 import AWS_MediaLive_CloudWatchAlarmTemplate "github.com/cueformation/cfn-cue/resources/he5e7e7c471ad2ced:schema"
-
 import AWS_MediaLive_CloudWatchAlarmTemplateGroup "github.com/cueformation/cfn-cue/resources/h3a57be438e475dcb:schema"
-
 import AWS_MediaLive_Cluster "github.com/cueformation/cfn-cue/resources/h3b47d7caf1ff88ce:schema"
-
 import AWS_MediaLive_EventBridgeRuleTemplate "github.com/cueformation/cfn-cue/resources/h3bfdbe6ad93901ff:schema"
-
 import AWS_MediaLive_EventBridgeRuleTemplateGroup "github.com/cueformation/cfn-cue/resources/h6385907f1b2e5b31:schema"
-
 import AWS_MediaLive_Input "github.com/cueformation/cfn-cue/resources/h5552637a8506de30:schema"
-
 import AWS_MediaLive_InputSecurityGroup "github.com/cueformation/cfn-cue/resources/h143ad2161e09b85f:schema"
-
 import AWS_MediaLive_Multiplex "github.com/cueformation/cfn-cue/resources/hf463ca6b96079310:schema"
-
 import AWS_MediaLive_Multiplexprogram "github.com/cueformation/cfn-cue/resources/hf5fc582bd1a35a68:schema"
-
 import AWS_MediaLive_Network "github.com/cueformation/cfn-cue/resources/h907eeeb73d163d49:schema"
-
 import AWS_MediaLive_SdiSource "github.com/cueformation/cfn-cue/resources/h425baa2d60722ced:schema"
-
 import AWS_MediaLive_SignalMap "github.com/cueformation/cfn-cue/resources/h0448b17df1b8f153:schema"
-
 import AWS_MediaPackage_Asset "github.com/cueformation/cfn-cue/resources/hda2044177d5cb066:schema"
-
 import AWS_MediaPackage_Channel "github.com/cueformation/cfn-cue/resources/h6419c3b48987583d:schema"
-
 import AWS_MediaPackage_OriginEndpoint "github.com/cueformation/cfn-cue/resources/h0f7cba406804ea41:schema"
-
 import AWS_MediaPackage_PackagingConfiguration "github.com/cueformation/cfn-cue/resources/hffeffacf371c63ef:schema"
-
 import AWS_MediaPackage_PackagingGroup "github.com/cueformation/cfn-cue/resources/h45ce3bc8aa743ab4:schema"
-
 import AWS_MediaPackageV2_Channel "github.com/cueformation/cfn-cue/resources/hb74f5d400291ec41:schema"
-
 import AWS_MediaPackageV2_ChannelGroup "github.com/cueformation/cfn-cue/resources/h1fbde704f2807bd3:schema"
-
 import AWS_MediaPackageV2_ChannelPolicy "github.com/cueformation/cfn-cue/resources/h6c711b2a535f1d17:schema"
-
 import AWS_MediaPackageV2_OriginEndpoint "github.com/cueformation/cfn-cue/resources/h39292fafcc48e311:schema"
-
 import AWS_MediaPackageV2_OriginEndpointPolicy "github.com/cueformation/cfn-cue/resources/he930442f382569d1:schema"
-
 import AWS_MediaStore_Container "github.com/cueformation/cfn-cue/resources/h6031c0ee64fd26cb:schema"
-
 import AWS_MediaTailor_Channel "github.com/cueformation/cfn-cue/resources/h98fb94baf8463c7e:schema"
-
 import AWS_MediaTailor_ChannelPolicy "github.com/cueformation/cfn-cue/resources/h9b2079a9fdb38809:schema"
-
 import AWS_MediaTailor_Function "github.com/cueformation/cfn-cue/resources/h6932b658456adda2:schema"
-
 import AWS_MediaTailor_LiveSource "github.com/cueformation/cfn-cue/resources/h7df3ab6eb964eaee:schema"
-
 import AWS_MediaTailor_PlaybackConfiguration "github.com/cueformation/cfn-cue/resources/h89f1b545c1f07d05:schema"
-
 import AWS_MediaTailor_PrefetchSchedule "github.com/cueformation/cfn-cue/resources/h8b4ecfa08ee4d235:schema"
-
 import AWS_MediaTailor_Program "github.com/cueformation/cfn-cue/resources/h12c4e641e4e3ff87:schema"
-
 import AWS_MediaTailor_SourceLocation "github.com/cueformation/cfn-cue/resources/hb50f0e5b917db2e3:schema"
-
 import AWS_MediaTailor_VodSource "github.com/cueformation/cfn-cue/resources/hd7eabc10c66d41d9:schema"
-
 import AWS_MemoryDB_ACL "github.com/cueformation/cfn-cue/resources/h799a15a6b8302a51:schema"
-
 import AWS_MemoryDB_Cluster "github.com/cueformation/cfn-cue/resources/h6998cc156e6c786a:schema"
-
 import AWS_MemoryDB_MultiRegionCluster "github.com/cueformation/cfn-cue/resources/h6b314ef3be302711:schema"
-
 import AWS_MemoryDB_ParameterGroup "github.com/cueformation/cfn-cue/resources/hd79cb2df1cf2dab5:schema"
-
 import AWS_MemoryDB_Snapshot "github.com/cueformation/cfn-cue/resources/he90161737ddac635:schema"
-
 import AWS_MemoryDB_SubnetGroup "github.com/cueformation/cfn-cue/resources/h7c53f6de6f4da7d5:schema"
-
 import AWS_MemoryDB_User "github.com/cueformation/cfn-cue/resources/hb2e3bf6167dffb85:schema"
-
 import AWS_Neptune_DBCluster "github.com/cueformation/cfn-cue/resources/h9aee50684db42ea5:schema"
-
 import AWS_Neptune_DBClusterParameterGroup "github.com/cueformation/cfn-cue/resources/h77d1ce7a419af665:schema"
-
 import AWS_Neptune_DBInstance "github.com/cueformation/cfn-cue/resources/h4c25b4d95fc07601:schema"
-
 import AWS_Neptune_DBParameterGroup "github.com/cueformation/cfn-cue/resources/h688232d41764c3a1:schema"
-
 import AWS_Neptune_DBSubnetGroup "github.com/cueformation/cfn-cue/resources/hde37a9e8650be191:schema"
-
 import AWS_Neptune_EventSubscription "github.com/cueformation/cfn-cue/resources/h82a05480e982c516:schema"
-
 import AWS_Neptune_GlobalCluster "github.com/cueformation/cfn-cue/resources/h4a43c29e3cd69491:schema"
-
 import AWS_NeptuneGraph_Graph "github.com/cueformation/cfn-cue/resources/h13528c63087e2868:schema"
-
 import AWS_NeptuneGraph_GraphSnapshot "github.com/cueformation/cfn-cue/resources/h968f225c343228e2:schema"
-
 import AWS_NeptuneGraph_PrivateGraphEndpoint "github.com/cueformation/cfn-cue/resources/h29faf5b889d6c6f5:schema"
-
 import AWS_NetworkFirewall_Firewall "github.com/cueformation/cfn-cue/resources/h5a9db56d38ad6f4f:schema"
-
 import AWS_NetworkFirewall_FirewallPolicy "github.com/cueformation/cfn-cue/resources/h4ffb7547dfe4221f:schema"
-
 import AWS_NetworkFirewall_LoggingConfiguration "github.com/cueformation/cfn-cue/resources/h874a8bf8979376a2:schema"
-
 import AWS_NetworkFirewall_RuleGroup "github.com/cueformation/cfn-cue/resources/h03dbdf25d7f24ad1:schema"
-
 import AWS_NetworkFirewall_TLSInspectionConfiguration "github.com/cueformation/cfn-cue/resources/h63e4ebec4c054501:schema"
-
 import AWS_NetworkFirewall_VpcEndpointAssociation "github.com/cueformation/cfn-cue/resources/h3b73812fae6beb98:schema"
-
 import AWS_NetworkManager_ConnectAttachment "github.com/cueformation/cfn-cue/resources/haedebfc9a7a34eb6:schema"
-
 import AWS_NetworkManager_ConnectPeer "github.com/cueformation/cfn-cue/resources/h2127b9e32807ccf5:schema"
-
 import AWS_NetworkManager_CoreNetwork "github.com/cueformation/cfn-cue/resources/h4d10de7a561dfb3e:schema"
-
 import AWS_NetworkManager_CoreNetworkPrefixListAssociation "github.com/cueformation/cfn-cue/resources/hcde6a16998afd7e0:schema"
-
 import AWS_NetworkManager_CustomerGatewayAssociation "github.com/cueformation/cfn-cue/resources/h19d4e336125eb6d9:schema"
-
 import AWS_NetworkManager_Device "github.com/cueformation/cfn-cue/resources/he1b3a4d1aee39346:schema"
-
 import AWS_NetworkManager_DirectConnectGatewayAttachment "github.com/cueformation/cfn-cue/resources/hbd6bdbea81a7d09d:schema"
-
 import AWS_NetworkManager_GlobalNetwork "github.com/cueformation/cfn-cue/resources/h20307761d40b5cfa:schema"
-
 import AWS_NetworkManager_Link "github.com/cueformation/cfn-cue/resources/h9658f55cd12634f7:schema"
-
 import AWS_NetworkManager_LinkAssociation "github.com/cueformation/cfn-cue/resources/h39bab35c43d9ca19:schema"
-
 import AWS_NetworkManager_Site "github.com/cueformation/cfn-cue/resources/hefa49c6bebf1e880:schema"
-
 import AWS_NetworkManager_SiteToSiteVpnAttachment "github.com/cueformation/cfn-cue/resources/h53dae15f7891910e:schema"
-
 import AWS_NetworkManager_TransitGatewayPeering "github.com/cueformation/cfn-cue/resources/hd3aaac14ca1f7a21:schema"
-
 import AWS_NetworkManager_TransitGatewayRegistration "github.com/cueformation/cfn-cue/resources/h54ab51528d5a9d7e:schema"
-
 import AWS_NetworkManager_TransitGatewayRouteTableAttachment "github.com/cueformation/cfn-cue/resources/he83a360e23ec297a:schema"
-
 import AWS_NetworkManager_VpcAttachment "github.com/cueformation/cfn-cue/resources/h3b15e489f43818ca:schema"
-
 import AWS_NetworkMonitor_Monitor "github.com/cueformation/cfn-cue/resources/h96f78ef40055781b:schema"
-
 import AWS_ODB_CloudAutonomousVmCluster "github.com/cueformation/cfn-cue/resources/h60f25910f6ea52d4:schema"
-
 import AWS_ODB_CloudExadataInfrastructure "github.com/cueformation/cfn-cue/resources/hf6792a81e67bd10c:schema"
-
 import AWS_ODB_CloudVmCluster "github.com/cueformation/cfn-cue/resources/h467d3bfe1abe0577:schema"
-
 import AWS_ODB_OdbNetwork "github.com/cueformation/cfn-cue/resources/he350b14092469acb:schema"
-
 import AWS_ODB_OdbPeeringConnection "github.com/cueformation/cfn-cue/resources/hcb89bf72d984bdfa:schema"
-
 import AWS_OSIS_Pipeline "github.com/cueformation/cfn-cue/resources/ha601633fbdb4f18e:schema"
-
 import AWS_Oam_Link "github.com/cueformation/cfn-cue/resources/he3df593828bb9581:schema"
-
 import AWS_Oam_Sink "github.com/cueformation/cfn-cue/resources/ha160cdc0122188c9:schema"
-
 import AWS_ObservabilityAdmin_OrganizationCentralizationRule "github.com/cueformation/cfn-cue/resources/h05b5c31d8d2e69be:schema"
-
 import AWS_ObservabilityAdmin_OrganizationTelemetryRule "github.com/cueformation/cfn-cue/resources/he078d080c2955fe5:schema"
-
 import AWS_ObservabilityAdmin_S3TableIntegration "github.com/cueformation/cfn-cue/resources/h5aeb907c1b454d5a:schema"
-
 import AWS_ObservabilityAdmin_TelemetryEnrichment "github.com/cueformation/cfn-cue/resources/h142141b0a1b9235e:schema"
-
 import AWS_ObservabilityAdmin_TelemetryPipelines "github.com/cueformation/cfn-cue/resources/hf377bd59aab7a82f:schema"
-
 import AWS_ObservabilityAdmin_TelemetryRule "github.com/cueformation/cfn-cue/resources/hca288527753382d6:schema"
-
 import AWS_Omics_Configuration "github.com/cueformation/cfn-cue/resources/hf0725aa50aa3e4ab:schema"
-
 import AWS_Omics_RunCache "github.com/cueformation/cfn-cue/resources/h079bb8bcdb9f31ca:schema"
-
 import AWS_Omics_RunGroup "github.com/cueformation/cfn-cue/resources/h6a8f00700a3e0ffb:schema"
-
 import AWS_Omics_Workflow "github.com/cueformation/cfn-cue/resources/hadf17dd90ef4ade4:schema"
-
 import AWS_Omics_WorkflowVersion "github.com/cueformation/cfn-cue/resources/h4dff7e93dd9a292e:schema"
-
 import AWS_OpenSearch_DataSource "github.com/cueformation/cfn-cue/resources/hdfe828aac7786a49:schema"
-
 import AWS_OpenSearchServerless_AccessPolicy "github.com/cueformation/cfn-cue/resources/h15e1ba34fc784925:schema"
-
 import AWS_OpenSearchServerless_Collection "github.com/cueformation/cfn-cue/resources/h98ef7ee7017e779a:schema"
-
 import AWS_OpenSearchServerless_CollectionGroup "github.com/cueformation/cfn-cue/resources/h151cd5bc298d542d:schema"
-
 import AWS_OpenSearchServerless_CollectionIndex "github.com/cueformation/cfn-cue/resources/hd8c5c020c9b36c73:schema"
-
 import AWS_OpenSearchServerless_Index "github.com/cueformation/cfn-cue/resources/h78ae42628f0334e7:schema"
-
 import AWS_OpenSearchServerless_LifecyclePolicy "github.com/cueformation/cfn-cue/resources/h035c46cfaca6ddf3:schema"
-
 import AWS_OpenSearchServerless_SecurityConfig "github.com/cueformation/cfn-cue/resources/h94695a8f8a7f5a32:schema"
-
 import AWS_OpenSearchServerless_SecurityPolicy "github.com/cueformation/cfn-cue/resources/h00acd97d0a6da712:schema"
-
 import AWS_OpenSearchServerless_VpcEndpoint "github.com/cueformation/cfn-cue/resources/he1ac2c38c0b53845:schema"
-
 import AWS_OpenSearchService_Application "github.com/cueformation/cfn-cue/resources/h5a055a637cba8213:schema"
-
 import AWS_OpenSearchService_Domain "github.com/cueformation/cfn-cue/resources/h57137d27787545b3:schema"
-
 import AWS_Organizations_Account "github.com/cueformation/cfn-cue/resources/h62d6ef0c614c7ca8:schema"
-
 import AWS_Organizations_Organization "github.com/cueformation/cfn-cue/resources/h330ed7e80a4bce4d:schema"
-
 import AWS_Organizations_OrganizationalUnit "github.com/cueformation/cfn-cue/resources/h8ef0d1fd27314ac0:schema"
-
 import AWS_Organizations_Policy "github.com/cueformation/cfn-cue/resources/h926ee4e57e46d2c8:schema"
-
 import AWS_Organizations_ResourcePolicy "github.com/cueformation/cfn-cue/resources/h7b2e4da1706db8e6:schema"
-
 import AWS_Outposts_Outpost "github.com/cueformation/cfn-cue/resources/h69d891c402c26b6b:schema"
-
 import AWS_Outposts_Site "github.com/cueformation/cfn-cue/resources/h705d97ab6f1017ea:schema"
-
 import AWS_PCAConnectorAD_Connector "github.com/cueformation/cfn-cue/resources/h61930d8baca599b1:schema"
-
 import AWS_PCAConnectorAD_DirectoryRegistration "github.com/cueformation/cfn-cue/resources/h92cc7833a4a1a423:schema"
-
 import AWS_PCAConnectorAD_ServicePrincipalName "github.com/cueformation/cfn-cue/resources/h64f5b0a32c8421d1:schema"
-
 import AWS_PCAConnectorAD_Template "github.com/cueformation/cfn-cue/resources/hb032fc40dea727e1:schema"
-
 import AWS_PCAConnectorAD_TemplateGroupAccessControlEntry "github.com/cueformation/cfn-cue/resources/h62a07c99d13c2897:schema"
-
 import AWS_PCAConnectorSCEP_Challenge "github.com/cueformation/cfn-cue/resources/h9a0296e2b46a4e35:schema"
-
 import AWS_PCAConnectorSCEP_Connector "github.com/cueformation/cfn-cue/resources/h8add3c6894f78c11:schema"
-
 import AWS_PCS_Cluster "github.com/cueformation/cfn-cue/resources/haab7b2693aa9455d:schema"
-
 import AWS_PCS_ComputeNodeGroup "github.com/cueformation/cfn-cue/resources/he88b3f933801498c:schema"
-
 import AWS_PCS_Queue "github.com/cueformation/cfn-cue/resources/hb30dba48bf455427:schema"
-
 import AWS_PaymentCryptography_Alias "github.com/cueformation/cfn-cue/resources/h1e62c15b35ad53ff:schema"
-
 import AWS_PaymentCryptography_Key "github.com/cueformation/cfn-cue/resources/h516c70628c4b4d16:schema"
-
 import AWS_Personalize_Campaign "github.com/cueformation/cfn-cue/resources/hc2586c013856509a:schema"
-
 import AWS_Personalize_Dataset "github.com/cueformation/cfn-cue/resources/hebd392f8ae8ed887:schema"
-
 import AWS_Personalize_DatasetGroup "github.com/cueformation/cfn-cue/resources/h339f476badaa82e7:schema"
-
 import AWS_Personalize_EventTracker "github.com/cueformation/cfn-cue/resources/h44a6d83de56c123b:schema"
-
 import AWS_Personalize_Filter "github.com/cueformation/cfn-cue/resources/he6aa13759d027a87:schema"
-
 import AWS_Personalize_MetricAttribution "github.com/cueformation/cfn-cue/resources/he3881dc989098bc2:schema"
-
 import AWS_Personalize_Schema "github.com/cueformation/cfn-cue/resources/h06d702af8a82bfac:schema"
-
 import AWS_Personalize_Solution "github.com/cueformation/cfn-cue/resources/h1d2e26597c7817f0:schema"
-
 import AWS_Pinpoint_ADMChannel "github.com/cueformation/cfn-cue/resources/h19123208649a6efb:schema"
-
 import AWS_Pinpoint_APNSChannel "github.com/cueformation/cfn-cue/resources/h867b4ebcebf635f4:schema"
-
 import AWS_Pinpoint_APNSSandboxChannel "github.com/cueformation/cfn-cue/resources/h77d66ceb6bc90c1d:schema"
-
 import AWS_Pinpoint_APNSVoipChannel "github.com/cueformation/cfn-cue/resources/h778d60d0ea4eafc3:schema"
-
 import AWS_Pinpoint_APNSVoipSandboxChannel "github.com/cueformation/cfn-cue/resources/hab934be25ca298a9:schema"
-
 import AWS_Pinpoint_App "github.com/cueformation/cfn-cue/resources/hce0716dae9e13fcf:schema"
-
 import AWS_Pinpoint_ApplicationSettings "github.com/cueformation/cfn-cue/resources/h29d575bb3e73fee6:schema"
-
 import AWS_Pinpoint_BaiduChannel "github.com/cueformation/cfn-cue/resources/h31aad7d32395500a:schema"
-
 import AWS_Pinpoint_Campaign "github.com/cueformation/cfn-cue/resources/h8e4c879998e72f6f:schema"
-
 import AWS_Pinpoint_EmailChannel "github.com/cueformation/cfn-cue/resources/h44c04370791a48da:schema"
-
 import AWS_Pinpoint_EmailTemplate "github.com/cueformation/cfn-cue/resources/h6f79c4c45c546e32:schema"
-
 import AWS_Pinpoint_EventStream "github.com/cueformation/cfn-cue/resources/h4c12314b17764214:schema"
-
 import AWS_Pinpoint_GCMChannel "github.com/cueformation/cfn-cue/resources/he2f72051a76c8874:schema"
-
 import AWS_Pinpoint_InAppTemplate "github.com/cueformation/cfn-cue/resources/h6b634c890ea9eb6d:schema"
-
 import AWS_Pinpoint_PushTemplate "github.com/cueformation/cfn-cue/resources/h24e63f8aa6fddef6:schema"
-
 import AWS_Pinpoint_SMSChannel "github.com/cueformation/cfn-cue/resources/h67be8c11bdafff5e:schema"
-
 import AWS_Pinpoint_Segment "github.com/cueformation/cfn-cue/resources/h935e6e91f3350c15:schema"
-
 import AWS_Pinpoint_SmsTemplate "github.com/cueformation/cfn-cue/resources/h18a177b1d7277049:schema"
-
 import AWS_Pinpoint_VoiceChannel "github.com/cueformation/cfn-cue/resources/h60d7b379bc562be8:schema"
-
 import AWS_Pipes_Pipe "github.com/cueformation/cfn-cue/resources/hff7d5431367e8660:schema"
-
 import AWS_PricingPlanManager_Subscription "github.com/cueformation/cfn-cue/resources/h97cf966f0915c1dd:schema"
-
 import AWS_Proton_EnvironmentAccountConnection "github.com/cueformation/cfn-cue/resources/hd6c4755cb5ae0f79:schema"
-
 import AWS_Proton_EnvironmentTemplate "github.com/cueformation/cfn-cue/resources/ha7340446e2f8780c:schema"
-
 import AWS_Proton_ServiceTemplate "github.com/cueformation/cfn-cue/resources/h5749124deb41f728:schema"
-
 import AWS_QLDB_Ledger "github.com/cueformation/cfn-cue/resources/hc3cd36b747f2f3e0:schema"
-
 import AWS_QLDB_Stream "github.com/cueformation/cfn-cue/resources/hd6038f54b973fede:schema"
-
 import AWS_QuickSight_ActionConnector "github.com/cueformation/cfn-cue/resources/heba13701216ef5f2:schema"
-
 import AWS_QuickSight_Agent "github.com/cueformation/cfn-cue/resources/h61366dc6bbf1e6ba:schema"
-
 import AWS_QuickSight_Analysis "github.com/cueformation/cfn-cue/resources/h5edae36713632561:schema"
-
 import AWS_QuickSight_ApprovalPolicy "github.com/cueformation/cfn-cue/resources/h92077127672b31b1:schema"
-
 import AWS_QuickSight_CustomPermissions "github.com/cueformation/cfn-cue/resources/h16bac5cbabffe154:schema"
-
 import AWS_QuickSight_DLPSetting "github.com/cueformation/cfn-cue/resources/he09bd164a4c7c2a1:schema"
-
 import AWS_QuickSight_Dashboard "github.com/cueformation/cfn-cue/resources/h504f72b102a70499:schema"
-
 import AWS_QuickSight_DataSet "github.com/cueformation/cfn-cue/resources/h633a1fcd7109459e:schema"
-
 import AWS_QuickSight_DataSource "github.com/cueformation/cfn-cue/resources/hfe515dc4584e4429:schema"
-
 import AWS_QuickSight_Flow "github.com/cueformation/cfn-cue/resources/h6a45f5962667b1bb:schema"
-
 import AWS_QuickSight_Folder "github.com/cueformation/cfn-cue/resources/h68fa2ecb62890b33:schema"
-
 import AWS_QuickSight_KnowledgeBase "github.com/cueformation/cfn-cue/resources/hd9e7bb8d375e71f6:schema"
-
 import AWS_QuickSight_LimitsProfile "github.com/cueformation/cfn-cue/resources/haa6ad6bc52d9f01e:schema"
-
 import AWS_QuickSight_OAuthClientApplication "github.com/cueformation/cfn-cue/resources/h8698f9821b9ab586:schema"
-
 import AWS_QuickSight_RefreshSchedule "github.com/cueformation/cfn-cue/resources/h66f90abd0b7a4795:schema"
-
 import AWS_QuickSight_Space "github.com/cueformation/cfn-cue/resources/h0d2881128739c8b9:schema"
-
 import AWS_QuickSight_Template "github.com/cueformation/cfn-cue/resources/h00f2d9117ea851ee:schema"
-
 import AWS_QuickSight_Theme "github.com/cueformation/cfn-cue/resources/h179b0c8bfbc318c8:schema"
-
 import AWS_QuickSight_Topic "github.com/cueformation/cfn-cue/resources/hd53f4c27e174f8ba:schema"
-
 import AWS_QuickSight_TopicV2 "github.com/cueformation/cfn-cue/resources/h1930a08ba3318796:schema"
-
 import AWS_QuickSight_VPCConnection "github.com/cueformation/cfn-cue/resources/h2c23ea02b312819d:schema"
-
 import AWS_RAM_Permission "github.com/cueformation/cfn-cue/resources/h2e4bf164e561e929:schema"
-
 import AWS_RAM_PermissionAssociation "github.com/cueformation/cfn-cue/resources/h8424028eb0cd5e18:schema"
-
 import AWS_RAM_PrincipalAssociation "github.com/cueformation/cfn-cue/resources/h658c1e4d609cbf0d:schema"
-
 import AWS_RAM_ResourceAssociation "github.com/cueformation/cfn-cue/resources/he581268c5da6426f:schema"
-
 import AWS_RAM_ResourceShare "github.com/cueformation/cfn-cue/resources/he52bb6d2edc838b9:schema"
-
 import AWS_RAM_SourceAssociation "github.com/cueformation/cfn-cue/resources/h3b1939cc35f2402a:schema"
-
 import AWS_RDS_CustomDBEngineVersion "github.com/cueformation/cfn-cue/resources/hc1bbc49f2657c3a2:schema"
-
 import AWS_RDS_DBCluster "github.com/cueformation/cfn-cue/resources/h452815b7c456bdc1:schema"
-
 import AWS_RDS_DBClusterEndpoint "github.com/cueformation/cfn-cue/resources/hd2d7bb52b6314f64:schema"
-
 import AWS_RDS_DBClusterParameterGroup "github.com/cueformation/cfn-cue/resources/h4dc1a1a6b2728907:schema"
-
 import AWS_RDS_DBInstance "github.com/cueformation/cfn-cue/resources/h1961d0ebac37774f:schema"
-
 import AWS_RDS_DBParameterGroup "github.com/cueformation/cfn-cue/resources/h47f1ee455a4b6282:schema"
-
 import AWS_RDS_DBProxy "github.com/cueformation/cfn-cue/resources/h16dcf4464055eefc:schema"
-
 import AWS_RDS_DBProxyEndpoint "github.com/cueformation/cfn-cue/resources/h4af99c615e13a499:schema"
-
 import AWS_RDS_DBProxyTargetGroup "github.com/cueformation/cfn-cue/resources/h6bbbcc50fc86438a:schema"
-
 import AWS_RDS_DBSecurityGroup "github.com/cueformation/cfn-cue/resources/hebd5eea1b89e16d7:schema"
-
 import AWS_RDS_DBSecurityGroupIngress "github.com/cueformation/cfn-cue/resources/ha0e8e002f07da601:schema"
-
 import AWS_RDS_DBShardGroup "github.com/cueformation/cfn-cue/resources/hc403b7cf1ba0d97d:schema"
-
 import AWS_RDS_DBSnapshot "github.com/cueformation/cfn-cue/resources/hae9ccfaae643dde0:schema"
-
 import AWS_RDS_DBSubnetGroup "github.com/cueformation/cfn-cue/resources/hc627041f171f1124:schema"
-
 import AWS_RDS_Deployment "github.com/cueformation/cfn-cue/resources/h181eca5ba3683eab:schema"
-
 import AWS_RDS_EventSubscription "github.com/cueformation/cfn-cue/resources/h774cd38e8395c037:schema"
-
 import AWS_RDS_GlobalCluster "github.com/cueformation/cfn-cue/resources/hda6fcff6674bf450:schema"
-
 import AWS_RDS_Integration "github.com/cueformation/cfn-cue/resources/h789be7bae02eaeae:schema"
-
 import AWS_RDS_OptionGroup "github.com/cueformation/cfn-cue/resources/h0dd94b8140cdd390:schema"
-
 import AWS_RTBFabric_InboundExternalLink "github.com/cueformation/cfn-cue/resources/hbb425c698f1cce96:schema"
-
 import AWS_RTBFabric_Link "github.com/cueformation/cfn-cue/resources/hf4df10470daccb0c:schema"
-
 import AWS_RTBFabric_LinkRoutingRule "github.com/cueformation/cfn-cue/resources/h7df5782be5b4c6cd:schema"
-
 import AWS_RTBFabric_OutboundExternalLink "github.com/cueformation/cfn-cue/resources/h824239ac6b86f47a:schema"
-
 import AWS_RTBFabric_RequesterGateway "github.com/cueformation/cfn-cue/resources/h29c26bb857ed86f2:schema"
-
 import AWS_RTBFabric_ResponderGateway "github.com/cueformation/cfn-cue/resources/h604f190cf14c9155:schema"
-
 import AWS_RUM_AppMonitor "github.com/cueformation/cfn-cue/resources/h8c880d8fcc8696e6:schema"
-
 import AWS_Rbin_Rule "github.com/cueformation/cfn-cue/resources/h8fe84be427ab4655:schema"
-
 import AWS_Redshift_Cluster "github.com/cueformation/cfn-cue/resources/had678ddafb4fed02:schema"
-
 import AWS_Redshift_ClusterParameterGroup "github.com/cueformation/cfn-cue/resources/hdac1df554940dde9:schema"
-
 import AWS_Redshift_ClusterSecurityGroup "github.com/cueformation/cfn-cue/resources/hb07925e113319554:schema"
-
 import AWS_Redshift_ClusterSecurityGroupIngress "github.com/cueformation/cfn-cue/resources/h4fdc5ea0a547a6a8:schema"
-
 import AWS_Redshift_ClusterSubnetGroup "github.com/cueformation/cfn-cue/resources/hcf4c6963e40b0dda:schema"
-
 import AWS_Redshift_EndpointAccess "github.com/cueformation/cfn-cue/resources/h6297fd8c4752122e:schema"
-
 import AWS_Redshift_EndpointAuthorization "github.com/cueformation/cfn-cue/resources/hab164694f53a3bf4:schema"
-
 import AWS_Redshift_EventSubscription "github.com/cueformation/cfn-cue/resources/h7d33c68eee8d5c54:schema"
-
 import AWS_Redshift_Integration "github.com/cueformation/cfn-cue/resources/h59e0355d7f9939ea:schema"
-
 import AWS_Redshift_ScheduledAction "github.com/cueformation/cfn-cue/resources/h54a1229bf8532737:schema"
-
 import AWS_Redshift_SnapshotSchedule "github.com/cueformation/cfn-cue/resources/h159a903f610f8fef:schema"
-
 import AWS_RedshiftServerless_Namespace "github.com/cueformation/cfn-cue/resources/h417c093522767f46:schema"
-
 import AWS_RedshiftServerless_Snapshot "github.com/cueformation/cfn-cue/resources/h016b5dfb01156d16:schema"
-
 import AWS_RedshiftServerless_Workgroup "github.com/cueformation/cfn-cue/resources/hc9ed22baa83301c2:schema"
-
 import AWS_RefactorSpaces_Application "github.com/cueformation/cfn-cue/resources/h3ec783f2e1c89fb2:schema"
-
 import AWS_RefactorSpaces_Environment "github.com/cueformation/cfn-cue/resources/h0309b24d54f30be8:schema"
-
 import AWS_RefactorSpaces_Route "github.com/cueformation/cfn-cue/resources/h71ebef9c5f97b37a:schema"
-
 import AWS_RefactorSpaces_Service "github.com/cueformation/cfn-cue/resources/he00118e92f01e61e:schema"
-
 import AWS_Rekognition_Collection "github.com/cueformation/cfn-cue/resources/h1cc370b8158d7b55:schema"
-
 import AWS_Rekognition_Project "github.com/cueformation/cfn-cue/resources/hcd8e48eb12a1c8a1:schema"
-
 import AWS_Rekognition_StreamProcessor "github.com/cueformation/cfn-cue/resources/hb5990c47a35fa972:schema"
-
 import AWS_ResilienceHub_App "github.com/cueformation/cfn-cue/resources/h68cbd6aced1d0cc6:schema"
-
 import AWS_ResilienceHub_ResiliencyPolicy "github.com/cueformation/cfn-cue/resources/h598b4818577a5f14:schema"
-
 import AWS_ResilienceHubV2_Policy "github.com/cueformation/cfn-cue/resources/h1f9eadf7de6bc358:schema"
-
 import AWS_ResilienceHubV2_Service "github.com/cueformation/cfn-cue/resources/h29eaa2d0c74c0773:schema"
-
 import AWS_ResilienceHubV2_ServiceFunction "github.com/cueformation/cfn-cue/resources/h0eebbeb188393134:schema"
-
 import AWS_ResilienceHubV2_System "github.com/cueformation/cfn-cue/resources/hcde54c4cf0788e2b:schema"
-
 import AWS_ResilienceHubV2_UserJourney "github.com/cueformation/cfn-cue/resources/hb62ec907a8df1ea8:schema"
-
 import AWS_ResourceExplorer2_DefaultViewAssociation "github.com/cueformation/cfn-cue/resources/h2be7a570d9c707ce:schema"
-
 import AWS_ResourceExplorer2_Index "github.com/cueformation/cfn-cue/resources/h5c325913813d6b98:schema"
-
 import AWS_ResourceExplorer2_View "github.com/cueformation/cfn-cue/resources/hcbc50ac4e78aa868:schema"
-
 import AWS_ResourceGroups_Group "github.com/cueformation/cfn-cue/resources/hf476c746750331e2:schema"
-
 import AWS_ResourceGroups_TagSyncTask "github.com/cueformation/cfn-cue/resources/h0f0861f848fde7df:schema"
-
 import AWS_RoboMaker_Fleet "github.com/cueformation/cfn-cue/resources/h99ed6d29b0b6d276:schema"
-
 import AWS_RoboMaker_Robot "github.com/cueformation/cfn-cue/resources/he25c50b5ae9b15bb:schema"
-
 import AWS_RoboMaker_RobotApplication "github.com/cueformation/cfn-cue/resources/hc0db83bd32a3390e:schema"
-
 import AWS_RoboMaker_RobotApplicationVersion "github.com/cueformation/cfn-cue/resources/h646827cb1a9dde2e:schema"
-
 import AWS_RoboMaker_SimulationApplication "github.com/cueformation/cfn-cue/resources/h0db8b6b02c40ba94:schema"
-
 import AWS_RoboMaker_SimulationApplicationVersion "github.com/cueformation/cfn-cue/resources/h181cb8196f602ca1:schema"
-
 import AWS_RolesAnywhere_CRL "github.com/cueformation/cfn-cue/resources/he3067ab261dc926a:schema"
-
 import AWS_RolesAnywhere_Profile "github.com/cueformation/cfn-cue/resources/h107b284807359f07:schema"
-
 import AWS_RolesAnywhere_TrustAnchor "github.com/cueformation/cfn-cue/resources/h1222605db57002a8:schema"
-
 import AWS_Route53_CidrCollection "github.com/cueformation/cfn-cue/resources/h725fabd41574e3c8:schema"
-
 import AWS_Route53_DNSSEC "github.com/cueformation/cfn-cue/resources/h93d49b464f44b664:schema"
-
 import AWS_Route53_HealthCheck "github.com/cueformation/cfn-cue/resources/h500736f2dde2779f:schema"
-
 import AWS_Route53_HostedZone "github.com/cueformation/cfn-cue/resources/hf3f4847d64460f5c:schema"
-
 import AWS_Route53_KeySigningKey "github.com/cueformation/cfn-cue/resources/h8f160014b4b0ca58:schema"
-
 import AWS_Route53_RecordSet "github.com/cueformation/cfn-cue/resources/h850fd9e2bdac4c5f:schema"
-
 import AWS_Route53_RecordSetGroup "github.com/cueformation/cfn-cue/resources/h890149a8578737b7:schema"
-
 import AWS_Route53GlobalResolver_AccessSource "github.com/cueformation/cfn-cue/resources/h2c34b95c3c3c5abc:schema"
-
 import AWS_Route53GlobalResolver_AccessToken "github.com/cueformation/cfn-cue/resources/h0fa10688a0296565:schema"
-
 import AWS_Route53GlobalResolver_DnsView "github.com/cueformation/cfn-cue/resources/hd9b6820ae8f3320f:schema"
-
 import AWS_Route53GlobalResolver_FirewallDomainList "github.com/cueformation/cfn-cue/resources/h022e8915baa93595:schema"
-
 import AWS_Route53GlobalResolver_FirewallRule "github.com/cueformation/cfn-cue/resources/hf4e6de2cb624d03c:schema"
-
 import AWS_Route53GlobalResolver_GlobalResolver "github.com/cueformation/cfn-cue/resources/h816f66a206287b0d:schema"
-
 import AWS_Route53GlobalResolver_HostedZoneAssociation "github.com/cueformation/cfn-cue/resources/h985f2dc430ddb16f:schema"
-
 import AWS_Route53Profiles_Profile "github.com/cueformation/cfn-cue/resources/h5565731532c76456:schema"
-
 import AWS_Route53Profiles_ProfileAssociation "github.com/cueformation/cfn-cue/resources/hc7cfa417317220c6:schema"
-
 import AWS_Route53Profiles_ProfileResourceAssociation "github.com/cueformation/cfn-cue/resources/h5bc6281576b021e6:schema"
-
 import AWS_Route53Resolver_FirewallDomainList "github.com/cueformation/cfn-cue/resources/h45d2b9139b0318a3:schema"
-
 import AWS_Route53Resolver_FirewallRuleGroup "github.com/cueformation/cfn-cue/resources/h67ec5a4a1f8201e1:schema"
-
 import AWS_Route53Resolver_FirewallRuleGroupAssociation "github.com/cueformation/cfn-cue/resources/ha6aea971ecc0026e:schema"
-
 import AWS_Route53Resolver_OutpostResolver "github.com/cueformation/cfn-cue/resources/h35a21c87ad11fda6:schema"
-
 import AWS_Route53Resolver_ResolverConfig "github.com/cueformation/cfn-cue/resources/h8e0dbbbe465dec4c:schema"
-
 import AWS_Route53Resolver_ResolverDNSSECConfig "github.com/cueformation/cfn-cue/resources/hb682d9a0d4f97502:schema"
-
 import AWS_Route53Resolver_ResolverEndpoint "github.com/cueformation/cfn-cue/resources/h31d9d15933f5bcd3:schema"
-
 import AWS_Route53Resolver_ResolverQueryLoggingConfig "github.com/cueformation/cfn-cue/resources/ha253b7b04f712329:schema"
-
 import AWS_Route53Resolver_ResolverQueryLoggingConfigAssociation "github.com/cueformation/cfn-cue/resources/h259f05a8436c66f4:schema"
-
 import AWS_Route53Resolver_ResolverRule "github.com/cueformation/cfn-cue/resources/h4e5f3b850c4f697a:schema"
-
 import AWS_Route53Resolver_ResolverRuleAssociation "github.com/cueformation/cfn-cue/resources/h5aefd2bbb3cd19de:schema"
-
 import AWS_S3_AccessGrant "github.com/cueformation/cfn-cue/resources/h85332053108e55ee:schema"
-
 import AWS_S3_AccessGrantsInstance "github.com/cueformation/cfn-cue/resources/h815fa351d8b876b4:schema"
-
 import AWS_S3_AccessGrantsLocation "github.com/cueformation/cfn-cue/resources/hb3e30142423272e3:schema"
-
 import AWS_S3_AccessPoint "github.com/cueformation/cfn-cue/resources/h829434755e734476:schema"
-
 import AWS_S3_Bucket "github.com/cueformation/cfn-cue/resources/h69ff2c30cdaed778:schema"
-
 import AWS_S3_BucketPolicy "github.com/cueformation/cfn-cue/resources/h052a5ef1e32d1349:schema"
-
 import AWS_S3_MultiRegionAccessPoint "github.com/cueformation/cfn-cue/resources/h8436d901cedc24b9:schema"
-
 import AWS_S3_MultiRegionAccessPointPolicy "github.com/cueformation/cfn-cue/resources/h9e7f34f895f02102:schema"
-
 import AWS_S3_StorageLens "github.com/cueformation/cfn-cue/resources/h5b44aa129041a26c:schema"
-
 import AWS_S3_StorageLensGroup "github.com/cueformation/cfn-cue/resources/hd23c3f365473628a:schema"
-
 import AWS_S3Express_AccessPoint "github.com/cueformation/cfn-cue/resources/hb49b5695ad1635bc:schema"
-
 import AWS_S3Express_BucketPolicy "github.com/cueformation/cfn-cue/resources/h1aa50b5d381ec973:schema"
-
 import AWS_S3Express_DirectoryBucket "github.com/cueformation/cfn-cue/resources/hf7e19efabd76022d:schema"
-
 import AWS_S3Files_AccessPoint "github.com/cueformation/cfn-cue/resources/h647c842b76c60d21:schema"
-
 import AWS_S3Files_FileSystem "github.com/cueformation/cfn-cue/resources/ha174c50d940570c4:schema"
-
 import AWS_S3Files_FileSystemPolicy "github.com/cueformation/cfn-cue/resources/h23476de910d44b07:schema"
-
 import AWS_S3Files_MountTarget "github.com/cueformation/cfn-cue/resources/h27de8df1d2126003:schema"
-
 import AWS_S3ObjectLambda_AccessPoint "github.com/cueformation/cfn-cue/resources/h93b0bc1c4c1e00ce:schema"
-
 import AWS_S3ObjectLambda_AccessPointPolicy "github.com/cueformation/cfn-cue/resources/hc79539f32b81982f:schema"
-
 import AWS_S3Outposts_AccessPoint "github.com/cueformation/cfn-cue/resources/h2f13f4b43be44aad:schema"
-
 import AWS_S3Outposts_Bucket "github.com/cueformation/cfn-cue/resources/haacad19eaaa7420a:schema"
-
 import AWS_S3Outposts_BucketPolicy "github.com/cueformation/cfn-cue/resources/h078c356c924fb638:schema"
-
 import AWS_S3Outposts_Endpoint "github.com/cueformation/cfn-cue/resources/h45020daf4d3178bc:schema"
-
 import AWS_S3Tables_Namespace "github.com/cueformation/cfn-cue/resources/h3367cb572094177b:schema"
-
 import AWS_S3Tables_Table "github.com/cueformation/cfn-cue/resources/hf68616a60c3ecc55:schema"
-
 import AWS_S3Tables_TableBucket "github.com/cueformation/cfn-cue/resources/h59666100a7b0cf60:schema"
-
 import AWS_S3Tables_TableBucketPolicy "github.com/cueformation/cfn-cue/resources/h33370a179734e636:schema"
-
 import AWS_S3Tables_TablePolicy "github.com/cueformation/cfn-cue/resources/h8587a3a8ded92121:schema"
-
 import AWS_S3Vectors_Index "github.com/cueformation/cfn-cue/resources/h63cd189547d460b2:schema"
-
 import AWS_S3Vectors_VectorBucket "github.com/cueformation/cfn-cue/resources/he2664c5f98356312:schema"
-
 import AWS_S3Vectors_VectorBucketPolicy "github.com/cueformation/cfn-cue/resources/h2345f47aa31c7503:schema"
-
 import AWS_SDB_Domain "github.com/cueformation/cfn-cue/resources/h20adf47bce5f481c:schema"
-
 import AWS_SES_ConfigurationSet "github.com/cueformation/cfn-cue/resources/h6cbeeb9470189dcc:schema"
-
 import AWS_SES_ConfigurationSetEventDestination "github.com/cueformation/cfn-cue/resources/hf7b70d4c263db5dd:schema"
-
 import AWS_SES_ContactList "github.com/cueformation/cfn-cue/resources/h669df6970cad511f:schema"
-
 import AWS_SES_CustomVerificationEmailTemplate "github.com/cueformation/cfn-cue/resources/h24f20dec8dec0ba6:schema"
-
 import AWS_SES_DedicatedIpPool "github.com/cueformation/cfn-cue/resources/h6bfb7af4418445ba:schema"
-
 import AWS_SES_EmailIdentity "github.com/cueformation/cfn-cue/resources/h8e0152ff11f75442:schema"
-
 import AWS_SES_EmailIdentityCertificate "github.com/cueformation/cfn-cue/resources/h002c40144465a7ff:schema"
-
 import AWS_SES_MailManagerAddonInstance "github.com/cueformation/cfn-cue/resources/h89115a5ab999db94:schema"
-
 import AWS_SES_MailManagerAddonSubscription "github.com/cueformation/cfn-cue/resources/hbb36f77855057bb3:schema"
-
 import AWS_SES_MailManagerAddressList "github.com/cueformation/cfn-cue/resources/h47538efc073330ba:schema"
-
 import AWS_SES_MailManagerArchive "github.com/cueformation/cfn-cue/resources/h7ee2acacda1ff073:schema"
-
 import AWS_SES_MailManagerIngressPoint "github.com/cueformation/cfn-cue/resources/ha63c8073a7f9803b:schema"
-
 import AWS_SES_MailManagerRelay "github.com/cueformation/cfn-cue/resources/hd0a5670d862eb30b:schema"
-
 import AWS_SES_MailManagerRuleSet "github.com/cueformation/cfn-cue/resources/he2a5b4943a896d54:schema"
-
 import AWS_SES_MailManagerTrafficPolicy "github.com/cueformation/cfn-cue/resources/h3c877c39cfd44e73:schema"
-
 import AWS_SES_MultiRegionEndpoint "github.com/cueformation/cfn-cue/resources/h9ea6002de55e1c12:schema"
-
 import AWS_SES_ReceiptFilter "github.com/cueformation/cfn-cue/resources/h2e9b9dc6d2d0dcd6:schema"
-
 import AWS_SES_ReceiptRule "github.com/cueformation/cfn-cue/resources/hf984c6a0a8f9e395:schema"
-
 import AWS_SES_ReceiptRuleSet "github.com/cueformation/cfn-cue/resources/h636234bd300d9d59:schema"
-
 import AWS_SES_Template "github.com/cueformation/cfn-cue/resources/ha73e9895dc45fd56:schema"
-
 import AWS_SES_Tenant "github.com/cueformation/cfn-cue/resources/hc4fb1e246fa50eca:schema"
-
 import AWS_SES_VdmAttributes "github.com/cueformation/cfn-cue/resources/hed2a958e604471dc:schema"
-
 import AWS_SMSVOICE_ConfigurationSet "github.com/cueformation/cfn-cue/resources/hc913ff518be6dfab:schema"
-
 import AWS_SMSVOICE_OptOutList "github.com/cueformation/cfn-cue/resources/hbd90f0e043faca67:schema"
-
 import AWS_SMSVOICE_PhoneNumber "github.com/cueformation/cfn-cue/resources/hf453369ce1608b2d:schema"
-
 import AWS_SMSVOICE_Pool "github.com/cueformation/cfn-cue/resources/ha409c4ccddcd81fa:schema"
-
 import AWS_SMSVOICE_ProtectConfiguration "github.com/cueformation/cfn-cue/resources/h2ee03b41757b9abe:schema"
-
 import AWS_SMSVOICE_ResourcePolicy "github.com/cueformation/cfn-cue/resources/h18fd6c7e2bad7d33:schema"
-
 import AWS_SMSVOICE_SenderId "github.com/cueformation/cfn-cue/resources/h3ea86449b2c59c8e:schema"
-
 import AWS_SNS_Subscription "github.com/cueformation/cfn-cue/resources/hbfe3b47089380bde:schema"
-
 import AWS_SNS_Topic "github.com/cueformation/cfn-cue/resources/h55996ca553a6ab0c:schema"
-
 import AWS_SNS_TopicInlinePolicy "github.com/cueformation/cfn-cue/resources/hc8fe2fc6a8e4ded0:schema"
-
 import AWS_SNS_TopicPolicy "github.com/cueformation/cfn-cue/resources/he420fa2ca5d33180:schema"
-
 import AWS_SQS_Queue "github.com/cueformation/cfn-cue/resources/h0b0fc52a92647916:schema"
-
 import AWS_SQS_QueueInlinePolicy "github.com/cueformation/cfn-cue/resources/h295bcc64e082cef2:schema"
-
 import AWS_SQS_QueuePolicy "github.com/cueformation/cfn-cue/resources/hfaa288be40968b1b:schema"
-
 import AWS_SSM_Association "github.com/cueformation/cfn-cue/resources/h7218f3eda41f920b:schema"
-
 import AWS_SSM_CloudConnector "github.com/cueformation/cfn-cue/resources/he815e8c83e441e9d:schema"
-
 import AWS_SSM_Document "github.com/cueformation/cfn-cue/resources/h7b2b3510b108664a:schema"
-
 import AWS_SSM_MaintenanceWindow "github.com/cueformation/cfn-cue/resources/h572ebde4745104a1:schema"
-
 import AWS_SSM_MaintenanceWindowTarget "github.com/cueformation/cfn-cue/resources/hd099ae52d5d2dbab:schema"
-
 import AWS_SSM_MaintenanceWindowTask "github.com/cueformation/cfn-cue/resources/hf24a360be9aa4a2d:schema"
-
 import AWS_SSM_Parameter "github.com/cueformation/cfn-cue/resources/h93d0ba2d5744d857:schema"
-
 import AWS_SSM_PatchBaseline "github.com/cueformation/cfn-cue/resources/h5478f0751f8a13f1:schema"
-
 import AWS_SSM_ResourceDataSync "github.com/cueformation/cfn-cue/resources/h02db4416af391064:schema"
-
 import AWS_SSM_ResourcePolicy "github.com/cueformation/cfn-cue/resources/h03fa09fec435df39:schema"
-
 import AWS_SSM_ServiceSetting "github.com/cueformation/cfn-cue/resources/h392f94b6077828ed:schema"
-
 import AWS_SSMContacts_Contact "github.com/cueformation/cfn-cue/resources/hceee892ca128cab0:schema"
-
 import AWS_SSMContacts_ContactChannel "github.com/cueformation/cfn-cue/resources/h9193f40e9a2287ca:schema"
-
 import AWS_SSMContacts_Plan "github.com/cueformation/cfn-cue/resources/h4427ee47757289b3:schema"
-
 import AWS_SSMContacts_Rotation "github.com/cueformation/cfn-cue/resources/h58ddc3ba9929d605:schema"
-
 import AWS_SSMGuiConnect_Preferences "github.com/cueformation/cfn-cue/resources/hc1da88b8437d4f65:schema"
-
 import AWS_SSMIncidents_ReplicationSet "github.com/cueformation/cfn-cue/resources/hec866a639503677d:schema"
-
 import AWS_SSMIncidents_ResponsePlan "github.com/cueformation/cfn-cue/resources/h058ee8f7ecbebda4:schema"
-
 import AWS_SSMQuickSetup_ConfigurationManager "github.com/cueformation/cfn-cue/resources/h248aadff63c68975:schema"
-
 import AWS_SSMQuickSetup_LifecycleAutomation "github.com/cueformation/cfn-cue/resources/hadff61cca5d8058e:schema"
-
 import AWS_SSO_Application "github.com/cueformation/cfn-cue/resources/h749c95381a0158d5:schema"
-
 import AWS_SSO_ApplicationAssignment "github.com/cueformation/cfn-cue/resources/hd526f985b22001de:schema"
-
 import AWS_SSO_Assignment "github.com/cueformation/cfn-cue/resources/h8f38b07c29b21b49:schema"
-
 import AWS_SSO_Instance "github.com/cueformation/cfn-cue/resources/h8081a34dd83a4878:schema"
-
 import AWS_SSO_InstanceAccessControlAttributeConfiguration "github.com/cueformation/cfn-cue/resources/h3f95ba6e980126ee:schema"
-
 import AWS_SSO_PermissionSet "github.com/cueformation/cfn-cue/resources/h9ab24b4d170529f4:schema"
-
 import AWS_SageMaker_AIWorkloadConfig "github.com/cueformation/cfn-cue/resources/h56f1c0811a9d24bf:schema"
-
 import AWS_SageMaker_Action "github.com/cueformation/cfn-cue/resources/hf8141fef96db4fc7:schema"
-
 import AWS_SageMaker_App "github.com/cueformation/cfn-cue/resources/h94b202512265ae42:schema"
-
 import AWS_SageMaker_AppImageConfig "github.com/cueformation/cfn-cue/resources/h8c4949ad09726c1e:schema"
-
 import AWS_SageMaker_Artifact "github.com/cueformation/cfn-cue/resources/h6756d83c32d8d84c:schema"
-
 import AWS_SageMaker_Cluster "github.com/cueformation/cfn-cue/resources/h7d19b2441c68b99c:schema"
-
 import AWS_SageMaker_ClusterSchedulerConfig "github.com/cueformation/cfn-cue/resources/hd964d045f320022e:schema"
-
 import AWS_SageMaker_CodeRepository "github.com/cueformation/cfn-cue/resources/hb3407a31ade1ed2a:schema"
-
 import AWS_SageMaker_Context "github.com/cueformation/cfn-cue/resources/hb8ef49fb2c977943:schema"
-
 import AWS_SageMaker_DataQualityJobDefinition "github.com/cueformation/cfn-cue/resources/hfa1116d739e45071:schema"
-
 import AWS_SageMaker_Device "github.com/cueformation/cfn-cue/resources/h315c46ee0c7c24a8:schema"
-
 import AWS_SageMaker_DeviceFleet "github.com/cueformation/cfn-cue/resources/hadd75abad51f3342:schema"
-
 import AWS_SageMaker_Domain "github.com/cueformation/cfn-cue/resources/h4d9dfe6373929a0f:schema"
-
 import AWS_SageMaker_Endpoint "github.com/cueformation/cfn-cue/resources/h8c0105c1afacbace:schema"
-
 import AWS_SageMaker_EndpointConfig "github.com/cueformation/cfn-cue/resources/h3529e18613d41f86:schema"
-
 import AWS_SageMaker_Experiment "github.com/cueformation/cfn-cue/resources/ha4be6391e50bbec1:schema"
-
 import AWS_SageMaker_ExperimentTrialComponent "github.com/cueformation/cfn-cue/resources/hecf7cc1c42c5b125:schema"
-
 import AWS_SageMaker_FeatureGroup "github.com/cueformation/cfn-cue/resources/h5561ccd3e4e82a0c:schema"
-
 import AWS_SageMaker_Hub "github.com/cueformation/cfn-cue/resources/hd1f0c9e415f42f62:schema"
-
 import AWS_SageMaker_HumanTaskUi "github.com/cueformation/cfn-cue/resources/hd227ab5d13b7d337:schema"
-
 import AWS_SageMaker_Image "github.com/cueformation/cfn-cue/resources/h3211995b17eb3616:schema"
-
 import AWS_SageMaker_ImageVersion "github.com/cueformation/cfn-cue/resources/h680a92e70be5ac38:schema"
-
 import AWS_SageMaker_InferenceComponent "github.com/cueformation/cfn-cue/resources/heddb9f584c0b6de8:schema"
-
 import AWS_SageMaker_InferenceExperiment "github.com/cueformation/cfn-cue/resources/h6427a5646a39aa08:schema"
-
 import AWS_SageMaker_MlflowApp "github.com/cueformation/cfn-cue/resources/h3506172e699288f1:schema"
-
 import AWS_SageMaker_MlflowTrackingServer "github.com/cueformation/cfn-cue/resources/h220852adabc6989b:schema"
-
 import AWS_SageMaker_Model "github.com/cueformation/cfn-cue/resources/hf713429cd3f0c181:schema"
-
 import AWS_SageMaker_ModelBiasJobDefinition "github.com/cueformation/cfn-cue/resources/h4ed99aaec788f066:schema"
-
 import AWS_SageMaker_ModelCard "github.com/cueformation/cfn-cue/resources/h62af6709fcf7231f:schema"
-
 import AWS_SageMaker_ModelExplainabilityJobDefinition "github.com/cueformation/cfn-cue/resources/h762fd64dd35d68ca:schema"
-
 import AWS_SageMaker_ModelPackage "github.com/cueformation/cfn-cue/resources/hd70facd06401d294:schema"
-
 import AWS_SageMaker_ModelPackageGroup "github.com/cueformation/cfn-cue/resources/h2eb83da727ca85c0:schema"
-
 import AWS_SageMaker_ModelQualityJobDefinition "github.com/cueformation/cfn-cue/resources/h48f34fa2c1cb08e6:schema"
-
 import AWS_SageMaker_MonitoringSchedule "github.com/cueformation/cfn-cue/resources/h070ec42cc2a439c4:schema"
-
 import AWS_SageMaker_NotebookInstance "github.com/cueformation/cfn-cue/resources/hb55bfb76c1152913:schema"
-
 import AWS_SageMaker_NotebookInstanceLifecycleConfig "github.com/cueformation/cfn-cue/resources/h0a192ea0e1c62ed9:schema"
-
 import AWS_SageMaker_PartnerApp "github.com/cueformation/cfn-cue/resources/h2e790798b6f315d6:schema"
-
 import AWS_SageMaker_Pipeline "github.com/cueformation/cfn-cue/resources/h8a12c617165bb395:schema"
-
 import AWS_SageMaker_ProcessingJob "github.com/cueformation/cfn-cue/resources/hedba0176185d9c42:schema"
-
 import AWS_SageMaker_Project "github.com/cueformation/cfn-cue/resources/h8dc1a56804094f8b:schema"
-
 import AWS_SageMaker_Space "github.com/cueformation/cfn-cue/resources/h32a1a463d5fdebda:schema"
-
 import AWS_SageMaker_StudioLifecycleConfig "github.com/cueformation/cfn-cue/resources/h8ec47bfca691f1a0:schema"
-
 import AWS_SageMaker_TrialComponent "github.com/cueformation/cfn-cue/resources/hfa89bdf8e9c62781:schema"
-
 import AWS_SageMaker_UserProfile "github.com/cueformation/cfn-cue/resources/heae3483c61654312:schema"
-
 import AWS_SageMaker_Workforce "github.com/cueformation/cfn-cue/resources/h8f4c485f8cf6a950:schema"
-
 import AWS_SageMaker_Workteam "github.com/cueformation/cfn-cue/resources/h125c97c2b4190675:schema"
-
 import AWS_Scheduler_Schedule "github.com/cueformation/cfn-cue/resources/hbf1260827467320e:schema"
-
 import AWS_Scheduler_ScheduleGroup "github.com/cueformation/cfn-cue/resources/h0183b32826044ae0:schema"
-
 import AWS_SecretsManager_ResourcePolicy "github.com/cueformation/cfn-cue/resources/he724f288a2c2c8be:schema"
-
 import AWS_SecretsManager_RotationSchedule "github.com/cueformation/cfn-cue/resources/hd4ee5cb536724fa1:schema"
-
 import AWS_SecretsManager_Secret "github.com/cueformation/cfn-cue/resources/hf6b785ff8e74d121:schema"
-
 import AWS_SecretsManager_SecretTargetAttachment "github.com/cueformation/cfn-cue/resources/h43ab3f22487e70b1:schema"
-
 import AWS_SecurityAgent_AgentSpace "github.com/cueformation/cfn-cue/resources/hd922bf2cf5d1856b:schema"
-
 import AWS_SecurityAgent_Application "github.com/cueformation/cfn-cue/resources/h8e63acbdcca77401:schema"
-
 import AWS_SecurityAgent_Artifact "github.com/cueformation/cfn-cue/resources/he318cfe385dbd178:schema"
-
 import AWS_SecurityAgent_Pentest "github.com/cueformation/cfn-cue/resources/h435136e8b0b4b8ff:schema"
-
 import AWS_SecurityAgent_SecurityRequirementPack "github.com/cueformation/cfn-cue/resources/h0f5546f0b80cd706:schema"
-
 import AWS_SecurityAgent_TargetDomain "github.com/cueformation/cfn-cue/resources/hd30a04a64bafb637:schema"
-
 import AWS_SecurityHub_AggregatorV2 "github.com/cueformation/cfn-cue/resources/h165ea60cf7b09dbd:schema"
-
 import AWS_SecurityHub_AutomationRule "github.com/cueformation/cfn-cue/resources/hf789a2e85b4a4422:schema"
-
 import AWS_SecurityHub_AutomationRuleV2 "github.com/cueformation/cfn-cue/resources/h710c0f8dcebb6df0:schema"
-
 import AWS_SecurityHub_ConfigurationPolicy "github.com/cueformation/cfn-cue/resources/h471f624db20604c6:schema"
-
 import AWS_SecurityHub_Connector "github.com/cueformation/cfn-cue/resources/h67ce621e3982ba40:schema"
-
 import AWS_SecurityHub_ConnectorV2 "github.com/cueformation/cfn-cue/resources/hf328b958ceb30bf7:schema"
-
 import AWS_SecurityHub_DelegatedAdmin "github.com/cueformation/cfn-cue/resources/hd0f360fe89fa8386:schema"
-
 import AWS_SecurityHub_FindingAggregator "github.com/cueformation/cfn-cue/resources/h44e2144dd6b4a079:schema"
-
 import AWS_SecurityHub_Hub "github.com/cueformation/cfn-cue/resources/hea0d4a29e6349da6:schema"
-
 import AWS_SecurityHub_HubV2 "github.com/cueformation/cfn-cue/resources/h1997ae873297ca5d:schema"
-
 import AWS_SecurityHub_Insight "github.com/cueformation/cfn-cue/resources/h2ea83a964da23d9e:schema"
-
 import AWS_SecurityHub_OrganizationConfiguration "github.com/cueformation/cfn-cue/resources/h16c8a2980ee43fb6:schema"
-
 import AWS_SecurityHub_PolicyAssociation "github.com/cueformation/cfn-cue/resources/hf0a0d75ea0c7549b:schema"
-
 import AWS_SecurityHub_ProductSubscription "github.com/cueformation/cfn-cue/resources/h4f2f38f9a1605314:schema"
-
 import AWS_SecurityHub_SecurityControl "github.com/cueformation/cfn-cue/resources/h26da3e3dd083f133:schema"
-
 import AWS_SecurityHub_Standard "github.com/cueformation/cfn-cue/resources/h248ed6920266fd2e:schema"
-
 import AWS_SecurityLake_AwsLogSource "github.com/cueformation/cfn-cue/resources/haf4232f76a410e45:schema"
-
 import AWS_SecurityLake_DataLake "github.com/cueformation/cfn-cue/resources/h6392d602332ef6c1:schema"
-
 import AWS_SecurityLake_Subscriber "github.com/cueformation/cfn-cue/resources/h99bd707ebe1ec087:schema"
-
 import AWS_SecurityLake_SubscriberNotification "github.com/cueformation/cfn-cue/resources/hf9289049744635ec:schema"
-
 import AWS_ServiceCatalog_AcceptedPortfolioShare "github.com/cueformation/cfn-cue/resources/h1d02c7d604716edf:schema"
-
 import AWS_ServiceCatalog_CloudFormationProduct "github.com/cueformation/cfn-cue/resources/h18025c682c5375c5:schema"
-
 import AWS_ServiceCatalog_CloudFormationProvisionedProduct "github.com/cueformation/cfn-cue/resources/h7e09ce57311dfa3f:schema"
-
 import AWS_ServiceCatalog_LaunchNotificationConstraint "github.com/cueformation/cfn-cue/resources/h7c77f6955e4b4df5:schema"
-
 import AWS_ServiceCatalog_LaunchRoleConstraint "github.com/cueformation/cfn-cue/resources/h9136ba5942ec80ac:schema"
-
 import AWS_ServiceCatalog_LaunchTemplateConstraint "github.com/cueformation/cfn-cue/resources/h8dc672694dd79f8c:schema"
-
 import AWS_ServiceCatalog_Portfolio "github.com/cueformation/cfn-cue/resources/h9f8534557a521f9e:schema"
-
 import AWS_ServiceCatalog_PortfolioPrincipalAssociation "github.com/cueformation/cfn-cue/resources/h0f18466761f18423:schema"
-
 import AWS_ServiceCatalog_PortfolioProductAssociation "github.com/cueformation/cfn-cue/resources/h1302db7b81a64216:schema"
-
 import AWS_ServiceCatalog_PortfolioShare "github.com/cueformation/cfn-cue/resources/hb0eb321ac4ab5924:schema"
-
 import AWS_ServiceCatalog_ResourceUpdateConstraint "github.com/cueformation/cfn-cue/resources/h042e5f37b513f4aa:schema"
-
 import AWS_ServiceCatalog_ServiceAction "github.com/cueformation/cfn-cue/resources/h5d5ba8672d2cef2c:schema"
-
 import AWS_ServiceCatalog_ServiceActionAssociation "github.com/cueformation/cfn-cue/resources/h7ce22ab9705373d5:schema"
-
 import AWS_ServiceCatalog_StackSetConstraint "github.com/cueformation/cfn-cue/resources/ha31ea642b28f7e2d:schema"
-
 import AWS_ServiceCatalog_TagOption "github.com/cueformation/cfn-cue/resources/h4e39a694ac9fc81d:schema"
-
 import AWS_ServiceCatalog_TagOptionAssociation "github.com/cueformation/cfn-cue/resources/h35b57e35d7eff1aa:schema"
-
 import AWS_ServiceCatalogAppRegistry_Application "github.com/cueformation/cfn-cue/resources/hb463bd88316ef34d:schema"
-
 import AWS_ServiceCatalogAppRegistry_AttributeGroup "github.com/cueformation/cfn-cue/resources/h8ef9aa0cb0ce646d:schema"
-
 import AWS_ServiceCatalogAppRegistry_AttributeGroupAssociation "github.com/cueformation/cfn-cue/resources/h4c69392d95007145:schema"
-
 import AWS_ServiceCatalogAppRegistry_ResourceAssociation "github.com/cueformation/cfn-cue/resources/h9c50c16ccf614757:schema"
-
 import AWS_ServiceDiscovery_HttpNamespace "github.com/cueformation/cfn-cue/resources/hcf8e150f39236b87:schema"
-
 import AWS_ServiceDiscovery_Instance "github.com/cueformation/cfn-cue/resources/h5b9c01d7c8dfa8a7:schema"
-
 import AWS_ServiceDiscovery_PrivateDnsNamespace "github.com/cueformation/cfn-cue/resources/he3d2b06c010fa097:schema"
-
 import AWS_ServiceDiscovery_PublicDnsNamespace "github.com/cueformation/cfn-cue/resources/hc066c74cd0cbbbbb:schema"
-
 import AWS_ServiceDiscovery_Service "github.com/cueformation/cfn-cue/resources/h0321e1b0490d6745:schema"
-
 import AWS_Shield_DRTAccess "github.com/cueformation/cfn-cue/resources/hc7e8ded7346a20a5:schema"
-
 import AWS_Shield_ProactiveEngagement "github.com/cueformation/cfn-cue/resources/h91a212f55413f282:schema"
-
 import AWS_Shield_Protection "github.com/cueformation/cfn-cue/resources/h85ab933aabb97eb5:schema"
-
 import AWS_Shield_ProtectionGroup "github.com/cueformation/cfn-cue/resources/he36acecae8d792fc:schema"
-
 import AWS_Signer_ProfilePermission "github.com/cueformation/cfn-cue/resources/h4473f6c8da4374ad:schema"
-
 import AWS_Signer_SigningProfile "github.com/cueformation/cfn-cue/resources/h48ee995bc96022eb:schema"
-
 import AWS_StepFunctions_Activity "github.com/cueformation/cfn-cue/resources/hb034bae8ef76a6d3:schema"
-
 import AWS_StepFunctions_StateMachine "github.com/cueformation/cfn-cue/resources/hfab707ee18500074:schema"
-
 import AWS_StepFunctions_StateMachineAlias "github.com/cueformation/cfn-cue/resources/h9ec2b933a5a5266e:schema"
-
 import AWS_StepFunctions_StateMachineVersion "github.com/cueformation/cfn-cue/resources/h629fdbc63c97365f:schema"
-
 import AWS_SupportApp_AccountAlias "github.com/cueformation/cfn-cue/resources/h4bb60a0003b93267:schema"
-
 import AWS_SupportApp_SlackChannelConfiguration "github.com/cueformation/cfn-cue/resources/h145bb17121ad2621:schema"
-
 import AWS_SupportApp_SlackWorkspaceConfiguration "github.com/cueformation/cfn-cue/resources/ha813a8996643b383:schema"
-
 import AWS_SupportAuthZ_SupportPermit "github.com/cueformation/cfn-cue/resources/h0e682257559a9234:schema"
-
 import AWS_Synthetics_Canary "github.com/cueformation/cfn-cue/resources/h33dbd00af9f2377b:schema"
-
 import AWS_Synthetics_Group "github.com/cueformation/cfn-cue/resources/h875262a1949fab92:schema"
-
 import AWS_SystemsManagerSAP_Application "github.com/cueformation/cfn-cue/resources/hdf322d5101043ea6:schema"
-
 import AWS_Timestream_Database "github.com/cueformation/cfn-cue/resources/ha4cb605bc7953abf:schema"
-
 import AWS_Timestream_InfluxDBCluster "github.com/cueformation/cfn-cue/resources/heb1cbbdcb553344d:schema"
-
 import AWS_Timestream_InfluxDBInstance "github.com/cueformation/cfn-cue/resources/h02caddf5e74c7ada:schema"
-
 import AWS_Timestream_ScheduledQuery "github.com/cueformation/cfn-cue/resources/hc32c2c932b882df4:schema"
-
 import AWS_Timestream_Table "github.com/cueformation/cfn-cue/resources/h104a1f758c039574:schema"
-
 import AWS_Transcribe_CallAnalyticsCategory "github.com/cueformation/cfn-cue/resources/h4310858d2f6318c5:schema"
-
 import AWS_Transcribe_MedicalVocabulary "github.com/cueformation/cfn-cue/resources/hc63e11f58457f690:schema"
-
 import AWS_Transcribe_VocabularyFilter "github.com/cueformation/cfn-cue/resources/he8e99b46ff8b47f4:schema"
-
 import AWS_Transfer_Agreement "github.com/cueformation/cfn-cue/resources/h22795f28da4be2ff:schema"
-
 import AWS_Transfer_Certificate "github.com/cueformation/cfn-cue/resources/h7d085e547573cb2e:schema"
-
 import AWS_Transfer_Connector "github.com/cueformation/cfn-cue/resources/haced0395c8775b8d:schema"
-
 import AWS_Transfer_HostKey "github.com/cueformation/cfn-cue/resources/h60d064fd490b6599:schema"
-
 import AWS_Transfer_Profile "github.com/cueformation/cfn-cue/resources/hd9400a3cc60e6427:schema"
-
 import AWS_Transfer_Server "github.com/cueformation/cfn-cue/resources/h0392c0db89e7e1af:schema"
-
 import AWS_Transfer_User "github.com/cueformation/cfn-cue/resources/he4725647eb8e3272:schema"
-
 import AWS_Transfer_WebApp "github.com/cueformation/cfn-cue/resources/h6957029c2790a0b4:schema"
-
 import AWS_Transfer_Workflow "github.com/cueformation/cfn-cue/resources/h7e45dd682186b9fa:schema"
-
 import AWS_UXC_AccountCustomization "github.com/cueformation/cfn-cue/resources/h5117f08f0a82d87a:schema"
-
 import AWS_VerifiedPermissions_IdentitySource "github.com/cueformation/cfn-cue/resources/h12f309b1c04faf87:schema"
-
 import AWS_VerifiedPermissions_Policy "github.com/cueformation/cfn-cue/resources/h803a0e0625a85877:schema"
-
 import AWS_VerifiedPermissions_PolicyStore "github.com/cueformation/cfn-cue/resources/h1d7d7242c9a86b62:schema"
-
 import AWS_VerifiedPermissions_PolicyStoreAlias "github.com/cueformation/cfn-cue/resources/h2b79542d0b025601:schema"
-
 import AWS_VerifiedPermissions_PolicyTemplate "github.com/cueformation/cfn-cue/resources/h43db1b80fe62289a:schema"
-
 import AWS_VoiceID_Domain "github.com/cueformation/cfn-cue/resources/hd840741b921b22ed:schema"
-
 import AWS_VpcLattice_AccessLogSubscription "github.com/cueformation/cfn-cue/resources/h942c778bb2aac72e:schema"
-
 import AWS_VpcLattice_AuthPolicy "github.com/cueformation/cfn-cue/resources/hccf485d1dfabe42d:schema"
-
 import AWS_VpcLattice_DomainVerification "github.com/cueformation/cfn-cue/resources/hbc6bc22050153eea:schema"
-
 import AWS_VpcLattice_Listener "github.com/cueformation/cfn-cue/resources/hd7343a26c3f74abe:schema"
-
 import AWS_VpcLattice_ResourceConfiguration "github.com/cueformation/cfn-cue/resources/hd58188837d1e1eab:schema"
-
 import AWS_VpcLattice_ResourceGateway "github.com/cueformation/cfn-cue/resources/h82cd087dcf8e54f1:schema"
-
 import AWS_VpcLattice_ResourcePolicy "github.com/cueformation/cfn-cue/resources/ha9379f2ef7bb3e9e:schema"
-
 import AWS_VpcLattice_Rule "github.com/cueformation/cfn-cue/resources/h7dbbfd96209da405:schema"
-
 import AWS_VpcLattice_Service "github.com/cueformation/cfn-cue/resources/hb038cf15ba6df18b:schema"
-
 import AWS_VpcLattice_ServiceNetwork "github.com/cueformation/cfn-cue/resources/h3863bc682509a6c8:schema"
-
 import AWS_VpcLattice_ServiceNetworkResourceAssociation "github.com/cueformation/cfn-cue/resources/h24aa8f8518a4a78a:schema"
-
 import AWS_VpcLattice_ServiceNetworkServiceAssociation "github.com/cueformation/cfn-cue/resources/h7b36254650953e38:schema"
-
 import AWS_VpcLattice_ServiceNetworkVpcAssociation "github.com/cueformation/cfn-cue/resources/hc6de9b719f6b26d1:schema"
-
 import AWS_VpcLattice_TargetGroup "github.com/cueformation/cfn-cue/resources/h8ea7d01a821ec7f9:schema"
-
 import AWS_WAF_ByteMatchSet "github.com/cueformation/cfn-cue/resources/h2dab5afa3d6101af:schema"
-
 import AWS_WAF_IPSet "github.com/cueformation/cfn-cue/resources/hab75f89634a191e3:schema"
-
 import AWS_WAF_Rule "github.com/cueformation/cfn-cue/resources/h22cb6c6a8addc328:schema"
-
 import AWS_WAF_SizeConstraintSet "github.com/cueformation/cfn-cue/resources/h3b38ad38a4493ef2:schema"
-
 import AWS_WAF_SqlInjectionMatchSet "github.com/cueformation/cfn-cue/resources/h765919b0b7a29ab5:schema"
-
 import AWS_WAF_WebACL "github.com/cueformation/cfn-cue/resources/h9a9fe233abc62def:schema"
-
 import AWS_WAF_XssMatchSet "github.com/cueformation/cfn-cue/resources/h765699848949c339:schema"
-
 import AWS_WAFRegional_ByteMatchSet "github.com/cueformation/cfn-cue/resources/h96762e69adef05ce:schema"
-
 import AWS_WAFRegional_GeoMatchSet "github.com/cueformation/cfn-cue/resources/hf98f161cb6bdb3dd:schema"
-
 import AWS_WAFRegional_IPSet "github.com/cueformation/cfn-cue/resources/hd32e3192e026c065:schema"
-
 import AWS_WAFRegional_RateBasedRule "github.com/cueformation/cfn-cue/resources/h966e2d08cd618c89:schema"
-
 import AWS_WAFRegional_RegexPatternSet "github.com/cueformation/cfn-cue/resources/h9dab19af7720178c:schema"
-
 import AWS_WAFRegional_Rule "github.com/cueformation/cfn-cue/resources/hcac8ce084430a700:schema"
-
 import AWS_WAFRegional_SizeConstraintSet "github.com/cueformation/cfn-cue/resources/hd90f2a7bc7d615d2:schema"
-
 import AWS_WAFRegional_SqlInjectionMatchSet "github.com/cueformation/cfn-cue/resources/hb12fb14e30c8e307:schema"
-
 import AWS_WAFRegional_WebACL "github.com/cueformation/cfn-cue/resources/hbe692d12471090fa:schema"
-
 import AWS_WAFRegional_WebACLAssociation "github.com/cueformation/cfn-cue/resources/he9eb6b54013a4bdb:schema"
-
 import AWS_WAFRegional_XssMatchSet "github.com/cueformation/cfn-cue/resources/h0f10f7c1c48c5e93:schema"
-
 import AWS_WAFv2_IPSet "github.com/cueformation/cfn-cue/resources/haeb3c96301ee0492:schema"
-
 import AWS_WAFv2_LoggingConfiguration "github.com/cueformation/cfn-cue/resources/h4368e46ad4d0f35f:schema"
-
 import AWS_WAFv2_RegexPatternSet "github.com/cueformation/cfn-cue/resources/h18d70d9aa9e17026:schema"
-
 import AWS_WAFv2_RuleGroup "github.com/cueformation/cfn-cue/resources/hadfc3b27e68977b5:schema"
-
 import AWS_WAFv2_WebACL "github.com/cueformation/cfn-cue/resources/he84cc351e6f79be8:schema"
-
 import AWS_WAFv2_WebACLAssociation "github.com/cueformation/cfn-cue/resources/h5cde1ca991360fca:schema"
-
 import AWS_WellArchitected_Lens "github.com/cueformation/cfn-cue/resources/h63ea8dd684e8da2d:schema"
-
 import AWS_WellArchitected_Profile "github.com/cueformation/cfn-cue/resources/h751676424a0f0751:schema"
-
 import AWS_WellArchitected_ReviewTemplate "github.com/cueformation/cfn-cue/resources/h243bc8663fd6e6ca:schema"
-
 import AWS_WellArchitected_Workload "github.com/cueformation/cfn-cue/resources/ha686c84a812df174:schema"
-
 import AWS_Wickr_Network "github.com/cueformation/cfn-cue/resources/hc10632c49eef07e2:schema"
-
 import AWS_Wisdom_AIAgent "github.com/cueformation/cfn-cue/resources/h504e1ed6c2945acc:schema"
-
 import AWS_Wisdom_AIAgentVersion "github.com/cueformation/cfn-cue/resources/h75f75fb8de08b3e4:schema"
-
 import AWS_Wisdom_AIGuardrail "github.com/cueformation/cfn-cue/resources/h245968c2c34f0a32:schema"
-
 import AWS_Wisdom_AIGuardrailVersion "github.com/cueformation/cfn-cue/resources/h8cad68176d5806df:schema"
-
 import AWS_Wisdom_AIPrompt "github.com/cueformation/cfn-cue/resources/h560432db3b24dca9:schema"
-
 import AWS_Wisdom_AIPromptVersion "github.com/cueformation/cfn-cue/resources/h5261f8b2ae4b6a10:schema"
-
 import AWS_Wisdom_Assistant "github.com/cueformation/cfn-cue/resources/h499c4842e95ed348:schema"
-
 import AWS_Wisdom_AssistantAssociation "github.com/cueformation/cfn-cue/resources/habaebd7a6a957bb3:schema"
-
 import AWS_Wisdom_KnowledgeBase "github.com/cueformation/cfn-cue/resources/hd8156ef65d446a63:schema"
-
 import AWS_Wisdom_MessageTemplate "github.com/cueformation/cfn-cue/resources/h5a7b42ddba099835:schema"
-
 import AWS_Wisdom_MessageTemplateVersion "github.com/cueformation/cfn-cue/resources/h1b706dc10a8be89e:schema"
-
 import AWS_Wisdom_QuickResponse "github.com/cueformation/cfn-cue/resources/h028f2f12d884e950:schema"
-
 import AWS_WorkSpaces_ConnectionAlias "github.com/cueformation/cfn-cue/resources/h8e004a2825170b30:schema"
-
 import AWS_WorkSpaces_Workspace "github.com/cueformation/cfn-cue/resources/hcbeed79858d3613d:schema"
-
 import AWS_WorkSpaces_WorkspaceIpGroup "github.com/cueformation/cfn-cue/resources/ha775f85ea46cc21f:schema"
-
 import AWS_WorkSpaces_WorkspacesPool "github.com/cueformation/cfn-cue/resources/h1072c1f68c872932:schema"
-
 import AWS_WorkSpacesWeb_BrowserSettings "github.com/cueformation/cfn-cue/resources/h946b67582a23cba1:schema"
-
 import AWS_WorkSpacesWeb_DataProtectionSettings "github.com/cueformation/cfn-cue/resources/hf34181ddf319c871:schema"
-
 import AWS_WorkSpacesWeb_IdentityProvider "github.com/cueformation/cfn-cue/resources/h2f2afb23347e85e3:schema"
-
 import AWS_WorkSpacesWeb_IpAccessSettings "github.com/cueformation/cfn-cue/resources/h8d2a8acae8a74d23:schema"
-
 import AWS_WorkSpacesWeb_NetworkSettings "github.com/cueformation/cfn-cue/resources/h7ede0ef3acb9281c:schema"
-
 import AWS_WorkSpacesWeb_Portal "github.com/cueformation/cfn-cue/resources/h74501e0362ed24a5:schema"
-
 import AWS_WorkSpacesWeb_SessionLogger "github.com/cueformation/cfn-cue/resources/h1f57b53ab25f7e8a:schema"
-
 import AWS_WorkSpacesWeb_TrustStore "github.com/cueformation/cfn-cue/resources/ha62c8b6913949833:schema"
-
 import AWS_WorkSpacesWeb_UserAccessLoggingSettings "github.com/cueformation/cfn-cue/resources/h187dfee73162f469:schema"
-
 import AWS_WorkSpacesWeb_UserSettings "github.com/cueformation/cfn-cue/resources/h5355eff5963484f4:schema"
-
 import AWS_WorkspacesInstances_Volume "github.com/cueformation/cfn-cue/resources/hbd75a184cfdaaa62:schema"
-
 import AWS_WorkspacesInstances_VolumeAssociation "github.com/cueformation/cfn-cue/resources/hf743e4d937f696c5:schema"
-
 import AWS_WorkspacesInstances_WorkspaceInstance "github.com/cueformation/cfn-cue/resources/h163b9e7513a994a6:schema"
-
 import AWS_XRay_Group "github.com/cueformation/cfn-cue/resources/h520687d93e1f35d1:schema"
-
 import AWS_XRay_ResourcePolicy "github.com/cueformation/cfn-cue/resources/h8b765cca57a5ca84:schema"
-
 import AWS_XRay_SamplingRule "github.com/cueformation/cfn-cue/resources/h4dc93be643cebf89:schema"
-
 import AWS_XRay_TransactionSearchConfig "github.com/cueformation/cfn-cue/resources/h22dfefdabcfb4132:schema"
-
 import Alexa_ASK_Skill "github.com/cueformation/cfn-cue/resources/h91ec4fb5c8231c01:schema"
 
 #ResourceTypes: {

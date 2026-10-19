@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,15 +17,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // support.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Shield::ProactiveEngagement"
-	Properties!: close({
+	let properties = close({
 		EmergencyContactList!:      list.MaxItems(10) & list.MinItems(1) & [...#EmergencyContact] | fn.#ListExpression
 		ProactiveEngagementStatus!: "ENABLED" | "DISABLED" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #EmergencyContact: close({
-	ContactNotes?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\w\\s\\.\\-,:/()+@]*$" | fn.#StringExpression
-	EmailAddress!: strings.MaxRunes(150) & strings.MinRunes(1) & =~"^\\S+@\\S+\\.\\S+$" | fn.#StringExpression
-	PhoneNumber?:  strings.MaxRunes(16) & strings.MinRunes(1) & =~"^\\+[1-9]\\d{1,14}$" | fn.#StringExpression
+	ContactNotes?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\w\\s\\.\\-,:/()+@]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\w\\s\\.\\-,:/()+@]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	EmailAddress!: strings.MaxRunes(150) & strings.MinRunes(1) & =~"^\\S+@\\S+\\.\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(150) & strings.MinRunes(1) & =~"^\\S+@\\S+\\.\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	PhoneNumber?: strings.MaxRunes(16) & strings.MinRunes(1) & =~"^\\+[1-9]\\d{1,14}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(16) & strings.MinRunes(1) & =~"^\\+[1-9]\\d{1,14}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

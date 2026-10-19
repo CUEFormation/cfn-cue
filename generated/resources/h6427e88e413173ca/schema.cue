@@ -3,23 +3,21 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A Kendra index
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Kendra::Index"
-	Properties!: close({
+	let properties = close({
 		// Capacity units
 		CapacityUnits?: #CapacityUnitsConfiguration
 
@@ -40,9 +38,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		UserContextPolicy?:       #UserContextPolicy
 		UserTokenConfigurations?: #UserTokenConfigurationList
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
-
-#Arn: strings.MaxRunes(1000) | fn.#StringExpression
 
 #CapacityUnitsConfiguration: close({
 	QueryCapacityUnits!:   #QueryCapacityUnits
@@ -50,9 +50,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#ClaimRegex: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^\\P{C}*$" | fn.#StringExpression
+#ClaimRegex: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^\\P{C}*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^\\P{C}*$" & "\(self)"
+} |
+fn.#StringExpression
 
-#Description: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
+#Description: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #DocumentAttributeValueType: "STRING_VALUE" | "STRING_LIST_VALUE" | "LONG_VALUE" | "DATE_VALUE" | fn.#StringExpression
 
@@ -66,17 +76,30 @@ fn.#ObjectExpression
 
 #DocumentMetadataConfigurationList: list.MaxItems(500) & [...#DocumentMetadataConfiguration] | fn.#ListExpression
 
-#DocumentMetadataConfigurationName: strings.MaxRunes(30) & strings.MinRunes(1) | fn.#StringExpression
+#DocumentMetadataConfigurationName: strings.MaxRunes(30) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(30) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#Duration: strings.MaxRunes(10) & strings.MinRunes(1) & =~"[0-9]+[s]" | fn.#StringExpression
+#Duration: strings.MaxRunes(10) & strings.MinRunes(1) & =~"[0-9]+[s]" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(10) & strings.MinRunes(1) & =~"[0-9]+[s]" & "\(self)"
+} |
+fn.#StringExpression
 
 #Edition: "DEVELOPER_EDITION" | "ENTERPRISE_EDITION" | "GEN_AI_ENTERPRISE_EDITION" | fn.#StringExpression
 
 #Freshness: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-#GroupAttributeField: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-
-#Id: strings.MaxRunes(36) & strings.MinRunes(36) | fn.#StringExpression
+#GroupAttributeField: strings.MaxRunes(100) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #Importance: int & <=10 & >=1 |
 	{
@@ -95,7 +118,12 @@ fn.#ObjectExpression
 	} |
 	fn.#NumberExpression
 
-#Issuer: strings.MaxRunes(65) & strings.MinRunes(1) & =~"^\\P{C}*$" | fn.#StringExpression
+#Issuer: strings.MaxRunes(65) & strings.MinRunes(1) & =~"^\\P{C}*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(65) & strings.MinRunes(1) & =~"^\\P{C}*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #JsonTokenTypeConfiguration: close({
 	GroupAttributeField!:    #GroupAttributeField
@@ -116,11 +144,26 @@ fn.#ObjectExpression
 
 #KeyLocation: "URL" | "SECRET_MANAGER" | fn.#StringExpression
 
-#KmsKeyId: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-	string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+#KmsKeyId: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+{
+	number | bool
+	_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#Name: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
+#Name: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Order: "ASCENDING" | "DESCENDING" | fn.#StringExpression
 
@@ -149,7 +192,12 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#RoleArn: strings.MaxRunes(1284) & strings.MinRunes(1) | fn.#StringExpression
+#RoleArn: strings.MaxRunes(1284) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1284) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #Search: close({
 	Displayable?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -178,18 +226,38 @@ fn.#ObjectExpression
 	fn.#NumberExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TagList: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 
-#Url: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file):\\/\\/([^\\s]*)" | fn.#StringExpression
+#Url: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file):\\/\\/([^\\s]*)" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(https?|ftp|file):\\/\\/([^\\s]*)" & "\(self)"
+} |
+fn.#StringExpression
 
 #UserContextPolicy: "ATTRIBUTE_FILTER" | "USER_TOKEN" | fn.#StringExpression
 
-#UserNameAttributeField: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+#UserNameAttributeField: strings.MaxRunes(100) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #UserTokenConfiguration: close({
 	JsonTokenTypeConfiguration?: #JsonTokenTypeConfiguration
@@ -205,6 +273,11 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ValueImportanceItemKey: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+#ValueImportanceItemKey: strings.MaxRunes(50) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #ValueImportanceItems: [...#ValueImportanceItem] | fn.#ListExpression

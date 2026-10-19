@@ -5,17 +5,16 @@ package schema
 import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"time"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource definition for AWS::BedrockAgentCore::RuntimeEndpoint
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::RuntimeEndpoint"
-	Properties!: close({
+	let properties = close({
 		// The ID of the parent Agent Runtime (required for creation)
 		AgentRuntimeId!: #AgentRuntimeId
 
@@ -29,37 +28,53 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Name!: #EndpointName
 		Tags?: #TagsMap
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#AgentEndpointDescription: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+#AgentEndpointDescription: strings.MaxRunes(256) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#AgentRuntimeArn: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:runtime/[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}$" |
-	fn.#StringExpression
+#AgentRuntimeId: =~"^[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}$" |
+{
+	number | bool
+	_cfnString: =~"^[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}$" & "\(self)"
+} |
+fn.#StringExpression
 
-#AgentRuntimeEndpointArn: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:runtime/[a-zA-Z0-9_-]+/runtime-endpoint/[a-zA-Z0-9_-]+$" |
-	fn.#StringExpression
+#AgentRuntimeVersion: =~"^([1-9][0-9]{0,4})$" |
+{
+	number | bool
+	_cfnString: =~"^([1-9][0-9]{0,4})$" & "\(self)"
+} |
+fn.#StringExpression
 
-#AgentRuntimeEndpointId: =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-
-#AgentRuntimeEndpointStatus: "CREATING" |
-	"CREATE_FAILED" |
-	"UPDATING" |
-	"UPDATE_FAILED" |
-	"READY" |
-	"DELETING" |
-	"DELETE_FAILED" |
-	fn.#StringExpression
-
-#AgentRuntimeId: =~"^[a-zA-Z][a-zA-Z0-9_]{0,99}-[a-zA-Z0-9]{10}$" | fn.#StringExpression
-
-#AgentRuntimeVersion: =~"^([1-9][0-9]{0,4})$" | fn.#StringExpression
-
-#DateTimestamp: time.Time | fn.#StringExpression
-
-#EndpointName: strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
+#EndpointName: strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(48) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #TagsMap: close({
 
-	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
-	fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression

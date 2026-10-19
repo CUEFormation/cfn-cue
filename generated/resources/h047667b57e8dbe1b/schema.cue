@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,19 +16,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // (comments) and associates it with a case.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cases::RelatedItem"
-	Properties!: close({
-		CaseId!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		CaseId!: strings.MaxRunes(500) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The content of a related item to be created.
-		Content!:  #RelatedItemContent
-		DomainId!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:     list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-		Type!:     "Contact" | "Comment" | "File" | "Sla" | "ConnectCase" | "Custom" | fn.#StringExpression
+		Content!: #RelatedItemContent
+		DomainId!: strings.MaxRunes(500) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		Type!: "Contact" | "Comment" | "File" | "Sla" | "ConnectCase" | "Custom" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CommentContent: close({
-	Body!:        strings.MaxRunes(15000) & strings.MinRunes(1) | fn.#StringExpression
+	Body!: strings.MaxRunes(15000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(15000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ContentType!: "Text/Plain" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -36,7 +55,17 @@ fn.#ObjectExpression
 #RelatedItemContent: close({Comment?: #CommentContent}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

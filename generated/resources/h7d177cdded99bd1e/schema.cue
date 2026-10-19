@@ -7,12 +7,10 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,9 +18,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Service (Amazon ECS) cluster.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ECS::Cluster"
-	Properties?: close({
-		CapacityProviders?: [...string | fn.#StringExpression] | fn.#ListExpression
-		ClusterName?:       string | fn.#StringExpression
+	let properties = close({
+		CapacityProviders?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		ClusterName?:       string | number | bool | fn.#StringExpression
 		ClusterSettings?:   [...#ClusterSettings] | fn.#ListExpression
 
 		// The execute command and managed storage configuration for the cluster.
@@ -47,6 +45,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ServiceConnectDefaults?: #ServiceConnectDefaults
 		Tags?:                   list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #CapacityProviderStrategyItem: close({
@@ -66,7 +68,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	CapacityProvider?: string | fn.#StringExpression
+	CapacityProvider?: string | number | bool | fn.#StringExpression
 	Weight?: int & <=1000 & >=0 |
 		{
 			string &
@@ -96,15 +98,29 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ClusterSettings: close({
-	Name?:  string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Name?:  string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ExecuteCommandConfiguration: close({
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+	} |
+	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+			"\(self)"
+	} |
+	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// The log configuration for the results of the execute command actions. The
 	// logs can be sent to CloudWatch Logs or an Amazon S3 bucket. When
@@ -116,25 +132,54 @@ fn.#ObjectExpression
 
 #ExecuteCommandLogConfiguration: close({
 	CloudWatchEncryptionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CloudWatchLogGroupName?:      string | fn.#StringExpression
-	S3BucketName?:                string | fn.#StringExpression
-	S3EncryptionEnabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	S3KeyPrefix?:                 string | fn.#StringExpression
+	CloudWatchLogGroupName?:      string | number | bool | fn.#StringExpression
+	S3BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	S3EncryptionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	S3KeyPrefix?:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ManagedStorageConfiguration: close({
-	FargateEphemeralStorageKmsKeyId?: string | fn.#StringExpression
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
+	FargateEphemeralStorageKmsKeyId?: string | number | bool | fn.#StringExpression
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+	} |
+	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+			"\(self)"
+	} |
+	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ServiceConnectDefaults: close({Namespace?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#ServiceConnectDefaults: close({Namespace?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

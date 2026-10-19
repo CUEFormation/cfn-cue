@@ -5,7 +5,6 @@ package AppBlock
 import schema "github.com/cueformation/cfn-cue/resources/h4805dac0763d173f:schema"
 
 #Resource:      schema.#Resource
-#Arn:           schema.#Arn
 #PackagingType: schema.#PackagingType
 #S3Location:    schema.#S3Location
 #ScriptDetails: schema.#ScriptDetails

@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,10 +17,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Amazon CloudFront Developer Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::CloudFrontOriginAccessIdentity"
-	Properties!: close({
+	let properties = close({
 		// The current configuration information for the identity.
 		CloudFrontOriginAccessIdentityConfig!: #CloudFrontOriginAccessIdentityConfig
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#CloudFrontOriginAccessIdentityConfig: close({Comment!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#CloudFrontOriginAccessIdentityConfig: close({Comment!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression

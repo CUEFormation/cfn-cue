@@ -7,15 +7,15 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Contains a list of IP addresses. This can be either IPV4 or IPV6. The list will be mutually
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WAFv2::IPSet"
-	Properties!: close({
+	let properties = close({
 		Addresses!:        [...#IPAddress] | fn.#ListExpression
 		Description?:      #EntityDescription
 		IPAddressVersion!: #IPAddressVersion
@@ -23,25 +23,49 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Scope!:            #Scope
 		Tags?:             list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #EntityDescription: =~"^[a-zA-Z0-9=:#@/\\-,.][a-zA-Z0-9+=:#@/\\-,.\\s]+[a-zA-Z0-9+=:#@/\\-,.]{1,256}$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^[a-zA-Z0-9=:#@/\\-,.][a-zA-Z0-9+=:#@/\\-,.\\s]+[a-zA-Z0-9+=:#@/\\-,.]{1,256}$" & "\(self)"
+} |
+fn.#StringExpression
 
-#EntityId: =~"^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$" | fn.#StringExpression
+#EntityName: =~"^[0-9A-Za-z_-]{1,128}$" |
+{
+	number | bool
+	_cfnString: =~"^[0-9A-Za-z_-]{1,128}$" & "\(self)"
+} |
+fn.#StringExpression
 
-#EntityName: =~"^[0-9A-Za-z_-]{1,128}$" | fn.#StringExpression
-
-#IPAddress: strings.MaxRunes(50) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+#IPAddress: strings.MaxRunes(50) & strings.MinRunes(1) & =~"\\S" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+} |
+fn.#StringExpression
 
 #IPAddressVersion: "IPV4" | "IPV6" | fn.#StringExpression
-
-#ResourceArn: string | fn.#StringExpression
 
 #Scope: "CLOUDFRONT" | "REGIONAL" | fn.#StringExpression
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

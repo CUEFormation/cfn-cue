@@ -6,7 +6,5 @@ import schema "github.com/cueformation/cfn-cue/resources/h622d369f381fa5cb:schem
 
 #Resource:                  schema.#Resource
 #DataRepositoryAssociation: schema.#DataRepositoryAssociation
-#LogConfiguration:          schema.#LogConfiguration
-#LustreConfiguration:       schema.#LustreConfiguration
 #MetadataConfiguration:     schema.#MetadataConfiguration
 #Tag:                       schema.#Tag

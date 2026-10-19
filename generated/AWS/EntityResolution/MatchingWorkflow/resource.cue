@@ -6,7 +6,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h309bef96fb3554e3:schem
 
 #Resource:                          schema.#Resource
 #AttributeName:                     schema.#AttributeName
-#CreatedAt:                         schema.#CreatedAt
 #CustomerProfilesDomainArn:         schema.#CustomerProfilesDomainArn
 #CustomerProfilesIntegrationConfig: schema.#CustomerProfilesIntegrationConfig
 #CustomerProfilesObjectTypeArn:     schema.#CustomerProfilesObjectTypeArn
@@ -17,7 +16,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h309bef96fb3554e3:schem
 #IntermediateSourceConfiguration:   schema.#IntermediateSourceConfiguration
 #KMSArn:                            schema.#KMSArn
 #MatchingConfig:                    schema.#MatchingConfig
-#MatchingWorkflowArn:               schema.#MatchingWorkflowArn
 #OutputAttribute:                   schema.#OutputAttribute
 #OutputSource:                      schema.#OutputSource
 #ProviderProperties:                schema.#ProviderProperties
@@ -29,4 +27,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h309bef96fb3554e3:schem
 #RuleConditionProperties:           schema.#RuleConditionProperties
 #SchemaMappingArn:                  schema.#SchemaMappingArn
 #Tag:                               schema.#Tag
-#UpdatedAt:                         schema.#UpdatedAt

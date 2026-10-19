@@ -83,7 +83,7 @@ import (
 // offer. When your number receives a message that begins with a keyword, AWS
 // End User Messaging SMS and Voice responds with a customizable message.
 // Keywords "HELP" and "STOP" are mandatory keywords
-#MandatoryKeyword: close({Message!: strings.MaxRunes(1600)})
+#MandatoryKeyword: close({Message!: =~"^[\\s\\S]+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(1600)})
 
 // A keyword is a word that you can search for on a particular phone number or
 // pool. It is also a specific word or phrase that an end user can send to your
@@ -92,8 +92,8 @@ import (
 // End User Messaging SMS and Voice responds with a customizable message.
 #OptionalKeyword: close({
 	Action!:  "AUTOMATIC_RESPONSE" | "OPT_OUT" | "OPT_IN"
-	Keyword!: strings.MaxRunes(30)
-	Message!: strings.MaxRunes(1600)
+	Keyword!: =~"^[ \\S]+" & matchN(0, [=~"^(?:(?i)(stop|help)$)"]) & string & strings.MaxRunes(30)
+	Message!: =~"^[\\s\\S]+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(1600)
 })
 
 // A key-value pair to associate with a resource.

@@ -1,0 +1,15 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "AllocatedStorage": "20",
+        "DBInstanceClass": "db.t3.micro",
+        "Engine": "mysql",
+        "EngineVersion": "5.0.1",
+        "MasterUserPassword": "change-me-1234",
+        "MasterUsername": "admin"
+      },
+      "Type": "AWS::RDS::DBInstance"
+    }
+  }
+}

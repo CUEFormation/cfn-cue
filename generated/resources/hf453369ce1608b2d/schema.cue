@@ -7,15 +7,15 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SMSVOICE::PhoneNumber
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SMSVOICE::PhoneNumber"
-	Properties!: close({
+	let properties = close({
 		DeletionProtectionEnabled?: bool |
 			"true" |
 			"True" |
@@ -24,7 +24,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		IsoCountryCode!: =~"^[A-Z]{2}$" | fn.#StringExpression
+		IsoCountryCode!: =~"^[A-Z]{2}$" |
+		{
+			number | bool
+			_cfnString: =~"^[A-Z]{2}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		MandatoryKeywords!: close({
 			HELP!: #MandatoryKeyword
 			STOP!: #MandatoryKeyword
@@ -32,8 +37,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 		NumberCapabilities!: list.UniqueItems() & [..."SMS" | "VOICE" | "MMS" | fn.#StringExpression] |
 			fn.#ListExpression
-		NumberType!:       "LONG_CODE" | "TOLL_FREE" | "TEN_DLC" | "SIMULATOR" | fn.#StringExpression
-		OptOutListName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" | fn.#StringExpression
+		NumberType!: "LONG_CODE" | "TOLL_FREE" | "TEN_DLC" | "SIMULATOR" | fn.#StringExpression
+		OptOutListName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_:/-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		OptionalKeywords?: list.UniqueItems() & [...#OptionalKeyword] | fn.#ListExpression
 		SelfManagedOptOutsEnabled?: bool |
 			"true" |
@@ -45,25 +55,67 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#BooleanExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		TwoWay?: close({
-			ChannelArn?:  =~"^arn:\\S+$" | fn.#StringExpression
-			ChannelRole?: =~"^arn:\\S+$" | fn.#StringExpression
-			Enabled!:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			ChannelArn?: =~"^arn:\\S+$" |
+			{
+				number | bool
+				_cfnString: =~"^arn:\\S+$" & "\(self)"
+			} |
+			fn.#StringExpression
+			ChannelRole?: =~"^arn:\\S+$" |
+			{
+				number | bool
+				_cfnString: =~"^arn:\\S+$" & "\(self)"
+			} |
+			fn.#StringExpression
+			Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		}) |
 		fn.#ObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#MandatoryKeyword: close({Message!: strings.MaxRunes(1600) | fn.#StringExpression}) | fn.#ObjectExpression
+#MandatoryKeyword: close({
+	Message!: =~"^[\\s\\S]+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(1600) |
+	{
+		number | bool
+		_cfnString: =~"^[\\s\\S]+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(1600) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #OptionalKeyword: close({
-	Action!:  "AUTOMATIC_RESPONSE" | "OPT_OUT" | "OPT_IN" | fn.#StringExpression
-	Keyword!: strings.MaxRunes(30) | fn.#StringExpression
-	Message!: strings.MaxRunes(1600) | fn.#StringExpression
+	Action!: "AUTOMATIC_RESPONSE" | "OPT_OUT" | "OPT_IN" | fn.#StringExpression
+	Keyword!: =~"^[ \\S]+" & matchN(0, [=~"^(?:(?i)(stop|help)$)"]) & string & strings.MaxRunes(30) |
+	{
+		number | bool
+		_cfnString: =~"^[ \\S]+" & matchN(0, [=~"^(?:(?i)(stop|help)$)"]) & string & strings.MaxRunes(30) & "\(self)"
+	} |
+	fn.#StringExpression
+	Message!: =~"^[\\s\\S]+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(1600) |
+	{
+		number | bool
+		_cfnString: =~"^[\\s\\S]+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(1600) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

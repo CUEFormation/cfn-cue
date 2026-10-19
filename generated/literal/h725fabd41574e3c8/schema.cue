@@ -4,6 +4,7 @@ package schema
 
 import (
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
 
@@ -26,7 +27,7 @@ import (
 
 #Location: close({
 	// A list of CIDR blocks.
-	CidrList!: list.UniqueItems() & [...string]
+	CidrList!: list.UniqueItems() & [...fn.#IPv4Network & string]
 
 	// The name of the location that is associated with the CIDR collection.
 	LocationName!: strings.MaxRunes(16) & strings.MinRunes(1)

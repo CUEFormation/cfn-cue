@@ -9,4 +9,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h8ad3fefc08e93b3c:schem
 #Logging:                 schema.#Logging
 #Placement:               schema.#Placement
 #S3Logs:                  schema.#S3Logs
-#TagMap:                  schema.#TagMap

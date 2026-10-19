@@ -6,6 +6,4 @@ import schema "github.com/cueformation/cfn-cue/resources/h467d3bfe1abe0577:schem
 
 #Resource:              schema.#Resource
 #DataCollectionOptions: schema.#DataCollectionOptions
-#DbNode:                schema.#DbNode
-#IamRole:               schema.#IamRole
 #Tag:                   schema.#Tag

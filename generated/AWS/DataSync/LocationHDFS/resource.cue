@@ -4,10 +4,8 @@ package LocationHDFS
 
 import schema "github.com/cueformation/cfn-cue/resources/hb6b2b7203a188504:schema"
 
-#Resource:            schema.#Resource
-#CmkSecretConfig:     schema.#CmkSecretConfig
-#CustomSecretConfig:  schema.#CustomSecretConfig
-#ManagedSecretConfig: schema.#ManagedSecretConfig
-#NameNode:            schema.#NameNode
-#QopConfiguration:    schema.#QopConfiguration
-#Tag:                 schema.#Tag
+#Resource:           schema.#Resource
+#CustomSecretConfig: schema.#CustomSecretConfig
+#NameNode:           schema.#NameNode
+#QopConfiguration:   schema.#QopConfiguration
+#Tag:                schema.#Tag

@@ -7,16 +7,20 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::CodeRepository
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::CodeRepository"
-	Properties!: close({
+	let properties = close({
 		CodeRepositoryName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" & "\(self)"
+		} |
 		fn.#StringExpression
 
 		// Configuration details for the Git repository, including the URL where it is
@@ -25,20 +29,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		GitConfig!: #GitConfig
 		Tags?:      list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #GitConfig: close({
-	Branch?:        strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[^ ~^:?*\\[]+$" | fn.#StringExpression
-	RepositoryUrl!: strings.MaxRunes(1024) & strings.MinRunes(11) | fn.#StringExpression
+	Branch?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[^ ~^:?*\\[]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[^ ~^:?*\\[]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	RepositoryUrl!: strings.MaxRunes(1024) & strings.MinRunes(11) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(11) & "\(self)"
+	} |
+	fn.#StringExpression
 	SecretArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-z\\-]*:secretsmanager:[a-z0-9\\-]*:[0-9]{12}:secret:" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[a-z\\-]*:secretsmanager:[a-z0-9\\-]*:[0-9]{12}:secret:" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

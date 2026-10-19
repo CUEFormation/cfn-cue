@@ -7,15 +7,15 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CustomerProfiles::DomainObjectType
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CustomerProfiles::DomainObjectType"
-	Properties!: close({
+	let properties = close({
 		Description?:    #Description
 		DomainName!:     #DomainName
 		EncryptionKey?:  #EncryptionKey
@@ -23,32 +23,79 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ObjectTypeName!: #ObjectTypeName
 		Tags?:           #Tags
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Description: strings.MaxRunes(10000) & strings.MinRunes(1) | fn.#StringExpression
+#Description: strings.MaxRunes(10000) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(10000) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#DomainName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+#DomainName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #DomainObjectTypeField: close({
 	ContentType?: "STRING" | "NUMBER" | fn.#StringExpression
 	FeatureType?: "TEXTUAL" | "CATEGORICAL" | fn.#StringExpression
-	Source!:      strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	Target!:      strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+	Source!: strings.MaxRunes(1000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Target!: strings.MaxRunes(1000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DomainObjectTypeFields: close({
 
-	{[=~"^[a-zA-Z0-9_.-]+$"]: #DomainObjectTypeField}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{[=~"^[a-zA-Z0-9_.-]+$"]: #DomainObjectTypeField}
+}) |
 fn.#ObjectExpression
 
-#EncryptionKey: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+#EncryptionKey: strings.MaxRunes(255) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression
 
-#ObjectTypeName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-]*$" | fn.#StringExpression
+#ObjectTypeName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-]*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

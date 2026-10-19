@@ -6,6 +6,5 @@ import schema "github.com/cueformation/cfn-cue/resources/h7ee2acacda1ff073:schem
 
 #Resource:         schema.#Resource
 #ArchiveRetention: schema.#ArchiveRetention
-#ArchiveState:     schema.#ArchiveState
 #RetentionPeriod:  schema.#RetentionPeriod
 #Tag:              schema.#Tag

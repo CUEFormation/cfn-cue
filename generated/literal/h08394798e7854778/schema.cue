@@ -72,8 +72,11 @@ import (
 })
 
 #SampleDocuments: close({
-	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3)
-	Keys!:       [...#SampleDocumentKeys]
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3)
+	Keys!: [...#SampleDocumentKeys]
 })
 
 #Tag: close({

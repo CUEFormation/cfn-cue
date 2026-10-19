@@ -5,7 +5,5 @@ package ConfigurationBundle
 import schema "github.com/cueformation/cfn-cue/resources/ha18dca86ef4b9bbe:schema"
 
 #Resource:               schema.#Resource
-#ComponentConfiguration: schema.#ComponentConfiguration
 #Tag:                    schema.#Tag
 #VersionCreatedBySource: schema.#VersionCreatedBySource
-#VersionLineageMetadata: schema.#VersionLineageMetadata

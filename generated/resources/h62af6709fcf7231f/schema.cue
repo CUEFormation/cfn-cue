@@ -7,64 +7,139 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::ModelCard.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::ModelCard"
-	Properties!: close({
-		Content!:         #Content
-		CreatedBy?:       close({}) | fn.#ObjectExpression
-		LastModifiedBy?:  close({}) | fn.#ObjectExpression
-		ModelCardName!:   strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" | fn.#StringExpression
+	let properties = close({
+		Content!:        #Content
+		CreatedBy?:      close({}) | fn.#ObjectExpression
+		LastModifiedBy?: close({}) | fn.#ObjectExpression
+		ModelCardName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ModelCardStatus!: "Draft" | "PendingReview" | "Approved" | "Archived" | fn.#StringExpression
 		SecurityConfig?:  #SecurityConfig
 		Tags?:            list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AdditionalInformation: close({
-	CaveatsAndRecommendations?: strings.MaxRunes(2048) | fn.#StringExpression
+	CaveatsAndRecommendations?: strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression
 	CustomDetails?: close({
 
-		{[=~"[a-zA-Z_][a-zA-Z0-9_]*"]: strings.MaxRunes(1024) | fn.#StringExpression}}) |
+		{
+			[=~"[a-zA-Z_][a-zA-Z0-9_]*"]: strings.MaxRunes(1024) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) & "\(self)"
+			} |
+			fn.#StringExpression
+		}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
-	EthicalConsiderations?: strings.MaxRunes(2048) | fn.#StringExpression
+	EthicalConsiderations?: strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#AxisNameArray: [...strings.MaxRunes(63) | fn.#StringExpression] | fn.#ListExpression
+#AxisNameArray: [...strings.MaxRunes(63) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(63) & "\(self)"
+} |
+fn.#StringExpression] |
+fn.#ListExpression
 
-#AxisNameString: strings.MaxRunes(63) | fn.#StringExpression
+#AxisNameString: strings.MaxRunes(63) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(63) & "\(self)"
+} |
+fn.#StringExpression
 
 #BarChartMetric: close({
-	Name!:      =~".{1,255}" | fn.#StringExpression
-	Notes?:     strings.MaxRunes(1024) | fn.#StringExpression
+	Name!: =~".{1,255}" |
+	{
+		number | bool
+		_cfnString: =~".{1,255}" & "\(self)"
+	} |
+	fn.#StringExpression
+	Notes?: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
 	Type!:      "bar_chart" | fn.#StringExpression
-	Value!:     list.MinItems(1) & [...number | string | fn.#ValueExpression] | fn.#ListExpression
+	Value!:     list.MinItems(1) & [...number | string | bool | fn.#ValueExpression] | fn.#ListExpression
 	XAxisName?: #AxisNameArray
 	YAxisName?: #AxisNameString
 }) |
 fn.#ObjectExpression
 
 #BusinessDetails: close({
-	BusinessProblem?:      strings.MaxRunes(2048) | fn.#StringExpression
-	BusinessStakeholders?: strings.MaxRunes(2048) | fn.#StringExpression
-	LineOfBusiness?:       strings.MaxRunes(2048) | fn.#StringExpression
+	BusinessProblem?: strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression
+	BusinessStakeholders?: strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression
+	LineOfBusiness?: strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Container: close({
-	Image!:            strings.MaxRunes(255) | fn.#StringExpression
-	ModelDataUrl?:     strings.MaxRunes(1024) | fn.#StringExpression
-	NearestModelName?: string | fn.#StringExpression
+	Image!: strings.MaxRunes(255) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & "\(self)"
+	} |
+	fn.#StringExpression
+	ModelDataUrl?: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
+	NearestModelName?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -80,15 +155,48 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #EvaluationDetail: close({
-	Datasets?:              list.MaxItems(10) & [...strings.MaxRunes(1024) | fn.#StringExpression] | fn.#ListExpression
-	EvaluationJobArn?:      strings.MaxRunes(256) | fn.#StringExpression
-	EvaluationObservation?: strings.MaxRunes(2096) | fn.#StringExpression
+	Datasets?: list.MaxItems(10) & [...strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	EvaluationJobArn?: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
+	EvaluationObservation?: strings.MaxRunes(2096) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2096) & "\(self)"
+	} |
+	fn.#StringExpression
 	Metadata?: close({
 
-		{[=~"[a-zA-Z_][a-zA-Z0-9_]*"]: strings.MaxRunes(1024) | fn.#StringExpression}}) |
+		{
+			[=~"[a-zA-Z_][a-zA-Z0-9_]*"]: strings.MaxRunes(1024) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) & "\(self)"
+			} |
+			fn.#StringExpression
+		}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	MetricGroups?: [...#MetricGroup] | fn.#ListExpression
-	Name!:         =~".{1,63}" | fn.#StringExpression
+	Name!: =~".{1,63}" |
+	{
+		number | bool
+		_cfnString: =~".{1,63}" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -100,20 +208,50 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #IntendedUses: close({
-	ExplanationsForRiskRating?:       strings.MaxRunes(2048) | fn.#StringExpression
-	FactorsAffectingModelEfficiency?: strings.MaxRunes(2048) | fn.#StringExpression
-	IntendedUses?:                    strings.MaxRunes(2048) | fn.#StringExpression
-	PurposeOfModel?:                  strings.MaxRunes(2048) | fn.#StringExpression
-	RiskRating?:                      #RiskRating
+	ExplanationsForRiskRating?: strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression
+	FactorsAffectingModelEfficiency?: strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression
+	IntendedUses?: strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression
+	PurposeOfModel?: strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression
+	RiskRating?: #RiskRating
 }) |
 fn.#ObjectExpression
 
 #LinearGraphMetric: close({
-	Name!:  =~".{1,255}" | fn.#StringExpression
-	Notes?: strings.MaxRunes(1024) | fn.#StringExpression
-	Type!:  "linear_graph" | fn.#StringExpression
+	Name!: =~".{1,255}" |
+	{
+		number | bool
+		_cfnString: =~".{1,255}" & "\(self)"
+	} |
+	fn.#StringExpression
+	Notes?: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: "linear_graph" | fn.#StringExpression
 	Value!: list.MinItems(1) & [
-		...list.MaxItems(2) & list.MinItems(2) & [...number | string | fn.#ValueExpression] | fn.#ListExpression
+		...list.MaxItems(2) & list.MinItems(2) & [...number | string | bool | fn.#ValueExpression] | fn.#ListExpression
 	] |
 		fn.#ListExpression
 	XAxisName?: #AxisNameString
@@ -122,11 +260,21 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #MatrixMetric: close({
-	Name!:  =~".{1,255}" | fn.#StringExpression
-	Notes?: strings.MaxRunes(1024) | fn.#StringExpression
-	Type!:  "matrix" | fn.#StringExpression
+	Name!: =~".{1,255}" |
+	{
+		number | bool
+		_cfnString: =~".{1,255}" & "\(self)"
+	} |
+	fn.#StringExpression
+	Notes?: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: "matrix" | fn.#StringExpression
 	Value!: list.MaxItems(20) & list.MinItems(1) & [
-		...list.MaxItems(20) & list.MinItems(1) & [...number | string | fn.#ValueExpression] | fn.#ListExpression
+		...list.MaxItems(20) & list.MinItems(1) & [...number | string | bool | fn.#ValueExpression] | fn.#ListExpression
 	] |
 		fn.#ListExpression
 	XAxisName?: #AxisNameArray
@@ -137,22 +285,69 @@ fn.#ObjectExpression
 #MetricGroup: close({
 	MetricData!: [...#SimpleMetric | #LinearGraphMetric | #BarChartMetric | #MatrixMetric | fn.#ValueExpression] |
 		fn.#ListExpression
-	Name!: =~".{1,63}" | fn.#StringExpression
+	Name!: =~".{1,63}" |
+	{
+		number | bool
+		_cfnString: =~".{1,63}" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ModelOverview: close({
-	AlgorithmType?: strings.MaxRunes(1024) | fn.#StringExpression
-	InferenceEnvironment?: close(
-		{ContainerImage?: list.MaxItems(15) & [...strings.MaxRunes(1024) | fn.#StringExpression] | fn.#ListExpression},
-	) |
+	AlgorithmType?: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
+	InferenceEnvironment?: close({
+		ContainerImage?: list.MaxItems(15) & [...strings.MaxRunes(1024) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+	}) |
 	fn.#ObjectExpression
-	ModelArtifact?:    list.MaxItems(15) & [...strings.MaxRunes(1024) | fn.#StringExpression] | fn.#ListExpression
-	ModelCreator?:     strings.MaxRunes(1024) | fn.#StringExpression
-	ModelDescription?: strings.MaxRunes(1024) | fn.#StringExpression
-	ModelId?:          strings.MaxRunes(1024) | fn.#StringExpression
-	ModelName?:        strings.MaxRunes(1024) | fn.#StringExpression
-	ModelOwner?:       strings.MaxRunes(1024) | fn.#StringExpression
+	ModelArtifact?: list.MaxItems(15) & [...strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	ModelCreator?: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
+	ModelDescription?: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
+	ModelId?: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
+	ModelName?: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
+	ModelOwner?: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
 	ModelVersion?: >=1 |
 		{
 			string &
@@ -172,27 +367,65 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ProblemType?: strings.MaxRunes(1024) | fn.#StringExpression
+	ProblemType?: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ModelPackageCreator: close({UserProfileName?: strings.MaxRunes(63) | fn.#StringExpression}) | fn.#ObjectExpression
+#ModelPackageCreator: close({
+	UserProfileName?: strings.MaxRunes(63) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #ModelPackageDetails: close({
-	ApprovalDescription?: strings.MaxRunes(1024) | fn.#StringExpression
+	ApprovalDescription?: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// Information about the user who created model package.
 	CreatedBy?: #ModelPackageCreator
-	Domain?:    string | fn.#StringExpression
+	Domain?:    string | number | bool | fn.#StringExpression
 
 	// Details about inference jobs that can be run with models based on this model package.
-	InferenceSpecification?:  #InferenceSpecification
-	ModelApprovalStatus?:     "Approved" | "Rejected" | "PendingManualApproval" | fn.#StringExpression
-	ModelPackageArn?:         strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	ModelPackageDescription?: strings.MaxRunes(1024) | fn.#StringExpression
-	ModelPackageGroupName?:   strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-	ModelPackageName?:        strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-	ModelPackageStatus?:      "Pending" | "InProgress" | "Completed" | "Failed" | "Deleting" | fn.#StringExpression
+	InferenceSpecification?: #InferenceSpecification
+	ModelApprovalStatus?:    "Approved" | "Rejected" | "PendingManualApproval" | fn.#StringExpression
+	ModelPackageArn?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ModelPackageDescription?: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
+	ModelPackageGroupName?: strings.MaxRunes(63) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ModelPackageName?: strings.MaxRunes(63) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ModelPackageStatus?: "Pending" | "InProgress" | "Completed" | "Failed" | "Deleting" | fn.#StringExpression
 	ModelPackageVersion?: >=1 |
 		{
 			string &
@@ -215,37 +448,73 @@ fn.#ObjectExpression
 
 	// A list of algorithms that were used to create a model package.
 	SourceAlgorithms?: #SourceAlgorithms
-	Task?:             string | fn.#StringExpression
+	Task?:             string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ObjectiveFunction: close({
 	Function?: close({
-		Condition?: strings.MaxRunes(63) | fn.#StringExpression
-		Facet?:     strings.MaxRunes(63) | fn.#StringExpression
-		Function?:  "Maximize" | "Minimize" | fn.#StringExpression
+		Condition?: strings.MaxRunes(63) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & "\(self)"
+		} |
+		fn.#StringExpression
+		Facet?: strings.MaxRunes(63) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & "\(self)"
+		} |
+		fn.#StringExpression
+		Function?: "Maximize" | "Minimize" | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	Notes?: strings.MaxRunes(1024) | fn.#StringExpression
+	Notes?: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RiskRating: "High" | "Medium" | "Low" | "Unknown" | fn.#StringExpression
 
 #SecurityConfig: close({
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~".*" |
+	{
+		number | bool
+		_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~".*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SimpleMetric: close({
-	Name!:  =~".{1,255}" | fn.#StringExpression
-	Notes?: strings.MaxRunes(1024) | fn.#StringExpression
-	Type!:  "number" | "string" | "boolean" | fn.#StringExpression
+	Name!: =~".{1,255}" |
+	{
+		number | bool
+		_cfnString: =~".{1,255}" & "\(self)"
+	} |
+	fn.#StringExpression
+	Notes?: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: "number" | "string" | "boolean" | fn.#StringExpression
 	Value!: number |
 	{
 		string &
@@ -279,16 +548,36 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SourceAlgorithm: close({
-	AlgorithmName!: strings.MaxRunes(170) | fn.#StringExpression
-	ModelDataUrl?:  strings.MaxRunes(1024) | fn.#StringExpression
+	AlgorithmName!: strings.MaxRunes(170) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(170) & "\(self)"
+	} |
+	fn.#StringExpression
+	ModelDataUrl?: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SourceAlgorithms: list.MaxItems(1) & list.MinItems(1) & [...#SourceAlgorithm] | fn.#ListExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -300,10 +589,27 @@ fn.#ObjectExpression
 			fn.#ObjectExpression
 		] |
 		fn.#ListExpression
-		TrainingArn?:      strings.MaxRunes(1024) | fn.#StringExpression
-		TrainingDatasets?: list.MaxItems(15) & [...strings.MaxRunes(1024) | fn.#StringExpression] | fn.#ListExpression
+		TrainingArn?: strings.MaxRunes(1024) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & "\(self)"
+		} |
+		fn.#StringExpression
+		TrainingDatasets?: list.MaxItems(15) & [...strings.MaxRunes(1024) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		TrainingEnvironment?: close({
-			ContainerImage?: list.MaxItems(15) & [...strings.MaxRunes(1024) | fn.#StringExpression] | fn.#ListExpression
+			ContainerImage?: list.MaxItems(15) & [...strings.MaxRunes(1024) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) & "\(self)"
+			} |
+			fn.#StringExpression] |
+			fn.#ListExpression
 		}) |
 		fn.#ObjectExpression
 		TrainingMetrics?: [
@@ -321,19 +627,44 @@ fn.#ObjectExpression
 		fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
-	TrainingObservations?: strings.MaxRunes(1024) | fn.#StringExpression
+	TrainingObservations?: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TrainingHyperParameter: close({
-	Name!:  =~".{1,255}" | fn.#StringExpression
-	Value!: =~".{1,255}" | fn.#StringExpression
+	Name!: =~".{1,255}" |
+	{
+		number | bool
+		_cfnString: =~".{1,255}" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: =~".{1,255}" |
+	{
+		number | bool
+		_cfnString: =~".{1,255}" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TrainingMetric: close({
-	Name!:  =~".{1,255}" | fn.#StringExpression
-	Notes?: strings.MaxRunes(1024) | fn.#StringExpression
+	Name!: =~".{1,255}" |
+	{
+		number | bool
+		_cfnString: =~".{1,255}" & "\(self)"
+	} |
+	fn.#StringExpression
+	Notes?: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
 	Value!: number |
 		{
 			string &
@@ -353,12 +684,5 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
-#UserContext: close({
-	DomainId?:        string | fn.#StringExpression
-	UserProfileArn?:  string | fn.#StringExpression
-	UserProfileName?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression

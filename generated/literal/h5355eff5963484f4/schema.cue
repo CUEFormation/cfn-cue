@@ -40,14 +40,14 @@ import (
 })
 
 #BrandingConfiguration: close({
-	ColorTheme?:        #ColorTheme
-	Favicon?:           string
-	FaviconMetadata?:   #ImageMetadata
-	LocalizedStrings?:  #LocalizedBrandingStringMap
-	Logo?:              string
-	LogoMetadata?:      #ImageMetadata
-	TermsOfService?:    strings.MaxRunes(153600)
-	Wallpaper?:         string
+	ColorTheme?: #ColorTheme
+	Favicon?:    =~"(^s3://[a-z0-9][a-z0-9\\.\\-]{1,61}[a-z0-9]/.+$)" | =~"^[A-Za-z0-9+/]*={0,2}$" & =~"^(?:(.{4})*$)"
+	FaviconMetadata?:  #ImageMetadata
+	LocalizedStrings?: #LocalizedBrandingStringMap
+	Logo?:         =~"(^s3://[a-z0-9][a-z0-9\\.\\-]{1,61}[a-z0-9]/.+$)" | =~"^[A-Za-z0-9+/]*={0,2}$" & =~"^(?:(.{4})*$)"
+	LogoMetadata?: #ImageMetadata
+	TermsOfService?: strings.MaxRunes(153600)
+	Wallpaper?: =~"(^s3://[a-z0-9][a-z0-9\\.\\-]{1,61}[a-z0-9]/.+$)" | =~"^[A-Za-z0-9+/]*={0,2}$" & =~"^(?:(.{4})*$)"
 	WallpaperMetadata?: #ImageMetadata
 })
 

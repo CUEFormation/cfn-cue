@@ -2,48 +2,63 @@
 
 package schema
 
-import (
-	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
-)
-
+import "github.com/cueformation/cfn-cue/fn:fn"
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApiGatewayV2::Integration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGatewayV2::Integration"
-	Properties!: close({
-		ApiId!:                   string | fn.#StringExpression
-		ConnectionId?:            string | fn.#StringExpression
-		ConnectionType?:          string | fn.#StringExpression
-		ContentHandlingStrategy?: string | fn.#StringExpression
-		CredentialsArn?:       =~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role|user|group)\\/.*" | fn.#StringExpression
-		Description?:          string | fn.#StringExpression
-		IntegrationMethod?:    string | fn.#StringExpression
-		IntegrationSubtype?:   string | fn.#StringExpression
-		IntegrationType!:      string | fn.#StringExpression
-		IntegrationUri?:       string | fn.#StringExpression
-		PassthroughBehavior?:  string | fn.#StringExpression
-		PayloadFormatVersion?: string | fn.#StringExpression
+	let properties = close({
+		ApiId!:                   string | number | bool | fn.#StringExpression
+		ConnectionId?:            string | number | bool | fn.#StringExpression
+		ConnectionType?:          string | number | bool | fn.#StringExpression
+		ContentHandlingStrategy?: string | number | bool | fn.#StringExpression
+		CredentialsArn?: =~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role|user|group)\\/.*" |
+		{
+			number | bool
+			_cfnString: =~"arn:(aws|aws-cn|aws-us-gov):iam::[0-9]*:(role|user|group)\\/.*" & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?:          string | number | bool | fn.#StringExpression
+		IntegrationMethod?:    string | number | bool | fn.#StringExpression
+		IntegrationSubtype?:   string | number | bool | fn.#StringExpression
+		IntegrationType!:      string | number | bool | fn.#StringExpression
+		IntegrationUri?:       string | number | bool | fn.#StringExpression
+		PassthroughBehavior?:  string | number | bool | fn.#StringExpression
+		PayloadFormatVersion?: string | number | bool | fn.#StringExpression
 		RequestParameters?: close({
 
-			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+			{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 		RequestTemplates?: close({
 
-			{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+			{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 		ResponseParameters?: close({
 
-			{[=~"[a-zA-Z0-9]+"]: #ResponseParameterMap}}) |
+			{[=~"[a-zA-Z0-9]+"]: #ResponseParameterMap}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
-		TemplateSelectionExpression?: string | fn.#StringExpression
+		TemplateSelectionExpression?: string | number | bool | fn.#StringExpression
 		TimeoutInMillis?: int |
 			{
 				string &
@@ -66,11 +81,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Supported only for HTTP APIs.
 		TlsConfig?: #TlsConfig
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ResponseParameter: close({
-	Destination?: string | fn.#StringExpression
-	Source?:      string | fn.#StringExpression
+	Destination?: string | number | bool | fn.#StringExpression
+	Source?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -78,10 +97,4 @@ fn.#ObjectExpression
 
 #ResponseParameterMap: close({ResponseParameters?: #ResponseParameterList}) | fn.#ObjectExpression
 
-#Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#TlsConfig: close({ServerNameToVerify?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#TlsConfig: close({ServerNameToVerify?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression

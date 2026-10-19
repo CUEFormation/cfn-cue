@@ -5,5 +5,4 @@ package MulticastGroup
 import schema "github.com/cueformation/cfn-cue/resources/h3fff04defe384867:schema"
 
 #Resource: schema.#Resource
-#LoRaWAN:  schema.#LoRaWAN
 #Tag:      schema.#Tag

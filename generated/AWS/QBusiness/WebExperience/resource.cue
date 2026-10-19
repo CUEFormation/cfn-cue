@@ -14,4 +14,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h28586a4ad2fbdaba:schem
 #SamlProviderConfiguration:             schema.#SamlProviderConfiguration
 #Tag:                                   schema.#Tag
 #WebExperienceSamplePromptsControlMode: schema.#WebExperienceSamplePromptsControlMode
-#WebExperienceStatus:                   schema.#WebExperienceStatus

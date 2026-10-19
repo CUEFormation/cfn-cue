@@ -5,7 +5,6 @@ package Channel
 import schema "github.com/cueformation/cfn-cue/resources/hb74f5d400291ec41:schema"
 
 #Resource:                  schema.#Resource
-#IngestEndpoint:            schema.#IngestEndpoint
 #InputSwitchConfiguration:  schema.#InputSwitchConfiguration
 #InputType:                 schema.#InputType
 #MultiviewConfiguration:    schema.#MultiviewConfiguration

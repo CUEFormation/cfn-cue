@@ -6,12 +6,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -30,17 +28,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppSync::Resolver"
-	Properties!: close({
-		ApiId!: string | fn.#StringExpression
+	let properties = close({
+		ApiId!: string | number | bool | fn.#StringExpression
 
 		// The caching configuration for the resolver.
-		CachingConfig?:  #CachingConfig
-		Code?:           strings.MaxRunes(32768) & strings.MinRunes(1) | fn.#StringExpression
-		CodeS3Location?: string | fn.#StringExpression
-		DataSourceName?: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" |
+		CachingConfig?: #CachingConfig
+		Code?: strings.MaxRunes(32768) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32768) & strings.MinRunes(1) & "\(self)"
+		} |
 		fn.#StringExpression
-		FieldName!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
-		Kind?:      "PIPELINE" | "UNIT" | fn.#StringExpression
+		CodeS3Location?: string | number | bool | fn.#StringExpression
+		DataSourceName?: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		FieldName!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Kind?: "PIPELINE" | "UNIT" | fn.#StringExpression
 		MaxBatchSize?: int & <=2000 & >=0 |
 			{
 				string &
@@ -62,11 +74,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		MetricsConfig?: "ENABLED" | "DISABLED" | fn.#StringExpression
 
 		// Functions linked with the pipeline resolver.
-		PipelineConfig?:                    #PipelineConfig
-		RequestMappingTemplate?:            strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
-		RequestMappingTemplateS3Location?:  string | fn.#StringExpression
-		ResponseMappingTemplate?:           strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
-		ResponseMappingTemplateS3Location?: string | fn.#StringExpression
+		PipelineConfig?: #PipelineConfig
+		RequestMappingTemplate?: strings.MaxRunes(65536) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(65536) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		RequestMappingTemplateS3Location?: string | number | bool | fn.#StringExpression
+		ResponseMappingTemplate?: strings.MaxRunes(65536) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(65536) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ResponseMappingTemplateS3Location?: string | number | bool | fn.#StringExpression
 
 		// Describes a runtime used by an APSYlong resolver or APSYlong function.
 		// Specifies the name and version of the runtime to use. Note that if a runtime
@@ -75,18 +97,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		// The ``SyncConfig`` for a resolver attached to a versioned data source.
 		SyncConfig?: #SyncConfig
-		TypeName!:   strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
+		TypeName!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AppSyncRuntime: close({
 	Name!:           "APPSYNC_JS" | fn.#StringExpression
-	RuntimeVersion!: string | fn.#StringExpression
+	RuntimeVersion!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CachingConfig: close({
-	CachingKeys?: [...string | fn.#StringExpression] | fn.#ListExpression
+	CachingKeys?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Ttl!: number |
 		{
 			string &
@@ -109,9 +140,11 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#LambdaConflictHandlerConfig: close({LambdaConflictHandlerArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#LambdaConflictHandlerConfig: close({LambdaConflictHandlerArn?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
-#PipelineConfig: close({Functions?: [...string | fn.#StringExpression] | fn.#ListExpression}) | fn.#ObjectExpression
+#PipelineConfig: close({Functions?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression}) |
+	fn.#ObjectExpression
 
 #SyncConfig: close({
 	ConflictDetection!: "NONE" | "VERSION" | fn.#StringExpression

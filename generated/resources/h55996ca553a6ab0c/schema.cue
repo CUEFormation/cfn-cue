@@ -7,12 +7,10 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -28,8 +26,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *General Reference*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SNS::Topic"
-	Properties?: close({
-		ArchivePolicy?: fn.#Object & {...} | string | fn.#StringObjectExpression
+	let properties = close({
+		ArchivePolicy?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		ContentBasedDeduplication?: bool |
 			"true" |
 			"True" |
@@ -38,14 +36,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		DataProtectionPolicy?:  fn.#Object & {...} | string | fn.#StringObjectExpression
+		DataProtectionPolicy?:  fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		DeliveryStatusLogging?: list.UniqueItems() & [...#LoggingConfig] | fn.#ListExpression
-		DisplayName?:           string | fn.#StringExpression
-		FifoThroughputScope?:   string | fn.#StringExpression
+		DisplayName?:           string | number | bool | fn.#StringExpression
+		FifoThroughputScope?:   string | number | bool | fn.#StringExpression
 		FifoTopic?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		KmsMasterKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string |
-			fn.#StringExpression
+		KmsMasterKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+		} |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+				"\(self)"
+		} |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		MaximumMessageSize?: int & <=1048576 & >=1024 |
 			{
 				string &
@@ -64,32 +76,59 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		SignatureVersion?: string | fn.#StringExpression
+		SignatureVersion?: string | number | bool | fn.#StringExpression
 		Subscription?:     [...#Subscription] | fn.#ListExpression
 		Tags?:             [...#Tag] | fn.#ListExpression
-		TopicName?:        strings.MaxRunes(256) | fn.#StringExpression
-		TracingConfig?:    string | fn.#StringExpression
+		TopicName?: strings.MaxRunes(256) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & "\(self)"
+		} |
+		fn.#StringExpression
+		TracingConfig?: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #LoggingConfig: close({
-	FailureFeedbackRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	FailureFeedbackRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Protocol!: "http/s" | "sqs" | "lambda" | "firehose" | "application" | fn.#StringExpression
-	SuccessFeedbackRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	SuccessFeedbackSampleRate?: string | fn.#StringExpression
+	SuccessFeedbackRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SuccessFeedbackSampleRate?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Subscription: close({
-	Endpoint!: string | fn.#StringExpression
-	Protocol!: string | fn.#StringExpression
+	Endpoint!: string | number | bool | fn.#StringExpression
+	Protocol!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

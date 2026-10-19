@@ -8,7 +8,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hd9e7bb8d375e71f6:schem
 #AccessControlConfiguration:   schema.#AccessControlConfiguration
 #AudioExtractionConfiguration: schema.#AudioExtractionConfiguration
 #AudioExtractionStatus:        schema.#AudioExtractionStatus
-#DataSetStatus:                schema.#DataSetStatus
 #ImageExtractionConfiguration: schema.#ImageExtractionConfiguration
 #ImageExtractionStatus:        schema.#ImageExtractionStatus
 #KbTemplateConfiguration:      schema.#KbTemplateConfiguration

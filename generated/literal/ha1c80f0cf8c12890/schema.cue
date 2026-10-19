@@ -78,12 +78,12 @@ import (
 
 #HealthCheckPathDestination: close({
 	SecurityGroupId?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
-	SubnetId?:        string
+	SubnetId?:        =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 #HealthCheckPathSource: close({
 	SecurityGroupId?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
-	SubnetId?:        string
+	SubnetId?:        =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 #Tag: close({

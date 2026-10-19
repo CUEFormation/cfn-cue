@@ -7,12 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // GameLift (GameLift) matchmaking configuration.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GameLift::MatchmakingConfiguration"
-	Properties!: close({
+	let properties = close({
 		AcceptanceRequired!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		AcceptanceTimeoutSeconds?: int & <=600 & >=1 |
 			{
@@ -57,19 +55,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		BackfillMode?:    "AUTOMATIC" | "MANUAL" | fn.#StringExpression
-		CreationTime?:    string | fn.#StringExpression
-		CustomEventData?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		Description?:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		FlexMatchMode?:   "STANDALONE" | "WITH_QUEUE" | fn.#StringExpression
-		GameProperties?:  list.MaxItems(16) & list.UniqueItems() & [...] & [...#GameProperty] | fn.#ListExpression
-		GameSessionData?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-		GameSessionQueueArns?: [
-			...strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9:/-]+" | fn.#StringExpression
-		] |
+		BackfillMode?: "AUTOMATIC" | "MANUAL" | fn.#StringExpression
+		CreationTime?: string | number | bool | fn.#StringExpression
+		CustomEventData?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		FlexMatchMode?:  "STANDALONE" | "WITH_QUEUE" | fn.#StringExpression
+		GameProperties?: list.MaxItems(16) & list.UniqueItems() & [...] & [...#GameProperty] | fn.#ListExpression
+		GameSessionData?: strings.MaxRunes(4096) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		GameSessionQueueArns?: [...strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9:/-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9:/-]+" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		Name!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9-\\.]*" | fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9-\\.]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9-\\.]*" & "\(self)"
+		} |
+		fn.#StringExpression
 		NotificationTarget?: strings.MaxRunes(300) & strings.MinRunes(0) & =~"[a-zA-Z0-9:_/-]*(.fifo)?" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(300) & strings.MinRunes(0) & =~"[a-zA-Z0-9:_/-]*(.fifo)?" & "\(self)"
+		} |
 		fn.#StringExpression
 		RequestTimeoutSeconds!: int & <=43200 & >=1 |
 			{
@@ -89,20 +114,54 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		RuleSetArn?:  =~"^arn:.*:matchmakingruleset\\/[a-zA-Z0-9-\\.]*" | fn.#StringExpression
-		RuleSetName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\.]*" | fn.#StringExpression
-		Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		RuleSetArn?: =~"^arn:.*:matchmakingruleset\\/[a-zA-Z0-9-\\.]*" |
+		{
+			number | bool
+			_cfnString: =~"^arn:.*:matchmakingruleset\\/[a-zA-Z0-9-\\.]*" & "\(self)"
+		} |
+		fn.#StringExpression
+		RuleSetName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\.]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\.]*" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #GameProperty: close({
-	Key!:   strings.MaxRunes(32) & strings.MinRunes(0) | fn.#StringExpression
-	Value!: strings.MaxRunes(96) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(32) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(96) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(96) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

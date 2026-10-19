@@ -4,6 +4,5 @@ package RcsAgent
 
 import schema "github.com/cueformation/cfn-cue/resources/h1862a8a570d224cc:schema"
 
-#Resource:                schema.#Resource
-#Tag:                     schema.#Tag
-#TestingAgentInformation: schema.#TestingAgentInformation
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

@@ -7,19 +7,17 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Glue::Job
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::Job"
-	Properties!: close({
+	let properties = close({
 		AllocatedCapacity?: number |
 			{
 				string &
@@ -45,17 +43,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		// Specifies the connections used by a job
 		Connections?:      #ConnectionsList
-		DefaultArguments?: fn.#Object & {...} | string | fn.#StringObjectExpression
-		Description?:      strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-		ExecutionClass?:   "FLEX" | "STANDARD" | fn.#StringExpression
+		DefaultArguments?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		ExecutionClass?: "FLEX" | "STANDARD" | fn.#StringExpression
 
 		// The maximum number of concurrent runs that are allowed for this job.
-		ExecutionProperty?:    #ExecutionProperty
-		GlueVersion?:          strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" | fn.#StringExpression
+		ExecutionProperty?: #ExecutionProperty
+		GlueVersion?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(\\w+\\.)+\\w+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		JobMode?:              "NOTEBOOK" | "SCRIPT" | "VISUAL" | fn.#StringExpression
 		JobRunQueuingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		LogUri?:               string | fn.#StringExpression
-		MaintenanceWindow?:    =~"^(Sun|Mon|Tue|Wed|Thu|Fri|Sat):([01]?[0-9]|2[0-3])$" | fn.#StringExpression
+		LogUri?:               string | number | bool | fn.#StringExpression
+		MaintenanceWindow?: =~"^(Sun|Mon|Tue|Wed|Thu|Fri|Sat):([01]?[0-9]|2[0-3])$" |
+		{
+			number | bool
+			_cfnString: =~"^(Sun|Mon|Tue|Wed|Thu|Fri|Sat):([01]?[0-9]|2[0-3])$" & "\(self)"
+		} |
+		fn.#StringExpression
 		MaxCapacity?: number |
 			{
 				string &
@@ -94,8 +107,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name?:                    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		NonOverridableArguments?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		NonOverridableArguments?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 		// Specifies configuration properties of a notification.
 		NotificationProperty?: #NotificationProperty
@@ -116,9 +134,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Role!:                  string | fn.#StringExpression
-		SecurityConfiguration?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:                  fn.#Object & {...} | string | fn.#StringObjectExpression
+		Role!: string | number | bool | fn.#StringExpression
+		SecurityConfiguration?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		Timeout?: int & >=1 |
 			{
 				string &
@@ -151,17 +174,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"R.8X" |
 			fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ConnectionsList: close({
-	Connections?: list.MaxItems(1000) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression] |
+	Connections?: list.MaxItems(1000) & [...] & [...strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#DefaultArguments: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -189,16 +215,25 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #JobCommand: close({
-	Name?:           string | fn.#StringExpression
-	PythonVersion?:  =~"^([2-3]|3[.]9)$" | fn.#StringExpression
-	Runtime?:        strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-	ScriptLocation?: strings.MaxRunes(400000) & strings.MinRunes(0) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#NonOverridableArguments: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Name?: string | number | bool | fn.#StringExpression
+	PythonVersion?: =~"^([2-3]|3[.]9)$" |
+	{
+		number | bool
+		_cfnString: =~"^([2-3]|3[.]9)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Runtime?: strings.MaxRunes(64) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	ScriptLocation?: strings.MaxRunes(400000) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(400000) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

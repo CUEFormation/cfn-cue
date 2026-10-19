@@ -6,25 +6,24 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for EKS CertificateAuthority.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EKS::CertificateAuthority"
-	Properties!: close({ClusterName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression})
+	Type!: "AWS::EKS::CertificateAuthority"
+	let properties = close({
+		ClusterName!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
-
-#ScheduledEvents: close({
-	FinalAutoActivation?: string | fn.#StringExpression
-	FirstAutoActivation?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#Validity: close({
-	NotAfter?:  string | fn.#StringExpression
-	NotBefore?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression

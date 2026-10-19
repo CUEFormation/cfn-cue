@@ -7,31 +7,68 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Omics::RunCache Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Omics::RunCache"
-	Properties?: close({
+	let properties = close({
 		CacheBehavior?: ("CACHE_ON_FAILURE" | "CACHE_ALWAYS") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: ("CACHE_ON_FAILURE" | "CACHE_ALWAYS") & strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
 		fn.#StringExpression
-		CacheBucketOwnerId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]+$" | fn.#StringExpression
-		CacheS3Location?:    string | fn.#StringExpression
+		CacheBucketOwnerId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		CacheS3Location?: string | number | bool | fn.#StringExpression
 		Description?: strings.MaxRunes(256) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Name?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

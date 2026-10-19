@@ -145,7 +145,12 @@ import "strings"
 
 #StorageAccessLevel: "public" | "protected" | "private"
 
-#Tags: {...}
+#Tags: close({
+
+	{[=~"^(?:aws:)"]: error("disallowed")}
+
+	{[=~"^[a-zA-Z+-=._:/]+$"]: strings.MaxRunes(256) & strings.MinRunes(1)}
+})
 
 #ValueMapping: close({
 	DisplayValue?: #FormInputValueProperty

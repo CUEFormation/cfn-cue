@@ -17,7 +17,6 @@ import schema "github.com/cueformation/cfn-cue/resources/he245b84acb92ba4e:schem
 #ContextualGroundingPolicyConfig:  schema.#ContextualGroundingPolicyConfig
 #FilterStrength:                   schema.#FilterStrength
 #GuardrailCrossRegionConfig:       schema.#GuardrailCrossRegionConfig
-#GuardrailStatus:                  schema.#GuardrailStatus
 #ManagedWordsConfig:               schema.#ManagedWordsConfig
 #ManagedWordsType:                 schema.#ManagedWordsType
 #Modality:                         schema.#Modality

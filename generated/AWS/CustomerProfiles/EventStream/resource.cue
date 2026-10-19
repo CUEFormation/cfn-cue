@@ -5,6 +5,5 @@ package EventStream
 import schema "github.com/cueformation/cfn-cue/resources/h3490e98339c3f220:schema"
 
 #Resource: schema.#Resource
-#Status:   schema.#Status
 #Tag:      schema.#Tag
 #Uri:      schema.#Uri

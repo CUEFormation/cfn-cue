@@ -7,18 +7,25 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents an AWS account that is a part of a collaboration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CleanRooms::Membership"
-	Properties!: close({
+	let properties = close({
 		CollaborationIdentifier!: strings.MaxRunes(36) &
 		strings.MinRunes(36) &
 		=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) &
+			strings.MinRunes(36) &
+			=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		DefaultJobResultConfiguration?: #MembershipProtectedJobResultConfiguration
 		DefaultResultConfiguration?:    #MembershipProtectedQueryResultConfiguration
@@ -28,6 +35,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		QueryLogStatus!:       #MembershipQueryLogStatus
 		Tags?:                 list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #MembershipJobComputePaymentConfig: close(
@@ -65,10 +76,18 @@ fn.#ObjectExpression
 
 #MembershipProtectedJobResultConfiguration: close({
 	OutputConfiguration!: #MembershipProtectedJobOutputConfiguration
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(32) &
 	=~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(32) &
+		=~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -77,10 +96,18 @@ fn.#ObjectExpression
 
 #MembershipProtectedQueryResultConfiguration: close({
 	OutputConfiguration!: #MembershipProtectedQueryOutputConfiguration
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(32) &
 	=~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(32) &
+		=~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -92,22 +119,30 @@ fn.#ObjectExpression
 
 #MembershipQueryLogStatus: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-#MembershipStatus: "ACTIVE" | "REMOVED" | "COLLABORATION_DELETED" | fn.#StringExpression
-
 #MembershipSyntheticDataGenerationPaymentConfig: close(
 	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
 ) |
 	fn.#ObjectExpression
 
 #ProtectedJobS3OutputConfigurationInput: close({
-	Bucket!:    strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	KeyPrefix?: string | fn.#StringExpression
+	Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & "\(self)"
+	} |
+	fn.#StringExpression
+	KeyPrefix?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ProtectedQueryS3OutputConfiguration: close({
-	Bucket!:           strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	KeyPrefix?:        string | fn.#StringExpression
+	Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & "\(self)"
+	} |
+	fn.#StringExpression
+	KeyPrefix?:        string | number | bool | fn.#StringExpression
 	ResultFormat!:     #ResultFormat
 	SingleFileOutput?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
@@ -116,7 +151,17 @@ fn.#ObjectExpression
 #ResultFormat: "CSV" | "PARQUET" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

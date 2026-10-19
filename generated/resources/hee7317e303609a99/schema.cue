@@ -3,44 +3,91 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::BackupGateway::Hypervisor Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BackupGateway::Hypervisor"
-	Properties?: close({
-		Host?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^.+$" | fn.#StringExpression
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	let properties = close({
+		Host?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^.+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^.+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		strings.MaxRunes(500) &
 		strings.MinRunes(50) &
 		=~"^(^arn:(aws|aws-cn|aws-us-gov):kms:([a-zA-Z0-9-]+):([0-9]+):(key|alias)/(\\S+)$)|(^alias/(\\S+)$)$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+			strings.MaxRunes(500) &
+			strings.MinRunes(50) &
+			=~"^(^arn:(aws|aws-cn|aws-us-gov):kms:([a-zA-Z0-9-]+):([0-9]+):(key|alias)/(\\S+)$)|(^alias/(\\S+)$)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		LogGroupArn?: strings.MaxRunes(2048) &
 		strings.MinRunes(0) &
 		=~"^$|^arn:(aws|aws-cn|aws-us-gov):logs:([a-zA-Z0-9-]+):([0-9]+):log-group:[a-zA-Z0-9_\\-\\/\\.]+:\\*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(0) &
+			=~"^$|^arn:(aws|aws-cn|aws-us-gov):logs:([a-zA-Z0-9-]+):([0-9]+):log-group:[a-zA-Z0-9_\\-\\/\\.]+:\\*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name?:     strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" | fn.#StringExpression
-		Password?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[ -~]+$" | fn.#StringExpression
-		Tags?:     [...#Tag] | fn.#ListExpression
+		Name?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Password?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[ -~]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[ -~]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
 		Username?: strings.MaxRunes(100) &
 		strings.MinRunes(1) &
 		=~"^[ -\\.0-\\[\\]-~]*[!-\\.0-\\[\\]-~][ -\\.0-\\[\\]-~]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) &
+			strings.MinRunes(1) &
+			=~"^[ -\\.0-\\[\\]-~]*[!-\\.0-\\[\\]-~][ -\\.0-\\[\\]-~]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
-#HypervisorState: "PENDING" | "ONLINE" | "OFFLINE" | "ERROR" | fn.#StringExpression
-
-#SyncMetadataStatus: "PENDING" | "IN_PROGRESS" | "FAILED" | "SUCCEEDED" | fn.#StringExpression
-
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[^\\x00]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[^\\x00]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[^\\x00]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

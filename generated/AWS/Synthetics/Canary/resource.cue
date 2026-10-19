@@ -4,20 +4,17 @@ package Canary
 
 import schema "github.com/cueformation/cfn-cue/resources/h33dbd00af9f2377b:schema"
 
-#Resource:                 schema.#Resource
-#ArtifactConfig:           schema.#ArtifactConfig
-#BaseScreenshot:           schema.#BaseScreenshot
-#BrowserConfig:            schema.#BrowserConfig
-#BrowserType:              schema.#BrowserType
-#Code:                     schema.#Code
-#Dependency:               schema.#Dependency
-#Replica:                  schema.#Replica
-#ReplicaReplicationStatus: schema.#ReplicaReplicationStatus
-#ResourceToTag:            schema.#ResourceToTag
-#RetryConfig:              schema.#RetryConfig
-#RunConfig:                schema.#RunConfig
-#S3Encryption:             schema.#S3Encryption
-#Schedule:                 schema.#Schedule
-#Tag:                      schema.#Tag
-#VPCConfig:                schema.#VPCConfig
-#VisualReference:          schema.#VisualReference
+#Resource:        schema.#Resource
+#ArtifactConfig:  schema.#ArtifactConfig
+#BaseScreenshot:  schema.#BaseScreenshot
+#BrowserConfig:   schema.#BrowserConfig
+#BrowserType:     schema.#BrowserType
+#Dependency:      schema.#Dependency
+#ResourceToTag:   schema.#ResourceToTag
+#RetryConfig:     schema.#RetryConfig
+#RunConfig:       schema.#RunConfig
+#S3Encryption:    schema.#S3Encryption
+#Schedule:        schema.#Schedule
+#Tag:             schema.#Tag
+#VPCConfig:       schema.#VPCConfig
+#VisualReference: schema.#VisualReference

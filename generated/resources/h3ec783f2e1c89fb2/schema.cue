@@ -6,41 +6,91 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::RefactorSpaces::Application Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RefactorSpaces::Application"
-	Properties!: close({
+	let properties = close({
 		ApiGatewayProxy?: #ApiGatewayProxyInput
 		EnvironmentIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^env-([0-9A-Za-z]{10}$)" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^env-([0-9A-Za-z]{10}$)" & "\(self)"
+		} |
 		fn.#StringExpression
-		Name!:      strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+		Name!: =~"^[a-zA-Z0-9]+[a-zA-Z0-9-_ ]+$" &
+		matchN(0, [=~"^(?:app-)"]) &
+		string &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9]+[a-zA-Z0-9-_ ]+$" &
+			matchN(0, [=~"^(?:app-)"]) &
+			string &
+			strings.MaxRunes(63) &
+			strings.MinRunes(3) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 		ProxyType!: #ProxyType
 		Tags?:      [...#Tag] | fn.#ListExpression
-		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
 		strings.MaxRunes(21) &
 		strings.MinRunes(12) &
 		=~"^vpc-[-a-f0-9]{8}([-a-f0-9]{9})?$" |
+		{
+			number | bool
+			_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+			strings.MaxRunes(21) &
+			strings.MinRunes(12) &
+			=~"^vpc-[-a-f0-9]{8}([-a-f0-9]{9})?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ApiGatewayEndpointType: "REGIONAL" | "PRIVATE" | fn.#StringExpression
 
 #ApiGatewayProxyInput: close({
 	EndpointType?: #ApiGatewayEndpointType
-	StageName?:    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9_]*$" | fn.#StringExpression
+	StageName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9_]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9_]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ProxyType: "API_GATEWAY" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: =~"^.+" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^.+" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

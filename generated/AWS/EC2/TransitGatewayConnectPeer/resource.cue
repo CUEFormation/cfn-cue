@@ -4,7 +4,5 @@ package TransitGatewayConnectPeer
 
 import schema "github.com/cueformation/cfn-cue/resources/h06f538b68a46c73c:schema"
 
-#Resource:                                 schema.#Resource
-#Tag:                                      schema.#Tag
-#TransitGatewayAttachmentBgpConfiguration: schema.#TransitGatewayAttachmentBgpConfiguration
-#TransitGatewayConnectPeerConfiguration:   schema.#TransitGatewayConnectPeerConfiguration
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

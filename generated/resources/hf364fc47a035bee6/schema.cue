@@ -7,32 +7,61 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Evidently::Project
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Evidently::Project"
-	Properties!: close({
+	let properties = close({
 		AppConfigResource?: #AppConfigResourceObject
 		DataDelivery?:      #DataDeliveryObject
-		Description?:       strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
-		Name!:              strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
-		Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Description?: strings.MaxRunes(160) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(160) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AppConfigResourceObject: close({
-	ApplicationId!: =~"[a-z0-9]{4,7}" | fn.#StringExpression
-	EnvironmentId!: =~"[a-z0-9]{4,7}" | fn.#StringExpression
+	ApplicationId!: =~"[a-z0-9]{4,7}" |
+	{
+		number | bool
+		_cfnString: =~"[a-z0-9]{4,7}" & "\(self)"
+	} |
+	fn.#StringExpression
+	EnvironmentId!: =~"[a-z0-9]{4,7}" |
+	{
+		number | bool
+		_cfnString: =~"[a-z0-9]{4,7}" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DataDeliveryObject: close({
-	LogGroup?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9._/]+$" | fn.#StringExpression
-	S3?:       #S3Destination
+	LogGroup?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9._/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9._/]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	S3?: #S3Destination
 	if S3 != _|_ if S3."Fn::If" == _|_ {
 		LogGroup?: close({"Fn::If": _}) | error("LogGroup cannot be used with S3; set exactly one of S3, LogGroup")
 	}
@@ -40,13 +69,47 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #S3Destination: close({
-	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][-a-z0-9]*[a-z0-9]$" | fn.#StringExpression
-	Prefix?:     strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9!_.*'()/]*$" | fn.#StringExpression
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"^[a-z0-9][-a-z0-9]*[a-z0-9]$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) &
+		=~"^[a-z0-9][-a-z0-9]*[a-z0-9]$" &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Prefix?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9!_.*'()/]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[-a-zA-Z0-9!_.*'()/]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

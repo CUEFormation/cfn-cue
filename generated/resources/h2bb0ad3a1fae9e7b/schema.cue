@@ -6,24 +6,34 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lambda::Version
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lambda::Version"
-	Properties!: close({
-		CodeSha256?:  string | fn.#StringExpression
-		Description?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		CodeSha256?: string | number | bool | fn.#StringExpression
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		FunctionName!: strings.MaxRunes(140) &
 		strings.MinRunes(1) &
 		=~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(140) &
+			strings.MinRunes(1) &
+			=~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 
 		// The scaling configuration to apply to the function, including minimum and
@@ -38,6 +48,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// runtimeVersionArn only for Manual.
 		RuntimePolicy?: #RuntimePolicy
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #FunctionScalingConfig: close({
@@ -98,7 +112,14 @@ fn.#ObjectExpression
 	RuntimeVersionArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(26) &
 	=~"^arn:(aws[a-zA-Z-]*):lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}::runtime:.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(26) &
+		=~"^arn:(aws[a-zA-Z-]*):lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}::runtime:.+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	UpdateRuntimeOn!: string | fn.#StringExpression
+	UpdateRuntimeOn!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

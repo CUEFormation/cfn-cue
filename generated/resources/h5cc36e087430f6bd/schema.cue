@@ -3,17 +3,21 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DMS::Certificate
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DMS::Certificate"
-	Properties?: close({
-		CertificateIdentifier?: string | fn.#StringExpression
-		CertificatePem?:        string | fn.#StringExpression
-		CertificateWallet?:     string | fn.#StringExpression
+	let properties = close({
+		CertificateIdentifier?: string | number | bool | fn.#StringExpression
+		CertificatePem?:        string | number | bool | fn.#StringExpression
+		CertificateWallet?:     string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }

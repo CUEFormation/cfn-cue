@@ -5,7 +5,6 @@ package Endpoint
 import schema "github.com/cueformation/cfn-cue/resources/h62ed6e78adb749ee:schema"
 
 #Resource:                          schema.#Resource
-#Certificate:                       schema.#Certificate
 #CloudWatchMonitoringConfiguration: schema.#CloudWatchMonitoringConfiguration
 #ConfigurationOverrides:            schema.#ConfigurationOverrides
 #ContainerLogRotationConfiguration: schema.#ContainerLogRotationConfiguration

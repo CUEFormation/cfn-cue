@@ -124,8 +124,12 @@ import (
 // The S3 source configuration parameters.
 #S3SourceConfiguration: close({
 	// The S3 bucket name.
-	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9.-]*[a-z0-9]$"
-	Options?:    #S3Options
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"^[a-z0-9][a-z0-9.-]*[a-z0-9]$"
+	Options?: #S3Options
 
 	// The S3 prefix.
 	Prefix!: strings.MaxRunes(700) & strings.MinRunes(0) & =~"^[/A-Za-z0-9._-]+$"

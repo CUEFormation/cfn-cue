@@ -4,10 +4,9 @@ package AccessSource
 
 import schema "github.com/cueformation/cfn-cue/resources/h2c34b95c3c3c5abc:schema"
 
-#Resource:         schema.#Resource
-#CRResourceStatus: schema.#CRResourceStatus
-#Cidr:             schema.#Cidr
-#DnsProtocol:      schema.#DnsProtocol
-#IpAddressType:    schema.#IpAddressType
-#ResourceName:     schema.#ResourceName
-#Tag:              schema.#Tag
+#Resource:      schema.#Resource
+#Cidr:          schema.#Cidr
+#DnsProtocol:   schema.#DnsProtocol
+#IpAddressType: schema.#IpAddressType
+#ResourceName:  schema.#ResourceName
+#Tag:           schema.#Tag

@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -25,26 +25,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // include them in the cache key, use ``CachePolicy``.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::OriginRequestPolicy"
-	Properties!: close({
+	let properties = close({
 		// The origin request policy configuration.
 		OriginRequestPolicyConfig!: #OriginRequestPolicyConfig
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CookiesConfig: close({
-	CookieBehavior!: =~"^(none|whitelist|all|allExcept)$" | fn.#StringExpression
-	Cookies?:        [...string | fn.#StringExpression] | fn.#ListExpression
+	CookieBehavior!: =~"^(none|whitelist|all|allExcept)$" |
+	{
+		number | bool
+		_cfnString: =~"^(none|whitelist|all|allExcept)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Cookies?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #HeadersConfig: close({
-	HeaderBehavior!: =~"^(none|whitelist|allViewer|allViewerAndWhitelistCloudFront|allExcept)$" | fn.#StringExpression
-	Headers?:        [...string | fn.#StringExpression] | fn.#ListExpression
+	HeaderBehavior!: =~"^(none|whitelist|allViewer|allViewerAndWhitelistCloudFront|allExcept)$" |
+	{
+		number | bool
+		_cfnString: =~"^(none|whitelist|allViewer|allViewerAndWhitelistCloudFront|allExcept)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Headers?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #OriginRequestPolicyConfig: close({
-	Comment?: string | fn.#StringExpression
+	Comment?: string | number | bool | fn.#StringExpression
 
 	// The cookies from viewer requests to include in origin requests.
 	CookiesConfig!: #CookiesConfig
@@ -52,7 +66,7 @@ fn.#ObjectExpression
 	// The HTTP headers to include in origin requests. These can include headers
 	// from viewer requests and additional headers added by CloudFront.
 	HeadersConfig!: #HeadersConfig
-	Name!:          string | fn.#StringExpression
+	Name!:          string | number | bool | fn.#StringExpression
 
 	// The URL query strings from viewer requests to include in origin requests.
 	QueryStringsConfig!: #QueryStringsConfig
@@ -60,7 +74,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #QueryStringsConfig: close({
-	QueryStringBehavior!: =~"^(none|whitelist|all|allExcept)$" | fn.#StringExpression
-	QueryStrings?:        [...string | fn.#StringExpression] | fn.#ListExpression
+	QueryStringBehavior!: =~"^(none|whitelist|all|allExcept)$" |
+	{
+		number | bool
+		_cfnString: =~"^(none|whitelist|all|allExcept)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	QueryStrings?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression

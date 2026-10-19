@@ -5,16 +5,11 @@ package OutboundExternalLink
 import schema "github.com/cueformation/cfn-cue/resources/h824239ac6b86f47a:schema"
 
 #Resource:                         schema.#Resource
-#Arn:                              schema.#Arn
-#CreatedTimestamp:                 schema.#CreatedTimestamp
 #GatewayId:                        schema.#GatewayId
 #LinkAttributes:                   schema.#LinkAttributes
-#LinkId:                           schema.#LinkId
 #LinkLogSettings:                  schema.#LinkLogSettings
-#LinkStatus:                       schema.#LinkStatus
 #PublicEndpoint:                   schema.#PublicEndpoint
 #ResponderErrorMaskingForHttpCode: schema.#ResponderErrorMaskingForHttpCode
 #ResponderErrorMaskingLoggingType: schema.#ResponderErrorMaskingLoggingType
 #Tag:                              schema.#Tag
 #Tags:                             schema.#Tags
-#UpdatedTimestamp:                 schema.#UpdatedTimestamp

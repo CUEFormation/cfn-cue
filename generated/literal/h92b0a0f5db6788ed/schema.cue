@@ -73,11 +73,13 @@ import (
 	// The value can be an alias name prefixed by 'alias/', a fully specified ARN
 	// to an alias, a fully specified ARN to a key, or a globally unique
 	// identifier.
-	KMSKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	KMSKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 
 	// Specifies the name of the Amazon S3 bucket designated for publishing log
 	// files. See Amazon S3 Bucket Naming Requirements.
-	S3BucketName!: string
+	S3BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$"
 
 	// Specifies the Amazon S3 key prefix that comes after the name of the bucket
 	// you have designated for log file delivery. For more information, see Finding

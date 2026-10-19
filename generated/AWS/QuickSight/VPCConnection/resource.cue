@@ -5,8 +5,5 @@ package VPCConnection
 import schema "github.com/cueformation/cfn-cue/resources/h2c23ea02b312819d:schema"
 
 #Resource:                        schema.#Resource
-#NetworkInterface:                schema.#NetworkInterface
-#NetworkInterfaceStatus:          schema.#NetworkInterfaceStatus
 #Tag:                             schema.#Tag
 #VPCConnectionAvailabilityStatus: schema.#VPCConnectionAvailabilityStatus
-#VPCConnectionResourceStatus:     schema.#VPCConnectionResourceStatus

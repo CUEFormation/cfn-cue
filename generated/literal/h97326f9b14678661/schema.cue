@@ -29,14 +29,21 @@ import "list"
 	RootDeviceType?:       string
 	SshKeyName?:           string
 	StackId!:              string
-	SubnetId?:             string
+	SubnetId?:             =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 	Tenancy?:              string
 	TimeBasedAutoScaling?: #TimeBasedAutoScaling
 	VirtualizationType?:   string
 	Volumes?:              list.UniqueItems() & [...string]
 })
 
-#BlockDeviceMapping: close({
+#BlockDeviceMapping: matchIf({
+	Ebs?:         error("disallowed")
+	VirtualName!: _
+	...
+}, {
+	VirtualName?: null | bool | number | =~"^ephemeral([0-9]|[1][0-9]|[2][0-3])$" | [...] | {...}
+	...
+}, _) & (close({
 	DeviceName?:  string
 	Ebs?:         #EbsBlockDevice
 	NoDevice?:    string
@@ -54,9 +61,27 @@ import "list"
 			"NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice",
 		)
 	}
-}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}])
+}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}]))
 
-#EbsBlockDevice: close({
+#EbsBlockDevice: matchIf({
+	VolumeType!: "io1"
+	...
+}, {
+	Iops!: null | bool | <=64000 & >=100 | string | [...] | {...}
+	...
+}, _) & matchIf({
+	VolumeType!: "io2"
+	...
+}, {
+	Iops!: null | bool | <=256000 & >=100 | string | [...] | {...}
+	...
+}, _) & matchIf({
+	VolumeType!: "gp3"
+	...
+}, {
+	Iops?: null | bool | <=16000 & >=3000 | string | [...] | {...}
+	...
+}, _) & close({
 	DeleteOnTermination?: bool
 	Iops?:                int
 	SnapshotId?:          string

@@ -7,12 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -21,19 +19,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // configurations, enabling server-side ad insertion for a channel.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IVS::AdConfiguration"
-	Properties!: close({
+	let properties = close({
 		MediaTailorPlaybackConfigurations!: list.MaxItems(3) & list.MinItems(1) & [...#MediaTailorPlaybackConfiguration] |
 			fn.#ListExpression
-		Name?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
+		Name?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		PostRollConfiguration?: #PostRollConfiguration
 		Tags?:                  list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #MediaTailorPlaybackConfiguration: close({
 	PlaybackConfigurationArn?: strings.MaxRunes(128) &
 	strings.MinRunes(0) &
 	=~"^arn:aws:mediatailor:[a-z0-9-]+:[0-9]+:playbackConfiguration/[a-zA-Z0-9-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) &
+		strings.MinRunes(0) &
+		=~"^arn:aws:mediatailor:[a-z0-9-]+:[0-9]+:playbackConfiguration/[a-zA-Z0-9-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -60,7 +74,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

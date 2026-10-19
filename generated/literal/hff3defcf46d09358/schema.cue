@@ -31,7 +31,11 @@ import (
 	IdentityManagementType!: "SAML" | "CONNECT_MANAGED" | "EXISTING_DIRECTORY"
 
 	// Alias of the new directory created as part of new instance creation.
-	InstanceAlias?: strings.MaxRunes(45) & strings.MinRunes(1)
+	InstanceAlias?: =~"^([\\da-zA-Z]+)([-]*[\\da-zA-Z])*$" &
+	matchN(0, [=~"^(?:d-)"]) &
+	string &
+	strings.MaxRunes(45) &
+	strings.MinRunes(1)
 
 	// Specifies the creation status of new instance.
 	InstanceStatus?: "CREATION_IN_PROGRESS" | "CREATION_FAILED" | "ACTIVE"

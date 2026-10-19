@@ -3,34 +3,36 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaStore::Container
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaStore::Container"
-	Properties!: close({
+	let properties = close({
 		AccessLoggingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ContainerName!:        string | fn.#StringExpression
+		ContainerName!:        string | number | bool | fn.#StringExpression
 		CorsPolicy?:           [...#CorsRule] | fn.#ListExpression
-		LifecyclePolicy?:      string | fn.#StringExpression
+		LifecyclePolicy?:      string | number | bool | fn.#StringExpression
 		MetricPolicy?:         #MetricPolicy
-		Policy?:               string | fn.#StringExpression
+		Policy?:               string | number | bool | fn.#StringExpression
 		Tags?:                 [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CorsRule: close({
-	AllowedHeaders?: [...string | fn.#StringExpression] | fn.#ListExpression
-	AllowedMethods?: [...string | fn.#StringExpression] | fn.#ListExpression
-	AllowedOrigins?: [...string | fn.#StringExpression] | fn.#ListExpression
-	ExposeHeaders?:  [...string | fn.#StringExpression] | fn.#ListExpression
+	AllowedHeaders?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	AllowedMethods?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	AllowedOrigins?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	ExposeHeaders?:  [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	MaxAgeSeconds?: int |
 		{
 			string &
@@ -49,19 +51,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #MetricPolicy: close({
-	ContainerLevelMetrics!: string | fn.#StringExpression
+	ContainerLevelMetrics!: string | number | bool | fn.#StringExpression
 	MetricPolicyRules?:     [...#MetricPolicyRule] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #MetricPolicyRule: close({
-	ObjectGroup!:     string | fn.#StringExpression
-	ObjectGroupName!: string | fn.#StringExpression
+	ObjectGroup!:     string | number | bool | fn.#StringExpression
+	ObjectGroupName!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

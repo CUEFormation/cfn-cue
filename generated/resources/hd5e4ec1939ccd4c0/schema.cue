@@ -3,19 +3,23 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::EC2::NetworkInsightsAccessScope
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::NetworkInsightsAccessScope"
-	Properties?: close({
+	let properties = close({
 		ExcludePaths?: [...#AccessScopePathRequest] | fn.#ListExpression
 		MatchPaths?:   [...#AccessScopePathRequest] | fn.#ListExpression
 		Tags?:         [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #AccessScopePathRequest: close({
@@ -26,13 +30,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #PacketHeaderStatementRequest: close({
-	DestinationAddresses?:   [...string | fn.#StringExpression] | fn.#ListExpression
-	DestinationPorts?:       [...string | fn.#StringExpression] | fn.#ListExpression
-	DestinationPrefixLists?: [...string | fn.#StringExpression] | fn.#ListExpression
+	DestinationAddresses?:   [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	DestinationPorts?:       [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	DestinationPrefixLists?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Protocols?:              [...#Protocol] | fn.#ListExpression
-	SourceAddresses?:        [...string | fn.#StringExpression] | fn.#ListExpression
-	SourcePorts?:            [...string | fn.#StringExpression] | fn.#ListExpression
-	SourcePrefixLists?:      [...string | fn.#StringExpression] | fn.#ListExpression
+	SourceAddresses?:        [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	SourcePorts?:            [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	SourcePrefixLists?:      [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -45,14 +49,14 @@ fn.#ObjectExpression
 #Protocol: "tcp" | "udp" | fn.#StringExpression
 
 #ResourceStatementRequest: close({
-	ResourceTypes?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Resources?:     [...string | fn.#StringExpression] | fn.#ListExpression
+	ResourceTypes?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Resources?:     [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

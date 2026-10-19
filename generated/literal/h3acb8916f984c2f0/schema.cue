@@ -25,7 +25,7 @@ import "list"
 	SecurityGroupIds!: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
 
 	// Subnet must be in the AZ of the Flow
-	SubnetId!: string
+	SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 
 	// Key-value pairs that can be used to tag and organize this VPC network interface.
 	Tags?: list.UniqueItems() & [...#Tag]

@@ -6,16 +6,30 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ServiceCatalog::AcceptedPortfolioShare
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ServiceCatalog::AcceptedPortfolioShare"
-	Properties!: close({
-		AcceptLanguage?: =~"^(en|jp|zh)$" | fn.#StringExpression
-		PortfolioId!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		AcceptLanguage?: =~"^(en|jp|zh)$" |
+		{
+			number | bool
+			_cfnString: =~"^(en|jp|zh)$" & "\(self)"
+		} |
+		fn.#StringExpression
+		PortfolioId!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

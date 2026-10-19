@@ -7,22 +7,35 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppConfig::ExperimentRun
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppConfig::ExperimentRun"
-	Properties!: close({
-		ApplicationIdentifier!:          strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		Description?:                    strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		ExperimentDefinitionIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		ApplicationIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		ExperimentDefinitionIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ExposurePercentage!: <=100 & >=0 |
 			{
 				string &
@@ -46,18 +59,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		TreatmentOverrides?: #TreatmentOverrides
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TreatmentOverrides: close({
 	Inline?: close({
 
-		{[=~"^.+$"]: string | fn.#StringExpression}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression

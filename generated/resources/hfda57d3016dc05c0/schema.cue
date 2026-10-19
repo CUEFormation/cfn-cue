@@ -7,12 +7,10 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -38,7 +36,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // source](https://docs.aws.amazon.com/lambda/latest/dg/with-documentdb.html)
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lambda::EventSourceMapping"
-	Properties!: close({
+	let properties = matchN(2, [matchIf({
+		EventSourceArn!: =~"^arn:(aws[a-zA-Z0-9-]*):sqs:([a-z]{2}(-gov)?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)$"
+		...
+	}, {
+		StartingPosition?: error("disallowed")
+		...
+	}, _), matchIf({
+		EventSourceArn!: =~"arn:aws.*:(kinesis|kafka|dynamodb):.*"
+		...
+	}, {
+		StartingPosition!: _
+		...
+	}, _)]) & close({
 		// Specific configuration settings for an Amazon Managed Streaming for Apache
 		// Kafka (Amazon MSK) event source.
 		AmazonManagedKafkaEventSourceConfig?: #AmazonManagedKafkaEventSourceConfig
@@ -80,6 +90,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		EventSourceArn?: strings.MaxRunes(1024) &
 		strings.MinRunes(12) &
 		=~"arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(12) &
+			=~"arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 
 		// An object that defines the filter criteria that determine whether Lambda
@@ -89,15 +106,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		FunctionName!: strings.MaxRunes(140) &
 		strings.MinRunes(1) &
 		=~"(arn:(aws[a-zA-Z-]*)?:lambda:)?((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_]+))?" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(140) &
+			strings.MinRunes(1) &
+			=~"(arn:(aws[a-zA-Z-]*)?:lambda:)?((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_]+))?" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		FunctionResponseTypes?: list.MaxItems(1) & list.UniqueItems() & [...] & [
 			..."ReportBatchItemFailures" | fn.#StringExpression
 		] |
 			fn.#ListExpression
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(12) &
 		=~"(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(12) &
+			=~"(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 
 		// (Amazon MSK, and self-managed Apache Kafka only) The logging configuration
@@ -187,9 +219,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// [provisioned
 		// mode](https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html#invocation-eventsourcemapping-provisioned-mode).
 		ProvisionedPollerConfig?: #ProvisionedPollerConfig
-		Queues?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-			...strings.MaxRunes(1000) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
-		] |
+		Queues?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(1000) &
+		strings.MinRunes(1) &
+		=~"[\\s\\S]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"[\\s\\S]*" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 
 		// This property is for Amazon SQS event sources only. You cannot use
@@ -208,6 +245,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		] |
 			fn.#ListExpression
 		StartingPosition?: strings.MaxRunes(12) & strings.MinRunes(6) & =~"(LATEST|TRIM_HORIZON|AT_TIMESTAMP)+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(6) & =~"(LATEST|TRIM_HORIZON|AT_TIMESTAMP)+" & "\(self)"
+		} |
 		fn.#StringExpression
 		StartingPositionTimestamp?: number |
 			{
@@ -229,9 +270,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		Topics?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
-			...strings.MaxRunes(249) & strings.MinRunes(1) & =~"^[^.]([a-zA-Z0-9\\-_.]+)" | fn.#StringExpression
-		] |
+		Topics?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(249) &
+		strings.MinRunes(1) &
+		=~"^[^.]([a-zA-Z0-9\\-_.]+)" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(249) & strings.MinRunes(1) & =~"^[^.]([a-zA-Z0-9\\-_.]+)" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		TumblingWindowInSeconds?: int & <=900 & >=0 |
 			{
@@ -252,6 +298,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AmazonManagedKafkaEventSourceConfig: close({
@@ -267,7 +317,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#ConsumerGroupId: strings.MaxRunes(200) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\/*:_+=.@-]*" | fn.#StringExpression
+#ConsumerGroupId: strings.MaxRunes(200) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\/*:_+=.@-]*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\/*:_+=.@-]*" & "\(self)"
+} |
+fn.#StringExpression
 
 #ConsumptionMode: "Stream" | "Queue" | fn.#StringExpression
 
@@ -278,24 +333,55 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DocumentDBEventSourceConfig: close({
-	CollectionName?: strings.MaxRunes(57) & strings.MinRunes(1) | fn.#StringExpression
-	DatabaseName?:   strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[^ /\\.$\\x22]*$" | fn.#StringExpression
-	FullDocument?:   "UpdateLookup" | "Default" | fn.#StringExpression
+	CollectionName?: =~"^^(^[_a-zA-Z0-9])([^$]*)$" &
+	matchN(0, [=~"^(?:(system\\x2e))"]) &
+	string &
+	strings.MaxRunes(57) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^^(^[_a-zA-Z0-9])([^$]*)$" &
+		matchN(0, [=~"^(?:(system\\x2e))"]) &
+		string &
+		strings.MaxRunes(57) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	DatabaseName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[^ /\\.$\\x22]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[^ /\\.$\\x22]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	FullDocument?: "UpdateLookup" | "Default" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Endpoints: close({
-	KafkaBootstrapServers?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(300) &
+	KafkaBootstrapServers?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(300) &
+	strings.MinRunes(1) &
+	=~"^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9]):[0-9]{1,5}" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(300) &
 		strings.MinRunes(1) &
-		=~"^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9]):[0-9]{1,5}" |
-		fn.#StringExpression
-	] |
+		=~"^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9]):[0-9]{1,5}" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#Filter: close({Pattern?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~".*" | fn.#StringExpression}) |
+#Filter: close({
+	Pattern?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #FilterCriteria: close(
@@ -334,6 +420,13 @@ fn.#ObjectExpression
 	Destination?: strings.MaxRunes(1024) &
 	strings.MinRunes(12) &
 	=~"^$|kafka://([^.]([a-zA-Z0-9\\-_.]{0,248}))|arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) &
+		strings.MinRunes(12) &
+		=~"^$|kafka://([^.]([a-zA-Z0-9\\-_.]{0,248}))|arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -371,7 +464,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	PollerGroupName?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
+	PollerGroupName?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -390,6 +488,13 @@ fn.#ObjectExpression
 	URI?: strings.MaxRunes(10000) &
 	strings.MinRunes(1) &
 	=~"arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000) &
+		strings.MinRunes(1) &
+		=~"arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -398,6 +503,10 @@ fn.#ObjectExpression
 	AccessConfigs?:     list.MaxItems(2) & list.UniqueItems() & [...#SchemaRegistryAccessConfig] | fn.#ListExpression
 	EventRecordFormat?: "JSON" | "SOURCE" | fn.#StringExpression
 	SchemaRegistryURI?: strings.MaxRunes(10000) & strings.MinRunes(1) & =~"[a-zA-Z0-9-/*:_+=.@-]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000) & strings.MinRunes(1) & =~"[a-zA-Z0-9-/*:_+=.@-]*" & "\(self)"
+	} |
 	fn.#StringExpression
 	SchemaValidationConfigs?: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...#SchemaValidationConfig] |
 		fn.#ListExpression
@@ -444,12 +553,27 @@ fn.#ObjectExpression
 		"IAM_AUTH" |
 		"IAM_OAUTHBEARER_AUTH" |
 		fn.#StringExpression
-	URI?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\/*:_+=.@-]*" | fn.#StringExpression
+	URI?: strings.MaxRunes(200) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\/*:_+=.@-]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"[a-zA-Z0-9-\\/*:_+=.@-]*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

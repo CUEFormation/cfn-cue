@@ -5,7 +5,6 @@ package Workflow
 import schema "github.com/cueformation/cfn-cue/resources/h61984f37545be0d2:schema"
 
 #Resource:                schema.#Resource
-#Arn:                     schema.#Arn
 #Code:                    schema.#Code
 #CodeS3Location:          schema.#CodeS3Location
 #Description:             schema.#Description
@@ -15,9 +14,5 @@ import schema "github.com/cueformation/cfn-cue/resources/h61984f37545be0d2:schem
 #NetworkConfiguration:    schema.#NetworkConfiguration
 #RoleArn:                 schema.#RoleArn
 #S3Location:              schema.#S3Location
-#ScheduleConfiguration:   schema.#ScheduleConfiguration
 #Tags:                    schema.#Tags
-#Timestamp:               schema.#Timestamp
 #TriggerMode:             schema.#TriggerMode
-#WorkflowStatus:          schema.#WorkflowStatus
-#WorkflowVersion:         schema.#WorkflowVersion

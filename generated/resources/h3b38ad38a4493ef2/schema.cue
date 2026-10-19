@@ -6,32 +6,34 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAF::SizeConstraintSet
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WAF::SizeConstraintSet"
-	Properties!: close({
-		Name!:            string | fn.#StringExpression
+	let properties = close({
+		Name!:            string | number | bool | fn.#StringExpression
 		SizeConstraints!: list.UniqueItems() & [...#SizeConstraint] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #FieldToMatch: close({
-	Data?: string | fn.#StringExpression
-	Type!: string | fn.#StringExpression
+	Data?: string | number | bool | fn.#StringExpression
+	Type!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SizeConstraint: close({
-	ComparisonOperator!: string | fn.#StringExpression
+	ComparisonOperator!: string | number | bool | fn.#StringExpression
 	FieldToMatch!:       #FieldToMatch
 	Size!: int |
 		{
@@ -47,6 +49,6 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TextTransformation!: string | fn.#StringExpression
+	TextTransformation!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

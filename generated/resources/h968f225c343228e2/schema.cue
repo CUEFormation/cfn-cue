@@ -7,23 +7,56 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::NeptuneGraph::GraphSnapshot
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::NeptuneGraph::GraphSnapshot"
-	Properties!: close({
-		GraphIdentifier!: =~"^g-[a-z0-9]{10}$" | fn.#StringExpression
-		SnapshotName!:    strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:            list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	let properties = close({
+		GraphIdentifier!: =~"^g-[a-z0-9]{10}$" |
+		{
+			number | bool
+			_cfnString: =~"^g-[a-z0-9]{10}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SnapshotName!: =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$" &
+		matchN(0, [=~"^(?:gs-)"]) &
+		string &
+		strings.MaxRunes(63) &
+		strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$" &
+			matchN(0, [=~"^(?:gs-)"]) &
+			string &
+			strings.MaxRunes(63) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

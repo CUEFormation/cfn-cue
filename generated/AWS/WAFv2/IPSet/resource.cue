@@ -6,10 +6,8 @@ import schema "github.com/cueformation/cfn-cue/resources/haeb3c96301ee0492:schem
 
 #Resource:          schema.#Resource
 #EntityDescription: schema.#EntityDescription
-#EntityId:          schema.#EntityId
 #EntityName:        schema.#EntityName
 #IPAddress:         schema.#IPAddress
 #IPAddressVersion:  schema.#IPAddressVersion
-#ResourceArn:       schema.#ResourceArn
 #Scope:             schema.#Scope
 #Tag:               schema.#Tag

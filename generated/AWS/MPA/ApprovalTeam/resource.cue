@@ -6,9 +6,7 @@ import schema "github.com/cueformation/cfn-cue/resources/ha4d9f4696502a65d:schem
 
 #Resource:             schema.#Resource
 #ApprovalStrategy:     schema.#ApprovalStrategy
-#Approver:             schema.#Approver
 #MofNApprovalStrategy: schema.#MofNApprovalStrategy
 #Policy:               schema.#Policy
 #Tag:                  schema.#Tag
 #Tags:                 schema.#Tags
-#Timestamp:            schema.#Timestamp

@@ -7,37 +7,57 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaPackage::PackagingGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaPackage::PackagingGroup"
-	Properties!: close({
+	let properties = close({
 		// CDN Authorization
 		Authorization?: #Authorization
 
 		// The configuration parameters for egress access logging.
 		EgressAccessLogs?: #LogConfiguration
-		Id!:               strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Id!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Authorization: close({
-	CdnIdentifierSecret!: string | fn.#StringExpression
-	SecretsRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	CdnIdentifierSecret!: string | number | bool | fn.#StringExpression
+	SecretsRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#LogConfiguration: close({LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression}) |
+#LogConfiguration: close({
+	LogGroupName?: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" & (strings.MaxRunes(512) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" & strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

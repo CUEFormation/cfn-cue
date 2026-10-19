@@ -3,12 +3,12 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,10 +16,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // you can use to access buckets.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3Express::AccessPoint"
-	Properties!: close({
-		Bucket!:          strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
-		BucketAccountId?: strings.MaxRunes(64) & =~"^\\d{12}$" | fn.#StringExpression
-		Name?: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" | fn.#StringExpression
+	let properties = close({
+		Bucket!: strings.MaxRunes(255) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression
+		BucketAccountId?: strings.MaxRunes(64) & =~"^\\d{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & =~"^\\d{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Policy?: fn.#Object & {...} | fn.#ObjectExpression
 
 		// The PublicAccessBlock configuration that you want to apply to this Access Point.
@@ -34,9 +49,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// requests from the specified Virtual Private Cloud (VPC).
 		VpcConfiguration?: #VpcConfiguration
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
-
-#Arn: string | fn.#StringExpression
 
 #PublicAccessBlockConfiguration: {
 	BlockPublicAcls?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -59,19 +76,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	Prefixes?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Prefixes?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	...
 } | fn.#ObjectExpression
 
 #Tag: close({
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" &
+	matchN(0, [=~"^(?:aws:.*)"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" &
+		matchN(0, [=~"^(?:aws:.*)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VpcConfiguration: {
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	...
 } | fn.#ObjectExpression

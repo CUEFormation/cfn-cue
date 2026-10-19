@@ -3,27 +3,25 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::ClientVpnEndpoint
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::ClientVpnEndpoint"
-	Properties!: close({
+	let properties = close({
 		AuthenticationOptions!:         [...#ClientAuthenticationRequest] | fn.#ListExpression
 		AuthorizationPolicy?:           #AuthorizationPolicy
-		ClientCidrBlock?:               string | fn.#StringExpression
+		ClientCidrBlock?:               string | number | bool | fn.#StringExpression
 		ClientConnectOptions?:          #ClientConnectOptions
 		ClientLoginBannerOptions?:      #ClientLoginBannerOptions
 		ClientRouteEnforcementOptions?: #ClientRouteEnforcementOptions
 		ConnectionLogOptions!:          #ConnectionLogOptions
-		Description?:                   string | fn.#StringExpression
+		Description?:                   string | number | bool | fn.#StringExpression
 		DevicePostureOptions?:          #DevicePostureOptions
 		DisconnectOnSessionTimeout?: bool |
 			"true" |
@@ -33,15 +31,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		DnsServers?:            [...string | fn.#StringExpression] | fn.#ListExpression
-		EndpointIpAddressType?: string | fn.#StringExpression
-		SecurityGroupIds?: [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
-		SelfServicePortal?:    string | fn.#StringExpression
-		ServerCertificateArn!: string | fn.#StringExpression
+		DnsServers?:            [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		EndpointIpAddressType?: string | number | bool | fn.#StringExpression
+		SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		SelfServicePortal?:    string | number | bool | fn.#StringExpression
+		ServerCertificateArn!: string | number | bool | fn.#StringExpression
 		SessionTimeoutHours?: int |
 			{
 				string &
@@ -60,11 +60,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		SplitTunnel?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		TagSpecifications?:    [...#TagSpecification] | fn.#ListExpression
-		TrafficIpAddressType?: string | fn.#StringExpression
+		TrafficIpAddressType?: string | number | bool | fn.#StringExpression
 		TransitGatewayConfiguration?: #TransitGatewayConfiguration
-		TransportProtocol?:           string | fn.#StringExpression
-		VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		TransportProtocol?:           string | number | bool | fn.#StringExpression
+		VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		VpnPort?: int |
 			{
 				string &
@@ -82,35 +86,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AuthorizationPolicy: close({
-	Description?:    string | fn.#StringExpression
-	PolicyDocument!: string | fn.#StringExpression
-	ShadowMode?:     string | fn.#StringExpression
+	Description?:    string | number | bool | fn.#StringExpression
+	PolicyDocument!: string | number | bool | fn.#StringExpression
+	ShadowMode?:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#CertificateAuthenticationRequest: close({ClientRootCertificateChainArn!: string | fn.#StringExpression}) |
+#CertificateAuthenticationRequest: close(
+	{ClientRootCertificateChainArn!: string | number | bool | fn.#StringExpression},
+) |
 	fn.#ObjectExpression
 
 #ClientAuthenticationRequest: close({
 	ActiveDirectory?:         #DirectoryServiceAuthenticationRequest
 	FederatedAuthentication?: #FederatedAuthenticationRequest
 	MutualAuthentication?:    #CertificateAuthenticationRequest
-	Type!:                    string | fn.#StringExpression
+	Type!:                    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ClientConnectOptions: close({
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LambdaFunctionArn?: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	LambdaFunctionArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ClientLoginBannerOptions: close({
-	BannerText?: string | fn.#StringExpression
+	BannerText?: string | number | bool | fn.#StringExpression
 	Enabled!:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
@@ -121,8 +135,8 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #ConnectionLogOptions: close({
-	CloudwatchLogGroup?:  string | fn.#StringExpression
-	CloudwatchLogStream?: string | fn.#StringExpression
+	CloudwatchLogGroup?:  string | number | bool | fn.#StringExpression
+	CloudwatchLogStream?: string | number | bool | fn.#StringExpression
 	Enabled!:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IncludeAuthorizationPolicyContext?: bool |
 		"true" |
@@ -142,35 +156,36 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DevicePostureTrustProvider: close({
-	PublicSigningKeyUrl?: string | fn.#StringExpression
-	TenantId!:            string | fn.#StringExpression
-	TrustProviderType!:   string | fn.#StringExpression
+	PublicSigningKeyUrl?: string | number | bool | fn.#StringExpression
+	TenantId!:            string | number | bool | fn.#StringExpression
+	TrustProviderType!:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#DirectoryServiceAuthenticationRequest: close({DirectoryId!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#DirectoryServiceAuthenticationRequest: close({DirectoryId!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #FederatedAuthenticationRequest: close({
-	SAMLProviderArn!:            string | fn.#StringExpression
-	SelfServiceSAMLProviderArn?: string | fn.#StringExpression
+	SAMLProviderArn!:            string | number | bool | fn.#StringExpression
+	SelfServiceSAMLProviderArn?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TagSpecification: close({
-	ResourceType!: string | fn.#StringExpression
+	ResourceType!: string | number | bool | fn.#StringExpression
 	Tags!:         [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #TransitGatewayConfiguration: close({
-	AvailabilityZoneIds?: [...string | fn.#StringExpression] | fn.#ListExpression
-	AvailabilityZones?:   [...string | fn.#StringExpression] | fn.#ListExpression
-	TransitGatewayId!:    string | fn.#StringExpression
+	AvailabilityZoneIds?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	AvailabilityZones?:   [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	TransitGatewayId!:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

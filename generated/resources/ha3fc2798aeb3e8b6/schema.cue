@@ -6,19 +6,17 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS Ground Station DataflowEndpointGroupV2
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GroundStation::DataflowEndpointGroupV2"
-	Properties?: close({
+	let properties = close({
 		ContactPostPassDurationSeconds?: int & <=480 & >=30 |
 			{
 				string &
@@ -58,11 +56,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Endpoints?: list.MaxItems(12) & list.MinItems(1) & [...#CreateEndpointDetails] | fn.#ListExpression
 		Tags?:      [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
-
-#AgentStatus: "SUCCESS" | "FAILED" | "ACTIVE" | "INACTIVE" | fn.#StringExpression
-
-#AuditResults: "HEALTHY" | "UNHEALTHY" | fn.#StringExpression
 
 #ConnectionDetails: close({
 	Mtu?: int & <=1500 & >=1400 |
@@ -98,15 +96,12 @@ fn.#ObjectExpression
 
 #DownlinkAwsGroundStationAgentEndpoint: close({
 	DataflowDetails!: #DownlinkDataflowDetails
-	Name!:            =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#DownlinkAwsGroundStationAgentEndpointDetails: close({
-	AgentStatus?:     #AgentStatus
-	AuditResults?:    #AuditResults
-	DataflowDetails!: #DownlinkDataflowDetails
-	Name!:            =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
+	Name!: =~"^[ a-zA-Z0-9_:-]{1,256}$" |
+	{
+		number | bool
+		_cfnString: =~"^[ a-zA-Z0-9_:-]{1,256}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -121,17 +116,6 @@ fn.#ObjectExpression
 	[{AgentConnectionDetails!: _}],
 ) |
 	fn.#ObjectExpression
-
-#EndpointDetails: close({
-	DownlinkAwsGroundStationAgentEndpoint?: #DownlinkAwsGroundStationAgentEndpointDetails
-	UplinkAwsGroundStationAgentEndpoint?:   #UplinkAwsGroundStationAgentEndpointDetails
-	if UplinkAwsGroundStationAgentEndpoint != _|_ if UplinkAwsGroundStationAgentEndpoint."Fn::If" == _|_ {
-		DownlinkAwsGroundStationAgentEndpoint?: close({"Fn::If": _}) | error(
-			"DownlinkAwsGroundStationAgentEndpoint cannot be used with UplinkAwsGroundStationAgentEndpoint; set exactly one of UplinkAwsGroundStationAgentEndpoint, DownlinkAwsGroundStationAgentEndpoint",
-		)
-	}
-}) & matchN(>=1, [{UplinkAwsGroundStationAgentEndpoint!: _}, {DownlinkAwsGroundStationAgentEndpoint!: _}]) |
-fn.#ObjectExpression
 
 #IntegerRange: close({
 	Maximum!: int |
@@ -187,7 +171,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RangedSocketAddress: close({
-	Name!: =~"^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$" | fn.#StringExpression
+	Name!: =~"^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$" & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// Port range of a socket address.
 	PortRange!: #IntegerRange
@@ -195,7 +184,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SocketAddress: close({
-	Name!: string | fn.#StringExpression
+	Name!: string | number | bool | fn.#StringExpression
 	Port!: int |
 		{
 			string &
@@ -214,22 +203,29 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$" | fn.#StringExpression
-	Value!: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$" | fn.#StringExpression
+	Key!: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$" |
+	{
+		number | bool
+		_cfnString: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$" |
+	{
+		number | bool
+		_cfnString: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #UplinkAwsGroundStationAgentEndpoint: close({
 	DataflowDetails!: #UplinkDataflowDetails
-	Name!:            =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#UplinkAwsGroundStationAgentEndpointDetails: close({
-	AgentStatus?:     #AgentStatus
-	AuditResults?:    #AuditResults
-	DataflowDetails!: #UplinkDataflowDetails
-	Name!:            =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
+	Name!: =~"^[ a-zA-Z0-9_:-]{1,256}$" |
+	{
+		number | bool
+		_cfnString: =~"^[ a-zA-Z0-9_:-]{1,256}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

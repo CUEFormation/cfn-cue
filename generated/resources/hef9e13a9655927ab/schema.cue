@@ -7,19 +7,17 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CustomerProfiles::Recommender
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CustomerProfiles::Recommender"
-	Properties!: close({
+	let properties = close({
 		Description?:           #Description
 		DomainName!:            #DomainName
 		RecommenderConfig?:     #RecommenderConfig
@@ -27,14 +25,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		RecommenderRecipeName!: #RecommenderRecipeName
 		Tags?:                  list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Description: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+#Description: strings.MaxRunes(1000) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#DomainName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+#DomainName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #EventParameters: close({
-	EventType!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	EventType!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	EventValueThreshold?: number |
 		{
 			string &
@@ -64,7 +81,12 @@ fn.#ObjectExpression
 
 #RecommenderConfig: close({EventsConfig?: #EventsConfig}) | fn.#ObjectExpression
 
-#RecommenderName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+#RecommenderName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #RecommenderRecipeName: ("frequently-paired-items" |
 	"personalized-ranking" |
@@ -72,151 +94,37 @@ fn.#ObjectExpression
 	"recommended-for-you" |
 	"similar-items" |
 	"trending-now") & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+{
+	number | bool
+	_cfnString: ("frequently-paired-items" |
+		"personalized-ranking" |
+		"popular-items" |
+		"recommended-for-you" |
+		"similar-items" |
+		"trending-now") &
+	strings.MaxRunes(255) &
+	strings.MinRunes(1) &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#RecommenderStatus: "PENDING" |
-	"IN_PROGRESS" |
-	"STOPPING" |
-	"STARTING" |
-	"ACTIVE" |
-	"INACTIVE" |
-	"FAILED" |
-	"DELETING" |
-	fn.#StringExpression
-
-#RecommenderUpdate: close({
-	CreationDateTime?:    string | fn.#StringExpression
-	FailureReason?:       string | fn.#StringExpression
-	LastUpdatedDateTime?: string | fn.#StringExpression
-	RecommenderConfig?:   #RecommenderConfig
-	Status?:              #RecommenderStatus
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#TrainingMetrics: close({
-	Metrics?: close({
-		coverage?: number |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatFloat(
-							cfnScalarStrconv.ParseFloat(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-								64,
-							) &
-								number,
-							"g",
-							-1,
-							64,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		freshness?: number |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatFloat(
-							cfnScalarStrconv.ParseFloat(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-								64,
-							) &
-								number,
-							"g",
-							-1,
-							64,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		hit?: number |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatFloat(
-							cfnScalarStrconv.ParseFloat(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-								64,
-							) &
-								number,
-							"g",
-							-1,
-							64,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		popularity?: number |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatFloat(
-							cfnScalarStrconv.ParseFloat(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-								64,
-							) &
-								number,
-							"g",
-							-1,
-							64,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		recall?: number |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatFloat(
-							cfnScalarStrconv.ParseFloat(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-								64,
-							) &
-								number,
-							"g",
-							-1,
-							64,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-		similarity?: number |
-			{
-				string &
-					=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-					cfnScalarStrings.Repeat(
-						self,
-						len(cfnScalarStrconv.FormatFloat(
-							cfnScalarStrconv.ParseFloat(
-								cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-								64,
-							) &
-								number,
-							"g",
-							-1,
-							64,
-						))*0 + 1,
-					)
-			} |
-			fn.#NumberExpression
-	}) |
-	fn.#ObjectExpression
-	Time?: string | fn.#StringExpression
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

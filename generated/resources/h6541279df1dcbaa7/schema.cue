@@ -7,12 +7,10 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -21,14 +19,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // devices.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::JobTemplate"
-	Properties!: close({
+	let properties = close({
 		AbortConfig?: close({CriteriaList!: list.MinItems(1) & [...#AbortCriteria] | fn.#ListExpression}) |
 			fn.#ObjectExpression
-		Description!: strings.MaxRunes(2028) & strings.MinRunes(0) & =~"[^\\p{C}]+" | fn.#StringExpression
+		Description!: strings.MaxRunes(2028) & strings.MinRunes(0) & =~"[^\\p{C}]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2028) & strings.MinRunes(0) & =~"[^\\p{C}]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		DestinationPackageVersions?: [...#DestinationPackageVersion] | fn.#ListExpression
-		Document?:                   strings.MaxRunes(32768) & strings.MinRunes(0) | fn.#StringExpression
-		DocumentSource?:             strings.MaxRunes(1350) & strings.MinRunes(1) | fn.#StringExpression
-		JobArn?:                     string | fn.#StringExpression
+		Document?: strings.MaxRunes(32768) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32768) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DocumentSource?: strings.MaxRunes(1350) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1350) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		JobArn?: string | number | bool | fn.#StringExpression
 		JobExecutionsRetryConfig?: close(
 			{RetryCriteriaList?: list.MaxItems(2) & list.MinItems(1) & [...#RetryCriteria] | fn.#ListExpression},
 		) |
@@ -43,7 +56,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			MaximumPerMinute?: #MaximumPerMinute
 		}) |
 		fn.#ObjectExpression
-		JobTemplateId!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" | fn.#StringExpression
+		JobTemplateId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9_-]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		MaintenanceWindows?: [...#MaintenanceWindow] | fn.#ListExpression
 		PresignedUrlConfig?: close({
 			ExpiresInSec?: #ExpiresInSec
@@ -53,6 +71,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:          list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		TimeoutConfig?: close({InProgressTimeoutInMinutes!: #InProgressTimeoutInMinutes}) | fn.#ObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AbortCriteria: close({
@@ -89,7 +111,12 @@ fn.#ObjectExpression
 	} |
 	fn.#NumberExpression
 
-#DestinationPackageVersion: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:[!-~]+$" | fn.#StringExpression
+#DestinationPackageVersion: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:[!-~]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:[!-~]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #ExpiresInSec: int & <=3600 & >=60 |
 	{
@@ -179,7 +206,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	StartTime?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	StartTime?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -274,12 +306,29 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

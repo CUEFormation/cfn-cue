@@ -17,7 +17,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h9e3209e8551fde89:schem
 #ExperimentTemplateDescription:                   schema.#ExperimentTemplateDescription
 #ExperimentTemplateExperimentOptions:             schema.#ExperimentTemplateExperimentOptions
 #ExperimentTemplateExperimentReportConfiguration: schema.#ExperimentTemplateExperimentReportConfiguration
-#ExperimentTemplateId:                            schema.#ExperimentTemplateId
 #ExperimentTemplateLogConfiguration:              schema.#ExperimentTemplateLogConfiguration
 #ExperimentTemplateStopCondition:                 schema.#ExperimentTemplateStopCondition
 #ExperimentTemplateStopConditionList:             schema.#ExperimentTemplateStopConditionList

@@ -7,40 +7,97 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppConfig::ConfigurationProfile"
-	Properties!: close({
-		ApplicationId!:           =~"[a-z0-9]{4,7}" | fn.#StringExpression
+	let properties = close({
+		ApplicationId!: =~"[a-z0-9]{4,7}" |
+		{
+			number | bool
+			_cfnString: =~"[a-z0-9]{4,7}" & "\(self)"
+		} |
+		fn.#StringExpression
 		DeletionProtectionCheck?: "ACCOUNT_DEFAULT" | "APPLY" | "BYPASS" | fn.#StringExpression
-		Description?:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		KmsKeyIdentifier?:        strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		LocationUri!:             strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		Name!:                    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		RetrievalRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		KmsKeyIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		LocationUri!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		RetrievalRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^((arn):(aws|aws-cn|aws-iso|aws-iso-[a-z]{1}|aws-us-gov|aws-eusc):(iam)::\\d{12}:role[/].*)$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^((arn):(aws|aws-cn|aws-iso|aws-iso-[a-z]{1}|aws-us-gov|aws-eusc):(iam)::\\d{12}:role[/].*)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Tags?:       [...#Tags] | fn.#ListExpression
-		Type?:       =~"^[a-zA-Z\\.]+" | fn.#StringExpression
+		Tags?: [...#Tags] | fn.#ListExpression
+		Type?: =~"^[a-zA-Z\\.]+" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z\\.]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		Validators?: list.MaxItems(2) & [...] & [...#Validators] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tags: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Validators: close({
-	Content?: strings.MaxRunes(32768) & strings.MinRunes(0) | fn.#StringExpression
-	Type?:    "JSON_SCHEMA" | "LAMBDA" | fn.#StringExpression
+	Content?: strings.MaxRunes(32768) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32768) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type?: "JSON_SCHEMA" | "LAMBDA" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

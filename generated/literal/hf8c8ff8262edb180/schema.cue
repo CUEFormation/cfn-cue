@@ -536,7 +536,11 @@ strings.MinRunes(1) &
 	TenantDomain!:       #TenantDomain
 })
 
-#OneDriveUser: strings.MaxRunes(256) & strings.MinRunes(1)
+#OneDriveUser: =~"^.+@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$" &
+matchN(0, [=~"^(?:\\s)"]) &
+string &
+strings.MaxRunes(256) &
+strings.MinRunes(1)
 
 #OneDriveUserList: list.MaxItems(100) & list.MinItems(1) & [...#OneDriveUser]
 
@@ -561,7 +565,11 @@ strings.MinRunes(1) &
 // Role ARN
 #RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(1))
 
-#S3BucketName: strings.MaxRunes(63) & strings.MinRunes(3) & =~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]"
+#S3BucketName: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+strings.MaxRunes(63) &
+strings.MinRunes(3) &
+=~"[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]"
 
 // S3 data source configuration
 #S3DataSourceConfiguration: close({
@@ -686,7 +694,11 @@ strings.MinRunes(1) &
 	ServiceNowBuildVersion!:        #ServiceNowBuildVersionType
 })
 
-#ServiceNowHostUrl: strings.MaxRunes(2048) & strings.MinRunes(1)
+#ServiceNowHostUrl: =~"^[a-z0-9-]+(\\.service-now\\.com)$" &
+matchN(0, [=~"^(?:(^(https?|ftp|file):\\/\\/))"]) &
+string &
+strings.MaxRunes(2048) &
+strings.MinRunes(1)
 
 #ServiceNowKnowledgeArticleConfiguration: close({
 	CrawlAttachments?:              bool

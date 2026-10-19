@@ -7,19 +7,29 @@ import (
 	"list"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::Notification
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::Notification"
-	Properties!: close({
+	let properties = close({
 		// The content of the notification.
-		Content!:     #NotificationContent
-		ExpiresAt?:   =~"^[0-9]+$" | fn.#StringExpression
-		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		Content!: #NotificationContent
+		ExpiresAt?: =~"^[0-9]+$" |
+		{
+			number | bool
+			_cfnString: =~"^[0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The priority of the notification.
 		Priority?: #Priority
@@ -28,13 +38,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Recipients?: #RecipientList
 		Tags?:       list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Arn: string | fn.#StringExpression
+#Arn: string | number | bool | fn.#StringExpression
 
-#InstanceArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-
-#LocalizedString: =~"^.{0,500}$" | fn.#StringExpression
+#LocalizedString: =~"^.{0,500}$" |
+{
+	number | bool
+	_cfnString: =~"^.{0,500}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #NotificationContent: close({
 	DeDE?: #LocalizedString
@@ -56,10 +73,17 @@ fn.#ObjectExpression
 #RecipientList: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Arn] | fn.#ListExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#UserArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent/[-a-zA-Z0-9]*$" |
-	fn.#StringExpression

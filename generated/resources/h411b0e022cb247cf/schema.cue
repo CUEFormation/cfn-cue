@@ -7,19 +7,15 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a package and storage location in an Amazon S3 access point.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Panorama::Package"
-	Properties!: close({
+	let properties = close({
 		// A name for the package.
 		PackageName!:     #NodePackageName
 		StorageLocation?: close({}) | fn.#ObjectExpression
@@ -27,41 +23,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Tags for the package.
 		Tags?: #TagList
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#NodePackageArn: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-
-#NodePackageId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_\\/]+$" | fn.#StringExpression
-
-#NodePackageName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" | fn.#StringExpression
-
-#StorageLocation: close({
-	BinaryPrefixLocation?:    string | fn.#StringExpression
-	Bucket?:                  string | fn.#StringExpression
-	GeneratedPrefixLocation?: string | fn.#StringExpression
-	ManifestPrefixLocation?:  string | fn.#StringExpression
-	RepoPrefixLocation?:      string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
+#NodePackageName: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.+$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TagList: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-
-#Timestamp: int |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatInt(
-					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) & int,
-					10,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression

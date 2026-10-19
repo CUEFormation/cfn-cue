@@ -6,5 +6,4 @@ import schema "github.com/cueformation/cfn-cue/resources/hb30dba48bf455427:schem
 
 #Resource:                      schema.#Resource
 #ComputeNodeGroupConfiguration: schema.#ComputeNodeGroupConfiguration
-#ErrorInfo:                     schema.#ErrorInfo
 #SlurmCustomSetting:            schema.#SlurmCustomSetting

@@ -6,20 +6,22 @@ package schema
 
 // Resource Type definition for AWS::DMS::ReplicationInstance
 #Properties: close({
-	AllocatedStorage?:              int
-	AllowMajorVersionUpgrade?:      bool
-	AutoMinorVersionUpgrade?:       bool
-	AvailabilityZone?:              string
-	DnsNameServers?:                string
-	EngineVersion?:                 string
-	Id?:                            string
-	KmsKeyId?:                      =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
-	MultiAZ?:                       bool
-	NetworkType?:                   string
-	PreferredMaintenanceWindow?:    string
-	PubliclyAccessible?:            bool
-	ReplicationInstanceClass!:      string
-	ReplicationInstanceIdentifier?: string
+	AllocatedStorage?:         int
+	AllowMajorVersionUpgrade?: bool
+	AutoMinorVersionUpgrade?:  bool
+	AvailabilityZone?:         string
+	DnsNameServers?:           string
+	EngineVersion?:            string
+	Id?:                       string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
+	MultiAZ?:                               bool
+	NetworkType?:                           string
+	PreferredMaintenanceWindow?:            string
+	PubliclyAccessible?:                    bool
+	ReplicationInstanceClass!:              string
+	ReplicationInstanceIdentifier?:         string
 	ReplicationInstancePrivateIpAddresses?: string
 	ReplicationInstancePublicIpAddresses?:  string
 	ReplicationSubnetGroupIdentifier?:      string

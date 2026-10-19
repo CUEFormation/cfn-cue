@@ -32,4 +32,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h62af6709fcf7231f:schem
 #TrainingDetails:        schema.#TrainingDetails
 #TrainingHyperParameter: schema.#TrainingHyperParameter
 #TrainingMetric:         schema.#TrainingMetric
-#UserContext:            schema.#UserContext

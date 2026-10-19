@@ -9,6 +9,4 @@ import schema "github.com/cueformation/cfn-cue/resources/h028f2f12d884e950:schem
 #GroupingConfiguration:        schema.#GroupingConfiguration
 #GroupingValue:                schema.#GroupingValue
 #QuickResponseContentProvider: schema.#QuickResponseContentProvider
-#QuickResponseContents:        schema.#QuickResponseContents
-#Status:                       schema.#Status
 #Tag:                          schema.#Tag

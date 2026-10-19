@@ -97,7 +97,9 @@ import (
 
 	// The AWS Key Management Service (AWS KMS) key that Amazon SageMaker uses to
 	// encrypt data generated from an Athena query execution.
-	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"[a-zA-Z0-9:/_-]*"
@@ -341,7 +343,9 @@ import (
 	// The AWS Key Management Service (AWS KMS) key that Amazon SageMaker uses to
 	// encrypt the processing job output. KmsKeyId can be an ID of a KMS key, ARN
 	// of a KMS key, or alias of a KMS key. The KmsKeyId is applied to all outputs.
-	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"[a-zA-Z0-9:/_-]*"
@@ -388,7 +392,9 @@ import (
 
 	// The AWS Key Management Service (AWS KMS) key that Amazon SageMaker uses to
 	// encrypt data from a Redshift execution.
-	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"[a-zA-Z0-9:/_-]*"
@@ -508,5 +514,10 @@ import (
 	// job or model. For information about the availability of specific instance
 	// types, see
 	// https://docs.aws.amazon.com/sagemaker/latest/dg/regions-quotas.html
-	Subnets!: list.MaxItems(16) & [...] & [...strings.MaxRunes(32) & strings.MinRunes(0) & =~"[-0-9a-zA-Z]+"]
+	Subnets!: list.MaxItems(16) & [...] & [
+		...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"[-0-9a-zA-Z]+"
+	]
 })

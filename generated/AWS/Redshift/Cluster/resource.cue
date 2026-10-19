@@ -5,6 +5,5 @@ package Cluster
 import schema "github.com/cueformation/cfn-cue/resources/had678ddafb4fed02:schema"
 
 #Resource:          schema.#Resource
-#Endpoint:          schema.#Endpoint
 #LoggingProperties: schema.#LoggingProperties
 #Tag:               schema.#Tag

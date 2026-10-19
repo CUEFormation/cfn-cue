@@ -3,26 +3,57 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::ODB::OdbNetwork resource creates an ODB Network
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ODB::OdbNetwork"
-	Properties?: close({
-		AvailabilityZone?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		AvailabilityZoneId?:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		BackupSubnetCidr?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		ClientSubnetCidr?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		CrossRegionS3RestoreSources?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		CustomDomainName?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		DefaultDnsPrefix?:            strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		AvailabilityZoneId?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		BackupSubnetCidr?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ClientSubnetCidr?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		CrossRegionS3RestoreSources?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
+		CustomDomainName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		DefaultDnsPrefix?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		DeleteAssociatedResources?: bool |
 			"true" |
 			"True" |
@@ -31,86 +62,63 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		DisplayName?:       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		KmsAccess?:         "ENABLED" | "DISABLED" | fn.#StringExpression
-		KmsPolicyDocument?: strings.MaxRunes(20480) & strings.MinRunes(3) | fn.#StringExpression
-		S3Access?:          "ENABLED" | "DISABLED" | fn.#StringExpression
-		S3PolicyDocument?:  strings.MaxRunes(20480) & strings.MinRunes(3) | fn.#StringExpression
-		StsAccess?:         "ENABLED" | "DISABLED" | fn.#StringExpression
-		StsPolicyDocument?: strings.MaxRunes(20480) & strings.MinRunes(3) | fn.#StringExpression
-		Tags?:              [...#Tag] | fn.#ListExpression
-		ZeroEtlAccess?:     "ENABLED" | "DISABLED" | fn.#StringExpression
+		DisplayName?: =~"^[a-zA-Z_][a-zA-Z0-9_-]*$" &
+		matchN(0, [=~"^(?s:.){1}(?:.*--)"]) &
+		string &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z_][a-zA-Z0-9_-]*$" &
+			matchN(0, [=~"^(?s:.){1}(?:.*--)"]) &
+			string &
+			strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		KmsAccess?: "ENABLED" | "DISABLED" | fn.#StringExpression
+		KmsPolicyDocument?: strings.MaxRunes(20480) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(20480) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression
+		S3Access?: "ENABLED" | "DISABLED" | fn.#StringExpression
+		S3PolicyDocument?: strings.MaxRunes(20480) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(20480) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression
+		StsAccess?: "ENABLED" | "DISABLED" | fn.#StringExpression
+		StsPolicyDocument?: strings.MaxRunes(20480) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(20480) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?:          [...#Tag] | fn.#ListExpression
+		ZeroEtlAccess?: "ENABLED" | "DISABLED" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
-#CrossRegionS3RestoreSourcesAccess: close({
-	Ipv4Addresses?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Region?:        string | fn.#StringExpression
-
-	// The current status of the cross-Region Amazon S3 restore access configuration.
-	Status?: #ManagedResourceStatus
-}) |
-fn.#ObjectExpression
-
-#ManagedResourceStatus: "ENABLED" | "ENABLING" | "DISABLED" | "DISABLING" | fn.#StringExpression
-
-#ManagedServices: close({
-	CrossRegionS3RestoreSourcesAccess?: list.UniqueItems() & [...#CrossRegionS3RestoreSourcesAccess] |
-		fn.#ListExpression
-	KmsAccess?: close({
-		DomainName?:        string | fn.#StringExpression
-		Ipv4Addresses?:     [...string | fn.#StringExpression] | fn.#ListExpression
-		KmsPolicyDocument?: string | fn.#StringExpression
-
-		// The status of the AWS KMS access.
-		Status?: #ManagedResourceStatus
-	}) |
-	fn.#ObjectExpression
-	ManagedS3BackupAccess?: close({
-		Ipv4Addresses?: [...string | fn.#StringExpression] | fn.#ListExpression
-
-		// The status of the managed Amazon S3 backup access.
-		Status?: #ManagedResourceStatus
-	}) |
-	fn.#ObjectExpression
-	ManagedServicesIpv4Cidrs?: [...string | fn.#StringExpression] | fn.#ListExpression
-	ResourceGatewayArn?:       string | fn.#StringExpression
-	S3Access?: close({
-		DomainName?:       string | fn.#StringExpression
-		Ipv4Addresses?:    [...string | fn.#StringExpression] | fn.#ListExpression
-		S3PolicyDocument?: string | fn.#StringExpression
-
-		// The status of the Amazon S3 access.
-		Status?: #ManagedResourceStatus
-	}) |
-	fn.#ObjectExpression
-	ServiceNetworkArn?: string | fn.#StringExpression
-	ServiceNetworkEndpoint?: close({
-		VpcEndpointId?:   string | fn.#StringExpression
-		VpcEndpointType?: "SERVICENETWORK" | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	StsAccess?: close({
-		DomainName?:    string | fn.#StringExpression
-		Ipv4Addresses?: [...string | fn.#StringExpression] | fn.#ListExpression
-
-		// The status of the AWS STS access.
-		Status?:            #ManagedResourceStatus
-		StsPolicyDocument?: string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
-	ZeroEtlAccess?: close({
-		Cidr?: string | fn.#StringExpression
-
-		// The status of the Zero-ETL access.
-		Status?: #ManagedResourceStatus
-	}) |
-	fn.#ObjectExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

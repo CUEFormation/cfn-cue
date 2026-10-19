@@ -8,5 +8,4 @@ import schema "github.com/cueformation/cfn-cue/resources/h14f6b38b78531136:schem
 #DeviceOptions:                schema.#DeviceOptions
 #NativeApplicationOidcOptions: schema.#NativeApplicationOidcOptions
 #OidcOptions:                  schema.#OidcOptions
-#SseSpecification:             schema.#SseSpecification
 #Tag:                          schema.#Tag

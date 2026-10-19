@@ -7,8 +7,8 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,19 +17,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // RegexPatternSetReferenceStatement to perform other actions .
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WAFv2::RegexPatternSet"
-	Properties!: close({
+	let properties = close({
 		Description?: =~"^[a-zA-Z0-9=:#@/\\-,.][a-zA-Z0-9+=:#@/\\-,.\\s]+[a-zA-Z0-9+=:#@/\\-,.]{1,256}$" |
-			fn.#StringExpression
-		Name?: =~"^[0-9A-Za-z_-]{1,128}$" | fn.#StringExpression
-		RegularExpressionList!: [...strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression] |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9=:#@/\\-,.][a-zA-Z0-9+=:#@/\\-,.\\s]+[a-zA-Z0-9+=:#@/\\-,.]{1,256}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name?: =~"^[0-9A-Za-z_-]{1,128}$" |
+		{
+			number | bool
+			_cfnString: =~"^[0-9A-Za-z_-]{1,128}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		RegularExpressionList!: [...strings.MaxRunes(200) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		Scope!: "CLOUDFRONT" | "REGIONAL" | fn.#StringExpression
 		Tags?:  list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

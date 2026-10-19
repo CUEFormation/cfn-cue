@@ -7,8 +7,8 @@ import (
 	"list"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,20 +20,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Amazon RDS User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RDS::EventSubscription"
-	Properties!: close({
+	let properties = close({
 		Enabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		EventCategories?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		SnsTopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		SourceIds?:        list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		SourceType?:       string | fn.#StringExpression
-		SubscriptionName?: strings.MaxRunes(255) | fn.#StringExpression
-		Tags?:             list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		EventCategories?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		SnsTopicArn!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SourceIds?:  list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		SourceType?: string | number | bool | fn.#StringExpression
+		SubscriptionName?: strings.MaxRunes(255) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

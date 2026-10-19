@@ -6,12 +6,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -34,8 +32,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Manager](https://docs.aws.amazon.com/secretsmanager/latest/userguide/retrieving-secrets.html).
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecretsManager::Secret"
-	Properties?: close({
-		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// A structure that specifies how to generate a password to encrypt and store in
 		// the secret. To include a specific string in the secret, use ``SecretString``
@@ -45,24 +48,53 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// We recommend that you specify the maximum length and include every character
 		// type that the system you are generating a password for can support.
 		GenerateSecretString?: #GenerateSecretString
-		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string) & (strings.MaxRunes(2048) & strings.MinRunes(0)) |
+		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(2048) & strings.MinRunes(0)) |
+		{
+			number | bool
+			_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+				=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+				=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(0) &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name?:           strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+		Name?: strings.MaxRunes(512) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		ReplicaRegions?: [...#ReplicaRegion] | fn.#ListExpression
-		SecretString?:   strings.MaxRunes(65536) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:           [...#Tag] | fn.#ListExpression
-		Type?:           strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		SecretString?: strings.MaxRunes(65536) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(65536) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+		Type?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #GenerateSecretString: close({
-	ExcludeCharacters?:  string | fn.#StringExpression
+	ExcludeCharacters?:  string | number | bool | fn.#StringExpression
 	ExcludeLowercase?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ExcludeNumbers?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ExcludePunctuation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ExcludeUppercase?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	GenerateStringKey?:  string | fn.#StringExpression
+	GenerateStringKey?:  string | number | bool | fn.#StringExpression
 	IncludeSpace?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PasswordLength?: int |
 		{
@@ -79,20 +111,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	RequireEachIncludedType?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SecretStringTemplate?:    string | fn.#StringExpression
+	SecretStringTemplate?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ReplicaRegion: close({
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
-	Region!: string | fn.#StringExpression
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+	} |
+	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+			"\(self)"
+	} |
+	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Region!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

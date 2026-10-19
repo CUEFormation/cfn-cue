@@ -7,15 +7,15 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::NetworkFirewall::Firewall
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::NetworkFirewall::Firewall"
-	Properties!: close({
+	let properties = close({
 		AvailabilityZoneChangeProtection?: bool |
 			"true" |
 			"True" |
@@ -26,9 +26,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#BooleanExpression
 		AvailabilityZoneMappings?: list.UniqueItems() & [...#AvailabilityZoneMapping] | fn.#ListExpression
 		DeleteProtection?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Description?:              strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
-		EnabledAnalysisTypes?:     [...#EnabledAnalysisType] | fn.#ListExpression
-		FirewallName!:      strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+		Description?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^.*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		EnabledAnalysisTypes?: [...#EnabledAnalysisType] | fn.#ListExpression
+		FirewallName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		FirewallPolicyArn!: #ResourceArn
 		FirewallPolicyChangeProtection?: bool |
 			"true" |
@@ -40,35 +50,75 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#BooleanExpression
 		SubnetChangeProtection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		SubnetMappings?:         list.UniqueItems() & [...#SubnetMapping] | fn.#ListExpression
-		Tags?:             list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TransitGatewayId?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^tgw-[0-9a-z]+$" | fn.#StringExpression
-		VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TransitGatewayId?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^tgw-[0-9a-z]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^tgw-[0-9a-z]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
 		strings.MaxRunes(128) &
 		strings.MinRunes(1) &
 		=~"^vpc-[0-9a-f]+$" |
+		{
+			number | bool
+			_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+			strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			=~"^vpc-[0-9a-f]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#AvailabilityZoneMapping: close(
-	{AvailabilityZone!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression},
-) |
+#AvailabilityZoneMapping: close({
+	AvailabilityZone!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #EnabledAnalysisType: "TLS_SNI" | "HTTP_HOST" | fn.#StringExpression
 
-#EndpointId: string | fn.#StringExpression
-
-#ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:aws.*$" | fn.#StringExpression
+#ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:aws.*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^arn:aws.*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #SubnetMapping: close({
 	IPAddressType?: "DUALSTACK" | "IPV4" | "IPV6" | fn.#StringExpression
-	SubnetId!:      string | fn.#StringExpression
+	SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -7,8 +7,8 @@ import (
 	"list"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -33,24 +33,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // between your VPC and virtual appliances from a service provider.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::VPCEndpoint"
-	Properties!: close({
+	let properties = close({
 		// Describes the DNS options for an endpoint.
 		DnsOptions?:               #DnsOptionsSpecification
 		IpAddressType?:            "ipv4" | "ipv6" | "dualstack" | "not-specified" | fn.#StringExpression
-		PolicyDocument?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+		PolicyDocument?:           fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		PrivateDnsEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ResourceConfigurationArn?: string | fn.#StringExpression
-		RouteTableIds?:            list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		SecurityGroupIds?: list.UniqueItems() & [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-				string |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
-		ServiceName?:       string | fn.#StringExpression
-		ServiceNetworkArn?: string | fn.#StringExpression
-		ServiceRegion?:     string | fn.#StringExpression
-		SubnetIds?:         list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		ResourceConfigurationArn?: string | number | bool | fn.#StringExpression
+		RouteTableIds?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		SecurityGroupIds?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & string |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & string & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		ServiceName?:       string | number | bool | fn.#StringExpression
+		ServiceNetworkArn?: string | number | bool | fn.#StringExpression
+		ServiceRegion?:     string | number | bool | fn.#StringExpression
+		SubnetIds?:         list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Tags?:              [...#Tag] | fn.#ListExpression
 		VpcEndpointType?: "Interface" |
 			"Gateway" |
@@ -59,9 +60,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"Resource" |
 			"Tunnel" |
 			fn.#StringExpression
-		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #DnsOptionsSpecification: close({
@@ -75,15 +84,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"VERIFIED_DOMAINS_AND_SPECIFIED_DOMAINS" |
 		"SPECIFIED_DOMAINS_ONLY" |
 		fn.#StringExpression
-	PrivateDnsSpecifiedDomains?: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	PrivateDnsSpecifiedDomains?: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

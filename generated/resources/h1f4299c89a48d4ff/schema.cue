@@ -6,21 +6,19 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::CapacityReservationFleet
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::CapacityReservationFleet"
-	Properties?: close({
-		AllocationStrategy?:    string | fn.#StringExpression
-		EndDate?:               string | fn.#StringExpression
+	let properties = close({
+		AllocationStrategy?:    string | number | bool | fn.#StringExpression
+		EndDate?:               string | number | bool | fn.#StringExpression
 		InstanceMatchCriteria?: "open" | fn.#StringExpression
 		InstanceTypeSpecifications?: list.MaxItems(50) & list.UniqueItems() & [...#InstanceTypeSpecification] |
 			fn.#ListExpression
@@ -47,11 +45,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #InstanceTypeSpecification: close({
-	AvailabilityZone?:   string | fn.#StringExpression
-	AvailabilityZoneId?: string | fn.#StringExpression
+	AvailabilityZone?:   string | number | bool | fn.#StringExpression
+	AvailabilityZoneId?: string | number | bool | fn.#StringExpression
 	EbsOptimized?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InstancePlatform?: "Linux with SQL Server Enterprise" |
 		"Linux with SQL Server Standard" |
@@ -72,7 +74,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"Windows with SQL Server Standard" |
 		"Windows with SQL Server Web" |
 		fn.#StringExpression
-	InstanceType?: string | fn.#StringExpression
+	InstanceType?: string | number | bool | fn.#StringExpression
 	Priority?: int & <=999 & >=0 |
 		{
 			string &
@@ -113,8 +115,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

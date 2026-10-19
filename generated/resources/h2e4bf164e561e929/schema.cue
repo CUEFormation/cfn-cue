@@ -3,34 +3,46 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::RAM::Permission
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RAM::Permission"
-	Properties!: close({
-		Name!:           strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[\\w.-]*$" | fn.#StringExpression
-		PolicyTemplate!: fn.#Object & {...} | string | fn.#StringObjectExpression
-		ResourceType!:   string | fn.#StringExpression
+	let properties = close({
+		Name!: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[\\w.-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[\\w.-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		PolicyTemplate!: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		ResourceType!:   string | number | bool | fn.#StringExpression
 		Tags?:           [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#PermissionTemplateParameterDeclaration: close({
-	Description!: string | fn.#StringExpression
-	Name!:        string | fn.#StringExpression
-	Type!:        "STRING" | "STRING_LIST" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

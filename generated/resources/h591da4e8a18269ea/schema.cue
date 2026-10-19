@@ -7,12 +7,10 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,9 +18,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // later be associated with a pricing plan.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BillingConductor::PricingRule"
-	Properties!: close({
+	let properties = close({
 		BillingEntity?: "AWS" | "AWS Marketplace" | "AISPL" | fn.#StringExpression
-		Description?:   strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		ModifierPercentage?: >=0 |
 			{
 				string &
@@ -42,19 +45,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name!:      strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" | fn.#StringExpression
-		Operation?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
-		Scope!:     "GLOBAL" | "SERVICE" | "BILLING_ENTITY" | "SKU" | fn.#StringExpression
-		Service?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\-]+" | fn.#StringExpression
-		Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\+=\\.\\-@]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		Operation?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Scope!: "GLOBAL" | "SERVICE" | "BILLING_ENTITY" | "SKU" | fn.#StringExpression
+		Service?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\-]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		Tiering?: close({
 			CustomTiers?: list.MaxItems(10) & list.MinItems(1) & [...#CustomTier] | fn.#ListExpression
 			FreeTier?:    #FreeTier
 		}) |
 		fn.#ObjectExpression
-		Type!:      "MARKUP" | "DISCOUNT" | "TIERING" | fn.#StringExpression
-		UsageType?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" | fn.#StringExpression
+		Type!: "MARKUP" | "DISCOUNT" | "TIERING" | fn.#StringExpression
+		UsageType?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^\\S+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CustomTier: close({
@@ -122,7 +149,17 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -7,28 +7,42 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::ConnectCampaigns::Campaign Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ConnectCampaigns::Campaign"
-	Properties!: close({
+	let properties = close({
 		ConnectInstanceArn!: strings.MaxRunes(256) &
 		strings.MinRunes(0) &
 		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(0) &
+			=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		DialerConfig!:       #DialerConfig
-		Name!:               strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+		DialerConfig!: #DialerConfig
+		Name!: strings.MaxRunes(127) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		OutboundCallConfig!: #OutboundCallConfig
 		Tags?:               list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AgentlessDialerConfig: close({
@@ -85,11 +99,28 @@ fn.#ObjectExpression
 	AnswerMachineDetectionConfig?: #AnswerMachineDetectionConfig
 	ConnectContactFlowArn!: strings.MaxRunes(500) &
 	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) &
+		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	ConnectQueueArn?: strings.MaxRunes(500) &
 	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/queue/[-a-zA-Z0-9]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) &
+		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/queue/[-a-zA-Z0-9]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	ConnectSourcePhoneNumber?: strings.MaxRunes(100) | fn.#StringExpression
+	ConnectSourcePhoneNumber?: strings.MaxRunes(100) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -182,7 +213,22 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

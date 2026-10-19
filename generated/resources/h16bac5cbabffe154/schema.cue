@@ -7,21 +7,34 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::CustomPermissions Resource Type.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QuickSight::CustomPermissions"
-	Properties!: close({
-		AwsAccountId!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+	let properties = close({
+		AwsAccountId!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Capabilities?: #Capabilities
 		CustomPermissionsName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9+=,.@_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9+=,.@_-]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Capabilities: close({
@@ -257,7 +270,17 @@ fn.#ObjectExpression
 #CapabilityState: "DENY" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

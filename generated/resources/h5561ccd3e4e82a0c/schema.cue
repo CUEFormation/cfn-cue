@@ -7,24 +7,35 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::FeatureGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::FeatureGroup"
-	Properties!: close({
-		Description?: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(128) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		EventTimeFeatureName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" & "\(self)"
+		} |
 		fn.#StringExpression
 		FeatureDefinitions!: list.MaxItems(2500) & list.MinItems(1) & [...#FeatureDefinition] | fn.#ListExpression
 		FeatureGroupName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" & "\(self)"
+		} |
 		fn.#StringExpression
 		OfflineStoreConfig?: close({
 			DataCatalogConfig?: #DataCatalogConfig
@@ -48,43 +59,94 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		}) |
 		fn.#ObjectExpression
 		RecordIdentifierFeatureName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" & "\(self)"
+		} |
 		fn.#StringExpression
-		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?:             list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 		ThroughputConfig?: #ThroughputConfig
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #DataCatalogConfig: close({
-	Catalog!:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Database!:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	TableName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Catalog!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Database!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TableName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FeatureDefinition: close({
 	FeatureName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,63}" & "\(self)"
+	} |
 	fn.#StringExpression
 	FeatureType!: "Integral" | "Fractional" | "String" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#KmsKeyId: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-	string) &
+#KmsKeyId: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 strings.MaxRunes(2048) &
 strings.MinRunes(0) &
 =~"^[a-zA-Z0-9:/_-]*$" |
+{
+	number | bool
+	_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	=~"^[a-zA-Z0-9:/_-]*$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #OnlineStoreSecurityConfig: close({KmsKeyId?: #KmsKeyId}) | fn.#ObjectExpression
 
 #S3StorageConfig: close({
 	KmsKeyId?: #KmsKeyId
-	S3Uri!:    strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" | fn.#StringExpression
+	S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -93,8 +155,18 @@ fn.#ObjectExpression
 #TableFormat: "Iceberg" | "Glue" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

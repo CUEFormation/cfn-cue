@@ -7,5 +7,4 @@ import schema "github.com/cueformation/cfn-cue/resources/h56da2060b38e0047:schem
 #Resource:         schema.#Resource
 #FairsharePolicy:  schema.#FairsharePolicy
 #QuotaSharePolicy: schema.#QuotaSharePolicy
-#ResourceArn:      schema.#ResourceArn
 #ShareAttributes:  schema.#ShareAttributes

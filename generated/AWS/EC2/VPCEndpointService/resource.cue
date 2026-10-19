@@ -4,7 +4,6 @@ package VPCEndpointService
 
 import schema "github.com/cueformation/cfn-cue/resources/h1db4c85665de8f73:schema"
 
-#Resource:                    schema.#Resource
-#IpAddressType:               schema.#IpAddressType
-#PrivateDnsNameConfiguration: schema.#PrivateDnsNameConfiguration
-#Tag:                         schema.#Tag
+#Resource:      schema.#Resource
+#IpAddressType: schema.#IpAddressType
+#Tag:           schema.#Tag

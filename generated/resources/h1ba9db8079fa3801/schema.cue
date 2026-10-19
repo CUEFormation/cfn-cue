@@ -6,28 +6,47 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Omics::VariantStore Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Omics::VariantStore"
-	Properties!: close({
-		Description?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-		Name!:        =~"^([a-z]){1}([a-z0-9_]){2,254}" | fn.#StringExpression
-		Reference!:   #ReferenceItem
-		SseConfig?:   #SseConfig
-		Tags?:        #TagMap
+	let properties = close({
+		Description?: strings.MaxRunes(500) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: =~"^([a-z]){1}([a-z0-9_]){2,254}" |
+		{
+			number | bool
+			_cfnString: =~"^([a-z]){1}([a-z0-9_]){2,254}" & "\(self)"
+		} |
+		fn.#StringExpression
+		Reference!: #ReferenceItem
+		SseConfig?: #SseConfig
+		Tags?:      #TagMap
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #EncryptionType: "KMS" | fn.#StringExpression
 
-#ReferenceItem: close(
-	{ReferenceArn!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^arn:.+$" | fn.#StringExpression},
-) |
+#ReferenceItem: close({
+	ReferenceArn!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^arn:.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^arn:.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #SseConfig: close({
@@ -40,14 +59,37 @@ fn.#ObjectExpression
 		]*):([0-9]{12}):([^:
 		]*)
 		""" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"""
+			arn:([^:
+			]*):([^:
+			]*):([^:
+			]*):([0-9]{12}):([^:
+			]*)
+			""" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Type!: #EncryptionType
 }) |
 fn.#ObjectExpression
 
-#StoreStatus: "CREATING" | "UPDATING" | "DELETING" | "ACTIVE" | "FAILED" | fn.#StringExpression
-
 #TagMap: close({
 
-	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
+	{
+		[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression

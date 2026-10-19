@@ -4,14 +4,9 @@ package RuntimeEndpoint
 
 import schema "github.com/cueformation/cfn-cue/resources/h3d07a740b68bf097:schema"
 
-#Resource:                   schema.#Resource
-#AgentEndpointDescription:   schema.#AgentEndpointDescription
-#AgentRuntimeArn:            schema.#AgentRuntimeArn
-#AgentRuntimeEndpointArn:    schema.#AgentRuntimeEndpointArn
-#AgentRuntimeEndpointId:     schema.#AgentRuntimeEndpointId
-#AgentRuntimeEndpointStatus: schema.#AgentRuntimeEndpointStatus
-#AgentRuntimeId:             schema.#AgentRuntimeId
-#AgentRuntimeVersion:        schema.#AgentRuntimeVersion
-#DateTimestamp:              schema.#DateTimestamp
-#EndpointName:               schema.#EndpointName
-#TagsMap:                    schema.#TagsMap
+#Resource:                 schema.#Resource
+#AgentEndpointDescription: schema.#AgentEndpointDescription
+#AgentRuntimeId:           schema.#AgentRuntimeId
+#AgentRuntimeVersion:      schema.#AgentRuntimeVersion
+#EndpointName:             schema.#EndpointName
+#TagsMap:                  schema.#TagsMap

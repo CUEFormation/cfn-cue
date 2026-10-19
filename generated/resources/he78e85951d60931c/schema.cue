@@ -7,22 +7,35 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The details of the repository creation template associated with the request.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ECR::RepositoryCreationTemplate"
-	Properties!: close({
+	let properties = close({
 		AppliedFor!: list.UniqueItems() & [...#AppliedForItem] | fn.#ListExpression
-		CustomRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		CustomRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(0) &
 		=~"^arn:aws[-a-z0-9]*:iam::[0-9]{12}:role/[A-Za-z0-9+=,-.@_]*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(0) &
+			=~"^arn:aws[-a-z0-9]*:iam::[0-9]{12}:role/[A-Za-z0-9+=,-.@_]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Description?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The encryption configuration associated with the repository creation template.
 		EncryptionConfiguration?: #EncryptionConfiguration
@@ -35,14 +48,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			...#ImageTagMutabilityExclusionFilter
 		] |
 			fn.#ListExpression
-		LifecyclePolicy?: strings.MaxRunes(30720) & strings.MinRunes(100) | fn.#StringExpression
+		LifecyclePolicy?: strings.MaxRunes(30720) & strings.MinRunes(100) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(30720) & strings.MinRunes(100) & "\(self)"
+		} |
+		fn.#StringExpression
 		Prefix!: strings.MaxRunes(256) &
 		strings.MinRunes(1) &
 		=~"^([a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*(\\/[a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*)*\\/?|ROOT)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(1) &
+			=~"^([a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*(\\/[a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*)*\\/?|ROOT)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		RepositoryPolicy?: strings.MaxRunes(10240) & strings.MinRunes(0) | fn.#StringExpression
-		ResourceTags?:     list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		RepositoryPolicy?: strings.MaxRunes(10240) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(10240) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		ResourceTags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AppliedForItem: "REPLICATION" | "PULL_THROUGH_CACHE" | "CREATE_ON_PUSH" | fn.#StringExpression
@@ -80,14 +114,33 @@ fn.#ObjectExpression
 #ImageTagMutabilityExclusionFilter: close({
 	ImageTagMutabilityExclusionFilterType!: "WILDCARD" | fn.#StringExpression
 	ImageTagMutabilityExclusionFilterValue!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._*-]{1,128}" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._*-]{1,128}" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#KmsKey: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+#KmsKey: strings.MaxRunes(2048) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

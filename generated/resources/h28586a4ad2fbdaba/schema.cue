@@ -7,29 +7,59 @@ import (
 	"list"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::QBusiness::WebExperience Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QBusiness::WebExperience"
-	Properties!: close({
+	let properties = close({
 		ApplicationId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" & "\(self)"
+		} |
 		fn.#StringExpression
 		BrowserExtensionConfiguration?: #BrowserExtensionConfiguration
 		CustomizationConfiguration?:    #CustomizationConfiguration
 		IdentityProviderConfiguration?: #IdentityProviderConfiguration
 		Origins?:                       list.MaxItems(10) & [...] & [...#Origin] | fn.#ListExpression
-		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
+		RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(0)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(1284) &
+			strings.MinRunes(0) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		SamplePromptsControlMode?: #WebExperienceSamplePromptsControlMode
-		Subtitle?:                 strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-		Tags?:                     list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-		Title?:                    strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-		WelcomeMessage?:           strings.MaxRunes(300) & strings.MinRunes(0) | fn.#StringExpression
+		Subtitle?: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		Title?: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		WelcomeMessage?: strings.MaxRunes(300) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(300) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #BrowserExtension: "FIREFOX" | "CHROME" | fn.#StringExpression
@@ -42,12 +72,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 #CustomizationConfiguration: close({
 	CustomCSSUrl?: strings.MaxRunes(1284) & strings.MinRunes(0) & =~"^(https?://[a-zA-Z0-9-_.+%/]+\\.css)?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1284) &
+		strings.MinRunes(0) &
+		=~"^(https?://[a-zA-Z0-9-_.+%/]+\\.css)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	FaviconUrl?: strings.MaxRunes(1284) & strings.MinRunes(0) & =~"^(https?://[a-zA-Z0-9-_.+%/]+\\.(svg|ico))?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1284) &
+		strings.MinRunes(0) &
+		=~"^(https?://[a-zA-Z0-9-_.+%/]+\\.(svg|ico))?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	FontUrl?: strings.MaxRunes(1284) & strings.MinRunes(0) & =~"^(https?://[a-zA-Z0-9-_.+%/]+\\.(ttf|woff|woff2|otf))?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1284) &
+		strings.MinRunes(0) &
+		=~"^(https?://[a-zA-Z0-9-_.+%/]+\\.(ttf|woff|woff2|otf))?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	LogoUrl?: strings.MaxRunes(1284) & strings.MinRunes(0) & =~"^(https?://[a-zA-Z0-9-_.+%/]+\\.(svg|png))?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1284) &
+		strings.MinRunes(0) &
+		=~"^(https?://[a-zA-Z0-9-_.+%/]+\\.(svg|png))?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -60,25 +118,55 @@ fn.#ObjectExpression
 fn.#ValueExpression
 
 #OpenIDConnectProviderConfiguration: close({
-	SecretsArn!:  strings.MaxRunes(1284) & strings.MinRunes(0) | fn.#StringExpression
-	SecretsRole!: strings.MaxRunes(1284) & strings.MinRunes(0) | fn.#StringExpression
+	SecretsArn!: strings.MaxRunes(1284) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1284) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	SecretsRole!: strings.MaxRunes(1284) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1284) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Origin: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^(http:\\/\\/|https:\\/\\/)[a-zA-Z0-9-_.]+(?::[0-9]{1,5})?$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) &
+	strings.MinRunes(1) &
+	=~"^(http:\\/\\/|https:\\/\\/)[a-zA-Z0-9-_.]+(?::[0-9]{1,5})?$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#SamlProviderConfiguration: close(
-	{AuthenticationUrl!: strings.MaxRunes(1284) & strings.MinRunes(1) & =~"^https://.*$" | fn.#StringExpression},
-) |
+#SamlProviderConfiguration: close({
+	AuthenticationUrl!: strings.MaxRunes(1284) & strings.MinRunes(1) & =~"^https://.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1284) & strings.MinRunes(1) & =~"^https://.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #WebExperienceSamplePromptsControlMode: "ENABLED" | "DISABLED" | fn.#StringExpression
-
-#WebExperienceStatus: "CREATING" | "ACTIVE" | "DELETING" | "FAILED" | "PENDING_AUTH_CONFIG" | fn.#StringExpression

@@ -6,8 +6,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -19,12 +19,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // status) removes it immediately with no further charges.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::PricingPlanManager::Subscription"
-	Properties!: close({
-		PlanFamily!:   "CloudFront" | fn.#StringExpression
-		PlanTier!:     string | fn.#StringExpression
-		ResourceArns!: list.MaxItems(10) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-		UsageLevel?:   #UsageLevel
+	let properties = close({
+		PlanFamily!: "CloudFront" | fn.#StringExpression
+		PlanTier!:   string | number | bool | fn.#StringExpression
+		ResourceArns!: list.MaxItems(10) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
+		UsageLevel?: #UsageLevel
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #UsageLevel: "DEFAULT" |

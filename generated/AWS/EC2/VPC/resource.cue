@@ -4,8 +4,5 @@ package VPC
 
 import schema "github.com/cueformation/cfn-cue/resources/hb43b813fa6ab6f00:schema"
 
-#Resource:                       schema.#Resource
-#Tag:                            schema.#Tag
-#VpcEncryptionControl:           schema.#VpcEncryptionControl
-#VpcEncryptionControlExclusion:  schema.#VpcEncryptionControlExclusion
-#VpcEncryptionControlExclusions: schema.#VpcEncryptionControlExclusions
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

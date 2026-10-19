@@ -6,15 +6,15 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::VPCEncryptionControl
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::VPCEncryptionControl"
-	Properties?: close({
+	let properties = close({
 		EgressOnlyInternetGatewayExclusionInput?: "enable" | "disable" | fn.#StringExpression
 		ElasticFileSystemExclusionInput?:         "enable" | "disable" | fn.#StringExpression
 		InternetGatewayExclusionInput?:           "enable" | "disable" | fn.#StringExpression
@@ -23,33 +23,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		NatGatewayExclusionInput?:                "enable" | "disable" | fn.#StringExpression
 		Tags?:                                    [...#Tag] | fn.#ListExpression
 		VirtualPrivateGatewayExclusionInput?:     "enable" | "disable" | fn.#StringExpression
-		VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		VpcLatticeExclusionInput?: "enable" | "disable" | fn.#StringExpression
 		VpcPeeringExclusionInput?: "enable" | "disable" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
-#ResourceExclusions: close({
-	EgressOnlyInternetGateway?: #VpcEncryptionControlExclusion
-	ElasticFileSystem?:         #VpcEncryptionControlExclusion
-	InternetGateway?:           #VpcEncryptionControlExclusion
-	Lambda?:                    #VpcEncryptionControlExclusion
-	NatGateway?:                #VpcEncryptionControlExclusion
-	VirtualPrivateGateway?:     #VpcEncryptionControlExclusion
-	VpcLattice?:                #VpcEncryptionControlExclusion
-	VpcPeering?:                #VpcEncryptionControlExclusion
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#VpcEncryptionControlExclusion: close({
-	State?:        string | fn.#StringExpression
-	StateMessage?: string | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -8,4 +8,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h314a2db9d1720f90:schem
 #ConsentPortalSource: schema.#ConsentPortalSource
 #IdpConfig:           schema.#IdpConfig
 #Tag:                 schema.#Tag
-#TagsMap:             schema.#TagsMap

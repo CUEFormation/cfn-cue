@@ -8,5 +8,4 @@ import schema "github.com/cueformation/cfn-cue/resources/hdb6c439a900cad01:schem
 #ResponseParameter:     schema.#ResponseParameter
 #ResponseParameterList: schema.#ResponseParameterList
 #ResponseParameterMap:  schema.#ResponseParameterMap
-#Tag:                   schema.#Tag
 #TlsConfig:             schema.#TlsConfig

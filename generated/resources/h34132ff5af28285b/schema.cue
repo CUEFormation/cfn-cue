@@ -7,39 +7,71 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::APS::Workspace
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::APS::Workspace"
-	Properties?: close({
-		AlertManagerDefinition?: string | fn.#StringExpression
-		Alias?:                  strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	let properties = close({
+		AlertManagerDefinition?: string | number | bool | fn.#StringExpression
+		Alias?: strings.MaxRunes(100) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:aws[-a-z]*:kms:[-a-z0-9]+:[0-9]{12}:key/.+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:aws[-a-z]*:kms:[-a-z0-9]+:[0-9]{12}:key/.+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		LoggingConfiguration?:      #LoggingConfiguration
 		QueryLoggingConfiguration?: #QueryLoggingConfiguration
 		Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		WorkspaceConfiguration?:    #WorkspaceConfiguration
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
-#CloudWatchLogDestination: close({LogGroupArn!: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression}) |
+#CloudWatchLogDestination: close({
+	LogGroupArn!: strings.MaxRunes(512) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Label: close({
-	Name!:  strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z0-9_]*$" | fn.#StringExpression
-	Value!: strings.MinRunes(1) | fn.#StringExpression
+	Name!: strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z0-9_]*$" |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z0-9_]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -68,7 +100,14 @@ fn.#ObjectExpression
 }) |
 	fn.#ObjectExpression
 
-#LoggingConfiguration: close({LogGroupArn?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression}) |
+#LoggingConfiguration: close({
+	LogGroupArn?: strings.MaxRunes(512) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #LoggingDestination: close({
@@ -102,8 +141,18 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

@@ -2,6 +2,8 @@
 
 package schema
 
+import "strings"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::SecurityHub::Hub resource represents the implementation of the AWS
@@ -33,4 +35,9 @@ package schema
 })
 
 // A key-value pair to associate with a resource.
-#Tags: {...}
+#Tags: close({
+
+	{[=~"^(?:aws:)"]: error("disallowed")}
+
+	{[=~"^[a-zA-Z+-=._:/]+$"]: strings.MaxRunes(256) & strings.MinRunes(0)}
+})

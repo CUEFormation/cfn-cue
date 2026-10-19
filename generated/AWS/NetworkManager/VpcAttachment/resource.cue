@@ -4,8 +4,6 @@ package VpcAttachment
 
 import schema "github.com/cueformation/cfn-cue/resources/h3b15e489f43818ca:schema"
 
-#Resource:                           schema.#Resource
-#ProposedNetworkFunctionGroupChange: schema.#ProposedNetworkFunctionGroupChange
-#ProposedSegmentChange:              schema.#ProposedSegmentChange
-#Tag:                                schema.#Tag
-#VpcOptions:                         schema.#VpcOptions
+#Resource:   schema.#Resource
+#Tag:        schema.#Tag
+#VpcOptions: schema.#VpcOptions

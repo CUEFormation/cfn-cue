@@ -7,24 +7,54 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::BCM::Dashboard Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BCM::Dashboard"
-	Properties!: close({
-		Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-		Name!:        strings.MaxRunes(50) & strings.MinRunes(2) | fn.#StringExpression
-		Tags?:        list.MaxItems(200) & [...#Tag] | fn.#ListExpression
-		Widgets!:     list.MaxItems(20) & [...] & [...#Widget] | fn.#ListExpression
+	let properties = close({
+		Description?: =~"^[ a-zA-Z0-9.,!?;:@#$%&\\-_/\\\\]*$" &
+		matchN(0, [=~"^(?:.* {2})"]) &
+		string &
+		strings.MaxRunes(200) &
+		strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^[ a-zA-Z0-9.,!?;:@#$%&\\-_/\\\\]*$" &
+			matchN(0, [=~"^(?:.* {2})"]) &
+			string &
+			strings.MaxRunes(200) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		Name!: =~"^[a-zA-Z][a-zA-Z0-9 _-]{0,48}[a-zA-Z0-9_-]$" &
+		matchN(0, [=~"^(?:.* {2})"]) &
+		string &
+		strings.MaxRunes(50) &
+		strings.MinRunes(2) |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z][a-zA-Z0-9 _-]{0,48}[a-zA-Z0-9_-]$" &
+			matchN(0, [=~"^(?:.* {2})"]) &
+			string &
+			strings.MaxRunes(50) &
+			strings.MinRunes(2) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		Tags?:    list.MaxItems(200) & [...#Tag] | fn.#ListExpression
+		Widgets!: list.MaxItems(20) & [...] & [...#Widget] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CostAndUsageExpression: close({
@@ -47,13 +77,11 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CostCategoryValues: close({
-	Key!:          string | fn.#StringExpression
+	Key!:          string | number | bool | fn.#StringExpression
 	MatchOptions?: [...#MatchOption] | fn.#ListExpression
-	Values!:       [...string | fn.#StringExpression] | fn.#ListExpression
+	Values!:       [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
-
-#DashboardType: "CUSTOM" | fn.#StringExpression
 
 #DateTimeRange: close({
 	EndTime!:   #DateTimeValue
@@ -65,7 +93,7 @@ fn.#ObjectExpression
 
 #DateTimeValue: close({
 	Type!:  #DateTimeType
-	Value!: string | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -100,7 +128,7 @@ fn.#ObjectExpression
 #DimensionValues: close({
 	Key!:          #Dimension
 	MatchOptions?: [...#MatchOption] | fn.#ListExpression
-	Values!:       [...string | fn.#StringExpression] | fn.#ListExpression
+	Values!:       [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -125,11 +153,21 @@ fn.#ObjectExpression
 
 #GraphDisplayConfigMap: close({
 
-	{[=~"^.+$"]: #GraphDisplayConfig}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^.+$"]: #GraphDisplayConfig}
+}) |
 fn.#ObjectExpression
 
 #GroupDefinition: close({
-	Key!:  strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\S\\s]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\S\\s]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\S\\s]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Type?: #GroupDefinitionType
 }) |
 fn.#ObjectExpression
@@ -204,23 +242,47 @@ fn.#ObjectExpression
 #TableDisplayConfigStruct: close({}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TagValues: close({
-	Key!:          string | fn.#StringExpression
+	Key!:          string | number | bool | fn.#StringExpression
 	MatchOptions?: [...#MatchOption] | fn.#ListExpression
-	Values!:       [...string | fn.#StringExpression] | fn.#ListExpression
+	Values!:       [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #VisualType: "LINE" | "BAR" | "STACK" | fn.#StringExpression
 
 #Widget: close({
-	Configs!:     list.MaxItems(2) & list.MinItems(1) & [...#WidgetConfig] | fn.#ListExpression
-	Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+	Configs!: list.MaxItems(2) & list.MinItems(1) & [...#WidgetConfig] | fn.#ListExpression
+	Description?: =~"^[ a-zA-Z0-9.,!?;:@#$%&\\-_/\\\\]*$" &
+	matchN(0, [=~"^(?:.* {2})"]) &
+	string &
+	strings.MaxRunes(200) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[ a-zA-Z0-9.,!?;:@#$%&\\-_/\\\\]*$" &
+		matchN(0, [=~"^(?:.* {2})"]) &
+		string &
+		strings.MaxRunes(200) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
 	Height?: int & <=10 & >=4 |
 		{
 			string &
@@ -251,7 +313,21 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Title!: strings.MaxRunes(50) & strings.MinRunes(2) | fn.#StringExpression
+	Title!: =~"^[a-zA-Z0-9_-][ a-zA-Z0-9_-]*[a-zA-Z0-9_-]$" &
+	matchN(0, [=~"^(?:.* {2})"]) &
+	string &
+	strings.MaxRunes(50) &
+	strings.MinRunes(2) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9_-][ a-zA-Z0-9_-]*[a-zA-Z0-9_-]$" &
+		matchN(0, [=~"^(?:.* {2})"]) &
+		string &
+		strings.MaxRunes(50) &
+		strings.MinRunes(2) &
+		"\(self)"
+	} |
+	fn.#StringExpression
 	Width?: int & <=6 & >=2 |
 		{
 			string &

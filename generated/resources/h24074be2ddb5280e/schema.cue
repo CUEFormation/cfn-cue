@@ -6,19 +6,35 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type Definition for ContactFlowVersion
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::ContactFlowVersion"
-	Properties!: close({
+	let properties = close({
 		ContactFlowId!: strings.MaxRunes(500) &
 		strings.MinRunes(1) &
 		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]+:[0-9]{12}:instance/[-a-zA-Z0-9]+/contact-flow/[-a-zA-Z0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) &
+			strings.MinRunes(1) &
+			=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]+:[0-9]{12}:instance/[-a-zA-Z0-9]+/contact-flow/[-a-zA-Z0-9]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Description?: strings.MaxRunes(500) | fn.#StringExpression
+		Description?: strings.MaxRunes(500) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

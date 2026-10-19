@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -25,22 +25,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // information, see ``AWS::ECR::RegistryPolicy``.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ECR::ReplicationConfiguration"
-	Properties!: close({
+	let properties = close({
 		// The replication configuration for a registry.
 		ReplicationConfiguration!: #ReplicationConfiguration
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Filter: strings.MaxRunes(256) &
 strings.MinRunes(2) &
 =~"^(?:[a-z0-9]+(?:[._-][a-z0-9]*)*/)*[a-z0-9]*(?:[._-][a-z0-9]*)*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) &
+	strings.MinRunes(2) &
+	=~"^(?:[a-z0-9]+(?:[._-][a-z0-9]*)*/)*[a-z0-9]*(?:[._-][a-z0-9]*)*$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #FilterType: "PREFIX_MATCH" | fn.#StringExpression
 
-#Region: =~"[0-9a-z-]{2,25}" | fn.#StringExpression
+#Region: =~"[0-9a-z-]{2,25}" |
+{
+	number | bool
+	_cfnString: =~"[0-9a-z-]{2,25}" & "\(self)"
+} |
+fn.#StringExpression
 
-#RegistryId: =~"^[0-9]{12}$" | fn.#StringExpression
+#RegistryId: =~"^[0-9]{12}$" |
+{
+	number | bool
+	_cfnString: =~"^[0-9]{12}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #ReplicationConfiguration: close({Rules!: list.MaxItems(25) & [...] & [...#ReplicationRule] | fn.#ListExpression}) |
 	fn.#ObjectExpression

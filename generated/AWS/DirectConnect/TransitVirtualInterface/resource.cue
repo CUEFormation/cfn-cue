@@ -5,5 +5,4 @@ package TransitVirtualInterface
 import schema "github.com/cueformation/cfn-cue/resources/h310cc44c28ff3c1a:schema"
 
 #Resource: schema.#Resource
-#BgpPeer:  schema.#BgpPeer
 #Tag:      schema.#Tag

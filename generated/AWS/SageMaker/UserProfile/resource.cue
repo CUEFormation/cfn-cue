@@ -6,7 +6,6 @@ import schema "github.com/cueformation/cfn-cue/resources/heae3483c61654312:schem
 
 #Resource:                    schema.#Resource
 #AppInstanceType:             schema.#AppInstanceType
-#AppLifecycleManagement:      schema.#AppLifecycleManagement
 #AppType:                     schema.#AppType
 #CodeEditorAppSettings:       schema.#CodeEditorAppSettings
 #CodeRepository:              schema.#CodeRepository
@@ -19,14 +18,9 @@ import schema "github.com/cueformation/cfn-cue/resources/heae3483c61654312:schem
 #EmrSettings:                 schema.#EmrSettings
 #FSxLustreFileSystemConfig:   schema.#FSxLustreFileSystemConfig
 #HiddenSageMakerImage:        schema.#HiddenSageMakerImage
-#IdleSettings:                schema.#IdleSettings
-#IdleTimeoutInMinutes:        schema.#IdleTimeoutInMinutes
 #JupyterLabAppSettings:       schema.#JupyterLabAppSettings
 #JupyterServerAppSettings:    schema.#JupyterServerAppSettings
 #KernelGatewayAppSettings:    schema.#KernelGatewayAppSettings
-#LifecycleManagement:         schema.#LifecycleManagement
-#MaxIdleTimeoutInMinutes:     schema.#MaxIdleTimeoutInMinutes
-#MinIdleTimeoutInMinutes:     schema.#MinIdleTimeoutInMinutes
 #MlTools:                     schema.#MlTools
 #RStudioServerProAppSettings: schema.#RStudioServerProAppSettings
 #ResourceSpec:                schema.#ResourceSpec

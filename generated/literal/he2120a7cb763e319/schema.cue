@@ -22,7 +22,9 @@ import (
 	// A list of IDs of subnets that App Runner should use when it associates your
 	// service with a custom Amazon VPC. Specify IDs of subnets of a single Amazon
 	// VPC. App Runner determines the Amazon VPC from the subnets you specify.
-	Subnets!: list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(51200) & strings.MinRunes(0)]
+	Subnets!: list.MinItems(1) & list.UniqueItems() & [
+		...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & (strings.MaxRunes(51200) & strings.MinRunes(0))
+	]
 
 	// A list of metadata items that you can associate with your VPC connector
 	// resource. A tag is a key-value pair.
@@ -41,6 +43,6 @@ import (
 })
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1)
+	Key?:   =~"^.+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(256) & strings.MinRunes(0)
 })

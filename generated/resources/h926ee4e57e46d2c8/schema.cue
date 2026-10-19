@@ -8,8 +8,8 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // are enabled in your organization.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Organizations::Policy"
-	Properties!: matchIf({
+	let properties = matchIf({
 		Type!: "SERVICE_CONTROL_POLICY"
 		...
 	}, {
@@ -33,17 +33,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}, {
 		Content?: fn.#Object & {...} |
 		strings.MaxRunes(1000000) & strings.MinRunes(1) & =~"[\\s\\S]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000000) & strings.MinRunes(1) & =~"[\\s\\S]*" & "\(self)"
+		} |
 		fn.#StringObjectExpression
 		...
-	}) & {...}) & {...} & close({
-		Content!:     _
-		Description?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[\\s\\S]*" | fn.#StringExpression
-		Name!:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
-		Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TargetIds?: list.UniqueItems() & [
-			...=~"^(r-[0-9a-z]{4,32})|(\\d{12})|(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32})$" | fn.#StringExpression
-		] |
-			fn.#ListExpression
+	})) & close({
+		Content!: _
+		Description?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[\\s\\S]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[\\s\\S]*" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\s\\S]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\s\\S]*" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetIds?: list.UniqueItems() & [...=~"^(r-[0-9a-z]{4,32})|(\\d{12})|(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32})$" |
+		{
+			number | bool
+			_cfnString: =~"^(r-[0-9a-z]{4,32})|(\\d{12})|(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32})$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		Type!: "AISERVICES_OPT_OUT_POLICY" |
 			"BACKUP_POLICY" |
 			"BEDROCK_POLICY" |
@@ -59,10 +76,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"UPGRADE_ROLLOUT_POLICY" |
 			fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\s\\S]*" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\s\\S]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\s\\S]*" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\s\\S]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\s\\S]*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -7,43 +7,70 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::User
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::User"
-	Properties!: close({
+	let properties = close({
 		AfterContactWorkConfigs?: [...#AfterContactWorkConfigPerChannel] | fn.#ListExpression
 		AutoAcceptConfigs?:       [...#AutoAcceptConfig] | fn.#ListExpression
-		DirectoryUserId?:         string | fn.#StringExpression
+		DirectoryUserId?:         string | number | bool | fn.#StringExpression
 		HierarchyGroupArn?: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent-group/[-a-zA-Z0-9]*$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent-group/[-a-zA-Z0-9]*$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 
 		// The information about the identity of the user.
 		IdentityInfo?: #UserIdentityInfo
-		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-		Password?:    string | fn.#StringExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Password?: =~"^[a-zA-Z\\d\\S]{8,64}$" & =~"^(?:.*[a-z])" & =~"^(?:.*[A-Z])" & =~"^(?:.*\\d)" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z\\d\\S]{8,64}$" & =~"^(?:.*[a-z])" & =~"^(?:.*[A-Z])" & =~"^(?:.*\\d)" & "\(self)"
+		} |
+		fn.#StringExpression
 		PersistentConnectionConfigs?: [...#PersistentConnectionConfig] | fn.#ListExpression
 
 		// The phone settings for the user.
 		PhoneConfig?:        #UserPhoneConfig
 		PhoneNumberConfigs?: [...#PhoneNumberConfig] | fn.#ListExpression
 		RoutingProfileArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/routing-profile/[-a-zA-Z0-9]*$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/routing-profile/[-a-zA-Z0-9]*$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		SecurityProfileArns!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#SecurityProfileArn] |
 			fn.#ListExpression
 		Tags?:              list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		UserProficiencies?: [...#UserProficiency] | fn.#ListExpression
-		Username!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\_\\-\\.\\@]+" | fn.#StringExpression
+		Username!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\_\\-\\.\\@]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\_\\-\\.\\@]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		VoiceEnhancementConfigs?: [...#VoiceEnhancementConfig] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AfterContactWorkConfig: close({
@@ -79,9 +106,19 @@ fn.#ObjectExpression
 
 #AgentFirstCallbackAutoAccept: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-#AttributeName: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+#AttributeName: strings.MaxRunes(64) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#AttributeValue: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+#AttributeValue: strings.MaxRunes(64) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #AutoAccept: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
@@ -94,13 +131,23 @@ fn.#ObjectExpression
 
 #Channel: "VOICE" | "CHAT" | "TASK" | "EMAIL" | fn.#StringExpression
 
-#DeskPhoneNumber: string | fn.#StringExpression
+#DeskPhoneNumber: string | number | bool | fn.#StringExpression
 
-#Email: string | fn.#StringExpression
+#Email: string | number | bool | fn.#StringExpression
 
-#FirstName: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+#FirstName: strings.MaxRunes(255) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression
 
-#LastName: strings.MaxRunes(300) & strings.MinRunes(0) | fn.#StringExpression
+#LastName: strings.MaxRunes(300) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(300) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression
 
 #Level: <=10 & >=0 |
 	{
@@ -123,7 +170,12 @@ fn.#ObjectExpression
 	} |
 	fn.#NumberExpression
 
-#Mobile: =~"^\\+[1-9]\\d{1,14}$" | fn.#StringExpression
+#Mobile: =~"^\\+[1-9]\\d{1,14}$" |
+{
+	number | bool
+	_cfnString: =~"^\\+[1-9]\\d{1,14}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #PersistentConnection: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
@@ -142,14 +194,39 @@ fn.#ObjectExpression
 
 #PhoneType: "SOFT_PHONE" | "DESK_PHONE" | fn.#StringExpression
 
-#SecondaryEmail: string | fn.#StringExpression
+#SecondaryEmail: =~"^(?:[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63})" & =~"^(?:^.{0,265}$)" |
+{
+	number | bool
+	_cfnString: =~"^(?:[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,63})" & =~"^(?:^.{0,265}$)" & "\(self)"
+} |
+fn.#StringExpression
 
 #SecurityProfileArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/security-profile/[-a-zA-Z0-9]*$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/security-profile/[-a-zA-Z0-9]*$" &
+		"\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

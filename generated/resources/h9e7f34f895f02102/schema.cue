@@ -6,17 +6,25 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The policy to be attached to a Multi Region Access Point
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3::MultiRegionAccessPointPolicy"
-	Properties!: close({
+	let properties = close({
 		MrapName!: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9][-a-z0-9]{1,48}[a-z0-9]$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(3) & =~"^[a-z0-9][-a-z0-9]{1,48}[a-z0-9]$" & "\(self)"
+		} |
 		fn.#StringExpression
-		Policy!: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Policy!: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

@@ -7,19 +7,17 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::DataQualityJobDefinition
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::DataQualityJobDefinition"
-	Properties!: close({
+	let properties = close({
 		DataQualityAppSpecification!: #DataQualityAppSpecification
 		DataQualityBaselineConfig?:   #DataQualityBaselineConfig
 		DataQualityJobInput!:         #DataQualityJobInput
@@ -28,24 +26,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		JobDefinitionName?:           #JobDefinitionName
 		JobResources!:                #MonitoringResources
 		NetworkConfig?:               #NetworkConfig
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		StoppingCondition?: #StoppingCondition
 		Tags?:              list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #BatchTransformInput: close({
 	DataCapturedDestinationS3Uri!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" & "\(self)"
+	} |
 	fn.#StringExpression
-	DatasetFormat!:            #DatasetFormat
-	ExcludeFeaturesAttribute?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	LocalPath!:                strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	S3DataDistributionType?:   "FullyReplicated" | "ShardedByS3Key" | fn.#StringExpression
-	S3InputMode?:              "Pipe" | "File" | fn.#StringExpression
+	DatasetFormat!: #DatasetFormat
+	ExcludeFeaturesAttribute?: strings.MaxRunes(100) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	LocalPath!: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
+	S3DataDistributionType?: "FullyReplicated" | "ShardedByS3Key" | fn.#StringExpression
+	S3InputMode?:            "Pipe" | "File" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -66,8 +90,13 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	InstanceType!:   string | fn.#StringExpression
-	VolumeKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[a-zA-Z0-9:/_-]*$" | fn.#StringExpression
+	InstanceType!: string | number | bool | fn.#StringExpression
+	VolumeKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[a-zA-Z0-9:/_-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[a-zA-Z0-9:/_-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	VolumeSizeInGB!: int & <=16384 & >=1 |
 		{
 			string &
@@ -100,22 +129,51 @@ fn.#ObjectExpression
 } | fn.#ObjectExpression
 
 #DataQualityAppSpecification: close({
-	ContainerArguments?: list.MaxItems(50) & list.MinItems(1) & [
-		...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	ContainerArguments?: list.MaxItems(50) & list.MinItems(1) & [...strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	ContainerEntrypoint?: list.MaxItems(100) & list.MinItems(1) & [
-		...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	ContainerEntrypoint?: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	Environment?: close({
 
-		{[=~"[\\S\\s]*"]: strings.MaxRunes(256) | fn.#StringExpression}
+		{
+			[=~"[\\S\\s]*"]: strings.MaxRunes(256) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & "\(self)"
+			} |
+			fn.#StringExpression
+		}
 
-		{[=~"[a-zA-Z_][a-zA-Z0-9_]*"]: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}
+		{
+			[=~"[a-zA-Z_][a-zA-Z0-9_]*"]: strings.MaxRunes(256) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
+		}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
 	}) |
 	fn.#ObjectExpression
-	ImageUri!: strings.MaxRunes(255) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+	ImageUri!: strings.MaxRunes(255) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// An Amazon S3 URI to a script that is called after analysis has been
 	// performed. Applicable only for the built-in (first party) containers.
@@ -150,17 +208,36 @@ fn.#ObjectExpression
 } | fn.#ObjectExpression
 
 #EndpointInput: close({
-	EndpointName!:             #EndpointName
-	ExcludeFeaturesAttribute?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-	LocalPath!:                strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	S3DataDistributionType?:   "FullyReplicated" | "ShardedByS3Key" | fn.#StringExpression
-	S3InputMode?:              "Pipe" | "File" | fn.#StringExpression
+	EndpointName!: #EndpointName
+	ExcludeFeaturesAttribute?: strings.MaxRunes(100) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	LocalPath!: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
+	S3DataDistributionType?: "FullyReplicated" | "ShardedByS3Key" | fn.#StringExpression
+	S3InputMode?:            "Pipe" | "File" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#EndpointName: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" | fn.#StringExpression
+#EndpointName: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(63) & strings.MinRunes(0) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" & "\(self)"
+} |
+fn.#StringExpression
 
 #JobDefinitionName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" & "\(self)"
+} |
 fn.#StringExpression
 
 #Json: {
@@ -171,11 +248,22 @@ fn.#StringExpression
 #MonitoringOutput: close({S3Output!: #S3Output}) | fn.#ObjectExpression
 
 #MonitoringOutputConfig: close({
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~".*" |
+	{
+		number | bool
+		_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~".*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	MonitoringOutputs!: list.MaxItems(1) & list.MinItems(1) & [...#MonitoringOutput] | fn.#ListExpression
 }) |
@@ -200,16 +288,35 @@ fn.#ObjectExpression
 #Parquet: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 #ProcessingJobName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" & "\(self)"
+} |
 fn.#StringExpression
 
 #S3Output: close({
-	LocalPath!:    strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+	LocalPath!: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
 	S3UploadMode?: "Continuous" | "EndOfJob" | fn.#StringExpression
-	S3Uri!:        strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" | fn.#StringExpression
+	S3Uri!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#S3Uri: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" | fn.#StringExpression
+#S3Uri: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" & "\(self)"
+} |
+fn.#StringExpression
 
 #StatisticsResource: close({
 	// The Amazon S3 URI for the baseline statistics file in Amazon S3 that the
@@ -239,23 +346,49 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VpcConfig: close({
-	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(0) &
+	=~"[-0-9a-zA-Z]+" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(32) &
 		strings.MinRunes(0) &
-		=~"[-0-9a-zA-Z]+" |
-		fn.#StringExpression
-	] |
+		=~"[-0-9a-zA-Z]+" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Subnets!: list.MaxItems(16) & list.MinItems(1) & [
-		...strings.MaxRunes(32) & strings.MinRunes(0) & =~"[-0-9a-zA-Z]+" | fn.#StringExpression
-	] |
+	Subnets!: list.MaxItems(16) & list.MinItems(1) & [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(32) &
+	strings.MinRunes(0) &
+	=~"[-0-9a-zA-Z]+" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"[-0-9a-zA-Z]+" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression

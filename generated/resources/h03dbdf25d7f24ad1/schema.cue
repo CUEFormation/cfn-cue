@@ -7,19 +7,17 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::NetworkFirewall::RuleGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::NetworkFirewall::RuleGroup"
-	Properties!: close({
+	let properties = close({
 		Capacity!: int |
 			{
 				string &
@@ -36,37 +34,72 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Description?:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-		RuleGroup?:     #RuleGroup
-		RuleGroupName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+		Description?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		RuleGroup?: #RuleGroup
+		RuleGroupName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		SummaryConfiguration?: close({RuleOptions?: [...#SummaryRuleOption] | fn.#ListExpression}) |
 			fn.#ObjectExpression
 		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 		Type!: "STATELESS" | "STATEFUL" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ActionDefinition: close({PublishMetricAction?: #PublishMetricAction}) | fn.#ObjectExpression
 
 #Address: close({
 	AddressDefinition!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([a-fA-F\\d:\\.]+/\\d{1,3})$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^([a-fA-F\\d:\\.]+/\\d{1,3})$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CustomAction: close({
 	ActionDefinition!: #ActionDefinition
-	ActionName!:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
+	ActionName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Dimension: close({Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_ ]+$" | fn.#StringExpression}) |
+#Dimension: close({
+	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_ ]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_ ]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #GeneratedRulesType: "ALLOWLIST" | "DENYLIST" | "ALERTLIST" | "REJECTLIST" | fn.#StringExpression
 
 #Header: close({
-	Destination!:     strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
+	Destination!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	DestinationPort!: #Port
 	Direction!:       "FORWARD" | "ANY" | fn.#StringExpression
 	Protocol!: "IP" |
@@ -89,7 +122,12 @@ fn.#ObjectExpression
 		"NTP" |
 		"DHCP" |
 		fn.#StringExpression
-	Source!:     strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
+	Source!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	SourcePort!: #Port
 }) |
 fn.#ObjectExpression
@@ -108,7 +146,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Port: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
+#Port: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #PortRange: close({
 	FromPort!: #PortRangeBound
@@ -158,15 +201,23 @@ fn.#ObjectExpression
 #ReferenceSets: close({
 	IPSetReferences?: close({
 
-		{[=~"^[A-Za-z0-9_]{1,32}$"]: #IPSetReference}}) |
+		{[=~"^(?:Ref)$"]: error("disallowed")}
+
+		{[=~"^[A-Za-z0-9_]{1,32}$"]: #IPSetReference}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$" | fn.#StringExpression
+#ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$" & "\(self)"
+} |
+fn.#StringExpression
 
 #RuleDefinition: close({
-	Actions!:         [...string | fn.#StringExpression] | fn.#ListExpression
+	Actions!:         [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	MatchAttributes!: #MatchAttributes
 }) |
 fn.#ObjectExpression
@@ -180,7 +231,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RuleOption: close({
-	Keyword!:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
+	Keyword!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Settings?: [...#Setting] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -190,11 +246,17 @@ fn.#ObjectExpression
 #RuleVariables: close({
 	IPSets?: close({
 
-		{[=~"^[A-Za-z0-9_]{1,32}$"]: #IPSet}}) |
+		{[=~"^(?:Ref)$"]: error("disallowed")}
+
+		{[=~"^[A-Za-z0-9_]{1,32}$"]: #IPSet}
+	}) |
 	fn.#ObjectExpression
 	PortSets?: close({
 
-		{[=~"^[A-Za-z0-9_]{1,32}$"]: #PortSet}}) |
+		{[=~"^(?:Ref)$"]: error("disallowed")}
+
+		{[=~"^[A-Za-z0-9_]{1,32}$"]: #PortSet}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
@@ -210,13 +272,23 @@ fn.#ObjectExpression
 #RulesSourceList: close({
 	GeneratedRulesType!: #GeneratedRulesType
 	TargetTypes!:        [...#TargetType] | fn.#ListExpression
-	Targets!:            [...string | fn.#StringExpression] | fn.#ListExpression
+	Targets!:            [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#RulesString: strings.MaxRunes(1000000) & strings.MinRunes(0) | fn.#StringExpression
+#RulesString: strings.MaxRunes(1000000) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000000) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression
 
-#Setting: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
+#Setting: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^.*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(8192) & strings.MinRunes(1) & =~"^.*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #StatefulRule: close({
 	Action!:      "PASS" | "DROP" | "ALERT" | "REJECT" | fn.#StringExpression
@@ -265,11 +337,26 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TargetType: "TLS_SNI" | "HTTP_HOST" | fn.#StringExpression
 
-#VariableDefinition: strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
+#VariableDefinition: strings.MinRunes(1) & =~"^.*$" |
+{
+	number | bool
+	_cfnString: strings.MinRunes(1) & =~"^.*$" & "\(self)"
+} |
+fn.#StringExpression

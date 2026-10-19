@@ -6,7 +6,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h57137d27787545b3:schem
 
 #Resource:                      schema.#Resource
 #AIMLOptions:                   schema.#AIMLOptions
-#AdvancedSecurityOptionsInput:  schema.#AdvancedSecurityOptionsInput
 #AutomatedSnapshotPauseOptions: schema.#AutomatedSnapshotPauseOptions
 #ClusterConfig:                 schema.#ClusterConfig
 #CognitoOptions:                schema.#CognitoOptions
@@ -16,7 +15,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h57137d27787545b3:schem
 #EBSOptions:                    schema.#EBSOptions
 #EncryptionAtRestOptions:       schema.#EncryptionAtRestOptions
 #IAMFederationOptions:          schema.#IAMFederationOptions
-#IdentityCenterOptions:         schema.#IdentityCenterOptions
 #Idp:                           schema.#Idp
 #JWTOptions:                    schema.#JWTOptions
 #LogPublishingOption:           schema.#LogPublishingOption
@@ -30,7 +28,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h57137d27787545b3:schem
 #S3VectorsEngine:               schema.#S3VectorsEngine
 #SAMLOptions:                   schema.#SAMLOptions
 #ServerlessVectorAcceleration:  schema.#ServerlessVectorAcceleration
-#ServiceSoftwareOptions:        schema.#ServiceSoftwareOptions
 #SnapshotOptions:               schema.#SnapshotOptions
 #SoftwareUpdateOptions:         schema.#SoftwareUpdateOptions
 #SubjectKeyIdcType:             schema.#SubjectKeyIdcType

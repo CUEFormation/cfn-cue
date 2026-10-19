@@ -11,7 +11,11 @@ import (
 
 // Resource Type definition for AWS::IoTAnalytics::Channel
 #Properties: close({
-	ChannelName?:     strings.MaxRunes(128) & strings.MinRunes(1)
+	ChannelName?: =~"^(^[a-zA-Z0-9_]+$)" &
+	matchN(0, [=~"^(?:_{2})"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1)
 	ChannelStorage?:  #ChannelStorage
 	Id?:              string
 	RetentionPeriod?: #RetentionPeriod

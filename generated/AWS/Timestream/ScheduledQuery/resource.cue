@@ -5,7 +5,6 @@ package ScheduledQuery
 import schema "github.com/cueformation/cfn-cue/resources/hc32c2c932b882df4:schema"
 
 #Resource:                                     schema.#Resource
-#Arn:                                          schema.#Arn
 #BucketName:                                   schema.#BucketName
 #ClientToken:                                  schema.#ClientToken
 #DatabaseName:                                 schema.#DatabaseName

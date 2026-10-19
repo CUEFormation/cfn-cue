@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -13,10 +13,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // configuration files.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityAgent::Artifact"
-	Properties!: close({
-		AgentSpaceId!:    string | fn.#StringExpression
-		ArtifactContent?: string | fn.#StringExpression
+	let properties = close({
+		AgentSpaceId!:    string | number | bool | fn.#StringExpression
+		ArtifactContent?: string | number | bool | fn.#StringExpression
 		ArtifactType!: "TXT" | "PNG" | "JPEG" | "MD" | "PDF" | "DOCX" | "DOC" | "JSON" | "YAML" | fn.#StringExpression
-		FileName!:     string | fn.#StringExpression
+		FileName!:     string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

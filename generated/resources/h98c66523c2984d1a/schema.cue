@@ -6,62 +6,147 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"time"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTTwinMaker::Entity
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTTwinMaker::Entity"
-	Properties!: close({
+	let properties = close({
 		Components?: close({
 
-			{[=~"[a-zA-Z_\\-0-9]+"]: #Component}}) |
+			{[=~"[a-zA-Z_\\-0-9]+"]: #Component}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 		CompositeComponents?: close({
 
-			{[=~"[a-zA-Z_\\-0-9/]+"]: #CompositeComponent}}) |
+			{[=~"[a-zA-Z_\\-0-9/]+"]: #CompositeComponent}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
-		Description?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+		Description?: strings.MaxRunes(512) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		EntityId?: strings.MaxRunes(128) &
 		strings.MinRunes(1) &
 		=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|^[a-zA-Z0-9][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|^[a-zA-Z0-9][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9]+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		EntityName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_0-9-.][a-zA-Z_0-9-. ]*[a-zA-Z0-9]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(1) &
+			=~"[a-zA-Z_0-9-.][a-zA-Z_0-9-. ]*[a-zA-Z0-9]+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ParentEntityId?: strings.MaxRunes(128) &
 		strings.MinRunes(1) &
 		=~"\\$ROOT|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|^[a-zA-Z0-9][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			=~"\\$ROOT|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|^[a-zA-Z0-9][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9]+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: close({
 
-			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: strings.MaxRunes(256) & strings.MinRunes(1) |
-			fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{
+				[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: strings.MaxRunes(256) & strings.MinRunes(1) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+				} |
+				fn.#StringExpression
+			}
+		}) |
 		fn.#ObjectExpression
 		WorkspaceId!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z_0-9][a-zA-Z_\\-0-9]*[a-zA-Z0-9]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			=~"[a-zA-Z_0-9][a-zA-Z_\\-0-9]*[a-zA-Z0-9]+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Component: close({
-	ComponentName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" | fn.#StringExpression
-	ComponentTypeId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" | fn.#StringExpression
-	DefinedIn?:       strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Description?:     strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+	ComponentName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	ComponentTypeId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	DefinedIn?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Description?: strings.MaxRunes(512) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	Properties?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: #Property}}) |
+		{[=~"[a-zA-Z_\\-0-9]+"]: #Property}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	PropertyGroups?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: #PropertyGroup}}) |
+		{[=~"[a-zA-Z_\\-0-9]+"]: #PropertyGroup}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 
 	// The current status of the entity.
@@ -70,17 +155,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #CompositeComponent: close({
-	ComponentName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" | fn.#StringExpression
-	ComponentPath?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9/]+" | fn.#StringExpression
-	ComponentTypeId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" | fn.#StringExpression
-	Description?:     strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+	ComponentName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	ComponentPath?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9/]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9/]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	ComponentTypeId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	Description?: strings.MaxRunes(512) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	Properties?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: #Property}}) |
+		{[=~"[a-zA-Z_\\-0-9]+"]: #Property}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	PropertyGroups?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: #PropertyGroup}}) |
+		{[=~"[a-zA-Z_\\-0-9]+"]: #PropertyGroup}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 
 	// The current status of the component.
@@ -97,7 +212,12 @@ fn.#ObjectExpression
 	// A relationship that associates a component with another component.
 	Relationship?: #Relationship
 	Type?: "RELATIONSHIP" | "STRING" | "LONG" | "BOOLEAN" | "INTEGER" | "DOUBLE" | "LIST" | "MAP" | fn.#StringExpression
-	UnitOfMeasure?: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
+	UnitOfMeasure?: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -123,6 +243,13 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	Expression?: strings.MaxRunes(316) & strings.MinRunes(1) & =~"(^\\$\\{Parameters\\.[a-zA-z]+([a-zA-z_0-9]*)}$)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(316) &
+		strings.MinRunes(1) &
+		=~"(^\\$\\{Parameters\\.[a-zA-z]+([a-zA-z_0-9]*)}$)" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	IntegerValue?: int |
 		{
@@ -160,21 +287,41 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	MapValue?: close({
 
-		{[=~"[a-zA-Z_\\-0-9]+"]: #DataValue}}) |
+		{[=~"[a-zA-Z_\\-0-9]+"]: #DataValue}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	RelationshipValue?: close({
-		TargetComponentName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" | fn.#StringExpression
+		TargetComponentName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		TargetEntityId?: strings.MaxRunes(128) &
 		strings.MinRunes(1) &
 		=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|^[a-zA-Z0-9][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|^[a-zA-Z0-9][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9]+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	StringValue?: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
+	StringValue?: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#DateTimeFormat: time.Time | fn.#StringExpression
 
 #Definition: close({
 	// An object that specifies information about a property configuration.
@@ -206,7 +353,19 @@ fn.#ObjectExpression
 
 #PropertyDefinitionConfiguration: close({
 
-	{[=~"[a-zA-Z_\\-0-9]+"]: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" | fn.#StringExpression}}) |
+	{
+		[=~"[a-zA-Z_\\-0-9]+"]: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\-0-9]+" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #PropertyGroup: close({
@@ -215,11 +374,25 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#PropertyName: =~"[a-zA-Z_\\-0-9]+" | fn.#StringExpression
+#PropertyName: =~"[a-zA-Z_\\-0-9]+" |
+{
+	number | bool
+	_cfnString: =~"[a-zA-Z_\\-0-9]+" & "\(self)"
+} |
+fn.#StringExpression
 
 #Relationship: close({
-	RelationshipType?: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
+	RelationshipType?: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
 	TargetComponentTypeId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\.\\-0-9:]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z_\\.\\-0-9:]+" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -228,8 +401,13 @@ fn.#ObjectExpression
 	Error?: fn.#Object &
 	{...} &
 	(close({}) | close({
-		Code?:    "VALIDATION_ERROR" | "INTERNAL_FAILURE" | fn.#StringExpression
-		Message?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+		Code?: "VALIDATION_ERROR" | "INTERNAL_FAILURE" | fn.#StringExpression
+		Message?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 	})) |
 	fn.#ObjectExpression
 	State?: "CREATING" | "UPDATING" | "DELETING" | "ACTIVE" | "ERROR" | fn.#StringExpression

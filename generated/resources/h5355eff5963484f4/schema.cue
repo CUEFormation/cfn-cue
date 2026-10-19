@@ -6,29 +6,61 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
-	"time"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::WorkSpacesWeb::UserSettings Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WorkSpacesWeb::UserSettings"
-	Properties!: close({
+	let properties = close({
 		AdditionalEncryptionContext?: #EncryptionContextMap
 		BrandingConfiguration?: close({
-			ColorTheme?:       #ColorTheme
-			Favicon?:          string | fn.#StringExpression
+			ColorTheme?: #ColorTheme
+			Favicon?: =~"(^s3://[a-z0-9][a-z0-9\\.\\-]{1,61}[a-z0-9]/.+$)" |
+			{
+				number | bool
+				_cfnString: =~"(^s3://[a-z0-9][a-z0-9\\.\\-]{1,61}[a-z0-9]/.+$)" & "\(self)"
+			} |
+			=~"^[A-Za-z0-9+/]*={0,2}$" & =~"^(?:(.{4})*$)" |
+			{
+				number | bool
+				_cfnString: =~"^[A-Za-z0-9+/]*={0,2}$" & =~"^(?:(.{4})*$)" & "\(self)"
+			} |
+			fn.#StringExpression
 			LocalizedStrings?: #LocalizedBrandingStringMap
-			Logo?:             string | fn.#StringExpression
-			TermsOfService?:   strings.MaxRunes(153600) | fn.#StringExpression
-			Wallpaper?:        string | fn.#StringExpression
+			Logo?: =~"(^s3://[a-z0-9][a-z0-9\\.\\-]{1,61}[a-z0-9]/.+$)" |
+			{
+				number | bool
+				_cfnString: =~"(^s3://[a-z0-9][a-z0-9\\.\\-]{1,61}[a-z0-9]/.+$)" & "\(self)"
+			} |
+			=~"^[A-Za-z0-9+/]*={0,2}$" & =~"^(?:(.{4})*$)" |
+			{
+				number | bool
+				_cfnString: =~"^[A-Za-z0-9+/]*={0,2}$" & =~"^(?:(.{4})*$)" & "\(self)"
+			} |
+			fn.#StringExpression
+			TermsOfService?: strings.MaxRunes(153600) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(153600) & "\(self)"
+			} |
+			fn.#StringExpression
+			Wallpaper?: =~"(^s3://[a-z0-9][a-z0-9\\.\\-]{1,61}[a-z0-9]/.+$)" |
+			{
+				number | bool
+				_cfnString: =~"(^s3://[a-z0-9][a-z0-9\\.\\-]{1,61}[a-z0-9]/.+$)" & "\(self)"
+			} |
+			=~"^[A-Za-z0-9+/]*={0,2}$" & =~"^(?:(.{4})*$)" |
+			{
+				number | bool
+				_cfnString: =~"^[A-Za-z0-9+/]*={0,2}$" & =~"^(?:(.{4})*$)" & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		CookieSynchronizationConfiguration?: #CookieSynchronizationConfiguration
@@ -36,6 +68,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		CustomerManagedKey?: strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		DeepLinkAllowed?: #EnabledType
 		DisconnectTimeoutInMinutes?: <=600 & >=1 |
@@ -86,20 +125,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		UploadAllowed!:        #EnabledType
 		WebAuthnAllowed?:      #EnabledType
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
-
-#BrandingConfiguration: close({
-	ColorTheme?:        #ColorTheme
-	Favicon?:           string | fn.#StringExpression
-	FaviconMetadata?:   #ImageMetadata
-	LocalizedStrings?:  #LocalizedBrandingStringMap
-	Logo?:              string | fn.#StringExpression
-	LogoMetadata?:      #ImageMetadata
-	TermsOfService?:    strings.MaxRunes(153600) | fn.#StringExpression
-	Wallpaper?:         string | fn.#StringExpression
-	WallpaperMetadata?: #ImageMetadata
-}) |
-fn.#ObjectExpression
 
 #ColorTheme: "Light" | "Dark" | fn.#StringExpression
 
@@ -107,9 +137,26 @@ fn.#ObjectExpression
 	Domain!: strings.MaxRunes(253) &
 	strings.MinRunes(0) &
 	=~"^(\\.?)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)*[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(253) &
+		strings.MinRunes(0) &
+		=~"^(\\.?)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)*[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Name?: strings.MaxRunes(4096) & strings.MinRunes(0) | fn.#StringExpression
-	Path?: strings.MaxRunes(2000) & strings.MinRunes(0) & =~"^/(\\S)*$" | fn.#StringExpression
+	Name?: strings.MaxRunes(4096) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Path?: strings.MaxRunes(2000) & strings.MinRunes(0) & =~"^/(\\S)*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2000) & strings.MinRunes(0) & =~"^/(\\S)*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -123,43 +170,80 @@ fn.#ObjectExpression
 
 #EncryptionContextMap: close({
 
-	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression}}) |
-fn.#ObjectExpression
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
 
-#ImageMetadata: close({
-	FileExtension!:       strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	LastUploadTimestamp!: time.Time | fn.#StringExpression
-	MimeType!:            #MimeType
+	{
+		[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
 }) |
 fn.#ObjectExpression
 
-#Locale: "de-DE" |
-	"en-US" |
-	"es-ES" |
-	"fr-FR" |
-	"id-ID" |
-	"it-IT" |
-	"ja-JP" |
-	"ko-KR" |
-	"pt-BR" |
-	"zh-CN" |
-	"zh-TW" |
-	fn.#StringExpression
-
 #LocalizedBrandingStringMap: close({
 
-	{[=~".+"]: #LocalizedBrandingStrings}}) |
+	{[=~".+"]: #LocalizedBrandingStrings}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #LocalizedBrandingStrings: close({
-	BrowserTabTitle!:   =~"^[^<>&'`~\\\\]*$" | fn.#StringExpression
-	ContactButtonText?: =~"^[^<>&'`~\\\\]*$" | fn.#StringExpression
-	ContactLink?:       =~"^(https?://|mailto:).*" | fn.#StringExpression
-	LoadingText?:       =~"^[^<>&'`~\\\\]*$" | fn.#StringExpression
-	LoginButtonText?:   =~"^[^<>&'`~\\\\]*$" | fn.#StringExpression
-	LoginDescription?:  =~"^[^<>&'`~\\\\]*$" | fn.#StringExpression
-	LoginTitle?:        =~"^[^<>&'`~\\\\]*$" | fn.#StringExpression
-	WelcomeText!:       =~"^[^<>&'`~\\\\]*$" | fn.#StringExpression
+	BrowserTabTitle!: =~"^[^<>&'`~\\\\]*$" |
+	{
+		number | bool
+		_cfnString: =~"^[^<>&'`~\\\\]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ContactButtonText?: =~"^[^<>&'`~\\\\]*$" |
+	{
+		number | bool
+		_cfnString: =~"^[^<>&'`~\\\\]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ContactLink?: =~"^(https?://|mailto:).*" |
+	{
+		number | bool
+		_cfnString: =~"^(https?://|mailto:).*" & "\(self)"
+	} |
+	fn.#StringExpression
+	LoadingText?: =~"^[^<>&'`~\\\\]*$" |
+	{
+		number | bool
+		_cfnString: =~"^[^<>&'`~\\\\]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LoginButtonText?: =~"^[^<>&'`~\\\\]*$" |
+	{
+		number | bool
+		_cfnString: =~"^[^<>&'`~\\\\]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LoginDescription?: =~"^[^<>&'`~\\\\]*$" |
+	{
+		number | bool
+		_cfnString: =~"^[^<>&'`~\\\\]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LoginTitle?: =~"^[^<>&'`~\\\\]*$" |
+	{
+		number | bool
+		_cfnString: =~"^[^<>&'`~\\\\]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	WelcomeText!: =~"^[^<>&'`~\\\\]*$" |
+	{
+		number | bool
+		_cfnString: =~"^[^<>&'`~\\\\]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -173,11 +257,19 @@ fn.#ObjectExpression
 	"size800X600" |
 	fn.#StringExpression
 
-#MimeType: "image/png" | "image/jpeg" | "image/x-icon" | fn.#StringExpression
-
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

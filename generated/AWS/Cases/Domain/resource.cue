@@ -4,6 +4,5 @@ package Domain
 
 import schema "github.com/cueformation/cfn-cue/resources/h4330c768b31beeef:schema"
 
-#Resource:     schema.#Resource
-#DomainStatus: schema.#DomainStatus
-#Tag:          schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

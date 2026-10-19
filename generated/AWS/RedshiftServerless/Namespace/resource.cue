@@ -6,7 +6,5 @@ import schema "github.com/cueformation/cfn-cue/resources/h417c093522767f46:schem
 
 #Resource:                  schema.#Resource
 #LogExport:                 schema.#LogExport
-#Namespace:                 schema.#Namespace
-#NamespaceStatus:           schema.#NamespaceStatus
 #SnapshotCopyConfiguration: schema.#SnapshotCopyConfiguration
 #Tag:                       schema.#Tag

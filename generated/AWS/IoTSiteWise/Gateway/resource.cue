@@ -9,7 +9,6 @@ import schema "github.com/cueformation/cfn-cue/resources/ha1f4abb115a03206:schem
 #CapabilityNamespace:      schema.#CapabilityNamespace
 #GatewayCapabilitySummary: schema.#GatewayCapabilitySummary
 #GatewayPlatform:          schema.#GatewayPlatform
-#GatewayVersion:           schema.#GatewayVersion
 #GreengrassV2:             schema.#GreengrassV2
 #SiemensIE:                schema.#SiemensIE
 #Tag:                      schema.#Tag

@@ -7,12 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -24,21 +22,61 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The maximum number of metric filters that can be associated with a log group is 100.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Logs::MetricFilter"
-	Properties!: close({
+	let properties = close({
 		ApplyOnTransformedLogs?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		EmitSystemFieldDimensions?: [...string | fn.#StringExpression] | fn.#ListExpression
-		FieldSelectionCriteria?:    strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
-		FilterName?:    strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]{1,512}" | fn.#StringExpression
-		FilterPattern!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[.\\-_/#A-Za-z0-9]{1,512}" |
+		EmitSystemFieldDimensions?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		FieldSelectionCriteria?: strings.MaxRunes(2000) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2000) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		FilterName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]{1,512}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]{1,512}" & "\(self)"
+		} |
+		fn.#StringExpression
+		FilterPattern!: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^[.\\-_/#A-Za-z0-9]{1,512}" |
+		{
+			number | bool
+			_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+			strings.MaxRunes(512) &
+			strings.MinRunes(1) &
+			=~"^[.\\-_/#A-Za-z0-9]{1,512}" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		MetricTransformations!: list.MaxItems(1) & list.MinItems(1) & [...#MetricTransformation] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Dimension: close({
-	Key!:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -63,10 +101,23 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	Dimensions?: list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [...#Dimension] | fn.#ListExpression
-	MetricName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	MetricName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	MetricNamespace!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z\\.\\-_\\/#]{1,256}" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z\\.\\-_\\/#]{1,256}" & "\(self)"
+	} |
 	fn.#StringExpression
 	MetricValue!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([+-]?([0-9]*\\.?[0-9]*)|(\\$.*))$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([+-]?([0-9]*\\.?[0-9]*)|(\\$.*))$" & "\(self)"
+	} |
 	fn.#StringExpression
 	Unit?: "Seconds" |
 		"Microseconds" |

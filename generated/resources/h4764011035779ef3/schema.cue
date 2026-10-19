@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -12,8 +12,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // library versions used in the application.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CDK::Metadata"
-	Properties?: close({
-		Analytics?: string | fn.#StringExpression
-		Modules?:   string | fn.#StringExpression
+	let properties = close({
+		Analytics?: string | number | bool | fn.#StringExpression
+		Modules?:   string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }

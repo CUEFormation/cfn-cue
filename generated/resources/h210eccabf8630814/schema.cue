@@ -7,61 +7,126 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::Algorithm
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::Algorithm"
-	Properties!: close({
+	let properties = close({
 		AlgorithmDescription?: strings.MaxRunes(1024) &
 		strings.MinRunes(0) &
 		=~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(0) &
+			=~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		AlgorithmName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" & "\(self)"
+		} |
 		fn.#StringExpression
 		CertifyForMarketplace?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		InferenceSpecification?: #InferenceSpecification
 		Tags?:                   list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 		TrainingSpecification!:  #TrainingSpecification
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CategoricalParameterRangeSpecification: close({
-	Values!: list.MaxItems(30) & list.MinItems(1) & [
-		...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	] |
+	Values!: list.MaxItems(30) & list.MinItems(1) & [...strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #ChannelSpecification: close({
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) &
+		strings.MinRunes(0) &
+		=~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	IsRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name!:       strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\.\\-_]+$" | fn.#StringExpression
+	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\.\\-_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\.\\-_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	SupportedCompressionTypes?: [..."None" | "Gzip" | fn.#StringExpression] | fn.#ListExpression
-	SupportedContentTypes!: [...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
+	SupportedContentTypes!: [...strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	SupportedInputModes!: list.MinItems(1) & [..."Pipe" | "File" | "FastFile" | fn.#StringExpression] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #ContinuousParameterRangeSpecification: close({
-	MaxValue!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	MinValue!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	MaxValue!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	MinValue!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #HyperParameterSpecification: close({
-	DefaultValue?: strings.MaxRunes(2500) & strings.MinRunes(0) | fn.#StringExpression
+	DefaultValue?: strings.MaxRunes(2500) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2500) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) &
+		strings.MinRunes(0) &
+		=~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	IsRequired?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IsTunable?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Name!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Range?: #ParameterRange
 	Type!:  "Integer" | "Continuous" | "Categorical" | "FreeText" | fn.#StringExpression
@@ -69,14 +134,25 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #HyperParameterTuningJobObjective: close({
-	MetricName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	Type!:       "Maximize" | "Minimize" | fn.#StringExpression
+	MetricName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: "Maximize" | "Minimize" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #InferenceSpecification: close({
 	Containers!: list.MaxItems(15) & list.MinItems(1) & [...#ModelPackageContainerDefinition] | fn.#ListExpression
-	SupportedContentTypes?: [...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
+	SupportedContentTypes?: [...strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	SupportedRealtimeInferenceInstanceTypes?: [
 		..."ml.c4.2xlarge" |
 			"ml.c4.4xlarge" |
@@ -358,9 +434,12 @@ fn.#ObjectExpression
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	SupportedResponseMIMETypes?: [
-		...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[-\\w]+\\/.+$" | fn.#StringExpression
-	] |
+	SupportedResponseMIMETypes?: [...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[-\\w]+\\/.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[-\\w]+\\/.+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	SupportedTransformInstanceTypes?: list.MinItems(1) & [
 		..."ml.c4.2xlarge" |
@@ -486,36 +565,85 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #IntegerParameterRangeSpecification: close({
-	MaxValue!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	MinValue!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	MaxValue!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	MinValue!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MetricDefinition: close({
-	Name!:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	Regex!: strings.MaxRunes(500) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
+	Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Regex!: strings.MaxRunes(500) & strings.MinRunes(1) & =~"^.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & =~"^.+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ModelInput: close(
-	{DataInputConfig!: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"^[\\S\\s]+$" | fn.#StringExpression},
-) |
+#ModelInput: close({
+	DataInputConfig!: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"^[\\S\\s]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(16384) & strings.MinRunes(1) & =~"^[\\S\\s]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #ModelPackageContainerDefinition: close({
-	ContainerHostname?: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" | fn.#StringExpression
+	ContainerHostname?: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Environment?: close({
 
-		{[=~"^[\\S]+$"]: string | fn.#StringExpression}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{[=~"^[\\S]+$"]: string | number | bool | fn.#StringExpression}
+	}) |
 	fn.#ObjectExpression
-	Framework?:        string | fn.#StringExpression
-	FrameworkVersion?: strings.MaxRunes(10) & strings.MinRunes(3) & =~"^[0-9]\\.[A-Za-z0-9.-]+$" | fn.#StringExpression
-	Image!:            strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\S]+$" | fn.#StringExpression
+	Framework?: string | number | bool | fn.#StringExpression
+	FrameworkVersion?: strings.MaxRunes(10) & strings.MinRunes(3) & =~"^[0-9]\\.[A-Za-z0-9.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10) & strings.MinRunes(3) & =~"^[0-9]\\.[A-Za-z0-9.-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Image!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\S]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\S]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ImageDigest?: strings.MaxRunes(72) & strings.MinRunes(0) & =~"^[Ss][Hh][Aa]256:[0-9a-fA-F]{64}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(72) & strings.MinRunes(0) & =~"^[Ss][Hh][Aa]256:[0-9a-fA-F]{64}$" & "\(self)"
+	} |
 	fn.#StringExpression
 	IsCheckpoint?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ModelInput?:       #ModelInput
-	NearestModelName?: string | fn.#StringExpression
+	NearestModelName?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -527,8 +655,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -767,8 +905,17 @@ fn.#ObjectExpression
 	SupportedTuningJobObjectiveMetrics?: [...#HyperParameterTuningJobObjective] | fn.#ListExpression
 	SupportsDistributedTraining?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	TrainingChannels!:            list.MaxItems(8) & list.MinItems(1) & [...#ChannelSpecification] | fn.#ListExpression
-	TrainingImage!:               strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\S]+$" | fn.#StringExpression
+	TrainingImage!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\S]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\S]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	TrainingImageDigest?: strings.MaxRunes(72) & strings.MinRunes(0) & =~"^[Ss][Hh][Aa]256:[0-9a-fA-F]{64}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(72) & strings.MinRunes(0) & =~"^[Ss][Hh][Aa]256:[0-9a-fA-F]{64}$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

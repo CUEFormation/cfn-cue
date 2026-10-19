@@ -3,45 +3,25 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MSK::Configuration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MSK::Configuration"
-	Properties!: close({
-		Description?:       string | fn.#StringExpression
+	let properties = close({
+		Description?:       string | number | bool | fn.#StringExpression
 		KafkaVersionsList?: #KafkaVersionsList
 		LatestRevision?:    close({}) | fn.#ObjectExpression
-		Name!:              string | fn.#StringExpression
-		ServerProperties!:  string | fn.#StringExpression
+		Name!:              string | number | bool | fn.#StringExpression
+		ServerProperties!:  string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#KafkaVersionsList: [...string | fn.#StringExpression] | fn.#ListExpression
-
-#LatestRevision: close({
-	CreationTime?: string | fn.#StringExpression
-	Description?:  string | fn.#StringExpression
-	Revision?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
+#KafkaVersionsList: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression

@@ -61,7 +61,9 @@ import (
 	// Log group data is always encrypted in CWL. If you omit this key, the
 	// encryption does not use KMS. For more information, see [Encrypt log data in
 	// using](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/encrypt-log-data-kms.html)
-	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(256) & strings.MinRunes(0))
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(256) & strings.MinRunes(0))
 
 	// Specifies the log group class for this log group. There are two classes:
 	// + The ``Standard`` log class supports all CWL features.
@@ -73,7 +75,7 @@ import (
 
 	// The name of the log group. If you don't specify a name, CFNlong generates a
 	// unique ID for the log group.
-	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1)
+	LogGroupName?: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" & (strings.MaxRunes(512) & strings.MinRunes(1))
 
 	// Creates or updates a resource policy for the specified log group that allows
 	// other services to put log events to this account. A LogGroup can have 1

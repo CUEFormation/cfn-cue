@@ -6,23 +6,30 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"struct"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS Ground Station config resource type for CloudFormation.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GroundStation::Config"
-	Properties!: close({
+	let properties = close({
 		ConfigData!: #ConfigData
-		Name!:       =~"^[ a-zA-Z0-9_:-]{1,256}$" | fn.#StringExpression
-		Tags?:       [...#Tag] | fn.#ListExpression
+		Name!: =~"^[ a-zA-Z0-9_:-]{1,256}$" |
+		{
+			number | bool
+			_cfnString: =~"^[ a-zA-Z0-9_:-]{1,256}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AntennaDownlinkConfig: close({SpectrumConfig?: #SpectrumConfig}) | fn.#ObjectExpression
@@ -43,7 +50,12 @@ fn.#ObjectExpression
 
 #BandwidthUnits: "GHz" | "MHz" | "kHz" | fn.#StringExpression
 
-#BucketArn: =~"^arn:aws[A-Za-z0-9-]{0,64}:s3:::[A-Za-z0-9-]{1,64}$" | fn.#StringExpression
+#BucketArn: =~"^arn:aws[A-Za-z0-9-]{0,64}:s3:::[A-Za-z0-9-]{1,64}$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[A-Za-z0-9-]{0,64}:s3:::[A-Za-z0-9-]{1,64}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #ConfigData: struct.MaxFields(1) & struct.MinFields(1) & close({
 	AntennaDownlinkConfig?:            #AntennaDownlinkConfig
@@ -58,8 +70,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DataflowEndpointConfig: close({
-	DataflowEndpointName?:   string | fn.#StringExpression
-	DataflowEndpointRegion?: string | fn.#StringExpression
+	DataflowEndpointName?:   string | number | bool | fn.#StringExpression
+	DataflowEndpointRegion?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -143,10 +155,14 @@ fn.#ObjectExpression
 
 #FrequencyUnits: "GHz" | "MHz" | "kHz" | fn.#StringExpression
 
-#JsonString: string | fn.#StringExpression
+#JsonString: string | number | bool | fn.#StringExpression
 
 #KinesisDataStreamArn: =~"^arn:[a-z0-9-.]{1,63}:kinesis:[-a-z0-9]{1,50}:[0-9]{12}:stream/[a-zA-Z0-9_.-]{1,128}$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^arn:[a-z0-9-.]{1,63}:kinesis:[-a-z0-9]{1,50}:[0-9]{12}:stream/[a-zA-Z0-9_.-]{1,128}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #KinesisDataStreamData: close({
 	KinesisDataStreamArn!: #KinesisDataStreamArn
@@ -156,12 +172,22 @@ fn.#ObjectExpression
 
 #Polarization: "LEFT_HAND" | "RIGHT_HAND" | "NONE" | fn.#StringExpression
 
-#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	=~"^arn:[^:\\n]+:iam::[^:\\n]+:role\\/.+$" |
-	fn.#StringExpression
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"^arn:[^:\\n]+:iam::[^:\\n]+:role\\/.+$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:[^:\\n]+:iam::[^:\\n]+:role\\/.+$" &
+		"\(self)"
+} |
+fn.#StringExpression
 
 #S3KeyPrefix: =~"^([a-zA-Z0-9_\\-=/]|\\{satellite_id\\}|\\{config\\-name}|\\{s3\\-config-id}|\\{year\\}|\\{month\\}|\\{day\\}){1,900}$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^([a-zA-Z0-9_\\-=/]|\\{satellite_id\\}|\\{config\\-name}|\\{s3\\-config-id}|\\{year\\}|\\{month\\}|\\{day\\}){1,900}$" &
+		"\(self)"
+} |
+fn.#StringExpression
 
 #S3RecordingConfig: close({
 	BucketArn?: #BucketArn
@@ -178,8 +204,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$" | fn.#StringExpression
-	Value?: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$" | fn.#StringExpression
+	Key?: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$" |
+	{
+		number | bool
+		_cfnString: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,128}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$" |
+	{
+		number | bool
+		_cfnString: =~"^[ a-zA-Z0-9\\+\\-=._:/@]{1,256}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -197,8 +233,13 @@ fn.#ObjectExpression
 #TrackingConfig: close({Autotrack?: "REQUIRED" | "PREFERRED" | "REMOVED" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #UplinkEchoConfig: close({
-	AntennaUplinkConfigArn?: =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" | fn.#StringExpression
-	Enabled?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	AntennaUplinkConfigArn?: =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
+	{
+		number | bool
+		_cfnString: =~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 

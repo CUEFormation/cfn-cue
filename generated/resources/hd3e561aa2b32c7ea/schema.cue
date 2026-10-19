@@ -7,29 +7,42 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CodePipeline::Webhook
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodePipeline::Webhook"
-	Properties!: close({
+	let properties = close({
 		Authentication!: "GITHUB_HMAC" | "IP" | "UNAUTHENTICATED" | fn.#StringExpression
 
 		// Properties that configure the authentication applied to incoming webhook trigger requests
 		AuthenticationConfiguration!: #WebhookAuthConfiguration
 		Filters!:                     [...#WebhookFilterRule] | fn.#ListExpression
-		Name?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+" | fn.#StringExpression
+		Name?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		RegisterWithThirdParty?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TargetAction!:   strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+" | fn.#StringExpression
-		TargetPipeline!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+" | fn.#StringExpression
+		TargetAction!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		TargetPipeline!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"[A-Za-z0-9.@\\-_]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		TargetPipelineVersion?: int |
 			{
 				string &
@@ -47,22 +60,56 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #WebhookAuthConfiguration: close({
-	AllowedIPRange?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	SecretToken?:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	AllowedIPRange?: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	SecretToken?: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #WebhookFilterRule: close({
-	JsonPath!:    strings.MaxRunes(150) & strings.MinRunes(1) | fn.#StringExpression
-	MatchEquals?: strings.MaxRunes(150) & strings.MinRunes(1) | fn.#StringExpression
+	JsonPath!: strings.MaxRunes(150) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(150) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	MatchEquals?: strings.MaxRunes(150) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(150) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

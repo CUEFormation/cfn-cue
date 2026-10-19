@@ -7,23 +7,52 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53Resolver::ResolverQueryLoggingConfig.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53Resolver::ResolverQueryLoggingConfig"
-	Properties?: close({
-		DestinationArn?: strings.MaxRunes(600) & strings.MinRunes(1) | fn.#StringExpression
-		Name?:           strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:           list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+	let properties = close({
+		DestinationArn?: strings.MaxRunes(600) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(600) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name?: (=~"^(?:([a-zA-Z0-9\\-_' ']+))" & matchN(0, [=~"^(?:^[0-9]+$)"]) & string |
+		=~"^(?s:.)+(?:([a-zA-Z0-9\\-_' ']+))") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: (=~"^(?:([a-zA-Z0-9\\-_' ']+))" & matchN(0, [=~"^(?:^[0-9]+$)"]) & string |
+			=~"^(?s:.)+(?:([a-zA-Z0-9\\-_' ']+))") &
+			strings.MaxRunes(64) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

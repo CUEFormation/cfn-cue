@@ -7,4 +7,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h59e0355d7f9939ea:schem
 #Resource:             schema.#Resource
 #EncryptionContextMap: schema.#EncryptionContextMap
 #Tag:                  schema.#Tag
-#Tags:                 schema.#Tags

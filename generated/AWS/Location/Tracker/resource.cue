@@ -8,5 +8,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h76216290cfa8d3e5:schem
 #PositionFiltering: schema.#PositionFiltering
 #PricingPlan:       schema.#PricingPlan
 #Tag:               schema.#Tag
-#TagMap:            schema.#TagMap
-#iso8601UTC:        schema.#iso8601UTC

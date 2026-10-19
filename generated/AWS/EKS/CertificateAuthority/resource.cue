@@ -4,6 +4,4 @@ package CertificateAuthority
 
 import schema "github.com/cueformation/cfn-cue/resources/h00d10807ee251106:schema"
 
-#Resource:        schema.#Resource
-#ScheduledEvents: schema.#ScheduledEvents
-#Validity:        schema.#Validity
+#Resource: schema.#Resource

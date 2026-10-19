@@ -7,26 +7,50 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Transfer::Profile
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Transfer::Profile"
-	Properties!: close({
-		As2Id!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\x{0020}-\\x{007E}\\s]*$" | fn.#StringExpression
+	let properties = close({
+		As2Id!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\x{0020}-\\x{007E}\\s]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\x{0020}-\\x{007E}\\s]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		CertificateIds?: [...#CertificateId] | fn.#ListExpression
 		ProfileType!:    "LOCAL" | "PARTNER" | fn.#StringExpression
 		Tags?:           list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#CertificateId: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^cert-([0-9a-f]{17})$" | fn.#StringExpression
+#CertificateId: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^cert-([0-9a-f]{17})$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(22) & strings.MinRunes(22) & =~"^cert-([0-9a-f]{17})$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

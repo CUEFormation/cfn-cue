@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -13,12 +13,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // distribution.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::MonitoringSubscription"
-	Properties!: close({
-		DistributionId!: string | fn.#StringExpression
+	let properties = close({
+		DistributionId!: string | number | bool | fn.#StringExpression
 
 		// A subscription configuration for additional CloudWatch metrics.
 		MonitoringSubscription!: #MonitoringSubscription
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #MonitoringSubscription: close({

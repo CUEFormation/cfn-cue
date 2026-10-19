@@ -10,13 +10,9 @@ import schema "github.com/cueformation/cfn-cue/resources/hd922bf2cf5d1856b:schem
 #BitbucketRepositoryResource:    schema.#BitbucketRepositoryResource
 #CodeReviewSettings:             schema.#CodeReviewSettings
 #ConfluenceCapabilitiesResource: schema.#ConfluenceCapabilitiesResource
-#ConfluenceDocumentResource:     schema.#ConfluenceDocumentResource
 #GitHubCapabilitiesResource:     schema.#GitHubCapabilitiesResource
 #GitHubRepositoryResource:       schema.#GitHubRepositoryResource
 #GitLabCapabilitiesResource:     schema.#GitLabCapabilitiesResource
 #GitLabRepositoryResource:       schema.#GitLabRepositoryResource
-#IntegratedResource:             schema.#IntegratedResource
-#IntegratedResources:            schema.#IntegratedResources
-#ProviderResource:               schema.#ProviderResource
 #Tag:                            schema.#Tag
 #VpcConfig:                      schema.#VpcConfig

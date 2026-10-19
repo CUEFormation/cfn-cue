@@ -7,31 +7,72 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates an authorizer.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::Authorizer"
-	Properties!: close({
-		AuthorizerFunctionArn!: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-		AuthorizerName?:        strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w=,@-]+" | fn.#StringExpression
-		EnableCachingForHttp?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		SigningDisabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Status?:                "ACTIVE" | "INACTIVE" | fn.#StringExpression
-		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TokenKeyName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	let properties = close({
+		AuthorizerFunctionArn!: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		AuthorizerName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w=,@-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w=,@-]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		EnableCachingForHttp?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		SigningDisabled?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Status?:               "ACTIVE" | "INACTIVE" | fn.#StringExpression
+		Tags?:                 list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TokenKeyName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		TokenSigningPublicKeys?: close({
 
-			{[=~"[a-zA-Z0-9:_-]+"]: strings.MaxRunes(5120) | fn.#StringExpression}}) |
+			{
+				[=~"[a-zA-Z0-9:_-]+"]: strings.MaxRunes(5120) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(5120) & "\(self)"
+				} |
+				fn.#StringExpression
+			}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

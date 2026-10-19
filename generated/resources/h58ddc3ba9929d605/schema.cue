@@ -7,33 +7,54 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SSMContacts::Rotation.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSMContacts::Rotation"
-	Properties!: close({
-		ContactIds!: list.MaxItems(30) & list.MinItems(1) & [
-			...strings.MaxRunes(2048) &
+	let properties = close({
+		ContactIds!: list.MaxItems(30) & list.MinItems(1) & [...strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:(aws|aws-cn|aws-us-gov):ssm-contacts:[-\\w+=\\/,.@]*:[0-9]+:([\\w+=\\/,.@:-]+)*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
 			strings.MinRunes(1) &
-			=~"^arn:(aws|aws-cn|aws-us-gov):ssm-contacts:[-\\w+=\\/,.@]*:[0-9]+:([\\w+=\\/,.@:-]+)*$" |
-			fn.#StringExpression
-		] |
+			=~"^arn:(aws|aws-cn|aws-us-gov):ssm-contacts:[-\\w+=\\/,.@]*:[0-9]+:([\\w+=\\/,.@:-]+)*$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		Name!:       strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]*$" | fn.#StringExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Recurrence!: #RecurrenceSettings
-		StartTime!:  =~"^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2})$" | fn.#StringExpression
-		Tags?:       list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		StartTime!: =~"^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2})$" |
+		{
+			number | bool
+			_cfnString: =~"^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2})$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 		TimeZoneId!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[:a-zA-Z0-9_\\-\\s\\.\\\\/]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[:a-zA-Z0-9_\\-\\s\\.\\\\/]*$" & "\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CoverageTime: close({
@@ -42,11 +63,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#DailySetting: close({HandOffTime!: #HandOffTime}) | fn.#ObjectExpression
-
 #DayOfWeek: "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN" | fn.#StringExpression
 
-#HandOffTime: =~"^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" | fn.#StringExpression
+#HandOffTime: =~"^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" |
+{
+	number | bool
+	_cfnString: =~"^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$" & "\(self)"
+} |
+fn.#StringExpression
 
 #MonthlySetting: close({
 	DayOfMonth!: int & <=31 & >=1 |
@@ -130,8 +154,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\\\\\/a-zA-Z0-9_+=\\-]*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\\\\\/a-zA-Z0-9_+=\\-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\\\\\/a-zA-Z0-9_+=\\-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

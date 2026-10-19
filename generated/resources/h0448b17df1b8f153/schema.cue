@@ -6,87 +6,62 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaLive::SignalMap Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaLive::SignalMap"
-	Properties!: close({
-		CloudWatchAlarmTemplateGroupIdentifiers?: [...=~"^[^\\s]+$" | fn.#StringExpression] | fn.#ListExpression
-		Description?:                             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		DiscoveryEntryPointArn!:                  strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		EventBridgeRuleTemplateGroupIdentifiers?: [...=~"^[^\\s]+$" | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		CloudWatchAlarmTemplateGroupIdentifiers?: [...=~"^[^\\s]+$" |
+		{
+			number | bool
+			_cfnString: =~"^[^\\s]+$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DiscoveryEntryPointArn!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		EventBridgeRuleTemplateGroupIdentifiers?: [...=~"^[^\\s]+$" |
+		{
+			number | bool
+			_cfnString: =~"^[^\\s]+$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		ForceRediscovery?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Name!:             strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
-		Tags?:             #TagMap
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^\\s]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: #TagMap
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
-
-#FailedMediaResourceMap: close({
-
-	{[=~".+"]: #MediaResource}}) |
-fn.#ObjectExpression
-
-#MediaResource: close({
-	Destinations?: [...#MediaResourceNeighbor] | fn.#ListExpression
-	Name?:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Sources?:      [...#MediaResourceNeighbor] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#MediaResourceMap: close({
-
-	{[=~".+"]: #MediaResource}}) |
-fn.#ObjectExpression
-
-#MediaResourceNeighbor: close({
-	Arn!:  strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^arn.+$" | fn.#StringExpression
-	Name?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#MonitorDeployment: close({
-	DetailsUri?:   strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	ErrorMessage?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	Status!:       #SignalMapMonitorDeploymentStatus
-}) |
-fn.#ObjectExpression
-
-#SignalMapMonitorDeploymentStatus: "NOT_DEPLOYED" |
-	"DRY_RUN_DEPLOYMENT_COMPLETE" |
-	"DRY_RUN_DEPLOYMENT_FAILED" |
-	"DRY_RUN_DEPLOYMENT_IN_PROGRESS" |
-	"DEPLOYMENT_COMPLETE" |
-	"DEPLOYMENT_FAILED" |
-	"DEPLOYMENT_IN_PROGRESS" |
-	"DELETE_COMPLETE" |
-	"DELETE_FAILED" |
-	"DELETE_IN_PROGRESS" |
-	fn.#StringExpression
-
-#SignalMapStatus: "CREATE_IN_PROGRESS" |
-	"CREATE_COMPLETE" |
-	"CREATE_FAILED" |
-	"UPDATE_IN_PROGRESS" |
-	"UPDATE_COMPLETE" |
-	"UPDATE_REVERTED" |
-	"UPDATE_FAILED" |
-	"READY" |
-	"NOT_READY" |
-	fn.#StringExpression
-
-#SuccessfulMonitorDeployment: close({
-	DetailsUri!: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	Status!:     #SignalMapMonitorDeploymentStatus
-}) |
-fn.#ObjectExpression
 
 #TagMap: close({
 
-	{[=~".+"]: string | fn.#StringExpression}}) |
-fn.#ObjectExpression
+	{[=~".+"]: string | number | bool | fn.#StringExpression}
 
-#Unit: close({}) | fn.#ObjectExpression
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
+fn.#ObjectExpression

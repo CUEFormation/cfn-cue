@@ -117,7 +117,7 @@ import (
 
 #ManagedInstancesNetworkConfiguration: close({
 	SecurityGroups!: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
-	Subnets!:        [...string]
+	Subnets!:        [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"]
 })
 
 #ManagedInstancesProvider: close({

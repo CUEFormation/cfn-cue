@@ -3,27 +3,29 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoTEvents::AlarmModel
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTEvents::AlarmModel"
-	Properties!: close({
+	let properties = close({
 		AlarmCapabilities?:     #AlarmCapabilities
 		AlarmEventActions?:     #AlarmEventActions
-		AlarmModelDescription?: string | fn.#StringExpression
-		AlarmModelName?:        string | fn.#StringExpression
+		AlarmModelDescription?: string | number | bool | fn.#StringExpression
+		AlarmModelName?:        string | number | bool | fn.#StringExpression
 		AlarmRule!:             #AlarmRule
-		Key?:                   string | fn.#StringExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		Key?:                   string | number | bool | fn.#StringExpression
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Severity?: int |
 			{
 				string &
@@ -42,6 +44,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AcknowledgeFlow: close(
@@ -73,50 +79,50 @@ fn.#ObjectExpression
 #AlarmRule: close({SimpleRule?: #SimpleRule}) | fn.#ObjectExpression
 
 #AssetPropertyTimestamp: close({
-	OffsetInNanos?: string | fn.#StringExpression
-	TimeInSeconds!: string | fn.#StringExpression
+	OffsetInNanos?: string | number | bool | fn.#StringExpression
+	TimeInSeconds!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AssetPropertyValue: close({
-	Quality?:   string | fn.#StringExpression
+	Quality?:   string | number | bool | fn.#StringExpression
 	Timestamp?: #AssetPropertyTimestamp
 	Value!:     #AssetPropertyVariant
 }) |
 fn.#ObjectExpression
 
 #AssetPropertyVariant: close({
-	BooleanValue?: string | fn.#StringExpression
-	DoubleValue?:  string | fn.#StringExpression
-	IntegerValue?: string | fn.#StringExpression
-	StringValue?:  string | fn.#StringExpression
+	BooleanValue?: string | number | bool | fn.#StringExpression
+	DoubleValue?:  string | number | bool | fn.#StringExpression
+	IntegerValue?: string | number | bool | fn.#StringExpression
+	StringValue?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DynamoDB: close({
-	HashKeyField!:  string | fn.#StringExpression
-	HashKeyType?:   string | fn.#StringExpression
-	HashKeyValue!:  string | fn.#StringExpression
-	Operation?:     string | fn.#StringExpression
+	HashKeyField!:  string | number | bool | fn.#StringExpression
+	HashKeyType?:   string | number | bool | fn.#StringExpression
+	HashKeyValue!:  string | number | bool | fn.#StringExpression
+	Operation?:     string | number | bool | fn.#StringExpression
 	Payload?:       #Payload
-	PayloadField?:  string | fn.#StringExpression
-	RangeKeyField?: string | fn.#StringExpression
-	RangeKeyType?:  string | fn.#StringExpression
-	RangeKeyValue?: string | fn.#StringExpression
-	TableName!:     string | fn.#StringExpression
+	PayloadField?:  string | number | bool | fn.#StringExpression
+	RangeKeyField?: string | number | bool | fn.#StringExpression
+	RangeKeyType?:  string | number | bool | fn.#StringExpression
+	RangeKeyValue?: string | number | bool | fn.#StringExpression
+	TableName!:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DynamoDBv2: close({
 	Payload?:   #Payload
-	TableName!: string | fn.#StringExpression
+	TableName!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Firehose: close({
-	DeliveryStreamName!: string | fn.#StringExpression
+	DeliveryStreamName!: string | number | bool | fn.#StringExpression
 	Payload?:            #Payload
-	Separator?:          string | fn.#StringExpression
+	Separator?:          string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -126,61 +132,65 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #IotEvents: close({
-	InputName!: string | fn.#StringExpression
+	InputName!: string | number | bool | fn.#StringExpression
 	Payload?:   #Payload
 }) |
 fn.#ObjectExpression
 
 #IotSiteWise: close({
-	AssetId?:       string | fn.#StringExpression
-	EntryId?:       string | fn.#StringExpression
-	PropertyAlias?: string | fn.#StringExpression
-	PropertyId?:    string | fn.#StringExpression
+	AssetId?:       string | number | bool | fn.#StringExpression
+	EntryId?:       string | number | bool | fn.#StringExpression
+	PropertyAlias?: string | number | bool | fn.#StringExpression
+	PropertyId?:    string | number | bool | fn.#StringExpression
 	PropertyValue?: #AssetPropertyValue
 }) |
 fn.#ObjectExpression
 
 #IotTopicPublish: close({
-	MqttTopic!: string | fn.#StringExpression
+	MqttTopic!: string | number | bool | fn.#StringExpression
 	Payload?:   #Payload
 }) |
 fn.#ObjectExpression
 
 #Lambda: close({
-	FunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	FunctionArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Payload?: #Payload
 }) |
 fn.#ObjectExpression
 
 #Payload: close({
-	ContentExpression!: string | fn.#StringExpression
-	Type!:              string | fn.#StringExpression
+	ContentExpression!: string | number | bool | fn.#StringExpression
+	Type!:              string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SimpleRule: close({
-	ComparisonOperator!: string | fn.#StringExpression
-	InputProperty!:      string | fn.#StringExpression
-	Threshold!:          string | fn.#StringExpression
+	ComparisonOperator!: string | number | bool | fn.#StringExpression
+	InputProperty!:      string | number | bool | fn.#StringExpression
+	Threshold!:          string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Sns: close({
 	Payload?:   #Payload
-	TargetArn!: string | fn.#StringExpression
+	TargetArn!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Sqs: close({
 	Payload?:   #Payload
-	QueueUrl!:  string | fn.#StringExpression
+	QueueUrl!:  string | number | bool | fn.#StringExpression
 	UseBase64?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

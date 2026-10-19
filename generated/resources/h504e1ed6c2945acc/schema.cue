@@ -6,27 +6,44 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Wisdom::AIAgent Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Wisdom::AIAgent"
-	Properties!: close({
+	let properties = close({
 		AssistantId!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$|^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$|^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		Configuration!: #AIAgentConfiguration
-		Description?:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
-		Name?:          strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
-		Tags?:          #Tags
-		Type!:          #AIAgentType
+		Description?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: #Tags
+		Type!: #AIAgentType
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AIAgentAssociationConfigurationType: "KNOWLEDGE_BASE" | fn.#StringExpression
@@ -67,21 +84,47 @@ fn.#ValueExpression
 
 #AnswerRecommendationAIAgentConfiguration: close({
 	AnswerGenerationAIGuardrailId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	AnswerGenerationAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	AssociationConfigurations?: [...#AssociationConfiguration] | fn.#ListExpression
 	IntentLabelingGenerationAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
-		fn.#StringExpression
-	Locale?: strings.MinRunes(1) | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Locale?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	QueryReformulationAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AssociationConfiguration: close({
 	AssociationConfigurationData?: #AssociationConfigurationData
-	AssociationId?:   =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" | fn.#StringExpression
+	AssociationId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	AssociationType?: #AIAgentAssociationConfigurationType
 }) |
 fn.#ObjectExpression
@@ -93,37 +136,85 @@ fn.#ObjectExpression
 
 #CaseSummarizationAIAgentConfiguration: close({
 	CaseSummarizationAIGuardrailId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	CaseSummarizationAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
-		fn.#StringExpression
-	Locale?: strings.MinRunes(1) | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Locale?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EmailGenerativeAnswerAIAgentConfiguration: close({
 	AssociationConfigurations?: [...#AssociationConfiguration] | fn.#ListExpression
 	EmailGenerativeAnswerAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	EmailQueryReformulationAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
-		fn.#StringExpression
-	Locale?: strings.MinRunes(1) | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Locale?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EmailOverviewAIAgentConfiguration: close({
 	EmailOverviewAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
-		fn.#StringExpression
-	Locale?: strings.MinRunes(1) | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Locale?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EmailResponseAIAgentConfiguration: close({
 	AssociationConfigurations?: [...#AssociationConfiguration] | fn.#ListExpression
 	EmailQueryReformulationAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	EmailResponseAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
-		fn.#StringExpression
-	Locale?: strings.MinRunes(1) | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Locale?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -157,20 +248,46 @@ fn.#ObjectExpression
 
 #ManualSearchAIAgentConfiguration: close({
 	AnswerGenerationAIGuardrailId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	AnswerGenerationAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	AssociationConfigurations?: [...#AssociationConfiguration] | fn.#ListExpression
-	Locale?:                    strings.MinRunes(1) | fn.#StringExpression
+	Locale?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #NoteTakingAIAgentConfiguration: close({
-	Locale?: strings.MinRunes(1) | fn.#StringExpression
+	Locale?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	NoteTakingAIGuardrailId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	NoteTakingAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -183,12 +300,32 @@ fn.#ValueExpression
 	ConnectInstanceArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:[a-z-]+?:[a-z-]+?:[a-z0-9-]*?:([0-9]{12})?:[a-zA-Z0-9-:/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:[a-z-]+?:[a-z-]+?:[a-z0-9-]*?:([0-9]{12})?:[a-zA-Z0-9-:/]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Locale?: strings.MinRunes(1) | fn.#StringExpression
+	Locale?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	OrchestrationAIGuardrailId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	OrchestrationAIPromptId!: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ToolConfigurations?: #ToolConfigurationList
 }) |
 fn.#ObjectExpression
@@ -196,17 +333,44 @@ fn.#ObjectExpression
 #SelfServiceAIAgentConfiguration: close({
 	AssociationConfigurations?: [...#AssociationConfiguration] | fn.#ListExpression
 	SelfServiceAIGuardrailId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	SelfServiceAnswerGenerationAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	SelfServicePreProcessingAIPromptId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(:[A-Z0-9_$]+){0,1}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TagCondition: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -219,19 +383,56 @@ fn.#ObjectExpression
 )]) |
 fn.#ValueExpression
 
-#Tags: {...} | fn.#ObjectExpression
+#Tags: close({
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^(?:aws:)"]: error("disallowed")}
+
+	{
+		[=~"^[a-zA-Z+-=._:/]+$"]: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
+fn.#ObjectExpression
 
 #ToolConfiguration: close({
-	Annotations?:                  #Annotation
-	Description?:                  strings.MinRunes(1) | fn.#StringExpression
-	InputSchema?:                  fn.#Object & {...} | fn.#ObjectExpression
-	Instruction?:                  #ToolInstruction
-	OutputFilters?:                #ToolOutputFilterList
-	OutputSchema?:                 fn.#Object & {...} | fn.#ObjectExpression
-	OverrideInputValues?:          #ToolOverrideInputValueList
-	Title?:                        strings.MinRunes(1) | fn.#StringExpression
-	ToolId?:                       strings.MinRunes(1) | fn.#StringExpression
-	ToolName!:                     strings.MinRunes(1) | fn.#StringExpression
+	Annotations?: #Annotation
+	Description?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	InputSchema?:         fn.#Object & {...} | fn.#ObjectExpression
+	Instruction?:         #ToolInstruction
+	OutputFilters?:       #ToolOutputFilterList
+	OutputSchema?:        fn.#Object & {...} | fn.#ObjectExpression
+	OverrideInputValues?: #ToolOverrideInputValueList
+	Title?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ToolId?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ToolName!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ToolType!:                     #ToolType
 	UserInteractionConfiguration?: #UserInteractionConfiguration
 }) |
@@ -239,22 +440,37 @@ fn.#ObjectExpression
 
 #ToolConfigurationList: [...#ToolConfiguration] | fn.#ListExpression
 
-#ToolExampleList: [...string | fn.#StringExpression] | fn.#ListExpression
+#ToolExampleList: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 
 #ToolInstruction: close({
 	Examples?:    #ToolExampleList
-	Instruction?: string | fn.#StringExpression
+	Instruction?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ToolOutputConfiguration: close({
-	OutputVariableNameOverride?: strings.MinRunes(1) | fn.#StringExpression
-	SessionDataNamespace?:       strings.MinRunes(1) | fn.#StringExpression
+	OutputVariableNameOverride?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	SessionDataNamespace?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ToolOutputFilter: close({
-	JsonPath!:            strings.MinRunes(1) | fn.#StringExpression
+	JsonPath!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	OutputConfiguration?: #ToolOutputConfiguration
 }) |
 fn.#ObjectExpression
@@ -262,14 +478,24 @@ fn.#ObjectExpression
 #ToolOutputFilterList: [...#ToolOutputFilter] | fn.#ListExpression
 
 #ToolOverrideConstantInputValue: close({
-	Type!:  #ToolOverrideInputValueType
-	Value!: strings.MinRunes(1) | fn.#StringExpression
+	Type!: #ToolOverrideInputValueType
+	Value!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ToolOverrideInputValue: close({
-	JsonPath!: strings.MinRunes(1) | fn.#StringExpression
-	Value!:    #ToolOverrideInputValueConfiguration
+	JsonPath!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: #ToolOverrideInputValueConfiguration
 }) |
 fn.#ObjectExpression
 

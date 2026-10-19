@@ -5,5 +5,4 @@ package Robot
 import schema "github.com/cueformation/cfn-cue/resources/he25c50b5ae9b15bb:schema"
 
 #Resource: schema.#Resource
-#Arn:      schema.#Arn
 #Tags:     schema.#Tags

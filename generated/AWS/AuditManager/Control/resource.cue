@@ -4,7 +4,6 @@ package Control
 
 import schema "github.com/cueformation/cfn-cue/resources/h017ed77e55a95f63:schema"
 
-#Resource:             schema.#Resource
-#ControlMappingSource: schema.#ControlMappingSource
-#SourceKeyword:        schema.#SourceKeyword
-#Tag:                  schema.#Tag
+#Resource:      schema.#Resource
+#SourceKeyword: schema.#SourceKeyword
+#Tag:           schema.#Tag

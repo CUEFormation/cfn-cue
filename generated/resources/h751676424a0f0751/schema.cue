@@ -7,30 +7,65 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::WellArchitected::Profile Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WellArchitected::Profile"
-	Properties!: close({
-		ProfileDescription!: strings.MaxRunes(100) & strings.MinRunes(3) | fn.#StringExpression
-		ProfileName!:        strings.MaxRunes(100) & strings.MinRunes(3) | fn.#StringExpression
-		ProfileQuestions!:   [...#ProfileQuestionUpdate] | fn.#ListExpression
-		Tags?:               list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	let properties = close({
+		ProfileDescription!: strings.MaxRunes(100) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression
+		ProfileName!: strings.MaxRunes(100) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression
+		ProfileQuestions!: [...#ProfileQuestionUpdate] | fn.#ListExpression
+		Tags?:             list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ProfileQuestionUpdate: close({
-	QuestionId?:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	SelectedChoiceIds?: [...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+	QuestionId?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	SelectedChoiceIds?: [...strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

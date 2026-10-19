@@ -4,8 +4,5 @@ package TargetDomain
 
 import schema "github.com/cueformation/cfn-cue/resources/hd30a04a64bafb637:schema"
 
-#Resource:            schema.#Resource
-#DnsVerification:     schema.#DnsVerification
-#HttpVerification:    schema.#HttpVerification
-#Tag:                 schema.#Tag
-#VerificationDetails: schema.#VerificationDetails
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

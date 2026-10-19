@@ -14,7 +14,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h24f43d472ecafdba:schem
 #AgentCollaboration:           schema.#AgentCollaboration
 #AgentCollaborator:            schema.#AgentCollaborator
 #AgentKnowledgeBase:           schema.#AgentKnowledgeBase
-#AgentStatus:                  schema.#AgentStatus
 #CreationMode:                 schema.#CreationMode
 #CustomControlMethod:          schema.#CustomControlMethod
 #CustomOrchestration:          schema.#CustomOrchestration

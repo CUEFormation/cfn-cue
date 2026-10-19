@@ -1,0 +1,35 @@
+{
+  "Conditions": {
+    "Named": {
+      "Fn::Not": [
+        {
+          "Fn::Equals": [
+            {
+              "Ref": "Name"
+            },
+            ""
+          ]
+        }
+      ]
+    }
+  },
+  "Parameters": {
+    "Name": {
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "Queue": {
+      "Properties": {
+        "Fn::If": [
+          "Named",
+          {},
+          {
+            "Ref": "AWS::NoValue"
+          }
+        ]
+      },
+      "Type": "AWS::SQS::Queue"
+    }
+  }
+}

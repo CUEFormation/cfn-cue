@@ -4,9 +4,6 @@ package SqlHaStandbyDetectedInstance
 
 import schema "github.com/cueformation/cfn-cue/resources/h120991479da4cb98:schema"
 
-#Resource:              schema.#Resource
-#HaStatus:              schema.#HaStatus
-#InstanceId:            schema.#InstanceId
-#LastUpdatedTime:       schema.#LastUpdatedTime
-#SqlServerCredentials:  schema.#SqlServerCredentials
-#SqlServerLicenseUsage: schema.#SqlServerLicenseUsage
+#Resource:             schema.#Resource
+#InstanceId:           schema.#InstanceId
+#SqlServerCredentials: schema.#SqlServerCredentials

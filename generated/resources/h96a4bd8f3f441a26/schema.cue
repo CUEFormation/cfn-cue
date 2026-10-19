@@ -8,31 +8,55 @@ import (
 	"strings"
 	"time"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::QBusiness::DataAccessor Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QBusiness::DataAccessor"
-	Properties!: close({
+	let properties = close({
 		ActionConfigurations!: list.MaxItems(10) & list.MinItems(1) & [...#ActionConfiguration] | fn.#ListExpression
 		ApplicationId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" & "\(self)"
+		} |
 		fn.#StringExpression
 		AuthenticationDetail?: #DataAccessorAuthenticationDetail
 		DisplayName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Principal!: strings.MaxRunes(1284) &
 		strings.MinRunes(1) &
 		=~"^arn:aws:iam::[0-9]{12}:role/[a-zA-Z0-9_/+=,.@-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1284) &
+			strings.MinRunes(1) &
+			=~"^arn:aws:iam::[0-9]{12}:role/[a-zA-Z0-9_/+=,.@-]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ActionConfiguration: close({
-	Action!:              =~"^qbusiness:[a-zA-Z]+$" | fn.#StringExpression
+	Action!: =~"^qbusiness:[a-zA-Z]+$" |
+	{
+		number | bool
+		_cfnString: =~"^qbusiness:[a-zA-Z]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	FilterConfiguration?: #ActionFilterConfiguration
 }) |
 fn.#ObjectExpression
@@ -61,9 +85,14 @@ fn.#ObjectExpression
 #DataAccessorAuthenticationDetail: close({
 	AuthenticationConfiguration?: #DataAccessorAuthenticationConfiguration
 	AuthenticationType!:          #DataAccessorAuthenticationType
-	ExternalIds?: list.MaxItems(1) & list.MinItems(1) & [
-		...strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" | fn.#StringExpression
-	] |
+	ExternalIds?: list.MaxItems(1) & list.MinItems(1) & [...strings.MaxRunes(1000) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -74,12 +103,24 @@ fn.#ObjectExpression
 	IdcTrustedTokenIssuerArn!: strings.MaxRunes(1284) &
 	strings.MinRunes(0) &
 	=~"^arn:aws:sso::[0-9]{12}:trustedTokenIssuer/(sso)?ins-[a-zA-Z0-9-.]{16}/tti-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1284) &
+		strings.MinRunes(0) &
+		=~"^arn:aws:sso::[0-9]{12}:trustedTokenIssuer/(sso)?ins-[a-zA-Z0-9-.]{16}/tti-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DocumentAttribute: close({
-	Name!:  strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_][a-zA-Z0-9_-]*$" | fn.#StringExpression
+	Name!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_][a-zA-Z0-9_-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_][a-zA-Z0-9_-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Value!: #DocumentAttributeValue
 }) |
 fn.#ObjectExpression
@@ -96,9 +137,17 @@ fn.#ObjectExpression
 fn.#ValueExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Unit: close({}) | fn.#ObjectExpression

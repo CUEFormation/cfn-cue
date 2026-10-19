@@ -5,7 +5,5 @@ package AgentAlias
 import schema "github.com/cueformation/cfn-cue/resources/h561b29be9793d397:schema"
 
 #Resource:                               schema.#Resource
-#AgentAliasHistoryEvent:                 schema.#AgentAliasHistoryEvent
 #AgentAliasRoutingConfigurationListItem: schema.#AgentAliasRoutingConfigurationListItem
-#AgentAliasStatus:                       schema.#AgentAliasStatus
 #TagsMap:                                schema.#TagsMap

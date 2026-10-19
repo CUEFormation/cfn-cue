@@ -6,8 +6,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -15,16 +15,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // automated action that fires on a schedule within an Agent Space.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DevOpsAgent::Trigger"
-	Properties!: close({
-		Action!:       fn.#Object & {...} | fn.#ObjectExpression
-		AgentSpaceId!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Condition!:    #Condition
-		Status?:       ("Active" | "Inactive") & (strings.MaxRunes(64) & strings.MinRunes(1)) | fn.#StringExpression
-		Type!:         "TIME_BASED" & (strings.MaxRunes(64) & strings.MinRunes(1)) | fn.#StringExpression
+	let properties = close({
+		Action!: fn.#Object & {...} | fn.#ObjectExpression
+		AgentSpaceId!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Condition!: #Condition
+		Status?: ("Active" | "Inactive") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: ("Active" | "Inactive") & strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Type!: "TIME_BASED" & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: "TIME_BASED" & strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Condition: close({Schedule!: #Schedule}) | fn.#ObjectExpression
 
-#Schedule: close({Expression!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}) |
+#Schedule: close({
+	Expression!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression

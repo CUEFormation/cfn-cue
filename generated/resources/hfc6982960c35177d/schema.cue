@@ -4,15 +4,12 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"time"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -22,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Amazon CloudFront Developer Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::AnycastIpList"
-	Properties!: close({
+	let properties = close({
 		// The IP address type for the Anycast static IP list.
 		IpAddressType?: #IpAddressType
 		IpCount!: int |
@@ -45,67 +42,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// A list of IPAM CIDR configurations that define the IP address ranges, IPAM
 		// pools, and associated Anycast IP addresses.
 		IpamCidrConfigs?: #IpamCidrConfigs
-		Name!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// A complex type that contains zero or more ``Tag`` elements.
 		Tags?: #Tags
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
-
-#AnycastIpList: close({
-	AnycastIps!: [...string | fn.#StringExpression] | fn.#ListExpression
-	Arn!:        string | fn.#StringExpression
-	Id!:         string | fn.#StringExpression
-
-	// The IP address type for the Anycast static IP list.
-	IpAddressType?: #IpAddressType
-	IpCount!: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-
-	// The results for the IPAM CIDRs that defines a specific IP address range, IPAM
-	// pool, and associated Anycast IP address.
-	IpamCidrConfigResults?: #IpamCidrConfigResults
-	LastModifiedTime!:      time.Time | fn.#StringExpression
-	Name!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]{1,64}$" | fn.#StringExpression
-	Status!: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #IpAddressType: "ipv4" | "dualstack" | fn.#StringExpression
 
 #IpamCidrConfig: close({
-	Cidr!:        string | fn.#StringExpression
-	IpamPoolArn!: string | fn.#StringExpression
+	Cidr!: fn.#IPv4Network & string |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network & string & "\(self)"
+	} |
+	fn.#StringExpression
+	IpamPoolArn!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#IpamCidrConfigResult: close({
-	AnycastIp?:   string | fn.#StringExpression
-	Cidr?:        string | fn.#StringExpression
-	IpamPoolArn?: string | fn.#StringExpression
-	Status?:      string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#IpamCidrConfigResults: [...#IpamCidrConfigResult] | fn.#ListExpression
 
 #IpamCidrConfigs: [...#IpamCidrConfig] | fn.#ListExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

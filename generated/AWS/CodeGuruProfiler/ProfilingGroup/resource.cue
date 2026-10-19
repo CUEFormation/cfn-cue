@@ -4,10 +4,9 @@ package ProfilingGroup
 
 import schema "github.com/cueformation/cfn-cue/resources/hc6b0e5d0968afcf8:schema"
 
-#Resource:          schema.#Resource
-#Channel:           schema.#Channel
-#ChannelId:         schema.#ChannelId
-#ChannelUri:        schema.#ChannelUri
-#IamArn:            schema.#IamArn
-#ProfilingGroupArn: schema.#ProfilingGroupArn
-#Tag:               schema.#Tag
+#Resource:   schema.#Resource
+#Channel:    schema.#Channel
+#ChannelId:  schema.#ChannelId
+#ChannelUri: schema.#ChannelUri
+#IamArn:     schema.#IamArn
+#Tag:        schema.#Tag

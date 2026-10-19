@@ -3,34 +3,36 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An Amazon CloudFront VPC origin.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::VpcOrigin"
-	Properties!: close({
+	let properties = close({
 		Tags?: [...#Tag] | fn.#ListExpression
 
 		// The VPC origin endpoint configuration.
 		VpcOriginEndpointConfig!: #VpcOriginEndpointConfig
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VpcOriginEndpointConfig: close({
-	Arn!: string | fn.#StringExpression
+	Arn!: string | number | bool | fn.#StringExpression
 	HTTPPort?: int |
 		{
 			string &
@@ -60,8 +62,8 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	IpAddressType?:        "ipv4" | "dualstack" | fn.#StringExpression
-	Name!:                 string | fn.#StringExpression
+	Name!:                 string | number | bool | fn.#StringExpression
 	OriginProtocolPolicy?: "http-only" | "https-only" | "match-viewer" | fn.#StringExpression
-	OriginSSLProtocols?:   [...string | fn.#StringExpression] | fn.#ListExpression
+	OriginSSLProtocols?:   [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression

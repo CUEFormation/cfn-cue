@@ -3,12 +3,10 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -22,7 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Amazon VPC User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::Subnet"
-	Properties!: close({
+	let properties = close({
 		Ipv4IpamPoolId?: _
 		if Ipv4IpamPoolId != _|_ {
 			Ipv4NetmaskLength!: _
@@ -48,10 +46,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		AvailabilityZone?:   string | fn.#StringExpression
-		AvailabilityZoneId?: string | fn.#StringExpression
-		CidrBlock?:          string | fn.#StringExpression
-		EnableDns64?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		AvailabilityZone?:   string | number | bool | fn.#StringExpression
+		AvailabilityZoneId?: string | number | bool | fn.#StringExpression
+		CidrBlock?: fn.#IPv4Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv4Network & string & "\(self)"
+		} |
+		fn.#StringExpression
+		EnableDns64?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		EnableLniAtDeviceIndex?: int |
 			{
 				string &
@@ -68,7 +71,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Ipv4IpamPoolId?: string | fn.#StringExpression
+		Ipv4IpamPoolId?: string | number | bool | fn.#StringExpression
 		"Ipv4NetmaskLength"?: int |
 			{
 				string &
@@ -85,8 +88,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Ipv6CidrBlock?:  string | fn.#StringExpression
-		Ipv6IpamPoolId?: string | fn.#StringExpression
+		Ipv6CidrBlock?: fn.#IPv6Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv6Network & string & "\(self)"
+		} |
+		fn.#StringExpression
+		Ipv6IpamPoolId?: string | number | bool | fn.#StringExpression
 		Ipv6Native?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		"Ipv6NetmaskLength"?: int |
 			{
@@ -105,7 +113,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		MapPublicIpOnLaunch?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		OutpostArn?:          string | fn.#StringExpression
+		OutpostArn?:          string | number | bool | fn.#StringExpression
 		PrivateDnsNameOptionsOnLaunch?: close({
 			EnableResourceNameDnsAAAARecord?: bool |
 				"true" |
@@ -123,12 +131,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				"False" |
 				"FALSE" |
 				fn.#BooleanExpression
-			HostnameType?: string | fn.#StringExpression
+			HostnameType?: string | number | bool | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		Tags?: [...#Tag] | fn.#ListExpression
-		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		if AvailabilityZone != _|_ if AvailabilityZone."Fn::If" == _|_ {
 			AvailabilityZoneId?: close({"Fn::If": _}) | error("AvailabilityZoneId cannot be used with AvailabilityZone")
 		}
@@ -139,10 +151,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			Ipv6IpamPoolId?: close({"Fn::If": _}) | error("Ipv6IpamPoolId cannot be used with Ipv6CidrBlock")
 		}
 	}) & matchN(>=1, [{CidrBlock!: _}, {Ipv4IpamPoolId!: _}, {Ipv6IpamPoolId!: _}, {Ipv6CidrBlock!: _}])
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

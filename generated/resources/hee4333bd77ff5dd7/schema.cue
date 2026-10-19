@@ -7,25 +7,62 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SCN::Instance
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SCN::Instance"
-	Properties?: close({
+	let properties = close({
 		InstanceDescription?: strings.MaxRunes(501) & strings.MinRunes(0) & =~"^([a-zA-Z0-9., _ʼ'%-]){0,500}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(501) & strings.MinRunes(0) & =~"^([a-zA-Z0-9., _ʼ'%-]){0,500}$" & "\(self)"
+		} |
 		fn.#StringExpression
-		InstanceName?:    strings.MaxRunes(63) & strings.MinRunes(0) | fn.#StringExpression
-		Tags?:            list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		WebAppDnsDomain?: string | fn.#StringExpression
+		InstanceName?: =~"^[a-zA-Z0-9 _ʼ'%-]{0,62}[a-zA-Z0-9]$" &
+		matchN(0, [=~"^(?:[ _ʼ'%-])"]) &
+		string &
+		strings.MaxRunes(63) &
+		strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9 _ʼ'%-]{0,62}[a-zA-Z0-9]$" &
+			matchN(0, [=~"^(?:[ _ʼ'%-])"]) &
+			string &
+			strings.MaxRunes(63) &
+			strings.MinRunes(0) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		WebAppDnsDomain?: =~"^[a-zA-Z0-9-]{1,62}[a-zA-Z0-9]$" & matchN(0, [=~"^(?:[-])"]) & string |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9-]{1,62}[a-zA-Z0-9]$" & matchN(0, [=~"^(?:[-])"]) & string & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

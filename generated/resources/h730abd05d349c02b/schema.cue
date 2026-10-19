@@ -7,41 +7,71 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a stored analysis within a collaboration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CleanRooms::AnalysisTemplate"
-	Properties!: close({
+	let properties = close({
 		AnalysisParameters?: list.MaxItems(50) & [...] & [...#AnalysisParameter] | fn.#ListExpression
 		Description?: strings.MaxRunes(255) &
 		=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) &
+			=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ErrorMessageConfiguration?: #ErrorMessageConfiguration
 		Format!:                    "SQL" | "PYSPARK_1_0" | fn.#StringExpression
 		MembershipIdentifier!: strings.MaxRunes(36) &
 		strings.MinRunes(36) &
 		=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) &
+			strings.MinRunes(36) &
+			=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name!:   strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" | fn.#StringExpression
-		Schema?: #AnalysisSchema
-		Source!: #AnalysisSource
+		Name!: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Schema?:                  #AnalysisSchema
+		Source!:                  #AnalysisSource
 		SourceMetadata?:          #AnalysisSourceMetadata
 		SyntheticDataParameters?: #SyntheticDataParameters
 		Tags?:                    [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AnalysisParameter: close({
-	DefaultValue?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:         strings.MaxRunes(100) & strings.MinRunes(1) & =~"[0-9a-zA-Z_]+" | fn.#StringExpression
+	DefaultValue?: strings.MaxRunes(1000) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"[0-9a-zA-Z_]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"[0-9a-zA-Z_]+" & "\(self)"
+	} |
+	fn.#StringExpression
 	Type!: "SMALLINT" |
 		"INTEGER" |
 		"BIGINT" |
@@ -96,7 +126,14 @@ fn.#ObjectExpression
 #AnalysisTemplateArtifacts: close({
 	AdditionalArtifacts?: list.MaxItems(1) & list.MinItems(1) & [...#AnalysisTemplateArtifact] | fn.#ListExpression
 	EntryPoint!:          #AnalysisTemplateArtifact
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(512) & strings.MinRunes(32)) |
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(512) & strings.MinRunes(32)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(32) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -108,7 +145,7 @@ fn.#ObjectExpression
 
 #ErrorMessageConfiguration: close({Type!: "DETAILED" | fn.#StringExpression}) | fn.#ObjectExpression
 
-#Hash: close({Sha256?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Hash: close({Sha256?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #MLSyntheticDataParameters: close({
 	ColumnClassification!: #ColumnClassificationDetails
@@ -158,13 +195,23 @@ fn.#ObjectExpression
 #ReferencedTables: [...] & [...#TableName] | fn.#ListExpression
 
 #S3Location: close({
-	Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	Key!:    string | fn.#StringExpression
+	Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & "\(self)"
+	} |
+	fn.#StringExpression
+	Key!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SyntheticDataColumnProperties: close({
-	ColumnName!:        strings.MaxRunes(128) & =~"^[a-z0-9_](([a-z0-9_]+-)*([a-z0-9_]+))?$" | fn.#StringExpression
+	ColumnName!: strings.MaxRunes(128) & =~"^[a-z0-9_](([a-z0-9_]+-)*([a-z0-9_]+))?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & =~"^[a-z0-9_](([a-z0-9_]+-)*([a-z0-9_]+))?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ColumnType!:        "CATEGORICAL" | "NUMERICAL" | fn.#StringExpression
 	IsPredictiveValue!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
@@ -172,10 +219,25 @@ fn.#ObjectExpression
 
 #SyntheticDataParameters: close({MlSyntheticDataParameters!: #MLSyntheticDataParameters}) | fn.#ValueExpression
 
-#TableName: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" | fn.#StringExpression
+#TableName: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

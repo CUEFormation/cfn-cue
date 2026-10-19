@@ -8,41 +8,68 @@ import (
 	"list"
 	"time"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::Dashboard Resource Type.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QuickSight::Dashboard"
-	Properties!: close({
-		AwsAccountId!:            strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-		DashboardId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	let properties = close({
+		AwsAccountId!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DashboardId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		DashboardPublishOptions?: #DashboardPublishOptions
 		Definition?:              #DashboardVersionDefinition
-		FolderArns?:              list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-		LinkEntities?: list.MaxItems(5) & [...] & [
-			...strings.MaxRunes(1024) &
+		FolderArns?: list.MaxItems(10) & [...] & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		LinkEntities?: list.MaxItems(5) & [...] & [...strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^arn:aws[\\w\\-]*:quicksight:[\\w\\-]+:\\d+:analysis/[\\w\\-]{1,512}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
 			strings.MinRunes(1) &
-			=~"^arn:aws[\\w\\-]*:quicksight:[\\w\\-]+:\\d+:analysis/[\\w\\-]{1,512}$" |
-			fn.#StringExpression
-		] |
+			=~"^arn:aws[\\w\\-]*:quicksight:[\\w\\-]+:\\d+:analysis/[\\w\\-]{1,512}$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		LinkSharingConfiguration?: #LinkSharingConfiguration
-		Name!:                     strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		Parameters?:               #Parameters
-		Permissions?:              list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
-		SourceEntity?:             #DashboardSourceEntity
-		Tags?:                     list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-		ThemeArn?:                 string | fn.#StringExpression
-		ValidationStrategy?:       #ValidationStrategy
-		VersionDescription?:       strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+		Name!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Parameters?:         #Parameters
+		Permissions?:        list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
+		SourceEntity?:       #DashboardSourceEntity
+		Tags?:               list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		ThemeArn?:           string | number | bool | fn.#StringExpression
+		ValidationStrategy?: #ValidationStrategy
+		VersionDescription?: strings.MaxRunes(512) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AdHocFilteringOption: close({AvailabilityStatus?: #DashboardBehavior}) | fn.#ObjectExpression
@@ -62,13 +89,18 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#AllSheetsFilterScopeConfiguration: fn.#Object & {...} | string | fn.#StringObjectExpression
+#AllSheetsFilterScopeConfiguration: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 #AnalysisDefaults: close({DefaultNewSheetConfiguration!: #DefaultNewSheetConfiguration}) | fn.#ObjectExpression
 
 #AnchorDateConfiguration: close({
-	AnchorOption?:  #AnchorOption
-	ParameterName?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
+	AnchorOption?: #AnchorOption
+	ParameterName?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -171,16 +203,17 @@ fn.#ObjectExpression
 #ArcThicknessOptions: "SMALL" | "MEDIUM" | "LARGE" | fn.#StringExpression
 
 #AssetOptions: close({
-	ExcludedDataSetArns?:     list.MaxItems(100) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+	ExcludedDataSetArns?: list.MaxItems(100) & [...] & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
 	QBusinessInsightsStatus?: #QBusinessInsightsStatus
-	Timezone?:                string | fn.#StringExpression
+	Timezone?:                string | number | bool | fn.#StringExpression
 	WeekStart?:               #DayOfTheWeek
 }) |
 fn.#ObjectExpression
 
 #AttributeAggregationFunction: close({
 	SimpleAttributeAggregation?: #SimpleAttributeAggregationFunction
-	ValueForMultipleValues?:     string | fn.#StringExpression
+	ValueForMultipleValues?:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -192,7 +225,7 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#AxisDisplayDataDrivenRange: fn.#Object & {...} | string | fn.#StringObjectExpression
+#AxisDisplayDataDrivenRange: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 #AxisDisplayMinMaxRange: close({
 	Maximum?: number |
@@ -238,7 +271,7 @@ fn.#ObjectExpression
 
 #AxisDisplayOptions: close({
 	AxisLineVisibility?: #Visibility
-	AxisOffset?:         string | fn.#StringExpression
+	AxisOffset?:         string | number | bool | fn.#StringExpression
 	DataOptions?:        #AxisDataOptions
 	GridLineVisibility?: #Visibility
 	ScrollbarOptions?:   #ScrollBarOptions
@@ -254,14 +287,19 @@ fn.#ObjectExpression
 
 #AxisLabelOptions: close({
 	ApplyTo?:           #AxisLabelReferenceOptions
-	CustomLabel?:       string | fn.#StringExpression
+	CustomLabel?:       string | number | bool | fn.#StringExpression
 	FontConfiguration?: #FontConfiguration
 }) |
 fn.#ObjectExpression
 
 #AxisLabelReferenceOptions: close({
-	Column!:  #ColumnIdentifier
-	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	Column!: #ColumnIdentifier
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -419,13 +457,23 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #BarChartVisual: close({
-	Actions?:              list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
-	ChartConfiguration?:   #BarChartConfiguration
-	ColumnHierarchies?:    list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
-	Subtitle?:             #VisualSubtitleLabelOptions
-	Title?:                #VisualTitleLabelOptions
-	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Actions?:            list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
+	ChartConfiguration?: #BarChartConfiguration
+	ColumnHierarchies?:  list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
+	Subtitle?:           #VisualSubtitleLabelOptions
+	Title?:              #VisualTitleLabelOptions
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -509,8 +557,13 @@ fn.#ObjectExpression
 	Content!:                #BodySectionContent
 	PageBreakConfiguration?: #SectionPageBreakConfiguration
 	RepeatConfiguration?:    #BodySectionRepeatConfiguration
-	SectionId!:              strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Style?:                  #SectionStyle
+	SectionId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Style?: #SectionStyle
 }) |
 fn.#ObjectExpression
 
@@ -571,9 +624,12 @@ fn.#ObjectExpression
 #BodySectionRepeatConfiguration: close({
 	DimensionConfigurations?: list.MaxItems(3) & [...] & [...#BodySectionRepeatDimensionConfiguration] |
 		fn.#ListExpression
-	NonRepeatingVisuals?: list.MaxItems(20) & [...] & [
-		...strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	] |
+	NonRepeatingVisuals?: list.MaxItems(20) & [...] & [...strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	PageBreakConfiguration?: #BodySectionRepeatPageBreakConfiguration
 }) |
@@ -588,9 +644,14 @@ fn.#ObjectExpression
 #BodySectionRepeatPageBreakConfiguration: close({After?: #SectionAfterPageBreak}) | fn.#ObjectExpression
 
 #BorderSettings: close({
-	BorderColor?:      =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
+	BorderColor?: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	BorderVisibility?: #Visibility
-	BorderWidth?:      string | fn.#StringExpression
+	BorderWidth?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -636,27 +697,67 @@ fn.#ObjectExpression
 #BoxPlotStyleOptions: close({FillStyle?: #BoxPlotFillStyle}) | fn.#ObjectExpression
 
 #BoxPlotVisual: close({
-	Actions?:              list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
-	ChartConfiguration?:   #BoxPlotChartConfiguration
-	ColumnHierarchies?:    list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
-	Subtitle?:             #VisualSubtitleLabelOptions
-	Title?:                #VisualTitleLabelOptions
-	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Actions?:            list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
+	ChartConfiguration?: #BoxPlotChartConfiguration
+	ColumnHierarchies?:  list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
+	Subtitle?:           #VisualSubtitleLabelOptions
+	Title?:              #VisualTitleLabelOptions
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CalculatedField: close({
-	DataSetIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	Expression!:        strings.MaxRunes(32000) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:              strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	TopicIdentifier?:   strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	DataSetIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Expression!: strings.MaxRunes(32000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TopicIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CalculatedMeasureField: close({
-	Expression!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	FieldId!:    strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	Expression!: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -667,32 +768,50 @@ fn.#ObjectExpression
 
 #CascadingControlSource: close({
 	ColumnToMatch?:        #ColumnIdentifier
-	SourceSheetControlId?: string | fn.#StringExpression
+	SourceSheetControlId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CategoricalAggregationFunction: "COUNT" | "DISTINCT_COUNT" | fn.#StringExpression
 
 #CategoricalDimensionField: close({
-	Column!:              #ColumnIdentifier
-	FieldId!:             strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	Column!: #ColumnIdentifier
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	FormatConfiguration?: #StringFormatConfiguration
-	HierarchyId?:         strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	HierarchyId?: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CategoricalMeasureField: close({
 	AggregationFunction?: #CategoricalAggregationFunction
 	Column!:              #ColumnIdentifier
-	FieldId!:             strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	FormatConfiguration?: #StringFormatConfiguration
 }) |
 fn.#ObjectExpression
 
 #CategoryDrillDownFilter: close({
-	CategoryValues!: list.MaxItems(100000) & [...] & [
-		...strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-	] |
+	CategoryValues!: list.MaxItems(100000) & [...] & [...strings.MaxRunes(512) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	Column!: #ColumnIdentifier
 }) |
@@ -702,7 +821,12 @@ fn.#ObjectExpression
 	Column!:                            #ColumnIdentifier
 	Configuration!:                     #CategoryFilterConfiguration
 	DefaultFilterControlConfiguration?: #DefaultFilterControlConfiguration
-	FilterId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	FilterId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -770,9 +894,24 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ColumnIdentifier: close({
-	ColumnName!:        strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	DataSetIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	TopicIdentifier?:   strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	ColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	DataSetIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	TopicIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -788,7 +927,7 @@ fn.#ObjectExpression
 #ColumnTooltipItem: close({
 	Aggregation?:   #AggregationFunction
 	Column!:        #ColumnIdentifier
-	Label?:         string | fn.#StringExpression
+	Label?:         string | number | bool | fn.#StringExpression
 	TooltipTarget?: #TooltipTarget
 	Visibility?:    #Visibility
 }) |
@@ -853,13 +992,23 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ComboChartVisual: close({
-	Actions?:              list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
-	ChartConfiguration?:   #ComboChartConfiguration
-	ColumnHierarchies?:    list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
-	Subtitle?:             #VisualSubtitleLabelOptions
-	Title?:                #VisualTitleLabelOptions
-	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Actions?:            list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
+	ChartConfiguration?: #ComboChartConfiguration
+	ColumnHierarchies?:  list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
+	Subtitle?:           #VisualSubtitleLabelOptions
+	Title?:              #VisualTitleLabelOptions
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -906,22 +1055,42 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ConditionalFormattingCustomIconCondition: close({
-	Color?:                =~"^#[A-F0-9]{6}$" | fn.#StringExpression
+	Color?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	DisplayConfiguration?: #ConditionalFormattingIconDisplayConfiguration
-	Expression!:           strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	IconOptions!:          #ConditionalFormattingCustomIconOptions
+	Expression!: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	IconOptions!: #ConditionalFormattingCustomIconOptions
 }) |
 fn.#ObjectExpression
 
 #ConditionalFormattingCustomIconOptions: close({
-	Icon?:        #Icon
-	UnicodeIcon?: =~"^[^\\x{0000}-\\x{00FF}]$" | fn.#StringExpression
+	Icon?: #Icon
+	UnicodeIcon?: =~"^[^\\x{0000}-\\x{00FF}]$" |
+	{
+		number | bool
+		_cfnString: =~"^[^\\x{0000}-\\x{00FF}]$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ConditionalFormattingGradientColor: close({
-	Color!:      #GradientColor
-	Expression!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	Color!: #GradientColor
+	Expression!: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -937,7 +1106,12 @@ fn.#ObjectExpression
 #ConditionalFormattingIconDisplayOption: "ICON_ONLY" | fn.#StringExpression
 
 #ConditionalFormattingIconSet: close({
-	Expression!:  strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	Expression!: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	IconSetType?: #ConditionalFormattingIconSetType
 }) |
 fn.#ObjectExpression
@@ -956,16 +1130,29 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #ConditionalFormattingSolidColor: close({
-	Color?:      =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	Expression!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	Color?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Expression!: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ContextMenuOption: close({AvailabilityStatus?: #DashboardBehavior}) | fn.#ObjectExpression
-
 #ContributionAnalysisDefault: close({
 	ContributorDimensions!: list.MaxItems(4) & list.MinItems(1) & [...#ColumnIdentifier] | fn.#ListExpression
-	MeasureFieldId!:        strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	MeasureFieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -976,10 +1163,25 @@ fn.#ObjectExpression
 	NegativeValueConfiguration?:   #NegativeValueConfiguration
 	NullValueFormatConfiguration?: #NullValueFormatConfiguration
 	NumberScale?:                  #NumberScale
-	Prefix?:                       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	SeparatorConfiguration?:       #NumericSeparatorConfiguration
-	Suffix?:                       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Symbol?:                       =~"^[A-Z]{3}$" | fn.#StringExpression
+	Prefix?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	SeparatorConfiguration?: #NumericSeparatorConfiguration
+	Suffix?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Symbol?: =~"^[A-Z]{3}$" |
+	{
+		number | bool
+		_cfnString: =~"^[A-Z]{3}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -999,21 +1201,41 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #CustomActionURLOperation: close({
-	URLTarget!:   #URLTargetConfiguration
-	URLTemplate!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	URLTarget!: #URLTargetConfiguration
+	URLTemplate!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CustomColor: close({
-	Color!:        =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	FieldValue?:   strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+	Color!: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	FieldValue?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	SpecialValue?: #SpecialValue
 }) |
 fn.#ObjectExpression
 
 #CustomContentConfiguration: close({
-	ContentType?:  #CustomContentType
-	ContentUrl?:   strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	ContentType?: #CustomContentType
+	ContentUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ImageScaling?: #CustomContentImageScalingConfiguration
 	Interactions?: #VisualInteractionOptions
 }) |
@@ -1028,30 +1250,63 @@ fn.#ObjectExpression
 #CustomContentType: "IMAGE" | "OTHER_EMBEDDED_CONTENT" | fn.#StringExpression
 
 #CustomContentVisual: close({
-	Actions?:              list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
-	ChartConfiguration?:   #CustomContentConfiguration
-	DataSetIdentifier?:    strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	Subtitle?:             #VisualSubtitleLabelOptions
-	Title?:                #VisualTitleLabelOptions
-	TopicIdentifier?:      strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Actions?:            list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
+	ChartConfiguration?: #CustomContentConfiguration
+	DataSetIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Subtitle?: #VisualSubtitleLabelOptions
+	Title?:    #VisualTitleLabelOptions
+	TopicIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CustomFilterConfiguration: close({
-	CategoryValue?:    strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-	MatchOperator!:    #CategoryFilterMatchOperator
-	NullOption!:       #FilterNullOption
-	ParameterName?:    strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
+	CategoryValue?: strings.MaxRunes(512) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	MatchOperator!: #CategoryFilterMatchOperator
+	NullOption!:    #FilterNullOption
+	ParameterName?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	SelectAllOptions?: #CategoryFilterSelectAllOptions
 }) |
 fn.#ObjectExpression
 
 #CustomFilterListConfiguration: close({
-	CategoryValues?: list.MaxItems(100000) & [...] & [
-		...strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-	] |
+	CategoryValues?: list.MaxItems(100000) & [...] & [...strings.MaxRunes(512) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	MatchOperator!:    #CategoryFilterMatchOperator
 	NullOption!:       #FilterNullOption
@@ -1059,7 +1314,14 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#CustomNarrativeOptions: close({Narrative!: strings.MaxRunes(150000) & strings.MinRunes(0) | fn.#StringExpression}) |
+#CustomNarrativeOptions: close({
+	Narrative!: strings.MaxRunes(150000) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(150000) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #CustomParameterValues: close({
@@ -1108,7 +1370,8 @@ fn.#ObjectExpression
 			fn.#NumberExpression
 	] |
 		fn.#ListExpression
-	StringValues?: list.MaxItems(50000) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+	StringValues?: list.MaxItems(50000) & [...] & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -1119,25 +1382,6 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DashboardBehavior: "ENABLED" | "DISABLED" | fn.#StringExpression
-
-#DashboardError: close({
-	Message?:          =~"\\S" | fn.#StringExpression
-	Type?:             #DashboardErrorType
-	ViolatedEntities?: list.MaxItems(200) & [...] & [...#Entity] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#DashboardErrorType: "ACCESS_DENIED" |
-	"SOURCE_NOT_FOUND" |
-	"DATA_SET_NOT_FOUND" |
-	"INTERNAL_FAILURE" |
-	"PARAMETER_VALUE_INCOMPATIBLE" |
-	"PARAMETER_TYPE_INVALID" |
-	"PARAMETER_NOT_FOUND" |
-	"COLUMN_TYPE_MISMATCH" |
-	"COLUMN_GEOGRAPHIC_ROLE_MISMATCH" |
-	"COLUMN_REPLACEMENT_MISSING" |
-	fn.#StringExpression
 
 #DashboardPublishOptions: close({
 	AdHocFilteringOption?:                 #AdHocFilteringOption
@@ -1161,45 +1405,13 @@ fn.#ObjectExpression
 #DashboardSourceEntity: close({SourceTemplate?: #DashboardSourceTemplate}) | fn.#ObjectExpression
 
 #DashboardSourceTemplate: close({
-	Arn!:               string | fn.#StringExpression
+	Arn!:               string | number | bool | fn.#StringExpression
 	DataSetReferences!: [...] & [...#DataSetReference] | fn.#ListExpression
 	TopicReferences?:   list.MinItems(1) & [...#TopicReference] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #DashboardUIState: "EXPANDED" | "COLLAPSED" | fn.#StringExpression
-
-#DashboardVersion: close({
-	Arn?:             string | fn.#StringExpression
-	CreatedTime?:     time.Time | fn.#StringExpression
-	DataSetArns?:     list.MaxItems(100) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	Description?:     strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	Errors?:          list.MinItems(1) & [...#DashboardError] | fn.#ListExpression
-	Sheets?:          list.MaxItems(20) & [...] & [...#Sheet] | fn.#ListExpression
-	SourceEntityArn?: string | fn.#StringExpression
-	Status?:          #ResourceStatus
-	ThemeArn?:        string | fn.#StringExpression
-	VersionNumber?: >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							>=1,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
 
 #DashboardVersionDefinition: close({
 	AnalysisDefaults?:              #AnalysisDefaults
@@ -1218,14 +1430,34 @@ fn.#ObjectExpression
 #DashboardVisualPublishOptions: close({ExportHiddenFieldsOption?: #ExportHiddenFieldsOption}) | fn.#ObjectExpression
 
 #DataBarsOptions: close({
-	FieldId!:       strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	NegativeColor?: =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	PositiveColor?: =~"^#[A-F0-9]{6}$" | fn.#StringExpression
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	NegativeColor?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	PositiveColor?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DataColor: close({
-	Color?: =~"^#[A-F0-9]{6}$" | fn.#StringExpression
+	Color?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	DataValue?: number |
 		{
 			string &
@@ -1249,24 +1481,39 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DataFieldBarSeriesItem: close({
-	FieldId!:    strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	FieldValue?: string | fn.#StringExpression
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	FieldValue?: string | number | bool | fn.#StringExpression
 	Settings?:   #BarChartSeriesSettings
 }) |
 fn.#ObjectExpression
 
 #DataFieldComboSeriesItem: close({
-	FieldId!:    strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	FieldValue?: string | fn.#StringExpression
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	FieldValue?: string | number | bool | fn.#StringExpression
 	Settings?:   #ComboChartSeriesSettings
 }) |
 fn.#ObjectExpression
 
 #DataFieldSeriesItem: close({
 	AxisBinding!: #AxisBinding
-	FieldId!:     strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	FieldValue?:  string | fn.#StringExpression
-	Settings?:    #LineChartSeriesSettings
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	FieldValue?: string | number | bool | fn.#StringExpression
+	Settings?:   #LineChartSeriesSettings
 }) |
 fn.#ObjectExpression
 
@@ -1275,14 +1522,19 @@ fn.#ObjectExpression
 #DataLabelOptions: close({
 	CategoryLabelVisibility?: #Visibility
 	DataLabelTypes?:          list.MaxItems(100) & [...] & [...#DataLabelType] | fn.#ListExpression
-	LabelColor?:              =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	LabelContent?:            #DataLabelContent
-	LabelFontConfiguration?:  #FontConfiguration
-	MeasureLabelVisibility?:  #Visibility
-	Overlap?:                 #DataLabelOverlap
-	Position?:                #DataLabelPosition
-	TotalsVisibility?:        #Visibility
-	Visibility?:              #Visibility
+	LabelColor?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LabelContent?:           #DataLabelContent
+	LabelFontConfiguration?: #FontConfiguration
+	MeasureLabelVisibility?: #Visibility
+	Overlap?:                #DataLabelOverlap
+	Position?:               #DataLabelPosition
+	TotalsVisibility?:       #Visibility
+	Visibility?:             #Visibility
 }) |
 fn.#ObjectExpression
 
@@ -1300,15 +1552,30 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DataPathColor: close({
-	Color!:           =~"^#[A-F0-9]{6}$" | fn.#StringExpression
+	Color!: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Element!:         #DataPathValue
 	TimeGranularity?: #TimeGranularity
 }) |
 fn.#ObjectExpression
 
 #DataPathLabelType: close({
-	FieldId?:    strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	FieldValue?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+	FieldId?: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	FieldValue?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	Visibility?: #Visibility
 }) |
 fn.#ObjectExpression
@@ -1323,8 +1590,18 @@ fn.#ObjectExpression
 
 #DataPathValue: close({
 	DataPathType?: #DataPathType
-	FieldId?:      strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	FieldValue?:   strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+	FieldId?: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	FieldValue?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1337,14 +1614,24 @@ fn.#ObjectExpression
 #DataQAEnabledOption: close({AvailabilityStatus?: #DashboardBehavior}) | fn.#ObjectExpression
 
 #DataSetIdentifierDeclaration: close({
-	DataSetArn!: string | fn.#StringExpression
-	Identifier!: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+	DataSetArn!: string | number | bool | fn.#StringExpression
+	Identifier!: strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DataSetReference: close({
-	DataSetArn!:         string | fn.#StringExpression
-	DataSetPlaceholder!: =~"\\S" | fn.#StringExpression
+	DataSetArn!: string | number | bool | fn.#StringExpression
+	DataSetPlaceholder!: =~"\\S" |
+	{
+		number | bool
+		_cfnString: =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1355,18 +1642,33 @@ fn.#ObjectExpression
 #DateAxisOptions: close({MissingDateVisibility?: #Visibility}) | fn.#ObjectExpression
 
 #DateDimensionField: close({
-	Column!:              #ColumnIdentifier
-	DateGranularity?:     #TimeGranularity
-	FieldId!:             strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	Column!:          #ColumnIdentifier
+	DateGranularity?: #TimeGranularity
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	FormatConfiguration?: #DateTimeFormatConfiguration
-	HierarchyId?:         strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	HierarchyId?: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DateMeasureField: close({
 	AggregationFunction?: #DateAggregationFunction
 	Column!:              #ColumnIdentifier
-	FieldId!:             strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	FormatConfiguration?: #DateTimeFormatConfiguration
 }) |
 fn.#ObjectExpression
@@ -1379,7 +1681,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DateTimeFormatConfiguration: close({
-	DateTimeFormat?:               strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	DateTimeFormat?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	NullValueFormatConfiguration?: #NullValueFormatConfiguration
 	NumericFormatConfiguration?:   #NumericFormatConfiguration
 }) |
@@ -1387,28 +1694,48 @@ fn.#ObjectExpression
 
 #DateTimeHierarchy: close({
 	DrillDownFilters?: list.MaxItems(10) & [...] & [...#DrillDownFilter] | fn.#ListExpression
-	HierarchyId!:      strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	HierarchyId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DateTimeParameter: close({
-	Name!:   =~"\\S" | fn.#StringExpression
-	Values!: [...string | fn.#StringExpression] | fn.#ListExpression
+	Name!: =~"\\S" |
+	{
+		number | bool
+		_cfnString: =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
+	Values!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #DateTimeParameterDeclaration: close({
 	DefaultValues?:           #DateTimeDefaultValues
 	MappedDataSetParameters?: list.MaxItems(150) & [...] & [...#MappedDataSetParameter] | fn.#ListExpression
-	Name!:                    strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	TimeGranularity?:         #TimeGranularity
-	ValueWhenUnset?:          #DateTimeValueWhenUnsetConfiguration
+	Name!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TimeGranularity?: #TimeGranularity
+	ValueWhenUnset?:  #DateTimeValueWhenUnsetConfiguration
 }) |
 fn.#ObjectExpression
 
 #DateTimePickerControlDisplayOptions: close({
-	DateIconVisibility?:   #Visibility
-	DateTimeFormat?:       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	DateIconVisibility?: #Visibility
+	DateTimeFormat?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	HelperTextVisibility?: #Visibility
 	InfoIconLabelOptions?: #SheetControlInfoIconLabelOptions
 	TitleOptions?:         #LabelOptions
@@ -1448,11 +1775,21 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #DecalSettings: close({
-	DecalColor?:       =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
+	DecalColor?: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	DecalPatternType?: #DecalPatternType
 	DecalStyleType?:   #DecalStyleType
 	DecalVisibility?:  #Visibility
-	ElementValue?:     strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	ElementValue?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1491,7 +1828,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DecimalParameter: close({
-	Name!: =~"\\S" | fn.#StringExpression
+	Name!: =~"\\S" |
+	{
+		number | bool
+		_cfnString: =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
 	Values!: [
 		...number |
 			{
@@ -1520,9 +1862,14 @@ fn.#ObjectExpression
 #DecimalParameterDeclaration: close({
 	DefaultValues?:           #DecimalDefaultValues
 	MappedDataSetParameters?: list.MaxItems(150) & [...] & [...#MappedDataSetParameter] | fn.#ListExpression
-	Name!:                    strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	ParameterValueType!:      #ParameterValueType
-	ValueWhenUnset?:          #DecimalValueWhenUnsetConfiguration
+	Name!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ParameterValueType!: #ParameterValueType
+	ValueWhenUnset?:     #DecimalValueWhenUnsetConfiguration
 }) |
 fn.#ObjectExpression
 
@@ -1583,7 +1930,12 @@ fn.#ObjectExpression
 
 #DefaultFilterControlConfiguration: close({
 	ControlOptions!: #DefaultFilterControlOptions
-	Title!:          strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	Title!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1707,7 +2059,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DefaultTextAreaControlOptions: close({
-	Delimiter?:      strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	Delimiter?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	DisplayOptions?: #TextAreaControlDisplayOptions
 }) |
 fn.#ObjectExpression
@@ -1718,8 +2075,13 @@ fn.#ObjectExpression
 	CustomValuesConfiguration?: #CustomValuesConfiguration
 	SelectAllValueOptions?:     #SelectAllValueOptions
 	SourceColumn?:              #ColumnIdentifier
-	SourceField?:               strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	SourceParameterName?:       string | fn.#StringExpression
+	SourceField?: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	SourceParameterName?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1762,14 +2124,27 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #EmptyVisual: close({
-	Actions?:           list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
-	DataSetIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	TopicIdentifier?:   strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:          strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Actions?: list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
+	DataSetIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	TopicIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Entity: close({Path?: =~"\\S" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #ExcludePeriodConfiguration: close({
 	Amount!: number |
@@ -1801,7 +2176,12 @@ fn.#ObjectExpression
 #ExplicitHierarchy: close({
 	Columns!:          list.MaxItems(10) & list.MinItems(2) & [...#ColumnIdentifier] | fn.#ListExpression
 	DrillDownFilters?: list.MaxItems(10) & [...] & [...#DrillDownFilter] | fn.#ListExpression
-	HierarchyId!:      strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	HierarchyId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1812,7 +2192,12 @@ fn.#ObjectExpression
 #ExportWithHiddenFieldsOption: close({AvailabilityStatus?: #DashboardBehavior}) | fn.#ObjectExpression
 
 #FieldBarSeriesItem: close({
-	FieldId!:  strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Settings?: #BarChartSeriesSettings
 }) |
 fn.#ObjectExpression
@@ -1825,27 +2210,47 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #FieldComboSeriesItem: close({
-	FieldId!:  strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Settings?: #ComboChartSeriesSettings
 }) |
 fn.#ObjectExpression
 
 #FieldLabelType: close({
-	FieldId?:    strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	FieldId?: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Visibility?: #Visibility
 }) |
 fn.#ObjectExpression
 
 #FieldSeriesItem: close({
 	AxisBinding!: #AxisBinding
-	FieldId!:     strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	Settings?:    #LineChartSeriesSettings
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Settings?: #LineChartSeriesSettings
 }) |
 fn.#ObjectExpression
 
 #FieldSort: close({
 	Direction!: #SortDirection
-	FieldId!:   strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1856,8 +2261,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #FieldTooltipItem: close({
-	FieldId!:       strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	Label?:         string | fn.#StringExpression
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Label?:         string | number | bool | fn.#StringExpression
 	TooltipTarget?: #TooltipTarget
 	Visibility?:    #Visibility
 }) |
@@ -1891,8 +2301,13 @@ fn.#ObjectExpression
 #FilledMapFieldWells: close({FilledMapAggregatedFieldWells?: #FilledMapAggregatedFieldWells}) | fn.#ObjectExpression
 
 #FilledMapShapeConditionalFormatting: close({
-	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	Format?:  #ShapeConditionalFormat
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Format?: #ShapeConditionalFormat
 }) |
 fn.#ObjectExpression
 
@@ -1908,8 +2323,18 @@ fn.#ObjectExpression
 	ConditionalFormatting?: #FilledMapConditionalFormatting
 	Subtitle?:              #VisualSubtitleLabelOptions
 	Title?:                 #VisualTitleLabelOptions
-	VisualContentAltText?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:              strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1939,18 +2364,43 @@ fn.#ObjectExpression
 
 #FilterCrossSheetControl: close({
 	CascadingControlConfiguration?: #CascadingControlConfiguration
-	FilterControlId!:               strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	SourceFilterId!:                strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	FilterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SourceFilterId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FilterDateTimePickerControl: close({
-	CommitMode?:      #CommitMode
-	DisplayOptions?:  #DateTimePickerControlDisplayOptions
-	FilterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	SourceFilterId!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Title!:           strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Type?:            #SheetControlDateTimePickerType
+	CommitMode?:     #CommitMode
+	DisplayOptions?: #DateTimePickerControlDisplayOptions
+	FilterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SourceFilterId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Title!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type?: #SheetControlDateTimePickerType
 }) |
 fn.#ObjectExpression
 
@@ -1958,17 +2408,37 @@ fn.#ObjectExpression
 	CascadingControlConfiguration?: #CascadingControlConfiguration
 	CommitMode?:                    #CommitMode
 	DisplayOptions?:                #DropDownControlDisplayOptions
-	FilterControlId!:               strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	SelectableValues?:              #FilterSelectableValues
-	SourceFilterId!:                strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Title!:                         strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Type?:                          #SheetControlListType
+	FilterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SelectableValues?: #FilterSelectableValues
+	SourceFilterId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Title!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type?: #SheetControlListType
 }) |
 fn.#ObjectExpression
 
 #FilterGroup: close({
-	CrossDataset!:       #CrossDatasetTypes
-	FilterGroupId!:      strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	CrossDataset!: #CrossDatasetTypes
+	FilterGroupId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Filters!:            list.MaxItems(20) & [...] & [...#Filter] | fn.#ListExpression
 	ScopeConfiguration!: #FilterScopeConfiguration
 	Status?:             #WidgetStatus
@@ -1976,9 +2446,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #FilterListConfiguration: close({
-	CategoryValues?: list.MaxItems(100000) & [...] & [
-		...strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-	] |
+	CategoryValues?: list.MaxItems(100000) & [...] & [...strings.MaxRunes(512) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	MatchOperator!:    #CategoryFilterMatchOperator
 	NullOption?:       #FilterNullOption
@@ -1989,11 +2462,26 @@ fn.#ObjectExpression
 #FilterListControl: close({
 	CascadingControlConfiguration?: #CascadingControlConfiguration
 	DisplayOptions?:                #ListControlDisplayOptions
-	FilterControlId!:               strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	SelectableValues?:              #FilterSelectableValues
-	SourceFilterId!:                strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Title!:                         strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Type?:                          #SheetControlListType
+	FilterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SelectableValues?: #FilterSelectableValues
+	SourceFilterId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Title!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type?: #SheetControlListType
 }) |
 fn.#ObjectExpression
 
@@ -2002,9 +2490,12 @@ fn.#ObjectExpression
 #FilterOperationSelectedFieldsConfiguration: close({
 	SelectedColumns?:      list.MaxItems(10) & [...] & [...#ColumnIdentifier] | fn.#ListExpression
 	SelectedFieldOptions?: #SelectedFieldOptions
-	SelectedFields?: list.MaxItems(20) & list.MinItems(1) & [
-		...strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	SelectedFields?: list.MaxItems(20) & list.MinItems(1) & [...strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -2015,11 +2506,26 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #FilterRelativeDateTimeControl: close({
-	CommitMode?:      #CommitMode
-	DisplayOptions?:  #RelativeDateTimeControlDisplayOptions
-	FilterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	SourceFilterId!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Title!:           strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	CommitMode?:     #CommitMode
+	DisplayOptions?: #RelativeDateTimeControlDisplayOptions
+	FilterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SourceFilterId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Title!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -2030,13 +2536,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #FilterSelectableValues: close(
-	{Values?: list.MaxItems(50000) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression},
+	{Values?: list.MaxItems(50000) & [...] & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
 #FilterSliderControl: close({
-	DisplayOptions?:  #SliderControlDisplayOptions
-	FilterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	DisplayOptions?: #SliderControlDisplayOptions
+	FilterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	MaximumValue!: number |
 		{
 			string &
@@ -2075,7 +2586,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SourceFilterId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	SourceFilterId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	StepSize!: number |
 		{
 			string &
@@ -2095,44 +2611,94 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Title!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Type?:  #SheetControlSliderType
+	Title!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type?: #SheetControlSliderType
 }) |
 fn.#ObjectExpression
 
 #FilterTextAreaControl: close({
-	Delimiter?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	DisplayOptions?:  #TextAreaControlDisplayOptions
-	FilterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	SourceFilterId!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Title!:           strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	Delimiter?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	DisplayOptions?: #TextAreaControlDisplayOptions
+	FilterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SourceFilterId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Title!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FilterTextFieldControl: close({
-	DisplayOptions?:  #TextFieldControlDisplayOptions
-	FilterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	SourceFilterId!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Title!:           strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	DisplayOptions?: #TextFieldControlDisplayOptions
+	FilterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SourceFilterId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Title!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FilterVisualScope: "ALL_VISUALS" | "SELECTED_VISUALS" | fn.#StringExpression
 
 #FontConfiguration: close({
-	FontColor?:      =~"^#[A-F0-9]{6}$" | fn.#StringExpression
+	FontColor?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	FontDecoration?: #FontDecoration
-	FontFamily?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	FontSize?:       #FontSize
-	FontStyle?:      #FontStyle
-	FontWeight?:     #FontWeight
+	FontFamily?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	FontSize?:   #FontSize
+	FontStyle?:  #FontStyle
+	FontWeight?: #FontWeight
 }) |
 fn.#ObjectExpression
 
 #FontDecoration: "UNDERLINE" | "NONE" | fn.#StringExpression
 
 #FontSize: close({
-	Absolute?: string | fn.#StringExpression
+	Absolute?: string | number | bool | fn.#StringExpression
 	Relative?: #RelativeFontSize
 }) |
 fn.#ObjectExpression
@@ -2144,7 +2710,12 @@ fn.#ObjectExpression
 #FontWeightName: "NORMAL" | "BOLD" | fn.#StringExpression
 
 #ForecastComputation: close({
-	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	CustomSeasonalityValue?: <=180 & >=1 |
 		{
 			string &
@@ -2184,7 +2755,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Name?: string | fn.#StringExpression
+	Name?: string | number | bool | fn.#StringExpression
 	PeriodsBackward?: <=1000 & >=0 |
 		{
 			string &
@@ -2302,37 +2873,67 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #FreeFormLayoutElement: close({
-	BackgroundStyle?:     #FreeFormLayoutElementBackgroundStyle
-	BorderRadius?:        strings.MaxRunes(50) & strings.MinRunes(0) | fn.#StringExpression
-	BorderStyle?:         #FreeFormLayoutElementBorderStyle
-	ElementId!:           strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	ElementType!:         #LayoutElementType
-	Height!:              string | fn.#StringExpression
-	LoadingAnimation?:    #LoadingAnimation
-	Padding?:             strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+	BackgroundStyle?: #FreeFormLayoutElementBackgroundStyle
+	BorderRadius?: strings.MaxRunes(50) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	BorderStyle?: #FreeFormLayoutElementBorderStyle
+	ElementId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ElementType!:      #LayoutElementType
+	Height!:           string | number | bool | fn.#StringExpression
+	LoadingAnimation?: #LoadingAnimation
+	Padding?: strings.MaxRunes(200) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	RenderingRules?:      list.MaxItems(10000) & [...] & [...#SheetElementRenderingRule] | fn.#ListExpression
 	SelectedBorderStyle?: #FreeFormLayoutElementBorderStyle
 	Visibility?:          #Visibility
-	Width!:               string | fn.#StringExpression
-	XAxisLocation!:       string | fn.#StringExpression
-	YAxisLocation!:       string | fn.#StringExpression
+	Width!:               string | number | bool | fn.#StringExpression
+	XAxisLocation!:       string | number | bool | fn.#StringExpression
+	YAxisLocation!:       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FreeFormLayoutElementBackgroundStyle: close({
-	Color?:      =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
+	Color?: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Visibility?: #Visibility
 }) |
 fn.#ObjectExpression
 
 #FreeFormLayoutElementBorderStyle: close({
-	Color?:      =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
+	Color?: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Visibility?: #Visibility
-	Width?:      strings.MaxRunes(50) & strings.MinRunes(0) | fn.#StringExpression
+	Width?: strings.MaxRunes(50) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#FreeFormLayoutScreenCanvasSizeOptions: close({OptimizedViewPortWidth!: string | fn.#StringExpression}) |
+#FreeFormLayoutScreenCanvasSizeOptions: close({OptimizedViewPortWidth!: string | number | bool | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
 #FreeFormSectionLayoutConfiguration: close(
@@ -2360,12 +2961,17 @@ fn.#ObjectExpression
 
 #FunnelChartDataLabelOptions: close({
 	CategoryLabelVisibility?: #Visibility
-	LabelColor?:              =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	LabelFontConfiguration?:  #FontConfiguration
-	MeasureDataLabelStyle?:   #FunnelChartMeasureDataLabelStyle
-	MeasureLabelVisibility?:  #Visibility
-	Position?:                #DataLabelPosition
-	Visibility?:              #Visibility
+	LabelColor?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LabelFontConfiguration?: #FontConfiguration
+	MeasureDataLabelStyle?:  #FunnelChartMeasureDataLabelStyle
+	MeasureLabelVisibility?: #Visibility
+	Position?:               #DataLabelPosition
+	Visibility?:             #Visibility
 }) |
 fn.#ObjectExpression
 
@@ -2386,21 +2992,41 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #FunnelChartVisual: close({
-	Actions?:              list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
-	ChartConfiguration?:   #FunnelChartConfiguration
-	ColumnHierarchies?:    list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
-	Subtitle?:             #VisualSubtitleLabelOptions
-	Title?:                #VisualTitleLabelOptions
-	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Actions?:            list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
+	ChartConfiguration?: #FunnelChartConfiguration
+	ColumnHierarchies?:  list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
+	Subtitle?:           #VisualSubtitleLabelOptions
+	Title?:              #VisualTitleLabelOptions
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GaugeChartArcConditionalFormatting: close({ForegroundColor?: #ConditionalFormattingColor}) | fn.#ObjectExpression
 
 #GaugeChartColorConfiguration: close({
-	BackgroundColor?: =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	ForegroundColor?: =~"^#[A-F0-9]{6}$" | fn.#StringExpression
+	BackgroundColor?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ForegroundColor?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -2454,8 +3080,18 @@ fn.#ObjectExpression
 	ConditionalFormatting?: #GaugeChartConditionalFormatting
 	Subtitle?:              #VisualSubtitleLabelOptions
 	Title?:                 #VisualTitleLabelOptions
-	VisualContentAltText?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:              strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -2487,8 +3123,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #GeospatialCategoricalDataColor: close({
-	Color!:     =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
-	DataValue!: string | fn.#StringExpression
+	Color!: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	DataValue!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -2646,7 +3287,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #GeospatialGradientStepColor: close({
-	Color!: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
+	Color!: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	DataValue!: number |
 		{
 			string &
@@ -2676,7 +3322,15 @@ fn.#ObjectExpression
 
 #GeospatialHeatmapConfiguration: close({HeatmapColor?: #GeospatialHeatmapColorScale}) | fn.#ObjectExpression
 
-#GeospatialHeatmapDataColor: close({Color!: =~"^#[A-F0-9]{6}$" | fn.#StringExpression}) | fn.#ObjectExpression
+#GeospatialHeatmapDataColor: close({
+	Color!: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #GeospatialLayerColorField: close({
 	ColorDimensionsFields?: list.MaxItems(1) & [...] & [...#DimensionField] | fn.#ListExpression
@@ -2695,9 +3349,9 @@ fn.#ObjectExpression
 	Actions?:         list.MaxItems(10) & [...] & [...#LayerCustomAction] | fn.#ListExpression
 	DataSource?:      #GeospatialDataSourceItem
 	JoinDefinition?:  #GeospatialLayerJoinDefinition
-	Label?:           string | fn.#StringExpression
+	Label?:           string | number | bool | fn.#StringExpression
 	LayerDefinition?: #GeospatialLayerDefinition
-	LayerId!:         string | fn.#StringExpression
+	LayerId!:         string | number | bool | fn.#StringExpression
 	LayerType?:       #GeospatialLayerType
 	Tooltip?:         #TooltipOptions
 	Visibility?:      #Visibility
@@ -2707,7 +3361,7 @@ fn.#ObjectExpression
 #GeospatialLayerJoinDefinition: close({
 	ColorField?:      #GeospatialLayerColorField
 	DatasetKeyField?: #UnaggregatedField
-	ShapeKeyField?:   string | fn.#StringExpression
+	ShapeKeyField?:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -2786,7 +3440,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #GeospatialMapStyle: close({
-	BackgroundColor?:   =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
+	BackgroundColor?: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	BaseMapStyle?:      #BaseMapStyleType
 	BaseMapVisibility?: #Visibility
 }) |
@@ -2795,21 +3454,41 @@ fn.#ObjectExpression
 #GeospatialMapStyleOptions: close({BaseMapStyle?: #BaseMapStyleType}) | fn.#ObjectExpression
 
 #GeospatialMapVisual: close({
-	Actions?:              list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
-	ChartConfiguration?:   #GeospatialMapConfiguration
-	ColumnHierarchies?:    list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
-	Subtitle?:             #VisualSubtitleLabelOptions
-	Title?:                #VisualTitleLabelOptions
-	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Actions?:            list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
+	ChartConfiguration?: #GeospatialMapConfiguration
+	ColumnHierarchies?:  list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
+	Subtitle?:           #VisualSubtitleLabelOptions
+	Title?:              #VisualTitleLabelOptions
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GeospatialNullDataSettings: close({SymbolStyle!: #GeospatialNullSymbolStyle}) | fn.#ObjectExpression
 
 #GeospatialNullSymbolStyle: close({
-	FillColor?:   =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
-	StrokeColor?: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
+	FillColor?: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	StrokeColor?: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	StrokeWidth?: >=0 |
 		{
 			string &
@@ -2857,14 +3536,24 @@ fn.#ObjectExpression
 #GeospatialSelectedPointStyle: "POINT" | "CLUSTER" | "HEATMAP" | fn.#StringExpression
 
 #GeospatialSolidColor: close({
-	Color!: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
+	Color!: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	State?: #GeospatialColorState
 }) |
 fn.#ObjectExpression
 
-#GeospatialStaticFileSource: close(
-	{StaticFileId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression},
-) |
+#GeospatialStaticFileSource: close({
+	StaticFileId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #GeospatialWindowOptions: close({
@@ -2883,7 +3572,12 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #GradientStop: close({
-	Color?: =~"^#[A-F0-9]{6}$" | fn.#StringExpression
+	Color?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	DataValue?: number |
 		{
 			string &
@@ -2936,8 +3630,13 @@ fn.#ObjectExpression
 
 #GridLayoutElement: close({
 	BackgroundStyle?: #GridLayoutElementBackgroundStyle
-	BorderRadius?:    strings.MaxRunes(50) & strings.MinRunes(0) | fn.#StringExpression
-	BorderStyle?:     #GridLayoutElementBorderStyle
+	BorderRadius?: strings.MaxRunes(50) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	BorderStyle?: #GridLayoutElementBorderStyle
 	ColumnIndex?: <=35 & >=0 |
 		{
 			string &
@@ -2978,10 +3677,20 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ElementId!:        strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	ElementId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ElementType!:      #LayoutElementType
 	LoadingAnimation?: #LoadingAnimation
-	Padding?:          strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+	Padding?: strings.MaxRunes(200) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	RowIndex?: <=9009 & >=0 |
 		{
 			string &
@@ -3027,27 +3736,47 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #GridLayoutElementBackgroundStyle: close({
-	Color?:      =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
+	Color?: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Visibility?: #Visibility
 }) |
 fn.#ObjectExpression
 
 #GridLayoutElementBorderStyle: close({
-	Color?:      =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
+	Color?: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Visibility?: #Visibility
-	Width?:      strings.MaxRunes(50) & strings.MinRunes(0) | fn.#StringExpression
+	Width?: strings.MaxRunes(50) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GridLayoutScreenCanvasSizeOptions: close({
-	OptimizedViewPortWidth?: string | fn.#StringExpression
+	OptimizedViewPortWidth?: string | number | bool | fn.#StringExpression
 	ResizeOption!:           #ResizeOption
 }) |
 fn.#ObjectExpression
 
 #GrowthRateComputation: close({
-	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Name?:          string | fn.#StringExpression
+	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name?: string | number | bool | fn.#StringExpression
 	PeriodSize?: <=52 & >=2 |
 		{
 			string &
@@ -3074,9 +3803,14 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #HeaderFooterSectionConfiguration: close({
-	Layout!:    #SectionLayoutConfiguration
-	SectionId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Style?:     #SectionStyle
+	Layout!: #SectionLayoutConfiguration
+	SectionId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Style?: #SectionStyle
 }) |
 fn.#ObjectExpression
 
@@ -3111,13 +3845,23 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #HeatMapVisual: close({
-	Actions?:              list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
-	ChartConfiguration?:   #HeatMapConfiguration
-	ColumnHierarchies?:    list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
-	Subtitle?:             #VisualSubtitleLabelOptions
-	Title?:                #VisualTitleLabelOptions
-	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Actions?:            list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
+	ChartConfiguration?: #HeatMapConfiguration
+	ColumnHierarchies?:  list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
+	Subtitle?:           #VisualSubtitleLabelOptions
+	Title?:              #VisualTitleLabelOptions
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -3168,12 +3912,22 @@ fn.#ObjectExpression
 #HistogramFieldWells: close({HistogramAggregatedFieldWells?: #HistogramAggregatedFieldWells}) | fn.#ObjectExpression
 
 #HistogramVisual: close({
-	Actions?:              list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
-	ChartConfiguration?:   #HistogramConfiguration
-	Subtitle?:             #VisualSubtitleLabelOptions
-	Title?:                #VisualTitleLabelOptions
-	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Actions?:            list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
+	ChartConfiguration?: #HistogramConfiguration
+	Subtitle?:           #VisualSubtitleLabelOptions
+	Title?:              #VisualTitleLabelOptions
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -3209,10 +3963,20 @@ fn.#ObjectExpression
 
 #ImageCustomAction: close({
 	ActionOperations!: list.MaxItems(2) & list.MinItems(1) & [...#ImageCustomActionOperation] | fn.#ListExpression
-	CustomActionId!:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Name!:             strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Status?:           #WidgetStatus
-	Trigger!:          #ImageCustomActionTrigger
+	CustomActionId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Status?:  #WidgetStatus
+	Trigger!: #ImageCustomActionTrigger
 }) |
 fn.#ObjectExpression
 
@@ -3230,8 +3994,13 @@ fn.#ObjectExpression
 #ImageMenuOption: close({AvailabilityStatus?: #DashboardBehavior}) | fn.#ObjectExpression
 
 #ImageStaticFile: close({
-	Source?:       #StaticFileSource
-	StaticFileId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Source?: #StaticFileSource
+	StaticFileId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -3245,14 +4014,34 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #InsightVisual: close({
-	Actions?:              list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
-	DataSetIdentifier?:    strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+	Actions?: list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
+	DataSetIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	InsightConfiguration?: #InsightConfiguration
 	Subtitle?:             #VisualSubtitleLabelOptions
 	Title?:                #VisualTitleLabelOptions
-	TopicIdentifier?:      strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	TopicIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -3284,7 +4073,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #IntegerParameter: close({
-	Name!: =~"\\S" | fn.#StringExpression
+	Name!: =~"\\S" |
+	{
+		number | bool
+		_cfnString: =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
 	Values!: [
 		...number |
 			{
@@ -3313,9 +4107,14 @@ fn.#ObjectExpression
 #IntegerParameterDeclaration: close({
 	DefaultValues?:           #IntegerDefaultValues
 	MappedDataSetParameters?: list.MaxItems(150) & [...] & [...#MappedDataSetParameter] | fn.#ListExpression
-	Name!:                    strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	ParameterValueType!:      #ParameterValueType
-	ValueWhenUnset?:          #IntegerValueWhenUnsetConfiguration
+	Name!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ParameterValueType!: #ParameterValueType
+	ValueWhenUnset?:     #IntegerValueWhenUnsetConfiguration
 }) |
 fn.#ObjectExpression
 
@@ -3435,7 +4234,12 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #KPISparklineOptions: close({
-	Color?:             =~"^#[A-F0-9]{6}$" | fn.#StringExpression
+	Color?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	TooltipVisibility?: #Visibility
 	Type!:              #KPISparklineType
 	Visibility?:        #Visibility
@@ -3451,8 +4255,18 @@ fn.#ObjectExpression
 	ConditionalFormatting?: #KPIConditionalFormatting
 	Subtitle?:              #VisualSubtitleLabelOptions
 	Title?:                 #VisualTitleLabelOptions
-	VisualContentAltText?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:              strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -3463,7 +4277,7 @@ fn.#ObjectExpression
 #KPIVisualStandardLayoutType: "CLASSIC" | "VERTICAL" | fn.#StringExpression
 
 #LabelOptions: close({
-	CustomLabel?:       string | fn.#StringExpression
+	CustomLabel?:       string | number | bool | fn.#StringExpression
 	FontConfiguration?: #FontConfiguration
 	Visibility?:        #Visibility
 }) |
@@ -3471,10 +4285,20 @@ fn.#ObjectExpression
 
 #LayerCustomAction: close({
 	ActionOperations!: list.MaxItems(2) & list.MinItems(1) & [...#LayerCustomActionOperation] | fn.#ListExpression
-	CustomActionId!:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Name!:             strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Status?:           #WidgetStatus
-	Trigger!:          #LayerCustomActionTrigger
+	CustomActionId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Status?:  #WidgetStatus
+	Trigger!: #LayerCustomActionTrigger
 }) |
 fn.#ObjectExpression
 
@@ -3489,13 +4313,33 @@ fn.#ObjectExpression
 #LayerCustomActionTrigger: "DATA_POINT_CLICK" | "DATA_POINT_MENU" | fn.#StringExpression
 
 #LayerMapVisual: close({
-	ChartConfiguration?:   #GeospatialLayerMapConfiguration
-	DataSetIdentifier?:    strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	Subtitle?:             #VisualSubtitleLabelOptions
-	Title?:                #VisualTitleLabelOptions
-	TopicIdentifier?:      strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	ChartConfiguration?: #GeospatialLayerMapConfiguration
+	DataSetIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Subtitle?: #VisualSubtitleLabelOptions
+	Title?:    #VisualTitleLabelOptions
+	TopicIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -3511,12 +4355,12 @@ fn.#ObjectExpression
 #LayoutElementType: "VISUAL" | "FILTER_CONTROL" | "PARAMETER_CONTROL" | "TEXT_BOX" | "IMAGE" | fn.#StringExpression
 
 #LegendOptions: close({
-	Height?:                 string | fn.#StringExpression
+	Height?:                 string | number | bool | fn.#StringExpression
 	Position?:               #LegendPosition
 	Title?:                  #LabelOptions
 	ValueFontConfiguration?: #FontConfiguration
 	Visibility?:             #Visibility
-	Width?:                  string | fn.#StringExpression
+	Width?:                  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -3572,16 +4416,21 @@ fn.#ObjectExpression
 	LineInterpolation?: #LineInterpolation
 	LineStyle?:         #LineChartLineStyle
 	LineVisibility?:    #Visibility
-	LineWidth?:         string | fn.#StringExpression
+	LineWidth?:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LineChartMarkerShape: "CIRCLE" | "TRIANGLE" | "SQUARE" | "DIAMOND" | "ROUNDED_SQUARE" | fn.#StringExpression
 
 #LineChartMarkerStyleSettings: close({
-	MarkerColor?:      =~"^#[A-F0-9]{6}$" | fn.#StringExpression
+	MarkerColor?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	MarkerShape?:      #LineChartMarkerShape
-	MarkerSize?:       string | fn.#StringExpression
+	MarkerSize?:       string | number | bool | fn.#StringExpression
 	MarkerVisibility?: #Visibility
 }) |
 fn.#ObjectExpression
@@ -3605,13 +4454,23 @@ fn.#ObjectExpression
 #LineChartType: "LINE" | "AREA" | "STACKED_AREA" | fn.#StringExpression
 
 #LineChartVisual: close({
-	Actions?:              list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
-	ChartConfiguration?:   #LineChartConfiguration
-	ColumnHierarchies?:    list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
-	Subtitle?:             #VisualSubtitleLabelOptions
-	Title?:                #VisualTitleLabelOptions
-	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Actions?:            list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
+	ChartConfiguration?: #LineChartConfiguration
+	ColumnHierarchies?:  list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
+	Subtitle?:           #VisualSubtitleLabelOptions
+	Title?:              #VisualTitleLabelOptions
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -3642,33 +4501,63 @@ fn.#ObjectExpression
 
 #LoadingAnimation: close({Visibility?: #Visibility}) | fn.#ObjectExpression
 
-#LocalNavigationConfiguration: close(
-	{TargetSheetId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression},
-) |
+#LocalNavigationConfiguration: close({
+	TargetSheetId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #LongFormatText: close({
-	PlainText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	RichText?:  strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	PlainText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	RichText?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MapZoomMode: "AUTO" | "MANUAL" | fn.#StringExpression
 
 #MappedDataSetParameter: close({
-	DataSetIdentifier!:    strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	DataSetParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
+	DataSetIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	DataSetParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MaximumLabelType: close({Visibility?: #Visibility}) | fn.#ObjectExpression
 
 #MaximumMinimumComputation: close({
-	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Name?:          string | fn.#StringExpression
-	Time?:          #DimensionField
-	Type!:          #MaximumMinimumComputationType
-	Value?:         #MeasureField
+	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name?:  string | number | bool | fn.#StringExpression
+	Time?:  #DimensionField
+	Type!:  #MaximumMinimumComputationType
+	Value?: #MeasureField
 }) |
 fn.#ObjectExpression
 
@@ -3683,11 +4572,16 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #MetricComparisonComputation: close({
-	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	FromValue?:     #MeasureField
-	Name?:          string | fn.#StringExpression
-	TargetValue?:   #MeasureField
-	Time?:          #DimensionField
+	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	FromValue?:   #MeasureField
+	Name?:        string | number | bool | fn.#StringExpression
+	TargetValue?: #MeasureField
+	Time?:        #DimensionField
 }) |
 fn.#ObjectExpression
 
@@ -3702,14 +4596,26 @@ fn.#ObjectExpression
 #NegativeValueDisplayMode: "POSITIVE" | "NEGATIVE" | fn.#StringExpression
 
 #NestedFilter: close({
-	Column!:          #ColumnIdentifier
-	FilterId!:        strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Column!: #ColumnIdentifier
+	FilterId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	IncludeInnerSet!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InnerFilter!:     #InnerFilter
 }) |
 fn.#ObjectExpression
 
-#NullValueFormatConfiguration: close({NullString!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression}) |
+#NullValueFormatConfiguration: close({
+	NullString!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #NumberDisplayFormatConfiguration: close({
@@ -3717,9 +4623,19 @@ fn.#ObjectExpression
 	NegativeValueConfiguration?:   #NegativeValueConfiguration
 	NullValueFormatConfiguration?: #NullValueFormatConfiguration
 	NumberScale?:                  #NumberScale
-	Prefix?:                       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	SeparatorConfiguration?:       #NumericSeparatorConfiguration
-	Suffix?:                       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Prefix?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	SeparatorConfiguration?: #NumericSeparatorConfiguration
+	Suffix?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -3769,10 +4685,20 @@ fn.#ObjectExpression
 	AggregationFunction?:               #AggregationFunction
 	Column!:                            #ColumnIdentifier
 	DefaultFilterControlConfiguration?: #DefaultFilterControlConfiguration
-	FilterId!:         strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	MatchOperator!:    #NumericEqualityMatchOperator
-	NullOption!:       #FilterNullOption
-	ParameterName?:    strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
+	FilterId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	MatchOperator!: #NumericEqualityMatchOperator
+	NullOption!:    #FilterNullOption
+	ParameterName?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	SelectAllOptions?: #NumericFilterSelectAllOptions
 	Value?: number |
 		{
@@ -3811,7 +4737,12 @@ fn.#ObjectExpression
 	AggregationFunction?:               #AggregationFunction
 	Column!:                            #ColumnIdentifier
 	DefaultFilterControlConfiguration?: #DefaultFilterControlConfiguration
-	FilterId!:         strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	FilterId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	IncludeMaximum?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IncludeMinimum?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	NullOption!:       #FilterNullOption
@@ -3822,7 +4753,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #NumericRangeFilterValue: close({
-	Parameter?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
+	Parameter?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	StaticValue?: number |
 		{
 			string &
@@ -3860,17 +4796,32 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #NumericalDimensionField: close({
-	Column!:              #ColumnIdentifier
-	FieldId!:             strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	Column!: #ColumnIdentifier
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	FormatConfiguration?: #NumberFormatConfiguration
-	HierarchyId?:         strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	HierarchyId?: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #NumericalMeasureField: close({
 	AggregationFunction?: #NumericalAggregationFunction
 	Column!:              #ColumnIdentifier
-	FieldId!:             strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	FormatConfiguration?: #NumberFormatConfiguration
 }) |
 fn.#ObjectExpression
@@ -3922,15 +4873,25 @@ fn.#ObjectExpression
 #PanelBorderStyle: "SOLID" | "DASHED" | "DOTTED" | fn.#StringExpression
 
 #PanelConfiguration: close({
-	BackgroundColor?:      =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
+	BackgroundColor?: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	BackgroundVisibility?: #Visibility
-	BorderColor?:          =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" | fn.#StringExpression
-	BorderStyle?:          #PanelBorderStyle
-	BorderThickness?:      string | fn.#StringExpression
-	BorderVisibility?:     #Visibility
-	GutterSpacing?:        string | fn.#StringExpression
-	GutterVisibility?:     #Visibility
-	Title?:                #PanelTitleOptions
+	BorderColor?: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}(?:[A-F0-9]{2})?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	BorderStyle?:      #PanelBorderStyle
+	BorderThickness?:  string | number | bool | fn.#StringExpression
+	BorderVisibility?: #Visibility
+	GutterSpacing?:    string | number | bool | fn.#StringExpression
+	GutterVisibility?: #Visibility
+	Title?:            #PanelTitleOptions
 }) |
 fn.#ObjectExpression
 
@@ -3967,10 +4928,25 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ParameterDateTimePickerControl: close({
-	DisplayOptions?:      #DateTimePickerControlDisplayOptions
-	ParameterControlId!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	SourceParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	Title!:               strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	DisplayOptions?: #DateTimePickerControlDisplayOptions
+	ParameterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SourceParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Title!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -3986,28 +4962,58 @@ fn.#ObjectExpression
 	CascadingControlConfiguration?: #CascadingControlConfiguration
 	CommitMode?:                    #CommitMode
 	DisplayOptions?:                #DropDownControlDisplayOptions
-	ParameterControlId!:            strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	SelectableValues?:              #ParameterSelectableValues
-	SourceParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	Title!:               strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Type?:                #SheetControlListType
+	ParameterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SelectableValues?: #ParameterSelectableValues
+	SourceParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Title!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type?: #SheetControlListType
 }) |
 fn.#ObjectExpression
 
 #ParameterListControl: close({
 	CascadingControlConfiguration?: #CascadingControlConfiguration
 	DisplayOptions?:                #ListControlDisplayOptions
-	ParameterControlId!:            strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	SelectableValues?:              #ParameterSelectableValues
-	SourceParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	Title!:               strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Type?:                #SheetControlListType
+	ParameterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SelectableValues?: #ParameterSelectableValues
+	SourceParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Title!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type?: #SheetControlListType
 }) |
 fn.#ObjectExpression
 
 #ParameterSelectableValues: close({
 	LinkToDataSetColumn?: #ColumnIdentifier
-	Values?:              list.MaxItems(50000) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+	Values?: list.MaxItems(50000) & [...] & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -4051,8 +5057,18 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ParameterControlId!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	SourceParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
+	ParameterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SourceParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	StepSize!: number |
 		{
 			string &
@@ -4072,24 +5088,64 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Title!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	Title!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ParameterTextAreaControl: close({
-	Delimiter?:           strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	DisplayOptions?:      #TextAreaControlDisplayOptions
-	ParameterControlId!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	SourceParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	Title!:               strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	Delimiter?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	DisplayOptions?: #TextAreaControlDisplayOptions
+	ParameterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SourceParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Title!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ParameterTextFieldControl: close({
-	DisplayOptions?:      #TextFieldControlDisplayOptions
-	ParameterControlId!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	SourceParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	Title!:               strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	DisplayOptions?: #TextFieldControlDisplayOptions
+	ParameterControlId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SourceParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Title!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -4151,9 +5207,19 @@ fn.#ObjectExpression
 	DecimalPlacesConfiguration?:   #DecimalPlacesConfiguration
 	NegativeValueConfiguration?:   #NegativeValueConfiguration
 	NullValueFormatConfiguration?: #NullValueFormatConfiguration
-	Prefix?:                       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	SeparatorConfiguration?:       #NumericSeparatorConfiguration
-	Suffix?:                       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Prefix?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	SeparatorConfiguration?: #NumericSeparatorConfiguration
+	Suffix?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -4182,16 +5248,26 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #PeriodOverPeriodComputation: close({
-	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Name?:          string | fn.#StringExpression
-	Time?:          #DimensionField
-	Value?:         #MeasureField
+	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name?:  string | number | bool | fn.#StringExpression
+	Time?:  #DimensionField
+	Value?: #MeasureField
 }) |
 fn.#ObjectExpression
 
 #PeriodToDateComputation: close({
-	ComputationId!:         strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Name?:                  string | fn.#StringExpression
+	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name?:                  string | number | bool | fn.#StringExpression
 	PeriodTimeGranularity?: #TimeGranularity
 	Time?:                  #DimensionField
 	Value?:                 #MeasureField
@@ -4233,19 +5309,34 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PieChartVisual: close({
-	Actions?:              list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
-	ChartConfiguration?:   #PieChartConfiguration
-	ColumnHierarchies?:    list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
-	Subtitle?:             #VisualSubtitleLabelOptions
-	Title?:                #VisualTitleLabelOptions
-	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Actions?:            list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
+	ChartConfiguration?: #PieChartConfiguration
+	ColumnHierarchies?:  list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
+	Subtitle?:           #VisualSubtitleLabelOptions
+	Title?:              #VisualTitleLabelOptions
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PivotFieldSortOptions: close({
-	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	SortBy!:  #PivotTableSortBy
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	SortBy!: #PivotTableSortBy
 }) |
 fn.#ObjectExpression
 
@@ -4257,7 +5348,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PivotTableCellConditionalFormatting: close({
-	FieldId!:    strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Scope?:      #PivotTableConditionalFormattingScope
 	Scopes?:     list.MaxItems(3) & [...] & [...#PivotTableConditionalFormattingScope] | fn.#ListExpression
 	TextFormat?: #TextConditionalFormat
@@ -4289,7 +5385,7 @@ fn.#ObjectExpression
 
 #PivotTableDataPathOption: close({
 	DataPathList!: list.MaxItems(20) & [...] & [...#DataPathValue] | fn.#ListExpression
-	Width?:        string | fn.#StringExpression
+	Width?:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -4309,14 +5405,24 @@ fn.#ObjectExpression
 
 #PivotTableFieldCollapseStateTarget: close({
 	FieldDataPathValues?: list.MaxItems(20) & [...] & [...#DataPathValue] | fn.#ListExpression
-	FieldId?:             string | fn.#StringExpression
+	FieldId?:             string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PivotTableFieldOption: close({
-	CustomLabel?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	FieldId!:     strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	Visibility?:  #Visibility
+	CustomLabel?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Visibility?: #Visibility
 }) |
 fn.#ObjectExpression
 
@@ -4327,7 +5433,14 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#PivotTableFieldSubtotalOptions: close({FieldId?: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression}) |
+#PivotTableFieldSubtotalOptions: close({
+	FieldId?: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #PivotTableFieldWells: close({PivotTableAggregatedFieldWells?: #PivotTableAggregatedFieldWells}) | fn.#ObjectExpression
@@ -4339,7 +5452,7 @@ fn.#ObjectExpression
 	CollapsedRowDimensionsVisibility?: #Visibility
 	ColumnHeaderStyle?:                #TableCellStyle
 	ColumnNamesVisibility?:            #Visibility
-	DefaultCellWidth?:                 string | fn.#StringExpression
+	DefaultCellWidth?:                 string | number | bool | fn.#StringExpression
 	MetricPlacement?:                  #PivotTableMetricPlacement
 	RowAlternateColorOptions?:         #RowAlternateColorOptions
 	RowFieldNamesStyle?:               #TableCellStyle
@@ -4358,8 +5471,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PivotTableRowsLabelOptions: close({
-	CustomLabel?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Visibility?:  #Visibility
+	CustomLabel?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Visibility?: #Visibility
 }) |
 fn.#ObjectExpression
 
@@ -4393,13 +5511,23 @@ fn.#ObjectExpression
 	ConditionalFormatting?: #PivotTableConditionalFormatting
 	Subtitle?:              #VisualSubtitleLabelOptions
 	Title?:                 #VisualTitleLabelOptions
-	VisualContentAltText?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:              strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PivotTotalOptions: close({
-	CustomLabel?:             string | fn.#StringExpression
+	CustomLabel?:             string | number | bool | fn.#StringExpression
 	MetricHeaderCellStyle?:   #TableCellStyle
 	Placement?:               #TableTotalsPlacement
 	ScrollStatus?:            #TableTotalsScrollStatus
@@ -4411,12 +5539,22 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PluginVisual: close({
-	ChartConfiguration?:   #PluginVisualConfiguration
-	PluginArn!:            string | fn.#StringExpression
-	Subtitle?:             #VisualSubtitleLabelOptions
-	Title?:                #VisualTitleLabelOptions
-	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	ChartConfiguration?: #PluginVisualConfiguration
+	PluginArn!:          string | number | bool | fn.#StringExpression
+	Subtitle?:           #VisualSubtitleLabelOptions
+	Title?:              #VisualTitleLabelOptions
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -4463,8 +5601,8 @@ fn.#ObjectExpression
 #PluginVisualOptions: close({VisualProperties?: [...#PluginVisualProperty] | fn.#ListExpression}) | fn.#ObjectExpression
 
 #PluginVisualProperty: close({
-	Name?:  string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Name?:  string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -4479,7 +5617,12 @@ fn.#ObjectExpression
 #PredefinedHierarchy: close({
 	Columns!:          list.MaxItems(10) & list.MinItems(1) & [...#ColumnIdentifier] | fn.#ListExpression
 	DrillDownFilters?: list.MaxItems(10) & [...] & [...#DrillDownFilter] | fn.#ListExpression
-	HierarchyId!:      strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	HierarchyId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -4504,19 +5647,29 @@ fn.#ObjectExpression
 
 #RadarChartConfiguration: close({
 	AlternateBandColorsVisibility?: #Visibility
-	AlternateBandEvenColor?:        =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	AlternateBandOddColor?:         =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	AxesRangeScale?:                #RadarChartAxesRangeScale
-	BaseSeriesSettings?:            #RadarChartSeriesSettings
-	CategoryAxis?:                  #AxisDisplayOptions
-	CategoryLabelOptions?:          #ChartAxisLabelOptions
-	ColorAxis?:                     #AxisDisplayOptions
-	ColorLabelOptions?:             #ChartAxisLabelOptions
-	FieldWells?:                    #RadarChartFieldWells
-	Interactions?:                  #VisualInteractionOptions
-	Legend?:                        #LegendOptions
-	Shape?:                         #RadarChartShape
-	SortConfiguration?:             #RadarChartSortConfiguration
+	AlternateBandEvenColor?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	AlternateBandOddColor?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	AxesRangeScale?:       #RadarChartAxesRangeScale
+	BaseSeriesSettings?:   #RadarChartSeriesSettings
+	CategoryAxis?:         #AxisDisplayOptions
+	CategoryLabelOptions?: #ChartAxisLabelOptions
+	ColorAxis?:            #AxisDisplayOptions
+	ColorLabelOptions?:    #ChartAxisLabelOptions
+	FieldWells?:           #RadarChartFieldWells
+	Interactions?:         #VisualInteractionOptions
+	Legend?:               #LegendOptions
+	Shape?:                #RadarChartShape
+	SortConfiguration?:    #RadarChartSortConfiguration
 	StartAngle?: <=360 & >=-360 |
 		{
 			string &
@@ -4556,13 +5709,23 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RadarChartVisual: close({
-	Actions?:              list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
-	ChartConfiguration?:   #RadarChartConfiguration
-	ColumnHierarchies?:    list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
-	Subtitle?:             #VisualSubtitleLabelOptions
-	Title?:                #VisualTitleLabelOptions
-	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Actions?:            list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
+	ChartConfiguration?: #RadarChartConfiguration
+	ColumnHierarchies?:  list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
+	Subtitle?:           #VisualSubtitleLabelOptions
+	Title?:              #VisualTitleLabelOptions
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -4576,7 +5739,15 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ReferenceLineCustomLabelConfiguration: close({CustomLabel!: =~"\\S" | fn.#StringExpression}) | fn.#ObjectExpression
+#ReferenceLineCustomLabelConfiguration: close({
+	CustomLabel!: =~"\\S" |
+	{
+		number | bool
+		_cfnString: =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #ReferenceLineDataConfiguration: close({
 	AxisBinding?:          #AxisBinding
@@ -4595,11 +5766,16 @@ fn.#ObjectExpression
 
 #ReferenceLineLabelConfiguration: close({
 	CustomLabelConfiguration?: #ReferenceLineCustomLabelConfiguration
-	FontColor?:                =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	FontConfiguration?:        #FontConfiguration
-	HorizontalPosition?:       #ReferenceLineLabelHorizontalPosition
-	ValueLabelConfiguration?:  #ReferenceLineValueLabelConfiguration
-	VerticalPosition?:         #ReferenceLineLabelVerticalPosition
+	FontColor?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	FontConfiguration?:       #FontConfiguration
+	HorizontalPosition?:      #ReferenceLineLabelHorizontalPosition
+	ValueLabelConfiguration?: #ReferenceLineValueLabelConfiguration
+	VerticalPosition?:        #ReferenceLineLabelVerticalPosition
 }) |
 fn.#ObjectExpression
 
@@ -4635,7 +5811,12 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #ReferenceLineStyleConfiguration: close({
-	Color?:   =~"^#[A-F0-9]{6}$" | fn.#StringExpression
+	Color?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Pattern?: #ReferenceLinePatternType
 }) |
 fn.#ObjectExpression
@@ -4649,7 +5830,12 @@ fn.#ObjectExpression
 #ReferenceLineValueLabelRelativePosition: "BEFORE_CUSTOM_LABEL" | "AFTER_CUSTOM_LABEL" | fn.#StringExpression
 
 #RelativeDateTimeControlDisplayOptions: close({
-	DateTimeFormat?:       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	DateTimeFormat?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	InfoIconLabelOptions?: #SheetControlInfoIconLabelOptions
 	TitleOptions?:         #LabelOptions
 }) |
@@ -4662,11 +5848,21 @@ fn.#ObjectExpression
 	Column!:                            #ColumnIdentifier
 	DefaultFilterControlConfiguration?: #DefaultFilterControlConfiguration
 	ExcludePeriodConfiguration?:        #ExcludePeriodConfiguration
-	FilterId!:           strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	FilterId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	MinimumGranularity?: #TimeGranularity
 	NullOption!:         #FilterNullOption
-	ParameterName?:      strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	RelativeDateType!:   #RelativeDateType
+	ParameterName?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	RelativeDateType!: #RelativeDateType
 	RelativeDateValue?: number |
 		{
 			string &
@@ -4695,39 +5891,56 @@ fn.#ObjectExpression
 #ResizeOption: "FIXED" | "RESPONSIVE" | fn.#StringExpression
 
 #ResourcePermission: close({
-	Actions!:   list.MaxItems(30) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Actions!: list.MaxItems(30) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
+	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ResourceStatus: "CREATION_IN_PROGRESS" |
-	"CREATION_SUCCESSFUL" |
-	"CREATION_FAILED" |
-	"UPDATE_IN_PROGRESS" |
-	"UPDATE_SUCCESSFUL" |
-	"UPDATE_FAILED" |
-	"PENDING_UPDATE" |
-	"DELETED" |
-	fn.#StringExpression
-
 #RollingDateConfiguration: close({
-	DataSetIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
-	Expression!:        strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	DataSetIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Expression!: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RowAlternateColorOptions: close({
-	RowAlternateColors?: list.MaxItems(1) & [...] & [...=~"^#[A-F0-9]{6}$" | fn.#StringExpression] | fn.#ListExpression
-	Status?:             #WidgetStatus
+	RowAlternateColors?: list.MaxItems(1) & [...] & [...=~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Status?:                    #WidgetStatus
 	UsePrimaryBackgroundColor?: #WidgetStatus
 }) |
 fn.#ObjectExpression
 
 #SameSheetTargetVisualConfiguration: close({
 	TargetVisualOptions?: #TargetVisualOptions
-	TargetVisuals?: list.MaxItems(50) & list.MinItems(1) & [
-		...strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	] |
+	TargetVisuals?: list.MaxItems(50) & list.MinItems(1) & [...strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -4758,12 +5971,22 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SankeyDiagramVisual: close({
-	Actions?:              list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
-	ChartConfiguration?:   #SankeyDiagramChartConfiguration
-	Subtitle?:             #VisualSubtitleLabelOptions
-	Title?:                #VisualTitleLabelOptions
-	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Actions?:            list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
+	ChartConfiguration?: #SankeyDiagramChartConfiguration
+	Subtitle?:           #VisualSubtitleLabelOptions
+	Title?:              #VisualTitleLabelOptions
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -4809,13 +6032,23 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ScatterPlotVisual: close({
-	Actions?:              list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
-	ChartConfiguration?:   #ScatterPlotConfiguration
-	ColumnHierarchies?:    list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
-	Subtitle?:             #VisualSubtitleLabelOptions
-	Title?:                #VisualTitleLabelOptions
-	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Actions?:            list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
+	ChartConfiguration?: #ScatterPlotConfiguration
+	ColumnHierarchies?:  list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
+	Subtitle?:           #VisualSubtitleLabelOptions
+	Title?:              #VisualTitleLabelOptions
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -4854,7 +6087,7 @@ fn.#ObjectExpression
 #SectionPageBreakStatus: "ENABLED" | "DISABLED" | fn.#StringExpression
 
 #SectionStyle: close({
-	Height?:  string | fn.#StringExpression
+	Height?:  string | number | bool | fn.#StringExpression
 	Padding?: #Spacing
 }) |
 fn.#ObjectExpression
@@ -4878,26 +6111,30 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SetParameterValueConfiguration: close({
-	DestinationParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	Value!:                    #DestinationParameterValueConfiguration
+	DestinationParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: #DestinationParameterValueConfiguration
 }) |
 fn.#ObjectExpression
 
 #ShapeConditionalFormat: close({BackgroundColor!: #ConditionalFormattingColor}) | fn.#ObjectExpression
-
-#Sheet: close({
-	Name?:    strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	SheetId?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #SheetContentType: "PAGINATED" | "INTERACTIVE" | fn.#StringExpression
 
 #SheetControlDateTimePickerType: "SINGLE_VALUED" | "DATE_RANGE" | fn.#StringExpression
 
 #SheetControlInfoIconLabelOptions: close({
-	InfoIconText?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Visibility?:   #Visibility
+	InfoIconText?: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Visibility?: #Visibility
 }) |
 fn.#ObjectExpression
 
@@ -4912,18 +6149,38 @@ fn.#ObjectExpression
 #SheetControlsOption: close({VisibilityState?: #DashboardUIState}) | fn.#ObjectExpression
 
 #SheetDefinition: close({
-	ContentType?:         #SheetContentType
-	Description?:         strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	FilterControls?:      list.MaxItems(200) & [...] & [...#FilterControl] | fn.#ListExpression
-	Images?:              list.MaxItems(10) & [...] & [...#SheetImage] | fn.#ListExpression
-	Layouts?:             list.MaxItems(1) & list.MinItems(1) & [...#Layout] | fn.#ListExpression
-	Name?:                strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	ContentType?: #SheetContentType
+	Description?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	FilterControls?: list.MaxItems(200) & [...] & [...#FilterControl] | fn.#ListExpression
+	Images?:         list.MaxItems(10) & [...] & [...#SheetImage] | fn.#ListExpression
+	Layouts?:        list.MaxItems(1) & list.MinItems(1) & [...#Layout] | fn.#ListExpression
+	Name?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ParameterControls?:   list.MaxItems(200) & [...] & [...#ParameterControl] | fn.#ListExpression
 	SheetControlLayouts?: list.MaxItems(1) & [...] & [...#SheetControlLayout] | fn.#ListExpression
-	SheetId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	TextBoxes?:           list.MaxItems(100) & [...] & [...#SheetTextBox] | fn.#ListExpression
-	Title?:               strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Visuals?:             list.MaxItems(50) & [...] & [...#Visual] | fn.#ListExpression
+	SheetId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TextBoxes?: list.MaxItems(100) & [...] & [...#SheetTextBox] | fn.#ListExpression
+	Title?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Visuals?: list.MaxItems(50) & [...] & [...#Visual] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -4931,18 +6188,33 @@ fn.#ObjectExpression
 
 #SheetElementRenderingRule: close({
 	ConfigurationOverrides!: #SheetElementConfigurationOverrides
-	Expression!:             strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	Expression!: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SheetImage: close({
-	Actions?:             list.MaxItems(10) & [...] & [...#ImageCustomAction] | fn.#ListExpression
-	ImageContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Interactions?:        #ImageInteractionOptions
-	Scaling?:             #SheetImageScalingConfiguration
-	SheetImageId!:        strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Source!:              #SheetImageSource
-	Tooltip?:             #SheetImageTooltipConfiguration
+	Actions?: list.MaxItems(10) & [...] & [...#ImageCustomAction] | fn.#ListExpression
+	ImageContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Interactions?: #ImageInteractionOptions
+	Scaling?:      #SheetImageScalingConfiguration
+	SheetImageId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Source!:  #SheetImageSource
+	Tooltip?: #SheetImageTooltipConfiguration
 }) |
 fn.#ObjectExpression
 
@@ -4956,9 +6228,14 @@ fn.#ObjectExpression
 
 #SheetImageSource: close({SheetImageStaticFileSource?: #SheetImageStaticFileSource}) | fn.#ObjectExpression
 
-#SheetImageStaticFileSource: close(
-	{StaticFileId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression},
-) |
+#SheetImageStaticFileSource: close({
+	StaticFileId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #SheetImageTooltipConfiguration: close({
@@ -4967,19 +6244,36 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#SheetImageTooltipText: close({PlainText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression}) |
+#SheetImageTooltipText: close({
+	PlainText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #SheetLayoutElementMaximizationOption: close({AvailabilityStatus?: #DashboardBehavior}) | fn.#ObjectExpression
 
 #SheetLayoutGroup: close({
-	Id!:      strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Id!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Members!: list.MaxItems(430) & list.MinItems(2) & [...#SheetLayoutGroupMember] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #SheetLayoutGroupMember: close({
-	Id!:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Id!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Type!: #SheetLayoutGroupMemberType
 }) |
 fn.#ObjectExpression
@@ -4987,30 +6281,66 @@ fn.#ObjectExpression
 #SheetLayoutGroupMemberType: "ELEMENT" | "GROUP" | fn.#StringExpression
 
 #SheetTextBox: close({
-	Content?:        strings.MaxRunes(150000) & strings.MinRunes(0) | fn.#StringExpression
-	SheetTextBoxId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Content?: strings.MaxRunes(150000) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(150000) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	SheetTextBoxId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SheetVisualScopingConfiguration: close({
-	Scope!:   #FilterVisualScope
-	SheetId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	VisualIds?: list.MaxItems(50) & [...] & [
-		...strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	] |
+	Scope!: #FilterVisualScope
+	SheetId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualIds?: list.MaxItems(50) & [...] & [...strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #ShortFormatText: close({
-	PlainText?: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	RichText?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	PlainText?: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	RichText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SimpleAttributeAggregationFunction: "UNIQUE_VALUE" | fn.#StringExpression
 
-#SimpleClusterMarker: close({Color?: =~"^#[A-F0-9]{6}$" | fn.#StringExpression}) | fn.#ObjectExpression
+#SimpleClusterMarker: close({
+	Color?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #SimpleNumericalAggregationFunction: "SUM" |
 	"AVERAGE" |
@@ -5109,10 +6439,10 @@ fn.#ObjectExpression
 #SortDirection: "ASC" | "DESC" | fn.#StringExpression
 
 #Spacing: close({
-	Bottom?: string | fn.#StringExpression
-	Left?:   string | fn.#StringExpression
-	Right?:  string | fn.#StringExpression
-	Top?:    string | fn.#StringExpression
+	Bottom?: string | number | bool | fn.#StringExpression
+	Left?:   string | number | bool | fn.#StringExpression
+	Right?:  string | number | bool | fn.#StringExpression
+	Top?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -5121,9 +6451,19 @@ fn.#ObjectExpression
 #SparklineVisualType: "LINE" | "AREA_LINE" | fn.#StringExpression
 
 #SparklinesOptions: close({
-	AllPointsMarker?:   #LineChartMarkerStyleSettings
-	FieldId!:           strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	LineColor?:         =~"^#[A-F0-9]{6}$" | fn.#StringExpression
+	AllPointsMarker?: #LineChartMarkerStyleSettings
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	LineColor?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	LineInterpolation?: #LineInterpolation
 	MaxValueMarker?:    #LineChartMarkerStyleSettings
 	MinValueMarker?:    #LineChartMarkerStyleSettings
@@ -5134,8 +6474,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SpatialStaticFile: close({
-	Source?:       #StaticFileSource
-	StaticFileId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Source?: #StaticFileSource
+	StaticFileId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -5148,9 +6493,14 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #StaticFileS3SourceOptions: close({
-	BucketName!: string | fn.#StringExpression
-	ObjectKey!:  string | fn.#StringExpression
-	Region!:     string | fn.#StringExpression
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ObjectKey!: string | number | bool | fn.#StringExpression
+	Region!:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -5160,11 +6510,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#StaticFileUrlSourceOptions: close({Url!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#StaticFileUrlSourceOptions: close({Url!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #StringDefaultValues: close({
 	DynamicValue?: #DynamicDefaultValue
-	StaticValues?: list.MaxItems(50000) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+	StaticValues?: list.MaxItems(50000) & [...] & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -5175,22 +6526,32 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #StringParameter: close({
-	Name!:   =~"\\S" | fn.#StringExpression
-	Values!: [...string | fn.#StringExpression] | fn.#ListExpression
+	Name!: =~"\\S" |
+	{
+		number | bool
+		_cfnString: =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
+	Values!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #StringParameterDeclaration: close({
 	DefaultValues?:           #StringDefaultValues
 	MappedDataSetParameters?: list.MaxItems(150) & [...] & [...#MappedDataSetParameter] | fn.#ListExpression
-	Name!:                    strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	ParameterValueType!:      #ParameterValueType
-	ValueWhenUnset?:          #StringValueWhenUnsetConfiguration
+	Name!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ParameterValueType!: #ParameterValueType
+	ValueWhenUnset?:     #StringValueWhenUnsetConfiguration
 }) |
 fn.#ObjectExpression
 
 #StringValueWhenUnsetConfiguration: close({
-	CustomValue?:          string | fn.#StringExpression
+	CustomValue?:          string | number | bool | fn.#StringExpression
 	ValueWhenUnsetOption?: #ValueWhenUnsetOption
 }) |
 fn.#ObjectExpression
@@ -5198,7 +6559,7 @@ fn.#ObjectExpression
 #StyledCellType: "TOTAL" | "METRIC_HEADER" | "VALUE" | fn.#StringExpression
 
 #SubtotalOptions: close({
-	CustomLabel?:           string | fn.#StringExpression
+	CustomLabel?:           string | number | bool | fn.#StringExpression
 	FieldLevel?:            #PivotTableSubtotalLevel
 	FieldLevelOptions?:     list.MaxItems(100) & [...] & [...#PivotTableFieldSubtotalOptions] | fn.#ListExpression
 	MetricHeaderCellStyle?: #TableCellStyle
@@ -5216,7 +6577,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TableBorderOptions: close({
-	Color?: =~"^#[A-F0-9]{6}$" | fn.#StringExpression
+	Color?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Style?: #TableBorderStyle
 	Thickness?: <=4 & >=1 |
 		{
@@ -5244,7 +6610,12 @@ fn.#ObjectExpression
 #TableBorderStyle: "NONE" | "SOLID" | fn.#StringExpression
 
 #TableCellConditionalFormatting: close({
-	FieldId!:    strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	TextFormat?: #TextConditionalFormat
 }) |
 fn.#ObjectExpression
@@ -5255,7 +6626,12 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #TableCellStyle: close({
-	BackgroundColor?:   =~"^#[A-F0-9]{6}$" | fn.#StringExpression
+	BackgroundColor?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Border?:            #GlobalTableBorderOptions
 	FontConfiguration?: #FontConfiguration
 	Height?: <=500 & >=8 |
@@ -5313,7 +6689,7 @@ fn.#ObjectExpression
 
 #TableFieldCustomTextContent: close({
 	FontConfiguration!: #FontConfiguration
-	Value?:             string | fn.#StringExpression
+	Value?:             string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -5334,16 +6710,31 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TableFieldOption: close({
-	CustomLabel?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	FieldId!:     strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	URLStyling?:  #TableFieldURLConfiguration
-	Visibility?:  #Visibility
-	Width?:       string | fn.#StringExpression
+	CustomLabel?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	URLStyling?: #TableFieldURLConfiguration
+	Visibility?: #Visibility
+	Width?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TableFieldOptions: close({
-	Order?: list.MaxItems(200) & [...] & [...strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression] |
+	Order?: list.MaxItems(200) & [...] & [...strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	PinnedFieldOptions?:     #TablePinnedFieldOptions
 	SelectedFieldOptions?:   list.MaxItems(100) & [...] & [...#TableFieldOption] | fn.#ListExpression
@@ -5386,9 +6777,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TablePinnedFieldOptions: close({
-	PinnedLeftFields?: list.MaxItems(201) & [...] & [
-		...strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	PinnedLeftFields?: list.MaxItems(201) & [...] & [...strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -5432,14 +6826,34 @@ fn.#ObjectExpression
 	ConditionalFormatting?: #TableConditionalFormatting
 	Subtitle?:              #VisualSubtitleLabelOptions
 	Title?:                 #VisualTitleLabelOptions
-	VisualContentAltText?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:              strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -5602,8 +7016,18 @@ fn.#ObjectExpression
 #TimeEqualityFilter: close({
 	Column!:                            #ColumnIdentifier
 	DefaultFilterControlConfiguration?: #DefaultFilterControlConfiguration
-	FilterId!:        strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	ParameterName?:   strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
+	FilterId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ParameterName?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	RollingDate?:     #RollingDateConfiguration
 	TimeGranularity?: #TimeGranularity
 	Value?:           time.Time | fn.#StringExpression
@@ -5633,7 +7057,12 @@ fn.#ObjectExpression
 	Column!:                            #ColumnIdentifier
 	DefaultFilterControlConfiguration?: #DefaultFilterControlConfiguration
 	ExcludePeriodConfiguration?:        #ExcludePeriodConfiguration
-	FilterId!:          strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	FilterId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	IncludeMaximum?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IncludeMinimum?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	NullOption!:        #FilterNullOption
@@ -5644,7 +7073,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TimeRangeFilterValue: close({
-	Parameter?:   strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
+	Parameter?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	RollingDate?: #RollingDateConfiguration
 	StaticValue?: time.Time | fn.#StringExpression
 }) |
@@ -5673,7 +7107,12 @@ fn.#ObjectExpression
 	AggregationSortConfigurations!: list.MaxItems(100) & [...] & [...#AggregationSortConfiguration] | fn.#ListExpression
 	Column!:                        #ColumnIdentifier
 	DefaultFilterControlConfiguration?: #DefaultFilterControlConfiguration
-	FilterId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	FilterId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Limit?: number |
 		{
 			string &
@@ -5693,14 +7132,24 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ParameterName?:   strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
+	ParameterName?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	TimeGranularity?: #TimeGranularity
 }) |
 fn.#ObjectExpression
 
 #TopBottomMoversComputation: close({
-	Category?:      #DimensionField
-	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Category?: #DimensionField
+	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	MoverSize?: <=20 & >=1 |
 		{
 			string &
@@ -5721,7 +7170,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Name?:      string | fn.#StringExpression
+	Name?:      string | number | bool | fn.#StringExpression
 	SortOrder?: #TopBottomSortOrder
 	Time?:      #DimensionField
 	Type!:      #TopBottomComputationType
@@ -5730,9 +7179,14 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TopBottomRankedComputation: close({
-	Category?:      #DimensionField
-	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Name?:          string | fn.#StringExpression
+	Category?: #DimensionField
+	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name?: string | number | bool | fn.#StringExpression
 	ResultSize?: <=20 & >=1 |
 		{
 			string &
@@ -5761,23 +7215,46 @@ fn.#ObjectExpression
 #TopBottomSortOrder: "PERCENT_DIFFERENCE" | "ABSOLUTE_DIFFERENCE" | fn.#StringExpression
 
 #TopicIdentifierDeclaration: close({
-	Identifier!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	TopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	Identifier!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TopicArn!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TopicReference: close({
-	TopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	TopicPlaceholder!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	TopicArn!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TopicPlaceholder!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TotalAggregationComputation: close({
-	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Name?:          string | fn.#StringExpression
-	Value?:         #MeasureField
+	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name?:  string | number | bool | fn.#StringExpression
+	Value?: #MeasureField
 }) |
 fn.#ObjectExpression
 
@@ -5785,13 +7262,18 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #TotalAggregationOption: close({
-	FieldId!:                  strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	TotalAggregationFunction!: #TotalAggregationFunction
 }) |
 fn.#ObjectExpression
 
 #TotalOptions: close({
-	CustomLabel?:             string | fn.#StringExpression
+	CustomLabel?:             string | number | bool | fn.#StringExpression
 	Placement?:               #TableTotalsPlacement
 	ScrollStatus?:            #TableTotalsScrollStatus
 	TotalAggregationOptions?: list.MaxItems(200) & [...] & [...#TotalAggregationOption] | fn.#ListExpression
@@ -5824,7 +7306,7 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	ColumnType!:  #TransposedColumnType
-	ColumnWidth?: string | fn.#StringExpression
+	ColumnWidth?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -5858,13 +7340,23 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TreeMapVisual: close({
-	Actions?:              list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
-	ChartConfiguration?:   #TreeMapConfiguration
-	ColumnHierarchies?:    list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
-	Subtitle?:             #VisualSubtitleLabelOptions
-	Title?:                #VisualTitleLabelOptions
-	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Actions?:            list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
+	ChartConfiguration?: #TreeMapConfiguration
+	ColumnHierarchies?:  list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
+	Subtitle?:           #VisualSubtitleLabelOptions
+	Title?:              #VisualTitleLabelOptions
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -5873,16 +7365,26 @@ fn.#ObjectExpression
 #URLTargetConfiguration: "NEW_TAB" | "NEW_WINDOW" | "SAME_TAB" | fn.#StringExpression
 
 #UnaggregatedField: close({
-	Column!:              #ColumnIdentifier
-	FieldId!:             strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	Column!: #ColumnIdentifier
+	FieldId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	FormatConfiguration?: #FormatConfiguration
 }) |
 fn.#ObjectExpression
 
 #UniqueValuesComputation: close({
-	Category?:      #DimensionField
-	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Name?:          string | fn.#StringExpression
+	Category?: #DimensionField
+	ComputationId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -5931,10 +7433,20 @@ fn.#ObjectExpression
 
 #VisualCustomAction: close({
 	ActionOperations!: list.MaxItems(2) & list.MinItems(1) & [...#VisualCustomActionOperation] | fn.#ListExpression
-	CustomActionId!:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	Name!:             strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Status?:           #WidgetStatus
-	Trigger!:          #VisualCustomActionTrigger
+	CustomActionId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Status?:  #WidgetStatus
+	Trigger!: #VisualCustomActionTrigger
 }) |
 fn.#ObjectExpression
 
@@ -5963,8 +7475,13 @@ fn.#ObjectExpression
 #VisualMenuOption: close({AvailabilityStatus?: #DashboardBehavior}) | fn.#ObjectExpression
 
 #VisualPalette: close({
-	ChartColor?: =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	ColorMap?:   list.MaxItems(5000) & [...] & [...#DataPathColor] | fn.#ListExpression
+	ChartColor?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ColorMap?: list.MaxItems(5000) & [...] & [...#DataPathColor] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -6010,13 +7527,28 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #WaterfallChartGroupColorConfiguration: close({
-	NegativeBarColor?: =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	PositiveBarColor?: =~"^#[A-F0-9]{6}$" | fn.#StringExpression
-	TotalBarColor?:    =~"^#[A-F0-9]{6}$" | fn.#StringExpression
+	NegativeBarColor?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	PositiveBarColor?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TotalBarColor?: =~"^#[A-F0-9]{6}$" |
+	{
+		number | bool
+		_cfnString: =~"^#[A-F0-9]{6}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#WaterfallChartOptions: close({TotalBarLabel?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#WaterfallChartOptions: close({TotalBarLabel?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #WaterfallChartSortConfiguration: close({
 	BreakdownItemsLimit?: #ItemsLimitConfiguration
@@ -6025,13 +7557,23 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #WaterfallVisual: close({
-	Actions?:              list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
-	ChartConfiguration?:   #WaterfallChartConfiguration
-	ColumnHierarchies?:    list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
-	Subtitle?:             #VisualSubtitleLabelOptions
-	Title?:                #VisualTitleLabelOptions
-	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Actions?:            list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
+	ChartConfiguration?: #WaterfallChartConfiguration
+	ColumnHierarchies?:  list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
+	Subtitle?:           #VisualSubtitleLabelOptions
+	Title?:              #VisualTitleLabelOptions
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -6141,13 +7683,23 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #WordCloudVisual: close({
-	Actions?:              list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
-	ChartConfiguration?:   #WordCloudChartConfiguration
-	ColumnHierarchies?:    list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
-	Subtitle?:             #VisualSubtitleLabelOptions
-	Title?:                #VisualTitleLabelOptions
-	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VisualId!:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
+	Actions?:            list.MaxItems(10) & [...] & [...#VisualCustomAction] | fn.#ListExpression
+	ChartConfiguration?: #WordCloudChartConfiguration
+	ColumnHierarchies?:  list.MaxItems(2) & [...] & [...#ColumnHierarchy] | fn.#ListExpression
+	Subtitle?:           #VisualSubtitleLabelOptions
+	Title?:              #VisualTitleLabelOptions
+	VisualContentAltText?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VisualId!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -6158,5 +7710,3 @@ fn.#ObjectExpression
 #WordCloudWordPadding: "NONE" | "SMALL" | "MEDIUM" | "LARGE" | fn.#StringExpression
 
 #WordCloudWordScaling: "EMPHASIZE" | "NORMAL" | fn.#StringExpression
-
-#YAxisOptions: close({YAxis!: #SingleYAxisOption}) | fn.#ObjectExpression

@@ -8,5 +8,4 @@ import schema "github.com/cueformation/cfn-cue/resources/h1ba9db8079fa3801:schem
 #EncryptionType: schema.#EncryptionType
 #ReferenceItem:  schema.#ReferenceItem
 #SseConfig:      schema.#SseConfig
-#StoreStatus:    schema.#StoreStatus
 #TagMap:         schema.#TagMap

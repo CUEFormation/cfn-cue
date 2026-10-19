@@ -8,5 +8,3 @@ import schema "github.com/cueformation/cfn-cue/resources/hd25aa22d9630043d:schem
 #MapConfiguration: schema.#MapConfiguration
 #PricingPlan:      schema.#PricingPlan
 #Tag:              schema.#Tag
-#TagMap:           schema.#TagMap
-#iso8601UTC:       schema.#iso8601UTC

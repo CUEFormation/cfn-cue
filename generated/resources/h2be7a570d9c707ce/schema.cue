@@ -3,13 +3,17 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::ResourceExplorer2::DefaultViewAssociation Resource Type
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ResourceExplorer2::DefaultViewAssociation"
-	Properties!: close({ViewArn!: string | fn.#StringExpression})
+	Type!: "AWS::ResourceExplorer2::DefaultViewAssociation"
+	let properties = close({ViewArn!: string | number | bool | fn.#StringExpression})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

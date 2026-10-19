@@ -258,5 +258,5 @@ import (
 	]
 
 	// The subnet ID used by the connection.
-	SubnetId?: strings.MaxRunes(255) & strings.MinRunes(1)
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & (strings.MaxRunes(255) & strings.MinRunes(1))
 })

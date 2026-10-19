@@ -16,7 +16,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h1da719e514a031c1:schem
 #ApplicationHostUrl:                         schema.#ApplicationHostUrl
 #ApplicationKey:                             schema.#ApplicationKey
 #ApplicationServicePath:                     schema.#ApplicationServicePath
-#AuthCode:                                   schema.#AuthCode
 #AuthenticationType:                         schema.#AuthenticationType
 #BasicAuthCredentials:                       schema.#BasicAuthCredentials
 #BucketName:                                 schema.#BucketName

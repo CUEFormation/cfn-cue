@@ -6,37 +6,111 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Outposts::Site Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Outposts::Site"
-	Properties!: close({
-		Description?:            strings.MaxRunes(1001) & strings.MinRunes(1) & =~"^[\\S ]+$" | fn.#StringExpression
-		Name!:                   strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\S ]+$" | fn.#StringExpression
-		Notes?:                  strings.MaxRunes(2000) & strings.MinRunes(1) & =~"^[\\S \\n]+$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(1001) & strings.MinRunes(1) & =~"^[\\S ]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1001) & strings.MinRunes(1) & =~"^[\\S ]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\S ]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\S ]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Notes?: strings.MaxRunes(2000) & strings.MinRunes(1) & =~"^[\\S \\n]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2000) & strings.MinRunes(1) & =~"^[\\S \\n]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		OperatingAddress?:       #Address
 		RackPhysicalProperties?: #RackPhysicalProperties
 		ShippingAddress?:        #Address
 		Tags?:                   [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Address: close({
-	AddressLine1!:       strings.MaxRunes(180) & strings.MinRunes(1) & =~"^\\S[\\S ]*$" | fn.#StringExpression
-	AddressLine2?:       strings.MaxRunes(60) & strings.MinRunes(0) & =~"^\\S[\\S ]*$" | fn.#StringExpression
-	AddressLine3?:       strings.MaxRunes(60) & strings.MinRunes(0) & =~"^\\S[\\S ]*$" | fn.#StringExpression
-	City!:               strings.MaxRunes(50) & strings.MinRunes(1) & =~"^\\S[\\S ]*$" | fn.#StringExpression
-	ContactName!:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"^\\S[\\S ]*$" | fn.#StringExpression
-	ContactPhoneNumber!: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[\\S ]+$" | fn.#StringExpression
-	CountryCode!:        strings.MaxRunes(2) & strings.MinRunes(2) & =~"^[A-Z]{2}$" | fn.#StringExpression
-	DistrictOrCounty?:   strings.MaxRunes(60) & strings.MinRunes(1) & =~"^\\S[\\S ]*$" | fn.#StringExpression
-	Municipality?:       strings.MaxRunes(180) & strings.MinRunes(0) & =~"^\\S[\\S ]*$" | fn.#StringExpression
-	PostalCode!:         strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 -]+$" | fn.#StringExpression
-	StateOrRegion!:      strings.MaxRunes(50) & strings.MinRunes(1) & =~"^\\S[\\S ]*$" | fn.#StringExpression
+	AddressLine1!: strings.MaxRunes(180) & strings.MinRunes(1) & =~"^\\S[\\S ]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(180) & strings.MinRunes(1) & =~"^\\S[\\S ]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	AddressLine2?: strings.MaxRunes(60) & strings.MinRunes(0) & =~"^\\S[\\S ]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(60) & strings.MinRunes(0) & =~"^\\S[\\S ]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	AddressLine3?: strings.MaxRunes(60) & strings.MinRunes(0) & =~"^\\S[\\S ]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(60) & strings.MinRunes(0) & =~"^\\S[\\S ]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	City!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^\\S[\\S ]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^\\S[\\S ]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ContactName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^\\S[\\S ]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^\\S[\\S ]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ContactPhoneNumber!: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[\\S ]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[\\S ]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	CountryCode!: strings.MaxRunes(2) & strings.MinRunes(2) & =~"^[A-Z]{2}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2) & strings.MinRunes(2) & =~"^[A-Z]{2}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	DistrictOrCounty?: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^\\S[\\S ]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^\\S[\\S ]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Municipality?: strings.MaxRunes(180) & strings.MinRunes(0) & =~"^\\S[\\S ]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(180) & strings.MinRunes(0) & =~"^\\S[\\S ]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	PostalCode!: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 -]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[a-zA-Z0-9 -]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	StateOrRegion!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^\\S[\\S ]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^\\S[\\S ]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -82,7 +156,22 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\S \\n]+$" | fn.#StringExpression
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\S \\n]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\S \\n]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

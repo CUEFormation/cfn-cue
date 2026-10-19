@@ -3,23 +3,21 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema of AWS::EC2::PrefixList Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::PrefixList"
-	Properties!: close({
+	let properties = close({
 		AddressFamily!: "IPv4" | "IPv6" | fn.#StringExpression
 		Entries?:       list.MaxItems(100) & [...] & [...#Entry] | fn.#ListExpression
 		MaxEntries?: int & >=1 |
@@ -39,19 +37,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		PrefixListName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:           [...#Tag] | fn.#ListExpression
+		PrefixListName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Entry: close({
-	Cidr!:        string & (strings.MaxRunes(46) & strings.MinRunes(1)) | fn.#StringExpression
-	Description?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	Cidr!: (fn.#IPv4Network & string | fn.#IPv6Network & string) & (strings.MaxRunes(46) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: (fn.#IPv4Network & string | fn.#IPv6Network & string) &
+		strings.MaxRunes(46) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Description?: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

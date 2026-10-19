@@ -7,15 +7,15 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a collaboration between AWS accounts that allows for secure data collaboration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CleanRooms::Collaboration"
-	Properties!: close({
+	let properties = close({
 		AllowedResultRegions?:        #AllowedResultRegions
 		AnalyticsEngine?:             #AnalyticsEngine
 		AutoApprovedChangeTypes?:     #AutoApprovedChangeTypeList
@@ -24,14 +24,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		CreatorMemberAbilities?:      #MemberAbilities
 		CreatorPaymentConfiguration?: #PaymentConfiguration
 		DataEncryptionMetadata?:      #DataEncryptionMetadata
-		Description!:                 strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Description!: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" &
+		matchN(0, [=~"^(?:\\s*$)"]) &
+		string &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" &
+			matchN(0, [=~"^(?:\\s*$)"]) &
+			string &
+			strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 		IsMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		JobLogStatus?:     #CollaborationJobLogStatus
 		Members?:          list.MaxItems(9) & [...] & [...#MemberSpecification] | fn.#ListExpression
-		Name!:             strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		QueryLogStatus!:   #CollaborationQueryLogStatus
-		Tags?:             list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Name!: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t]*$" &
+		matchN(0, [=~"^(?:\\s*$)"]) &
+		string &
+		strings.MaxRunes(100) &
+		strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t]*$" &
+			matchN(0, [=~"^(?:\\s*$)"]) &
+			string &
+			strings.MaxRunes(100) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		QueryLogStatus!: #CollaborationQueryLogStatus
+		Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AllowedResultRegions: list.UniqueItems() & [...#SupportedS3Region] | fn.#ListExpression
@@ -87,15 +119,18 @@ fn.#ObjectExpression
 #MemberAbility: "CAN_QUERY" | "CAN_RUN_JOB" | "CAN_RECEIVE_RESULTS" | fn.#StringExpression
 
 #MemberSpecification: close({
-	AccountId!:            strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d+$" | fn.#StringExpression
+	AccountId!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	DisplayName!:          #Name
 	MLMemberAbilities?:    #MLMemberAbilities
 	MemberAbilities?:      #MemberAbilities
 	PaymentConfiguration?: #PaymentConfiguration
 }) |
 fn.#ObjectExpression
-
-#MemberStatus: "INVITED" | "ACTIVE" | "LEFT" | "REMOVED" | fn.#StringExpression
 
 #ModelInferencePaymentConfig: close(
 	{IsResponsible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
@@ -107,7 +142,21 @@ fn.#ObjectExpression
 ) |
 	fn.#ObjectExpression
 
-#Name: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+#Name: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t]*$" &
+matchN(0, [=~"^(?:\\s*$)"]) &
+string &
+strings.MaxRunes(100) &
+strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t]*$" &
+	matchN(0, [=~"^(?:\\s*$)"]) &
+	string &
+	strings.MaxRunes(100) &
+	strings.MinRunes(1) &
+	"\(self)"
+} |
+fn.#StringExpression
 
 #PaymentConfiguration: close({
 	JobCompute?:      #JobComputePaymentConfig
@@ -162,7 +211,17 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

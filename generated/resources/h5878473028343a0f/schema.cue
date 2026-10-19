@@ -7,20 +7,34 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::LicenseManager::LicenseAssetRuleSet.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::LicenseManager::LicenseAssetRuleSet"
-	Properties!: close({
-		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		Name!:        strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
-		Rules!:       [...#LicenseAssetRule] | fn.#ListExpression
-		Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	let properties = close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Rules!: [...#LicenseAssetRule] | fn.#ListExpression
+		Tags?:  list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AndRuleStatement: close({MatchingRuleStatements?: [...#MatchingRuleStatement] | fn.#ListExpression}) |
@@ -50,9 +64,9 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #MatchingRuleStatement: close({
-	Constraint!:   string | fn.#StringExpression
-	KeyToMatch!:   string | fn.#StringExpression
-	ValueToMatch!: [...string | fn.#StringExpression] | fn.#ListExpression
+	Constraint!:   string | number | bool | fn.#StringExpression
+	KeyToMatch!:   string | number | bool | fn.#StringExpression
+	ValueToMatch!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -67,7 +81,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

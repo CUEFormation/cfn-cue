@@ -16,8 +16,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h4cd7885db897fe5f:schem
 #ConnectionConfiguration:               schema.#ConnectionConfiguration
 #ConnectionProperties:                  schema.#ConnectionProperties
 #ConnectionPropertiesInput:             schema.#ConnectionPropertiesInput
-#ConnectionStatus:                      schema.#ConnectionStatus
-#ConnectionType:                        schema.#ConnectionType
 #CredentialMap:                         schema.#CredentialMap
 #GlueConnectionInput:                   schema.#GlueConnectionInput
 #GlueConnectionType:                    schema.#GlueConnectionType

@@ -3,73 +3,69 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"list"
 )
-
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lambda::NetworkConnector
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lambda::NetworkConnector"
-	Properties!: close({
+	let properties = close({
 		Configuration!: #Config
 		Name?:          #Name
 		OperatorRole?:  #RoleArn
 		Tags?:          list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Arn: strings.MaxRunes(140) &
-strings.MinRunes(1) &
-=~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:network-connector:[a-zA-Z0-9-_]+(:[1-9][0-9]*)?)$" |
-fn.#StringExpression
-
 #Config: close({VpcEgressConfiguration!: #VpcEgressConfiguration}) | fn.#ObjectExpression
-
-#LatestVersion: int & >=1 |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatInt(
-					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-						int &
-						>=1,
-					10,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression
-
-#LatestVersionArn: strings.MaxRunes(140) &
-strings.MinRunes(1) &
-=~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:network-connector:[a-zA-Z0-9-_]+(:[1-9][0-9]*)?)$" |
-fn.#StringExpression
 
 #Name: strings.MaxRunes(140) &
 strings.MinRunes(1) &
 =~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:network-connector:[a-zA-Z0-9-_]+(:[1-9][0-9]*)?)|[a-zA-Z0-9_-]{1,64}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(140) &
+	strings.MinRunes(1) &
+	=~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:network-connector:[a-zA-Z0-9-_]+(:[1-9][0-9]*)?)|[a-zA-Z0-9_-]{1,64}$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #RoleArn: strings.MaxRunes(10000) &
 strings.MinRunes(0) &
 =~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(10000) &
+	strings.MinRunes(0) &
+	=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#State: "PENDING" | "ACTIVE" | "INACTIVE" | "FAILED" | "DELETING" | "DELETE_FAILED" | fn.#StringExpression
-
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -79,17 +75,28 @@ fn.#ObjectExpression
 	] |
 		fn.#ListExpression
 	NetworkProtocol!: "IPv4" | "DualStack" | fn.#StringExpression
-	SecurityGroupIds!: list.MaxItems(5) & [...] & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroupIds!: list.MaxItems(5) & [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(0) &
+	=~"^sg-[0-9a-zA-Z]*$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(1024) &
 		strings.MinRunes(0) &
-		=~"^sg-[0-9a-zA-Z]*$" |
-		fn.#StringExpression
-	] |
+		=~"^sg-[0-9a-zA-Z]*$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	SubnetIds!: list.MaxItems(16) & list.MinItems(1) & [
-		...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^subnet-[0-9a-z]*$" | fn.#StringExpression
-	] |
+	SubnetIds!: list.MaxItems(16) & list.MinItems(1) & [...strings.MaxRunes(1024) &
+	strings.MinRunes(0) &
+	=~"^subnet-[0-9a-z]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^subnet-[0-9a-z]*$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression

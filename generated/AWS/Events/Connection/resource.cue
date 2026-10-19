@@ -6,11 +6,8 @@ import schema "github.com/cueformation/cfn-cue/resources/hd0df85968cafb831:schem
 
 #Resource:                 schema.#Resource
 #ApiKeyAuthParameters:     schema.#ApiKeyAuthParameters
-#AuthParameters:           schema.#AuthParameters
 #BasicAuthParameters:      schema.#BasicAuthParameters
 #ClientParameters:         schema.#ClientParameters
 #ConnectionHttpParameters: schema.#ConnectionHttpParameters
-#ConnectivityParameters:   schema.#ConnectivityParameters
 #OAuthParameters:          schema.#OAuthParameters
 #Parameter:                schema.#Parameter
-#ResourceParameters:       schema.#ResourceParameters

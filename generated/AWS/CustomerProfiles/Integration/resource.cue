@@ -15,7 +15,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h7579eaceaaf9f59e:schem
 #MarketoSourceProperties:     schema.#MarketoSourceProperties
 #Object:                      schema.#Object
 #ObjectTypeMapping:           schema.#ObjectTypeMapping
-#Operator:                    schema.#Operator
 #OperatorPropertiesKeys:      schema.#OperatorPropertiesKeys
 #S3ConnectorOperator:         schema.#S3ConnectorOperator
 #S3SourceProperties:          schema.#S3SourceProperties

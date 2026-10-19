@@ -2,6 +2,8 @@
 
 package schema
 
+import "github.com/cueformation/cfn-cue/fn:fn"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Specifies a static route for a VPN connection between an existing virtual
@@ -12,7 +14,7 @@ package schema
 // Guide*.
 #Properties: close({
 	// The CIDR block associated with the local subnet of the customer network.
-	DestinationCidrBlock!: string
+	DestinationCidrBlock!: fn.#IPv4Network & string
 
 	// The ID of the VPN connection.
 	VpnConnectionId!: string

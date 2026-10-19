@@ -6,4 +6,3 @@ import schema "github.com/cueformation/cfn-cue/resources/he179d3dbf87ca576:schem
 
 #Resource:                     schema.#Resource
 #OTelEnrichmentMetricSelector: schema.#OTelEnrichmentMetricSelector
-#Status:                       schema.#Status

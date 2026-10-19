@@ -4,13 +4,9 @@ package LocationFSxONTAP
 
 import schema "github.com/cueformation/cfn-cue/resources/h0fd53026d71f4c50:schema"
 
-#Resource:            schema.#Resource
-#CmkSecretConfig:     schema.#CmkSecretConfig
-#CustomSecretConfig:  schema.#CustomSecretConfig
-#ManagedSecretConfig: schema.#ManagedSecretConfig
-#NFS:                 schema.#NFS
-#NfsMountOptions:     schema.#NfsMountOptions
-#Protocol:            schema.#Protocol
-#SMB:                 schema.#SMB
-#SmbMountOptions:     schema.#SmbMountOptions
-#Tag:                 schema.#Tag
+#Resource:           schema.#Resource
+#CustomSecretConfig: schema.#CustomSecretConfig
+#NFS:                schema.#NFS
+#NfsMountOptions:    schema.#NfsMountOptions
+#SmbMountOptions:    schema.#SmbMountOptions
+#Tag:                schema.#Tag

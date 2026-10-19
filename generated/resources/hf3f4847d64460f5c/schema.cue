@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -51,7 +51,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *General Reference*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53::HostedZone"
-	Properties?: close({
+	let properties = close({
 		// A complex type that contains an optional comment.
 		// If you don't want to specify a comment, omit the ``HostedZoneConfig`` and ``Comment`` elements.
 		HostedZoneConfig?: #HostedZoneConfig
@@ -60,7 +60,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// recovery settings and status information.
 		HostedZoneFeatures?: #HostedZoneFeatures
 		HostedZoneTags?:     list.UniqueItems() & [...#HostedZoneTag] | fn.#ListExpression
-		Name?:               strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Name?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Creates a configuration for DNS query logging. After you create a query
 		// logging configuration, Amazon Route 53 begins to publish log data to an
@@ -139,9 +144,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		QueryLoggingConfig?: #QueryLoggingConfig
 		VPCs?:               list.UniqueItems() & [...#VPC] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
-#HostedZoneConfig: close({Comment?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}) |
+#HostedZoneConfig: close({
+	Comment?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #HostedZoneFeatures: close(
@@ -150,16 +166,31 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #HostedZoneTag: close({
-	Key!:   strings.MaxRunes(128) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#QueryLoggingConfig: close({CloudWatchLogsLogGroupArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#QueryLoggingConfig: close({CloudWatchLogsLogGroupArn!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #VPC: close({
-	VPCId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	VPCRegion!: string | fn.#StringExpression
+	VPCId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	VPCRegion!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

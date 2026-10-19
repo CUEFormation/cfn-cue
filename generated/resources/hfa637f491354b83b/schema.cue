@@ -7,24 +7,39 @@ import (
 	"list"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::Certificate.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lightsail::Certificate"
-	Properties!: close({
-		CertificateName!:         string | fn.#StringExpression
-		DomainName!:              string | fn.#StringExpression
-		SubjectAlternativeNames?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	let properties = close({
+		CertificateName!: string | number | bool | fn.#StringExpression
+		DomainName!:      string | number | bool | fn.#StringExpression
+		SubjectAlternativeNames?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -25,6 +25,9 @@ type Options struct {
 	// NoIAMPolicies keeps provider schemas for IAM policy properties
 	// instead of substituting iam package profiles.
 	NoIAMPolicies bool
+	// NoCfnLintRules omits the single-resource service rules taken from
+	// cfn-lint's extension schemas (see extensions.go).
+	NoCfnLintRules bool
 }
 
 // Generate writes to a staging directory and publishes only after every file
@@ -51,7 +54,7 @@ func Generate(source *Source, opt Options) (*bundle.Manifest, error) {
 	} else if !os.IsNotExist(e) {
 		return nil, e
 	}
-	m := &bundle.Manifest{Generator: bundle.Generator, Source: source.Label, SourceSHA256: source.SHA256, Module: opt.Module, LanguageExtensions: opt.LanguageExtensions, IncludeSAM: opt.IncludeSAM, IAMPolicies: !opt.NoIAMPolicies, Regions: map[string]map[string]string{}, Schemas: map[string]bundle.SchemaInfo{}, Diagnostics: []bundle.Diagnostic{}}
+	m := &bundle.Manifest{Generator: bundle.Generator, Source: source.Label, SourceSHA256: source.SHA256, Module: opt.Module, LanguageExtensions: opt.LanguageExtensions, IncludeSAM: opt.IncludeSAM, IAMPolicies: !opt.NoIAMPolicies, CfnLintRules: !opt.NoCfnLintRules, Regions: map[string]map[string]string{}, Schemas: map[string]bundle.SchemaInfo{}, Diagnostics: []bundle.Diagnostic{}}
 	m.ValidationNotes = []string{
 		"Each region has a full resource package and a separate types package. The types package checks template structure and regional type names, leaving resource Properties unconstrained.",
 		"Each resource type has one package, <Org>/<Service>/<Name>, which re-exports #Resource and the definitions of its resources/ schema. These packages do not check regional availability; the regional #Template and cfn-cue-validate do.",
@@ -203,8 +206,8 @@ func Generate(source *Source, opt Options) (*bundle.Manifest, error) {
 			return nil, fmt.Errorf("schema %s typeName %q does not match %q", hash, typ, hashTypes[hash])
 		}
 		sum := sha256.Sum256(b)
-		m.Schemas[hash] = bundle.SchemaInfo{Type: typ, SHA256: hex.EncodeToString(sum[:]), PropertiesRequired: len(asArray(root["required"])) > 0}
-		c := &converter{module: opt.Module, resource: typ, extensions: opt.LanguageExtensions, iam: !opt.NoIAMPolicies}
+		m.Schemas[hash] = bundle.SchemaInfo{Type: typ, SHA256: hex.EncodeToString(sum[:]), PropertiesRequired: len(asArray(root["required"])) > 0, Attributes: Attributes(root), PrimaryIdentifier: PrimaryIdentifier(root)}
+		c := &converter{module: opt.Module, resource: typ, extensions: opt.LanguageExtensions, iam: !opt.NoIAMPolicies, cfnLintRules: !opt.NoCfnLintRules}
 		f, e := c.extract(root, false)
 		if e != nil {
 			return nil, fmt.Errorf("literal %s: %w", typ, e)
@@ -219,12 +222,26 @@ func Generate(source *Source, opt Options) (*bundle.Manifest, error) {
 		}
 		stripRootEmbed(f)
 		addImport(f, "base", opt.Module+"/template:template")
+		addImport(f, "structs", "struct")
+		if !imports(f, opt.Module+"/fn:fn") {
+			addImport(f, "fn", opt.Module+"/fn:fn")
+		}
 		propsRequired := len(asArray(root["required"])) > 0
 		if e = inlineProperties(f, func(properties ast.Expr) ast.Expr {
+			var resource *ast.StructLit
 			if typ == cfn.CustomResourceType {
-				return and(sel("base", "ResourceAttributes"), obj(field("Type", union(str(typ), &ast.UnaryExpr{Op: token.MAT, X: str(cfn.CustomResourcePattern)}), false), field("Properties", properties, false)))
+				// Custom properties are open, so an Fn::If or NoValue object
+				// would otherwise leave the properties alternative incomplete
+				// (ServiceToken missing) rather than failed, making the
+				// conditional ambiguous.
+				properties = and(properties, obj(field("Fn::If", &ast.BottomLit{}, true), field("Ref", &ast.BottomLit{}, true)))
+				resource = obj(field("Type", union(str(typ), &ast.UnaryExpr{Op: token.MAT, X: str(cfn.CustomResourcePattern)}), false), field("Properties", union(id("properties"), id(propertiesIf)), false))
+			} else {
+				resource = obj(field("Type", str(typ), false), field("Properties", union(id("properties"), id(propertiesIf)), !propsRequired))
 			}
-			return and(sel("base", "ResourceAttributes"), obj(field("Type", str(typ), false), field("Properties", properties, !propsRequired)))
+			// Keep Type first so a reader sees which resource this is.
+			resource.Elts = []ast.Decl{resource.Elts[0], &ast.LetClause{Ident: ast.NewIdent("properties"), Expr: properties}, conditionalProperties(), resource.Elts[1]}
+			return and(sel("base", "ResourceAttributes"), resource)
 		}); e != nil {
 			return nil, fmt.Errorf("template %s: %w", typ, e)
 		}
@@ -314,6 +331,26 @@ func inlineProperties(f *ast.File, resource func(ast.Expr) ast.Expr) error {
 		return nil
 	}
 	return fmt.Errorf("extracted schema has no #Properties")
+}
+
+// propertiesIf names the recursive Fn::If alternative for a resource's whole
+// Properties. A let clause cannot refer to itself, so it is a hidden
+// definition inside #Resource, beside the properties schema it refers to.
+const propertiesIf = "_#propertiesIf"
+
+// conditionalProperties defines Fn::If choosing between properties objects,
+// as in {"Fn::If": [Condition, {...}, {Ref: AWS::NoValue}]}. Each branch is
+// the exact properties schema, AWS::NoValue, or another such Fn::If, so
+// nesting has no depth limit while every literal leaf keeps the resource's
+// schema. The closed single-key struct guards the recursion: a branch only
+// recurses through an object whose one key is Fn::If. MinFields keeps an
+// empty object, which the properties alternative also accepts, from making
+// the choice ambiguous.
+func conditionalProperties() *ast.Field {
+	branch := union(id("properties"), sel("fn", "NoValue"), id(propertiesIf))
+	key := ast.NewList(&ast.UnaryExpr{Op: token.MAT, X: str("^Fn::If$")})
+	condition := ast.NewCall(id("close"), &ast.StructLit{Elts: []ast.Decl{&ast.Field{Label: key, Value: tuple(id("string"), branch, branch)}}})
+	return &ast.Field{Label: ast.NewIdent(propertiesIf), Value: and(condition, ast.NewCall(ast.NewSel(id("structs"), "MinFields"), ast.NewLit(token.INT, "1")))}
 }
 
 func stripRootEmbed(f *ast.File) {

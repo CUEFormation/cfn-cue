@@ -4,8 +4,6 @@ package LocationFSxWindows
 
 import schema "github.com/cueformation/cfn-cue/resources/hf384c1563ab0c10c:schema"
 
-#Resource:            schema.#Resource
-#CmkSecretConfig:     schema.#CmkSecretConfig
-#CustomSecretConfig:  schema.#CustomSecretConfig
-#ManagedSecretConfig: schema.#ManagedSecretConfig
-#Tag:                 schema.#Tag
+#Resource:           schema.#Resource
+#CustomSecretConfig: schema.#CustomSecretConfig
+#Tag:                schema.#Tag

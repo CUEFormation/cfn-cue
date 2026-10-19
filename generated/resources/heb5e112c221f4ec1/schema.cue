@@ -3,55 +3,92 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"struct"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Bedrock::DataAutomationLibrary
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Bedrock::DataAutomationLibrary"
-	Properties!: close({
+	let properties = close({
 		EncryptionConfiguration?: #EncryptionConfiguration
-		LibraryDescription?:      strings.MaxRunes(300) & strings.MinRunes(0) | fn.#StringExpression
-		LibraryName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
-		Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		LibraryDescription?: strings.MaxRunes(300) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(300) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		LibraryName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
-
-#DataAutomationLibraryStatus: "ACTIVE" | "DELETING" | fn.#StringExpression
 
 #EncryptionConfiguration: close({
 	KmsEncryptionContext?: #KmsEncryptionContext
-	KmsKeyId!: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
+	KmsKeyId!: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^[A-Za-z0-9][A-Za-z0-9:_/+=,@.-]+$" |
+	{
+		number | bool
+		_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^[A-Za-z0-9][A-Za-z0-9:_/+=,@.-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#EntityType: "VOCABULARY" | fn.#StringExpression
-
-#EntityTypeInfo: close({
-	EntityMetadata?: string | fn.#StringExpression
-	EntityType!:     #EntityType
 }) |
 fn.#ObjectExpression
 
 #KmsEncryptionContext: struct.MinFields(1) & close({
 
-	{[=~"^.*\\S.*$"]: strings.MaxRunes(2000) & strings.MinRunes(1) & =~"^.*\\S.*$" | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^.*\\S.*$"]: strings.MaxRunes(2000) & strings.MinRunes(1) & =~"^.*\\S.*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2000) & strings.MinRunes(1) & =~"^.*\\S.*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

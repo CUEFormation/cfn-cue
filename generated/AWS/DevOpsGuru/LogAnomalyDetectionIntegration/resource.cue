@@ -4,5 +4,4 @@ package LogAnomalyDetectionIntegration
 
 import schema "github.com/cueformation/cfn-cue/resources/h17c2e386eb38bc22:schema"
 
-#Resource:  schema.#Resource
-#AccountId: schema.#AccountId
+#Resource: schema.#Resource

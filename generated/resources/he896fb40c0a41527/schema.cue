@@ -7,12 +7,10 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,10 +18,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // GameLift container group definition.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GameLift::ContainerGroupDefinition"
-	Properties!: close({
+	let properties = close({
 		ContainerGroupType?:            "GAME_SERVER" | "PER_INSTANCE" | fn.#StringExpression
 		GameServerContainerDefinition?: #GameServerContainerDefinition
-		Name!:            strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		OperatingSystem!: "AMAZON_LINUX_2023" | fn.#StringExpression
 		SourceVersionNumber?: int & >=0 |
 			{
@@ -85,26 +88,53 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		VersionDescription?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		VersionDescription?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ContainerDependency: close({
-	Condition!:     "START" | "COMPLETE" | "SUCCESS" | "HEALTHY" | fn.#StringExpression
-	ContainerName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+	Condition!: "START" | "COMPLETE" | "SUCCESS" | "HEALTHY" | fn.#StringExpression
+	ContainerName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ContainerEnvironment: close({
-	Name!:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
+	Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ContainerHealthCheck: close({
-	Command!: list.MaxItems(20) & list.MinItems(1) & [
-		...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	] |
+	Command!: list.MaxItems(20) & list.MinItems(1) & [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	Interval?: int & <=300 & >=60 |
 		{
@@ -174,9 +204,19 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ContainerMountPoint: close({
-	AccessLevel?:   "READ_ONLY" | "READ_AND_WRITE" | fn.#StringExpression
-	ContainerPath?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^(\\/+[^\\/]+\\/*)+$" | fn.#StringExpression
-	InstancePath!:  strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\/[\\s\\S]*$" | fn.#StringExpression
+	AccessLevel?: "READ_ONLY" | "READ_AND_WRITE" | fn.#StringExpression
+	ContainerPath?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^(\\/+[^\\/]+\\/*)+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^(\\/+[^\\/]+\\/*)+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	InstancePath!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\/[\\s\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^\\/[\\s\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -218,12 +258,22 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #GameServerContainerDefinition: close({
-	ContainerName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+	ContainerName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	DependsOn?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#ContainerDependency] |
 		fn.#ListExpression
 	EnvironmentOverride?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...#ContainerEnvironment] |
 		fn.#ListExpression
-	ImageUri!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\.@\\/:]+$" | fn.#StringExpression
+	ImageUri!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\.@\\/:]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\.@\\/:]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// Linux-specific modifications applied to the default Docker container
 	// configuration, such as Linux capabilities.
@@ -232,9 +282,19 @@ fn.#ObjectExpression
 		fn.#ListExpression
 
 	// Defines the ports on the container.
-	PortConfiguration?:   #PortConfiguration
-	ResolvedImageDigest?: =~"^sha256:[a-fA-F0-9]{64}$" | fn.#StringExpression
-	ServerSdkVersion!:    strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\d+\\.\\d+\\.\\d+$" | fn.#StringExpression
+	PortConfiguration?: #PortConfiguration
+	ResolvedImageDigest?: =~"^sha256:[a-fA-F0-9]{64}$" |
+	{
+		number | bool
+		_cfnString: =~"^sha256:[a-fA-F0-9]{64}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ServerSdkVersion!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\d+\\.\\d+\\.\\d+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\d+\\.\\d+\\.\\d+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Vcpu?: <=10 & >=0.125 |
 		{
 			string &
@@ -310,7 +370,12 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #SupportContainerDefinition: close({
-	ContainerName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+	ContainerName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	DependsOn?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#ContainerDependency] |
 		fn.#ListExpression
 	EnvironmentOverride?: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...#ContainerEnvironment] |
@@ -319,7 +384,12 @@ fn.#ObjectExpression
 
 	// Specifies how the health of the containers will be checked.
 	HealthCheck?: #ContainerHealthCheck
-	ImageUri!:    strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\.@\\/:]+$" | fn.#StringExpression
+	ImageUri!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\.@\\/:]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\.@\\/:]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// Linux-specific modifications applied to the default Docker container
 	// configuration, such as Linux capabilities.
@@ -344,8 +414,13 @@ fn.#ObjectExpression
 		fn.#ListExpression
 
 	// Defines the ports on the container.
-	PortConfiguration?:   #PortConfiguration
-	ResolvedImageDigest?: =~"^sha256:[a-fA-F0-9]{64}$" | fn.#StringExpression
+	PortConfiguration?: #PortConfiguration
+	ResolvedImageDigest?: =~"^sha256:[a-fA-F0-9]{64}$" |
+	{
+		number | bool
+		_cfnString: =~"^sha256:[a-fA-F0-9]{64}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Vcpu?: <=10 & >=0.125 |
 		{
 			string &
@@ -370,7 +445,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

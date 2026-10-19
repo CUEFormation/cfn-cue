@@ -3,12 +3,10 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,9 +15,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // instance without interruption.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::NetworkInterfaceAttachment"
-	Properties!: close({
+	let properties = close({
 		DeleteOnTermination?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		DeviceIndex!:         string | fn.#StringExpression
+		DeviceIndex!:         string | number | bool | fn.#StringExpression
 		EnaQueueCount?: int |
 			{
 				string &
@@ -39,9 +37,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		// Configures ENA Express for the network interface that this action attaches to the instance.
 		EnaSrdSpecification?: #EnaSrdSpecification
-		InstanceId!:          string | fn.#StringExpression
-		NetworkInterfaceId!:  string | fn.#StringExpression
+		InstanceId!:          string | number | bool | fn.#StringExpression
+		NetworkInterfaceId!:  string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #EnaSrdSpecification: close({

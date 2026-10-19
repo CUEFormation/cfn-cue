@@ -7,7 +7,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h67ec5a4a1f8201e1:schem
 #Resource:                              schema.#Resource
 #FirewallAdvancedContentCategoryConfig: schema.#FirewallAdvancedContentCategoryConfig
 #FirewallAdvancedThreatCategoryConfig:  schema.#FirewallAdvancedThreatCategoryConfig
-#FirewallRule:                          schema.#FirewallRule
 #FirewallRuleType:                      schema.#FirewallRuleType
 #PartnerThreatProtectionConfig:         schema.#PartnerThreatProtectionConfig
 #Tag:                                   schema.#Tag

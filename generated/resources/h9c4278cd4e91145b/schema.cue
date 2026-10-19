@@ -7,25 +7,28 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::IVSChat::Room.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IVSChat::Room"
-	Properties?: close({
-		LoggingConfigurationIdentifiers?: list.MaxItems(50) & list.UniqueItems() & [...] & [
-			...strings.MaxRunes(128) &
+	let properties = close({
+		LoggingConfigurationIdentifiers?: list.MaxItems(50) & list.UniqueItems() & [...] & [...strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"^arn:aws:ivschat:[a-z0-9-]+:[0-9]+:logging-configuration/[a-zA-Z0-9-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
 			strings.MinRunes(1) &
-			=~"^arn:aws:ivschat:[a-z0-9-]+:[0-9]+:logging-configuration/[a-zA-Z0-9-]+$" |
-			fn.#StringExpression
-		] |
+			=~"^arn:aws:ivschat:[a-z0-9-]+:[0-9]+:logging-configuration/[a-zA-Z0-9-]+$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		MaximumMessageLength?: int & <=500 & >=1 |
 			{
@@ -64,20 +67,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		MessageReviewHandler?: #MessageReviewHandler
-		Name?:                 strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
-		Tags?:                 list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Name?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #MessageReviewHandler: close({
 	FallbackResult?: "ALLOW" | "DENY" | fn.#StringExpression
 	Uri?: strings.MaxRunes(170) & strings.MinRunes(0) & =~"^$|^arn:aws:lambda:[a-z0-9-]+:[0-9]{12}:function:.+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(170) &
+		strings.MinRunes(0) &
+		=~"^$|^arn:aws:lambda:[a-z0-9-]+:[0-9]{12}:function:.+" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

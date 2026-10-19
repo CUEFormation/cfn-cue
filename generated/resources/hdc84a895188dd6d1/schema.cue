@@ -6,8 +6,8 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,16 +17,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Nitro Enclaves application inside an enclave.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::EnclaveCertificateIamRoleAssociation"
-	Properties!: close({
-		CertificateArn!: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	let properties = close({
+		CertificateArn!: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" &
 		strings.MaxRunes(1283) &
 		strings.MinRunes(1) &
 		=~"^arn:aws[A-Za-z0-9-]{0,64}:acm:[A-Za-z0-9-]{1,64}:([0-9]{12})?:certificate/.+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" &
+			strings.MaxRunes(1283) &
+			strings.MinRunes(1) &
+			=~"^arn:aws[A-Za-z0-9-]{0,64}:acm:[A-Za-z0-9-]{1,64}:([0-9]{12})?:certificate/.+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(1283) &
 		strings.MinRunes(1) &
 		=~"^arn:aws[A-Za-z0-9-]{0,64}:iam:.*:([0-9]{12})?:role/.+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(1283) &
+			strings.MinRunes(1) &
+			=~"^arn:aws[A-Za-z0-9-]{0,64}:iam:.*:([0-9]{12})?:role/.+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

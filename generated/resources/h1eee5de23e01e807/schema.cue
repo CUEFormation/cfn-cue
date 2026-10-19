@@ -6,19 +6,17 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::SecurityGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::SecurityGroup"
-	Properties!: close({
+	let properties = close({
 		SecurityGroupEgress?: _
 		if SecurityGroupEgress != _|_ {
 			VpcId!: _
@@ -27,23 +25,85 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		GroupDescription!: strings.MaxRunes(255) &
 		strings.MinRunes(0) &
 		=~"^([a-z,A-Z,0-9,. _\\-:/()#,@[\\]+=&;\\{\\}!$*])*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) &
+			strings.MinRunes(0) &
+			=~"^([a-z,A-Z,0-9,. _\\-:/()#,@[\\]+=&;\\{\\}!$*])*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		GroupName?:             string | fn.#StringExpression
+		GroupName?: =~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		"SecurityGroupEgress"?: [...#Egress] | fn.#ListExpression
 		SecurityGroupIngress?:  [...#Ingress] | fn.#ListExpression
 		Tags?:                  [...#Tag] | fn.#ListExpression
-		VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Egress: close({
-	CidrIp?:                  string | fn.#StringExpression
-	CidrIpv6?:                string | fn.#StringExpression
-	Description?:             string | fn.#StringExpression
-	DestinationPrefixListId?: string | fn.#StringExpression
-	DestinationSecurityGroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+#Egress: matchN(2, [matchIf({
+	IpProtocol!: "1" | ==1 | "icmp"
+	...
+}, matchIf({
+	FromPort!: ==-1 | "-1"
+	...
+}, {
+	ToPort!: ==-1 | "-1" | fn.#ValueExpression
+	...
+}, _), matchIf({
+	ToPort!: ==-1 | "-1"
+	...
+}, {
+	FromPort!: ==-1 | "-1" | fn.#ValueExpression
+	...
+}, _) & matchIf({
+	FromPort!: ==-1 | "-1"
+	...
+}, {
+	ToPort!: ==-1 | "-1" | fn.#ValueExpression
+	...
+}, _)), matchIf({
+	IpProtocol!: (==1 | "1" | "icmp" | ==6 | "6" | "tcp" | ==17 | "17" | "udp") & (int | string)
+	...
+}, {
+	FromPort!: _
+	ToPort!:   _
+	...
+}, _)]) & (close({
+	CidrIp?: fn.#IPv4Network & string |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network & string & "\(self)"
+	} |
+	fn.#StringExpression
+	CidrIpv6?: fn.#IPv6Network & string |
+	{
+		number | bool
+		_cfnString: fn.#IPv6Network & string & "\(self)"
+	} |
+	fn.#StringExpression
+	Description?:             string | number | bool | fn.#StringExpression
+	DestinationPrefixListId?: string | number | bool | fn.#StringExpression
+	DestinationSecurityGroupId?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	FromPort?: int & >=-1 |
 		{
 			string &
@@ -59,7 +119,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	IpProtocol!: string | fn.#StringExpression
+	IpProtocol!: string | number | bool | fn.#StringExpression
 	ToPort?: int & >=-1 |
 		{
 			string &
@@ -99,13 +159,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"DestinationPrefixListId cannot be used with DestinationSecurityGroupId; set exactly one of CidrIp, CidrIpv6, DestinationSecurityGroupId, DestinationPrefixListId",
 		)
 	}
-}) & matchN(>=1, [{CidrIp!: _}, {CidrIpv6!: _}, {DestinationSecurityGroupId!: _}, {DestinationPrefixListId!: _}]) |
+}) & matchN(>=1, [{CidrIp!: _}, {CidrIpv6!: _}, {DestinationSecurityGroupId!: _}, {DestinationPrefixListId!: _}])) |
 fn.#ObjectExpression
 
-#Ingress: close({
-	CidrIp?:      string | fn.#StringExpression
-	CidrIpv6?:    string | fn.#StringExpression
-	Description?: string | fn.#StringExpression
+#Ingress: matchN(2, [matchIf({
+	IpProtocol!: "1" | ==1 | "icmp"
+	...
+}, matchIf({
+	FromPort!: ==-1 | "-1"
+	...
+}, {
+	ToPort!: ==-1 | "-1" | fn.#ValueExpression
+	...
+}, _), matchIf({
+	ToPort!: ==-1 | "-1"
+	...
+}, {
+	FromPort!: ==-1 | "-1" | fn.#ValueExpression
+	...
+}, _) & matchIf({
+	FromPort!: ==-1 | "-1"
+	...
+}, {
+	ToPort!: ==-1 | "-1" | fn.#ValueExpression
+	...
+}, _)), matchIf({
+	IpProtocol!: (==1 | "1" | "icmp" | ==6 | "6" | "tcp" | ==17 | "17" | "udp") & (int | string)
+	...
+}, {
+	FromPort!: _
+	ToPort!:   _
+	...
+}, _)]) & (close({
+	CidrIp?: fn.#IPv4Network & string |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network & string & "\(self)"
+	} |
+	fn.#StringExpression
+	CidrIpv6?: fn.#IPv6Network & string |
+	{
+		number | bool
+		_cfnString: fn.#IPv6Network & string & "\(self)"
+	} |
+	fn.#StringExpression
+	Description?: string | number | bool | fn.#StringExpression
 	FromPort?: int & >=-1 |
 		{
 			string &
@@ -121,12 +219,21 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	IpProtocol!:         string | fn.#StringExpression
-	SourcePrefixListId?: string | fn.#StringExpression
-	SourceSecurityGroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	SourceSecurityGroupName?:    string | fn.#StringExpression
-	SourceSecurityGroupOwnerId?: string | fn.#StringExpression
+	IpProtocol!:         string | number | bool | fn.#StringExpression
+	SourcePrefixListId?: string | number | bool | fn.#StringExpression
+	SourceSecurityGroupId?: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SourceSecurityGroupName?: =~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SourceSecurityGroupOwnerId?: string | number | bool | fn.#StringExpression
 	ToPort?: int & >=-1 |
 		{
 			string &
@@ -183,11 +290,11 @@ fn.#ObjectExpression
 }) & matchN(
 	>=1,
 	[{CidrIp!: _}, {CidrIpv6!: _}, {SourcePrefixListId!: _}, {SourceSecurityGroupId!: _}, {SourceSecurityGroupName!: _}],
-) |
+)) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

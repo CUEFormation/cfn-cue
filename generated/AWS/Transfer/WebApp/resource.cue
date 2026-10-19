@@ -4,11 +4,10 @@ package WebApp
 
 import schema "github.com/cueformation/cfn-cue/resources/h6957029c2790a0b4:schema"
 
-#Resource:                schema.#Resource
-#EndpointDetails:         schema.#EndpointDetails
-#IdentityProviderDetails: schema.#IdentityProviderDetails
-#Tag:                     schema.#Tag
-#Vpc:                     schema.#Vpc
-#WebAppCustomization:     schema.#WebAppCustomization
-#WebAppEndpointPolicy:    schema.#WebAppEndpointPolicy
-#WebAppUnits:             schema.#WebAppUnits
+#Resource:             schema.#Resource
+#EndpointDetails:      schema.#EndpointDetails
+#Tag:                  schema.#Tag
+#Vpc:                  schema.#Vpc
+#WebAppCustomization:  schema.#WebAppCustomization
+#WebAppEndpointPolicy: schema.#WebAppEndpointPolicy
+#WebAppUnits:          schema.#WebAppUnits

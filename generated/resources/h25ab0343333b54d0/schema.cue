@@ -6,8 +6,8 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,7 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // from an upstream registry in your Amazon ECR private registry.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ECR::PullThroughCacheRule"
-	Properties?: close({
+	let properties = close({
 		// The ARN of the Secrets Manager secret associated with the pull through cache rule.
 		CredentialArn?: #CredentialArn
 
@@ -35,33 +35,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// The upstream repository prefix associated with the pull through cache rule.
 		UpstreamRepositoryPrefix?: #UpstreamRepositoryPrefix
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #CredentialArn: strings.MaxRunes(612) &
 strings.MinRunes(50) &
 =~"^arn:[a-zA-Z-]+:secretsmanager:[a-zA-Z0-9-:]+:secret:ecr\\-pullthroughcache\\/[a-zA-Z0-9\\/_+=.@-]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(612) &
+	strings.MinRunes(50) &
+	=~"^arn:[a-zA-Z-]+:secretsmanager:[a-zA-Z0-9-:]+:secret:ecr\\-pullthroughcache\\/[a-zA-Z0-9\\/_+=.@-]+$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#CustomRoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(0)) |
+#CustomRoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(0)) |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(0) &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #EcrRepositoryPrefix: strings.MaxRunes(30) &
 strings.MinRunes(2) &
 =~"^([a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*(\\/[a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*)*\\/?|ROOT)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(30) &
+	strings.MinRunes(2) &
+	=~"^([a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*(\\/[a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*)*\\/?|ROOT)$" &
+	"\(self)"
+} |
 fn.#StringExpression
-
-#PullThroughCacheRule: close({
-	CredentialArn?:            #CredentialArn
-	CustomRoleArn?:            #CustomRoleArn
-	EcrRepositoryPrefix!:      #EcrRepositoryPrefix
-	RegistryId?:               #RegistryId
-	UpstreamRegistry?:         #UpstreamRegistry
-	UpstreamRegistryUrl!:      #UpstreamRegistryUrl
-	UpstreamRepositoryPrefix?: #UpstreamRepositoryPrefix
-}) |
-fn.#ObjectExpression
-
-#RegistryId: =~"^[0-9]{12}$" | fn.#StringExpression
 
 #UpstreamRegistry: "azure-container-registry" |
 	"chainguard" |
@@ -74,9 +86,16 @@ fn.#ObjectExpression
 	"quay" |
 	fn.#StringExpression
 
-#UpstreamRegistryUrl: string | fn.#StringExpression
+#UpstreamRegistryUrl: string | number | bool | fn.#StringExpression
 
 #UpstreamRepositoryPrefix: strings.MaxRunes(30) &
 strings.MinRunes(2) &
 =~"^([a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*(\\/[a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*)*\\/?|ROOT)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(30) &
+	strings.MinRunes(2) &
+	=~"^([a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*(\\/[a-z0-9]+((\\.|_|__|-+)[a-z0-9]+)*)*\\/?|ROOT)$" &
+	"\(self)"
+} |
 fn.#StringExpression

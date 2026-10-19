@@ -34,8 +34,14 @@ import (
 #DefaultQueueBudgetAction: "NONE" | "STOP_SCHEDULING_AND_COMPLETE_TASKS" | "STOP_SCHEDULING_AND_CANCEL_TASKS"
 
 #JobAttachmentSettings: close({
-	RootPrefix!:   strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_/]+$"
-	S3BucketName!: strings.MaxRunes(63) & strings.MinRunes(3)
+	RootPrefix!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_/]+$"
+	S3BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	=~"(^(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)*([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])$)" &
+	matchN(0, [=~"^(?:^(\\d+\\.)+\\d+$)"]) &
+	string &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3)
 })
 
 #JobRunAsUser: close({

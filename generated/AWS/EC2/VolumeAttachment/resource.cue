@@ -7,6 +7,5 @@ import schema "github.com/cueformation/cfn-cue/resources/h080e1b5b9192211c:schem
 #Resource:     schema.#Resource
 #Device:       schema.#Device
 #EbsCardIndex: schema.#EbsCardIndex
-#Id:           schema.#Id
 #InstanceId:   schema.#InstanceId
 #VolumeId:     schema.#VolumeId

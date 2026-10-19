@@ -7,21 +7,21 @@ import (
 	"list"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::VerifiedAccessTrustProvider type describes a verified access trust provider
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::VerifiedAccessTrustProvider"
-	Properties!: close({
-		Description?:                  string | fn.#StringExpression
+	let properties = close({
+		Description?:                  string | number | bool | fn.#StringExpression
 		DeviceOptions?:                #DeviceOptions
 		DeviceTrustProviderType?:      "crowdstrike" | "jamf" | "jumpcloud" | fn.#StringExpression
 		NativeApplicationOidcOptions?: #NativeApplicationOidcOptions
 		OidcOptions?:                  #OidcOptions
-		PolicyReferenceName!:          string | fn.#StringExpression
+		PolicyReferenceName!:          string | number | bool | fn.#StringExpression
 		SseSpecification?: close({
 			CustomerManagedKeyEnabled?: bool |
 				"true" |
@@ -31,50 +31,65 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				"False" |
 				"FALSE" |
 				fn.#BooleanExpression
-			KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
+			KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			{
+				number | bool
+				_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		TrustProviderType!:     "device" | "user" | fn.#StringExpression
 		UserTrustProviderType?: "iam-identity-center" | "oidc" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #DeviceOptions: close({
-	PublicSigningKeyUrl?: string | fn.#StringExpression
-	TenantId?:            string | fn.#StringExpression
+	PublicSigningKeyUrl?: string | number | bool | fn.#StringExpression
+	TenantId?:            string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #NativeApplicationOidcOptions: close({
-	AuthorizationEndpoint?:    string | fn.#StringExpression
-	ClientId?:                 string | fn.#StringExpression
-	ClientSecret?:             string | fn.#StringExpression
-	Issuer?:                   string | fn.#StringExpression
-	PublicSigningKeyEndpoint?: string | fn.#StringExpression
-	Scope?:                    string | fn.#StringExpression
-	TokenEndpoint?:            string | fn.#StringExpression
-	UserInfoEndpoint?:         string | fn.#StringExpression
+	AuthorizationEndpoint?:    string | number | bool | fn.#StringExpression
+	ClientId?:                 string | number | bool | fn.#StringExpression
+	ClientSecret?:             string | number | bool | fn.#StringExpression
+	Issuer?:                   string | number | bool | fn.#StringExpression
+	PublicSigningKeyEndpoint?: string | number | bool | fn.#StringExpression
+	Scope?:                    string | number | bool | fn.#StringExpression
+	TokenEndpoint?:            string | number | bool | fn.#StringExpression
+	UserInfoEndpoint?:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OidcOptions: close({
-	AuthorizationEndpoint?: string | fn.#StringExpression
-	ClientId?:              string | fn.#StringExpression
-	ClientSecret?:          string | fn.#StringExpression
-	Issuer?:                string | fn.#StringExpression
-	Scope?:                 string | fn.#StringExpression
-	TokenEndpoint?:         string | fn.#StringExpression
-	UserInfoEndpoint?:      string | fn.#StringExpression
+	AuthorizationEndpoint?: string | number | bool | fn.#StringExpression
+	ClientId?:              string | number | bool | fn.#StringExpression
+	ClientSecret?:          string | number | bool | fn.#StringExpression
+	Issuer?:                string | number | bool | fn.#StringExpression
+	Scope?:                 string | number | bool | fn.#StringExpression
+	TokenEndpoint?:         string | number | bool | fn.#StringExpression
+	UserInfoEndpoint?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-// The configuration options for customer provided KMS encryption.
-#SseSpecification: #SseSpecification
-
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -6,12 +6,10 @@ import (
 	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -39,8 +37,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Amazon VPC User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::NatGateway"
-	Properties?: close({
-		AllocationId?:              string | fn.#StringExpression
+	let properties = close({
+		AllocationId?:              string | number | bool | fn.#StringExpression
 		AvailabilityMode?:          "regional" | "zonal" | fn.#StringExpression
 		AvailabilityZoneAddresses?: list.UniqueItems() & [...#AvailabilityZoneAddress] | fn.#ListExpression
 		ConnectivityType?:          "private" | "public" | fn.#StringExpression
@@ -60,8 +58,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		PrivateIpAddress?:       string | fn.#StringExpression
-		SecondaryAllocationIds?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		PrivateIpAddress?: string | number | bool | fn.#StringExpression
+		SecondaryAllocationIds?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
 		SecondaryPrivateIpAddressCount?: int & <=31 & >=1 |
 			{
 				string &
@@ -80,23 +79,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		SecondaryPrivateIpAddresses?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		SubnetId?:                    string | fn.#StringExpression
-		Tags?:                        [...#Tag] | fn.#ListExpression
-		VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		SecondaryPrivateIpAddresses?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
+		SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+		VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #AvailabilityZoneAddress: close({
-	AllocationIds!:      list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	AvailabilityZone?:   string | fn.#StringExpression
-	AvailabilityZoneId?: string | fn.#StringExpression
+	AllocationIds!:      list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	AvailabilityZone?:   string | number | bool | fn.#StringExpression
+	AvailabilityZoneId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

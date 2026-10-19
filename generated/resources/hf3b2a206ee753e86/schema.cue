@@ -6,20 +6,41 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::User
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppStream::User"
-	Properties!: close({
+	let properties = close({
 		AuthenticationType!: "API" | "AWS_AD" | "SAML" | "USERPOOL" | fn.#StringExpression
-		FirstName?:     strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[A-Za-z0-9_\\-\\s]+$" | fn.#StringExpression
-		LastName?:      strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[A-Za-z0-9_\\-\\s]+$" | fn.#StringExpression
+		FirstName?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[A-Za-z0-9_\\-\\s]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[A-Za-z0-9_\\-\\s]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		LastName?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[A-Za-z0-9_\\-\\s]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"^[A-Za-z0-9_\\-\\s]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		MessageAction?: "RESEND" | "SUPPRESS" | fn.#StringExpression
 		UserName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

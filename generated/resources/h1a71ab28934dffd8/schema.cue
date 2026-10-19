@@ -3,33 +3,32 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"time"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource definition for AWS::BedrockAgentCore::BrowserCustom
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::BrowserCustom"
-	Properties!: close({
+	let properties = close({
 		// Browser signing configuration.
 		BrowserSigning?: #BrowserSigning
 
 		// List of root CA certificates in PEM format.
 		Certificates?: #CertificateList
-		Description?:  string | fn.#StringExpression
+		Description?:  string | number | bool | fn.#StringExpression
 
 		// A list of enterprise policy files for the browser.
 		EnterprisePolicies?: #BrowserEnterprisePolicies
 
 		// The Amazon Resource Name (ARN) of the IAM role that the browser uses to access resources.
 		ExecutionRoleArn?: #RoleArn
-		Name!:             string | fn.#StringExpression
+		Name!:             string | number | bool | fn.#StringExpression
 
 		// Network configuration for browser.
 		NetworkConfiguration!: #BrowserNetworkConfiguration
@@ -38,10 +37,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		RecordingConfig?: #RecordingConfig
 		Tags?:            #TagsMap
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
-
-#BrowserArn: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:(aws|[0-9]{12}):browser(-custom)?\\/(aws\\.browser\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$" |
-	fn.#StringExpression
 
 #BrowserEnterprisePolicies: list.MaxItems(10) & [...] & [...#BrowserEnterprisePolicy] | fn.#ListExpression
 
@@ -56,8 +56,6 @@ fn.#ObjectExpression
 
 #BrowserEnterprisePolicyType: "MANAGED" | "RECOMMENDED" | fn.#StringExpression
 
-#BrowserId: =~"^(aws\\.browser\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$" | fn.#StringExpression
-
 #BrowserNetworkConfiguration: close({
 	NetworkMode!: #BrowserNetworkMode
 	VpcConfig?:   #VpcConfig
@@ -71,21 +69,6 @@ fn.#ObjectExpression
 ) |
 	fn.#ObjectExpression
 
-#BrowserStatus: "CREATING" | "CREATE_FAILED" | "READY" | "DELETING" | "DELETE_FAILED" | "DELETED" | fn.#StringExpression
-
-#BrowserSummaries: [...#BrowserSummary] | fn.#ListExpression
-
-#BrowserSummary: close({
-	BrowserArn!:    #BrowserArn
-	BrowserId!:     #BrowserId
-	CreatedAt!:     time.Time | fn.#StringExpression
-	Description?:   string | fn.#StringExpression
-	LastUpdatedAt?: time.Time | fn.#StringExpression
-	Name?:          string | fn.#StringExpression
-	Status!:        #BrowserStatus
-}) |
-fn.#ObjectExpression
-
 #Certificate: close({
 	// Certificate location in Secrets Manager.
 	CertificateLocation!: #CertificateLocation
@@ -96,9 +79,14 @@ fn.#ObjectExpression
 
 #CertificateLocation: close({
 	SecretArn!: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):secretsmanager:[a-z0-9-]+:\\d{12}:secret:[a-zA-Z0-9/_+=.@-]+$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):secretsmanager:[a-z0-9-]+:\\d{12}:secret:[a-zA-Z0-9/_+=.@-]+$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
 #RecordingConfig: close({
 	Enabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -106,30 +94,65 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	=~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):iam::[0-9]{12}:role/.+$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):iam::[0-9]{12}:role/.+$" &
+		"\(self)"
+} |
+fn.#StringExpression
 
 #S3Location: close({
-	Bucket!: =~"^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$" | fn.#StringExpression
-	Prefix!: strings.MinRunes(1) | fn.#StringExpression
+	Bucket!: =~"^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Prefix!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#SecurityGroupId: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	=~"^sg-[0-9a-zA-Z]{8,17}$" |
-	fn.#StringExpression
+#SecurityGroupId: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-[0-9a-zA-Z]{8,17}$" |
+{
+	number | bool
+	_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-[0-9a-zA-Z]{8,17}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #SecurityGroups: list.MaxItems(16) & list.MinItems(1) & [...#SecurityGroupId] | fn.#ListExpression
 
-#SubnetId: =~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression
+#SubnetId: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & =~"^subnet-[0-9a-zA-Z]{8,17}$" |
+{
+	number | bool
+	_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & =~"^subnet-[0-9a-zA-Z]{8,17}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Subnets: list.MaxItems(16) & list.MinItems(1) & [...#SubnetId] | fn.#ListExpression
 
 #TagsMap: close({
 
-	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
-	fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #VpcConfig: close({

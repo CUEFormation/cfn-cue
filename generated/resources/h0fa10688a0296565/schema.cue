@@ -7,31 +7,61 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53GlobalResolver::AccessToken
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53GlobalResolver::AccessToken"
-	Properties!: close({
-		ClientToken?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		DnsViewId!:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
-		ExpiresAt?:   string | fn.#StringExpression
-		Name?:        #ResourceName
-		Tags?:        list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	let properties = close({
+		ClientToken?: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		DnsViewId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ExpiresAt?: string | number | bool | fn.#StringExpression
+		Name?:      #ResourceName
+		Tags?:      list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#AccessToken: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-
-#ResourceName: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+#ResourceName: (=~"^(?:([a-zA-Z0-9-_' ']+))" & matchN(0, [=~"^(?:^[0-9]+$)"]) & string |
+=~"^(?s:.)+(?:([a-zA-Z0-9-_' ']+))") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+{
+	number | bool
+	_cfnString: (=~"^(?:([a-zA-Z0-9-_' ']+))" & matchN(0, [=~"^(?:^[0-9]+$)"]) & string |
+	=~"^(?s:.)+(?:([a-zA-Z0-9-_' ']+))") &
+	strings.MaxRunes(64) &
+	strings.MinRunes(1) &
+	"\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#TokenStatus: "CREATING" | "OPERATIONAL" | "DELETING" | fn.#StringExpression

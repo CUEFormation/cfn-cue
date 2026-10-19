@@ -6,25 +6,51 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a custom dictionary for improving transcription accuracy
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ElementalInference::Dictionary"
-	Properties!: close({
-		Entries?:  strings.MaxRunes(40960) | fn.#StringExpression
+	let properties = close({
+		Entries?: strings.MaxRunes(40960) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(40960) & "\(self)"
+		} |
+		fn.#StringExpression
 		Language!: #DictionaryLanguage
-		Name!:     =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$" | fn.#StringExpression
-		Tags?:     #TagMap
+		Name!: =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9]([a-zA-Z0-9-_]{0,126}[a-zA-Z0-9])?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: #TagMap
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #DictionaryLanguage: "eng" | "fra" | "ita" | "deu" | "spa" | "por" | fn.#StringExpression
 
 #TagMap: close({
 
-	{[=~".+"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
+	{
+		[=~".+"]: strings.MaxRunes(256) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression

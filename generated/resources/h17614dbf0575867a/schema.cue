@@ -7,19 +7,17 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::Container
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lightsail::Container"
-	Properties!: close({
+	let properties = close({
 		// Describes a container deployment configuration of an Amazon Lightsail container service.
 		ContainerServiceDeployment?: #ContainerServiceDeployment
 		IsDisabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -51,16 +49,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		ServiceName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9]{1,2}|[a-z0-9][a-z0-9-]+[a-z0-9]$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) &
+			strings.MinRunes(1) &
+			=~"^[a-z0-9]{1,2}|[a-z0-9][a-z0-9-]+[a-z0-9]$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Container: close({
-	Command?:       list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	ContainerName?: string | fn.#StringExpression
+	Command?:       list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	ContainerName?: string | number | bool | fn.#StringExpression
 	Environment?:   list.UniqueItems() & [...#EnvironmentVariable] | fn.#ListExpression
-	Image?:         string | fn.#StringExpression
+	Image?:         string | number | bool | fn.#StringExpression
 	Ports?:         list.UniqueItems() & [...#PortInfo] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -74,8 +83,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #EnvironmentVariable: close({
-	Value?:    string | fn.#StringExpression
-	Variable?: string | fn.#StringExpression
+	Value?:    string | number | bool | fn.#StringExpression
+	Variable?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -108,8 +117,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Path?:         string | fn.#StringExpression
-	SuccessCodes?: string | fn.#StringExpression
+	Path?:         string | number | bool | fn.#StringExpression
+	SuccessCodes?: string | number | bool | fn.#StringExpression
 	TimeoutSeconds?: int |
 		{
 			string &
@@ -142,28 +151,19 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PortInfo: close({
-	Port?:     string | fn.#StringExpression
-	Protocol?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#PrivateRegistryAccess: close({
-	EcrImagePullerRole?: close({
-		IsActive?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		PrincipalArn?: string | fn.#StringExpression
-	}) |
-	fn.#ObjectExpression
+	Port?:     string | number | bool | fn.#StringExpression
+	Protocol?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PublicDomainName: close({
-	CertificateName?: string | fn.#StringExpression
-	DomainNames?:     list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	CertificateName?: string | number | bool | fn.#StringExpression
+	DomainNames?:     list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #PublicEndpoint: close({
-	ContainerName?: string | fn.#StringExpression
+	ContainerName?: string | number | bool | fn.#StringExpression
 	ContainerPort?: int |
 		{
 			string &
@@ -185,7 +185,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

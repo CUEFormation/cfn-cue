@@ -7,40 +7,98 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema for AWS::EKS::Addon
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EKS::Addon"
-	Properties!: close({
-		AddonName!:           strings.MinRunes(1) | fn.#StringExpression
-		AddonVersion?:        strings.MinRunes(1) | fn.#StringExpression
-		ClusterName!:         strings.MinRunes(1) | fn.#StringExpression
-		ConfigurationValues?: strings.MinRunes(1) | fn.#StringExpression
-		NamespaceConfig?: close({Namespace!: strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression}) |
+	let properties = close({
+		AddonName!: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		AddonVersion?: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ClusterName!: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ConfigurationValues?: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		NamespaceConfig?: close({
+			Namespace!: strings.MaxRunes(63) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
+		}) |
 		fn.#ObjectExpression
 		PodIdentityAssociations?: list.UniqueItems() & [...#PodIdentityAssociation] | fn.#ListExpression
 		PreserveOnDelete?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ResolveConflicts?:        ("NONE" | "OVERWRITE" | "PRESERVE") & strings.MinRunes(1) | fn.#StringExpression
-		ServiceAccountRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+		ResolveConflicts?: ("NONE" | "OVERWRITE" | "PRESERVE") & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: ("NONE" | "OVERWRITE" | "PRESERVE") & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ServiceAccountRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #PodIdentityAssociation: close({
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:(role)\\/*" |
-		fn.#StringExpression
-	ServiceAccount!: string | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:(role)\\/*" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			=~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:(role)\\/*" &
+			"\(self)"
+	} |
+	fn.#StringExpression
+	ServiceAccount!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

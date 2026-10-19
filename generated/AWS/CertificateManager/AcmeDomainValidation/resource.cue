@@ -8,4 +8,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h23cdcadc7013f3a8:schem
 #DnsPrevalidationOptions: schema.#DnsPrevalidationOptions
 #DomainScope:             schema.#DomainScope
 #PrevalidationOptions:    schema.#PrevalidationOptions
-#Tag:                     schema.#Tag

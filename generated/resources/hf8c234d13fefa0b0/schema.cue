@@ -5,18 +5,17 @@ package schema
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"time"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource definition for AWS::BedrockAgentCore::CodeInterpreterCustom
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::CodeInterpreterCustom"
-	Properties!: close({
+	let properties = close({
 		// List of root CA certificates in PEM format.
 		Certificates?: #CertificateList
 
@@ -33,6 +32,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		NetworkConfiguration!: #CodeInterpreterNetworkConfiguration
 		Tags?:                 #TagsMap
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Certificate: close({
@@ -45,14 +48,14 @@ fn.#ObjectExpression
 
 #CertificateLocation: close({
 	SecretArn!: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):secretsmanager:[a-z0-9-]+:\\d{12}:secret:[a-zA-Z0-9/_+=.@-]+$" |
-		fn.#StringExpression
-}) |
-	fn.#ObjectExpression
-
-#CodeInterpreterArn: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):bedrock-agentcore:[a-z0-9-]+:(aws|[0-9]{12}):code-interpreter(-custom)?\\/(aws\\.codeinterpreter\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):secretsmanager:[a-z0-9-]+:\\d{12}:secret:[a-zA-Z0-9/_+=.@-]+$" &
+			"\(self)"
+	} |
 	fn.#StringExpression
-
-#CodeInterpreterId: =~"^(aws\\.codeinterpreter\\.v1|[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10})$" | fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #CodeInterpreterNetworkConfiguration: close({
 	NetworkMode!: #CodeInterpreterNetworkMode
@@ -62,49 +65,53 @@ fn.#ObjectExpression
 
 #CodeInterpreterNetworkMode: "PUBLIC" | "SANDBOX" | "VPC" | fn.#StringExpression
 
-#CodeInterpreterStatus: "CREATING" |
-	"CREATE_FAILED" |
-	"READY" |
-	"DELETING" |
-	"DELETE_FAILED" |
-	"DELETED" |
-	fn.#StringExpression
+#Description: string | number | bool | fn.#StringExpression
 
-#CodeInterpreterSummaries: [...#CodeInterpreterSummary] | fn.#ListExpression
-
-#CodeInterpreterSummary: close({
-	CodeInterpreterArn!: #CodeInterpreterArn
-	CodeInterpreterId!:  #CodeInterpreterId
-	CreatedAt!:          time.Time | fn.#StringExpression
-	Description?:        #Description
-	LastUpdatedAt?:      time.Time | fn.#StringExpression
-	Name?:               #SandboxName
-	Status!:             #CodeInterpreterStatus
-}) |
-fn.#ObjectExpression
-
-#Description: string | fn.#StringExpression
-
-#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	=~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):iam::[0-9]{12}:role/.+$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		=~"^arn:(aws(?:-cn|-us-gov|-iso(?:-[bef])?)?):iam::[0-9]{12}:role/.+$" &
+		"\(self)"
+} |
+fn.#StringExpression
 
-#SandboxName: string | fn.#StringExpression
+#SandboxName: string | number | bool | fn.#StringExpression
 
-#SecurityGroupId: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	=~"^sg-[0-9a-zA-Z]{8,17}$" |
-	fn.#StringExpression
+#SecurityGroupId: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-[0-9a-zA-Z]{8,17}$" |
+{
+	number | bool
+	_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-[0-9a-zA-Z]{8,17}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #SecurityGroups: list.MaxItems(16) & list.MinItems(1) & [...#SecurityGroupId] | fn.#ListExpression
 
-#SubnetId: =~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression
+#SubnetId: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & =~"^subnet-[0-9a-zA-Z]{8,17}$" |
+{
+	number | bool
+	_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & =~"^subnet-[0-9a-zA-Z]{8,17}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Subnets: list.MaxItems(16) & list.MinItems(1) & [...#SubnetId] | fn.#ListExpression
 
 #TagsMap: close({
 
-	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
-	fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #VpcConfig: close({

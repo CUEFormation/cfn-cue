@@ -10,7 +10,13 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::ElastiCache::ReplicationGroup
-#Properties: close({
+#Properties: matchIf({
+	Engine!: "valkey"
+	...
+}, {
+	TransitEncryptionEnabled!: _
+	...
+}, _) & close({
 	// A flag that enables encryption at rest when set to
 	// true.AtRestEncryptionEnabled after the replication group is created. To
 	// enable encryption at rest on a replication group you must set
@@ -90,7 +96,9 @@ import (
 	IpDiscovery?: =~"(?i)^(?:ipv4|ipv6)$"
 
 	// The ID of the KMS key used to encrypt the disk on the cluster.
-	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 
 	// Specifies the destination, format and type of the logs.
 	LogDeliveryConfigurations?: [...#LogDeliveryConfigurationRequest]

@@ -6,57 +6,58 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::KafkaConnect::CustomPlugin"
-	Properties!: close({
+	let properties = close({
 		ContentType!: "JAR" | "ZIP" | fn.#StringExpression
-		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		Location!:    #CustomPluginLocation
-		Name!:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:        [...#Tag] | fn.#ListExpression
-	})
-}
-
-#CustomPluginFileDescription: close({
-	FileMd5?: string | fn.#StringExpression
-	FileSize?: int |
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
 		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
 		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
+		fn.#StringExpression
+		Location!: #CustomPluginLocation
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
+}
 
 #CustomPluginLocation: close({S3Location!: #S3Location}) | fn.#ObjectExpression
 
 #S3Location: close({
-	BucketArn!:     string | fn.#StringExpression
-	FileKey!:       string | fn.#StringExpression
-	ObjectVersion?: string | fn.#StringExpression
+	BucketArn!:     string | number | bool | fn.#StringExpression
+	FileKey!:       string | number | bool | fn.#StringExpression
+	ObjectVersion?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

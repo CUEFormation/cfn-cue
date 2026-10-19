@@ -6,38 +6,45 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::AmplifyUIBuilder::Form Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AmplifyUIBuilder::Form"
-	Properties?: close({
-		AppId?:             string | fn.#StringExpression
-		Cta?:               #FormCTA
-		DataType?:          #FormDataTypeConfig
-		EnvironmentName?:   string | fn.#StringExpression
-		Fields?:            #FieldsMap
-		FormActionType?:    #FormActionType
-		LabelDecorator?:    #LabelDecorator
-		Name?:              strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		SchemaVersion?:     string | fn.#StringExpression
+	let properties = close({
+		AppId?:           string | number | bool | fn.#StringExpression
+		Cta?:             #FormCTA
+		DataType?:        #FormDataTypeConfig
+		EnvironmentName?: string | number | bool | fn.#StringExpression
+		Fields?:          #FieldsMap
+		FormActionType?:  #FormActionType
+		LabelDecorator?:  #LabelDecorator
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		SchemaVersion?:     string | number | bool | fn.#StringExpression
 		SectionalElements?: #SectionalElementMap
 		Style?:             #FormStyle
 		Tags?:              #Tags
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #FieldConfig: close({
 	Excluded?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InputType?:   #FieldInputConfig
-	Label?:       string | fn.#StringExpression
+	Label?:       string | number | bool | fn.#StringExpression
 	Position?:    #FieldPosition
 	Validations?: [...#FieldValidationConfiguration] | fn.#ListExpression
 }) |
@@ -45,9 +52,9 @@ fn.#ObjectExpression
 
 #FieldInputConfig: close({
 	DefaultChecked?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DefaultCountryCode?: string | fn.#StringExpression
-	DefaultValue?:       string | fn.#StringExpression
-	DescriptiveText?:    string | fn.#StringExpression
+	DefaultCountryCode?: string | number | bool | fn.#StringExpression
+	DefaultValue?:       string | number | bool | fn.#StringExpression
+	DescriptiveText?:    string | number | bool | fn.#StringExpression
 	FileUploaderConfig?: #FileUploaderFieldConfig
 	IsArray?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxValue?: number |
@@ -88,8 +95,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Name?:        string | fn.#StringExpression
-	Placeholder?: string | fn.#StringExpression
+	Name?:        string | number | bool | fn.#StringExpression
+	Placeholder?: string | number | bool | fn.#StringExpression
 	ReadOnly?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Required?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Step?: number |
@@ -111,8 +118,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Type!:          string | fn.#StringExpression
-	Value?:         string | fn.#StringExpression
+	Type!:          string | number | bool | fn.#StringExpression
+	Value?:         string | number | bool | fn.#StringExpression
 	ValueMappings?: #ValueMappings
 }) |
 fn.#ObjectExpression
@@ -149,19 +156,24 @@ fn.#ValueExpression
 			fn.#NumberExpression
 	] |
 		fn.#ListExpression
-	StrValues?:         [...string | fn.#StringExpression] | fn.#ListExpression
-	Type!:              string | fn.#StringExpression
-	ValidationMessage?: string | fn.#StringExpression
+	StrValues?:         [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Type!:              string | number | bool | fn.#StringExpression
+	ValidationMessage?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FieldsMap: close({
 
-	{[=~".+"]: #FieldConfig}}) |
+	{[=~".+"]: #FieldConfig}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #FileUploaderFieldConfig: close({
-	AcceptedFileTypes!: [...string | fn.#StringExpression] | fn.#ListExpression
+	AcceptedFileTypes!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	AccessLevel!:       #StorageAccessLevel
 	IsResumable?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxFileCount?: number |
@@ -211,7 +223,7 @@ fn.#ObjectExpression
 #FormActionType: "create" | "update" | fn.#StringExpression
 
 #FormButton: close({
-	Children?: string | fn.#StringExpression
+	Children?: string | number | bool | fn.#StringExpression
 	Excluded?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Position?: #FieldPosition
 }) |
@@ -231,33 +243,39 @@ fn.#ObjectExpression
 
 #FormDataTypeConfig: close({
 	DataSourceType!: #FormDataSourceType
-	DataTypeName!:   string | fn.#StringExpression
+	DataTypeName!:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FormInputBindingProperties: close({
 
-	{[=~".+"]: #FormInputBindingPropertiesValue}}) |
+	{[=~".+"]: #FormInputBindingPropertiesValue}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #FormInputBindingPropertiesValue: close({
 	BindingProperties?: #FormInputBindingPropertiesValueProperties
-	Type?:              string | fn.#StringExpression
+	Type?:              string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#FormInputBindingPropertiesValueProperties: close({Model?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#FormInputBindingPropertiesValueProperties: close({Model?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #FormInputValueProperty: close({
 	BindingProperties?: #FormInputValuePropertyBindingProperties
 	Concat?:            [...#FormInputValueProperty] | fn.#ListExpression
-	Value?:             string | fn.#StringExpression
+	Value?:             string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FormInputValuePropertyBindingProperties: close({
-	Field?:    string | fn.#StringExpression
-	Property!: string | fn.#StringExpression
+	Field?:    string | number | bool | fn.#StringExpression
+	Property!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -296,21 +314,43 @@ fn.#ValueExpression
 				)
 		} |
 		fn.#NumberExpression
-	Orientation?: string | fn.#StringExpression
+	Orientation?: string | number | bool | fn.#StringExpression
 	Position?:    #FieldPosition
-	Text?:        string | fn.#StringExpression
-	Type!:        string | fn.#StringExpression
+	Text?:        string | number | bool | fn.#StringExpression
+	Type!:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SectionalElementMap: close({
 
-	{[=~".+"]: #SectionalElement}}) |
+	{[=~".+"]: #SectionalElement}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #StorageAccessLevel: "public" | "protected" | "private" | fn.#StringExpression
 
-#Tags: {...} | fn.#ObjectExpression
+#Tags: close({
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^(?:aws:)"]: error("disallowed")}
+
+	{
+		[=~"^[a-zA-Z+-=._:/]+$"]: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
+fn.#ObjectExpression
 
 #ValueMapping: close({
 	DisplayValue?: #FormInputValueProperty

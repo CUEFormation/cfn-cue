@@ -7,79 +7,175 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::SES::MailManagerRuleSet Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SES::MailManagerRuleSet"
-	Properties!: close({
-		RuleSetName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-		Rules!:       list.MaxItems(40) & [...] & [...#Rule] | fn.#ListExpression
-		Tags?:        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+	let properties = close({
+		RuleSetName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Rules!: list.MaxItems(40) & [...] & [...#Rule] | fn.#ListExpression
+		Tags?:  list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ActionFailurePolicy: "CONTINUE" | "DROP" | fn.#StringExpression
 
 #AddHeaderAction: close({
-	HeaderName!:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[xX]\\-[a-zA-Z0-9\\-]+$" | fn.#StringExpression
-	HeaderValue!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	HeaderName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[xX]\\-[a-zA-Z0-9\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[xX]\\-[a-zA-Z0-9\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	HeaderValue!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Analysis: close({
-	Analyzer!:    =~"^[a-zA-Z0-9:_/+=,@.#-]+$" | fn.#StringExpression
-	ResultField!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(addon\\.)?[\\sa-zA-Z0-9_]+$" | fn.#StringExpression
+	Analyzer!: =~"^[a-zA-Z0-9:_/+=,@.#-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9:_/+=,@.#-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ResultField!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(addon\\.)?[\\sa-zA-Z0-9_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(addon\\.)?[\\sa-zA-Z0-9_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ArchiveAction: close({
 	ActionFailurePolicy?: #ActionFailurePolicy
-	TargetArchive!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$" | fn.#StringExpression
+	TargetArchive!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #BounceAction: close({
 	ActionFailurePolicy?: #ActionFailurePolicy
-	DiagnosticMessage!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\x20-\\x7e]+$" | fn.#StringExpression
-	Message?: strings.MaxRunes(500) & strings.MinRunes(1) & =~"^[\\r\\n\\x20-\\x7e]+$" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	DiagnosticMessage!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\x20-\\x7e]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\x20-\\x7e]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Message?: strings.MaxRunes(500) & strings.MinRunes(1) & =~"^[\\r\\n\\x20-\\x7e]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & =~"^[\\r\\n\\x20-\\x7e]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^[a-zA-Z0-9:_/+=,@.#-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^[a-zA-Z0-9:_/+=,@.#-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Sender!:        strings.MaxRunes(254) & strings.MinRunes(0) & =~"^[0-9A-Za-z@+.-]+$" | fn.#StringExpression
-	SmtpReplyCode!: strings.MaxRunes(3) & strings.MinRunes(3) & =~"^[45][0-9][0-9]$" | fn.#StringExpression
-	StatusCode!: strings.MaxRunes(9) & strings.MinRunes(5) & =~"^[45]\\.[0-9]{1,3}\\.[0-9]{1,3}$" | fn.#StringExpression
+	Sender!: strings.MaxRunes(254) & strings.MinRunes(0) & =~"^[0-9A-Za-z@+.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(254) & strings.MinRunes(0) & =~"^[0-9A-Za-z@+.-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SmtpReplyCode!: strings.MaxRunes(3) & strings.MinRunes(3) & =~"^[45][0-9][0-9]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(3) & strings.MinRunes(3) & =~"^[45][0-9][0-9]$" & "\(self)"
+	} |
+	fn.#StringExpression
+	StatusCode!: strings.MaxRunes(9) & strings.MinRunes(5) & =~"^[45]\\.[0-9]{1,3}\\.[0-9]{1,3}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(9) & strings.MinRunes(5) & =~"^[45]\\.[0-9]{1,3}\\.[0-9]{1,3}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DeliverToMailboxAction: close({
 	ActionFailurePolicy?: #ActionFailurePolicy
-	MailboxArn!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	MailboxArn!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^[a-zA-Z0-9:_/+=,@.#-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^[a-zA-Z0-9:_/+=,@.#-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DeliverToQBusinessAction: close({
 	ActionFailurePolicy?: #ActionFailurePolicy
-	ApplicationId!:       strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-z0-9-]+$" | fn.#StringExpression
-	IndexId!:             strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-z0-9-]+$" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	ApplicationId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-z0-9-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-z0-9-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	IndexId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-z0-9-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-z0-9-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^[a-zA-Z0-9:_/+=,@.#-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^[a-zA-Z0-9:_/+=,@.#-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -88,10 +184,18 @@ fn.#ObjectExpression
 
 #InvokeLambdaAction: close({
 	ActionFailurePolicy?: #ActionFailurePolicy
-	FunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	FunctionArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^[a-zA-Z0-9:_/+=,@.#-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^[a-zA-Z0-9:_/+=,@.#-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	InvocationType!: #LambdaInvocationType
 	RetryTimeMinutes?: int & <=2160 & >=0 |
@@ -110,10 +214,18 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^[a-zA-Z0-9:_/+=,@.#-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^[a-zA-Z0-9:_/+=,@.#-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -125,14 +237,24 @@ fn.#ObjectExpression
 #RelayAction: close({
 	ActionFailurePolicy?: #ActionFailurePolicy
 	MailFrom?:            #MailFrom
-	Relay!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$" | fn.#StringExpression
+	Relay!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_/+=,@.#-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ReplaceRecipientAction: close({
-	ReplaceWith?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(254) & strings.MinRunes(0) & =~"^[0-9A-Za-z@+.-]+$" | fn.#StringExpression
-	] |
+	ReplaceWith?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(254) &
+	strings.MinRunes(0) &
+	=~"^[0-9A-Za-z@+.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(254) & strings.MinRunes(0) & =~"^[0-9A-Za-z@+.-]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -140,8 +262,13 @@ fn.#ObjectExpression
 #Rule: close({
 	Actions!:    list.MaxItems(10) & list.MinItems(1) & [...#RuleAction] | fn.#ListExpression
 	Conditions?: list.MaxItems(10) & [...] & [...#RuleCondition] | fn.#ListExpression
-	Name?:       strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	Unless?:     list.MaxItems(10) & [...] & [...#RuleCondition] | fn.#ListExpression
+	Name?: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Unless?: list.MaxItems(10) & [...] & [...#RuleCondition] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -233,9 +360,14 @@ fn.#ObjectExpression
 #RuleIpExpression: close({
 	Evaluate!: #RuleIpToEvaluate
 	Operator!: #RuleIpOperator
-	Values!: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(43) & strings.MinRunes(1) & =~"^(([0-9]|.|:|/)*)$" | fn.#StringExpression
-	] |
+	Values!: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(43) &
+	strings.MinRunes(1) &
+	=~"^(([0-9]|.|:|/)*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(43) & strings.MinRunes(1) & =~"^(([0-9]|.|:|/)*)$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -245,7 +377,9 @@ fn.#ObjectExpression
 #RuleIpToEvaluate: close({Attribute!: #RuleIpEmailAttribute}) | fn.#ValueExpression
 
 #RuleIsInAddressList: close({
-	AddressLists!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] |
+	AddressLists!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
+		...string | number | bool | fn.#StringExpression
+	] |
 		fn.#ListExpression
 	Attribute!: #RuleAddressListEmailAttribute
 }) |
@@ -301,9 +435,12 @@ fn.#ObjectExpression
 #RuleStringExpression: close({
 	Evaluate!: #RuleStringToEvaluate
 	Operator!: #RuleStringOperator
-	Values!: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	Values!: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -339,23 +476,63 @@ fn.#ValueExpression
 
 #S3Action: close({
 	ActionFailurePolicy?: #ActionFailurePolicy
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^[a-zA-Z0-9:_/+=,@.#-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^[a-zA-Z0-9:_/+=,@.#-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	S3Bucket!:      strings.MaxRunes(62) & strings.MinRunes(1) & =~"^[a-zA-Z0-9.-]+$" | fn.#StringExpression
-	S3Prefix?:      strings.MaxRunes(62) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!_.*'()/-]+$" | fn.#StringExpression
-	S3SseKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9-:/]+$" | fn.#StringExpression
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(62) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9.-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(62) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9.-]+$" &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	S3Prefix?: strings.MaxRunes(62) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!_.*'()/-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(62) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!_.*'()/-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	S3SseKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9-:/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^[a-zA-Z0-9-:/]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SendAction: close({
 	ActionFailurePolicy?: #ActionFailurePolicy
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^[a-zA-Z0-9:_/+=,@.#-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^[a-zA-Z0-9:_/+=,@.#-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -364,15 +541,31 @@ fn.#ObjectExpression
 	ActionFailurePolicy?: #ActionFailurePolicy
 	Encoding?:            #SnsNotificationEncoding
 	PayloadType?:         #SnsNotificationPayloadType
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^[a-zA-Z0-9:_/+=,@.#-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^[a-zA-Z0-9:_/+=,@.#-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	TopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	TopicArn!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc):sns:[a-z]{2}-([a-z]+-)+\\d{1}:\\d{12}:[\\w\\-]{1,256}$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc):sns:[a-z]{2}-([a-z]+-)+\\d{1}:\\d{12}:[\\w\\-]{1,256}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -382,7 +575,17 @@ fn.#ObjectExpression
 #SnsNotificationPayloadType: "CONTENT" | "HEADERS" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

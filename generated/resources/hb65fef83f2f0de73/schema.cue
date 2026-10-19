@@ -6,20 +6,23 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::InstanceStorageConfig
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::InstanceStorageConfig"
-	Properties!: close({
-		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+	let properties = close({
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		KinesisFirehoseConfig?:    #KinesisFirehoseConfig
 		KinesisStreamConfig?:      #KinesisStreamConfig
 		KinesisVideoStreamConfig?: #KinesisVideoStreamConfig
@@ -27,11 +30,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		S3Config?:                 #S3Config
 		StorageType!:              #StorageType
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#AssociationId: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[-a-z0-9]*$" | fn.#StringExpression
-
-#BucketName: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#BucketName: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+strings.MaxRunes(128) &
+strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1) &
+	"\(self)"
+} |
+fn.#StringExpression
 
 #EncryptionConfig: close({
 	EncryptionType!: #EncryptionType
@@ -42,7 +59,11 @@ fn.#ObjectExpression
 #EncryptionType: "KMS" | fn.#StringExpression
 
 #FirehoseDeliveryStreamArn: =~"^arn:aws[-a-z0-9]*:firehose:[-a-z0-9]*:[0-9]{12}:deliverystream/[-a-zA-Z0-9_.]*$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^arn:aws[-a-z0-9]*:firehose:[-a-z0-9]*:[0-9]{12}:deliverystream/[-a-zA-Z0-9_.]*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Hours: number |
 	{
@@ -79,11 +100,21 @@ fn.#ObjectExpression
 	"EMAIL_MESSAGES" |
 	fn.#StringExpression
 
-#KeyId: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#KeyId: strings.MaxRunes(128) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #KinesisFirehoseConfig: close({FirehoseArn!: #FirehoseDeliveryStreamArn}) | fn.#ObjectExpression
 
-#KinesisStreamArn: =~"^arn:aws[-a-z0-9]*:kinesis:[-a-z0-9]*:[0-9]{12}:stream/[-a-zA-Z0-9_.]*$" | fn.#StringExpression
+#KinesisStreamArn: =~"^arn:aws[-a-z0-9]*:kinesis:[-a-z0-9]*:[0-9]{12}:stream/[-a-zA-Z0-9_.]*$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[-a-z0-9]*:kinesis:[-a-z0-9]*:[0-9]{12}:stream/[-a-zA-Z0-9_.]*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #KinesisStreamConfig: close({StreamArn!: #KinesisStreamArn}) | fn.#ObjectExpression
 
@@ -94,7 +125,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Prefix: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#Prefix: strings.MaxRunes(128) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #S3Config: close({
 	BucketName!:       #BucketName

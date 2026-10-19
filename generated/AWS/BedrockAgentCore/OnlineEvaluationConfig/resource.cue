@@ -4,20 +4,19 @@ package OnlineEvaluationConfig
 
 import schema "github.com/cueformation/cfn-cue/resources/h163c003360e91354:schema"
 
-#Resource:                     schema.#Resource
-#CloudWatchLogsInputConfig:    schema.#CloudWatchLogsInputConfig
-#CloudWatchOutputConfig:       schema.#CloudWatchOutputConfig
-#ClusteringConfig:             schema.#ClusteringConfig
-#ClusteringFrequency:          schema.#ClusteringFrequency
-#DataSourceConfig:             schema.#DataSourceConfig
-#EvaluatorReference:           schema.#EvaluatorReference
-#ExecutionStatus:              schema.#ExecutionStatus
-#Filter:                       schema.#Filter
-#FilterValue:                  schema.#FilterValue
-#Insight:                      schema.#Insight
-#OnlineEvaluationConfigStatus: schema.#OnlineEvaluationConfigStatus
-#OutputConfig:                 schema.#OutputConfig
-#Rule:                         schema.#Rule
-#SamplingConfig:               schema.#SamplingConfig
-#SessionConfig:                schema.#SessionConfig
-#Tag:                          schema.#Tag
+#Resource:                  schema.#Resource
+#CloudWatchLogsInputConfig: schema.#CloudWatchLogsInputConfig
+#CloudWatchOutputConfig:    schema.#CloudWatchOutputConfig
+#ClusteringConfig:          schema.#ClusteringConfig
+#ClusteringFrequency:       schema.#ClusteringFrequency
+#DataSourceConfig:          schema.#DataSourceConfig
+#EvaluatorReference:        schema.#EvaluatorReference
+#ExecutionStatus:           schema.#ExecutionStatus
+#Filter:                    schema.#Filter
+#FilterValue:               schema.#FilterValue
+#Insight:                   schema.#Insight
+#OutputConfig:              schema.#OutputConfig
+#Rule:                      schema.#Rule
+#SamplingConfig:            schema.#SamplingConfig
+#SessionConfig:             schema.#SessionConfig
+#Tag:                       schema.#Tag

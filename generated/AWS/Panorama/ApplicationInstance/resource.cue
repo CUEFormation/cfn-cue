@@ -4,23 +4,15 @@ package ApplicationInstance
 
 import schema "github.com/cueformation/cfn-cue/resources/hd5279fb393cab4fa:schema"
 
-#Resource:                             schema.#Resource
-#ApplicationInstanceArn:               schema.#ApplicationInstanceArn
-#ApplicationInstanceHealthStatus:      schema.#ApplicationInstanceHealthStatus
-#ApplicationInstanceId:                schema.#ApplicationInstanceId
-#ApplicationInstanceStatus:            schema.#ApplicationInstanceStatus
-#ApplicationInstanceStatusDescription: schema.#ApplicationInstanceStatusDescription
-#DefaultRuntimeContextDevice:          schema.#DefaultRuntimeContextDevice
-#Description:                          schema.#Description
-#DeviceId:                             schema.#DeviceId
-#DeviceName:                           schema.#DeviceName
-#ManifestOverridesPayload:             schema.#ManifestOverridesPayload
-#ManifestOverridesPayloadData:         schema.#ManifestOverridesPayloadData
-#ManifestPayload:                      schema.#ManifestPayload
-#ManifestPayloadData:                  schema.#ManifestPayloadData
-#Name:                                 schema.#Name
-#RuntimeRoleArn:                       schema.#RuntimeRoleArn
-#StatusFilter:                         schema.#StatusFilter
-#Tag:                                  schema.#Tag
-#TagList:                              schema.#TagList
-#Timestamp:                            schema.#Timestamp
+#Resource:                     schema.#Resource
+#ApplicationInstanceId:        schema.#ApplicationInstanceId
+#DefaultRuntimeContextDevice:  schema.#DefaultRuntimeContextDevice
+#Description:                  schema.#Description
+#ManifestOverridesPayload:     schema.#ManifestOverridesPayload
+#ManifestOverridesPayloadData: schema.#ManifestOverridesPayloadData
+#ManifestPayload:              schema.#ManifestPayload
+#ManifestPayloadData:          schema.#ManifestPayloadData
+#Name:                         schema.#Name
+#RuntimeRoleArn:               schema.#RuntimeRoleArn
+#Tag:                          schema.#Tag
+#TagList:                      schema.#TagList

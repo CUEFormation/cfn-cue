@@ -7,62 +7,118 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Cognito::UserPool Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cognito::UserPool"
-	Properties?: close({
+	let properties = close({
 		AccountRecoverySetting?: #AccountRecoverySetting
 		AdminCreateUserConfig?:  #AdminCreateUserConfig
 		AliasAttributes?: [..."email" | "phone_number" | "preferred_username" | fn.#StringExpression] |
 			fn.#ListExpression
-		AutoVerifiedAttributes?:     [..."email" | "phone_number" | fn.#StringExpression] | fn.#ListExpression
-		DeletionProtection?:         "ACTIVE" | "INACTIVE" | fn.#StringExpression
-		DeviceConfiguration?:        #DeviceConfiguration
-		EmailAuthenticationMessage?: strings.MaxRunes(20000) & strings.MinRunes(6) | fn.#StringExpression
-		EmailAuthenticationSubject?: strings.MaxRunes(140) & strings.MinRunes(1) | fn.#StringExpression
-		EmailConfiguration?:         #EmailConfiguration
+		AutoVerifiedAttributes?: [..."email" | "phone_number" | fn.#StringExpression] | fn.#ListExpression
+		DeletionProtection?:     "ACTIVE" | "INACTIVE" | fn.#StringExpression
+		DeviceConfiguration?:    #DeviceConfiguration
+		EmailAuthenticationMessage?: strings.MaxRunes(20000) & strings.MinRunes(6) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(20000) & strings.MinRunes(6) & "\(self)"
+		} |
+		fn.#StringExpression
+		EmailAuthenticationSubject?: strings.MaxRunes(140) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(140) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		EmailConfiguration?: #EmailConfiguration
 		EmailVerificationMessage?: strings.MaxRunes(20000) &
 		strings.MinRunes(6) &
 		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*\\{####\\}[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(20000) &
+			strings.MinRunes(6) &
+			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*\\{####\\}[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		EmailVerificationSubject?: strings.MaxRunes(140) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(140) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		EnabledMfas?:              [...string | fn.#StringExpression] | fn.#ListExpression
-		IssuerConfiguration?:      #IssuerConfiguration
-		KeyConfiguration?:         #KeyConfiguration
-		LambdaConfig?:             #LambdaConfig
-		MfaConfiguration?:         "OFF" | "ON" | "OPTIONAL" | fn.#StringExpression
-		Policies?:                 #Policies
-		Schema?:                   list.MaxItems(50) & list.MinItems(1) & [...#SchemaAttribute] | fn.#ListExpression
-		SmsAuthenticationMessage?: strings.MaxRunes(140) & strings.MinRunes(6) & =~"\\{####\\}" | fn.#StringExpression
-		SmsConfiguration?:         #SmsConfiguration
-		SmsVerificationMessage?:   strings.MaxRunes(140) & strings.MinRunes(6) & =~"\\{####\\}" | fn.#StringExpression
+		EnabledMfas?:         [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		IssuerConfiguration?: #IssuerConfiguration
+		KeyConfiguration?:    #KeyConfiguration
+		LambdaConfig?:        #LambdaConfig
+		MfaConfiguration?:    "OFF" | "ON" | "OPTIONAL" | fn.#StringExpression
+		Policies?:            #Policies
+		Schema?:              list.MaxItems(50) & list.MinItems(1) & [...#SchemaAttribute] | fn.#ListExpression
+		SmsAuthenticationMessage?: strings.MaxRunes(140) & strings.MinRunes(6) & =~"\\{####\\}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(140) & strings.MinRunes(6) & =~"\\{####\\}" & "\(self)"
+		} |
+		fn.#StringExpression
+		SmsConfiguration?: #SmsConfiguration
+		SmsVerificationMessage?: strings.MaxRunes(140) & strings.MinRunes(6) & =~"\\{####\\}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(140) & strings.MinRunes(6) & =~"\\{####\\}" & "\(self)"
+		} |
+		fn.#StringExpression
 		UserAttributeUpdateSettings?: #UserAttributeUpdateSettings
 		UserPoolAddOns?:              #UserPoolAddOns
-		UserPoolName?:                strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		UserPoolName?: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		UserPoolTags?: close({
 
-			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | number | bool | fn.#StringExpression}
+		}) |
 		fn.#ObjectExpression
 		UserPoolTier?:                "LITE" | "ESSENTIALS" | "PLUS" | fn.#StringExpression
 		UsernameAttributes?:          [..."email" | "phone_number" | fn.#StringExpression] | fn.#ListExpression
 		UsernameConfiguration?:       #UsernameConfiguration
 		VerificationMessageTemplate?: #VerificationMessageTemplate
 		WebAuthnFactorConfiguration?: "SINGLE_FACTOR" | "MULTI_FACTOR_WITH_USER_VERIFICATION" | fn.#StringExpression
-		WebAuthnRelyingPartyID?:      strings.MaxRunes(63) & strings.MinRunes(1) | fn.#StringExpression
-		WebAuthnUserVerification?:    strings.MaxRunes(9) & strings.MinRunes(1) | fn.#StringExpression
+		WebAuthnRelyingPartyID?: strings.MaxRunes(63) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		WebAuthnUserVerification?: strings.MaxRunes(9) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(9) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #AccountRecoverySetting: close(
@@ -96,20 +152,36 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #CustomEmailSender: close({
-	LambdaArn?: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	LambdaArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	LambdaVersion?: "V1_0" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CustomSMSSender: close({
-	LambdaArn?: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	LambdaArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	LambdaVersion?: "V1_0" | fn.#StringExpression
 }) |
@@ -129,22 +201,51 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #EmailConfiguration: close({
-	ConfigurationSet?:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	ConfigurationSet?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	EmailSendingAccount?: "COGNITO_DEFAULT" | "DEVELOPER" | fn.#StringExpression
-	From?:                strings.MaxRunes(131072) & strings.MinRunes(0) | fn.#StringExpression
+	From?: strings.MaxRunes(131072) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(131072) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	ReplyToEmailAddress?: =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+@[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+@[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	SourceArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#EncryptionKeyArnType: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#EncryptionKeyArnType: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #EncryptionKeyType: "AWS_OWNED_KEY" | "CUSTOMER_MANAGED_KEY" | fn.#StringExpression
@@ -153,21 +254,66 @@ fn.#StringExpression
 	CallerArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	ConfigurationSetName?: strings.MaxRunes(131072) & strings.MinRunes(0) | fn.#StringExpression
-	ExternalId?:           strings.MaxRunes(131072) & strings.MinRunes(0) | fn.#StringExpression
-	InEntityId?:           strings.MaxRunes(131072) & strings.MinRunes(0) | fn.#StringExpression
-	InTemplateId?:         strings.MaxRunes(131072) & strings.MinRunes(0) | fn.#StringExpression
-	OriginationIdentity?:  strings.MaxRunes(131072) & strings.MinRunes(0) | fn.#StringExpression
-	Region?:               strings.MaxRunes(32) & strings.MinRunes(5) | fn.#StringExpression
+	ConfigurationSetName?: strings.MaxRunes(131072) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(131072) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	ExternalId?: strings.MaxRunes(131072) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(131072) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	InEntityId?: strings.MaxRunes(131072) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(131072) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	InTemplateId?: strings.MaxRunes(131072) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(131072) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	OriginationIdentity?: strings.MaxRunes(131072) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(131072) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Region?: strings.MaxRunes(32) & strings.MinRunes(5) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(5) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #InboundFederation: close({
-	LambdaArn?: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	LambdaArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	LambdaVersion?: "V1_0" | fn.#StringExpression
 }) |
@@ -175,10 +321,26 @@ fn.#ObjectExpression
 
 #InviteMessageTemplate: close({
 	EmailMessage?: strings.MaxRunes(20000) & strings.MinRunes(6) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(20000) &
+		strings.MinRunes(6) &
+		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	EmailSubject?: strings.MaxRunes(140) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(140) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s]+$" & "\(self)"
+	} |
 	fn.#StringExpression
-	SMSMessage?: strings.MaxRunes(140) & strings.MinRunes(6) & =~"^(?s)" | fn.#StringExpression
+	SMSMessage?: strings.MaxRunes(140) & strings.MinRunes(6) & =~"^(?s)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(140) & strings.MinRunes(6) & =~"^(?s)" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -194,57 +356,144 @@ fn.#ObjectExpression
 	CreateAuthChallenge?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	CustomEmailSender?: #CustomEmailSender
 	CustomMessage?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	CustomSMSSender?: #CustomSMSSender
 	DefineAuthChallenge?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	InboundFederation?: #InboundFederation
 	KMSKeyID?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	PostAuthentication?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	PostConfirmation?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	PreAuthentication?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	PreSignUp?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	PreTokenGeneration?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	PreTokenGenerationConfig?: #PreTokenGenerationConfig
 	UserMigration?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	VerifyAuthChallengeResponse?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #NumberAttributeConstraints: close({
-	MaxValue?: strings.MaxRunes(131072) & strings.MinRunes(0) | fn.#StringExpression
-	MinValue?: strings.MaxRunes(131072) & strings.MinRunes(0) | fn.#StringExpression
+	MaxValue?: strings.MaxRunes(131072) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(131072) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	MinValue?: strings.MaxRunes(131072) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(131072) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -311,10 +560,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PreTokenGenerationConfig: close({
-	LambdaArn?: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	LambdaArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	LambdaVersion?: "V1_0" | "V2_0" | "V3_0" | fn.#StringExpression
 }) |
@@ -345,7 +602,12 @@ fn.#ObjectExpression
 	AttributeDataType?:      "Boolean" | "DateTime" | "Number" | "String" | fn.#StringExpression
 	DeveloperOnlyAttribute?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Mutable?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name?: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" | fn.#StringExpression
+	Name?: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	NumberAttributeConstraints?: #NumberAttributeConstraints
 	Required?:                   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	StringAttributeConstraints?: #StringAttributeConstraints
@@ -361,19 +623,46 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #SmsConfiguration: close({
-	EumsSms?:    #EumsSmsConfiguration
-	ExternalId?: strings.MaxRunes(131072) & strings.MinRunes(0) | fn.#StringExpression
+	EumsSms?: #EumsSmsConfiguration
+	ExternalId?: strings.MaxRunes(131072) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(131072) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	SnsCallerArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^(arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?)?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^(arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	SnsRegion?: strings.MaxRunes(32) & strings.MinRunes(5) | fn.#StringExpression
+	SnsRegion?: strings.MaxRunes(32) & strings.MinRunes(5) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(5) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #StringAttributeConstraints: close({
-	MaxLength?: strings.MaxRunes(131072) & strings.MinRunes(0) | fn.#StringExpression
-	MinLength?: strings.MaxRunes(131072) & strings.MinRunes(0) | fn.#StringExpression
+	MaxLength?: strings.MaxRunes(131072) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(131072) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	MinLength?: strings.MaxRunes(131072) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(131072) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -399,15 +688,42 @@ fn.#ObjectExpression
 	EmailMessage?: strings.MaxRunes(20000) &
 	strings.MinRunes(6) &
 	=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*\\{####\\}[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(20000) &
+		strings.MinRunes(6) &
+		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*\\{####\\}[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	EmailMessageByLink?: strings.MaxRunes(20000) &
 	strings.MinRunes(6) &
 	=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*\\{##[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*##\\}[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(20000) &
+		strings.MinRunes(6) &
+		=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*\\{##[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*##\\}[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s*]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	EmailSubject?: strings.MaxRunes(140) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(140) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s]+$" & "\(self)"
+	} |
 	fn.#StringExpression
 	EmailSubjectByLink?: strings.MaxRunes(140) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(140) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\s]+$" & "\(self)"
+	} |
 	fn.#StringExpression
-	SmsMessage?: strings.MaxRunes(140) & strings.MinRunes(6) & =~"\\{####\\}" | fn.#StringExpression
+	SmsMessage?: strings.MaxRunes(140) & strings.MinRunes(6) & =~"\\{####\\}" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(140) & strings.MinRunes(6) & =~"\\{####\\}" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -58,7 +58,9 @@ package schema
 	// An AWS KMS key identifier that is used to encrypt the connection parameters
 	// for the endpoint.If you don't specify a value for the KmsKeyId parameter,
 	// AWS DMS uses your default encryption key.
-	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 
 	// Settings in JSON format for the source and target Microsoft SQL Server endpoint
 	MicrosoftSqlServerSettings?: #MicrosoftSqlServerSettings
@@ -579,7 +581,7 @@ package schema
 	// The name of the Amazon S3 bucket where AWS DMS can temporarily store migrated
 	// graph data in .csv files before bulk-loading it to the Neptune target
 	// database.
-	S3BucketName?: string
+	S3BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$"
 
 	// The Amazon Resource Name (ARN) of the service role that you created for the
 	// Neptune target endpoint. The role must allow the iam:PassRole action.
@@ -831,7 +833,7 @@ package schema
 
 	// The name of the intermediate S3 bucket used to store .csv files before
 	// uploading data to Redshift.
-	BucketName?: string
+	BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$"
 
 	// If Amazon Redshift is configured to support case sensitive schema names, set
 	// CaseSensitiveNames to true. The default is false.
@@ -938,7 +940,7 @@ package schema
 	BucketFolder?: string
 
 	// The name of the S3 bucket.
-	BucketName?: string
+	BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$"
 
 	// A value that enables AWS DMS to specify a predefined (canned) access control
 	// list (ACL) for objects created in an Amazon S3 bucket as .csv or .parquet

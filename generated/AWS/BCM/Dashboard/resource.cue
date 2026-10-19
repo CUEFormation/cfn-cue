@@ -8,7 +8,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h044ed393debcb661:schem
 #CostAndUsageExpression:       schema.#CostAndUsageExpression
 #CostAndUsageQuery:            schema.#CostAndUsageQuery
 #CostCategoryValues:           schema.#CostCategoryValues
-#DashboardType:                schema.#DashboardType
 #DateTimeRange:                schema.#DateTimeRange
 #DateTimeType:                 schema.#DateTimeType
 #DateTimeValue:                schema.#DateTimeValue

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -18,8 +18,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // deployments on Amazon SageMaker AI.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::AIWorkloadConfig"
-	Properties!: close({
+	let properties = close({
 		AIWorkloadConfigName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9](-*[a-z0-9]){0,62}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9](-*[a-z0-9]){0,62}$" & "\(self)"
+		} |
 		fn.#StringExpression
 
 		// The benchmark tool configuration and workload specification.
@@ -30,6 +34,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		DatasetConfig?: #AIDatasetConfig
 		Tags?:          list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AIDatasetConfig: close({InputDataConfig!: [...#AIWorkloadInputDataConfig] | fn.#ListExpression}) | fn.#ObjectExpression
@@ -47,22 +55,42 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #AIWorkloadInputDataConfig: close({
-	ChannelName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\.\\-_]+$" | fn.#StringExpression
+	ChannelName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\.\\-_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\.\\-_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// The data source for this channel.
 	DataSource!: #AIWorkloadDataSource
 }) |
 fn.#ObjectExpression
 
-#AIWorkloadS3DataSource: close(
-	{S3Uri!: strings.MaxRunes(1024) & =~"^(https|s3)://([^/]+)/?(.*)$" | fn.#StringExpression},
-) |
-fn.#ObjectExpression
-
-#Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+#AIWorkloadS3DataSource: close({
+	S3Uri!: strings.MaxRunes(1024) & =~"^(https|s3)://([^/]+)/?(.*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & =~"^(https|s3)://([^/]+)/?(.*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#WorkloadSpec: close({Inline!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Tag: close({
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
+
+#WorkloadSpec: close({Inline!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression

@@ -7,26 +7,48 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Events::Endpoint.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Events::Endpoint"
-	Properties!: close({
-		Description?: strings.MaxRunes(512) & =~".*" | fn.#StringExpression
-		EventBuses!:  #EventBuses
-		Name?:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(512) & =~".*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & =~".*" & "\(self)"
+		} |
+		fn.#StringExpression
+		EventBuses!: #EventBuses
+		Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\.\\-_A-Za-z0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ReplicationConfig?: #ReplicationConfig
-		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(256) &
 		strings.MinRunes(1) &
 		=~"^arn:aws[a-z-]*:iam::\\d{12}:role\\/[\\w+=,.@/-]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(256) &
+			strings.MinRunes(1) &
+			=~"^arn:aws[a-z-]*:iam::\\d{12}:role\\/[\\w+=,.@/-]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		RoutingConfig!: #RoutingConfig
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #EndpointEventBus: close({EventBusArn!: #EventBusArn}) | fn.#ObjectExpression
@@ -34,6 +56,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #EventBusArn: strings.MaxRunes(512) &
 strings.MinRunes(1) &
 =~"^arn:aws[a-z-]*:events:[a-z]+-[a-z-]+-\\d+:\\d{12}:event-bus/[\\w.-]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"^arn:aws[a-z-]*:events:[a-z]+-[a-z-]+-\\d+:\\d{12}:event-bus/[\\w.-]+$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #EventBuses: list.MaxItems(2) & list.MinItems(2) & [...#EndpointEventBus] | fn.#ListExpression
@@ -47,6 +76,13 @@ fn.#ObjectExpression
 #HealthCheck: strings.MaxRunes(1600) &
 strings.MinRunes(1) &
 =~"^arn:aws([a-z]|\\-)*:route53:::healthcheck/[\\-a-z0-9]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1600) &
+	strings.MinRunes(1) &
+	=~"^arn:aws([a-z]|\\-)*:route53:::healthcheck/[\\-a-z0-9]+$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #Primary: close({HealthCheck!: #HealthCheck}) | fn.#ObjectExpression
@@ -55,7 +91,12 @@ fn.#StringExpression
 
 #ReplicationState: "ENABLED" | "DISABLED" | fn.#StringExpression
 
-#Route: strings.MaxRunes(20) & strings.MinRunes(9) & =~"^[\\-a-z0-9]+$" | fn.#StringExpression
+#Route: strings.MaxRunes(20) & strings.MinRunes(9) & =~"^[\\-a-z0-9]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(20) & strings.MinRunes(9) & =~"^[\\-a-z0-9]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #RoutingConfig: close({FailoverConfig!: #FailoverConfig}) | fn.#ObjectExpression
 

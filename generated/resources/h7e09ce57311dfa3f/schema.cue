@@ -7,45 +7,91 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema for AWS::ServiceCatalog::CloudFormationProvisionedProduct
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ServiceCatalog::CloudFormationProvisionedProduct"
-	Properties?: close({
+	let properties = close({
 		AcceptLanguage?: "en" | "jp" | "zh" | fn.#StringExpression
-		NotificationArns?: list.MaxItems(5) & list.UniqueItems() & [...string | fn.#StringExpression] |
+		NotificationArns?: list.MaxItems(5) & list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
 			fn.#ListExpression
-		PathId?:                   strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		PathName?:                 strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		ProductId?:                strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		ProductName?:              strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		ProvisionedProductName?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		ProvisioningArtifactId?:   strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		ProvisioningArtifactName?: string | fn.#StringExpression
+		PathId?: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		PathName?: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ProductId?: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ProductName?: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ProvisionedProductName?: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ProvisioningArtifactId?: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ProvisioningArtifactName?: string | number | bool | fn.#StringExpression
 		ProvisioningParameters?:   [...#ProvisioningParameter] | fn.#ListExpression
 		ProvisioningPreferences?:  #ProvisioningPreferences
 		Tags?:                     [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
-#OutputType: string | fn.#StringExpression
-
 #ProvisioningParameter: close({
-	Key!:   strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(4096) | fn.#StringExpression
+	Key!: strings.MaxRunes(1000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(4096) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ProvisioningPreferences: close({
-	StackSetAccounts?: list.UniqueItems() & [...=~"^[0-9]{12}$" | fn.#StringExpression] | fn.#ListExpression
+	StackSetAccounts?: list.UniqueItems() & [...=~"^[0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	StackSetFailureToleranceCount?: int & >=0 |
 		{
 			string &
@@ -109,13 +155,28 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	StackSetOperationType?: "CREATE" | "UPDATE" | "DELETE" | fn.#StringExpression
-	StackSetRegions?: list.UniqueItems() & [...=~"^[a-z]{2}-([a-z]+-)+[1-9]" | fn.#StringExpression] |
-		fn.#ListExpression
+	StackSetRegions?: list.UniqueItems() & [...=~"^[a-z]{2}-([a-z]+-)+[1-9]" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z]{2}-([a-z]+-)+[1-9]" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

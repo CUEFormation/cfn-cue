@@ -7,4 +7,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h6184977d2f069649:schem
 #Resource:    schema.#Resource
 #Arn:         schema.#Arn
 #ResourceTag: schema.#ResourceTag
-#Subscriber:  schema.#Subscriber

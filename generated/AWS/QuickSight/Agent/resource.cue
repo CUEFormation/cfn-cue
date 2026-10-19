@@ -8,5 +8,4 @@ import schema "github.com/cueformation/cfn-cue/resources/h61366dc6bbf1e6ba:schem
 #AgentTag:                    schema.#AgentTag
 #CustomPromptInput:           schema.#CustomPromptInput
 #CustomPromptInputParameters: schema.#CustomPromptInputParameters
-#CustomPromptInterface:       schema.#CustomPromptInterface
 #CustomPromptProfile:         schema.#CustomPromptProfile

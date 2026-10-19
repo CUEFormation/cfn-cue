@@ -7,47 +7,76 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Evidently::Launch.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Evidently::Launch"
-	Properties!: close({
-		Description?: strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(160) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(160) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Start or Stop Launch Launch. Default is not started.
 		ExecutionStatus?: #ExecutionStatusObject
 		Groups!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#LaunchGroupObject] | fn.#ListExpression
 		MetricMonitors?: list.MaxItems(3) & list.UniqueItems() & [...] & [...#MetricDefinitionObject] |
 			fn.#ListExpression
-		Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
+		Name!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" & "\(self)"
+		} |
+		fn.#StringExpression
 		Project!: strings.MaxRunes(2048) &
 		strings.MinRunes(0) &
 		=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:project/[-a-zA-Z0-9._]*)" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(0) &
+			=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:project/[-a-zA-Z0-9._]*)" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		RandomizationSalt?: strings.MaxRunes(127) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+		RandomizationSalt?: strings.MaxRunes(127) & strings.MinRunes(0) & =~".*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(127) & strings.MinRunes(0) & =~".*" & "\(self)"
+		} |
+		fn.#StringExpression
 		ScheduledSplitsConfig!: list.MaxItems(6) & list.MinItems(1) & list.UniqueItems() & [...#StepConfig] |
 			fn.#ListExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ExecutionStatusObject: close({
-	DesiredState?: string | fn.#StringExpression
-	Reason?:       string | fn.#StringExpression
-	Status!:       string | fn.#StringExpression
+	DesiredState?: string | number | bool | fn.#StringExpression
+	Reason?:       string | number | bool | fn.#StringExpression
+	Status!:       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GroupToWeight: close({
-	GroupName!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
+	GroupName!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" & "\(self)"
+	} |
+	fn.#StringExpression
 	SplitWeight!: int |
 		{
 			string &
@@ -66,19 +95,39 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #LaunchGroupObject: close({
-	Description?: strings.MaxRunes(160) & strings.MinRunes(0) | fn.#StringExpression
-	Feature!:     string | fn.#StringExpression
-	GroupName!:   strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" | fn.#StringExpression
-	Variation!:   string | fn.#StringExpression
+	Description?: strings.MaxRunes(160) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(160) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Feature!: string | number | bool | fn.#StringExpression
+	GroupName!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~"[-a-zA-Z0-9._]*" & "\(self)"
+	} |
+	fn.#StringExpression
+	Variation!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MetricDefinitionObject: close({
-	EntityIdKey!:  string | fn.#StringExpression
-	EventPattern?: string | fn.#StringExpression
-	MetricName!:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\S]+$" | fn.#StringExpression
-	UnitLabel?:    strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
-	ValueKey!:     string | fn.#StringExpression
+	EntityIdKey!:  string | number | bool | fn.#StringExpression
+	EventPattern?: string | number | bool | fn.#StringExpression
+	MetricName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\S]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\S]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	UnitLabel?: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
+	ValueKey!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -100,6 +149,13 @@ fn.#ObjectExpression
 	Segment!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:segment/[-a-zA-Z0-9._]*)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"([-a-zA-Z0-9._]*)|(arn:[^:]*:[^:]*:[^:]*:[^:]*:segment/[-a-zA-Z0-9._]*)" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Weights!: list.UniqueItems() & [...#GroupToWeight] | fn.#ListExpression
 }) |
@@ -108,12 +164,27 @@ fn.#ObjectExpression
 #StepConfig: close({
 	GroupWeights!:     list.UniqueItems() & [...#GroupToWeight] | fn.#ListExpression
 	SegmentOverrides?: list.UniqueItems() & [...#SegmentOverride] | fn.#ListExpression
-	StartTime!:        string | fn.#StringExpression
+	StartTime!:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

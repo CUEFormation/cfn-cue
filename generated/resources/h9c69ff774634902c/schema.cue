@@ -7,12 +7,10 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,26 +18,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // AWS DMS Serverless replication
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DMS::ReplicationConfig"
-	Properties!: close({
+	let properties = close({
 		ComputeConfig!:               #ComputeConfig
-		ReplicationConfigIdentifier!: string | fn.#StringExpression
-		ReplicationSettings?:         fn.#Object & {...} | string | fn.#StringObjectExpression
+		ReplicationConfigIdentifier!: string | number | bool | fn.#StringExpression
+		ReplicationSettings?:         fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		ReplicationType!:             "full-load" | "full-load-and-cdc" | "cdc" | fn.#StringExpression
-		ResourceIdentifier?:          string | fn.#StringExpression
-		SourceEndpointArn!:           string | fn.#StringExpression
-		SupplementalSettings?:        fn.#Object & {...} | string | fn.#StringObjectExpression
-		TableMappings!:               fn.#Object & {...} | string | fn.#StringObjectExpression
+		ResourceIdentifier?:          string | number | bool | fn.#StringExpression
+		SourceEndpointArn!:           string | number | bool | fn.#StringExpression
+		SupplementalSettings?:        fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		TableMappings!:               fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		Tags?:                        list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-		TargetEndpointArn!:           string | fn.#StringExpression
+		TargetEndpointArn!:           string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ComputeConfig: close({
-	AvailabilityZone?: string | fn.#StringExpression
-	DnsNameServers?:   string | fn.#StringExpression
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
+	AvailabilityZone?: string | number | bool | fn.#StringExpression
+	DnsNameServers?:   string | number | bool | fn.#StringExpression
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+	} |
+	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+			"\(self)"
+	} |
+	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	MaxCapacityUnits!: int |
 		{
 			string &
@@ -69,18 +85,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	MultiAZ?:                    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PreferredMaintenanceWindow?: string | fn.#StringExpression
-	ReplicationSubnetGroupId?:   string | fn.#StringExpression
-	VpcSecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
+	PreferredMaintenanceWindow?: string | number | bool | fn.#StringExpression
+	ReplicationSubnetGroupId?:   string | number | bool | fn.#StringExpression
+	VpcSecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

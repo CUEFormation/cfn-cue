@@ -14,5 +14,4 @@ import schema "github.com/cueformation/cfn-cue/resources/h2dff9a7c40260df4:schem
 #Listeners:                 schema.#Listeners
 #Policies:                  schema.#Policies
 #PolicyItem:                schema.#PolicyItem
-#SourceSecurityGroup:       schema.#SourceSecurityGroup
 #Tag:                       schema.#Tag

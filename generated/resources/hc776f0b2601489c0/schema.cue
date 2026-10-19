@@ -6,24 +6,53 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Amplify::Webhook. Creates a webhook on an Amplify app.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Amplify::Webhook"
-	Properties!: close({
-		AppId?:       strings.MaxRunes(20) & strings.MinRunes(1) & =~"^d[a-z0-9]+$" | fn.#StringExpression
-		BranchName!:  strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(?s).+$" | fn.#StringExpression
-		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^(?s)" | fn.#StringExpression
-		Tags?:        [...#Tag] | fn.#ListExpression
+	let properties = close({
+		AppId?: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^d[a-z0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^d[a-z0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		BranchName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(?s).+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^(?s).+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^(?s)" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^(?s)" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

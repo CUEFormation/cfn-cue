@@ -4,7 +4,6 @@ package SecurityKey
 
 import schema "github.com/cueformation/cfn-cue/resources/hc873441e401ff1c2:schema"
 
-#Resource:      schema.#Resource
-#AssociationId: schema.#AssociationId
-#InstanceId:    schema.#InstanceId
-#Key:           schema.#Key
+#Resource:   schema.#Resource
+#InstanceId: schema.#InstanceId
+#Key:        schema.#Key

@@ -6,20 +6,20 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecurityAgent::AgentSpace
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityAgent::AgentSpace"
-	Properties!: close({
+	let properties = close({
 		AwsResources?:       #AWSResources
 		CodeReviewSettings?: #CodeReviewSettings
-		Description?:        string | fn.#StringExpression
+		Description?:        string | number | bool | fn.#StringExpression
 		IntegratedResources?: [...close({
-			Integration!: string | fn.#StringExpression
+			Integration!: string | number | bool | fn.#StringExpression
 			ProviderResources!: [...matchN(2, [matchN(1, [{
 				GitHubRepository!: _
 				...
@@ -49,9 +49,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				BitbucketRepository?:    #BitbucketRepositoryResource
 				ConfluenceCapabilities?: #ConfluenceCapabilitiesResource
 				ConfluenceDocument?: close({
-					Name!:     string | fn.#StringExpression
-					PageId!:   string | fn.#StringExpression
-					SpaceKey!: string | fn.#StringExpression
+					Name!:     string | number | bool | fn.#StringExpression
+					PageId!:   string | number | bool | fn.#StringExpression
+					SpaceKey!: string | number | bool | fn.#StringExpression
 				}) |
 				fn.#ObjectExpression
 				GitHubCapabilities?: #GitHubCapabilitiesResource
@@ -64,21 +64,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+				=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+				=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name!:            string | fn.#StringExpression
+		Name!:            string | number | bool | fn.#StringExpression
 		Tags?:            [...#Tag] | fn.#ListExpression
-		TargetDomainIds?: [...string | fn.#StringExpression] | fn.#ListExpression
+		TargetDomainIds?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AWSResources: close({
-	IamRoles?:           [...string | fn.#StringExpression] | fn.#ListExpression
-	LambdaFunctionArns?: [...string | fn.#StringExpression] | fn.#ListExpression
-	LogGroups?:          [...string | fn.#StringExpression] | fn.#ListExpression
-	S3Buckets?:          [...string | fn.#StringExpression] | fn.#ListExpression
-	SecretArns?:         [...string | fn.#StringExpression] | fn.#ListExpression
+	IamRoles?:           [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	LambdaFunctionArns?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	LogGroups?:          [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	S3Buckets?:          [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	SecretArns?:         [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Vpcs?:               [...#VpcConfig] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -90,8 +104,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #BitbucketRepositoryResource: close({
-	Name!:      string | fn.#StringExpression
-	Workspace!: string | fn.#StringExpression
+	Name!:      string | number | bool | fn.#StringExpression
+	Workspace!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -108,15 +122,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ConfluenceDocumentResource: close({
-	Name!:       string | fn.#StringExpression
-	PageId!:     string | fn.#StringExpression
-	SpaceKey!:   string | fn.#StringExpression
-	SpaceTitle?: string | fn.#StringExpression
-	Title?:      string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #GitHubCapabilitiesResource: close({
 	LeaveComments!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RemediateCode!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -124,8 +129,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #GitHubRepositoryResource: close({
-	Name!:  string | fn.#StringExpression
-	Owner!: string | fn.#StringExpression
+	Name!:  string | number | bool | fn.#StringExpression
+	Owner!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -136,64 +141,30 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #GitLabRepositoryResource: close({
-	Name!:      string | fn.#StringExpression
-	Namespace!: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#IntegratedResource: close({
-	Integration!:       string | fn.#StringExpression
-	ProviderResources!: [...#ProviderResource] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#IntegratedResources: [...#IntegratedResource] | fn.#ListExpression
-
-#ProviderResource: matchN(2, [matchN(1, [{
-	GitHubRepository!: _
-	...
-}, {
-	GitLabRepository!: _
-	...
-}, {
-	BitbucketRepository!: _
-	...
-}, {
-	ConfluenceDocument!: _
-	...
-}]), matchN(1, [{
-	GitHubCapabilities!: _
-	...
-}, {
-	GitLabCapabilities!: _
-	...
-}, {
-	BitbucketCapabilities!: _
-	...
-}, {
-	ConfluenceCapabilities!: _
-	...
-}])]) & close({
-	BitbucketCapabilities?:  #BitbucketCapabilitiesResource
-	BitbucketRepository?:    #BitbucketRepositoryResource
-	ConfluenceCapabilities?: #ConfluenceCapabilitiesResource
-	ConfluenceDocument?:     #ConfluenceDocumentResource
-	GitHubCapabilities?:     #GitHubCapabilitiesResource
-	GitHubRepository?:       #GitHubRepositoryResource
-	GitLabCapabilities?:     #GitLabCapabilitiesResource
-	GitLabRepository?:       #GitLabRepositoryResource
+	Name!:      string | number | bool | fn.#StringExpression
+	Namespace!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VpcConfig: close({
-	SecurityGroupArns?: [...string | fn.#StringExpression] | fn.#ListExpression
-	SubnetArns?:        [...string | fn.#StringExpression] | fn.#ListExpression
-	VpcArn?:            string | fn.#StringExpression
+	SecurityGroupArns?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	SubnetArns?:        [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	VpcArn?:            string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

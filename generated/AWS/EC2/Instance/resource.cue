@@ -20,6 +20,5 @@ import schema "github.com/cueformation/cfn-cue/resources/h9d166e07ec198cd0:schem
 #PrivateDnsNameOptions:         schema.#PrivateDnsNameOptions
 #PrivateIpAddressSpecification: schema.#PrivateIpAddressSpecification
 #SsmAssociation:                schema.#SsmAssociation
-#State:                         schema.#State
 #Tag:                           schema.#Tag
 #Volume:                        schema.#Volume

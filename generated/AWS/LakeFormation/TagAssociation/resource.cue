@@ -8,15 +8,12 @@ import schema "github.com/cueformation/cfn-cue/resources/h92a084c8695611f2:schem
 #CatalogIdString:          schema.#CatalogIdString
 #CatalogResource:          schema.#CatalogResource
 #ColumnNames:              schema.#ColumnNames
-#DataLakePrincipal:        schema.#DataLakePrincipal
-#DataLakePrincipalString:  schema.#DataLakePrincipalString
 #DatabaseResource:         schema.#DatabaseResource
 #LFTagKey:                 schema.#LFTagKey
 #LFTagPair:                schema.#LFTagPair
 #LFTagValue:               schema.#LFTagValue
 #LFTagsList:               schema.#LFTagsList
 #NameString:               schema.#NameString
-#ResourceType:             schema.#ResourceType
 #TableResource:            schema.#TableResource
 #TableWildcard:            schema.#TableWildcard
 #TableWithColumnsResource: schema.#TableWithColumnsResource

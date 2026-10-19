@@ -7,33 +7,61 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::NetworkManager::ConnectPeer Resource Type Definition.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::NetworkManager::ConnectPeer"
-	Properties!: close({
+	let properties = close({
 		// Bgp options for connect peer.
 		BgpOptions?: #BgpOptions
 		ConnectAttachmentId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^attachment-([0-9a-f]{8,17})$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^attachment-([0-9a-f]{8,17})$" & "\(self)"
+		} |
 		fn.#StringExpression
-		CoreNetworkAddress?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
-		InsideCidrBlocks?: [...strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression] |
+		CoreNetworkAddress?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		InsideCidrBlocks?: [...strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		PeerAddress!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
+		PeerAddress!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		SubnetArn?: strings.MaxRunes(500) &
 		strings.MinRunes(0) &
 		=~"^arn:[^:]{1,63}:ec2:[^:]{0,63}:[^:]{0,63}:subnet\\/subnet-[0-9a-f]{8,17}$|^$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) &
+			strings.MinRunes(0) &
+			=~"^arn:[^:]{1,63}:ec2:[^:]{0,63}:[^:]{0,63}:subnet\\/subnet-[0-9a-f]{8,17}$|^$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #BgpOptions: close({
@@ -59,63 +87,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 	fn.#ObjectExpression
 
-#ConnectPeerBgpConfiguration: close({
-	CoreNetworkAddress?: string | fn.#StringExpression
-	CoreNetworkAsn?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	PeerAddress?: string | fn.#StringExpression
-	PeerAsn?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
-#ConnectPeerConfiguration: close({
-	BgpConfigurations?:  [...#ConnectPeerBgpConfiguration] | fn.#ListExpression
-	CoreNetworkAddress?: string | fn.#StringExpression
-	InsideCidrBlocks?:   [...string | fn.#StringExpression] | fn.#ListExpression
-	PeerAddress?:        string | fn.#StringExpression
-	Protocol?:           #TunnelProtocol
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
-	Key!:   strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#TunnelProtocol: string | fn.#StringExpression

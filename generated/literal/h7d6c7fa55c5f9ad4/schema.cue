@@ -9,7 +9,10 @@ import "strings"
 // Resource Type definition for AWS::Logs::LogStream
 #Properties: close({
 	// The name of the log group where the log stream is created.
-	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$"
+	LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"^[\\.\\-_/#A-Za-z0-9]+$"
 
 	// The name of the log stream. The name must be unique wihtin the log group.
 	LogStreamName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]*$"

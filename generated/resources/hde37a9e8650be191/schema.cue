@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -13,16 +13,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Availability Zones in the same AWS Region.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Neptune::DBSubnetGroup"
-	Properties!: close({
-		DBSubnetGroupDescription!: string | fn.#StringExpression
-		DBSubnetGroupName?:        string | fn.#StringExpression
-		SubnetIds!:                [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		DBSubnetGroupDescription!: string | number | bool | fn.#StringExpression
+		DBSubnetGroupName?:        string | number | bool | fn.#StringExpression
+		SubnetIds!:                [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Tags?:                     [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

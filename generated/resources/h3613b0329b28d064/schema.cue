@@ -7,15 +7,15 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a table that can be queried within a collaboration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CleanRooms::ConfiguredTableAssociation"
-	Properties!: close({
+	let properties = close({
 		ConfiguredTableAssociationAnalysisRules?: list.MaxItems(1) & list.MinItems(1) & [
 			...#ConfiguredTableAssociationAnalysisRule
 		] |
@@ -23,29 +23,76 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ConfiguredTableIdentifier!: strings.MaxRunes(36) &
 		strings.MinRunes(36) &
 		=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) &
+			strings.MinRunes(36) &
+			=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Description?: strings.MaxRunes(255) &
 		=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) &
+			=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		MembershipIdentifier!: strings.MaxRunes(36) &
 		strings.MinRunes(36) &
 		=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) &
+			strings.MinRunes(36) &
+			=~"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name!: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" | fn.#StringExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		Name!: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(512) &
 		strings.MinRunes(32) &
 		=~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(512) &
+			strings.MinRunes(32) &
+			=~"^arn:aws:iam::[\\w]+:role/[\\w+=./@-]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AllowedAdditionalAnalyses: list.MaxItems(25) & [...] & [...#AllowedAdditionalAnalysis] | fn.#ListExpression
 
-#AllowedAdditionalAnalysis: strings.MaxRunes(256) | fn.#StringExpression
+#AllowedAdditionalAnalysis: strings.MaxRunes(256) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & "\(self)"
+} |
+fn.#StringExpression
 
-#AllowedResultReceiver: strings.MaxRunes(12) & strings.MinRunes(12) & =~"\\d+" | fn.#StringExpression
+#AllowedResultReceiver: strings.MaxRunes(12) & strings.MinRunes(12) & =~"\\d+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"\\d+" & "\(self)"
+} |
+fn.#StringExpression
 
 #AllowedResultReceivers: [...] & [...#AllowedResultReceiver] | fn.#ListExpression
 
@@ -88,7 +135,17 @@ fn.#ValueExpression
 #ConfiguredTableAssociationAnalysisRuleType: "AGGREGATION" | "LIST" | "CUSTOM" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

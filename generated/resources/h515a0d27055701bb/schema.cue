@@ -7,22 +7,29 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::Disk
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lightsail::Disk"
-	Properties!: close({
-		AddOns?:           [...#AddOn] | fn.#ListExpression
-		AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+	let properties = close({
+		AddOns?: [...#AddOn] | fn.#ListExpression
+		AvailabilityZone?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+		} |
+		fn.#StringExpression
 		DiskName!: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][\\w\\-.]*[a-zA-Z0-9]$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(254) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][\\w\\-.]*[a-zA-Z0-9]$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Location?: close({}) | fn.#ObjectExpression
 		SizeInGb!: int |
@@ -43,10 +50,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AddOn: close({
 	AddOnType!: ("AutoSnapshot" | "StopInstanceOnIdle") & (strings.MaxRunes(128) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: ("AutoSnapshot" | "StopInstanceOnIdle") & strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
 	fn.#StringExpression
 	AutoSnapshotAddOnRequest?: #AutoSnapshotAddOn
 	Status?: "Enabling" |
@@ -60,16 +75,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#AutoSnapshotAddOn: close({SnapshotTimeOfDay?: =~"^[0-9]{2}:00$" | fn.#StringExpression}) | fn.#ObjectExpression
-
-#Location: close({
-	AvailabilityZone?: string | fn.#StringExpression
-	RegionName?:       string | fn.#StringExpression
+#AutoSnapshotAddOn: close({
+	SnapshotTimeOfDay?: =~"^[0-9]{2}:00$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9]{2}:00$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -1,0 +1,20 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "s3:GetObject",
+              "Effect": "Allow",
+              "Resource": "*",
+              "Sid": "ReadObjects"
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "Type": "AWS::IAM::ManagedPolicy"
+    }
+  }
+}

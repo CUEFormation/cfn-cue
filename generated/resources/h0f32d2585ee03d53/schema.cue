@@ -6,20 +6,41 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IAM::ServiceLinkedRole
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IAM::ServiceLinkedRole"
-	Properties?: close({
-		AWSServiceName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-		CustomSuffix?:   strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
+	let properties = close({
+		AWSServiceName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		CustomSuffix?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Description?: strings.MaxRunes(1000) &
 		strings.MinRunes(0) &
 		=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) &
+			strings.MinRunes(0) &
+			=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }

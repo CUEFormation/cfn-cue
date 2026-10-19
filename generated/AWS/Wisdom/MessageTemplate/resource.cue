@@ -17,7 +17,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h5a7b42ddba099835:schem
 #EmailMessageTemplateHeader:         schema.#EmailMessageTemplateHeader
 #GroupingConfiguration:              schema.#GroupingConfiguration
 #GroupingValue:                      schema.#GroupingValue
-#MessageTemplateAttachment:          schema.#MessageTemplateAttachment
 #MessageTemplateAttributes:          schema.#MessageTemplateAttributes
 #MessageTemplateBodyContentProvider: schema.#MessageTemplateBodyContentProvider
 #SmsMessageTemplateContent:          schema.#SmsMessageTemplateContent

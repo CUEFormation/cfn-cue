@@ -7,7 +7,7 @@ package schema
 // Resource Type definition for AWS::CloudFormation::CustomResource
 #Properties: close({
 
-	{[=~".*"]: int | string | [...] | {...}}
+	{[=~".*"]: number | string | [...] | {...}}
 	Id?:             string
 	ServiceTimeout?: int
 	ServiceToken!:   string

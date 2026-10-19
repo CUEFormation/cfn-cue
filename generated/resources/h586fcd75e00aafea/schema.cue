@@ -7,29 +7,53 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::Prompt Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Bedrock::Prompt"
-	Properties!: close({
+	let properties = close({
 		CustomerEncryptionKeyArn?: strings.MaxRunes(2048) &
 		strings.MinRunes(1) &
 		=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		DefaultVariant?: =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-		Description?:    strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-		Name!:           =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-		Tags?:           #TagsMap
-		Variants?:       list.MaxItems(3) & [...] & [...#PromptVariant] | fn.#ListExpression
+		DefaultVariant?: =~"^([0-9a-zA-Z][_-]?){1,100}$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-zA-Z][_-]?){1,100}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: =~"^([0-9a-zA-Z][_-]?){1,100}$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-zA-Z][_-]?){1,100}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?:     #TagsMap
+		Variants?: list.MaxItems(3) & [...] & [...#PromptVariant] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AdditionalModelRequestFields: fn.#Object & {...} | fn.#ObjectExpression
@@ -66,6 +90,12 @@ fn.#ObjectExpression
 #PromptAgentResource: close({
 	AgentIdentifier!: strings.MaxRunes(2048) &
 	=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:agent-alias/[0-9a-zA-Z]{10}/[0-9a-zA-Z]{10}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:agent-alias/[0-9a-zA-Z]{10}/[0-9a-zA-Z]{10}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -74,7 +104,15 @@ fn.#ObjectExpression
 
 #PromptInferenceConfiguration: close({Text!: #PromptModelInferenceConfiguration}) | fn.#ValueExpression
 
-#PromptInputVariable: close({Name?: =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression}) | fn.#ObjectExpression
+#PromptInputVariable: close({
+	Name?: =~"^([0-9a-zA-Z][_-]?){1,100}$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-9a-zA-Z][_-]?){1,100}$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #PromptMetadataEntry: close({
 	Key!:   #PromptMetadataKey
@@ -82,11 +120,20 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#PromptMetadataKey: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
+#PromptMetadataKey: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #PromptMetadataList: list.MaxItems(50) & [...] & [...#PromptMetadataEntry] | fn.#ListExpression
 
 #PromptMetadataValue: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+} |
 fn.#StringExpression
 
 #PromptModelInferenceConfiguration: close({
@@ -110,7 +157,7 @@ fn.#StringExpression
 				)
 		} |
 		fn.#NumberExpression
-	StopSequences?: list.MaxItems(4) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+	StopSequences?: list.MaxItems(4) & [...] & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Temperature?: <=1 & >=0 |
 		{
 			string &
@@ -169,16 +216,33 @@ fn.#ValueExpression
 	ModelId?: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^(arn:aws(-[^:]{1,12})?:(bedrock|sagemaker):[a-z0-9-]{1,20}:([0-9]{12})?:([a-z-]+/)?)?([a-zA-Z0-9.-]{1,63}){0,2}(([:][a-z0-9-]{1,63}){0,2})?(/[a-z0-9]{1,12})?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^(arn:aws(-[^:]{1,12})?:(bedrock|sagemaker):[a-z0-9-]{1,20}:([0-9]{12})?:([a-z-]+/)?)?([a-zA-Z0-9.-]{1,63}){0,2}(([:][a-z0-9-]{1,63}){0,2})?(/[a-z0-9]{1,12})?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Name!:                  =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
+	Name!: =~"^([0-9a-zA-Z][_-]?){1,100}$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-9a-zA-Z][_-]?){1,100}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	TemplateConfiguration!: #PromptTemplateConfiguration
 	TemplateType!:          #PromptTemplateType
 }) |
 fn.#ObjectExpression
 
-#SpecificToolChoice: close(
-	{Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" | fn.#StringExpression},
-) |
+#SpecificToolChoice: close({
+	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #SystemContentBlock: matchN(1, [
@@ -188,23 +252,53 @@ fn.#ValueExpression
 
 #TagsMap: close({
 
-	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
-	fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #TextPromptTemplateConfiguration: close({
 	CachePoint?:     #CachePointBlock
 	InputVariables?: list.MaxItems(20) & [...] & [...#PromptInputVariable] | fn.#ListExpression
-	Text?:           strings.MaxRunes(200000) & strings.MinRunes(1) | fn.#StringExpression
+	Text?: strings.MaxRunes(200000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	TextS3Location?: #TextS3Location
 }) |
 fn.#ObjectExpression
 
 #TextS3Location: close({
 	Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" & "\(self)"
+	} |
 	fn.#StringExpression
-	Key!:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Version?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Version?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -224,8 +318,18 @@ fn.#ObjectExpression
 #ToolInputSchema: close({Json!: fn.#Object & {...} | fn.#ObjectExpression}) | fn.#ValueExpression
 
 #ToolSpecification: close({
-	Description?: strings.MinRunes(1) | fn.#StringExpression
+	Description?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	InputSchema!: #ToolInputSchema
-	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" | fn.#StringExpression
+	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

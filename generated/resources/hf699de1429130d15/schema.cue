@@ -6,8 +6,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -27,16 +27,56 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // There can be as many as two subscription filters associated with a log group.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Logs::SubscriptionFilter"
-	Properties!: close({
+	let properties = close({
 		ApplyOnTransformedLogs?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		DestinationArn!:         strings.MinRunes(1) | fn.#StringExpression
-		Distribution?:           "Random" | "ByLogStream" | fn.#StringExpression
-		EmitSystemFields?:       [...string | fn.#StringExpression] | fn.#ListExpression
-		FieldSelectionCriteria?: strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression
-		FilterName?:             strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]*$" | fn.#StringExpression
-		FilterPattern!:          strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
-		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
+		DestinationArn!: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Distribution?:     "Random" | "ByLogStream" | fn.#StringExpression
+		EmitSystemFields?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		FieldSelectionCriteria?: strings.MaxRunes(2000) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2000) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		FilterName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		FilterPattern!: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^[\\.\\-_/#A-Za-z0-9]+$" |
+		{
+			number | bool
+			_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+			strings.MaxRunes(512) &
+			strings.MinRunes(1) &
+			=~"^[\\.\\-_/#A-Za-z0-9]+$" &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MinRunes(1) & "\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

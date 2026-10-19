@@ -8,12 +8,10 @@ import (
 	"strings"
 	"struct"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -27,7 +25,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // of the specifications to be allowed, blocked, or counted.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WAFv2::RuleGroup"
-	Properties!: close({
+	let properties = close({
 		AvailableLabels?: [...close({}) | fn.#ObjectExpression] | fn.#ListExpression
 		Capacity!: int & >=0 |
 			{
@@ -56,6 +54,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:                 list.MinItems(1) & [...#Tag] | fn.#ListExpression
 		VisibilityConfig!:     #VisibilityConfig
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AllowAction: close({CustomRequestHandling?: #CustomRequestHandling}) | fn.#ObjectExpression
@@ -115,14 +117,24 @@ fn.#ObjectExpression
 #ChallengeConfig: close({ImmunityTimeProperty?: #ImmunityTimeProperty}) | fn.#ObjectExpression
 
 #CookieMatchPattern: close({
-	All?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	ExcludedCookies?: list.MaxItems(199) & list.MinItems(1) & [
-		...strings.MaxRunes(60) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	] |
+	All?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+	ExcludedCookies?: list.MaxItems(199) & list.MinItems(1) & [...strings.MaxRunes(60) &
+	strings.MinRunes(1) &
+	=~".*\\S.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(60) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	IncludedCookies?: list.MaxItems(199) & list.MinItems(1) & [
-		...strings.MaxRunes(60) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	] |
+	IncludedCookies?: list.MaxItems(199) & list.MinItems(1) & [...strings.MaxRunes(60) &
+	strings.MinRunes(1) &
+	=~".*\\S.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(60) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -148,23 +160,41 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#CustomHTTPHeaderName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._$-]+$" | fn.#StringExpression
+#CustomHTTPHeaderName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._$-]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._$-]+$" & "\(self)"
+} |
+fn.#StringExpression
 
-#CustomHTTPHeaderValue: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#CustomHTTPHeaderValue: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #CustomRequestHandling: close({InsertHeaders!: list.MinItems(1) & [...#CustomHTTPHeader] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
 #CustomResponse: close({
-	CustomResponseBodyKey?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\-]+$" | fn.#StringExpression
-	ResponseCode!:          #ResponseStatusCode
-	ResponseHeaders?:       list.MinItems(1) & [...#CustomHTTPHeader] | fn.#ListExpression
+	CustomResponseBodyKey?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ResponseCode!:    #ResponseStatusCode
+	ResponseHeaders?: list.MinItems(1) & [...#CustomHTTPHeader] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #CustomResponseBodies: struct.MinFields(1) & close({
 
-	{[=~"^[\\w\\-]+$"]: #CustomResponseBody}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{[=~"^[\\w\\-]+$"]: #CustomResponseBody}
+}) |
 fn.#ObjectExpression
 
 #CustomResponseBody: close({
@@ -174,16 +204,23 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #EntityDescription: =~"^[a-zA-Z0-9=:#@/\\-,.][a-zA-Z0-9+=:#@/\\-,.\\s]+[a-zA-Z0-9+=:#@/\\-,.]{1,256}$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^[a-zA-Z0-9=:#@/\\-,.][a-zA-Z0-9+=:#@/\\-,.\\s]+[a-zA-Z0-9+=:#@/\\-,.]{1,256}$" & "\(self)"
+} |
+fn.#StringExpression
 
-#EntityId: =~"^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$" | fn.#StringExpression
-
-#EntityName: =~"^[0-9A-Za-z_-]{1,128}$" | fn.#StringExpression
+#EntityName: =~"^[0-9A-Za-z_-]{1,128}$" |
+{
+	number | bool
+	_cfnString: =~"^[0-9A-Za-z_-]{1,128}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #EvaluationWindowSec: (==60 | ==120 | ==300 | ==600) & int | fn.#NumberExpression
 
 #FieldToMatch: close({
-	AllQueryArguments?: fn.#Object & {...} | string | fn.#StringObjectExpression
+	AllQueryArguments?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	Body?:              #Body
 	Cookies?:           #Cookies
 	HeaderOrder?:       #HeaderOrder
@@ -191,26 +228,296 @@ fn.#ObjectExpression
 	JA3Fingerprint?:    #JA3Fingerprint
 	JA4Fingerprint?:    #JA4Fingerprint
 	JsonBody?:          #JsonBody
-	Method?:            fn.#Object & {...} | string | fn.#StringObjectExpression
-	QueryString?:       fn.#Object & {...} | string | fn.#StringObjectExpression
-	SingleHeader?: close({Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression}) |
+	Method?:            fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+	QueryString?:       fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+	SingleHeader?: close({
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+		} |
+		fn.#StringExpression
+	}) |
 	fn.#ObjectExpression
-	SingleQueryArgument?: close({Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression}) |
+	SingleQueryArgument?: close({
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+		} |
+		fn.#StringExpression
+	}) |
 	fn.#ObjectExpression
 	UriFragment?: #UriFragment
-	UriPath?:     fn.#Object & {...} | string | fn.#StringObjectExpression
+	UriPath?:     fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 
 #ForwardedIPConfiguration: close({
 	FallbackBehavior!: "MATCH" | "NO_MATCH" | fn.#StringExpression
-	HeaderName!:       =~"^[a-zA-Z0-9-]{1,255}$" | fn.#StringExpression
+	HeaderName!: =~"^[a-zA-Z0-9-]{1,255}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9-]{1,255}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GeoMatchStatement: close({
-	CountryCodes?: list.MinItems(1) & [
-		...("AD" |
+	CountryCodes?: list.MinItems(1) & [...("AD" |
+		"AE" |
+		"AF" |
+		"AG" |
+		"AI" |
+		"AL" |
+		"AM" |
+		"AO" |
+		"AQ" |
+		"AR" |
+		"AS" |
+		"AT" |
+		"AU" |
+		"AW" |
+		"AX" |
+		"AZ" |
+		"BA" |
+		"BB" |
+		"BD" |
+		"BE" |
+		"BF" |
+		"BG" |
+		"BH" |
+		"BI" |
+		"BJ" |
+		"BL" |
+		"BM" |
+		"BN" |
+		"BO" |
+		"BQ" |
+		"BR" |
+		"BS" |
+		"BT" |
+		"BV" |
+		"BW" |
+		"BY" |
+		"BZ" |
+		"CA" |
+		"CC" |
+		"CD" |
+		"CF" |
+		"CG" |
+		"CH" |
+		"CI" |
+		"CK" |
+		"CL" |
+		"CM" |
+		"CN" |
+		"CO" |
+		"CR" |
+		"CU" |
+		"CV" |
+		"CW" |
+		"CX" |
+		"CY" |
+		"CZ" |
+		"DE" |
+		"DJ" |
+		"DK" |
+		"DM" |
+		"DO" |
+		"DZ" |
+		"EC" |
+		"EE" |
+		"EG" |
+		"EH" |
+		"ER" |
+		"ES" |
+		"ET" |
+		"FI" |
+		"FJ" |
+		"FK" |
+		"FM" |
+		"FO" |
+		"FR" |
+		"GA" |
+		"GB" |
+		"GD" |
+		"GE" |
+		"GF" |
+		"GG" |
+		"GH" |
+		"GI" |
+		"GL" |
+		"GM" |
+		"GN" |
+		"GP" |
+		"GQ" |
+		"GR" |
+		"GS" |
+		"GT" |
+		"GU" |
+		"GW" |
+		"GY" |
+		"HK" |
+		"HM" |
+		"HN" |
+		"HR" |
+		"HT" |
+		"HU" |
+		"ID" |
+		"IE" |
+		"IL" |
+		"IM" |
+		"IN" |
+		"IO" |
+		"IQ" |
+		"IR" |
+		"IS" |
+		"IT" |
+		"JE" |
+		"JM" |
+		"JO" |
+		"JP" |
+		"KE" |
+		"KG" |
+		"KH" |
+		"KI" |
+		"KM" |
+		"KN" |
+		"KP" |
+		"KR" |
+		"KW" |
+		"KY" |
+		"KZ" |
+		"LA" |
+		"LB" |
+		"LC" |
+		"LI" |
+		"LK" |
+		"LR" |
+		"LS" |
+		"LT" |
+		"LU" |
+		"LV" |
+		"LY" |
+		"MA" |
+		"MC" |
+		"MD" |
+		"ME" |
+		"MF" |
+		"MG" |
+		"MH" |
+		"MK" |
+		"ML" |
+		"MM" |
+		"MN" |
+		"MO" |
+		"MP" |
+		"MQ" |
+		"MR" |
+		"MS" |
+		"MT" |
+		"MU" |
+		"MV" |
+		"MW" |
+		"MX" |
+		"MY" |
+		"MZ" |
+		"NA" |
+		"NC" |
+		"NE" |
+		"NF" |
+		"NG" |
+		"NI" |
+		"NL" |
+		"NO" |
+		"NP" |
+		"NR" |
+		"NU" |
+		"NZ" |
+		"OM" |
+		"PA" |
+		"PE" |
+		"PF" |
+		"PG" |
+		"PH" |
+		"PK" |
+		"PL" |
+		"PM" |
+		"PN" |
+		"PR" |
+		"PS" |
+		"PT" |
+		"PW" |
+		"PY" |
+		"QA" |
+		"RE" |
+		"RO" |
+		"RS" |
+		"RU" |
+		"RW" |
+		"SA" |
+		"SB" |
+		"SC" |
+		"SD" |
+		"SE" |
+		"SG" |
+		"SH" |
+		"SI" |
+		"SJ" |
+		"SK" |
+		"SL" |
+		"SM" |
+		"SN" |
+		"SO" |
+		"SR" |
+		"SS" |
+		"ST" |
+		"SV" |
+		"SX" |
+		"SY" |
+		"SZ" |
+		"TC" |
+		"TD" |
+		"TF" |
+		"TG" |
+		"TH" |
+		"TJ" |
+		"TK" |
+		"TL" |
+		"TM" |
+		"TN" |
+		"TO" |
+		"TR" |
+		"TT" |
+		"TV" |
+		"TW" |
+		"TZ" |
+		"UA" |
+		"UG" |
+		"UM" |
+		"US" |
+		"UY" |
+		"UZ" |
+		"VA" |
+		"VC" |
+		"VE" |
+		"VG" |
+		"VI" |
+		"VN" |
+		"VU" |
+		"WF" |
+		"WS" |
+		"XK" |
+		"YE" |
+		"YT" |
+		"ZA" |
+		"ZM" |
+		"ZW") & (strings.MaxRunes(2) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: ("AD" |
 			"AE" |
 			"AF" |
 			"AG" |
@@ -459,23 +766,36 @@ fn.#ObjectExpression
 			"YT" |
 			"ZA" |
 			"ZM" |
-			"ZW") & (strings.MaxRunes(2) & strings.MinRunes(1)) |
-		fn.#StringExpression
-	] |
+			"ZW") &
+		strings.MaxRunes(2) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	ForwardedIPConfig?: #ForwardedIPConfiguration
 }) |
 fn.#ObjectExpression
 
 #HeaderMatchPattern: close({
-	All?: fn.#Object & {...} | string | fn.#StringObjectExpression
-	ExcludedHeaders?: list.MaxItems(199) & list.MinItems(1) & [
-		...strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	] |
+	All?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+	ExcludedHeaders?: list.MaxItems(199) & list.MinItems(1) & [...strings.MaxRunes(64) &
+	strings.MinRunes(1) &
+	=~".*\\S.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	IncludedHeaders?: list.MaxItems(199) & list.MinItems(1) & [
-		...strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
-	] |
+	IncludedHeaders?: list.MaxItems(199) & list.MinItems(1) & [...strings.MaxRunes(64) &
+	strings.MinRunes(1) &
+	=~".*\\S.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -491,8 +811,13 @@ fn.#ObjectExpression
 
 #IPSetForwardedIPConfiguration: close({
 	FallbackBehavior!: "MATCH" | "NO_MATCH" | fn.#StringExpression
-	HeaderName!:       =~"^[a-zA-Z0-9-]{1,255}$" | fn.#StringExpression
-	Position!:         "FIRST" | "LAST" | "ANY" | fn.#StringExpression
+	HeaderName!: =~"^[a-zA-Z0-9-]{1,255}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9-]{1,255}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Position!: "FIRST" | "LAST" | "ANY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -535,18 +860,23 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #JsonMatchPattern: close({
-	All?:           fn.#Object & {...} | string | fn.#StringObjectExpression
+	All?:           fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	IncludedPaths?: list.MinItems(1) & [...#JsonPointerPath] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #JsonMatchScope: "ALL" | "KEY" | "VALUE" | fn.#StringExpression
 
-#JsonPointerPath: =~"^[\\/]+([^~]*(~[01])*){1,512}$" | fn.#StringExpression
+#JsonPointerPath: =~"^[\\/]+([^~]*(~[01])*){1,512}$" |
+{
+	number | bool
+	_cfnString: =~"^[\\/]+([^~]*(~[01])*){1,512}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Label: close({Name!: #LabelName}) | fn.#ObjectExpression
 
-#LabelMatchKey: string | fn.#StringExpression
+#LabelMatchKey: string | number | bool | fn.#StringExpression
 
 #LabelMatchScope: "LABEL" | "NAMESPACE" | fn.#StringExpression
 
@@ -556,9 +886,7 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#LabelName: string | fn.#StringExpression
-
-#LabelSummary: close({Name?: #LabelName}) | fn.#ObjectExpression
+#LabelName: string | number | bool | fn.#StringExpression
 
 #MapMatchScope: "ALL" | "KEY" | "VALUE" | fn.#StringExpression
 
@@ -625,9 +953,21 @@ fn.#ObjectExpression
 #PriceAmount: strings.MaxRunes(13) &
 strings.MinRunes(1) &
 =~"^([1-9][0-9]*(\\.[0-9]{1,3})?|0\\.([1-9][0-9]{0,2}|0[1-9][0-9]?|00[1-9]))$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(13) &
+	strings.MinRunes(1) &
+	=~"^([1-9][0-9]*(\\.[0-9]{1,3})?|0\\.([1-9][0-9]{0,2}|0[1-9][0-9]?|00[1-9]))$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#PriceMultiplier: strings.MaxRunes(3) & strings.MinRunes(1) & =~"^([1-9][0-9]?|100)$" | fn.#StringExpression
+#PriceMultiplier: strings.MaxRunes(3) & strings.MinRunes(1) & =~"^([1-9][0-9]?|100)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(3) & strings.MinRunes(1) & =~"^([1-9][0-9]?|100)$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Prices: list.MaxItems(1) & list.MinItems(1) & [...#Price] | fn.#ListExpression
 
@@ -677,31 +1017,46 @@ fn.#ObjectExpression
 #RateLimitAsn: fn.#Object & {...} | fn.#ObjectExpression
 
 #RateLimitCookie: close({
-	Name!:                strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
+	} |
+	fn.#StringExpression
 	TextTransformations!: list.MinItems(1) & [...#TextTransformation] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#RateLimitForwardedIP: fn.#Object & {...} | string | fn.#StringObjectExpression
+#RateLimitForwardedIP: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
-#RateLimitHTTPMethod: fn.#Object & {...} | string | fn.#StringObjectExpression
+#RateLimitHTTPMethod: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 #RateLimitHeader: close({
-	Name!:                strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
+	} |
+	fn.#StringExpression
 	TextTransformations!: list.MinItems(1) & [...#TextTransformation] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#RateLimitIP: fn.#Object & {...} | string | fn.#StringObjectExpression
+#RateLimitIP: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 #RateLimitJA3Fingerprint: close({FallbackBehavior!: "MATCH" | "NO_MATCH" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #RateLimitJA4Fingerprint: close({FallbackBehavior!: "MATCH" | "NO_MATCH" | fn.#StringExpression}) | fn.#ObjectExpression
 
-#RateLimitLabelNamespace: close({Namespace!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#RateLimitLabelNamespace: close({Namespace!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #RateLimitQueryArgument: close({
-	Name!:                strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" | fn.#StringExpression
+	Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~".*\\S.*" & "\(self)"
+	} |
+	fn.#StringExpression
 	TextTransformations!: list.MinItems(1) & [...#TextTransformation] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -715,8 +1070,13 @@ fn.#ObjectExpression
 #RegexMatchStatement: close({
 	FieldToMatch!:                #FieldToMatch
 	PreParseTextTransformations?: [...#PreParseTextTransformation] | fn.#ListExpression
-	RegexString!:                 strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	TextTransformations!:         list.MinItems(1) & [...#TextTransformation] | fn.#ListExpression
+	RegexString!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TextTransformations!: list.MinItems(1) & [...#TextTransformation] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -728,9 +1088,19 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ResourceArn: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"\\S" | fn.#StringExpression
+#ResourceArn: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"\\S" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"\\S" & "\(self)"
+} |
+fn.#StringExpression
 
-#ResponseContent: strings.MaxRunes(10240) & strings.MinRunes(1) | fn.#StringExpression
+#ResponseContent: strings.MaxRunes(10240) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(10240) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #ResponseContentType: "TEXT_PLAIN" | "TEXT_HTML" | "APPLICATION_JSON" | fn.#StringExpression
 
@@ -773,31 +1143,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#RuleGroup: close({
-	Arn?: #ResourceArn
-	Capacity?: int & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Description?:      #EntityDescription
-	Id?:               #EntityId
-	Name?:             #EntityName
-	Rules?:            [...#Rule] | fn.#ListExpression
-	VisibilityConfig?: #VisibilityConfig
-}) |
-fn.#ObjectExpression
-
 #RulePriority: int & >=0 |
 	{
 		string &
@@ -816,9 +1161,9 @@ fn.#ObjectExpression
 
 #Scope: "CLOUDFRONT" | "REGIONAL" | fn.#StringExpression
 
-#SearchString: string | fn.#StringExpression
+#SearchString: string | number | bool | fn.#StringExpression
 
-#SearchStringBase64: string | fn.#StringExpression
+#SearchStringBase64: string | number | bool | fn.#StringExpression
 
 #SensitivityLevel: "LOW" | "HIGH" | fn.#StringExpression
 
@@ -877,8 +1222,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -941,12 +1296,22 @@ fn.#ObjectExpression
 
 #VisibilityConfig: close({
 	CloudWatchMetricsEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	MetricName!:             strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w#:\\.\\-/]+$" | fn.#StringExpression
+	MetricName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w#:\\.\\-/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w#:\\.\\-/]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	SampledRequestsEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-#WalletAddress: strings.MaxRunes(44) & strings.MinRunes(26) & =~".*\\S.*" | fn.#StringExpression
+#WalletAddress: strings.MaxRunes(44) & strings.MinRunes(26) & =~".*\\S.*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(44) & strings.MinRunes(26) & =~".*\\S.*" & "\(self)"
+} |
+fn.#StringExpression
 
 #XssMatchStatement: close({
 	FieldToMatch!:                #FieldToMatch

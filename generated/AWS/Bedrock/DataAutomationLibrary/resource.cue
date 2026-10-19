@@ -4,10 +4,7 @@ package DataAutomationLibrary
 
 import schema "github.com/cueformation/cfn-cue/resources/heb5e112c221f4ec1:schema"
 
-#Resource:                    schema.#Resource
-#DataAutomationLibraryStatus: schema.#DataAutomationLibraryStatus
-#EncryptionConfiguration:     schema.#EncryptionConfiguration
-#EntityType:                  schema.#EntityType
-#EntityTypeInfo:              schema.#EntityTypeInfo
-#KmsEncryptionContext:        schema.#KmsEncryptionContext
-#Tag:                         schema.#Tag
+#Resource:                schema.#Resource
+#EncryptionConfiguration: schema.#EncryptionConfiguration
+#KmsEncryptionContext:    schema.#KmsEncryptionContext
+#Tag:                     schema.#Tag

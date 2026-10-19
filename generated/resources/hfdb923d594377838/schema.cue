@@ -6,36 +6,48 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Backup::BackupPlan
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Backup::BackupPlan"
-	Properties!: close({
+	let properties = close({
 		BackupPlan!: #BackupPlanResourceType
 		BackupPlanTags?: close({
 
-			{[=~"^.{1,128}$"]: string | fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^.{1,128}$"]: string | number | bool | fn.#StringExpression}
+		}) |
 		fn.#ObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AdvancedBackupSettingResourceType: close({
-	BackupOptions!: fn.#Object & {...} | string | fn.#StringObjectExpression
-	ResourceType!:  =~"^[a-zA-Z0-9\\-\\_\\.]{1,50}$" | fn.#StringExpression
+	BackupOptions!: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+	ResourceType!: =~"^[a-zA-Z0-9\\-\\_\\.]{1,50}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9\\-\\_\\.]{1,50}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #BackupPlanResourceType: close({
 	AdvancedBackupSettings?: [...#AdvancedBackupSettingResourceType] | fn.#ListExpression
-	BackupPlanName!:         string | fn.#StringExpression
+	BackupPlanName!:         string | number | bool | fn.#StringExpression
 	BackupPlanRule!:         [...#BackupRuleResourceType] | fn.#ListExpression
 	ScanSettings?:           [...#ScanSettingResourceType] | fn.#ListExpression
 }) |
@@ -67,12 +79,17 @@ fn.#ObjectExpression
 	Lifecycle?:              #LifecycleResourceType
 	RecoveryPointTags?: close({
 
-		{[=~"^.{1,128}$"]: string | fn.#StringExpression}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{[=~"^.{1,128}$"]: string | number | bool | fn.#StringExpression}
+	}) |
 	fn.#ObjectExpression
-	RuleName!:                   string | fn.#StringExpression
+	RuleName!:                   string | number | bool | fn.#StringExpression
 	ScanActions?:                [...#ScanActionResourceType] | fn.#ListExpression
-	ScheduleExpression?:         string | fn.#StringExpression
-	ScheduleExpressionTimezone?: string | fn.#StringExpression
+	ScheduleExpression?:         string | number | bool | fn.#StringExpression
+	ScheduleExpressionTimezone?: string | number | bool | fn.#StringExpression
 	StartWindowMinutes?: number |
 		{
 			string &
@@ -92,13 +109,13 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TargetBackupVault!:                      string | fn.#StringExpression
-	TargetLogicallyAirGappedBackupVaultArn?: string | fn.#StringExpression
+	TargetBackupVault!:                      string | number | bool | fn.#StringExpression
+	TargetLogicallyAirGappedBackupVaultArn?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CopyActionResourceType: close({
-	DestinationBackupVaultArn!: string | fn.#StringExpression
+	DestinationBackupVaultArn!: string | number | bool | fn.#StringExpression
 	Lifecycle?:                 #LifecycleResourceType
 }) |
 fn.#ObjectExpression
@@ -157,7 +174,12 @@ fn.#ObjectExpression
 
 #MalwareScanner: "GUARDDUTY" | fn.#StringExpression
 
-#ResourceType: =~"^[a-zA-Z0-9\\-\\_\\.]{1,50}$" | fn.#StringExpression
+#ResourceType: =~"^[a-zA-Z0-9\\-\\_\\.]{1,50}$" |
+{
+	number | bool
+	_cfnString: =~"^[a-zA-Z0-9\\-\\_\\.]{1,50}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #ResourceTypes: list.UniqueItems() & [...#ResourceType] | fn.#ListExpression
 
@@ -172,7 +194,11 @@ fn.#ObjectExpression
 #ScanSettingResourceType: close({
 	MalwareScanner?: #MalwareScanner
 	ResourceTypes?:  #ResourceTypes
-	ScannerRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	ScannerRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

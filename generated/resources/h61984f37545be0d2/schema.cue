@@ -3,20 +3,19 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
+	"strings"
 	"struct"
-	"time"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MWAAServerless::Workflow resource
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MWAAServerless::Workflow"
-	Properties!: close({
+	let properties = close({
 		Code?:                    #Code
 		DefinitionS3Location!:    #S3Location
 		Description?:             #Description
@@ -28,74 +27,158 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:                    #Tags
 		TriggerMode?:             #TriggerMode
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
-
-#Arn: strings.MaxRunes(2048) &
-strings.MinRunes(1) &
-=~"^arn:aws(?:-(?:cn|us-gov|iso|iso-b|iso-e|iso-f))?:airflow-serverless:([a-z]{2}-(?:[a-z]+-)+[0-9]{1}):([0-9]{12}):workflow/([a-zA-Z0-9][a-zA-Z0-9\\.\\-_]{0,254}-[a-zA-Z0-9]{10})$" |
-fn.#StringExpression
 
 #Code: close({S3Location?: #CodeS3Location}) | fn.#ObjectExpression
 
 #CodeS3Location: close({
-	Bucket!:    strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	ObjectKey!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VersionId?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & "\(self)"
+	} |
+	fn.#StringExpression
+	ObjectKey!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VersionId?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Description: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
+#Description: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^.+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #EncryptionConfiguration: close({
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+	} |
+	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+			"\(self)"
+	} |
+	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Type!: "AWS_MANAGED_KEY" | "CUSTOMER_MANAGED_KEY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#LoggingConfiguration: close({LogGroupName!: strings.MinRunes(1) | fn.#StringExpression}) | fn.#ObjectExpression
+#LoggingConfiguration: close({
+	LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
-#Name: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+[a-zA-Z0-9\\.\\-_]*$" | fn.#StringExpression
+#Name: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+[a-zA-Z0-9\\.\\-_]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+[a-zA-Z0-9\\.\\-_]*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #NetworkConfiguration: close({
-	SecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(255) &
+	strings.MinRunes(1) &
+	=~"^sg-[a-z0-9]*$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(255) &
 		strings.MinRunes(1) &
-		=~"^sg-[a-z0-9]*$" |
-		fn.#StringExpression
-	] |
+		=~"^sg-[a-z0-9]*$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	SubnetIds?: [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^subnet-[a-z0-9]*$" | fn.#StringExpression] |
+	SubnetIds?: [...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^subnet-[a-z0-9]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^subnet-[a-z0-9]*$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(2048) &
 strings.MinRunes(1) &
 =~"^arn:aws(?:-(?:cn|us-gov|iso|iso-b|iso-e|iso-f))?:iam::[0-9]{12}:role(/[a-zA-Z0-9+=,.@_-]{1,512})*?/[a-zA-Z0-9+=,.@_-]{1,64}$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^arn:aws(?:-(?:cn|us-gov|iso|iso-b|iso-e|iso-f))?:iam::[0-9]{12}:role(/[a-zA-Z0-9+=,.@_-]{1,512})*?/[a-zA-Z0-9+=,.@_-]{1,64}$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #S3Location: close({
-	Bucket!:    strings.MinRunes(1) | fn.#StringExpression
-	ObjectKey!: strings.MinRunes(1) | fn.#StringExpression
-	VersionId?: string | fn.#StringExpression
+	Bucket!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ObjectKey!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VersionId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ScheduleConfiguration: close({CronExpression?: string | fn.#StringExpression}) | fn.#ObjectExpression
-
 #Tags: struct.MaxFields(50) & close({
 
-	{[=~"^[\\w\\d+\\-\\.\\:/@]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[\\w\\d+\\-\\.\\:/@]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
-#Timestamp: time.Time | fn.#StringExpression
-
-#TriggerMode: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-
-#WorkflowStatus: "READY" | "DELETING" | fn.#StringExpression
-
-#WorkflowVersion: strings.MaxRunes(32) & strings.MinRunes(32) & =~"^[a-z0-9]{32}$" | fn.#StringExpression
+#TriggerMode: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression

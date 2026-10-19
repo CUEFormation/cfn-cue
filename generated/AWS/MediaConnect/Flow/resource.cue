@@ -30,7 +30,6 @@ import schema "github.com/cueformation/cfn-cue/resources/ha029ae1f3110cd5c:schem
 #NdiState:                                 schema.#NdiState
 #SecretsManagerEncryptionKeyConfiguration: schema.#SecretsManagerEncryptionKeyConfiguration
 #SilentAudio:                              schema.#SilentAudio
-#Source:                                   schema.#Source
 #SourceMonitoringConfig:                   schema.#SourceMonitoringConfig
 #Tag:                                      schema.#Tag
 #VideoMonitoringSetting:                   schema.#VideoMonitoringSetting

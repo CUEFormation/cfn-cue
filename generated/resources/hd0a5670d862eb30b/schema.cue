@@ -7,22 +7,30 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::SES::MailManagerRelay Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SES::MailManagerRelay"
-	Properties!: close({
+	let properties = close({
 		Authentication!: #RelayAuthentication
-		RelayName?:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
-		ServerName!:     strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-\\.]+$" | fn.#StringExpression
+		RelayName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ServerName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-\\.]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-\\.]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ServerPort!: <=65535 & >=1 |
 			{
 				string &
@@ -45,6 +53,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #NoAuthentication: close({}) | fn.#ObjectExpression
@@ -58,7 +70,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ValueExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

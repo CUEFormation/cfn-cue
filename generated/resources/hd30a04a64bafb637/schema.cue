@@ -6,43 +6,37 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecurityAgent::TargetDomain
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityAgent::TargetDomain"
-	Properties!: close({
+	let properties = close({
 		Tags?:               [...#Tag] | fn.#ListExpression
-		TargetDomainName!:   string | fn.#StringExpression
+		TargetDomainName!:   string | number | bool | fn.#StringExpression
 		VerificationMethod!: "DNS_TXT" | "HTTP_ROUTE" | "PRIVATE_VPC" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#DnsVerification: close({
-	DnsRecordName?: string | fn.#StringExpression
-	DnsRecordType?: "TXT" | fn.#StringExpression
-	Token?:         string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#HttpVerification: close({
-	RoutePath?: string | fn.#StringExpression
-	Token?:     string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#VerificationDetails: close({
-	DnsTxt?:    #DnsVerification
-	HttpRoute?: #HttpVerification
-	Method?:    "DNS_TXT" | "HTTP_ROUTE" | "PRIVATE_VPC" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

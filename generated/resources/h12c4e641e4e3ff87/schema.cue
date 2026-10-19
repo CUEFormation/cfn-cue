@@ -3,30 +3,32 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaTailor::Program
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaTailor::Program"
-	Properties!: close({
+	let properties = close({
 		AdBreaks?:       [...#AdBreak] | fn.#ListExpression
 		AudienceMedia?:  [...#AudienceMedia] | fn.#ListExpression
-		ChannelName!:    string | fn.#StringExpression
-		LiveSourceName?: string | fn.#StringExpression
-		ProgramName!:    string | fn.#StringExpression
+		ChannelName!:    string | number | bool | fn.#StringExpression
+		LiveSourceName?: string | number | bool | fn.#StringExpression
+		ProgramName!:    string | number | bool | fn.#StringExpression
 
 		// The schedule configuration settings.
 		ScheduleConfiguration?: #ScheduleConfiguration
-		SourceLocationName!:    string | fn.#StringExpression
-		VodSourceName?:         string | fn.#StringExpression
+		SourceLocationName!:    string | number | bool | fn.#StringExpression
+		VodSourceName?:         string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AdBreak: close({
@@ -69,7 +71,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	LiveSourceName?: string | fn.#StringExpression
+	LiveSourceName?: string | number | bool | fn.#StringExpression
 	ScheduledStartTimeMillis?: int |
 		{
 			string &
@@ -84,14 +86,14 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SourceLocationName?: string | fn.#StringExpression
-	VodSourceName?:      string | fn.#StringExpression
+	SourceLocationName?: string | number | bool | fn.#StringExpression
+	VodSourceName?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AudienceMedia: close({
 	AlternateMedia?: [...#AlternateMedia] | fn.#ListExpression
-	Audience?:       string | fn.#StringExpression
+	Audience?:       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -128,8 +130,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #KeyValuePair: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -182,7 +184,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SegmentationUpid?: string | fn.#StringExpression
+	SegmentationUpid?: string | number | bool | fn.#StringExpression
 	SegmentationUpidType?: int |
 		{
 			string &
@@ -243,8 +245,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SlateSource: close({
-	SourceLocationName?: string | fn.#StringExpression
-	VodSourceName?:      string | fn.#StringExpression
+	SourceLocationName?: string | number | bool | fn.#StringExpression
+	VodSourceName?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -327,7 +329,7 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	RelativePosition!: "BEFORE_PROGRAM" | "AFTER_PROGRAM" | fn.#StringExpression
-	RelativeProgram?:  string | fn.#StringExpression
+	RelativeProgram?:  string | number | bool | fn.#StringExpression
 	ScheduledStartTimeMillis?: int |
 		{
 			string &
@@ -342,6 +344,6 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Type!: string | fn.#StringExpression
+	Type!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

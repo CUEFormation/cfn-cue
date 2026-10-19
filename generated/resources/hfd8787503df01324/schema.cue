@@ -7,37 +7,76 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoT::ThingGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::ThingGroup"
-	Properties?: close({
-		ParentGroupName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
-		QueryString?:     strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:            list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		ThingGroupName?:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
+	let properties = close({
+		ParentGroupName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		QueryString?: strings.MaxRunes(1000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		ThingGroupName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		ThingGroupProperties?: close({
-			AttributePayload?:      #AttributePayload
-			ThingGroupDescription?: strings.MaxRunes(2028) & strings.MinRunes(0) | fn.#StringExpression
+			AttributePayload?: #AttributePayload
+			ThingGroupDescription?: strings.MaxRunes(2028) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(2028) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #AttributePayload: close({
 	Attributes?: close({
 
-		{[=~"[a-zA-Z0-9_.,@/:#-]+"]: string | fn.#StringExpression}}) |
+		{[=~"[a-zA-Z0-9_.,@/:#-]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

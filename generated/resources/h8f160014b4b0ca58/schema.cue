@@ -6,8 +6,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -15,10 +15,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // only have two KSKs per hosted zone.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53::KeySigningKey"
-	Properties!: close({
-		HostedZoneId!:            =~"^[A-Z0-9]{1,32}$" | fn.#StringExpression
-		KeyManagementServiceArn!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		Name!:                    =~"^[a-zA-Z0-9_]{3,128}$" | fn.#StringExpression
-		Status!: ("ACTIVE" | "INACTIVE") & (strings.MaxRunes(150) & strings.MinRunes(5)) | fn.#StringExpression
+	let properties = close({
+		HostedZoneId!: =~"^[A-Z0-9]{1,32}$" |
+		{
+			number | bool
+			_cfnString: =~"^[A-Z0-9]{1,32}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		KeyManagementServiceArn!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: =~"^[a-zA-Z0-9_]{3,128}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_]{3,128}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Status!: ("ACTIVE" | "INACTIVE") & (strings.MaxRunes(150) & strings.MinRunes(5)) |
+		{
+			number | bool
+			_cfnString: ("ACTIVE" | "INACTIVE") & strings.MaxRunes(150) & strings.MinRunes(5) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

@@ -7,19 +7,17 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A calculated attribute definition for Customer Profiles
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CustomerProfiles::CalculatedAttributeDefinition"
-	Properties!: close({
+	let properties = close({
 		AttributeDetails!:        #AttributeDetails
 		CalculatedAttributeName!: #CalculatedAttributeName
 		Conditions?:              #Conditions
@@ -30,6 +28,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:                    #Tags
 		UseHistoricalData?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AttributeDetails: close({
@@ -42,9 +44,18 @@ fn.#ObjectExpression
 
 #AttributeList: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...#AttributeItem] | fn.#ListExpression
 
-#AttributeName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+#AttributeName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #CalculatedAttributeName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-]*$" & "\(self)"
+} |
 fn.#StringExpression
 
 #Conditions: close({
@@ -54,13 +65,33 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Description: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+#Description: strings.MaxRunes(1000) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#DisplayName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-\\s]*$" | fn.#StringExpression
+#DisplayName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-\\s]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z_][a-zA-Z_0-9-\\s]*$" & "\(self)"
+} |
+fn.#StringExpression
 
-#DomainName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+#DomainName: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+} |
+fn.#StringExpression
 
-#Expression: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#Expression: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #ObjectCount: int & <=300 & >=1 |
 	{
@@ -80,11 +111,21 @@ fn.#ObjectExpression
 	fn.#NumberExpression
 
 #Range: close({
-	TimestampFormat?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	TimestampSource?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Unit!:            #RangeUnit
-	Value?:           #RangeValue
-	ValueRange?:      #ValueRange
+	TimestampFormat?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TimestampSource?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Unit!:       #RangeUnit
+	Value?:      #RangeValue
+	ValueRange?: #ValueRange
 }) |
 fn.#ObjectExpression
 
@@ -107,27 +148,6 @@ fn.#ObjectExpression
 	} |
 	fn.#NumberExpression
 
-#Readiness: close({
-	Message?: string | fn.#StringExpression
-	ProgressPercentage?: int & <=100 & >=0 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=100 &
-							>=0,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
 #Statistic: "FIRST_OCCURRENCE" |
 	"LAST_OCCURRENCE" |
 	"COUNT" |
@@ -139,8 +159,18 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -154,7 +184,12 @@ fn.#ObjectExpression
 
 #ThresholdOperator: "EQUAL_TO" | "GREATER_THAN" | "LESS_THAN" | "NOT_EQUAL_TO" | fn.#StringExpression
 
-#ThresholdValue: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#ThresholdValue: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #ValueRange: close({
 	End!: int & <=2147483647 & >=-2147483648 |

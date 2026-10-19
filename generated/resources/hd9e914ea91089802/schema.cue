@@ -7,50 +7,85 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::DataBrew::Recipe.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataBrew::Recipe"
-	Properties!: close({
-		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		Name!:        strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Steps!:       [...#RecipeStep & fn.#Object & {...} | fn.#ObjectExpression] | fn.#ListExpression
-		Tags?:        [...#Tag] | fn.#ListExpression
+	let properties = close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Steps!: [...#RecipeStep & fn.#Object & {...} | fn.#ObjectExpression] | fn.#ListExpression
+		Tags?:  [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Action: close({
-	Operation!:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Z\\_]+$" | fn.#StringExpression
+	Operation!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Z\\_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Z\\_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Parameters?: #RecipeParameters | #ParameterMap | fn.#ValueExpression
 }) |
 fn.#ObjectExpression
 
 #ConditionExpression: close({
-	Condition!:    strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Z\\_]+$" | fn.#StringExpression
-	TargetColumn!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Value?:        strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	Condition!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Z\\_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Z\\_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TargetColumn!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DataCatalogInputDefinition: close({
-	CatalogId?:     string | fn.#StringExpression
-	DatabaseName?:  string | fn.#StringExpression
-	TableName?:     string | fn.#StringExpression
+	CatalogId?:     string | number | bool | fn.#StringExpression
+	DatabaseName?:  string | number | bool | fn.#StringExpression
+	TableName?:     string | number | bool | fn.#StringExpression
 	TempDirectory?: #S3Location
 }) |
 fn.#ObjectExpression
 
 #ParameterMap: close({
 
-	{[=~"^[A-Za-z0-9]{1,128}$"]: string | fn.#StringExpression}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{[=~"^[A-Za-z0-9]{1,128}$"]: string | number | bool | fn.#StringExpression}
+}) |
 fn.#ObjectExpression
 
 #RecipeParameters: null |
@@ -59,35 +94,35 @@ number |
 string |
 [...] |
 close({
-	AggregateFunction?:             string | fn.#StringExpression
-	Base?:                          string | fn.#StringExpression
-	CaseStatement?:                 string | fn.#StringExpression
-	CategoryMap?:                   string | fn.#StringExpression
-	CharsToRemove?:                 string | fn.#StringExpression
-	CollapseConsecutiveWhitespace?: string | fn.#StringExpression
-	ColumnDataType?:                string | fn.#StringExpression
-	ColumnRange?:                   string | fn.#StringExpression
-	Count?:                         string | fn.#StringExpression
-	CustomCharacters?:              string | fn.#StringExpression
-	CustomStopWords?:               string | fn.#StringExpression
-	CustomValue?:                   string | fn.#StringExpression
-	DatasetsColumns?:               string | fn.#StringExpression
-	DateAddValue?:                  string | fn.#StringExpression
-	DateTimeFormat?:                string | fn.#StringExpression
-	DateTimeParameters?:            string | fn.#StringExpression
-	DeleteOtherRows?:               string | fn.#StringExpression
-	Delimiter?:                     string | fn.#StringExpression
-	EndPattern?:                    string | fn.#StringExpression
-	EndPosition?:                   string | fn.#StringExpression
-	EndValue?:                      string | fn.#StringExpression
-	ExpandContractions?:            string | fn.#StringExpression
-	Exponent?:                      string | fn.#StringExpression
-	FalseString?:                   string | fn.#StringExpression
-	GroupByAggFunctionOptions?:     string | fn.#StringExpression
-	GroupByColumns?:                string | fn.#StringExpression
-	HiddenColumns?:                 string | fn.#StringExpression
-	IgnoreCase?:                    string | fn.#StringExpression
-	IncludeInSplit?:                string | fn.#StringExpression
+	AggregateFunction?:             string | number | bool | fn.#StringExpression
+	Base?:                          string | number | bool | fn.#StringExpression
+	CaseStatement?:                 string | number | bool | fn.#StringExpression
+	CategoryMap?:                   string | number | bool | fn.#StringExpression
+	CharsToRemove?:                 string | number | bool | fn.#StringExpression
+	CollapseConsecutiveWhitespace?: string | number | bool | fn.#StringExpression
+	ColumnDataType?:                string | number | bool | fn.#StringExpression
+	ColumnRange?:                   string | number | bool | fn.#StringExpression
+	Count?:                         string | number | bool | fn.#StringExpression
+	CustomCharacters?:              string | number | bool | fn.#StringExpression
+	CustomStopWords?:               string | number | bool | fn.#StringExpression
+	CustomValue?:                   string | number | bool | fn.#StringExpression
+	DatasetsColumns?:               string | number | bool | fn.#StringExpression
+	DateAddValue?:                  string | number | bool | fn.#StringExpression
+	DateTimeFormat?:                string | number | bool | fn.#StringExpression
+	DateTimeParameters?:            string | number | bool | fn.#StringExpression
+	DeleteOtherRows?:               string | number | bool | fn.#StringExpression
+	Delimiter?:                     string | number | bool | fn.#StringExpression
+	EndPattern?:                    string | number | bool | fn.#StringExpression
+	EndPosition?:                   string | number | bool | fn.#StringExpression
+	EndValue?:                      string | number | bool | fn.#StringExpression
+	ExpandContractions?:            string | number | bool | fn.#StringExpression
+	Exponent?:                      string | number | bool | fn.#StringExpression
+	FalseString?:                   string | number | bool | fn.#StringExpression
+	GroupByAggFunctionOptions?:     string | number | bool | fn.#StringExpression
+	GroupByColumns?:                string | number | bool | fn.#StringExpression
+	HiddenColumns?:                 string | number | bool | fn.#StringExpression
+	IgnoreCase?:                    string | number | bool | fn.#StringExpression
+	IncludeInSplit?:                string | number | bool | fn.#StringExpression
 	Input?: close({
 		DataCatalogInputDefinition?: #DataCatalogInputDefinition
 		S3InputDefinition?:          #S3Location
@@ -98,44 +133,44 @@ close({
 		}
 	}) & matchN(>=1, [{S3InputDefinition!: _}, {DataCatalogInputDefinition!: _}]) |
 	fn.#ObjectExpression
-	Interval?:               string | fn.#StringExpression
-	IsText?:                 string | fn.#StringExpression
-	JoinKeys?:               string | fn.#StringExpression
-	JoinType?:               string | fn.#StringExpression
-	LeftColumns?:            string | fn.#StringExpression
-	Limit?:                  string | fn.#StringExpression
-	LowerBound?:             string | fn.#StringExpression
-	MapType?:                string | fn.#StringExpression
-	ModeType?:               string | fn.#StringExpression
+	Interval?:               string | number | bool | fn.#StringExpression
+	IsText?:                 string | number | bool | fn.#StringExpression
+	JoinKeys?:               string | number | bool | fn.#StringExpression
+	JoinType?:               string | number | bool | fn.#StringExpression
+	LeftColumns?:            string | number | bool | fn.#StringExpression
+	Limit?:                  string | number | bool | fn.#StringExpression
+	LowerBound?:             string | number | bool | fn.#StringExpression
+	MapType?:                string | number | bool | fn.#StringExpression
+	ModeType?:               string | number | bool | fn.#StringExpression
 	MultiLine?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	NumRows?:                string | fn.#StringExpression
-	NumRowsAfter?:           string | fn.#StringExpression
-	NumRowsBefore?:          string | fn.#StringExpression
-	OrderByColumn?:          string | fn.#StringExpression
-	OrderByColumns?:         string | fn.#StringExpression
-	Other?:                  string | fn.#StringExpression
-	Pattern?:                string | fn.#StringExpression
-	PatternOption1?:         string | fn.#StringExpression
-	PatternOption2?:         string | fn.#StringExpression
-	PatternOptions?:         string | fn.#StringExpression
-	Period?:                 string | fn.#StringExpression
-	Position?:               string | fn.#StringExpression
-	RemoveAllPunctuation?:   string | fn.#StringExpression
-	RemoveAllQuotes?:        string | fn.#StringExpression
-	RemoveAllWhitespace?:    string | fn.#StringExpression
-	RemoveCustomCharacters?: string | fn.#StringExpression
-	RemoveCustomValue?:      string | fn.#StringExpression
-	RemoveLeadingAndTrailingPunctuation?: string | fn.#StringExpression
-	RemoveLeadingAndTrailingQuotes?:      string | fn.#StringExpression
-	RemoveLeadingAndTrailingWhitespace?:  string | fn.#StringExpression
-	RemoveLetters?:                       string | fn.#StringExpression
-	RemoveNumbers?:                       string | fn.#StringExpression
-	RemoveSourceColumn?:                  string | fn.#StringExpression
-	RemoveSpecialCharacters?:             string | fn.#StringExpression
-	RightColumns?:                        string | fn.#StringExpression
-	SampleSize?:                          string | fn.#StringExpression
-	SampleType?:                          string | fn.#StringExpression
-	SecondInput?:                         string | fn.#StringExpression
+	NumRows?:                string | number | bool | fn.#StringExpression
+	NumRowsAfter?:           string | number | bool | fn.#StringExpression
+	NumRowsBefore?:          string | number | bool | fn.#StringExpression
+	OrderByColumn?:          string | number | bool | fn.#StringExpression
+	OrderByColumns?:         string | number | bool | fn.#StringExpression
+	Other?:                  string | number | bool | fn.#StringExpression
+	Pattern?:                string | number | bool | fn.#StringExpression
+	PatternOption1?:         string | number | bool | fn.#StringExpression
+	PatternOption2?:         string | number | bool | fn.#StringExpression
+	PatternOptions?:         string | number | bool | fn.#StringExpression
+	Period?:                 string | number | bool | fn.#StringExpression
+	Position?:               string | number | bool | fn.#StringExpression
+	RemoveAllPunctuation?:   string | number | bool | fn.#StringExpression
+	RemoveAllQuotes?:        string | number | bool | fn.#StringExpression
+	RemoveAllWhitespace?:    string | number | bool | fn.#StringExpression
+	RemoveCustomCharacters?: string | number | bool | fn.#StringExpression
+	RemoveCustomValue?:      string | number | bool | fn.#StringExpression
+	RemoveLeadingAndTrailingPunctuation?: string | number | bool | fn.#StringExpression
+	RemoveLeadingAndTrailingQuotes?:      string | number | bool | fn.#StringExpression
+	RemoveLeadingAndTrailingWhitespace?:  string | number | bool | fn.#StringExpression
+	RemoveLetters?:                       string | number | bool | fn.#StringExpression
+	RemoveNumbers?:                       string | number | bool | fn.#StringExpression
+	RemoveSourceColumn?:                  string | number | bool | fn.#StringExpression
+	RemoveSpecialCharacters?:             string | number | bool | fn.#StringExpression
+	RightColumns?:                        string | number | bool | fn.#StringExpression
+	SampleSize?:                          string | number | bool | fn.#StringExpression
+	SampleType?:                          string | number | bool | fn.#StringExpression
+	SecondInput?:                         string | number | bool | fn.#StringExpression
 	SecondaryInputs?:                     [...#SecondaryInput] | fn.#ListExpression
 	SheetIndexes?: list.MaxItems(1) & list.MinItems(1) & [
 		...int |
@@ -156,37 +191,38 @@ close({
 			fn.#NumberExpression
 	] |
 		fn.#ListExpression
-	SheetNames?:        list.MaxItems(1) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	SourceColumn?:      string | fn.#StringExpression
-	SourceColumn1?:     string | fn.#StringExpression
-	SourceColumn2?:     string | fn.#StringExpression
-	SourceColumns?:     string | fn.#StringExpression
-	StartColumnIndex?:  string | fn.#StringExpression
-	StartPattern?:      string | fn.#StringExpression
-	StartPosition?:     string | fn.#StringExpression
-	StartValue?:        string | fn.#StringExpression
-	StemmingMode?:      string | fn.#StringExpression
-	StepCount?:         string | fn.#StringExpression
-	StepIndex?:         string | fn.#StringExpression
-	StopWordsMode?:     string | fn.#StringExpression
-	Strategy?:          string | fn.#StringExpression
-	TargetColumn?:      string | fn.#StringExpression
-	TargetColumnNames?: string | fn.#StringExpression
-	TargetDateFormat?:  string | fn.#StringExpression
-	TargetIndex?:       string | fn.#StringExpression
-	TimeZone?:          string | fn.#StringExpression
-	TokenizerPattern?:  string | fn.#StringExpression
-	TrueString?:        string | fn.#StringExpression
-	UdfLang?:           string | fn.#StringExpression
-	Units?:             string | fn.#StringExpression
-	UnpivotColumn?:     string | fn.#StringExpression
-	UpperBound?:        string | fn.#StringExpression
-	UseNewDataFrame?:   string | fn.#StringExpression
-	Value?:             string | fn.#StringExpression
-	Value1?:            string | fn.#StringExpression
-	Value2?:            string | fn.#StringExpression
-	ValueColumn?:       string | fn.#StringExpression
-	ViewFrame?:         string | fn.#StringExpression
+	SheetNames?: list.MaxItems(1) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
+	SourceColumn?:      string | number | bool | fn.#StringExpression
+	SourceColumn1?:     string | number | bool | fn.#StringExpression
+	SourceColumn2?:     string | number | bool | fn.#StringExpression
+	SourceColumns?:     string | number | bool | fn.#StringExpression
+	StartColumnIndex?:  string | number | bool | fn.#StringExpression
+	StartPattern?:      string | number | bool | fn.#StringExpression
+	StartPosition?:     string | number | bool | fn.#StringExpression
+	StartValue?:        string | number | bool | fn.#StringExpression
+	StemmingMode?:      string | number | bool | fn.#StringExpression
+	StepCount?:         string | number | bool | fn.#StringExpression
+	StepIndex?:         string | number | bool | fn.#StringExpression
+	StopWordsMode?:     string | number | bool | fn.#StringExpression
+	Strategy?:          string | number | bool | fn.#StringExpression
+	TargetColumn?:      string | number | bool | fn.#StringExpression
+	TargetColumnNames?: string | number | bool | fn.#StringExpression
+	TargetDateFormat?:  string | number | bool | fn.#StringExpression
+	TargetIndex?:       string | number | bool | fn.#StringExpression
+	TimeZone?:          string | number | bool | fn.#StringExpression
+	TokenizerPattern?:  string | number | bool | fn.#StringExpression
+	TrueString?:        string | number | bool | fn.#StringExpression
+	UdfLang?:           string | number | bool | fn.#StringExpression
+	Units?:             string | number | bool | fn.#StringExpression
+	UnpivotColumn?:     string | number | bool | fn.#StringExpression
+	UpperBound?:        string | number | bool | fn.#StringExpression
+	UseNewDataFrame?:   string | number | bool | fn.#StringExpression
+	Value?:             string | number | bool | fn.#StringExpression
+	Value1?:            string | number | bool | fn.#StringExpression
+	Value2?:            string | number | bool | fn.#StringExpression
+	ValueColumn?:       string | number | bool | fn.#StringExpression
+	ViewFrame?:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ValueExpression
 
@@ -197,8 +233,8 @@ fn.#ValueExpression
 fn.#ObjectExpression
 
 #S3Location: close({
-	Bucket!: string | fn.#StringExpression
-	Key?:    string | fn.#StringExpression
+	Bucket!: string | number | bool | fn.#StringExpression
+	Key?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -214,7 +250,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

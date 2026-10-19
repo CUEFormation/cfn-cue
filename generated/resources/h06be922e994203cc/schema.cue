@@ -7,12 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -21,21 +19,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // locally.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::StorageGateway::Volume"
-	Properties!: close({
-		GatewayARN!:   strings.MaxRunes(500) & strings.MinRunes(50) | fn.#StringExpression
+	let properties = close({
+		GatewayARN!: strings.MaxRunes(500) & strings.MinRunes(50) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(50) & "\(self)"
+		} |
+		fn.#StringExpression
 		KMSEncrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		KMSKey?: strings.MaxRunes(2048) &
 		strings.MinRunes(7) &
 		=~"^(^arn:(aws(|-cn|-us-gov|-iso[A-Za-z0-9_-]*|-eusc)):kms:([a-zA-Z0-9-]+):([0-9]+):(key|alias)/(\\S+)$)|(^alias/(\\S+)$)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(7) &
+			=~"^(^arn:(aws(|-cn|-us-gov|-iso[A-Za-z0-9_-]*|-eusc)):kms:([a-zA-Z0-9-]+):([0-9]+):(key|alias)/(\\S+)$)|(^alias/(\\S+)$)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		NetworkInterfaceId!: string | fn.#StringExpression
-		SnapshotId?:         =~"^snap-([0-9A-Fa-f]{8}|[0-9A-Fa-f]{17})$" | fn.#StringExpression
+		NetworkInterfaceId!: string | number | bool | fn.#StringExpression
+		SnapshotId?: =~"^snap-([0-9A-Fa-f]{8}|[0-9A-Fa-f]{17})$" |
+		{
+			number | bool
+			_cfnString: =~"^snap-([0-9A-Fa-f]{8}|[0-9A-Fa-f]{17})$" & "\(self)"
+		} |
+		fn.#StringExpression
 		SourceVolumeARN?: strings.MaxRunes(500) &
 		strings.MinRunes(50) &
 		=~"^arn:(aws(|-cn|-us-gov|-iso[A-Za-z0-9_-]*|-eusc)):storagegateway:[a-z\\-0-9]+:[0-9]+:gateway\\/(.+)\\/volume\\/vol-(\\S+)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) &
+			strings.MinRunes(50) &
+			=~"^arn:(aws(|-cn|-us-gov|-iso[A-Za-z0-9_-]*|-eusc)):storagegateway:[a-z\\-0-9]+:[0-9]+:gateway\\/(.+)\\/volume\\/vol-(\\S+)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Tags?:       list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-		TargetName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[-\\.;a-z0-9]+$" | fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		TargetName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[-\\.;a-z0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[-\\.;a-z0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		VolumeSizeInBytes!: number |
 			{
 				string &
@@ -56,10 +83,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -4,6 +4,7 @@ package schema
 
 import (
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
 
@@ -22,7 +23,7 @@ import (
 	=~"^arn:[^:]+:s3-outposts:[a-zA-Z0-9\\-]+:\\d{12}:outpost\\/[^:]+\\/endpoint/[a-zA-Z0-9]{19}$"
 
 	// The VPC CIDR committed by this endpoint.
-	CidrBlock?: strings.MaxRunes(20) & strings.MinRunes(1)
+	CidrBlock?: fn.#IPv4Network & string & strings.MaxRunes(20) & strings.MinRunes(1)
 
 	// The time the endpoint was created.
 	CreationTime?: #iso8601UTC
@@ -51,7 +52,10 @@ import (
 	Status?: "Available" | "Pending" | "Deleting" | "Create_Failed" | "Delete_Failed"
 
 	// The ID of the subnet in the selected VPC. The subnet must belong to the Outpost.
-	SubnetId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^subnet-([0-9a-f]{8}|[0-9a-f]{17})$"
+	SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+	strings.MaxRunes(100) &
+	strings.MinRunes(1) &
+	=~"^subnet-([0-9a-f]{8}|[0-9a-f]{17})$"
 })
 
 #FailedReason: close({

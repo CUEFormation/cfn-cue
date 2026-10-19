@@ -18,16 +18,11 @@ import schema "github.com/cueformation/cfn-cue/resources/h179b0c8bfbc318c8:schem
 #HorizontalTextAlignment:         schema.#HorizontalTextAlignment
 #MarginStyle:                     schema.#MarginStyle
 #ResourcePermission:              schema.#ResourcePermission
-#ResourceStatus:                  schema.#ResourceStatus
 #SheetBackgroundStyle:            schema.#SheetBackgroundStyle
 #SheetStyle:                      schema.#SheetStyle
 #Tag:                             schema.#Tag
 #TextTransform:                   schema.#TextTransform
 #ThemeConfiguration:              schema.#ThemeConfiguration
-#ThemeError:                      schema.#ThemeError
-#ThemeErrorType:                  schema.#ThemeErrorType
-#ThemeType:                       schema.#ThemeType
-#ThemeVersion:                    schema.#ThemeVersion
 #TileLayoutStyle:                 schema.#TileLayoutStyle
 #TileStyle:                       schema.#TileStyle
 #Typography:                      schema.#Typography

@@ -7,32 +7,58 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Chime::AppInstanceUser
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Chime::AppInstanceUser"
-	Properties!: close({
-		AppInstanceArn!: strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
+	let properties = close({
+		AppInstanceArn!: strings.MaxRunes(1600) & strings.MinRunes(5) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1600) & strings.MinRunes(5) & "\(self)"
+		} |
+		fn.#StringExpression
 		AppInstanceUserId!: strings.MaxRunes(64) &
 		strings.MinRunes(1) &
 		=~"^[A-Za-z0-9]([A-Za-z0-9\\:\\-\\_\\.\\@]{0,62}[A-Za-z0-9])?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) &
+			strings.MinRunes(1) &
+			=~"^[A-Za-z0-9]([A-Za-z0-9\\:\\-\\_\\.\\@]{0,62}[A-Za-z0-9])?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ExpirationSettings?: #ExpirationSettings
-		Metadata?:           strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+		Metadata?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" & "\(self)"
+		} |
+		fn.#StringExpression
 		Name?: strings.MaxRunes(256) &
 		strings.MinRunes(0) &
 		=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{0085}\\x{00A0}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{1000}0-\\x{10FF}FF]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(0) &
+			=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{0085}\\x{00A0}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{1000}0-\\x{10FF}FF]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ExpirationSettings: close({
@@ -57,7 +83,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

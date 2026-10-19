@@ -160,7 +160,10 @@ import (
 // The logging configuration settings for the image.
 #ImageLoggingConfiguration: close({
 	// The name of the log group for image build logs.
-	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_/\\.]{1,512}$"
+	LogGroupName?: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9\\-_/\\.]{1,512}$"
 })
 
 // The settings for starting an image pipeline execution.

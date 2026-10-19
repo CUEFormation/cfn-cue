@@ -3,29 +3,33 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::DataExchange::DataSet Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataExchange::DataSet"
-	Properties!: close({
+	let properties = close({
 		AssetType!: "S3_SNAPSHOT" |
 			"REDSHIFT_DATA_SHARE" |
 			"API_GATEWAY_API" |
 			"S3_DATA_ACCESS" |
 			"LAKE_FORMATION_DATA_PERMISSION" |
 			fn.#StringExpression
-		Description!: string | fn.#StringExpression
-		Name!:        string | fn.#StringExpression
+		Description!: string | number | bool | fn.#StringExpression
+		Name!:        string | number | bool | fn.#StringExpression
 		Tags?:        [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

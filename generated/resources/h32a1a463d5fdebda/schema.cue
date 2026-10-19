@@ -7,29 +7,50 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::Space
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::Space"
-	Properties!: close({
-		DomainId!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^d-(-*[a-z0-9]){1,61}$" | fn.#StringExpression
+	let properties = close({
+		DomainId!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^d-(-*[a-z0-9]){1,61}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^d-(-*[a-z0-9]){1,61}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		OwnershipSettings?: #OwnershipSettings
-		SpaceDisplayName?:  strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+		SpaceDisplayName?: =~"^.+" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(64) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: =~"^.+" &
+			matchN(0, [=~"^(?:\\s*$)"]) &
+			string &
+			strings.MaxRunes(64) &
+			strings.MinRunes(0) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 		SpaceName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" & "\(self)"
+		} |
 		fn.#StringExpression
 		SpaceSettings?: #SpaceSettings & (null | bool | number | string | list.MaxItems(50) & [...] | {...}) |
 		fn.#ObjectExpression
 		SpaceSharingSettings?: #SpaceSharingSettings
 		Tags?:                 list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AppType: "JupyterServer" |
@@ -41,7 +62,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	"CodeEditor" |
 	fn.#StringExpression
 
-#CodeRepository: close({RepositoryUrl!: strings.MaxRunes(256) | fn.#StringExpression}) | fn.#ObjectExpression
+#CodeRepository: close({
+	RepositoryUrl!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #CustomFileSystem: close({
 	EFSFileSystem?:       #EFSFileSystem
@@ -53,8 +82,18 @@ fn.#ObjectExpression
 #CustomFileSystems: list.MaxItems(1) & list.UniqueItems() & [...] & [...#CustomFileSystem] | fn.#ListExpression
 
 #CustomImage: close({
-	AppImageConfigName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" | fn.#StringExpression
-	ImageName!:          strings.MaxRunes(63) & =~"^[a-zA-Z0-9]([-.]?[a-zA-Z0-9]){0,62}$" | fn.#StringExpression
+	AppImageConfigName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" & "\(self)"
+	} |
+	fn.#StringExpression
+	ImageName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9]([-.]?[a-zA-Z0-9]){0,62}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & =~"^[a-zA-Z0-9]([-.]?[a-zA-Z0-9]){0,62}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ImageVersionNumber?: int & >=0 |
 		{
 			string &
@@ -73,9 +112,14 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#EFSFileSystem: close(
-	{FileSystemId!: strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$" | fn.#StringExpression},
-) |
+#EFSFileSystem: close({
+	FileSystemId!: strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #EbsStorageSettings: close({
@@ -84,9 +128,14 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#FSxLustreFileSystem: close(
-	{FileSystemId!: strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$" | fn.#StringExpression},
-) |
+#FSxLustreFileSystem: close({
+	FileSystemId!: strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(21) & strings.MinRunes(11) & =~"^(fs-[0-9a-f]{8,})$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #JupyterServerAppSettings: close({
@@ -105,9 +154,14 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#OwnershipSettings: close(
-	{OwnerUserProfileName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" | fn.#StringExpression},
-) |
+#OwnershipSettings: close({
+	OwnerUserProfileName!: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #RemoteAccess: "ENABLED" | "DISABLED" | fn.#StringExpression
@@ -180,24 +234,48 @@ fn.#ObjectExpression
 	LifecycleConfigArn?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	SageMakerImageArn?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^arn:aws(-[\\w]+)*:sagemaker:.+:[0-9]{12}:image/[a-z0-9]([-.]?[a-z0-9])*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^arn:aws(-[\\w]+)*:sagemaker:.+:[0-9]{12}:image/[a-z0-9]([-.]?[a-z0-9])*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	SageMakerImageVersionArn?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^arn:aws(-[\\w]+)*:sagemaker:.+:[0-9]{12}:image-version/[a-z0-9]([-.]?[a-z0-9])*/[0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^arn:aws(-[\\w]+)*:sagemaker:.+:[0-9]{12}:image-version/[a-z0-9]([-.]?[a-z0-9])*/[0-9]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#S3FileSystem: close(
-	{S3Uri?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(s3)://([^/]+)/?(.*)" | fn.#StringExpression},
-) |
+#S3FileSystem: close({
+	S3Uri?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(s3)://([^/]+)/?(.*)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"(s3)://([^/]+)/?(.*)" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
-
-#SpaceAppLifecycleManagement: close({IdleSettings?: #SpaceIdleSettings}) | fn.#ObjectExpression
 
 #SpaceCodeEditorAppSettings: close({DefaultResourceSpec?: #ResourceSpec}) | fn.#ObjectExpression
 
@@ -217,26 +295,6 @@ fn.#ObjectExpression
 			)
 	} |
 	fn.#NumberExpression
-
-#SpaceIdleSettings: close({
-	IdleTimeoutInMinutes?: int & <=525600 & >=60 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int &
-							<=525600 &
-							>=60,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-	fn.#ObjectExpression
 
 #SpaceJupyterLabAppSettings: close({
 	CodeRepositories?:    list.MaxItems(30) & [...] & [...#CodeRepository] | fn.#ListExpression
@@ -280,10 +338,27 @@ fn.#ObjectExpression
 #StudioLifecycleConfigArn: strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) &
+	strings.MinRunes(0) &
+	=~"arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -7,15 +7,15 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::TaskTemplate.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::TaskTemplate"
-	Properties!: close({
+	let properties = close({
 		ClientToken?: #ClientToken
 		Constraints?: close({
 			InvisibleFields?: #InvisibleTaskTemplateFields
@@ -24,22 +24,58 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		}) |
 		fn.#ObjectExpression
 		ContactFlowArn?: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*(:[a-zA-Z0-9-]+)?$" |
-			fn.#StringExpression
-		Defaults?:    list.MaxItems(50) & [...#DefaultFieldValue] | fn.#ListExpression
-		Description?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-		Fields?:      list.MaxItems(50) & [...#Field] | fn.#ListExpression
-		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-		Name?:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*(:[a-zA-Z0-9-]+)?$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		Defaults?: list.MaxItems(50) & [...#DefaultFieldValue] | fn.#ListExpression
+		Description?: strings.MaxRunes(255) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Fields?: list.MaxItems(50) & [...#Field] | fn.#ListExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		SelfAssignContactFlowArn?: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*(:[a-zA-Z0-9-]+)?$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*(:[a-zA-Z0-9-]+)?$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		Status?: #Status
 		Tags?:   list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ClientToken: strings.MaxRunes(500) &
 strings.MinRunes(0) &
 =~"^$|[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(500) &
+	strings.MinRunes(0) &
+	=~"^$|[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #DefaultFieldValue: close({
@@ -49,17 +85,34 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #Field: close({
-	Description?:         strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	Description?: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	Id!:                  #FieldIdentifier
 	SingleSelectOptions?: list.MaxItems(50) & [...#FieldOption] | fn.#ListExpression
 	Type!:                #FieldType
 }) |
 fn.#ObjectExpression
 
-#FieldIdentifier: close({Name!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression}) |
+#FieldIdentifier: close({
+	Name!: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
-#FieldOption: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+#FieldOption: strings.MaxRunes(100) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #FieldType: "NAME" |
 	"DESCRIPTION" |
@@ -77,7 +130,12 @@ fn.#ObjectExpression
 	"SELF_ASSIGN" |
 	fn.#StringExpression
 
-#FieldValue: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+#FieldValue: strings.MaxRunes(4096) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #InvisibleFieldInfo: close({Id!: #FieldIdentifier}) | fn.#ObjectExpression
 
@@ -94,7 +152,22 @@ fn.#ObjectExpression
 #Status: "ACTIVE" | "INACTIVE" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

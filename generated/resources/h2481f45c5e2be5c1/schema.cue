@@ -6,19 +6,17 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppSync::GraphQLApi
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppSync::GraphQLApi"
-	Properties!: close({
+	let properties = close({
 		AdditionalAuthenticationProviders?: list.UniqueItems() & [...#AdditionalAuthenticationProvider] |
 			fn.#ListExpression
 		ApiType?: "GRAPHQL" | "MERGED" | fn.#StringExpression
@@ -37,7 +35,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		EnhancedMetricsConfig?: #EnhancedMetricsConfig
 		EnvironmentVariables?: close({
 
-			{[=~"^[A-Za-z]+\\w*$"]: string | fn.#StringExpression}}) |
+			{[=~"^(?:Ref)$"]: error("disallowed")}
+
+			{[=~"^[A-Za-z]+\\w*$"]: string | number | bool | fn.#StringExpression}
+		}) |
 		fn.#ObjectExpression
 		IntrospectionConfig?: "DISABLED" | "ENABLED" | fn.#StringExpression
 
@@ -48,13 +49,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		// The Amazon CloudWatch Logs configuration.
 		LogConfig?: #LogConfig
-		MergedApiExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		Name!: string | fn.#StringExpression
+		MergedApiExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: string | number | bool | fn.#StringExpression
 
 		// The OpenID Connect configuration.
 		OpenIDConnectConfig?: #OpenIDConnectConfig
-		OwnerContact?:        string | fn.#StringExpression
+		OwnerContact?:        string | number | bool | fn.#StringExpression
 		QueryDepthLimit?: int & <=75 & >=0 |
 			{
 				string &
@@ -99,6 +104,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Visibility?:     "GLOBAL" | "PRIVATE" | fn.#StringExpression
 		XrayEnabled?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AdditionalAuthenticationProvider: close({
@@ -115,9 +124,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #CognitoUserPoolConfig: close({
-	AppIdClientRegex?: string | fn.#StringExpression
-	AwsRegion?:        string | fn.#StringExpression
-	UserPoolId?:       string | fn.#StringExpression
+	AppIdClientRegex?: string | number | bool | fn.#StringExpression
+	AwsRegion?:        string | number | bool | fn.#StringExpression
+	UserPoolId?:       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -147,14 +156,18 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	AuthorizerUri?:                string | fn.#StringExpression
-	IdentityValidationExpression?: string | fn.#StringExpression
+	AuthorizerUri?:                string | number | bool | fn.#StringExpression
+	IdentityValidationExpression?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LogConfig: close({
-	CloudWatchLogsRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	CloudWatchLogsRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ExcludeVerboseContent?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	FieldLogLevel!:         "ALL" | "DEBUG" | "ERROR" | "INFO" | "NONE" | fn.#StringExpression
 }) |
@@ -180,7 +193,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ClientId?: string | fn.#StringExpression
+	ClientId?: string | number | bool | fn.#StringExpression
 	IatTTL?: number |
 		{
 			string &
@@ -200,20 +213,20 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Issuer?: string | fn.#StringExpression
+	Issuer?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #UserPoolConfig: close({
-	AppIdClientRegex?: string | fn.#StringExpression
-	AwsRegion?:        string | fn.#StringExpression
+	AppIdClientRegex?: string | number | bool | fn.#StringExpression
+	AwsRegion?:        string | number | bool | fn.#StringExpression
 	DefaultAction?:    "ALLOW" | "DENY" | fn.#StringExpression
-	UserPoolId?:       string | fn.#StringExpression
+	UserPoolId?:       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -7,24 +7,45 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::IVSChat::LoggingConfiguration.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IVSChat::LoggingConfiguration"
-	Properties!: close({
+	let properties = close({
 		DestinationConfiguration!: #DestinationConfiguration
-		Name?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" | fn.#StringExpression
+		Name?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9-_]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#CloudWatchLogsDestinationConfiguration: close(
-	{LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression},
-) |
+#CloudWatchLogsDestinationConfiguration: close({
+	LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"^[\\.\\-_/#A-Za-z0-9]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^[\\.\\-_/#A-Za-z0-9]+$" &
+		"\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #DestinationConfiguration: close({
@@ -34,18 +55,47 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#FirehoseDestinationConfiguration: close(
-	{DeliveryStreamName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression},
-) |
+#FirehoseDestinationConfiguration: close({
+	DeliveryStreamName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
-#S3DestinationConfiguration: close(
-	{BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9-.]+$" | fn.#StringExpression},
-) |
+#S3DestinationConfiguration: close({
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"^[a-z0-9-.]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) &
+		=~"^[a-z0-9-.]+$" &
+		"\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

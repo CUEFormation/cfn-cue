@@ -5,10 +5,8 @@ package DataSource
 import schema "github.com/cueformation/cfn-cue/resources/h933ffbfb222a28cb:schema"
 
 #Resource:                        schema.#Resource
-#AccountId:                       schema.#AccountId
 #DataAccessRole:                  schema.#DataAccessRole
 #DataSourceConfigurationInput:    schema.#DataSourceConfigurationInput
-#DataSourceStatus:                schema.#DataSourceStatus
 #EnableSetting:                   schema.#EnableSetting
 #FilterExpression:                schema.#FilterExpression
 #FilterExpressionType:            schema.#FilterExpressionType
@@ -21,7 +19,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h933ffbfb222a28cb:schem
 #RedshiftRunConfigurationInput:   schema.#RedshiftRunConfigurationInput
 #RedshiftServerlessStorage:       schema.#RedshiftServerlessStorage
 #RedshiftStorage:                 schema.#RedshiftStorage
-#Region:                          schema.#Region
 #RelationalFilterConfiguration:   schema.#RelationalFilterConfiguration
 #RelationalFilterConfigurations:  schema.#RelationalFilterConfigurations
 #SageMakerRunConfigurationInput:  schema.#SageMakerRunConfigurationInput

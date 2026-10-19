@@ -31,7 +31,7 @@ class RunIntegrityTests(unittest.TestCase):
         return argparse.Namespace(corpus=root, schemas=schemas, validator=validator, report=root / "report",
                                   source=None, ids=None, limit=0, regions="us-east-1,us-west-2", expect=None,
                                   timeout=1, memory="2GiB", resources="all", max_resource_checks=0,
-                                  resume=False, fail_on_disagreement=False)
+                                  resume=False, fail_on_disagreement=False, checks="structural")
 
     def run_fixture(self, args, lint=None, cue=None):
         with mock.patch.object(corpus, "lint", side_effect=lint, return_value={"status": "valid"}), \

@@ -12,7 +12,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h2489215a0f3b4462:schem
 #NoAuthConfiguration:                 schema.#NoAuthConfiguration
 #OAuth2ClientCredentialConfiguration: schema.#OAuth2ClientCredentialConfiguration
 #PluginAuthConfiguration:             schema.#PluginAuthConfiguration
-#PluginBuildStatus:                   schema.#PluginBuildStatus
 #PluginState:                         schema.#PluginState
 #PluginType:                          schema.#PluginType
 #S3:                                  schema.#S3

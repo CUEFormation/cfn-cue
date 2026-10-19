@@ -206,13 +206,17 @@ import (
 // The S3 location where Identity Resolution Jobs write result files.
 #S3ExportingConfig: close({
 	// The name of the S3 bucket where Identity Resolution Jobs write result files.
-	S3BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9.-]+$"
+	S3BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"^[a-z0-9.-]+$"
 
 	// The S3 key name of the location where Identity Resolution Jobs write result files.
 	S3KeyName?: strings.MaxRunes(800) & strings.MinRunes(1) & =~".*"
 })
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!:   =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
 })

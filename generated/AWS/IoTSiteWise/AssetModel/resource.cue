@@ -5,23 +5,15 @@ package AssetModel
 import schema "github.com/cueformation/cfn-cue/resources/h8ba1f6ae57a44e4a:schema"
 
 #Resource:                                   schema.#Resource
-#AssetModelCompositeModel:                   schema.#AssetModelCompositeModel
-#AssetModelHierarchy:                        schema.#AssetModelHierarchy
-#AssetModelProperty:                         schema.#AssetModelProperty
 #Attribute:                                  schema.#Attribute
 #DataType:                                   schema.#DataType
 #DataTypeSpec:                               schema.#DataTypeSpec
 #EnforcedAssetModelInterfacePropertyMapping: schema.#EnforcedAssetModelInterfacePropertyMapping
 #EnforcedAssetModelInterfaceRelationship:    schema.#EnforcedAssetModelInterfaceRelationship
-#ExpressionVariable:                         schema.#ExpressionVariable
 #Interval:                                   schema.#Interval
-#Metric:                                     schema.#Metric
 #MetricWindow:                               schema.#MetricWindow
 #Offset:                                     schema.#Offset
 #PropertyPathDefinition:                     schema.#PropertyPathDefinition
-#PropertyType:                               schema.#PropertyType
 #Tag:                                        schema.#Tag
-#Transform:                                  schema.#Transform
 #TumblingWindow:                             schema.#TumblingWindow
 #TypeName:                                   schema.#TypeName
-#VariableValue:                              schema.#VariableValue

@@ -7,43 +7,66 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::KafkaConnect::Connector
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::KafkaConnect::Connector"
-	Properties!: close({
+	let properties = close({
 		Capacity!: #Capacity
 		ConnectorConfiguration!: close({
 
-			{[=~".*"]: string | fn.#StringExpression}}) |
+			{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
-		ConnectorDescription?:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		ConnectorName!:                    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		ConnectorDescription?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		ConnectorName!: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		KafkaCluster!:                     #KafkaCluster
 		KafkaClusterClientAuthentication!: #KafkaClusterClientAuthentication
 		KafkaClusterEncryptionInTransit!:  #KafkaClusterEncryptionInTransit
-		KafkaConnectVersion!:              string | fn.#StringExpression
+		KafkaConnectVersion!:              string | number | bool | fn.#StringExpression
 		LogDelivery?:                      #LogDelivery
 		NetworkType?:                      "IPV4" | "DUAL" | fn.#StringExpression
 		Plugins!:                          list.MinItems(1) & list.UniqueItems() & [...#Plugin] | fn.#ListExpression
-		ServiceExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		ServiceExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 			=~"arn:(aws|aws-us-gov|aws-cn):iam:.*" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+				=~"arn:(aws|aws-us-gov|aws-cn):iam:.*" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		Tags?:                list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		WorkerConfiguration?: #WorkerConfiguration
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ApacheKafkaCluster: close({
-	BootstrapServers!: string | fn.#StringExpression
+	BootstrapServers!: string | number | bool | fn.#StringExpression
 	Vpc!:              #Vpc
 }) |
 fn.#ObjectExpression
@@ -110,12 +133,17 @@ fn.#ObjectExpression
 
 #CloudWatchLogsLogDelivery: close({
 	Enabled!:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LogGroup?: string | fn.#StringExpression
+	LogGroup?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CustomPlugin: close({
-	CustomPluginArn!: =~"arn:(aws|aws-us-gov|aws-cn):kafkaconnect:.*" | fn.#StringExpression
+	CustomPluginArn!: =~"arn:(aws|aws-us-gov|aws-cn):kafkaconnect:.*" |
+	{
+		number | bool
+		_cfnString: =~"arn:(aws|aws-us-gov|aws-cn):kafkaconnect:.*" & "\(self)"
+	} |
+	fn.#StringExpression
 	Revision!: int & <=9223372036854776000 & >=1 |
 		{
 			string &
@@ -136,7 +164,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #FirehoseLogDelivery: close({
-	DeliveryStream?: string | fn.#StringExpression
+	DeliveryStream?: string | number | bool | fn.#StringExpression
 	Enabled!:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
@@ -176,9 +204,9 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #S3LogDelivery: close({
-	Bucket?:  string | fn.#StringExpression
+	Bucket?:  string | number | bool | fn.#StringExpression
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Prefix?:  string | fn.#StringExpression
+	Prefix?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -223,18 +251,36 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Vpc: close({
-	SecurityGroups!: list.UniqueItems() & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Subnets!: list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroups!: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Subnets!: list.MinItems(1) & list.UniqueItems() & [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -255,7 +301,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	WorkerConfigurationArn!: =~"arn:(aws|aws-us-gov|aws-cn):kafkaconnect:.*" | fn.#StringExpression
+	WorkerConfigurationArn!: =~"arn:(aws|aws-us-gov|aws-cn):kafkaconnect:.*" |
+	{
+		number | bool
+		_cfnString: =~"arn:(aws|aws-us-gov|aws-cn):kafkaconnect:.*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

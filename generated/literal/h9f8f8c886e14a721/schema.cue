@@ -28,7 +28,9 @@ import (
 	// scheduler, including the S3 location for the output.
 	DataOutputConfiguration!: close({
 		// The ID number for the AWS KMS key used to encrypt the inference output.
-		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2048) & strings.MinRunes(1))
+		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(2048) & strings.MinRunes(1))
 		S3OutputConfiguration!: #S3OutputConfiguration
 	})
 
@@ -92,7 +94,7 @@ import (
 // A tag is a key-value pair that can be added to a resource as metadata.
 #Tag: close({
 	// The key for the specified tag.
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// The value for the specified tag.
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\s\\w+-=\\.:/@]*"

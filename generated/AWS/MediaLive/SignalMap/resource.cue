@@ -4,14 +4,5 @@ package SignalMap
 
 import schema "github.com/cueformation/cfn-cue/resources/h0448b17df1b8f153:schema"
 
-#Resource:                         schema.#Resource
-#FailedMediaResourceMap:           schema.#FailedMediaResourceMap
-#MediaResource:                    schema.#MediaResource
-#MediaResourceMap:                 schema.#MediaResourceMap
-#MediaResourceNeighbor:            schema.#MediaResourceNeighbor
-#MonitorDeployment:                schema.#MonitorDeployment
-#SignalMapMonitorDeploymentStatus: schema.#SignalMapMonitorDeploymentStatus
-#SignalMapStatus:                  schema.#SignalMapStatus
-#SuccessfulMonitorDeployment:      schema.#SuccessfulMonitorDeployment
-#TagMap:                           schema.#TagMap
-#Unit:                             schema.#Unit
+#Resource: schema.#Resource
+#TagMap:   schema.#TagMap

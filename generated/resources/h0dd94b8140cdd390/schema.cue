@@ -7,12 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,21 +18,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // enable and configure features that are specific to a particular DB engine.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RDS::OptionGroup"
-	Properties!: close({
-		EngineName!:             string | fn.#StringExpression
-		MajorEngineVersion!:     string | fn.#StringExpression
+	let properties = close({
+		EngineName!:             string | number | bool | fn.#StringExpression
+		MajorEngineVersion!:     string | number | bool | fn.#StringExpression
 		OptionConfigurations?:   [...#OptionConfiguration] | fn.#ListExpression
-		OptionGroupDescription!: string | fn.#StringExpression
-		OptionGroupName?:        string | fn.#StringExpression
+		OptionGroupDescription!: string | number | bool | fn.#StringExpression
+		OptionGroupName?:        string | number | bool | fn.#StringExpression
 		Tags?:                   [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #OptionConfiguration: close({
-	DBSecurityGroupMemberships?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	OptionName!:                 string | fn.#StringExpression
-	OptionSettings?:             [...#OptionSetting] | fn.#ListExpression
-	OptionVersion?:              string | fn.#StringExpression
+	DBSecurityGroupMemberships?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
+	OptionName!:     string | number | bool | fn.#StringExpression
+	OptionSettings?: [...#OptionSetting] | fn.#ListExpression
+	OptionVersion?:  string | number | bool | fn.#StringExpression
 	Port?: int |
 		{
 			string &
@@ -49,18 +52,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	VpcSecurityGroupMemberships?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	VpcSecurityGroupMemberships?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #OptionSetting: close({
-	Name?:  string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Name?:  string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

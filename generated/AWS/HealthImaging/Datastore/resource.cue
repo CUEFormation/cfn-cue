@@ -4,12 +4,7 @@ package Datastore
 
 import schema "github.com/cueformation/cfn-cue/resources/hadb51ec67567af81:schema"
 
-#Resource:        schema.#Resource
-#CreatedAt:       schema.#CreatedAt
-#DatastoreArn:    schema.#DatastoreArn
-#DatastoreId:     schema.#DatastoreId
-#DatastoreName:   schema.#DatastoreName
-#DatastoreStatus: schema.#DatastoreStatus
-#KmsKeyArn:       schema.#KmsKeyArn
-#Tags:            schema.#Tags
-#UpdatedAt:       schema.#UpdatedAt
+#Resource:      schema.#Resource
+#DatastoreName: schema.#DatastoreName
+#KmsKeyArn:     schema.#KmsKeyArn
+#Tags:          schema.#Tags

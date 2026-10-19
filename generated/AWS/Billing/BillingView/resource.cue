@@ -4,9 +4,7 @@ package BillingView
 
 import schema "github.com/cueformation/cfn-cue/resources/h04fc5223028b82b9:schema"
 
-#Resource:        schema.#Resource
-#Arn:             schema.#Arn
-#BillingViewType: schema.#BillingViewType
-#DimensionKey:    schema.#DimensionKey
-#Tag:             schema.#Tag
-#Timestamp:       schema.#Timestamp
+#Resource:     schema.#Resource
+#DimensionKey: schema.#DimensionKey
+#Tag:          schema.#Tag
+#Timestamp:    schema.#Timestamp

@@ -3,21 +3,19 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DMS::Endpoint
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DMS::Endpoint"
-	Properties!: close({
-		CertificateArn?: string | fn.#StringExpression
-		DatabaseName?:   string | fn.#StringExpression
+	let properties = close({
+		CertificateArn?: string | number | bool | fn.#StringExpression
+		DatabaseName?:   string | number | bool | fn.#StringExpression
 
 		// Settings in JSON format for the source and target DocumentDB endpoint
 		DocDbSettings?: #DocDbSettings
@@ -27,10 +25,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		// Settings in JSON format for the target OpenSearch endpoint
 		ElasticsearchSettings?:     #ElasticsearchSettings
-		EndpointIdentifier?:        string | fn.#StringExpression
-		EndpointType!:              string | fn.#StringExpression
-		EngineName!:                string | fn.#StringExpression
-		ExtraConnectionAttributes?: string | fn.#StringExpression
+		EndpointIdentifier?:        string | number | bool | fn.#StringExpression
+		EndpointType!:              string | number | bool | fn.#StringExpression
+		EngineName!:                string | number | bool | fn.#StringExpression
+		ExtraConnectionAttributes?: string | number | bool | fn.#StringExpression
 
 		// Settings in JSON format for the source GCP MySQL endpoint
 		GcpMySQLSettings?: #GcpMySQLSettings
@@ -43,9 +41,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		// Settings in JSON format for the target endpoint for Amazon Kinesis Data Streams
 		KinesisSettings?: #KinesisSettings
-		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string |
-			fn.#StringExpression
+		KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+		} |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+				"\(self)"
+		} |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Settings in JSON format for the source and target Microsoft SQL Server endpoint
 		MicrosoftSqlServerSettings?: #MicrosoftSqlServerSettings
@@ -61,7 +73,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		// Settings in JSON format for the source and target Oracle endpoint
 		OracleSettings?: #OracleSettings
-		Password?:       string | fn.#StringExpression
+		Password?:       string | number | bool | fn.#StringExpression
 		Port?: int |
 			{
 				string &
@@ -87,18 +99,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		// Settings in JSON format for the Amazon Redshift endpoint.
 		RedshiftSettings?:   #RedshiftSettings
-		ResourceIdentifier?: string | fn.#StringExpression
+		ResourceIdentifier?: string | number | bool | fn.#StringExpression
 
 		// Settings in JSON format for the source and target Amazon S3 endpoint
 		S3Settings?: #S3Settings
-		ServerName?: string | fn.#StringExpression
-		SslMode?:    string | fn.#StringExpression
+		ServerName?: string | number | bool | fn.#StringExpression
+		SslMode?:    string | number | bool | fn.#StringExpression
 
 		// Settings in JSON format for the source and target SAP ASE endpoint.
 		SybaseSettings?: #SybaseSettings
 		Tags?:           [...#Tag] | fn.#ListExpression
-		Username?:       string | fn.#StringExpression
+		Username?:       string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #DocDbSettings: close({
@@ -117,21 +133,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	ExtractDocId?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	NestingLevel?: string | fn.#StringExpression
-	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	SecretsManagerSecretId?: string | fn.#StringExpression
+	NestingLevel?: string | number | bool | fn.#StringExpression
+	SecretsManagerAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SecretsManagerSecretId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DynamoDbSettings: close({
-	ServiceAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	ServiceAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
 #ElasticsearchSettings: close({
-	EndpointUri?: string | fn.#StringExpression
+	EndpointUri?: string | number | bool | fn.#StringExpression
 	ErrorRetryDuration?: int |
 		{
 			string &
@@ -160,13 +184,17 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ServiceAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	ServiceAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GcpMySQLSettings: close({
-	AfterConnectScript?: string | fn.#StringExpression
+	AfterConnectScript?: string | number | bool | fn.#StringExpression
 	CleanSourceMetadataOnMismatch?: bool |
 		"true" |
 		"True" |
@@ -175,7 +203,7 @@ fn.#ObjectExpression
 		"False" |
 		"FALSE" |
 		fn.#BooleanExpression
-	DatabaseName?: string | fn.#StringExpression
+	DatabaseName?: string | number | bool | fn.#StringExpression
 	EventsPollInterval?: int |
 		{
 			string &
@@ -218,7 +246,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Password?: string | fn.#StringExpression
+	Password?: string | number | bool | fn.#StringExpression
 	Port?: int |
 		{
 			string &
@@ -233,17 +261,21 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	SecretsManagerSecretId?: string | fn.#StringExpression
-	ServerName?:             string | fn.#StringExpression
-	ServerTimezone?:         string | fn.#StringExpression
-	Username?:               string | fn.#StringExpression
+	SecretsManagerAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SecretsManagerSecretId?: string | number | bool | fn.#StringExpression
+	ServerName?:             string | number | bool | fn.#StringExpression
+	ServerTimezone?:         string | number | bool | fn.#StringExpression
+	Username?:               string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #IbmDb2Settings: close({
-	CurrentLsn?:   string | fn.#StringExpression
+	CurrentLsn?:   string | number | bool | fn.#StringExpression
 	KeepCsvFiles?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	LoadTimeout?: int |
 		{
@@ -287,9 +319,13 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	SecretsManagerSecretId?: string | fn.#StringExpression
+	SecretsManagerAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SecretsManagerSecretId?: string | number | bool | fn.#StringExpression
 	SetDataCaptureChanges?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	WriteBufferSize?: int |
 		{
@@ -309,13 +345,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #KafkaSettings: close({
-	Broker?:                      string | fn.#StringExpression
+	Broker?:                      string | number | bool | fn.#StringExpression
 	IncludeControlDetails?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IncludeNullAndEmpty?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IncludePartitionValue?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IncludeTableAlterOperations?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IncludeTransactionDetails?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	MessageFormat?:               string | fn.#StringExpression
+	MessageFormat?:               string | number | bool | fn.#StringExpression
 	MessageMaxBytes?: int |
 		{
 			string &
@@ -332,14 +368,14 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	NoHexPrefix?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PartitionIncludeSchemaTable?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SaslPassword?:                string | fn.#StringExpression
-	SaslUserName?:                string | fn.#StringExpression
-	SecurityProtocol?:            string | fn.#StringExpression
-	SslCaCertificateArn?:         string | fn.#StringExpression
-	SslClientCertificateArn?:     string | fn.#StringExpression
-	SslClientKeyArn?:             string | fn.#StringExpression
-	SslClientKeyPassword?:        string | fn.#StringExpression
-	Topic?:                       string | fn.#StringExpression
+	SaslPassword?:                string | number | bool | fn.#StringExpression
+	SaslUserName?:                string | number | bool | fn.#StringExpression
+	SecurityProtocol?:            string | number | bool | fn.#StringExpression
+	SslCaCertificateArn?:         string | number | bool | fn.#StringExpression
+	SslClientCertificateArn?:     string | number | bool | fn.#StringExpression
+	SslClientKeyArn?:             string | number | bool | fn.#StringExpression
+	SslClientKeyPassword?:        string | number | bool | fn.#StringExpression
+	Topic?:                       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -349,12 +385,16 @@ fn.#ObjectExpression
 	IncludePartitionValue?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IncludeTableAlterOperations?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IncludeTransactionDetails?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	MessageFormat?:               string | fn.#StringExpression
+	MessageFormat?:               string | number | bool | fn.#StringExpression
 	NoHexPrefix?:                 bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PartitionIncludeSchemaTable?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ServiceAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	StreamArn?: string | fn.#StringExpression
+	ServiceAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	StreamArn?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -373,10 +413,10 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ControlTablesFileGroup?: string | fn.#StringExpression
-	DatabaseName?:           string | fn.#StringExpression
+	ControlTablesFileGroup?: string | number | bool | fn.#StringExpression
+	DatabaseName?:           string | number | bool | fn.#StringExpression
 	ForceLobLookup?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Password?:               string | fn.#StringExpression
+	Password?:               string | number | bool | fn.#StringExpression
 	Port?: int |
 		{
 			string &
@@ -393,28 +433,32 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	QuerySingleAlwaysOnNode?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ReadBackupOnly?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SafeguardPolicy?:         string | fn.#StringExpression
-	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	SecretsManagerSecretId?:    string | fn.#StringExpression
-	ServerName?:                string | fn.#StringExpression
-	TlogAccessMode?:            string | fn.#StringExpression
+	SafeguardPolicy?:         string | number | bool | fn.#StringExpression
+	SecretsManagerAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SecretsManagerSecretId?:    string | number | bool | fn.#StringExpression
+	ServerName?:                string | number | bool | fn.#StringExpression
+	TlogAccessMode?:            string | number | bool | fn.#StringExpression
 	TrimSpaceInChar?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	UseBcpFullLoad?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	UseThirdPartyBackupDevice?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Username?:                  string | fn.#StringExpression
+	Username?:                  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MongoDbSettings: close({
-	AuthMechanism?:     string | fn.#StringExpression
-	AuthSource?:        string | fn.#StringExpression
-	AuthType?:          string | fn.#StringExpression
-	DatabaseName?:      string | fn.#StringExpression
-	DocsToInvestigate?: string | fn.#StringExpression
-	ExtractDocId?:      string | fn.#StringExpression
-	NestingLevel?:      string | fn.#StringExpression
-	Password?:          string | fn.#StringExpression
+	AuthMechanism?:     string | number | bool | fn.#StringExpression
+	AuthSource?:        string | number | bool | fn.#StringExpression
+	AuthType?:          string | number | bool | fn.#StringExpression
+	DatabaseName?:      string | number | bool | fn.#StringExpression
+	DocsToInvestigate?: string | number | bool | fn.#StringExpression
+	ExtractDocId?:      string | number | bool | fn.#StringExpression
+	NestingLevel?:      string | number | bool | fn.#StringExpression
+	Password?:          string | number | bool | fn.#StringExpression
 	Port?: int |
 		{
 			string &
@@ -429,16 +473,20 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	SecretsManagerSecretId?: string | fn.#StringExpression
-	ServerName?:             string | fn.#StringExpression
-	Username?:               string | fn.#StringExpression
+	SecretsManagerAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SecretsManagerSecretId?: string | number | bool | fn.#StringExpression
+	ServerName?:             string | number | bool | fn.#StringExpression
+	Username?:               string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MySqlSettings: close({
-	AfterConnectScript?: string | fn.#StringExpression
+	AfterConnectScript?: string | number | bool | fn.#StringExpression
 	CleanSourceMetadataOnMismatch?: bool |
 		"true" |
 		"True" |
@@ -489,11 +537,15 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	SecretsManagerSecretId?: string | fn.#StringExpression
-	ServerTimezone?:         string | fn.#StringExpression
-	TargetDbType?:           string | fn.#StringExpression
+	SecretsManagerAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SecretsManagerSecretId?: string | number | bool | fn.#StringExpression
+	ServerTimezone?:         string | number | bool | fn.#StringExpression
+	TargetDbType?:           string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -541,10 +593,19 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	S3BucketFolder?: string | fn.#StringExpression
-	S3BucketName?:   string | fn.#StringExpression
-	ServiceAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	S3BucketFolder?: string | number | bool | fn.#StringExpression
+	S3BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ServiceAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -581,10 +642,10 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	ArchivedLogsOnly?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AsmPassword?:                string | fn.#StringExpression
-	AsmServer?:                  string | fn.#StringExpression
-	AsmUser?:                    string | fn.#StringExpression
-	CharLengthSemantics?:        string | fn.#StringExpression
+	AsmPassword?:                string | number | bool | fn.#StringExpression
+	AsmServer?:                  string | number | bool | fn.#StringExpression
+	AsmUser?:                    string | number | bool | fn.#StringExpression
+	CharLengthSemantics?:        string | number | bool | fn.#StringExpression
 	DirectPathNoLog?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DirectPathParallelLoad?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnableHomogenousTablespace?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -622,7 +683,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	OraclePathPrefix?: string | fn.#StringExpression
+	OraclePathPrefix?: string | number | bool | fn.#StringExpression
 	ParallelAsmReadThreads?: int |
 		{
 			string &
@@ -667,15 +728,23 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	SecretsManagerOracleAsmAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	SecretsManagerOracleAsmSecretId?:        string | fn.#StringExpression
-	SecretsManagerSecretId?:                 string | fn.#StringExpression
-	SecurityDbEncryption?:                   string | fn.#StringExpression
-	SecurityDbEncryptionName?:               string | fn.#StringExpression
-	SpatialDataOptionToGeoJsonFunctionName?: string | fn.#StringExpression
+	SecretsManagerAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SecretsManagerOracleAsmAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SecretsManagerOracleAsmSecretId?:        string | number | bool | fn.#StringExpression
+	SecretsManagerSecretId?:                 string | number | bool | fn.#StringExpression
+	SecurityDbEncryption?:                   string | number | bool | fn.#StringExpression
+	SecurityDbEncryptionName?:               string | number | bool | fn.#StringExpression
+	SpatialDataOptionToGeoJsonFunctionName?: string | number | bool | fn.#StringExpression
 	StandbyDelayTime?: int |
 		{
 			string &
@@ -694,16 +763,16 @@ fn.#ObjectExpression
 	UseBFile?:                    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	UseDirectPathFullLoad?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	UseLogminerReader?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	UsePathPrefix?:               string | fn.#StringExpression
+	UsePathPrefix?:               string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PostgreSqlSettings: close({
-	AfterConnectScript?:    string | fn.#StringExpression
-	BabelfishDatabaseName?: string | fn.#StringExpression
+	AfterConnectScript?:    string | number | bool | fn.#StringExpression
+	BabelfishDatabaseName?: string | number | bool | fn.#StringExpression
 	CaptureDdls?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DatabaseMode?:          string | fn.#StringExpression
-	DdlArtifactsSchema?:    string | fn.#StringExpression
+	DatabaseMode?:          string | number | bool | fn.#StringExpression
+	DdlArtifactsSchema?:    string | number | bool | fn.#StringExpression
 	ExecuteTimeout?: int |
 		{
 			string &
@@ -734,7 +803,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	HeartbeatSchema?:     string | fn.#StringExpression
+	HeartbeatSchema?:     string | number | bool | fn.#StringExpression
 	MapBooleanAsBoolean?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxFileSize?: int |
 		{
@@ -750,18 +819,22 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	PluginName?: string | fn.#StringExpression
-	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	SecretsManagerSecretId?: string | fn.#StringExpression
-	SlotName?:               string | fn.#StringExpression
+	PluginName?: string | number | bool | fn.#StringExpression
+	SecretsManagerAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SecretsManagerSecretId?: string | number | bool | fn.#StringExpression
+	SlotName?:               string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RedisSettings: close({
-	AuthPassword?: string | fn.#StringExpression
-	AuthType?:     string | fn.#StringExpression
-	AuthUserName?: string | fn.#StringExpression
+	AuthPassword?: string | number | bool | fn.#StringExpression
+	AuthType?:     string | number | bool | fn.#StringExpression
+	AuthUserName?: string | number | bool | fn.#StringExpression
 	Port?: number |
 		{
 			string &
@@ -781,17 +854,22 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ServerName?:          string | fn.#StringExpression
-	SslCaCertificateArn?: string | fn.#StringExpression
-	SslSecurityProtocol?: string | fn.#StringExpression
+	ServerName?:          string | number | bool | fn.#StringExpression
+	SslCaCertificateArn?: string | number | bool | fn.#StringExpression
+	SslSecurityProtocol?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RedshiftSettings: close({
 	AcceptAnyDate?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AfterConnectScript?: string | fn.#StringExpression
-	BucketFolder?:       string | fn.#StringExpression
-	BucketName?:         string | fn.#StringExpression
+	AfterConnectScript?: string | number | bool | fn.#StringExpression
+	BucketFolder?:       string | number | bool | fn.#StringExpression
+	BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	CaseSensitiveNames?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CompUpdate?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ConnectionTimeout?: int |
@@ -808,9 +886,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	DateFormat?:     string | fn.#StringExpression
+	DateFormat?:     string | number | bool | fn.#StringExpression
 	EmptyAsNull?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EncryptionMode?: string | fn.#StringExpression
+	EncryptionMode?: string | number | bool | fn.#StringExpression
 	ExplicitIds?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	FileTransferUploadStreams?: int |
 		{
@@ -856,15 +934,23 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	RemoveQuotes?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ReplaceChars?:        string | fn.#StringExpression
-	ReplaceInvalidChars?: string | fn.#StringExpression
-	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	SecretsManagerSecretId?:       string | fn.#StringExpression
-	ServerSideEncryptionKmsKeyId?: string | fn.#StringExpression
-	ServiceAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	TimeFormat?:      string | fn.#StringExpression
+	ReplaceChars?:        string | number | bool | fn.#StringExpression
+	ReplaceInvalidChars?: string | number | bool | fn.#StringExpression
+	SecretsManagerAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SecretsManagerSecretId?:       string | number | bool | fn.#StringExpression
+	ServerSideEncryptionKmsKeyId?: string | number | bool | fn.#StringExpression
+	ServiceAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TimeFormat?:      string | number | bool | fn.#StringExpression
 	TrimBlanks?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	TruncateColumns?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	WriteBufferSize?: int |
@@ -887,11 +973,16 @@ fn.#ObjectExpression
 #S3Settings: close({
 	AddColumnName?:               bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	AddTrailingPaddingCharacter?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	BucketFolder?:                string | fn.#StringExpression
-	BucketName?:                  string | fn.#StringExpression
-	CannedAclForObjects?:         string | fn.#StringExpression
-	CdcInsertsAndUpdates?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CdcInsertsOnly?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	BucketFolder?:                string | number | bool | fn.#StringExpression
+	BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	CannedAclForObjects?:  string | number | bool | fn.#StringExpression
+	CdcInsertsAndUpdates?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CdcInsertsOnly?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CdcMaxBatchInterval?: int |
 		{
 			string &
@@ -920,13 +1011,13 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	CdcPath?:         string | fn.#StringExpression
-	CompressionType?: string | fn.#StringExpression
-	CsvDelimiter?:    string | fn.#StringExpression
-	CsvNoSupValue?:   string | fn.#StringExpression
-	CsvNullValue?:    string | fn.#StringExpression
-	CsvRowDelimiter?: string | fn.#StringExpression
-	DataFormat?:      string | fn.#StringExpression
+	CdcPath?:         string | number | bool | fn.#StringExpression
+	CompressionType?: string | number | bool | fn.#StringExpression
+	CsvDelimiter?:    string | number | bool | fn.#StringExpression
+	CsvNoSupValue?:   string | number | bool | fn.#StringExpression
+	CsvNullValue?:    string | number | bool | fn.#StringExpression
+	CsvRowDelimiter?: string | number | bool | fn.#StringExpression
+	DataFormat?:      string | number | bool | fn.#StringExpression
 	DataPageSize?: int |
 		{
 			string &
@@ -941,10 +1032,10 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	DatePartitionDelimiter?: string | fn.#StringExpression
+	DatePartitionDelimiter?: string | number | bool | fn.#StringExpression
 	DatePartitionEnabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DatePartitionSequence?:  string | fn.#StringExpression
-	DatePartitionTimezone?:  string | fn.#StringExpression
+	DatePartitionSequence?:  string | number | bool | fn.#StringExpression
+	DatePartitionTimezone?:  string | number | bool | fn.#StringExpression
 	DictPageSizeLimit?: int |
 		{
 			string &
@@ -960,10 +1051,10 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	EnableStatistics?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EncodingType?:            string | fn.#StringExpression
-	EncryptionMode?:          string | fn.#StringExpression
-	ExpectedBucketOwner?:     string | fn.#StringExpression
-	ExternalTableDefinition?: string | fn.#StringExpression
+	EncodingType?:            string | number | bool | fn.#StringExpression
+	EncryptionMode?:          string | number | bool | fn.#StringExpression
+	ExpectedBucketOwner?:     string | number | bool | fn.#StringExpression
+	ExternalTableDefinition?: string | number | bool | fn.#StringExpression
 	GlueCatalogGeneration?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IgnoreHeaderRows?: int |
 		{
@@ -1002,7 +1093,7 @@ fn.#ObjectExpression
 		"False" |
 		"FALSE" |
 		fn.#BooleanExpression
-	ParquetVersion?:       string | fn.#StringExpression
+	ParquetVersion?:       string | number | bool | fn.#StringExpression
 	PreserveTransactions?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Rfc4180?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RowGroupLength?: int |
@@ -1019,10 +1110,14 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ServerSideEncryptionKmsKeyId?: string | fn.#StringExpression
-	ServiceAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	TimestampColumnName?: string | fn.#StringExpression
+	ServerSideEncryptionKmsKeyId?: string | number | bool | fn.#StringExpression
+	ServiceAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TimestampColumnName?: string | number | bool | fn.#StringExpression
 	UseCsvNoSupValue?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	UseTaskStartTimeForFullLoadTimestamp?: bool |
 		"true" |
@@ -1036,14 +1131,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SybaseSettings: close({
-	SecretsManagerAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	SecretsManagerSecretId?: string | fn.#StringExpression
+	SecretsManagerAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SecretsManagerSecretId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

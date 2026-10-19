@@ -205,7 +205,10 @@ import (
 	Encoding?: "utf-8" | "utf-16" | "ascii"
 
 	// The CloudWatch log group name to be associated to the monitored log.
-	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+"
+	LogGroupName?: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"[\\.\\-_/#A-Za-z0-9]+"
 
 	// The path of the logs to be monitored.
 	LogPath?: strings.MaxRunes(260) & strings.MinRunes(1) & =~"^([a-zA-Z]:\\\\[\\\\\\S|*\\S]?.*|/[^\"']*)$"
@@ -318,7 +321,10 @@ import (
 	EventName!: strings.MaxRunes(260) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_ \\\\/-]+$"
 
 	// The CloudWatch log group name to be associated to the monitored log.
-	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+"
+	LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"[\\.\\-_/#A-Za-z0-9]+"
 
 	// The name of the log pattern set.
 	PatternSet?: strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*"

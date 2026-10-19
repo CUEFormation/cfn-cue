@@ -4,6 +4,5 @@ package TransitGatewayPeeringAttachment
 
 import schema "github.com/cueformation/cfn-cue/resources/hfaf7524a2f39581b:schema"
 
-#Resource:                schema.#Resource
-#PeeringAttachmentStatus: schema.#PeeringAttachmentStatus
-#Tag:                     schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

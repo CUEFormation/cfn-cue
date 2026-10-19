@@ -6,8 +6,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,19 +17,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // recommendations.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WellArchitected::AgentContext"
-	Properties!: close({
+	let properties = close({
 		Content!:     fn.#Object & {...} | fn.#ObjectExpression
 		ContextType!: #ContextType
 		ProfileArn!: strings.MaxRunes(2048) &
 		strings.MinRunes(1) &
 		=~"^arn:aws([a-z0-9-]+)?:wellarchitected:[a-z0-9-]{6,64}:[0-9]{12}:agent-profile/[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^arn:aws([a-z0-9-]+)?:wellarchitected:[a-z0-9-]{6,64}:[0-9]{12}:agent-profile/[a-zA-Z0-9_-]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Title!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\P{C}]+$" | fn.#StringExpression
+		Title!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\P{C}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\P{C}]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#ApplicationType: "SAS" | "DESKTOP_APPLICATION" | "OTHER" | fn.#StringExpression
-
 #ContextType: "APPLICATION" | fn.#StringExpression
-
-#Criticality: "MISSION_CRITICAL" | "BUSINESS_CRITICAL" | "NON_CRITICAL" | "TEST_DEVELOPMENT" | fn.#StringExpression

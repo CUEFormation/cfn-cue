@@ -7,34 +7,67 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::DataSync::LocationFSxLustre.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataSync::LocationFSxLustre"
-	Properties!: close({
+	let properties = close({
 		FsxFilesystemArn?: strings.MaxRunes(128) &
 		strings.MinRunes(0) &
 		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):fsx:[a-z\\-0-9]+:[0-9]{12}:file-system/fs-[0-9a-f]+$" |
-		fn.#StringExpression
-		SecurityGroupArns!: list.MaxItems(5) & list.MinItems(1) & [
-			...strings.MaxRunes(128) &
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
 			strings.MinRunes(0) &
-			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:security-group/sg-[a-f0-9]+$" |
-			fn.#StringExpression
-		] |
+			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):fsx:[a-z\\-0-9]+:[0-9]{12}:file-system/fs-[0-9a-f]+$" &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		SecurityGroupArns!: list.MaxItems(5) & list.MinItems(1) & [...strings.MaxRunes(128) &
+		strings.MinRunes(0) &
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:security-group/sg-[a-f0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(0) &
+			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:security-group/sg-[a-f0-9]+$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4096) &
+			strings.MinRunes(0) &
+			=~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
+	Key!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

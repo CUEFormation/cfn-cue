@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -21,24 +21,65 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // services](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AWS-logs-and-resource-policy.html).
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Logs::DeliverySource"
-	Properties!: close({
+	let properties = close({
 		DeliverySourceConfiguration?: close({
 
-			{[=~"^.{1,255}$"]: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{
+				[=~"^.{1,255}$"]: strings.MaxRunes(255) & strings.MinRunes(1) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+				} |
+				fn.#StringExpression
+			}
+		}) |
 		fn.#ObjectExpression
-		LogType?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
-		Name!:    strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
+		LogType?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\w-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\w-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The ARN of the resource that will be sending the logs.
 		ResourceArn?: #Arn
 		Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Arn: strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?" | fn.#StringExpression
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?" & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

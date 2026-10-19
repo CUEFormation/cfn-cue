@@ -19,7 +19,7 @@ package schema
 	RoleArn!:               =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$"
 	SecurityConfiguration?: string
 	SecurityGroupIds?:      [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
-	SubnetId?:              string
+	SubnetId?:              =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 	Tags?:                  string | {...}
 	WorkerType?:            string
 })

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,13 +16,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // CodeGuru Profiler service.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodeGuruProfiler::ProfilingGroup"
-	Properties!: close({
+	let properties = close({
 		AgentPermissions?: close({Principals!: [...#IamArn] | fn.#ListExpression}) | fn.#ObjectExpression
 		AnomalyDetectionNotificationConfiguration?: [...#Channel] | fn.#ListExpression
 		ComputePlatform?:                           "Default" | "AWSLambda" | fn.#StringExpression
-		ProfilingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\w-]+$" | fn.#StringExpression
-		Tags?:               list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		ProfilingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\w-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\w-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Channel: {
@@ -31,17 +40,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	...
 } | fn.#ObjectExpression
 
-#ChannelId: =~"[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}" | fn.#StringExpression
+#ChannelId: =~"[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}" |
+{
+	number | bool
+	_cfnString: =~"[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}" & "\(self)"
+} |
+fn.#StringExpression
 
-#ChannelUri: =~"^arn:aws([-\\w]*):[a-z-]+:(([a-z]+-)+[0-9]+)?:([0-9]{12}):[^.]+$" | fn.#StringExpression
+#ChannelUri: =~"^arn:aws([-\\w]*):[a-z-]+:(([a-z]+-)+[0-9]+)?:([0-9]{12}):[^.]+$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws([-\\w]*):[a-z-]+:(([a-z]+-)+[0-9]+)?:([0-9]{12}):[^.]+$" & "\(self)"
+} |
+fn.#StringExpression
 
-#IamArn: =~"^arn:aws([-\\w]*):iam::([0-9]{12}):[\\S]+$" | fn.#StringExpression
-
-#ProfilingGroupArn: =~"^arn:aws([-\\w]*):codeguru-profiler:(([a-z]+-)+[0-9]+):([0-9]{12}):profilingGroup/[^.]+$" |
-	fn.#StringExpression
+#IamArn: =~"^arn:aws([-\\w]*):iam::([0-9]{12}):[\\S]+$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws([-\\w]*):iam::([0-9]{12}):[\\S]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

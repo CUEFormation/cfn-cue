@@ -22,7 +22,9 @@ import (
 	ClusterCreationTime?: string
 
 	// The KMS key identifier used to encrypt the source elastic cluster.
-	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 
 	// The Amazon Resource Name (ARN) of the elastic cluster snapshot.
 	SnapshotArn?: string
@@ -52,7 +54,7 @@ import (
 // A key-value pair to associate with a resource.
 #Tag: close({
 	// The key of the tag.
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// The value of the tag.
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)

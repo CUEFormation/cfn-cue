@@ -5,17 +5,12 @@ package BrowserCustom
 import schema "github.com/cueformation/cfn-cue/resources/h1a71ab28934dffd8:schema"
 
 #Resource:                    schema.#Resource
-#BrowserArn:                  schema.#BrowserArn
 #BrowserEnterprisePolicies:   schema.#BrowserEnterprisePolicies
 #BrowserEnterprisePolicy:     schema.#BrowserEnterprisePolicy
 #BrowserEnterprisePolicyType: schema.#BrowserEnterprisePolicyType
-#BrowserId:                   schema.#BrowserId
 #BrowserNetworkConfiguration: schema.#BrowserNetworkConfiguration
 #BrowserNetworkMode:          schema.#BrowserNetworkMode
 #BrowserSigning:              schema.#BrowserSigning
-#BrowserStatus:               schema.#BrowserStatus
-#BrowserSummaries:            schema.#BrowserSummaries
-#BrowserSummary:              schema.#BrowserSummary
 #Certificate:                 schema.#Certificate
 #CertificateList:             schema.#CertificateList
 #CertificateLocation:         schema.#CertificateLocation

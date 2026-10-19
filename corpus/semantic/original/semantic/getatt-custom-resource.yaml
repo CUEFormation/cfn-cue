@@ -1,0 +1,13 @@
+Resources:
+  Provider:
+    Type: Custom::Provider
+    Properties:
+      ServiceToken:
+        Fn::Sub: arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:provider
+  Queue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName:
+        Fn::GetAtt:
+        - Provider
+        - Any.Attribute

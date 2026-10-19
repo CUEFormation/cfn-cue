@@ -6,23 +6,41 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Deadline::Limit
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Deadline::Limit"
-	Properties!: close({
-		AmountRequirementName!: strings.MaxRunes(1024) | fn.#StringExpression
-		Description?:           strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-		DisplayName!:           strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		FarmId!:                =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
+	let properties = close({
+		AmountRequirementName!: strings.MaxRunes(1024) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(100) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DisplayName!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		FarmId!: =~"^farm-[0-9a-f]{32}$" |
+		{
+			number | bool
+			_cfnString: =~"^farm-[0-9a-f]{32}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		MaxCount!: int & <=2147483647 & >=-1 |
 			{
 				string &
@@ -42,4 +60,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

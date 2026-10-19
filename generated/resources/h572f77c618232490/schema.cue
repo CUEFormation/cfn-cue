@@ -7,49 +7,109 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ImageBuilder::DistributionConfiguration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ImageBuilder::DistributionConfiguration"
-	Properties!: close({
-		Description?:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Distributions!: [...#Distribution] | fn.#ListExpression
-		Name!:          =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
+		Name!: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" |
+		{
+			number | bool
+			_cfnString: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: close({
 
-			{[=~".{1,}"]: string | fn.#StringExpression}}) |
+			{[=~".{1,}"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AmiDistributionConfiguration: close({
 	AmiTags?: close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		{[=~".{1,}"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+	Description?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	LaunchPermissionConfiguration?: #LaunchPermissionConfiguration
 	Name?: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[-_A-Za-z0-9{][-_A-Za-z0-9\\s:{}\\.]+[-_A-Za-z0-9}]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) &
+		strings.MinRunes(1) &
+		=~"^[-_A-Za-z0-9{][-_A-Za-z0-9\\s:{}\\.]+[-_A-Za-z0-9}]$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	TargetAccountIds?: list.MaxItems(1536) & list.MinItems(1) & [...=~"^[0-9]{12}$" | fn.#StringExpression] |
-		fn.#ListExpression
+	TargetAccountIds?: list.MaxItems(1536) & list.MinItems(1) & [...=~"^[0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #ContainerDistributionConfiguration: close({
-	ContainerTags?: [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	Description?:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	ContainerTags?: [...strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Description?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// The destination repository for the container distribution configuration.
 	TargetRepository?: #TargetContainerRepository
@@ -64,14 +124,24 @@ fn.#ObjectExpression
 	LaunchTemplateConfigurations?: list.MaxItems(100) & list.MinItems(1) & [...#LaunchTemplateConfiguration] |
 		fn.#ListExpression
 	LicenseConfigurationArns?: list.MaxItems(50) & list.MinItems(1) & [...#LicenseConfigurationArn] | fn.#ListExpression
-	Region!:                   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Region!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	SsmParameterConfigurations?: [...#SsmParameterConfiguration] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #FastLaunchConfiguration: close({
-	AccountId?: =~"^[0-9]{12}$" | fn.#StringExpression
-	Enabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	AccountId?: =~"^[0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 	// The launch template that the fast-launch enabled Windows AMI uses when it
 	// launches Windows instances to create pre-provisioned snapshots.
@@ -100,9 +170,24 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #FastLaunchLaunchTemplateSpecification: close({
-	LaunchTemplateId?:      =~"^lt-[a-z0-9-_]{17}$" | fn.#StringExpression
-	LaunchTemplateName?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	LaunchTemplateVersion?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	LaunchTemplateId?: =~"^lt-[a-z0-9-_]{17}$" |
+	{
+		number | bool
+		_cfnString: =~"^lt-[a-z0-9-_]{17}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LaunchTemplateName?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	LaunchTemplateVersion?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -127,32 +212,61 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #LaunchPermissionConfiguration: close({
-	OrganizationArns?:       [...string | fn.#StringExpression] | fn.#ListExpression
-	OrganizationalUnitArns?: [...string | fn.#StringExpression] | fn.#ListExpression
-	UserGroups?:             [...string | fn.#StringExpression] | fn.#ListExpression
-	UserIds?:                [...string | fn.#StringExpression] | fn.#ListExpression
+	OrganizationArns?:       [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	OrganizationalUnitArns?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	UserGroups?:             [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	UserIds?:                [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #LaunchTemplateConfiguration: close({
-	AccountId?:         =~"^[0-9]{12}$" | fn.#StringExpression
-	LaunchTemplateId?:  =~"^lt-[a-z0-9-_]{17}$" | fn.#StringExpression
+	AccountId?: =~"^[0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LaunchTemplateId?: =~"^lt-[a-z0-9-_]{17}$" |
+	{
+		number | bool
+		_cfnString: =~"^lt-[a-z0-9-_]{17}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	SetDefaultVersion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #LicenseConfigurationArn: =~"^arn:aws[^:]*:license-manager:[^:]+:[0-9]{12}:license-configuration:lic-[a-z0-9-_]{32}$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^arn:aws[^:]*:license-manager:[^:]+:[0-9]{12}:license-configuration:lic-[a-z0-9-_]{32}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #SsmParameterConfiguration: close({
-	AmiAccountId?:  =~"^[0-9]{12}$" | fn.#StringExpression
-	DataType?:      "text" | "aws:ec2:image" | fn.#StringExpression
-	ParameterName!: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.\\-\\/]+$" | fn.#StringExpression
+	AmiAccountId?: =~"^[0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	DataType?: "text" | "aws:ec2:image" | fn.#StringExpression
+	ParameterName!: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.\\-\\/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.\\-\\/]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TargetContainerRepository: close({
-	RepositoryName?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Service?:        "ECR" | fn.#StringExpression
+	RepositoryName?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Service?: "ECR" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

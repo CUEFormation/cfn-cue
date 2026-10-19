@@ -7,29 +7,42 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTSiteWise::Gateway
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTSiteWise::Gateway"
-	Properties!: close({
+	let properties = close({
 		GatewayCapabilitySummaries?: list.UniqueItems() & [...#GatewayCapabilitySummary] | fn.#ListExpression
 		GatewayName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 
 		// The gateway's platform. You can only specify one platform in a gateway.
 		GatewayPlatform!: #GatewayPlatform
-		GatewayVersion?:  strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9]+$" | fn.#StringExpression
-		Tags?:            [...#Tag] | fn.#ListExpression
+		GatewayVersion?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#CapabilityConfiguration: string | fn.#StringExpression
+#CapabilityConfiguration: string | number | bool | fn.#StringExpression
 
-#CapabilityNamespace: string | fn.#StringExpression
+#CapabilityNamespace: string | number | bool | fn.#StringExpression
 
 #GatewayCapabilitySummary: close({
 	CapabilityConfiguration?: #CapabilityConfiguration
@@ -51,21 +64,29 @@ fn.#ObjectExpression
 }) & matchN(>=1, [{GreengrassV2!: _}, {SiemensIE!: _}]) |
 fn.#ObjectExpression
 
-#GatewayVersion: string | fn.#StringExpression
-
 #GreengrassV2: close({
 	CoreDeviceOperatingSystem?: "LINUX_AARCH64" | "LINUX_AMD64" | "WINDOWS_AMD64" | fn.#StringExpression
-	CoreDeviceThingName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$" | fn.#StringExpression
+	CoreDeviceThingName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#SiemensIE: close(
-	{IotCoreThingName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$" | fn.#StringExpression},
-) |
+#SiemensIE: close({
+	IotCoreThingName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9:_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

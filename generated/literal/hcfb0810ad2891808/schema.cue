@@ -12,7 +12,11 @@ import (
 // Resource Type definition for AWS::DirectoryService::SimpleAD
 #Properties: close({
 	// The alias for a directory.
-	Alias?: strings.MaxRunes(62) & strings.MinRunes(1)
+	Alias?: =~"^([\\da-zA-Z]+)([-]*[\\da-zA-Z])*$" &
+	matchN(0, [=~"^(?:D-|d-)"]) &
+	string &
+	strings.MaxRunes(62) &
+	strings.MinRunes(1)
 
 	// The name of the configuration set.
 	CreateAlias?: bool
@@ -34,7 +38,10 @@ import (
 	Name!: =~"^([a-zA-Z0-9]+[\\\\.-])+([a-zA-Z0-9])+$"
 
 	// The password for the default administrative user named Admin.
-	Password?: string
+	Password?: =~"^(?:^.{8,64}$)" & =~"^(?:.*\\d)" & =~"^(?:.*[A-Z])" & =~"^(?:.*[a-z])" |
+		=~"^(?:^.{8,64}$)" & =~"^(?:.*\\d)" & =~"^(?:.*[^A-Za-z0-9\\s])" & =~"^(?:.*[a-z])" |
+		=~"^(?:^.{8,64}$)" & =~"^(?:.*[^A-Za-z0-9\\s])" & =~"^(?:.*[A-Z])" & =~"^(?:.*[a-z])" |
+		=~"^(?:^.{8,64}$)" & =~"^(?:.*\\d)" & =~"^(?:.*[A-Z])" & =~"^(?:.*[^A-Za-z0-9\\s])"
 
 	// The NetBIOS name for your domain.
 	ShortName?: =~"^[^\\\\/:*?\"<>|.]+[^\\\\/:*?\"<>|]*$"

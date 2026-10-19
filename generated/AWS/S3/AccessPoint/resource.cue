@@ -5,7 +5,6 @@ package AccessPoint
 import schema "github.com/cueformation/cfn-cue/resources/h829434755e734476:schema"
 
 #Resource:                       schema.#Resource
-#Arn:                            schema.#Arn
 #PublicAccessBlockConfiguration: schema.#PublicAccessBlockConfiguration
 #Tag:                            schema.#Tag
 #VpcConfiguration:               schema.#VpcConfiguration

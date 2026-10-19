@@ -7,33 +7,57 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Budgets::BudgetsAction"
-	Properties!: close({
+	let properties = close({
 		ActionThreshold!: #ActionThreshold
 		ActionType!:      "APPLY_IAM_POLICY" | "APPLY_SCP_POLICY" | "RUN_SSM_DOCUMENTS" | fn.#StringExpression
 		ApprovalModel?:   "AUTOMATIC" | "MANUAL" | fn.#StringExpression
-		BudgetName!:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		Definition!:      #Definition
-		ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		BudgetName!: =~"^[^:\\\\]+$" &
+		matchN(0, [=~"^(?:[^:\\\\]*/action/|(?i).*<script>.*</script>.*)"]) &
+		string &
+		strings.MaxRunes(100) &
+		strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^[^:\\\\]+$" &
+			matchN(0, [=~"^(?:[^:\\\\]*/action/|(?i).*<script>.*</script>.*)"]) &
+			string &
+			strings.MaxRunes(100) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		Definition!: #Definition
+		ExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(618) &
 		strings.MinRunes(32) &
 		=~"^arn:aws(-eusc|-cn|-us-gov|-iso|-iso-[a-z]{1})?:iam::\\d{12}:role(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}|\\x{002F})[\\w+=,.@-]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(618) &
+			strings.MinRunes(32) &
+			=~"^arn:aws(-eusc|-cn|-us-gov|-iso|-iso-[a-z]{1})?:iam::\\d{12}:role(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}|\\x{002F})[\\w+=,.@-]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		NotificationType!: "ACTUAL" | "FORECASTED" | fn.#StringExpression
 		ResourceTags?:     list.MaxItems(200) & [...] & [...#ResourceTag] | fn.#ListExpression
 		Subscribers!:      list.MaxItems(11) & list.MinItems(1) & [...#Subscriber] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ActionThreshold: close({
@@ -68,57 +92,124 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #IamActionDefinition: close({
-	Groups?: list.MaxItems(100) & list.MinItems(1) & [
-		...strings.MaxRunes(640) & strings.MinRunes(1) & =~"^([\\x{0021}-\\x{007F}]+\\x{002F})?[\\w+=,.@-]+$" |
-		fn.#StringExpression
-	] |
+	Groups?: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(640) &
+	strings.MinRunes(1) &
+	=~"^([\\x{0021}-\\x{007F}]+\\x{002F})?[\\w+=,.@-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(640) &
+		strings.MinRunes(1) &
+		=~"^([\\x{0021}-\\x{007F}]+\\x{002F})?[\\w+=,.@-]+$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	PolicyArn!: strings.MaxRunes(684) &
 	strings.MinRunes(25) &
 	=~"^arn:aws(-eusc|-cn|-us-gov|-iso|-iso-[a-z]{1})?:iam::(\\d{12}|aws):policy(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}|\\x{002F})[\\w+=,.@-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(684) &
+		strings.MinRunes(25) &
+		=~"^arn:aws(-eusc|-cn|-us-gov|-iso|-iso-[a-z]{1})?:iam::(\\d{12}|aws):policy(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}|\\x{002F})[\\w+=,.@-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Roles?: list.MaxItems(100) & list.MinItems(1) & [
-		...strings.MaxRunes(576) & strings.MinRunes(1) & =~"^([\\x{0021}-\\x{007F}]+\\x{002F})?[\\w+=,.@-]+$" |
-		fn.#StringExpression
-	] |
+	Roles?: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(576) &
+	strings.MinRunes(1) &
+	=~"^([\\x{0021}-\\x{007F}]+\\x{002F})?[\\w+=,.@-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(576) &
+		strings.MinRunes(1) &
+		=~"^([\\x{0021}-\\x{007F}]+\\x{002F})?[\\w+=,.@-]+$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Users?: list.MaxItems(100) & list.MinItems(1) & [
-		...strings.MaxRunes(576) & strings.MinRunes(1) & =~"^([\\x{0021}-\\x{007F}]+\\x{002F})?[\\w+=,.@-]+$" |
-		fn.#StringExpression
-	] |
+	Users?: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(576) &
+	strings.MinRunes(1) &
+	=~"^([\\x{0021}-\\x{007F}]+\\x{002F})?[\\w+=,.@-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(576) &
+		strings.MinRunes(1) &
+		=~"^([\\x{0021}-\\x{007F}]+\\x{002F})?[\\w+=,.@-]+$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #ResourceTag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ScpActionDefinition: close({
-	PolicyId!: strings.MaxRunes(130) & strings.MinRunes(10) & =~"^p-[0-9a-zA-Z_]{8,128}$" | fn.#StringExpression
-	TargetIds!: list.MaxItems(100) & list.MinItems(1) & [
-		...strings.MaxRunes(68) & strings.MinRunes(12) & =~"^(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32}$)|(\\d{12})$" |
-		fn.#StringExpression
-	] |
+	PolicyId!: strings.MaxRunes(130) & strings.MinRunes(10) & =~"^p-[0-9a-zA-Z_]{8,128}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(130) & strings.MinRunes(10) & =~"^p-[0-9a-zA-Z_]{8,128}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TargetIds!: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(68) &
+	strings.MinRunes(12) &
+	=~"^(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32}$)|(\\d{12})$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(68) &
+		strings.MinRunes(12) &
+		=~"^(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32}$)|(\\d{12})$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #SsmActionDefinition: close({
-	InstanceIds!: list.MaxItems(100) & list.MinItems(1) & [
-		...strings.MaxRunes(63) & strings.MinRunes(1) & =~"^i-(\\w{8}|\\w{17})$|^[a-zA-Z]([\\w-]{0,61}\\w)?$" |
-		fn.#StringExpression
-	] |
+	InstanceIds!: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(63) &
+	strings.MinRunes(1) &
+	=~"^i-(\\w{8}|\\w{17})$|^[a-zA-Z]([\\w-]{0,61}\\w)?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) &
+		strings.MinRunes(1) &
+		=~"^i-(\\w{8}|\\w{17})$|^[a-zA-Z]([\\w-]{0,61}\\w)?$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Region!:  strings.MaxRunes(20) & strings.MinRunes(9) & =~"^\\w{2,4}-\\w+(-\\w+)?-\\d$" | fn.#StringExpression
+	Region!: strings.MaxRunes(20) & strings.MinRunes(9) & =~"^\\w{2,4}-\\w+(-\\w+)?-\\d$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(20) & strings.MinRunes(9) & =~"^\\w{2,4}-\\w+(-\\w+)?-\\d$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Subtype!: "STOP_EC2_INSTANCES" | "STOP_RDS_INSTANCES" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Subscriber: close({
-	Address!: strings.MaxRunes(2147483647) & strings.MinRunes(1) & =~"^(.*[\\n\\r\\t\\f\\ ]?)*$" | fn.#StringExpression
-	Type!:    "SNS" | "EMAIL" | fn.#StringExpression
+	Address!: strings.MaxRunes(2147483647) & strings.MinRunes(1) & =~"^(.*[\\n\\r\\t\\f\\ ]?)*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(1) & =~"^(.*[\\n\\r\\t\\f\\ ]?)*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: "SNS" | "EMAIL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

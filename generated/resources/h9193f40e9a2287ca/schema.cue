@@ -6,31 +6,49 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SSMContacts::ContactChannel
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSMContacts::ContactChannel"
-	Properties?: {
+	let properties = {
 		ContactId!:      _
 		ChannelName!:    _
 		ChannelType!:    _
 		ChannelAddress!: _
 		...
 	} & close({
-		ChannelAddress?: string | fn.#StringExpression
+		ChannelAddress?: string | number | bool | fn.#StringExpression
 		ChannelName?: strings.MaxRunes(255) &
 		strings.MinRunes(1) &
 		=~"[a-zA-Z 0-9_\\-+'&amp;\\x{D83C}-\\x{DBFF}\\x{DC00}-\\x{DFFF}\\x{2000}-\\x{3300}]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			=~"[a-zA-Z 0-9_\\-+'&amp;\\x{D83C}-\\x{DBFF}\\x{DC00}-\\x{DFFF}\\x{2000}-\\x{3300}]+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ChannelType?: "SMS" | "VOICE" | "EMAIL" | fn.#StringExpression
 		ContactId?: strings.MaxRunes(2048) &
 		strings.MinRunes(1) &
 		=~"arn:[-\\w+=\\/,.@]+:[-\\w+=\\/,.@]+:[-\\w+=\\/,.@]*:[0-9]+:([\\w+=\\/,.@:-]+)*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"arn:[-\\w+=\\/,.@]+:[-\\w+=\\/,.@]+:[-\\w+=\\/,.@]*:[0-9]+:([\\w+=\\/,.@:-]+)*" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		DeferActivation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }

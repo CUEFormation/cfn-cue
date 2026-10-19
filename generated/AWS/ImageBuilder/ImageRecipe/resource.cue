@@ -10,5 +10,4 @@ import schema "github.com/cueformation/cfn-cue/resources/h2f23f8fa69bffed9:schem
 #ComponentParameter:                  schema.#ComponentParameter
 #EbsInstanceBlockDeviceSpecification: schema.#EbsInstanceBlockDeviceSpecification
 #InstanceBlockDeviceMapping:          schema.#InstanceBlockDeviceMapping
-#LatestVersion:                       schema.#LatestVersion
 #SystemsManagerAgent:                 schema.#SystemsManagerAgent

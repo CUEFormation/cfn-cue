@@ -7,28 +7,60 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // You can use AWS::Organizations::Account to manage accounts in organization.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Organizations::Account"
-	Properties!: close({
-		AccountName!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[\\x{0020}-\\x{007E}]+" | fn.#StringExpression
-		Email!: strings.MaxRunes(64) & strings.MinRunes(6) & =~"[^\\s@]+@[^\\s@]+\\.[^\\s@]+" | fn.#StringExpression
-		ParentIds?: list.UniqueItems() & [
-			...=~"^(r-[0-9a-z]{4,32})|(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32})$" | fn.#StringExpression
-		] |
-			fn.#ListExpression
-		RoleName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\w+=,.@-]{1,64}" | fn.#StringExpression
-		Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	let properties = close({
+		AccountName!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[\\x{0020}-\\x{007E}]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[\\x{0020}-\\x{007E}]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		Email!: strings.MaxRunes(64) & strings.MinRunes(6) & =~"[^\\s@]+@[^\\s@]+\\.[^\\s@]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(6) & =~"[^\\s@]+@[^\\s@]+\\.[^\\s@]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		ParentIds?: list.UniqueItems() & [...=~"^(r-[0-9a-z]{4,32})|(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32})$" |
+		{
+			number | bool
+			_cfnString: =~"^(r-[0-9a-z]{4,32})|(ou-[0-9a-z]{4,32}-[a-z0-9]{8,32})$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		RoleName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\w+=,.@-]{1,64}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\w+=,.@-]{1,64}" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\s\\S]*" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\s\\S]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\s\\S]*" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\s\\S]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\s\\S]*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

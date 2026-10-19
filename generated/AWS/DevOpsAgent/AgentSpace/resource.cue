@@ -4,10 +4,6 @@ package AgentSpace
 
 import schema "github.com/cueformation/cfn-cue/resources/h873bee5ffe125564:schema"
 
-#Resource:             schema.#Resource
-#IamAuthConfiguration: schema.#IamAuthConfiguration
-#IdcAuthConfiguration: schema.#IdcAuthConfiguration
-#IdpAuthConfiguration: schema.#IdpAuthConfiguration
-#OperatorApp:          schema.#OperatorApp
-#Preferences:          schema.#Preferences
-#Tag:                  schema.#Tag
+#Resource:    schema.#Resource
+#Preferences: schema.#Preferences
+#Tag:         schema.#Tag

@@ -19,7 +19,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h0721a942f1a9abf6:schem
 #Range:                   schema.#Range
 #RangeUnit:               schema.#RangeUnit
 #RangeValue:              schema.#RangeValue
-#Readiness:               schema.#Readiness
 #Statistic:               schema.#Statistic
 #Tag:                     schema.#Tag
 #Tags:                    schema.#Tags

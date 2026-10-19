@@ -9,5 +9,4 @@ import schema "github.com/cueformation/cfn-cue/resources/h4089715a7b0b3686:schem
 #ApiKeyRestrictions: schema.#ApiKeyRestrictions
 #AppleApp:           schema.#AppleApp
 #Tag:                schema.#Tag
-#TagMap:             schema.#TagMap
 #iso8601UTC:         schema.#iso8601UTC

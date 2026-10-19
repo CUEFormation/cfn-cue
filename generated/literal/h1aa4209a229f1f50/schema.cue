@@ -2,6 +2,8 @@
 
 package schema
 
+import "github.com/cueformation/cfn-cue/fn:fn"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Adds the specified outbound (egress) rule to a security group.
@@ -18,7 +20,35 @@ package schema
 // specify all types or all codes, use -1.
 // Rule changes are propagated to instances associated with the security group
 // as quickly as possible. However, a small delay might occur.
-#Properties: close({
+#Properties: matchN(2, [matchIf({
+	IpProtocol!: "1" | ==1 | "icmp"
+	...
+}, matchIf({
+	FromPort!: ==-1 | "-1"
+	...
+}, {
+	ToPort!: ==-1 | "-1"
+	...
+}, _), matchIf({
+	ToPort!: ==-1 | "-1"
+	...
+}, {
+	FromPort!: ==-1 | "-1"
+	...
+}, _) & matchIf({
+	FromPort!: ==-1 | "-1"
+	...
+}, {
+	ToPort!: ==-1 | "-1"
+	...
+}, _)), matchIf({
+	IpProtocol!: (==1 | "1" | "icmp" | ==6 | "6" | "tcp" | ==17 | "17" | "udp") & (int | string)
+	...
+}, {
+	FromPort!: _
+	ToPort!:   _
+	...
+}, _)]) & (close({
 	// The IPv4 address range, in CIDR format.
 	// You must specify exactly one of the following: ``CidrIp``, ``CidrIpv6``,
 	// ``DestinationPrefixListId``, or ``DestinationSecurityGroupId``.
@@ -26,7 +56,7 @@ package schema
 	// scenarios, see [Security group rules for different use
 	// cases](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-rules-reference.html)
 	// in the *User Guide*.
-	CidrIp?: string
+	CidrIp?: fn.#IPv4Network & string
 
 	// The IPv6 address range, in CIDR format.
 	// You must specify exactly one of the following: ``CidrIp``, ``CidrIpv6``,
@@ -35,7 +65,7 @@ package schema
 	// scenarios, see [Security group rules for different use
 	// cases](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-rules-reference.html)
 	// in the *User Guide*.
-	CidrIpv6?: string
+	CidrIpv6?: fn.#IPv6Network & string
 
 	// The description of an egress (outbound) security group rule.
 	// Constraints: Up to 255 characters in length. Allowed characters are a-z, A-Z,
@@ -103,4 +133,4 @@ package schema
 			"DestinationSecurityGroupId cannot be used with DestinationPrefixListId; set exactly one of CidrIp, CidrIpv6, DestinationPrefixListId, DestinationSecurityGroupId",
 		)
 	}
-}) & matchN(>=1, [{CidrIp!: _}, {CidrIpv6!: _}, {DestinationPrefixListId!: _}, {DestinationSecurityGroupId!: _}])
+}) & matchN(>=1, [{CidrIp!: _}, {CidrIpv6!: _}, {DestinationPrefixListId!: _}, {DestinationSecurityGroupId!: _}]))

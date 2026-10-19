@@ -3,23 +3,27 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::ConnectorDefinitionVersion
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Greengrass::ConnectorDefinitionVersion"
-	Properties!: close({
-		ConnectorDefinitionId!: string | fn.#StringExpression
+	let properties = close({
+		ConnectorDefinitionId!: string | number | bool | fn.#StringExpression
 		Connectors!:            [...#Connector] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Connector: close({
-	ConnectorArn!: string | fn.#StringExpression
-	Id!:           string | fn.#StringExpression
-	Parameters?:   fn.#Object & {...} | string | fn.#StringObjectExpression
+	ConnectorArn!: string | number | bool | fn.#StringExpression
+	Id!:           string | number | bool | fn.#StringExpression
+	Parameters?:   fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression

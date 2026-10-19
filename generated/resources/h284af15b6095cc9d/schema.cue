@@ -7,24 +7,48 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS Route53 Recovery Control Control Panel resource schema .
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53RecoveryControl::ControlPanel"
-	Properties!: close({
-		ClusterArn?: =~"^[A-Za-z0-9:\\/_-]*$" | fn.#StringExpression
-		Name!:       strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		ClusterArn?: =~"^[A-Za-z0-9:\\/_-]*$" |
+		{
+			number | bool
+			_cfnString: =~"^[A-Za-z0-9:\\/_-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: [...#Tag & (null | bool | number | string | list.MaxItems(20) | {...}) | fn.#ObjectExpression] |
 		fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

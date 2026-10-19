@@ -25,7 +25,9 @@ import (
 	DataTiering?: "true" | "false"
 
 	// The ID of the KMS key used to encrypt the snapshot.
-	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 
 	// The name of the snapshot.
 	SnapshotName!: string
@@ -87,7 +89,7 @@ import (
 
 #Tag: close({
 	// The key of the tag.
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!: =~"^.+" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// The value of the tag.
 	Value!: strings.MaxRunes(256) & strings.MinRunes(0)

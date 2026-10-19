@@ -20,11 +20,9 @@ import schema "github.com/cueformation/cfn-cue/resources/hb3b1a556a41c7c01:schem
 #Ec2MarketType:                             schema.#Ec2MarketType
 #FleetAmountCapability:                     schema.#FleetAmountCapability
 #FleetAttributeCapability:                  schema.#FleetAttributeCapability
-#FleetCapabilities:                         schema.#FleetCapabilities
 #FleetConfiguration:                        schema.#FleetConfiguration
 #FleetSoftwareAddOn:                        schema.#FleetSoftwareAddOn
 #FleetSoftwareAddOnName:                    schema.#FleetSoftwareAddOnName
-#FleetStatus:                               schema.#FleetStatus
 #HostConfiguration:                         schema.#HostConfiguration
 #MemoryMiBRange:                            schema.#MemoryMiBRange
 #PersistentVolumeConfiguration:             schema.#PersistentVolumeConfiguration

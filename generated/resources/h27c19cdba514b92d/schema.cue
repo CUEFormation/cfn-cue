@@ -8,17 +8,27 @@ import (
 	"list"
 	"struct"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MGN::NetworkMigrationDefinition
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MGN::NetworkMigrationDefinition"
-	Properties!: close({
-		Description?: strings.MaxRunes(600) & strings.MinRunes(0) & =~"^[^\\x00]*$" | fn.#StringExpression
-		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\s\\x00]( *[^\\s\\x00])*$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(600) & strings.MinRunes(0) & =~"^[^\\x00]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(600) & strings.MinRunes(0) & =~"^[^\\x00]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\s\\x00]( *[^\\s\\x00])*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\s\\x00]( *[^\\s\\x00])*$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Scope tags for the network migration definition.
 		ScopeTags?:            #ScopeTagsMap
@@ -32,9 +42,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// The S3 configuration for storing the target network artifacts.
 		TargetS3Configuration!: #TargetS3Configuration
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#ScopeTagsMap: struct.MaxFields(40) & {...} | fn.#ObjectExpression
+#ScopeTagsMap: struct.MaxFields(40) & close({
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^(?:aws:)"]: error("disallowed")}
+
+	{
+		[=~"^[a-zA-Z0-9\\s+\\-=._:/@]{1,128}$"]: strings.MaxRunes(256) & =~"^[a-zA-Z0-9\\s+\\-=._:/@]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & =~"^[a-zA-Z0-9\\s+\\-=._:/@]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
+fn.#ObjectExpression
 
 #SourceConfiguration: close({
 	SourceEnvironment!: "NSX" |
@@ -50,15 +81,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #SourceS3Configuration: close({
-	S3Bucket!:      =~"^[a-zA-Z0-9.\\-_]{1,255}$" | fn.#StringExpression
-	S3BucketOwner!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"[0-9]{12,}" | fn.#StringExpression
-	S3Key!:         string | fn.#StringExpression
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		=~"^[a-zA-Z0-9.\\-_]{1,255}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+			=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+			=~"^[a-zA-Z0-9.\\-_]{1,255}$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
+	S3BucketOwner!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"[0-9]{12,}" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"[0-9]{12,}" & "\(self)"
+	} |
+	fn.#StringExpression
+	S3Key!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -66,21 +122,57 @@ fn.#ObjectExpression
 	InboundCidr?: strings.MaxRunes(18) &
 	strings.MinRunes(9) &
 	=~"^((25[0-4]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])/(1[6-9]|2[0-8])$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(18) &
+		strings.MinRunes(9) &
+		=~"^((25[0-4]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])/(1[6-9]|2[0-8])$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	InspectionCidr?: strings.MaxRunes(18) &
 	strings.MinRunes(9) &
 	=~"^((25[0-4]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])/(1[6-9]|2[0-8])$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(18) &
+		strings.MinRunes(9) &
+		=~"^((25[0-4]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])/(1[6-9]|2[0-8])$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	OutboundCidr?: strings.MaxRunes(18) &
 	strings.MinRunes(9) &
 	=~"^((25[0-4]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])/(1[6-9]|2[0-8])$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(18) &
+		strings.MinRunes(9) &
+		=~"^((25[0-4]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])/(1[6-9]|2[0-8])$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Topology!: "ISOLATED_VPC" | "HUB_AND_SPOKE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TargetS3Configuration: close({
-	S3Bucket!:      =~"^[a-zA-Z0-9.\\-_]{1,255}$" | fn.#StringExpression
-	S3BucketOwner!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"[0-9]{12,}" | fn.#StringExpression
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		=~"^[a-zA-Z0-9.\\-_]{1,255}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+			=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+			=~"^[a-zA-Z0-9.\\-_]{1,255}$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
+	S3BucketOwner!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"[0-9]{12,}" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"[0-9]{12,}" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

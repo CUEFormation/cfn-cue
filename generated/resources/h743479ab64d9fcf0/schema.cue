@@ -6,28 +6,66 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::NetworkInterface resource creates network interface
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::NetworkInterface"
-	Properties!: close({
-		ConnectionTrackingSpecification?: #ConnectionTrackingSpecification
-		Description?:                     string | fn.#StringExpression
-		EnablePrimaryIpv6?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		GroupSet?: [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
+	let properties = matchIf({
+		PrivateIpAddress!: _
+		...
+	}, {
+		NetworkInterfaces?: [...null |
+		bool |
+		number |
+		string |
+		[...] |
+		{
+			PrivateIpAddress?: error("disallowed")
+			PrivateIpAddresses?: [...null |
+			bool |
+			number |
+			string |
+			[...] |
+			{
+				Primary?: false | "false" | "False" | "FALSE" | fn.#ValueExpression
+				...
+			} |
+			fn.#ValueExpression] |
 			fn.#ListExpression
-		InterfaceType?: string | fn.#StringExpression
+			...
+		} |
+		fn.#ValueExpression] |
+		fn.#ListExpression
+		PrivateIpAddresses?: [...null |
+		bool |
+		number |
+		string |
+		[...] |
+		{
+			Primary?: false | "false" | "False" | "FALSE" | fn.#ValueExpression
+			...
+		} |
+		fn.#ValueExpression] |
+		fn.#ListExpression
+		...
+	}, _) & close({
+		ConnectionTrackingSpecification?: #ConnectionTrackingSpecification
+		Description?:                     string | number | bool | fn.#StringExpression
+		EnablePrimaryIpv6?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		GroupSet?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		InterfaceType?: string | number | bool | fn.#StringExpression
 		Ipv4PrefixCount?: int |
 			{
 				string &
@@ -79,7 +117,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		Ipv6Prefixes?:       [...#Ipv6PrefixSpecification] | fn.#ListExpression
-		PrivateIpAddress?:   string | fn.#StringExpression
+		PrivateIpAddress?:   string | number | bool | fn.#StringExpression
 		PrivateIpAddresses?: [...#PrivateIpAddressSpecification] | fn.#ListExpression
 		PublicIpDnsHostnameTypeSpecification?: "public-dual-stack-dns-name" |
 			"public-ipv4-dns-name" |
@@ -102,12 +140,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		SourceDestCheck?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		SubnetId!:        string | fn.#StringExpression
-		Tags?:            [...#Tag] | fn.#ListExpression
+		SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
 		if Ipv6AddressCount != _|_ if Ipv6AddressCount."Fn::If" == _|_ {
 			Ipv6Addresses?: close({"Fn::If": _}) | error("Ipv6Addresses cannot be used with Ipv6AddressCount")
 		}
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ConnectionTrackingSpecification: close({
@@ -156,28 +203,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#InstanceIpv6Address: close({Ipv6Address!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#InstanceIpv6Address: close({Ipv6Address!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
-#Ipv4PrefixSpecification: close({Ipv4Prefix!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Ipv4PrefixSpecification: close({Ipv4Prefix!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
-#Ipv6PrefixSpecification: close({Ipv6Prefix!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Ipv6PrefixSpecification: close({Ipv6Prefix!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #PrivateIpAddressSpecification: close({
 	Primary!:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PrivateIpAddress!: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#PublicIpDnsNameOptions: close({
-	DnsHostnameType?:        string | fn.#StringExpression
-	PublicDualStackDnsName?: string | fn.#StringExpression
-	PublicIpv4DnsName?:      string | fn.#StringExpression
-	PublicIpv6DnsName?:      string | fn.#StringExpression
+	PrivateIpAddress!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

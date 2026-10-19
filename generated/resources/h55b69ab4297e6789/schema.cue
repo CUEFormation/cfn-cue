@@ -7,39 +7,68 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Config::ConfigurationAggregator
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Config::ConfigurationAggregator"
-	Properties?: close({
-		AccountAggregationSources?:   list.MaxItems(1) & [...] & [...#AccountAggregationSource] | fn.#ListExpression
-		ConfigurationAggregatorName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\w\\-]+" | fn.#StringExpression
+	let properties = close({
+		AccountAggregationSources?: list.MaxItems(1) & [...] & [...#AccountAggregationSource] | fn.#ListExpression
+		ConfigurationAggregatorName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\w\\-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\w\\-]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		OrganizationAggregationSource?: #OrganizationAggregationSource
 		Tags?:                          list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #AccountAggregationSource: close({
-	AccountIds!:    list.MinItems(1) & [...=~"^\\d{12}$" | fn.#StringExpression] | fn.#ListExpression
+	AccountIds!: list.MinItems(1) & [...=~"^\\d{12}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\d{12}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	AllAwsRegions?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AwsRegions?:    list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+	AwsRegions?:    list.MinItems(1) & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #OrganizationAggregationSource: close({
 	AllAwsRegions?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AwsRegions?:    list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	AwsRegions?:    list.MinItems(1) & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -6,19 +6,33 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::SimSpaceWeaver::Simulation resource creates an AWS Simulation.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SimSpaceWeaver::Simulation"
-	Properties!: close({
-		MaximumDuration?: strings.MaxRunes(6) & strings.MinRunes(2) | fn.#StringExpression
-		Name!:            strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+	let properties = close({
+		MaximumDuration?: strings.MaxRunes(6) & strings.MinRunes(2) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(6) & strings.MinRunes(2) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		SchemaS3Location?:   #S3Location
 		SnapshotS3Location?: #S3Location
 		if SchemaS3Location != _|_ if SchemaS3Location."Fn::If" == _|_ {
@@ -27,10 +41,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			)
 		}
 	}) & matchN(>=1, [{SchemaS3Location!: _}, {SnapshotS3Location!: _}])
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #S3Location: close({
-	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"[a-zA-Z0-9_\\-]{3,63}$" | fn.#StringExpression
-	ObjectKey!:  strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"[a-zA-Z0-9_\\-]{3,63}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) &
+		=~"[a-zA-Z0-9_\\-]{3,63}$" &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	ObjectKey!: strings.MaxRunes(255) & strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

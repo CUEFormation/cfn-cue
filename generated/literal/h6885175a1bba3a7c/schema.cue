@@ -27,7 +27,9 @@ import (
 	Encrypted?: bool
 
 	// The KMS key identifier used to encrypt the component.
-	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(1024) & strings.MinRunes(1))
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(1024) & strings.MinRunes(1))
 
 	// The latest version references of the component.
 	LatestVersion?: #LatestVersion

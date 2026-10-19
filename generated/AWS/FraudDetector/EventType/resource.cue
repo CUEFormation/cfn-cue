@@ -4,8 +4,5 @@ package EventType
 
 import schema "github.com/cueformation/cfn-cue/resources/h2381ddcb280ea599:schema"
 
-#Resource:      schema.#Resource
-#EntityType:    schema.#EntityType
-#EventVariable: schema.#EventVariable
-#Label:         schema.#Label
-#Tag:           schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

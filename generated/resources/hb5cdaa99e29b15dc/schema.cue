@@ -7,12 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -21,8 +19,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // subscribers.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EventsV2::EventBus"
-	Properties!: close({
-		Description?: strings.MaxRunes(512) | fn.#StringExpression
+	let properties = close({
+		Description?: =~"^[^\\x{0000}-\\x{001F}\\x{007F}-\\x{009F}\\x{2028}\\x{2029}]*$" & strings.MaxRunes(512) |
+		{
+			number | bool
+			_cfnString: =~"^[^\\x{0000}-\\x{001F}\\x{007F}-\\x{009F}\\x{2028}\\x{2029}]*$" &
+			strings.MaxRunes(512) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 
 		// Encryption configuration for the event bus. The service stores and returns
 		// the customer managed key as its key ARN. The key ARN is recommended so that
@@ -31,18 +36,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// accepted but can be reported as a value difference, because an alias cannot
 		// be matched to the key ARN it points to.
 		EncryptionConfiguration?: #EncryptionConfiguration
-		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][\\.\\-_A-Za-z0-9]*$" | fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][\\.\\-_A-Za-z0-9]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][\\.\\-_A-Za-z0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The event storage configuration for the event bus, which controls the number
 		// of days events are retained on the bus.
 		StorageConfiguration?: #StorageConfiguration
 		Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#EncryptionConfiguration: close(
-	{KmsKeyIdentifier?: strings.MaxRunes(2048) & =~"^[a-zA-Z0-9_\\-/:]*$" | fn.#StringExpression},
-) |
+#EncryptionConfiguration: close({
+	KmsKeyIdentifier?: strings.MaxRunes(2048) & =~"^[a-zA-Z0-9_\\-/:]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & =~"^[a-zA-Z0-9_\\-/:]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #StorageConfiguration: close({
@@ -66,7 +85,17 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: =~"^\\S([\\s\\S]*\\S)?$" & (strings.MaxRunes(128) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: =~"^\\S([\\s\\S]*\\S)?$" & strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: =~"^(\\S([\\s\\S]*\\S)?)?$" & (strings.MaxRunes(256) & strings.MinRunes(0)) |
+	{
+		number | bool
+		_cfnString: =~"^(\\S([\\s\\S]*\\S)?)?$" & strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

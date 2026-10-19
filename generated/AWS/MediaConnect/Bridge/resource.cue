@@ -10,7 +10,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hd5326e53ac9f981b:schem
 #BridgeNetworkSource:     schema.#BridgeNetworkSource
 #BridgeOutput:            schema.#BridgeOutput
 #BridgeSource:            schema.#BridgeSource
-#BridgeStateEnum:         schema.#BridgeStateEnum
 #EgressGatewayBridge:     schema.#EgressGatewayBridge
 #FailoverConfig:          schema.#FailoverConfig
 #FailoverConfigStateEnum: schema.#FailoverConfigStateEnum

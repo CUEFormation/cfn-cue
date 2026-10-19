@@ -2,19 +2,18 @@
 
 package schema
 
-import (
-	"strings"
-	"github.com/cueformation/cfn-cue/fn:fn"
-)
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
+import fn "github.com/cueformation/cfn-cue/fn:fn"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApplicationSignals::Discovery
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ApplicationSignals::Discovery"
-	Properties?: close({})
+	Type!: "AWS::ApplicationSignals::Discovery"
+	let properties = close({})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
-
-#AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression

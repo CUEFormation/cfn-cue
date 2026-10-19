@@ -30,7 +30,7 @@ package schema
 	SourceType?: string
 
 	// The ID of the subnet.
-	SubnetId?: string
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 
 	// The ID of the transit gateway attachment.
 	TransitGatewayAttachmentId?: string

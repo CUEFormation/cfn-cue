@@ -7,5 +7,4 @@ import schema "github.com/cueformation/cfn-cue/resources/hb02b98a32fa6b516:schem
 #Resource:                      schema.#Resource
 #DaemonAlarmConfiguration:      schema.#DaemonAlarmConfiguration
 #DaemonDeploymentConfiguration: schema.#DaemonDeploymentConfiguration
-#DaemonStatus:                  schema.#DaemonStatus
 #Tag:                           schema.#Tag

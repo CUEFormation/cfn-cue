@@ -4,7 +4,6 @@ package ProjectMembership
 
 import schema "github.com/cueformation/cfn-cue/resources/h0c6820dc2331ca99:schema"
 
-#Resource:             schema.#Resource
-#Member:               schema.#Member
-#MemberIdentifierType: schema.#MemberIdentifierType
-#UserDesignation:      schema.#UserDesignation
+#Resource:        schema.#Resource
+#Member:          schema.#Member
+#UserDesignation: schema.#UserDesignation

@@ -3,17 +3,21 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DAX::ParameterGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DAX::ParameterGroup"
-	Properties?: close({
-		Description?:         string | fn.#StringExpression
-		ParameterGroupName?:  string | fn.#StringExpression
-		ParameterNameValues?: fn.#Object & {...} | string | fn.#StringObjectExpression
+	let properties = close({
+		Description?:         string | number | bool | fn.#StringExpression
+		ParameterGroupName?:  string | number | bool | fn.#StringExpression
+		ParameterNameValues?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }

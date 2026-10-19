@@ -6,7 +6,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h9f534c0412fb6e85:schem
 
 #Resource:       schema.#Resource
 #AuthType:       schema.#AuthType
-#DomainStatus:   schema.#DomainStatus
 #IdcInstanceArn: schema.#IdcInstanceArn
 #SingleSignOn:   schema.#SingleSignOn
 #Tag:            schema.#Tag

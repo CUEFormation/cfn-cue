@@ -7,33 +7,44 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WorkSpaces::Directory
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WorkSpaces::Directory"
-	Properties?: close({
+	let properties = close({
 		ActiveDirectoryConfig?:          #ActiveDirectoryConfig
 		CertificateBasedAuthProperties?: #CertificateBasedAuthProperties
 		EnableSelfService?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		EndpointEncryptionMode?: "STANDARD_TLS" | "FIPS_VALIDATED" | fn.#StringExpression
-		IdcInstanceArn?:         string | fn.#StringExpression
-		IpGroupIds?:             [...=~"^wsipg-[0-9a-z]{8,63}$" | fn.#StringExpression] | fn.#ListExpression
+		IdcInstanceArn?:         string | number | bool | fn.#StringExpression
+		IpGroupIds?: [...=~"^wsipg-[0-9a-z]{8,63}$" |
+		{
+			number | bool
+			_cfnString: =~"^wsipg-[0-9a-z]{8,63}$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		MicrosoftEntraConfig?:   #MicrosoftEntraConfig
 		SamlProperties?:         #SamlProperties
 		SelfservicePermissions?: #SelfservicePermissions
 		StreamingProperties?:    #StreamingProperties
-		SubnetIds?: list.MaxItems(2) & [...] & [
-			...strings.MaxRunes(24) & strings.MinRunes(15) & =~"^(subnet-([0-9a-f]{8}|[0-9a-f]{17}))$" |
-			fn.#StringExpression
-		] |
+		SubnetIds?: list.MaxItems(2) & [...] & [...strings.MaxRunes(24) &
+		strings.MinRunes(15) &
+		=~"^(subnet-([0-9a-f]{8}|[0-9a-f]{17}))$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(24) &
+			strings.MinRunes(15) &
+			=~"^(subnet-([0-9a-f]{8}|[0-9a-f]{17}))$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		Tags?:    list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		Tenancy?: "DEDICATED" | "SHARED" | fn.#StringExpression
@@ -44,15 +55,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		WorkspaceAccessProperties?:   #WorkspaceAccessProperties
 		WorkspaceCreationProperties?: #DefaultWorkspaceCreationProperties
 		WorkspaceDirectoryDescription?: =~"^([a-zA-Z0-9_])[\\\\a-zA-Z0-9_@#%*+=:?./!\\s-]{1,255}$" |
-			fn.#StringExpression
-		WorkspaceDirectoryName?: =~"^[a-zA-Z0-9][a-zA-Z0-9_.\\s-]{1,64}$" | fn.#StringExpression
-		WorkspaceType?:          "PERSONAL" | "POOLS" | fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^([a-zA-Z0-9_])[\\\\a-zA-Z0-9_@#%*+=:?./!\\s-]{1,255}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		WorkspaceDirectoryName?: =~"^[a-zA-Z0-9][a-zA-Z0-9_.\\s-]{1,64}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9][a-zA-Z0-9_.\\s-]{1,64}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		WorkspaceType?: "PERSONAL" | "POOLS" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #AccessEndpoint: close({
 	AccessEndpointType?: "STREAMING_WSP" | fn.#StringExpression
-	VpcEndpointId?:      =~"^[a-zA-Z0-9\\_\\-]{1,1000}$" | fn.#StringExpression
+	VpcEndpointId?: =~"^[a-zA-Z0-9\\_\\-]{1,1000}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9\\_\\-]{1,1000}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -63,9 +92,19 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ActiveDirectoryConfig: close({
-	DomainName!: =~"^([a-zA-Z0-9]+[.-])+([a-zA-Z0-9])+$" | fn.#StringExpression
+	DomainName!: =~"^([a-zA-Z0-9]+[.-])+([a-zA-Z0-9])+$" |
+	{
+		number | bool
+		_cfnString: =~"^([a-zA-Z0-9]+[.-])+([a-zA-Z0-9])+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ServiceAccountSecretArn!: =~"^arn:aws[a-z-]{0,7}:secretsmanager:[A-za-z0-9_/.-]{0,63}:[A-za-z0-9_/.-]{0,63}:secret:[A-Za-z0-9][A-za-z0-9_/.-]{8,519}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-z-]{0,7}:secretsmanager:[A-za-z0-9_/.-]{0,63}:[A-za-z0-9_/.-]{0,63}:secret:[A-Za-z0-9][A-za-z0-9_/.-]{8,519}$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -73,6 +112,13 @@ fn.#ObjectExpression
 	CertificateAuthorityArn?: strings.MaxRunes(200) &
 	strings.MinRunes(5) &
 	=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) &
+		strings.MinRunes(5) &
+		=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Status?: "DISABLED" | "ENABLED" | fn.#StringExpression
 }) |
@@ -80,12 +126,20 @@ fn.#ObjectExpression
 
 #DefaultWorkspaceCreationProperties: close({
 	CustomSecurityGroupId?: strings.MaxRunes(20) & strings.MinRunes(11) & =~"^(sg-([0-9a-f]{8}|[0-9a-f]{17}))$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(20) & strings.MinRunes(11) & =~"^(sg-([0-9a-f]{8}|[0-9a-f]{17}))$" & "\(self)"
+	} |
 	fn.#StringExpression
-	DefaultOu?:             string | fn.#StringExpression
+	DefaultOu?:             string | number | bool | fn.#StringExpression
 	EnableInternetAccess?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnableMaintenanceMode?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InstanceIamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	InstanceIamRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	UserEnabledAsLocalAdministrator?: bool |
 		"true" |
 		"True" |
@@ -103,23 +157,37 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#IDCConfig: close({
-	ApplicationArn?: string | fn.#StringExpression
-	InstanceArn?:    string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #MicrosoftEntraConfig: close({
 	ApplicationConfigSecretArn?: =~"^arn:aws[a-z-]{0,7}:secretsmanager:[A-za-z0-9_/.-]{0,63}:[A-za-z0-9_/.-]{0,63}:secret:[A-Za-z0-9][A-za-z0-9_/.-]{8,519}$" |
-		fn.#StringExpression
-	TenantId?: =~"^[a-zA-Z0-9-]{1,100}$" | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-z-]{0,7}:secretsmanager:[A-za-z0-9_/.-]{0,63}:[A-za-z0-9_/.-]{0,63}:secret:[A-Za-z0-9][A-za-z0-9_/.-]{8,519}$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
+	TenantId?: =~"^[a-zA-Z0-9-]{1,100}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9-]{1,100}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SamlProperties: close({
-	RelayStateParameterName?: strings.MinRunes(1) | fn.#StringExpression
-	Status?:                  "DISABLED" | "ENABLED" | "ENABLED_WITH_DIRECTORY_LOGIN_FALLBACK" | fn.#StringExpression
-	UserAccessUrl?: strings.MaxRunes(200) & strings.MinRunes(8) & =~"^(http|https)\\://\\S+$" | fn.#StringExpression
+	RelayStateParameterName?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Status?: "DISABLED" | "ENABLED" | "ENABLED_WITH_DIRECTORY_LOGIN_FALLBACK" | fn.#StringExpression
+	UserAccessUrl?: strings.MaxRunes(200) & strings.MinRunes(8) & =~"^(http|https)\\://\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(8) & =~"^(http|https)\\://\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -147,8 +215,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

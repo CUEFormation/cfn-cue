@@ -6,7 +6,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hf4e6de2cb624d03c:schem
 
 #Resource:                  schema.#Resource
 #BlockOverrideDnsQueryType: schema.#BlockOverrideDnsQueryType
-#CRResourceStatus:          schema.#CRResourceStatus
 #ConfidenceThreshold:       schema.#ConfidenceThreshold
 #DnsAdvancedProtection:     schema.#DnsAdvancedProtection
 #Domain:                    schema.#Domain

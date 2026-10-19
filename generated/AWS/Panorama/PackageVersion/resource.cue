@@ -4,13 +4,8 @@ package PackageVersion
 
 import schema "github.com/cueformation/cfn-cue/resources/h5eb515d01229a1cc:schema"
 
-#Resource:                        schema.#Resource
-#NodePackageArn:                  schema.#NodePackageArn
-#NodePackageId:                   schema.#NodePackageId
-#NodePackageName:                 schema.#NodePackageName
-#NodePackagePatchVersion:         schema.#NodePackagePatchVersion
-#NodePackageVersion:              schema.#NodePackageVersion
-#PackageOwnerAccount:             schema.#PackageOwnerAccount
-#PackageVersionStatus:            schema.#PackageVersionStatus
-#PackageVersionStatusDescription: schema.#PackageVersionStatusDescription
-#TimeStamp:                       schema.#TimeStamp
+#Resource:                schema.#Resource
+#NodePackageId:           schema.#NodePackageId
+#NodePackagePatchVersion: schema.#NodePackagePatchVersion
+#NodePackageVersion:      schema.#NodePackageVersion
+#PackageOwnerAccount:     schema.#PackageOwnerAccount

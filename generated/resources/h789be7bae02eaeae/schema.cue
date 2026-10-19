@@ -7,15 +7,15 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A zero-ETL integration with Amazon Redshift.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RDS::Integration"
-	Properties!: close({
+	let properties = close({
 		// An optional set of non-secret key–value pairs that contains additional
 		// contextual information about the data. For more information, see [Encryption
 		// context](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#encrypt_context)
@@ -23,31 +23,97 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// You can only include this parameter if you specify the ``KMSKeyId`` parameter.
 		AdditionalEncryptionContext?: #EncryptionContextMap
 		DataFilter?: strings.MaxRunes(25600) & strings.MinRunes(1) & =~"[a-zA-Z0-9_ \"\\\\\\-$,*.:?+\\/]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(25600) &
+			strings.MinRunes(1) &
+			=~"[a-zA-Z0-9_ \"\\\\\\-$,*.:?+\\/]*" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Description?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		IntegrationName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z](?:-?[a-zA-Z0-9]+)*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z](?:-?[a-zA-Z0-9]+)*$" & "\(self)"
+		} |
 		fn.#StringExpression
-		KMSKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string |
-			fn.#StringExpression
+		KMSKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+		} |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+				"\(self)"
+		} |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		SourceArn!: strings.MaxRunes(255) &
 		strings.MinRunes(1) &
 		=~"^arn:aws[a-z\\-]*:rds(-[a-z]*)?:[a-z0-9\\-]*:[0-9]*:(cluster|db):[a-z][a-z0-9]*(-[a-z0-9]+)*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			=~"^arn:aws[a-z\\-]*:rds(-[a-z]*)?:[a-z0-9\\-]*:[0-9]*:(cluster|db):[a-z][a-z0-9]*(-[a-z0-9]+)*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Tags?:      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TargetArn!: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		TargetArn!: strings.MaxRunes(2048) & strings.MinRunes(20) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #EncryptionContextMap: close({
 
-	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) | fn.#StringExpression}}) |
-fn.#ObjectExpression
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
 
-#Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	{
+		[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(131072) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
 }) |
 fn.#ObjectExpression
 
-#Tags: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+#Tag: close({
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression

@@ -6,26 +6,40 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a SCEP Challenge that is used for certificate enrollment
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::PCAConnectorSCEP::Challenge"
-	Properties!: close({
+	let properties = close({
 		ConnectorArn!: strings.MaxRunes(200) &
 		strings.MinRunes(5) &
 		=~"^arn:aws(-[a-z]+)*:pca-connector-scep:[a-z]+(-[a-z]+)+-[1-9]\\d*:\\d{12}:connector\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) &
+			strings.MinRunes(5) &
+			=~"^arn:aws(-[a-z]+)*:pca-connector-scep:[a-z]+(-[a-z]+)+-[1-9]\\d*:\\d{12}:connector\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: #Tags
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tags: close({
 
-	{[=~".+"]: string | fn.#StringExpression}}) |
-fn.#ObjectExpression
+	{[=~".+"]: string | number | bool | fn.#StringExpression}
 
-#Unit: close({}) | fn.#ObjectExpression
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
+fn.#ObjectExpression

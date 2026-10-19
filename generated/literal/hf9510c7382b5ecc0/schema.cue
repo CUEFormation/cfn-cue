@@ -10,7 +10,17 @@ import (
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Specifies an Application Load Balancer, a Network Load Balancer, or a Gateway Load Balancer.
-#Properties: close({
+#Properties: matchIf(matchN(1, [{
+	Type!: "application"
+	...
+}, {
+	Type?: error("disallowed")
+	...
+}]), {
+	SubnetMappings?: null | bool | number | string | list.MinItems(2) | {...}
+	Subnets?:        null | bool | number | string | list.MinItems(2) | {...}
+	...
+}, _) & (close({
 	CanonicalHostedZoneID?: string
 	DNSName?:               string
 
@@ -105,7 +115,7 @@ import (
 	// [Application Load Balancers on Local Zones] You can specify subnets from one or more Local Zones.
 	// [Network Load Balancers and Gateway Load Balancers] You can specify subnets
 	// from one or more Availability Zones.
-	Subnets?: list.UniqueItems() & [...string]
+	Subnets?: list.UniqueItems() & [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"]
 
 	// The tags to assign to the load balancer.
 	Tags?: [...#Tag]
@@ -117,7 +127,7 @@ import (
 			"SubnetMappings cannot be used with Subnets; set exactly one of Subnets, SubnetMappings",
 		)
 	}
-}) & matchN(>=1, [{Subnets!: _}, {SubnetMappings!: _}])
+}) & matchN(>=1, [{Subnets!: _}, {SubnetMappings!: _}]))
 
 // Specifies an attribute for an Application Load Balancer, a Network Load
 // Balancer, or a Gateway Load Balancer.
@@ -263,7 +273,7 @@ import (
 	SourceNatIpv6Prefix?: string
 
 	// The ID of the subnet.
-	SubnetId!: string
+	SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 })
 
 // Information about a tag.

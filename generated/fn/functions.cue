@@ -3,12 +3,10 @@
 package fn
 
 import structs "struct"
-
 import list "list"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
+import net "net"
 
 #Scalar: string | number | bool | null
 #Object: [string & !="Ref" & !~"^Fn::"]: #Value
@@ -38,43 +36,125 @@ import cfnScalarStrconv "strconv"
 			)
 	} |
 	#NumberExpression
-#BooleanValue:                        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #BooleanExpression
-#ListValue:                           #List | #ListExpression
-#ObjectValue:                         #Object | #ObjectExpression
-#String:                              #StringValue
-#Number:                              #NumberValue
-#StringExpression:                    #Choice4
-#NumberExpression:                    #Choice5
-#BooleanExpression:                   #Choice6
-#ListExpression:                      #Choice7
-#ObjectExpression:                    #Choice8
-#StringNumberExpression:              #Choice9
-#StringBooleanExpression:             #Choice10
-#NumberBooleanExpression:             #Choice11
-#StringNumberBooleanExpression:       #Choice12
-#StringListExpression:                #Choice13
-#NumberListExpression:                #Choice14
-#StringNumberListExpression:          #Choice15
-#BooleanListExpression:               #Choice16
-#StringBooleanListExpression:         #Choice17
-#NumberBooleanListExpression:         #Choice18
-#StringNumberBooleanListExpression:   #Choice19
-#StringObjectExpression:              #Choice20
-#NumberObjectExpression:              #Choice21
-#StringNumberObjectExpression:        #Choice22
-#BooleanObjectExpression:             #Choice23
-#StringBooleanObjectExpression:       #Choice24
-#NumberBooleanObjectExpression:       #Choice25
-#StringNumberBooleanObjectExpression: #Choice26
-#ListObjectExpression:                #Choice27
-#StringListObjectExpression:          #Choice28
-#NumberListObjectExpression:          #Choice29
-#StringNumberListObjectExpression:    #Choice30
-#BooleanListObjectExpression:         #Choice31
-#StringBooleanListObjectExpression:   #Choice32
-#NumberBooleanListObjectExpression:   #Choice33
-#StringNumberBooleanListObjectExpression: #Choice34
-#ValueExpression:                         #Choice35
+#BooleanValue:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #BooleanExpression
+#ListValue:        #List | #ListExpression
+#ObjectValue:      #Object | #ObjectExpression
+#String:           #StringValue
+#Number:           #NumberValue
+#DynamicReference: string & =~"^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*\\n?$"
+#IPv4Address:      string & =~"^[0-9.]+$" & net.IPv4 | number | bool | null | [...] | {...}
+#IPv6Address:      string & =~":" & net.IPv6 | number | bool | null | [...] | {...}
+#IPv4Network: {
+	string & =~"^[0-9.]+/[0-9]+$" & net.IPCIDR
+	_hostBits: net.IPString(cfnScalarStrings.SplitN(self, "/", 2)[0]) & net.ParseCIDR(self).prefix_addr
+} | {
+	string & =~"^[0-9.]+/[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$"
+	_cidr:     cfnScalarStrings.SplitN(self, "/", 2)[0] + "/" + #IPv4NetworkMasks[cfnScalarStrings.SplitN(self, "/", 2)[1]]
+	_cidr:     net.IPCIDR
+	_hostBits: net.IPString(cfnScalarStrings.SplitN(_cidr, "/", 2)[0]) & net.ParseCIDR(_cidr).prefix_addr
+} | string & =~"^[0-9.]+$" & net.IPv4 | number | bool | null | [...] | {...}
+#IPv4NetworkMasks: close({
+	"0.0.0.0":         "0"
+	"128.0.0.0":       "1"
+	"192.0.0.0":       "2"
+	"224.0.0.0":       "3"
+	"240.0.0.0":       "4"
+	"248.0.0.0":       "5"
+	"252.0.0.0":       "6"
+	"254.0.0.0":       "7"
+	"255.0.0.0":       "8"
+	"255.128.0.0":     "9"
+	"255.192.0.0":     "10"
+	"255.224.0.0":     "11"
+	"255.240.0.0":     "12"
+	"255.248.0.0":     "13"
+	"255.252.0.0":     "14"
+	"255.254.0.0":     "15"
+	"255.255.0.0":     "16"
+	"255.255.128.0":   "17"
+	"255.255.192.0":   "18"
+	"255.255.224.0":   "19"
+	"255.255.240.0":   "20"
+	"255.255.248.0":   "21"
+	"255.255.252.0":   "22"
+	"255.255.254.0":   "23"
+	"255.255.255.0":   "24"
+	"255.255.255.128": "25"
+	"255.255.255.192": "26"
+	"255.255.255.224": "27"
+	"255.255.255.240": "28"
+	"255.255.255.248": "29"
+	"255.255.255.252": "30"
+	"255.255.255.254": "31"
+	"255.255.255.255": "32"
+	"127.255.255.255": "1"
+	"63.255.255.255":  "2"
+	"31.255.255.255":  "3"
+	"15.255.255.255":  "4"
+	"7.255.255.255":   "5"
+	"3.255.255.255":   "6"
+	"1.255.255.255":   "7"
+	"0.255.255.255":   "8"
+	"0.127.255.255":   "9"
+	"0.63.255.255":    "10"
+	"0.31.255.255":    "11"
+	"0.15.255.255":    "12"
+	"0.7.255.255":     "13"
+	"0.3.255.255":     "14"
+	"0.1.255.255":     "15"
+	"0.0.255.255":     "16"
+	"0.0.127.255":     "17"
+	"0.0.63.255":      "18"
+	"0.0.31.255":      "19"
+	"0.0.15.255":      "20"
+	"0.0.7.255":       "21"
+	"0.0.3.255":       "22"
+	"0.0.1.255":       "23"
+	"0.0.0.255":       "24"
+	"0.0.0.127":       "25"
+	"0.0.0.63":        "26"
+	"0.0.0.31":        "27"
+	"0.0.0.15":        "28"
+	"0.0.0.7":         "29"
+	"0.0.0.3":         "30"
+	"0.0.0.1":         "31"
+})
+#IPv6Network: {
+	string & =~":" & =~"/[0-9]+$" & net.IPCIDR
+	_hostBits: net.IPString(cfnScalarStrings.SplitN(self, "/", 2)[0]) & net.ParseCIDR(self).prefix_addr
+} | string & =~":" & !~"/" & net.IPv6 | number | bool | null | [...] | {...}
+#StringExpression:                        #Choice4 | #DynamicReference
+#NumberExpression:                        #Choice5 | #DynamicReference
+#BooleanExpression:                       #Choice6 | #DynamicReference
+#ListExpression:                          #Choice7
+#ObjectExpression:                        #Choice8
+#StringNumberExpression:                  #Choice9 | #DynamicReference
+#StringBooleanExpression:                 #Choice10 | #DynamicReference
+#NumberBooleanExpression:                 #Choice11 | #DynamicReference
+#StringNumberBooleanExpression:           #Choice12 | #DynamicReference
+#StringListExpression:                    #Choice13 | #DynamicReference
+#NumberListExpression:                    #Choice14 | #DynamicReference
+#StringNumberListExpression:              #Choice15 | #DynamicReference
+#BooleanListExpression:                   #Choice16 | #DynamicReference
+#StringBooleanListExpression:             #Choice17 | #DynamicReference
+#NumberBooleanListExpression:             #Choice18 | #DynamicReference
+#StringNumberBooleanListExpression:       #Choice19 | #DynamicReference
+#StringObjectExpression:                  #Choice20 | #DynamicReference
+#NumberObjectExpression:                  #Choice21 | #DynamicReference
+#StringNumberObjectExpression:            #Choice22 | #DynamicReference
+#BooleanObjectExpression:                 #Choice23 | #DynamicReference
+#StringBooleanObjectExpression:           #Choice24 | #DynamicReference
+#NumberBooleanObjectExpression:           #Choice25 | #DynamicReference
+#StringNumberBooleanObjectExpression:     #Choice26 | #DynamicReference
+#ListObjectExpression:                    #Choice27
+#StringListObjectExpression:              #Choice28 | #DynamicReference
+#NumberListObjectExpression:              #Choice29 | #DynamicReference
+#StringNumberListObjectExpression:        #Choice30 | #DynamicReference
+#BooleanListObjectExpression:             #Choice31 | #DynamicReference
+#StringBooleanListObjectExpression:       #Choice32 | #DynamicReference
+#NumberBooleanListObjectExpression:       #Choice33 | #DynamicReference
+#StringNumberBooleanListObjectExpression: #Choice34 | #DynamicReference
+#ValueExpression:                         #Choice35 | #DynamicReference
 #Function: close({
 	[=~"^Fn::And$"]:      [...bool | #Choice1] & matchN(1, [list.MinItems(2) & list.MaxItems(10)])
 	[=~"^Fn::Base64$"]:   #String
@@ -543,19 +623,41 @@ import cfnScalarStrconv "strconv"
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
 #IfObject: close({[=~"^Fn::If$"]: [string, #ObjectValue, #ObjectValue]}) & structs.MinFields(1) & structs.MaxFields(1)
-#IfString: close({[=~"^Fn::If$"]: [string, #StringValue, #StringValue]}) & structs.MinFields(1) & structs.MaxFields(1)
+#IfString: close(
+	{[=~"^Fn::If$"]: [string, string | number | bool | #StringExpression, string | number | bool | #StringExpression]},
+) & structs.MinFields(1) & structs.MaxFields(1)
 #IfStringBoolean: close({
 	[=~"^Fn::If$"]: [
 		string,
-		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #StringBooleanExpression,
-		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #StringBooleanExpression,
+		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | number | #StringBooleanExpression,
+		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | number | #StringBooleanExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
 #IfStringBooleanList: close({
 	[=~"^Fn::If$"]: [
 		string,
-		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #StringBooleanListExpression,
-		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #StringBooleanListExpression,
+		string |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			number |
+			#StringBooleanListExpression,
+		string |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			number |
+			#StringBooleanListExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
 #IfStringBooleanListObject: close({
@@ -571,6 +673,7 @@ import cfnScalarStrconv "strconv"
 			"FALSE" |
 			#List |
 			#Object |
+			number |
 			#StringBooleanListObjectExpression,
 		string |
 			bool |
@@ -582,6 +685,7 @@ import cfnScalarStrconv "strconv"
 			"FALSE" |
 			#List |
 			#Object |
+			number |
 			#StringBooleanListObjectExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
@@ -597,6 +701,7 @@ import cfnScalarStrconv "strconv"
 			"False" |
 			"FALSE" |
 			#Object |
+			number |
 			#StringBooleanObjectExpression,
 		string |
 			bool |
@@ -607,17 +712,22 @@ import cfnScalarStrconv "strconv"
 			"False" |
 			"FALSE" |
 			#Object |
+			number |
 			#StringBooleanObjectExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
-#IfStringList: close(
-	{[=~"^Fn::If$"]: [string, string | #List | #StringListExpression, string | #List | #StringListExpression]},
-) & structs.MinFields(1) & structs.MaxFields(1)
+#IfStringList: close({
+	[=~"^Fn::If$"]: [
+		string,
+		string | #List | number | bool | #StringListExpression,
+		string | #List | number | bool | #StringListExpression,
+	]
+}) & structs.MinFields(1) & structs.MaxFields(1)
 #IfStringListObject: close({
 	[=~"^Fn::If$"]: [
 		string,
-		string | #List | #Object | #StringListObjectExpression,
-		string | #List | #Object | #StringListObjectExpression,
+		string | #List | #Object | number | bool | #StringListObjectExpression,
+		string | #List | #Object | number | bool | #StringListObjectExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
 #IfStringNumber: close({
@@ -642,6 +752,7 @@ import cfnScalarStrconv "strconv"
 						))*0 + 1,
 					)
 			} |
+			bool |
 			#StringNumberExpression,
 		string |
 			number |
@@ -662,6 +773,7 @@ import cfnScalarStrconv "strconv"
 						))*0 + 1,
 					)
 			} |
+			bool |
 			#StringNumberExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
@@ -932,6 +1044,7 @@ import cfnScalarStrconv "strconv"
 					)
 			} |
 			#List |
+			bool |
 			#StringNumberListExpression,
 		string |
 			number |
@@ -953,6 +1066,7 @@ import cfnScalarStrconv "strconv"
 					)
 			} |
 			#List |
+			bool |
 			#StringNumberListExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
@@ -980,6 +1094,7 @@ import cfnScalarStrconv "strconv"
 			} |
 			#List |
 			#Object |
+			bool |
 			#StringNumberListObjectExpression,
 		string |
 			number |
@@ -1002,6 +1117,7 @@ import cfnScalarStrconv "strconv"
 			} |
 			#List |
 			#Object |
+			bool |
 			#StringNumberListObjectExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
@@ -1028,6 +1144,7 @@ import cfnScalarStrconv "strconv"
 					)
 			} |
 			#Object |
+			bool |
 			#StringNumberObjectExpression,
 		string |
 			number |
@@ -1049,16 +1166,21 @@ import cfnScalarStrconv "strconv"
 					)
 			} |
 			#Object |
+			bool |
 			#StringNumberObjectExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
-#IfStringObject: close(
-	{[=~"^Fn::If$"]: [string, string | #Object | #StringObjectExpression, string | #Object | #StringObjectExpression]},
-) & structs.MinFields(1) & structs.MaxFields(1)
+#IfStringObject: close({
+	[=~"^Fn::If$"]: [
+		string,
+		string | #Object | number | bool | #StringObjectExpression,
+		string | #Object | number | bool | #StringObjectExpression,
+	]
+}) & structs.MinFields(1) & structs.MaxFields(1)
 #ImportValue: close({[=~"^Fn::ImportValue$"]: #String}) & structs.MinFields(1) & structs.MaxFields(1)
 #Join: close({[=~"^Fn::Join$"]: [string, [...#String] | #ListExpression]}) & structs.MinFields(1) & structs.MaxFields(1)
-#NoValue: Ref!: "AWS::NoValue"
-#Not: close({[=~"^Fn::Not$"]: [bool | #Choice1]}) & structs.MinFields(1) & structs.MaxFields(1)
+#NoValue: close({[=~"^Ref$"]: "AWS::NoValue"}) & structs.MinFields(1) & structs.MaxFields(1)
+#Not:     close({[=~"^Fn::Not$"]: [bool | #Choice1]}) & structs.MinFields(1) & structs.MaxFields(1)
 #Or: close({[=~"^Fn::Or$"]: [...bool | #Choice1] & matchN(1, [list.MinItems(2) & list.MaxItems(10)])}) & structs.MinFields(
 	1,
 ) & structs.MaxFields(1)
@@ -1097,6 +1219,7 @@ import cfnScalarStrconv "strconv"
 }) & structs.MinFields(1) & structs.MaxFields(1)
 #Choice3: close({
 	[=~"^Fn::RefAll$"]:     string
+	[=~"^Fn::ValueOf$"]:    [string, string]
 	[=~"^Fn::ValueOfAll$"]: [string, string]
 }) & structs.MinFields(1) & structs.MaxFields(1)
 #Choice4: close({
@@ -1118,7 +1241,7 @@ import cfnScalarStrconv "strconv"
 		Region?:     #String
 		RoleArn?:    #String
 	}
-	[=~"^Fn::If$"]: [string, #StringValue, #StringValue]
+	[=~"^Fn::If$"]: [string, string | number | bool | #StringExpression, string | number | bool | #StringExpression]
 }) & structs.MinFields(1) & structs.MaxFields(1)
 #Choice5: close({
 	[=~"^Ref$"]:           string
@@ -1219,6 +1342,7 @@ import cfnScalarStrconv "strconv"
 						))*0 + 1,
 					)
 			} |
+			bool |
 			#StringNumberExpression,
 		string |
 			number |
@@ -1239,6 +1363,7 @@ import cfnScalarStrconv "strconv"
 						))*0 + 1,
 					)
 			} |
+			bool |
 			#StringNumberExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
@@ -1263,8 +1388,8 @@ import cfnScalarStrconv "strconv"
 	}
 	[=~"^Fn::If$"]: [
 		string,
-		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #StringBooleanExpression,
-		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #StringBooleanExpression,
+		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | number | #StringBooleanExpression,
+		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | number | #StringBooleanExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
 #Choice11: close({
@@ -1437,7 +1562,11 @@ import cfnScalarStrconv "strconv"
 	[=~"^Fn::Cidr$"]:   [#String, int & >=1 & <=256 | #NumberExpression, int & >=0 & <=128 | #NumberExpression]
 	[=~"^Fn::GetAZs$"]: string | #Ref
 	[=~"^Fn::Split$"]:  [string, #String]
-	[=~"^Fn::If$"]:     [string, string | #List | #StringListExpression, string | #List | #StringListExpression]
+	[=~"^Fn::If$"]: [
+		string,
+		string | #List | number | bool | #StringListExpression,
+		string | #List | number | bool | #StringListExpression,
+	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
 #Choice14: close({
 	[=~"^Ref$"]:           string
@@ -1545,6 +1674,7 @@ import cfnScalarStrconv "strconv"
 					)
 			} |
 			#List |
+			bool |
 			#StringNumberListExpression,
 		string |
 			number |
@@ -1566,6 +1696,7 @@ import cfnScalarStrconv "strconv"
 					)
 			} |
 			#List |
+			bool |
 			#StringNumberListExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
@@ -1617,8 +1748,28 @@ import cfnScalarStrconv "strconv"
 	[=~"^Fn::Split$"]:  [string, #String]
 	[=~"^Fn::If$"]: [
 		string,
-		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #StringBooleanListExpression,
-		string | bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | #List | #StringBooleanListExpression,
+		string |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			number |
+			#StringBooleanListExpression,
+		string |
+			bool |
+			"true" |
+			"True" |
+			"TRUE" |
+			"false" |
+			"False" |
+			"FALSE" |
+			#List |
+			number |
+			#StringBooleanListExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
 #Choice18: close({
@@ -1798,7 +1949,11 @@ import cfnScalarStrconv "strconv"
 		Region?:     #String
 		RoleArn?:    #String
 	}
-	[=~"^Fn::If$"]: [string, string | #Object | #StringObjectExpression, string | #Object | #StringObjectExpression]
+	[=~"^Fn::If$"]: [
+		string,
+		string | #Object | number | bool | #StringObjectExpression,
+		string | #Object | number | bool | #StringObjectExpression,
+	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
 #Choice21: close({
 	[=~"^Ref$"]:           string
@@ -1900,6 +2055,7 @@ import cfnScalarStrconv "strconv"
 					)
 			} |
 			#Object |
+			bool |
 			#StringNumberObjectExpression,
 		string |
 			number |
@@ -1921,6 +2077,7 @@ import cfnScalarStrconv "strconv"
 					)
 			} |
 			#Object |
+			bool |
 			#StringNumberObjectExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
@@ -1975,6 +2132,7 @@ import cfnScalarStrconv "strconv"
 			"False" |
 			"FALSE" |
 			#Object |
+			number |
 			#StringBooleanObjectExpression,
 		string |
 			bool |
@@ -1985,6 +2143,7 @@ import cfnScalarStrconv "strconv"
 			"False" |
 			"FALSE" |
 			#Object |
+			number |
 			#StringBooleanObjectExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
@@ -2178,8 +2337,8 @@ import cfnScalarStrconv "strconv"
 	[=~"^Fn::Split$"]:  [string, #String]
 	[=~"^Fn::If$"]: [
 		string,
-		string | #List | #Object | #StringListObjectExpression,
-		string | #List | #Object | #StringListObjectExpression,
+		string | #List | #Object | number | bool | #StringListObjectExpression,
+		string | #List | #Object | number | bool | #StringListObjectExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
 #Choice29: close({
@@ -2291,6 +2450,7 @@ import cfnScalarStrconv "strconv"
 			} |
 			#List |
 			#Object |
+			bool |
 			#StringNumberListObjectExpression,
 		string |
 			number |
@@ -2313,6 +2473,7 @@ import cfnScalarStrconv "strconv"
 			} |
 			#List |
 			#Object |
+			bool |
 			#StringNumberListObjectExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)
@@ -2374,6 +2535,7 @@ import cfnScalarStrconv "strconv"
 			"FALSE" |
 			#List |
 			#Object |
+			number |
 			#StringBooleanListObjectExpression,
 		string |
 			bool |
@@ -2385,6 +2547,7 @@ import cfnScalarStrconv "strconv"
 			"FALSE" |
 			#List |
 			#Object |
+			number |
 			#StringBooleanListObjectExpression,
 	]
 }) & structs.MinFields(1) & structs.MaxFields(1)

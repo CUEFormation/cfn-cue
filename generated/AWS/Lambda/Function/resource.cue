@@ -20,7 +20,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h137fa0c392feb97f:schem
 #RuntimeManagementConfig:                      schema.#RuntimeManagementConfig
 #S3FilesConfig:                                schema.#S3FilesConfig
 #SnapStart:                                    schema.#SnapStart
-#SnapStartResponse:                            schema.#SnapStartResponse
 #Tag:                                          schema.#Tag
 #TenancyConfig:                                schema.#TenancyConfig
 #TracingConfig:                                schema.#TracingConfig

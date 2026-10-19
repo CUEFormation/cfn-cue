@@ -2,23 +2,20 @@
 
 package schema
 
-import (
-	"github.com/cueformation/cfn-cue/fn:fn"
-	"strings"
-)
-
+import "github.com/cueformation/cfn-cue/fn:fn"
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::ARCZonalShift::AutoshiftObserverNotificationStatus Resource Type
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ARCZonalShift::AutoshiftObserverNotificationStatus"
-	Properties!: close({Status!: #AutoshiftObserverNotificationStatus})
+	Type!: "AWS::ARCZonalShift::AutoshiftObserverNotificationStatus"
+	let properties = close({Status!: #AutoshiftObserverNotificationStatus})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#AccountId: =~"^\\d{12}$" | fn.#StringExpression
-
 #AutoshiftObserverNotificationStatus: "ENABLED" | fn.#StringExpression
-
-#Region: strings.MaxRunes(30) & strings.MinRunes(5) & =~"^[a-z0-9-]*$" | fn.#StringExpression

@@ -4,7 +4,5 @@ package Hypervisor
 
 import schema "github.com/cueformation/cfn-cue/resources/hee7317e303609a99:schema"
 
-#Resource:           schema.#Resource
-#HypervisorState:    schema.#HypervisorState
-#SyncMetadataStatus: schema.#SyncMetadataStatus
-#Tag:                schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

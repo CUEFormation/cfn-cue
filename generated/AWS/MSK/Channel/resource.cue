@@ -8,8 +8,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h21cf338a47e18bcd:schem
 #Catalog:                         schema.#Catalog
 #ChannelLoggingInfo:              schema.#ChannelLoggingInfo
 #ChannelName:                     schema.#ChannelName
-#ChannelStateInfo:                schema.#ChannelStateInfo
-#ChannelStatus:                   schema.#ChannelStatus
 #CloudWatchLogsLogDestination:    schema.#CloudWatchLogsLogDestination
 #DeadLetterQueueS3:               schema.#DeadLetterQueueS3
 #DestinationTable:                schema.#DestinationTable

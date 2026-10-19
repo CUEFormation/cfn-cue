@@ -6,62 +6,151 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::FinSpace::Environment"
-	Properties!: close({
-		DataBundles?:          [...#DataBundleArn] | fn.#ListExpression
-		Description?:          =~"^[a-zA-Z0-9. ]{1,1000}$" | fn.#StringExpression
+	let properties = close({
+		DataBundles?: [...#DataBundleArn] | fn.#ListExpression
+		Description?: =~"^[a-zA-Z0-9. ]{1,1000}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9. ]{1,1000}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		FederationMode?:       "LOCAL" | "FEDERATED" | fn.#StringExpression
 		FederationParameters?: #FederationParameters
-		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string) &
+		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 			=~"^[a-zA-Z-0-9-:\\/]{1,1000}$" |
-			fn.#StringExpression
-		Name!:                =~"^[a-zA-Z0-9]+[a-zA-Z0-9-]*[a-zA-Z0-9]{1,255}$" | fn.#StringExpression
+		{
+			number | bool
+			_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+				=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+				=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+				=~"^[a-zA-Z-0-9-:\\/]{1,1000}$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		Name!: =~"^[a-zA-Z0-9]+[a-zA-Z0-9-]*[a-zA-Z0-9]{1,255}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9]+[a-zA-Z0-9-]*[a-zA-Z0-9]{1,255}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		SuperuserParameters?: #SuperuserParameters
 		Tags?:                [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #DataBundleArn: =~"^arn:aws:finspace:[A-Za-z0-9_/.-]{0,63}:\\d*:data-bundle/[0-9A-Za-z_-]{1,128}$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^arn:aws:finspace:[A-Za-z0-9_/.-]{0,63}:\\d*:data-bundle/[0-9A-Za-z_-]{1,128}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #FederationParameters: close({
 	ApplicationCallBackURL?: =~"^https?://[-a-zA-Z0-9+&amp;@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_|]{1,1000}" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^https?://[-a-zA-Z0-9+&amp;@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_|]{1,1000}" & "\(self)"
+	} |
+	fn.#StringExpression
 	AttributeMap?: [...close({
-		Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Key?: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
 	FederationProviderName?: strings.MaxRunes(32) &
 	strings.MinRunes(1) &
 	=~"[^_\\p{Z}][\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}][^_\\p{Z}]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) &
+		strings.MinRunes(1) &
+		=~"[^_\\p{Z}][\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}][^_\\p{Z}]+" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	FederationURN?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9._\\-:\\/#\\+]+$" | fn.#StringExpression
-	SamlMetadataDocument?: strings.MaxRunes(10000000) & strings.MinRunes(1000) & =~".*" | fn.#StringExpression
+	FederationURN?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9._\\-:\\/#\\+]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9._\\-:\\/#\\+]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SamlMetadataDocument?: strings.MaxRunes(10000000) & strings.MinRunes(1000) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000000) & strings.MinRunes(1000) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
 	SamlMetadataURL?: =~"^https?://[-a-zA-Z0-9+&amp;@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_|]{1,1000}" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^https?://[-a-zA-Z0-9+&amp;@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&amp;@#/%=~_|]{1,1000}" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SuperuserParameters: close({
 	EmailAddress?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+[.]+[A-Za-z]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+[.]+[A-Za-z]+" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	FirstName?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]{1,50}$" | fn.#StringExpression
-	LastName?:  strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]{1,50}$" | fn.#StringExpression
+	FirstName?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]{1,50}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]{1,50}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LastName?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]{1,50}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]{1,50}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -7,12 +7,10 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -23,10 +21,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // endpoints.</p>
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaPackageV2::Channel"
-	Properties!: close({
-		ChannelGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		ChannelName!:      strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		Description?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		ChannelGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ChannelName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		InputSwitchConfiguration?:  #InputSwitchConfiguration
 		InputType?:                 #InputType
 		MultiviewConfiguration?:    #MultiviewConfiguration
@@ -34,13 +47,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		OutputLockingMode?:         #OutputLockingMode
 		Tags?:                      [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
-
-#IngestEndpoint: close({
-	Id?:  string | fn.#StringExpression
-	Url?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #InputSwitchConfiguration: close({
 	MQCSInputSwitching?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -67,9 +78,14 @@ fn.#ObjectExpression
 
 #MultiviewConfiguration: close({
 	AvailableLayouts!: list.MaxItems(6) & list.MinItems(1) & [...#MultiviewLayoutType] | fn.#ListExpression
-	AvailableSources!: list.MaxItems(10) & list.MinItems(1) & [
-		...strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	] |
+	AvailableSources!: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(256) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -90,7 +106,7 @@ fn.#ObjectExpression
 #OutputLockingMode: "EPOCH_LOCKED" | "NON_EPOCH_LOCKED" | fn.#StringExpression
 
 #Tag: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

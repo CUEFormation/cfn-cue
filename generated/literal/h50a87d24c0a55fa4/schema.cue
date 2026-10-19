@@ -25,7 +25,11 @@ import (
 	]
 
 	// The name of the bucket on the self-managed object storage server.
-	BucketName?:         strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$"
+	BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$"
 	CmkSecretConfig?:    #CmkSecretConfig
 	CustomSecretConfig?: #CustomSecretConfig
 	FederatedIdentity?:  #ObjectStorageFederatedIdentityConfig
@@ -105,10 +109,18 @@ import (
 // bucket.
 #GoogleOidcConfig: close({
 	// The name of the Google Cloud workload identity pool that DataSync federates with.
-	IdentityPoolName!: strings.MaxRunes(32) & strings.MinRunes(4)
+	IdentityPoolName!: =~"^[a-z][a-z0-9-]{2,30}[a-z0-9]$" &
+	matchN(0, [=~"^(?:gcp-)"]) &
+	string &
+	strings.MaxRunes(32) &
+	strings.MinRunes(4)
 
 	// The name of the OIDC identity provider configured in the Google Cloud workload identity pool.
-	IdentityProviderName!: strings.MaxRunes(32) & strings.MinRunes(4)
+	IdentityProviderName!: =~"^[a-z][a-z0-9-]{2,30}[a-z0-9]$" &
+	matchN(0, [=~"^(?:gcp-)"]) &
+	string &
+	strings.MaxRunes(32) &
+	strings.MinRunes(4)
 
 	// The human-readable Google Cloud project name.
 	ProjectName!: strings.MaxRunes(30) & strings.MinRunes(6) & =~"^[a-z][a-z0-9-]{4,28}[a-z0-9]$"

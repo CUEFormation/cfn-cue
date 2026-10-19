@@ -6,12 +6,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // configuration.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lambda::WebFunctionRevision"
-	Properties!: close({
+	let properties = close({
 		BuildConfig!: close({
 			CodeConfig!: close({
 				// The Amazon S3 location of the deployment artifact.
@@ -29,30 +27,79 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#ObjectExpression
 			RuntimeConfig!: close({
 				Runtime!: strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*[0-9]+(\\.[a-z0-9]+)*$" |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(30) &
+					strings.MinRunes(1) &
+					=~"^[a-z][a-z0-9]*[0-9]+(\\.[a-z0-9]+)*$" &
+					"\(self)"
+				} |
 				fn.#StringExpression
 			}) |
 			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-		Description?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		FunctionName!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		FunctionName!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:(aws[a-z-]*){1}:kms:[a-z0-9-]+:[0-9]{12}:key/.*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:(aws[a-z-]*){1}:kms:[a-z0-9-]+:[0-9]{12}:key/.*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ServiceConfig!: close({
 			EgressNetworkConnectorArn?: strings.MaxRunes(2048) &
 			strings.MinRunes(1) &
 			=~"^arn:(aws[a-z-]*):lambda:[a-z0-9-]+:[0-9]{12}:network-connector:[a-zA-Z0-9_-]+:[0-9]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(2048) &
+				strings.MinRunes(1) &
+				=~"^arn:(aws[a-z-]*):lambda:[a-z0-9-]+:[0-9]{12}:network-connector:[a-zA-Z0-9_-]+:[0-9]+$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			EnvironmentVariables?: close({
 
-				{[=~"^[a-zA-Z]([a-zA-Z0-9_])*$"]: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression}}) |
+				{[=~"^(?:Ref)$"]: error("disallowed")}
+
+				{
+					[=~"^[a-zA-Z]([a-zA-Z0-9_])*$"]: strings.MaxRunes(4096) & strings.MinRunes(1) |
+					{
+						number | bool
+						_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+					} |
+					fn.#StringExpression
+				}
+			}) |
 			fn.#ObjectExpression
 			ExecutionRoleArn!: strings.MaxRunes(2048) &
 			strings.MinRunes(20) &
 			=~"^arn:(aws[a-z-]*){1}:iam::[0-9]{12}:role/.*$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(2048) &
+				strings.MinRunes(20) &
+				=~"^arn:(aws[a-z-]*){1}:iam::[0-9]{12}:role/.*$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			MaxConcurrencyPerEnvironment?: int & <=128 & >=1 |
 				{
@@ -98,19 +145,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		}) |
 		fn.#ObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #LoggingConfig: close({
 	ApplicationLogLevel?: "TRACE" | "DEBUG" | "INFO" | "WARN" | "ERROR" | "FATAL" | fn.#StringExpression
-	LogGroup?:       strings.MaxRunes(500) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\-_/#]+$" | fn.#StringExpression
+	LogGroup?: strings.MaxRunes(500) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\-_/#]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\-_/#]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	SystemLogLevel?: "DEBUG" | "INFO" | "WARN" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #S3Object: close({
 	Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^([a-z0-9][a-z0-9\\.\\-]{1,61}[a-z0-9])$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) &
+		strings.MinRunes(3) &
+		=~"^([a-z0-9][a-z0-9\\.\\-]{1,61}[a-z0-9])$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Key!:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	VersionId?: string | fn.#StringExpression
+	Key!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	VersionId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

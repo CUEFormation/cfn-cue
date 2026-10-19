@@ -8,6 +8,5 @@ import schema "github.com/cueformation/cfn-cue/resources/h2ba2ac17d5d8ec1b:schem
 #KendraIndexConfiguration: schema.#KendraIndexConfiguration
 #NativeIndexConfiguration: schema.#NativeIndexConfiguration
 #RetrieverConfiguration:   schema.#RetrieverConfiguration
-#RetrieverStatus:          schema.#RetrieverStatus
 #RetrieverType:            schema.#RetrieverType
 #Tag:                      schema.#Tag

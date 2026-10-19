@@ -6,8 +6,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,15 +16,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // domain.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cases::Field"
-	Properties!: close({
+	let properties = close({
 		// Field-type specific attributes that control rendering and validation behavior
-		Attributes?:  #FieldAttributes
-		Description?: strings.MaxRunes(255) | fn.#StringExpression
-		DomainId?:    strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-		Name!:        strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" | fn.#StringExpression
-		Tags?:        #Tags
-		Type!:        #FieldType
+		Attributes?: #FieldAttributes
+		Description?: strings.MaxRunes(255) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainId?: strings.MaxRunes(500) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^.*[\\S]$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: #Tags
+		Type!: #FieldType
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #FieldAttributes: close({Text?: #TextAttributes}) | fn.#ObjectExpression
@@ -32,8 +51,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #FieldType: "Text" | "Number" | "Boolean" | "DateTime" | "SingleSelect" | "Url" | "User" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

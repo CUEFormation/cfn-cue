@@ -8,23 +8,31 @@ import (
 	"struct"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This is a CloudFormation resource for activating the first-party AWS::Hooks::GuardHook.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFormation::GuardHook"
-	Properties!: close({
-		Alias!: string | fn.#StringExpression
+	let properties = close({
+		Alias!: =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}$" & matchN(0, [=~"^(?:(?i)aws)"]) & string |
+		{
+			number | bool
+			_cfnString: =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}$" &
+			matchN(0, [=~"^(?:(?i)aws)"]) &
+			string &
+			"\(self)"
+		} |
+		fn.#StringExpression
 
 		// The execution role ARN assumed by hooks to read Guard rules from S3 and write
 		// Guard outputs to S3.
 		ExecutionRole!: #Role
 		FailureMode!:   "FAIL" | "WARN" | fn.#StringExpression
 		HookStatus!:    "ENABLED" | "DISABLED" | fn.#StringExpression
-		LogBucket?:     string | fn.#StringExpression
+		LogBucket?:     string | number | bool | fn.#StringExpression
 		Options?: null |
 		bool |
 		number |
@@ -54,7 +62,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-		TargetFilters?: fn.#Object & {...} & matchN(1, [
+		TargetFilters?: fn.#Object & matchN(1, [
 			struct.MinFields(1) & close({
 				Actions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Action] | fn.#ListExpression
 				InvocationPoints?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#InvocationPoint] |
@@ -70,6 +78,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression
 		TargetOperations!: list.UniqueItems() & [...#TargetOperation] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Action: "CREATE" | "UPDATE" | "DELETE" | fn.#StringExpression
@@ -83,18 +95,43 @@ fn.#ObjectExpression
 
 #InvocationPoint: "PRE_PROVISION" | fn.#StringExpression
 
-#Role: strings.MaxRunes(256) & =~"arn:.+:iam::[0-9]{12}:role/.+" | fn.#StringExpression
+#Role: strings.MaxRunes(256) & =~"arn:.+:iam::[0-9]{12}:role/.+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & =~"arn:.+:iam::[0-9]{12}:role/.+" & "\(self)"
+} |
+fn.#StringExpression
 
 #S3Location: close({
-	Uri!:       string | fn.#StringExpression
-	VersionId?: string | fn.#StringExpression
+	Uri!:       string | number | bool | fn.#StringExpression
+	VersionId?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#StackName: strings.MaxRunes(128) & =~"^[a-zA-Z*?][-a-zA-Z0-9*?]*$" | fn.#StringExpression
+#StackName: strings.MaxRunes(128) & =~"^[a-zA-Z*?][-a-zA-Z0-9*?]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & =~"^[a-zA-Z*?][-a-zA-Z0-9*?]*$" & "\(self)"
+} |
+fn.#StringExpression
 
-#StackRole: (=~"arn:.+:iam::[0-9]{12}:role/.+" | string) & strings.MaxRunes(256) | fn.#StringExpression
+#StackRole: (=~"arn:.+:iam::[0-9]{12}:role/.+" | string) & strings.MaxRunes(256) |
+{
+	number | bool
+	_cfnString: (=~"arn:.+:iam::[0-9]{12}:role/.+" | string) & strings.MaxRunes(256) & "\(self)"
+} |
+fn.#StringExpression
 
-#TargetName: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+#TargetName: =~"^.*$" & matchN(0, [=~"^(?:.*\\*\\?)"]) & string & strings.MaxRunes(256) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: =~"^.*$" &
+	matchN(0, [=~"^(?:.*\\*\\?)"]) &
+	string &
+	strings.MaxRunes(256) &
+	strings.MinRunes(1) &
+	"\(self)"
+} |
+fn.#StringExpression
 
 #TargetOperation: "RESOURCE" | "STACK" | "CHANGE_SET" | "CLOUD_CONTROL" | fn.#StringExpression

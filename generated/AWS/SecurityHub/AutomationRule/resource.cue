@@ -8,12 +8,10 @@ import schema "github.com/cueformation/cfn-cue/resources/hf789a2e85b4a4422:schem
 #AutomationRulesAction:              schema.#AutomationRulesAction
 #AutomationRulesFindingFieldsUpdate: schema.#AutomationRulesFindingFieldsUpdate
 #AutomationRulesFindingFilters:      schema.#AutomationRulesFindingFilters
-#BooleanFilter:                      schema.#BooleanFilter
 #DateFilter:                         schema.#DateFilter
 #DateRange:                          schema.#DateRange
 #ISO8601DateString:                  schema.#ISO8601DateString
 #MapFilter:                          schema.#MapFilter
-#NonEmptyString:                     schema.#NonEmptyString
 #NoteUpdate:                         schema.#NoteUpdate
 #NumberFilter:                       schema.#NumberFilter
 #RelatedFinding:                     schema.#RelatedFinding
@@ -26,4 +24,3 @@ import schema "github.com/cueformation/cfn-cue/resources/hf789a2e85b4a4422:schem
 #arnOrId:                            schema.#arnOrId
 #int100:                             schema.#int100
 #map:                                schema.#map
-#timestamp:                          schema.#timestamp

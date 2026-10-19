@@ -6,45 +6,47 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema for Logs Integration Resource
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Logs::Integration"
-	Properties!: close({
-		IntegrationName!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
+	let properties = close({
+		IntegrationName!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		IntegrationType!: "OPENSEARCH" | fn.#StringExpression
 		ResourceConfig!:  close({OpenSearchResourceConfig?: #OpenSearchResourceConfig}) | fn.#ObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Arn: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"[\\w#+=/:,.@-]*\\*?" | fn.#StringExpression
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"[\\w#+=/:,.@-]*\\*?" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"[\\w#+=/:,.@-]*\\*?" & "\(self)"
+} |
+fn.#StringExpression
 
 #OpenSearchResourceConfig: close({
 	ApplicationARN?:            #Arn
 	DashboardViewerPrincipals!: [...#Arn] | fn.#ListExpression
 	DataSourceRoleArn!: #Arn &
-	(null |
-	bool |
-	number |
-	=~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-	[...] |
-	{...}) |
+	(null | bool | number | =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" | [...] | {...}) |
 	fn.#StringExpression
 	KmsKeyArn?: #Arn &
-	(null |
-	bool |
-	number |
-	=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-	[...] |
-	{...}) |
+	(null | bool | number | =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | [...] | {...}) |
 	fn.#StringExpression
 	RetentionDays?: int & <=3650 & >=1 |
 		{

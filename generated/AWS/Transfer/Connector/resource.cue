@@ -8,7 +8,6 @@ import schema "github.com/cueformation/cfn-cue/resources/haced0395c8775b8d:schem
 #ConnectorAsyncMdnConfig:         schema.#ConnectorAsyncMdnConfig
 #ConnectorEgressConfig:           schema.#ConnectorEgressConfig
 #ConnectorEgressType:             schema.#ConnectorEgressType
-#ConnectorStatus:                 schema.#ConnectorStatus
 #ConnectorVpcLatticeEgressConfig: schema.#ConnectorVpcLatticeEgressConfig
 #IpAddressType:                   schema.#IpAddressType
 #ServerId:                        schema.#ServerId

@@ -7,30 +7,69 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppSync::DomainName
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppSync::DomainName"
-	Properties!: close({
-		CertificateArn!: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	let properties = close({
+		CertificateArn!: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(3) &
 		=~"^arn:[a-z-]*:acm:[a-z0-9-]*:\\d{12}:certificate/[0-9A-Za-z_/-]*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(3) &
+			=~"^arn:[a-z-]*:acm:[a-z0-9-]*:\\d{12}:certificate/[0-9A-Za-z_/-]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Description?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		Description?: strings.MaxRunes(255) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		DomainName!: strings.MaxRunes(253) & strings.MinRunes(1) & =~"^(\\*[a-z\\d-]*\\.)?([a-z\\d-]+\\.)+[a-z\\d-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(253) &
+			strings.MinRunes(1) &
+			=~"^(\\*[a-z\\d-]*\\.)?([a-z\\d-]+\\.)+[a-z\\d-]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: #Tags
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\w+-=\\.:/@]*$" | fn.#StringExpression
+	Key!: =~"^[ a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[ a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\w+-=\\.:/@]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\w+-=\\.:/@]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

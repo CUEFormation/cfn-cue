@@ -16,8 +16,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h89f1b545c1f07d05:schem
 #Bumper:                                   schema.#Bumper
 #CdnConfiguration:                         schema.#CdnConfiguration
 #ConfigurationAliases:                     schema.#ConfigurationAliases
-#DashConfiguration:                        schema.#DashConfiguration
-#HlsConfiguration:                         schema.#HlsConfiguration
 #HttpRequest:                              schema.#HttpRequest
 #InsertionMode:                            schema.#InsertionMode
 #LivePreRollConfiguration:                 schema.#LivePreRollConfiguration

@@ -7,19 +7,17 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::ODB::CloudAutonomousVmCluster resource creates a Cloud Autonomous VM Cluster
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ODB::CloudAutonomousVmCluster"
-	Properties?: close({
+	let properties = close({
 		AutonomousDataStorageSizeInTBs?: number |
 			{
 				string &
@@ -42,6 +40,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		CloudExadataInfrastructureId?: strings.MaxRunes(2048) &
 		strings.MinRunes(6) &
 		=~"^(arn:(?:aws|aws-cn|aws-us-gov|aws-iso-{0,1}[a-z]{0,1}):[a-z0-9-]+:[a-z0-9-]*:[0-9]+:[a-z0-9-]+/[a-zA-Z0-9_~.-]{6,64}|[a-zA-Z0-9_~.-]{6,64})$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(6) &
+			=~"^(arn:(?:aws|aws-cn|aws-us-gov|aws-iso-{0,1}[a-z]{0,1}):[a-z0-9-]+:[a-z0-9-]*:[0-9]+:[a-z0-9-]+/[a-zA-Z0-9_~.-]{6,64}|[a-zA-Z0-9_~.-]{6,64})$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		CpuCoreCountPerNode?: int |
 			{
@@ -59,13 +64,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		DbServers?:   list.MaxItems(1024) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-		Description?: string | fn.#StringExpression
-		DisplayName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		DbServers?: list.MaxItems(1024) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
+		Description?: string | number | bool | fn.#StringExpression
+		DisplayName?: =~"^[a-zA-Z_][a-zA-Z0-9_-]*$" &
+		matchN(0, [=~"^(?s:.){1}(?:.*--)"]) &
+		string &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z_][a-zA-Z0-9_-]*$" &
+			matchN(0, [=~"^(?s:.){1}(?:.*--)"]) &
+			string &
+			strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 		IamRoles?: list.UniqueItems() & [...close({
-			AwsIntegration?: string | fn.#StringExpression
-			IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
+			AwsIntegration?: string | number | bool | fn.#StringExpression
+			IamRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+			{
+				number | bool
+				_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
@@ -94,6 +118,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		OdbNetworkId?: strings.MaxRunes(2048) &
 		strings.MinRunes(6) &
 		=~"^(arn:(?:aws|aws-cn|aws-us-gov|aws-iso-{0,1}[a-z]{0,1}):[a-z0-9-]+:[a-z0-9-]*:[0-9]+:[a-z0-9-]+/[a-zA-Z0-9_~.-]{6,64}|[a-zA-Z0-9_~.-]{6,64})$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(6) &
+			=~"^(arn:(?:aws|aws-cn|aws-us-gov|aws-iso-{0,1}[a-z]{0,1}):[a-z0-9-]+:[a-z0-9-]*:[0-9]+:[a-z0-9-]+/[a-zA-Z0-9_~.-]{6,64}|[a-zA-Z0-9_~.-]{6,64})$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ScanListenerPortNonTls?: int & <=8999 & >=1024 |
 			{
@@ -131,8 +162,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Tags?:     [...#Tag] | fn.#ListExpression
-		TimeZone?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
+		TimeZone?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		TotalContainerDatabases?: int |
 			{
 				string &
@@ -150,15 +186,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
-
-#IamRole: close({
-	AwsIntegration?: string | fn.#StringExpression
-	IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Status?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #MaintenanceWindow: close({
 	DaysOfWeek?: [
@@ -238,7 +270,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -97,8 +97,12 @@ import (
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws[a-zA-Z-]*:lambda:[a-z-]*-[0-9]:[0-9]{12}:function:[a-zA-Z0-9-_]+(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})?(:[a-zA-Z0-9-_]+)?$"
-	RoleArn?:      =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(0))
-	S3BucketName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1284) & strings.MinRunes(0))
+	S3BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(1) &
+	=~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$"
 })
 
 #ImageExtractionConfiguration: close({ImageExtractionStatus!: #ImageExtractionStatus})

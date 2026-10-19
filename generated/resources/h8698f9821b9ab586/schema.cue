@@ -7,17 +7,27 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::QuickSight::OAuthClientApplication Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QuickSight::OAuthClientApplication"
-	Properties!: close({
-		ClientId?:     strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\p{Cc}]+$" | fn.#StringExpression
-		ClientSecret?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\p{Cc}]+$" | fn.#StringExpression
+	let properties = close({
+		ClientId?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\p{Cc}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\p{Cc}]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ClientSecret?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\p{Cc}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\p{Cc}]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		DataSourceType?: "ADOBE_ANALYTICS" |
 			"AMAZON_ELASTICSEARCH" |
 			"AMAZON_OPENSEARCH" |
@@ -58,24 +68,60 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"WEB_CRAWLER" |
 			fn.#StringExpression
 		IdentityProviderVpcConnectionProperties?: #IdentityProviderVpcConnectionProperties
-		Name!:                                    strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		Name!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		OAuthAuthorizationEndpointUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[^\\p{Cc}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[^\\p{Cc}]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 		OAuthClientApplicationId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^/][^\\x{0000}-\\x{001f}]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^/][^\\x{0000}-\\x{001f}]*" & "\(self)"
+		} |
 		fn.#StringExpression
 		OAuthClientAuthenticationType!: "TOKEN" | fn.#StringExpression
-		OAuthScopes?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[^\\p{Cc}]+$" | fn.#StringExpression
+		OAuthScopes?: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[^\\p{Cc}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & =~"^[^\\p{Cc}]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		OAuthTokenEndpointUrl!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[^\\p{Cc}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[^\\p{Cc}]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#IdentityProviderVpcConnectionProperties: close({VpcConnectionArn!: string | fn.#StringExpression}) |
+#IdentityProviderVpcConnectionProperties: close({VpcConnectionArn!: string | number | bool | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

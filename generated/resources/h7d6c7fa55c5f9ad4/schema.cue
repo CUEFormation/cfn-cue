@@ -6,16 +6,37 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Logs::LogStream
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Logs::LogStream"
-	Properties!: close({
-		LogGroupName!:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
-		LogStreamName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]*$" | fn.#StringExpression
+	let properties = close({
+		LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^[\\.\\-_/#A-Za-z0-9]+$" |
+		{
+			number | bool
+			_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+			strings.MaxRunes(512) &
+			strings.MinRunes(1) &
+			=~"^[\\.\\-_/#A-Za-z0-9]+$" &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		LogStreamName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

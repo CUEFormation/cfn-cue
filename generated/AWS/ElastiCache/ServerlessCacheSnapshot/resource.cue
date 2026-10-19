@@ -4,6 +4,5 @@ package ServerlessCacheSnapshot
 
 import schema "github.com/cueformation/cfn-cue/resources/ha0829992f02d11d1:schema"
 
-#Resource:                     schema.#Resource
-#ServerlessCacheConfiguration: schema.#ServerlessCacheConfiguration
-#Tag:                          schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

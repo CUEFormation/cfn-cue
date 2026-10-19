@@ -22,5 +22,4 @@ import schema "github.com/cueformation/cfn-cue/resources/heba13701216ef5f2:schem
 #IAMConnectionMetadata:                    schema.#IAMConnectionMetadata
 #NoneConnectionMetadata:                   schema.#NoneConnectionMetadata
 #ResourcePermission:                       schema.#ResourcePermission
-#ResourceStatus:                           schema.#ResourceStatus
 #Tag:                                      schema.#Tag

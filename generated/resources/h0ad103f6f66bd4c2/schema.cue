@@ -7,41 +7,86 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::View
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::View"
-	Properties!: close({
-		Actions!: list.MaxItems(1000) & [
-			...strings.MaxRunes(255) &
+	let properties = close({
+		Actions!: list.MaxItems(1000) & [...strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"^([\\p{L}\\p{N}_.:\\/=+\\-@]+[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) &
 			strings.MinRunes(1) &
-			=~"^([\\p{L}\\p{N}_.:\\/=+\\-@]+[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*)$" |
-			fn.#StringExpression
-		] |
+			=~"^([\\p{L}\\p{N}_.:\\/=+\\-@]+[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*)$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		Description?: strings.MaxRunes(4096) &
 		strings.MinRunes(0) &
 		=~"^([\\p{L}\\p{N}_.:\\/=+\\-@,()']+[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@,()']*)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4096) &
+			strings.MinRunes(0) &
+			=~"^([\\p{L}\\p{N}_.:\\/=+\\-@,()']+[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@,()']*)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		InstanceArn!: strings.MaxRunes(100) &
 		strings.MinRunes(1) &
 		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) &
+			strings.MinRunes(1) &
+			=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Name!: strings.MaxRunes(512) &
 		strings.MinRunes(1) &
 		=~"^([\\p{L}\\p{N}_.:\\/=+\\-@()']+[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@()']*)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) &
+			strings.MinRunes(1) &
+			=~"^([\\p{L}\\p{N}_.:\\/=+\\-@()']+[\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@()']*)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?:     list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		Template!: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Template!: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

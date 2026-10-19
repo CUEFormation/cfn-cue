@@ -3,15 +3,15 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Set a version as default version for a hook in CloudFormation Registry.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFormation::HookDefaultVersion"
-	Properties?: matchN(1, [{
+	let properties = matchN(1, [{
 		TypeVersionArn!: _
 		...
 	}, {
@@ -19,9 +19,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		VersionId!: _
 		...
 	}]) & close({
-		TypeName?: =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}$" | fn.#StringExpression
+		TypeName?: =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}$" |
+		{
+			number | bool
+			_cfnString: =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		TypeVersionArn?: =~"^arn:aws[A-Za-z0-9-]{0,64}:cloudformation:[A-Za-z0-9-]{1,64}:([0-9]{12})?:type/hook/.+$" |
-			fn.#StringExpression
-		VersionId?: =~"^[A-Za-z0-9-]{1,128}$" | fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[A-Za-z0-9-]{0,64}:cloudformation:[A-Za-z0-9-]{1,64}:([0-9]{12})?:type/hook/.+$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		VersionId?: =~"^[A-Za-z0-9-]{1,128}$" |
+		{
+			number | bool
+			_cfnString: =~"^[A-Za-z0-9-]{1,128}$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }

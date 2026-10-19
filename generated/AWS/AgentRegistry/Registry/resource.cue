@@ -10,12 +10,10 @@ import schema "github.com/cueformation/cfn-cue/resources/hd24af14efdd40c17:schem
 #AuthorizingClaimMatchValueType:   schema.#AuthorizingClaimMatchValueType
 #AutoApprovalRule:                 schema.#AutoApprovalRule
 #AutoDetectionScope:               schema.#AutoDetectionScope
-#AutoDetectionStatus:              schema.#AutoDetectionStatus
 #ClaimMatchValueType:              schema.#ClaimMatchValueType
 #CustomClaimValidationType:        schema.#CustomClaimValidationType
 #CustomJWTAuthorizerConfiguration: schema.#CustomJWTAuthorizerConfiguration
 #DiscoveryConfiguration:           schema.#DiscoveryConfiguration
 #EncryptionConfiguration:          schema.#EncryptionConfiguration
 #RegistryAuthorizerType:           schema.#RegistryAuthorizerType
-#RegistryStatus:                   schema.#RegistryStatus
 #Tag:                              schema.#Tag

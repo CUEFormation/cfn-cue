@@ -3,32 +3,48 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema of AWS::EMRContainers::Endpoint Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EMRContainers::Endpoint"
-	Properties!: close({
+	let properties = close({
 		// The configuration overrides for the managed endpoint.
 		ConfigurationOverrides?: #ConfigurationOverrides
-		ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		ExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:(aws[a-zA-Z0-9-]*):iam::(\\d{12})?:(role((\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}))[\\w+=,.@-]+)$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:(aws[a-zA-Z0-9-]*):iam::(\\d{12})?:(role((\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}))[\\w+=,.@-]+)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-9A-Za-z][A-Za-z0-9\\-_]*" | fn.#StringExpression
-		ReleaseLabel!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[A-Za-z0-9._/-]+" | fn.#StringExpression
+		Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-9A-Za-z][A-Za-z0-9\\-_]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-9A-Za-z][A-Za-z0-9\\-_]*" & "\(self)"
+		} |
+		fn.#StringExpression
+		ReleaseLabel!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[A-Za-z0-9._/-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[A-Za-z0-9._/-]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		SessionIdleTimeoutInMinutes?: int & <=1440 & >=1 |
 			{
 				string &
@@ -47,21 +63,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Tags?:             list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		Type!:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-		VirtualClusterId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z]+$" | fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Type!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+		} |
+		fn.#StringExpression
+		VirtualClusterId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-z]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Certificate: close({
-	CertificateArn?:  string | fn.#StringExpression
-	CertificateData?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #CloudWatchMonitoringConfiguration: close({
-	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$" | fn.#StringExpression
-	LogStreamNamePrefix?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+	LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"^[\\.\\-_/#A-Za-z0-9]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^[\\.\\-_/#A-Za-z0-9]+$" &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	LogStreamNamePrefix?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -88,16 +129,31 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	RotationSize!: strings.MaxRunes(12) & strings.MinRunes(3) & =~"^\\d+(\\.\\d+)?[KMG][Bb]?$" | fn.#StringExpression
+	RotationSize!: strings.MaxRunes(12) & strings.MinRunes(3) & =~"^\\d+(\\.\\d+)?[KMG][Bb]?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(12) & strings.MinRunes(3) & =~"^\\d+(\\.\\d+)?[KMG][Bb]?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EMREKSConfiguration: close({
-	Classification!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
+	Classification!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+	} |
+	fn.#StringExpression
 	Configurations?: list.MaxItems(100) & [...] & [...#EMREKSConfiguration] | fn.#ListExpression
 	Properties?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
+		{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
@@ -114,12 +170,29 @@ fn.#ObjectExpression
 	LogUri!: strings.MaxRunes(10280) &
 	strings.MinRunes(1) &
 	=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\r\\n\\t]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10280) &
+		strings.MinRunes(1) &
+		=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\r\\n\\t]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

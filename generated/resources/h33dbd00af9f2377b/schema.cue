@@ -4,26 +4,29 @@ package schema
 
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"list"
 	"strings"
+	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Synthetics::Canary
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Synthetics::Canary"
-	Properties!: close({
+	let properties = close({
 		// Provide artifact configuration
-		ArtifactConfig?:     #ArtifactConfig
-		ArtifactS3Location!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^(s3|S3)://" | fn.#StringExpression
-		BrowserConfigs?:     list.MaxItems(2) & list.MinItems(1) & [...#BrowserConfig] | fn.#ListExpression
+		ArtifactConfig?: #ArtifactConfig
+		ArtifactS3Location!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^(s3|S3)://" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^(s3|S3)://" & "\(self)"
+		} |
+		fn.#StringExpression
+		BrowserConfigs?: list.MaxItems(2) & list.MinItems(1) & [...#BrowserConfig] | fn.#ListExpression
 		Code!: matchN(>=1, [{
 			Handler!:  _
 			S3Bucket!: _
@@ -49,19 +52,48 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			BlueprintTypes!: _
 			...
 		}]) & close({
-			BlueprintTypes?: list.MaxItems(1) & [...] & [
-				...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_\\-\\.]+$" | fn.#StringExpression
-			] |
+			BlueprintTypes?: list.MaxItems(1) & [...] & [...strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			=~"^[0-9a-zA-Z_\\-\\.]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_\\-\\.]+$" & "\(self)"
+			} |
+			fn.#StringExpression] |
 			fn.#ListExpression
 			Dependencies?: list.MaxItems(1) & [...] & [...#Dependency] | fn.#ListExpression
 			Handler?: strings.MaxRunes(128) &
 			strings.MinRunes(0) &
 			=~"^(([0-9a-zA-Z_-]+(\\/|\\.))*[0-9A-Za-z_\\\\-]+(\\.|::)[A-Za-z_][A-Za-z0-9_]*)?$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) &
+				strings.MinRunes(0) &
+				=~"^(([0-9a-zA-Z_-]+(\\/|\\.))*[0-9A-Za-z_\\\\-]+(\\.|::)[A-Za-z_][A-Za-z0-9_]*)?$" &
+				"\(self)"
+			} |
 			fn.#StringExpression
-			S3Bucket?:        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-			S3Key?:           strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-			S3ObjectVersion?: string | fn.#StringExpression
-			Script?:          string | fn.#StringExpression
+			S3Bucket?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+			=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+			strings.MaxRunes(1024) &
+			strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+				=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+				strings.MaxRunes(1024) &
+				strings.MinRunes(1) &
+				"\(self)"
+			} |
+			fn.#StringExpression
+			S3Key?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
+			S3ObjectVersion?: string | number | bool | fn.#StringExpression
+			Script?:          string | number | bool | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		DeleteLambdaResourcesOnCanaryDeletion?: bool |
@@ -73,10 +105,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"FALSE" |
 			fn.#BooleanExpression
 		DryRunAndUpdate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		ExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(1) &
 		=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		FailureRetentionPeriod?: int |
 			{
@@ -94,18 +134,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(1) &
 		=~"^arn:[a-z0-9-]+:kms:[a-z0-9-]+:[0-9]{12}:(key/([a-f0-9-]{36}|mrk-[a-f0-9]{32})|alias/[a-zA-Z0-9:/_.-]+)$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^arn:[a-z0-9-]+:kms:[a-z0-9-]+:[0-9]{12}:(key/([a-f0-9-]{36}|mrk-[a-f0-9]{32})|alias/[a-zA-Z0-9:/_.-]+)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name!:                       =~"^[0-9a-z_\\-]{1,255}$" | fn.#StringExpression
+		Name!: =~"^[0-9a-z_\\-]{1,255}$" |
+		{
+			number | bool
+			_cfnString: =~"^[0-9a-z_\\-]{1,255}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ProvisionedResourceCleanup?: "AUTOMATIC" | "OFF" | fn.#StringExpression
 		Replicas?: list.MaxItems(50) & list.MinItems(1) & [...close({
-			KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+			KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 				=~"^arn:[a-z0-9-]+:kms:[a-z0-9-]+:[0-9]{12}:(key/([a-f0-9-]{36}|mrk-[a-f0-9]{32})|alias/[a-zA-Z0-9:/_.-]+)$" |
-				fn.#StringExpression
-			Location!:                 string | fn.#StringExpression
+			{
+				number | bool
+				_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+					=~"^arn:[a-z0-9-]+:kms:[a-z0-9-]+:[0-9]{12}:(key/([a-f0-9-]{36}|mrk-[a-f0-9]{32})|alias/[a-zA-Z0-9:/_.-]+)$" &
+					"\(self)"
+			} |
+			fn.#StringExpression
+			Location!:                 string | number | bool | fn.#StringExpression
 			ResourcesToReplicateTags?: list.UniqueItems() & [...#ResourceToTag] | fn.#ListExpression
 			Tags?:                     [...#Tag] | fn.#ListExpression
 			VpcConfig?: close({
@@ -117,12 +176,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					"False" |
 					"FALSE" |
 					fn.#BooleanExpression
-				SecurityGroupIds!: list.MaxItems(5) & [...] & [
-					...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-						fn.#StringExpression
-				] |
+				SecurityGroupIds!: list.MaxItems(5) & [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+				{
+					number | bool
+					_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+				} |
+				fn.#StringExpression] |
+				fn.#ListExpression
+				SubnetIds!: list.MaxItems(16) & [...] & [...string | number | bool | fn.#StringExpression] |
 					fn.#ListExpression
-				SubnetIds!: list.MaxItems(16) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
 			}) |
 			fn.#ObjectExpression
 		}) |
@@ -132,8 +194,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#ListExpression
 
 		// Provide canary run configuration
-		RunConfig?:      #RunConfig
-		RuntimeVersion!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		RunConfig?: #RunConfig
+		RuntimeVersion!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Frequency to run your canaries
 		Schedule!:                 #Schedule
@@ -163,6 +230,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		VisualReference?:  #VisualReference
 		VisualReferences?: list.MaxItems(2) & list.MinItems(1) & [...#VisualReference] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ArtifactConfig: close({
@@ -172,8 +243,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #BaseScreenshot: {
-	IgnoreCoordinates?: [...string | fn.#StringExpression] | fn.#ListExpression
-	ScreenshotName!:    string | fn.#StringExpression
+	IgnoreCoordinates?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	ScreenshotName!:    string | number | bool | fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 
@@ -181,94 +252,21 @@ fn.#ObjectExpression
 
 #BrowserType: "CHROME" | "FIREFOX" | fn.#StringExpression
 
-#Code: matchN(>=1, [{
-	Handler!:  _
-	S3Bucket!: _
-	S3Key!:    _
-	...
-}, {
-	BlueprintTypes!: _
-	S3Bucket!:       _
-	S3Key!:          _
-	...
-}, {
-	Handler!: _
-	Script!:  _
-	...
-}, {
-	BlueprintTypes!: _
-	Script!:         _
-	...
-}, {
-	Handler!: _
-	...
-}, {
-	BlueprintTypes!: _
-	...
-}]) & close({
-	BlueprintTypes?: list.MaxItems(1) & [...] & [
-		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_\\-\\.]+$" | fn.#StringExpression
-	] |
-	fn.#ListExpression
-	Dependencies?: list.MaxItems(1) & [...] & [...#Dependency] | fn.#ListExpression
-	Handler?: strings.MaxRunes(128) &
-	strings.MinRunes(0) &
-	=~"^(([0-9a-zA-Z_-]+(\\/|\\.))*[0-9A-Za-z_\\\\-]+(\\.|::)[A-Za-z_][A-Za-z0-9_]*)?$" |
-	fn.#StringExpression
-	S3Bucket?:          strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	S3Key?:             strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	S3ObjectVersion?:   string | fn.#StringExpression
-	Script?:            string | fn.#StringExpression
-	SourceLocationArn?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Dependency: close({
 	Reference!: strings.MaxRunes(140) &
 	strings.MinRunes(1) &
 	=~"arn:[a-zA-Z0-9-]+:lambda:[a-zA-Z0-9-]+:\\d{12}:layer:[a-zA-Z0-9-_]+:[0-9]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(140) &
+		strings.MinRunes(1) &
+		=~"arn:[a-zA-Z0-9-]+:lambda:[a-zA-Z0-9-]+:\\d{12}:layer:[a-zA-Z0-9-_]+:[0-9]+" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Type?: "LambdaLayer" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Replica: close({
-	CanaryState?: string | fn.#StringExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"^arn:[a-z0-9-]+:kms:[a-z0-9-]+:[0-9]{12}:(key/([a-f0-9-]{36}|mrk-[a-f0-9]{32})|alias/[a-zA-Z0-9:/_.-]+)$" |
-		fn.#StringExpression
-	LastModified?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	Location!: string | fn.#StringExpression
-
-	// Replication status for this replica
-	ReplicationStatus?:        #ReplicaReplicationStatus
-	ResourcesToReplicateTags?: list.UniqueItems() & [...#ResourceToTag] | fn.#ListExpression
-	Tags?:                     [...#Tag] | fn.#ListExpression
-
-	// VPC configuration for this replica location
-	VpcConfig?: #VPCConfig
-}) |
-fn.#ObjectExpression
-
-#ReplicaReplicationStatus: close({State?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
 #ResourceToTag: "lambda-function" | fn.#StringExpression
 
@@ -296,7 +294,12 @@ fn.#ObjectExpression
 	ActiveTracing?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EnvironmentVariables?: close({
 
-		{[=~"[a-zA-Z][a-zA-Z0-9_]+"]: string | fn.#StringExpression}}) |
+		{[=~"[a-zA-Z][a-zA-Z0-9_]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	EphemeralStorage?: int & <=10240 & >=1024 |
 		{
@@ -351,17 +354,30 @@ fn.#ObjectExpression
 
 #S3Encryption: close({
 	EncryptionMode?: "SSE_KMS" | "SSE_S3" | fn.#StringExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z-]*)?:kms:[a-z]{2,4}(-[a-z]{2,4})?-[a-z]+-\\d{1}:\\d{12}:key/[\\w\\-\\/]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:(aws[a-zA-Z-]*)?:kms:[a-z]{2,4}(-[a-z]{2,4})?-[a-z]+-\\d{1}:\\d{12}:key/[\\w\\-\\/]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Schedule: close({
-	DurationInSeconds?: string | fn.#StringExpression
-	Expression!:        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	DurationInSeconds?: string | number | bool | fn.#StringExpression
+	Expression!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// Provide canary auto retry configuration
 	RetryConfig?: #RetryConfig
@@ -369,26 +385,42 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VPCConfig: close({
 	Ipv6AllowedForDualStack?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SecurityGroupIds!: list.MaxItems(5) & [...] & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SubnetIds!: list.MaxItems(16) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	SecurityGroupIds!: list.MaxItems(5) & [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SubnetIds!: list.MaxItems(16) & [...] & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VisualReference: close({
-	BaseCanaryRunId!: string | fn.#StringExpression
+	BaseCanaryRunId!: string | number | bool | fn.#StringExpression
 	BaseScreenshots?: [...#BaseScreenshot] | fn.#ListExpression
 	BrowserType?:     #BrowserType
 }) |

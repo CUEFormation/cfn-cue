@@ -6,16 +6,25 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::ResourcePolicy Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Bedrock::ResourcePolicy"
-	Properties!: close({
+	let properties = close({
 		PolicyDocument!: fn.#Object & {...} | fn.#ObjectExpression
-		ResourceArn!:    strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		ResourceArn!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

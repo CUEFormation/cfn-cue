@@ -7,41 +7,54 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::PaymentCredentialProvider
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::PaymentCredentialProvider"
-	Properties!: close({
+	let properties = close({
 		CredentialProviderVendor!: #PaymentCredentialProviderVendorType
-		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ProviderConfigurationInput?: #PaymentProviderConfigurationInput
 		Tags?:                       list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CoinbaseCdpConfigurationInput: close({
-	ApiKeyId!:           strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	ApiKeySecret?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	ApiKeyId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ApiKeySecret?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ApiKeySecretConfig?: #SecretReference
 	ApiKeySecretSource?: #SecretSourceType
-	WalletSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	WalletSecret?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	WalletSecretConfig?: #SecretReference
 	WalletSecretSource?: #SecretSourceType
-}) |
-fn.#ObjectExpression
-
-#CoinbaseCdpConfigurationOutput: close({
-	ApiKeyId!:            strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	ApiKeySecretArn!:     #SecretInfo
-	ApiKeySecretJsonKey?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	ApiKeySecretSource?:  #SecretSourceType
-	WalletSecretArn?:     #SecretInfo
-	WalletSecretJsonKey?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	WalletSecretSource?:  #SecretSourceType
 }) |
 fn.#ObjectExpression
 
@@ -53,52 +66,68 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#PaymentProviderConfigurationOutput: close({
-	CoinbaseCdpConfiguration?: #CoinbaseCdpConfigurationOutput
-	StripePrivyConfiguration?: #StripePrivyConfigurationOutput
-}) |
-fn.#ObjectExpression
-
-#SecretInfo: close({
-	SecretArn!: =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b|aws-iso-e|aws-iso-f|aws-eusc):secretsmanager:[A-Za-z0-9-]{1,64}:[0-9]{12}:secret:[a-zA-Z0-9-_/+=.@!]+$" |
-		fn.#StringExpression
-}) |
-	fn.#ObjectExpression
-
 #SecretReference: close({
-	JsonKey!:  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	SecretId!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	JsonKey!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	SecretId!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SecretSourceType: "MANAGED" | "EXTERNAL" | fn.#StringExpression
 
 #StripePrivyConfigurationInput: close({
-	AppId!:                         strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	AppSecret?:                     strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	AppSecretConfig?:               #SecretReference
-	AppSecretSource?:               #SecretSourceType
-	AuthorizationId!:               strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	AuthorizationPrivateKey?:       strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	AppId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	AppSecret?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	AppSecretConfig?: #SecretReference
+	AppSecretSource?: #SecretSourceType
+	AuthorizationId!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	AuthorizationPrivateKey?: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	AuthorizationPrivateKeyConfig?: #SecretReference
 	AuthorizationPrivateKeySource?: #SecretSourceType
 }) |
 fn.#ObjectExpression
 
-#StripePrivyConfigurationOutput: close({
-	AppId!:                          strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	AppSecretArn!:                   #SecretInfo
-	AppSecretJsonKey?:               strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	AppSecretSource?:                #SecretSourceType
-	AuthorizationId!:                strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	AuthorizationPrivateKeyArn!:     #SecretInfo
-	AuthorizationPrivateKeyJsonKey?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	AuthorizationPrivateKeySource?:  #SecretSourceType
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

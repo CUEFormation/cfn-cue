@@ -7,15 +7,15 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::DataAutomationProject Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Bedrock::DataAutomationProject"
-	Properties!: close({
+	let properties = close({
 		CustomOutputConfiguration?: #CustomOutputConfiguration
 		KmsEncryptionContext?: close({
 			KmsEncryptionContext?: _
@@ -24,19 +24,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			}
 			{}
 
-			{[=~"^.*$"]: string | fn.#StringExpression}
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^.*$"]: string | number | bool | fn.#StringExpression}
 		}) |
 		fn.#ObjectExpression
-		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+				=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+				=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		OverrideConfiguration?: #OverrideConfiguration
-		ProjectDescription?:    string | fn.#StringExpression
-		ProjectName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
-		ProjectType?: "ASYNC" | "SYNC" | fn.#StringExpression
+		ProjectDescription?:    string | number | bool | fn.#StringExpression
+		ProjectName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ProjectType?:                 "ASYNC" | "SYNC" | fn.#StringExpression
 		StandardOutputConfiguration?: #StandardOutputConfiguration
 		Tags?:                        list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AudioExtractionCategory: close({
@@ -88,9 +111,20 @@ fn.#ObjectExpression
 #BlueprintItem: close({
 	BlueprintArn!: strings.MaxRunes(128) &
 	=~"^arn:aws(|-cn|-us-gov|-iso|-iso-[a-z]):bedrock:[a-zA-Z0-9-]*:(aws|[0-9]{12}):blueprint/(bedrock-data-automation-public-[a-zA-Z0-9-_]{1,30}|[a-zA-Z0-9-]{12,36})$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) &
+		=~"^arn:aws(|-cn|-us-gov|-iso|-iso-[a-z]):bedrock:[a-zA-Z0-9-]*:(aws|[0-9]{12}):blueprint/(bedrock-data-automation-public-[a-zA-Z0-9-_]{1,30}|[a-zA-Z0-9-]{12,36})$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	BlueprintStage?:   #BlueprintStage
-	BlueprintVersion?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9]*$" | fn.#StringExpression
+	BlueprintStage?: #BlueprintStage
+	BlueprintVersion?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -99,10 +133,6 @@ fn.#ObjectExpression
 #ChannelLabelingConfiguration: close({State!: #State}) | fn.#ObjectExpression
 
 #CustomOutputConfiguration: close({Blueprints?: [...#BlueprintItem] | fn.#ListExpression}) | fn.#ObjectExpression
-
-#DataAutomationProjectStage: "DEVELOPMENT" | "LIVE" | fn.#StringExpression
-
-#DataAutomationProjectStatus: "COMPLETED" | "IN_PROGRESS" | "FAILED" | fn.#StringExpression
 
 #DesiredModality: "DOCUMENT" | "IMAGE" | "VIDEO" | "AUDIO" | fn.#StringExpression
 
@@ -275,8 +305,18 @@ fn.#ObjectExpression
 #State: "ENABLED" | "DISABLED" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -285,8 +325,6 @@ fn.#ObjectExpression
 	SpeakerLabeling?: #SpeakerLabelingConfiguration
 }) |
 fn.#ObjectExpression
-
-#Unit: close({}) | fn.#ObjectExpression
 
 #VideoBoundingBox: close({State!: #State}) | fn.#ObjectExpression
 

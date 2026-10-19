@@ -7,45 +7,111 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::WellArchitected::Workload Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WellArchitected::Workload"
-	Properties!: close({
-		AccountIds?: list.MaxItems(100) & [...] & [
-			...strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-		] |
+	let properties = close({
+		AccountIds?: list.MaxItems(100) & [...] & [...strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		ArchitecturalDesign?: strings.MaxRunes(2048) & =~"^(|(https?|ftp):\\/\\/[^\\s/$.?#].[^\\s]*)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & =~"^(|(https?|ftp):\\/\\/[^\\s/$.?#].[^\\s]*)$" & "\(self)"
+		} |
 		fn.#StringExpression
-		AwsRegions?:  list.MaxItems(50) & [...] & [...strings.MaxRunes(100) | fn.#StringExpression] | fn.#ListExpression
-		Description!: strings.MaxRunes(250) & strings.MinRunes(3) | fn.#StringExpression
+		AwsRegions?: list.MaxItems(50) & [...] & [...strings.MaxRunes(100) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		Description!: strings.MaxRunes(250) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(250) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression
 		DiscoveryConfig?: close({
 			TrustedAdvisorIntegrationStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
 			WorkloadResourceDefinition?: [..."WORKLOAD_METADATA" | "APP_REGISTRY" | fn.#StringExpression] |
 				fn.#ListExpression
 		}) |
 		fn.#ObjectExpression
-		Environment!:  "PRODUCTION" | "PREPRODUCTION" | fn.#StringExpression
-		Industry?:     strings.MaxRunes(100) | fn.#StringExpression
-		IndustryType?: strings.MaxRunes(100) | fn.#StringExpression
-		Lenses!:       [...strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-		NonAwsRegions?: list.MaxItems(5) & [...] & [
-			...strings.MaxRunes(25) & strings.MinRunes(3) | fn.#StringExpression
-		] |
+		Environment!: "PRODUCTION" | "PREPRODUCTION" | fn.#StringExpression
+		Industry?: strings.MaxRunes(100) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & "\(self)"
+		} |
+		fn.#StringExpression
+		IndustryType?: strings.MaxRunes(100) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & "\(self)"
+		} |
+		fn.#StringExpression
+		Lenses!: [...strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		Notes?:       strings.MaxRunes(2084) | fn.#StringExpression
-		ReviewOwner?: strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
+		NonAwsRegions?: list.MaxItems(5) & [...] & [...strings.MaxRunes(25) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(25) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		Notes?: strings.MaxRunes(2084) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2084) & "\(self)"
+		} |
+		fn.#StringExpression
+		ReviewOwner?: strings.MaxRunes(255) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: list.MaxItems(50) & [...close({
-			Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-			Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+			Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-		WorkloadName!: strings.MaxRunes(100) & strings.MinRunes(3) | fn.#StringExpression
+		WorkloadName!: strings.MaxRunes(100) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

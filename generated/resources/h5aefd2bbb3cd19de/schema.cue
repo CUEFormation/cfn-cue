@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -18,10 +18,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // the VPC are forwarded to your network.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53Resolver::ResolverRuleAssociation"
-	Properties!: close({
-		Name?:           string | fn.#StringExpression
-		ResolverRuleId!: string | fn.#StringExpression
-		VPCId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+	let properties = close({
+		Name?:           string | number | bool | fn.#StringExpression
+		ResolverRuleId!: string | number | bool | fn.#StringExpression
+		VPCId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

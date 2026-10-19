@@ -7,31 +7,55 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for StateMachineAlias
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::StepFunctions::StateMachineAlias"
-	Properties?: close({
+	let properties = close({
 		DeploymentPreference?: #DeploymentPreference
-		Description?:          strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		Name?:                 strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
+		Description?: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name?: =~"^[a-zA-Z0-9_\\-\\.]+$" & =~"^(?:.*[a-zA-Z_\\-\\.])" & strings.MaxRunes(80) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9_\\-\\.]+$" &
+			=~"^(?:.*[a-zA-Z_\\-\\.])" &
+			strings.MaxRunes(80) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 		RoutingConfiguration?: #RoutingConfiguration
-		StateMachineArn?:      strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+		StateMachineArn?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	}) & matchN(>=1, [{RoutingConfiguration!: _}, {DeploymentPreference!: _}])
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #DeploymentPreference: close({
-	Alarms?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	Alarms?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	Interval?: int & <=2100 & >=1 |
 		{
@@ -65,8 +89,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	StateMachineVersionArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Type!:                   "LINEAR" | "ALL_AT_ONCE" | "CANARY" | fn.#StringExpression
+	StateMachineVersionArn!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: "LINEAR" | "ALL_AT_ONCE" | "CANARY" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -74,7 +103,12 @@ fn.#ObjectExpression
 	fn.#ListExpression
 
 #RoutingConfigurationVersion: close({
-	StateMachineVersionArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	StateMachineVersionArn!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Weight!: int & <=100 & >=0 |
 		{
 			string &

@@ -24,7 +24,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h7e660a9ca0009289:schem
 #IntermediateTableAnalysisRulePolicy:   schema.#IntermediateTableAnalysisRulePolicy
 #IntermediateTableAnalysisRulePolicyV1: schema.#IntermediateTableAnalysisRulePolicyV1
 #IntermediateTableAnalysisRuleType:     schema.#IntermediateTableAnalysisRuleType
-#IntermediateTableStatus:               schema.#IntermediateTableStatus
 #OutputColumnThreshold:                 schema.#OutputColumnThreshold
 #PopulationAnalysisConfiguration:       schema.#PopulationAnalysisConfiguration
 #PopulationAnalysisSqlParameters:       schema.#PopulationAnalysisSqlParameters

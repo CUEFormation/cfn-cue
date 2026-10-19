@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -19,30 +19,69 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Data Firehose delivery destinations.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Logs::DeliveryDestination"
-	Properties!: close({
+	let properties = close({
 		DeliveryDestinationPolicy?: #DestinationPolicy & fn.#Object & {...} | fn.#ObjectExpression
-		DeliveryDestinationType?: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$" | fn.#StringExpression
+		DeliveryDestinationType?: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The ARN of the Amazon Web Services destination that this delivery destination
 		// represents. That Amazon Web Services destination can be a log group in
 		// CloudWatch Logs, an Amazon S3 bucket, or a delivery stream in Firehose.
 		DestinationResourceArn?: #Arn
-		Name!:                   strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" | fn.#StringExpression
-		OutputFormat?:           strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$" | fn.#StringExpression
-		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Name!: strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(60) & strings.MinRunes(1) & =~"[\\w-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		OutputFormat?: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(1) & =~"^[0-9A-Za-z]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Arn: strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?" | fn.#StringExpression
+#Arn: strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(16) & =~"[\\w#+=/:,.@-]*\\*?" & "\(self)"
+} |
+fn.#StringExpression
 
 #DestinationPolicy: close({
-	DeliveryDestinationName?:   strings.MaxRunes(60) & strings.MinRunes(1) | fn.#StringExpression
+	DeliveryDestinationName?: strings.MaxRunes(60) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(60) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	DeliveryDestinationPolicy?: fn.#Object & {...} | fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

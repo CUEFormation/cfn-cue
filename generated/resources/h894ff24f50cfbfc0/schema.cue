@@ -8,12 +8,10 @@ import (
 	"list"
 	"struct"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -21,7 +19,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // automated tasks such as ordering a pizza, booking a hotel, and so on.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lex::Bot"
-	Properties!: close({
+	let properties = close({
 		AutoBuildBotLocales?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		BotFileS3Location?:   #S3Location
 		BotLocales?:          list.UniqueItems() & [...#BotLocale] | fn.#ListExpression
@@ -61,6 +59,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		TestBotAliasSettings?: #TestBotAliasSettings
 		TestBotAliasTags?:     list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AdvancedRecognitionSetting: close({AudioRecognitionStrategy?: #AudioRecognitionStrategy}) | fn.#ObjectExpression
@@ -71,9 +73,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#AttachmentTitle: strings.MaxRunes(250) & strings.MinRunes(1) | fn.#StringExpression
+#AttachmentTitle: strings.MaxRunes(250) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(250) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#AttachmentUrl: strings.MaxRunes(250) & strings.MinRunes(1) | fn.#StringExpression
+#AttachmentUrl: strings.MaxRunes(250) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(250) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #AudioAndDTMFInputSpecification: close({
 	AudioSpecification?: #AudioSpecification
@@ -205,12 +217,27 @@ fn.#ObjectExpression
 
 #BedrockAgentIntentConfiguration: close({
 	BedrockAgentConfiguration?: close({
-		BedrockAgentAliasId?: strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
-		BedrockAgentId?:      strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
+		BedrockAgentAliasId?: strings.MaxRunes(5000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(5000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		BedrockAgentId?: strings.MaxRunes(5000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(5000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	BedrockAgentIntentKnowledgeBaseConfiguration?: close({
-		BedrockKnowledgeBaseArn!:   strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
+		BedrockKnowledgeBaseArn!: strings.MaxRunes(5000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(5000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		BedrockModelConfiguration!: #BedrockModelSpecification
 	}) |
 	fn.#ObjectExpression
@@ -219,13 +246,33 @@ fn.#ObjectExpression
 
 #BedrockModelSpecification: close({
 	BedrockGuardrailConfiguration?: close({
-		BedrockGuardrailIdentifier?: strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
-		BedrockGuardrailVersion?:    strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
+		BedrockGuardrailIdentifier?: strings.MaxRunes(5000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(5000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		BedrockGuardrailVersion?: strings.MaxRunes(5000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(5000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	BedrockModelCustomPrompt?: strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
-	BedrockTraceStatus?:       "ENABLED" | "DISABLED" | fn.#StringExpression
-	ModelArn!:                 strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
+	BedrockModelCustomPrompt?: strings.MaxRunes(5000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(5000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	BedrockTraceStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
+	ModelArn!: strings.MaxRunes(5000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(5000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -237,17 +284,17 @@ fn.#ObjectExpression
 
 #BotAliasLocaleSettingsItem: close({
 	BotAliasLocaleSetting!: #BotAliasLocaleSettings
-	LocaleId!:              strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	LocaleId!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #BotAliasLocaleSettingsList: list.MaxItems(50) & list.UniqueItems() & [...#BotAliasLocaleSettingsItem] |
 	fn.#ListExpression
-
-#BotArn: strings.MaxRunes(1011) &
-strings.MinRunes(1) &
-=~"^arn:aws[a-zA-Z-]*:lex:[a-z]+-(?:[a-z]+-)*[0-9]:[0-9]{12}:bot/[0-9a-zA-Z]+$" |
-fn.#StringExpression
 
 #BotLocale: close({
 	AudioFillerSettings?:        #AudioFillerSettings
@@ -266,23 +313,68 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #BotMember: close({
-	BotMemberAliasId!:   strings.MaxRunes(10) & strings.MinRunes(10) | fn.#StringExpression
-	BotMemberAliasName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	BotMemberId!:        strings.MaxRunes(10) & strings.MinRunes(10) | fn.#StringExpression
-	BotMemberName!:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	BotMemberVersion!:   strings.MaxRunes(5) & strings.MinRunes(1) | fn.#StringExpression
+	BotMemberAliasId!: strings.MaxRunes(10) & strings.MinRunes(10) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10) & strings.MinRunes(10) & "\(self)"
+	} |
+	fn.#StringExpression
+	BotMemberAliasName!: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	BotMemberId!: strings.MaxRunes(10) & strings.MinRunes(10) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10) & strings.MinRunes(10) & "\(self)"
+	} |
+	fn.#StringExpression
+	BotMemberName!: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	BotMemberVersion!: strings.MaxRunes(5) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(5) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Button: close({
-	Text!:  strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+	Text!: strings.MaxRunes(50) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(50) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CloudWatchLogGroupLogDestination: close({
-	CloudWatchLogGroupArn!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	LogPrefix!:             strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	CloudWatchLogGroupArn!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	LogPrefix!: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -296,13 +388,12 @@ fn.#ObjectExpression
 
 #Condition: close({ExpressionString!: #ConditionExpression}) | fn.#ObjectExpression
 
-#ConditionExpression: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-
-#Conditional: close({
-	ConditionalBranches!: #ConditionalBranches
-	IsActive!:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-}) |
-fn.#ObjectExpression
+#ConditionExpression: strings.MaxRunes(1024) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #ConditionalBranch: close({
 	Condition!: #Condition
@@ -382,14 +473,31 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#CustomPayload: close({Value!: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression}) |
+#CustomPayload: close({
+	Value!: strings.MaxRunes(1000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #CustomVocabulary: close({CustomVocabularyItems!: #CustomVocabularyItems}) | fn.#ObjectExpression
 
 #CustomVocabularyItem: close({
-	DisplayAs?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Phrase!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	DisplayAs?: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Phrase!: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Weight?: int & <=3 & >=0 |
 		{
 			string &
@@ -412,8 +520,18 @@ fn.#ObjectExpression
 #CustomVocabularyItems: list.MaxItems(500) & list.UniqueItems() & [...#CustomVocabularyItem] | fn.#ListExpression
 
 #DTMFSpecification: close({
-	DeletionCharacter!: =~"^[A-D0-9#*]{1}$" | fn.#StringExpression
-	EndCharacter!:      =~"^[A-D0-9#*]{1}$" | fn.#StringExpression
+	DeletionCharacter!: =~"^[A-D0-9#*]{1}$" |
+	{
+		number | bool
+		_cfnString: =~"^[A-D0-9#*]{1}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	EndCharacter!: =~"^[A-D0-9#*]{1}$" |
+	{
+		number | bool
+		_cfnString: =~"^[A-D0-9#*]{1}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	EndTimeoutMs!: int & >=1 |
 		{
 			string &
@@ -448,12 +566,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DataPrivacy: close(
-	{ChildDirected!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-) |
-	fn.#ObjectExpression
-
-#DeepgramModelId: strings.MaxRunes(32) & strings.MinRunes(4) & =~"[A-Za-z0-9-_]+" | fn.#StringExpression
+#DeepgramModelId: strings.MaxRunes(32) & strings.MinRunes(4) & =~"[A-Za-z0-9-_]+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(32) & strings.MinRunes(4) & =~"[A-Za-z0-9-_]+" & "\(self)"
+} |
+fn.#StringExpression
 
 #DeepgramSpeechModelConfig: close({
 	ApiTokenSecretArn!: #SecretsManagerSecretArn
@@ -467,7 +585,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Description: strings.MaxRunes(2000) | fn.#StringExpression
+#Description: strings.MaxRunes(2000) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2000) & "\(self)"
+} |
+fn.#StringExpression
 
 #DialogAction: close({
 	SlotToElicit?:        #Name
@@ -507,18 +630,18 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DisplayName: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+#DisplayName: strings.MaxRunes(100) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #ElicitationCodeHookInvocationSetting: close({
 	EnableCodeHookInvocation!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InvocationLabel?:          #Name
 }) |
 fn.#ObjectExpression
-
-#ErrorLogSettings: close(
-	{Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},
-) |
-	fn.#ObjectExpression
 
 #ExternalSourceSetting: close({GrammarSlotTypeSetting?: #GrammarSlotTypeSetting}) | fn.#ObjectExpression
 
@@ -631,34 +754,23 @@ fn.#ObjectExpression
 #GrammarSlotTypeSetting: close({Source?: #GrammarSlotTypeSource}) | fn.#ObjectExpression
 
 #GrammarSlotTypeSource: close({
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w\\-]+:kms:[\\w\\-]+:[\\d]{12}:(?:key\\/[\\w\\-]+|alias\\/[a-zA-Z0-9:\\/_\\-]{1,256})$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w\\-]+:kms:[\\w\\-]+:[\\d]{12}:(?:key\\/[\\w\\-]+|alias\\/[a-zA-Z0-9:\\/_\\-]{1,256})$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	S3BucketName!: #S3BucketName
 	S3ObjectKey!:  #S3ObjectKey
 }) |
 fn.#ObjectExpression
-
-#Id: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]+$" | fn.#StringExpression
-
-#IdleSessionTTLInSeconds: int & <=86400 & >=60 |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatInt(
-					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-						int &
-						<=86400 &
-						>=60,
-					10,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression
 
 #ImageResponseCard: close({
 	Buttons?:  list.MaxItems(5) & [...#Button] | fn.#ListExpression
@@ -730,8 +842,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #IntentDisambiguationSettings: close({
-	CustomDisambiguationMessage?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	Enabled!:                     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	CustomDisambiguationMessage?: strings.MaxRunes(1000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	MaxDisambiguationIntents?: int & <=5 & >=2 |
 		{
 			string &
@@ -767,16 +884,35 @@ fn.#ObjectExpression
 #KendraIndexArn: strings.MaxRunes(2048) &
 strings.MinRunes(32) &
 =~"^arn:aws[a-zA-Z-]*:kendra:[a-z]+-(?:[a-z]+-)*[0-9]:[0-9]{12}:index/[a-zA-Z0-9][a-zA-Z0-9_-]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) &
+	strings.MinRunes(32) &
+	=~"^arn:aws[a-zA-Z-]*:kendra:[a-z]+-(?:[a-z]+-)*[0-9]:[0-9]{12}:index/[a-zA-Z0-9][a-zA-Z0-9_-]*$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #LambdaCodeHook: close({
-	CodeHookInterfaceVersion!: strings.MaxRunes(5) & strings.MinRunes(1) | fn.#StringExpression
-	LambdaArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	CodeHookInterfaceVersion!: strings.MaxRunes(5) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(5) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	LambdaArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#LocaleId: string | fn.#StringExpression
+#LocaleId: string | number | bool | fn.#StringExpression
 
 #Message: close({
 	CustomPayload?:     #CustomPayload
@@ -801,7 +937,12 @@ fn.#ObjectExpression
 ) |
 	fn.#ObjectExpression
 
-#Name: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?)+$" | fn.#StringExpression
+#Name: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?)+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?)+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #ObfuscationSetting: close({ObfuscationSettingType!: "None" | "DefaultObfuscation" | fn.#StringExpression}) |
 	fn.#ObjectExpression
@@ -815,11 +956,18 @@ fn.#ObjectExpression
 
 #OutputContextsList: list.MaxItems(10) & [...#OutputContext] | fn.#ListExpression
 
-#ParentIntentSignature: string | fn.#StringExpression
+#ParentIntentSignature: string | number | bool | fn.#StringExpression
 
-#ParentSlotTypeSignature: string | fn.#StringExpression
+#ParentSlotTypeSignature: string | number | bool | fn.#StringExpression
 
-#PlainTextMessage: close({Value!: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression}) |
+#PlainTextMessage: close({
+	Value!: strings.MaxRunes(1000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #PostDialogCodeHookInvocationSpecification: close({
@@ -907,6 +1055,13 @@ fn.#ObjectExpression
 		AssistantArn!: strings.MaxRunes(200) &
 		strings.MinRunes(1) &
 		=~"^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) &
+			strings.MinRunes(1) &
+			=~"^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
@@ -917,26 +1072,61 @@ fn.#ObjectExpression
 	BedrockModelConfiguration!: #BedrockModelSpecification
 	DataSourceConfiguration!: close({
 		BedrockKnowledgeStoreConfiguration?: close({
-			BKBExactResponseFields?: close(
-				{AnswerField?: strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression},
-			) |
+			BKBExactResponseFields?: close({
+				AnswerField?: strings.MaxRunes(5000) & strings.MinRunes(1) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(5000) & strings.MinRunes(1) & "\(self)"
+				} |
+				fn.#StringExpression
+			}) |
 			fn.#ObjectExpression
-			BedrockKnowledgeBaseArn?: strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
+			BedrockKnowledgeBaseArn?: strings.MaxRunes(5000) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(5000) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
 			ExactResponse?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		}) |
 		fn.#ObjectExpression
 		KendraConfiguration?: #QnAKendraConfiguration
 		OpensearchConfiguration?: close({
-			DomainEndpoint?: strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
-			ExactResponse?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+			DomainEndpoint?: strings.MaxRunes(5000) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(5000) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
+			ExactResponse?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 			ExactResponseFields?: close({
-				AnswerField?:   strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
-				QuestionField?: strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
+				AnswerField?: strings.MaxRunes(5000) & strings.MinRunes(1) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(5000) & strings.MinRunes(1) & "\(self)"
+				} |
+				fn.#StringExpression
+				QuestionField?: strings.MaxRunes(5000) & strings.MinRunes(1) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(5000) & strings.MinRunes(1) & "\(self)"
+				} |
+				fn.#StringExpression
 			}) |
 			fn.#ObjectExpression
-			IncludeFields?: [...strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression] |
+			IncludeFields?: [...strings.MaxRunes(5000) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(5000) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression] |
 			fn.#ListExpression
-			IndexName?: strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
+			IndexName?: strings.MaxRunes(5000) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(5000) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 	}) |
@@ -945,16 +1135,36 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #QnAKendraConfiguration: close({
-	ExactResponse!:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	KendraIndex!:              strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
-	QueryFilterString?:        strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
+	ExactResponse!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	KendraIndex!: strings.MaxRunes(5000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(5000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	QueryFilterString?: strings.MaxRunes(5000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(5000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	QueryFilterStringEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-#QueryFilterString: strings.MaxRunes(5000) & strings.MinRunes(1) | fn.#StringExpression
+#QueryFilterString: strings.MaxRunes(5000) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(5000) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#ReplicaRegion: strings.MaxRunes(25) & strings.MinRunes(2) | fn.#StringExpression
+#ReplicaRegion: strings.MaxRunes(25) & strings.MinRunes(2) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(25) & strings.MinRunes(2) & "\(self)"
+} |
+fn.#StringExpression
 
 #Replication: close({
 	ReplicaRegions!: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#ReplicaRegion] | fn.#ListExpression
@@ -967,58 +1177,143 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(2048) &
 strings.MinRunes(32) &
 =~"^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.*$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(32) &
+	=~"^arn:aws[a-zA-Z-]*:iam::[0-9]{12}:role/.*$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#S3BucketLogDestination: close({
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#S3BucketLogDestination: matchN(2, [{...}, {...}]) & close({
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w\\-]+:kms:[\\w\\-]+:[\\d]{12}:(?:key\\/[\\w\\-]+|alias\\/[a-zA-Z0-9:\\/_\\-]{1,256})$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:[\\w\\-]+:kms:[\\w\\-]+:[\\d]{12}:(?:key\\/[\\w\\-]+|alias\\/[a-zA-Z0-9:\\/_\\-]{1,256})$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	LogPrefix!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	LogPrefix!: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	S3BucketArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:[\\w\\-]+:s3:::[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:[\\w\\-]+:s3:::[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#S3BucketName: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" |
+#S3BucketName: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+strings.MaxRunes(63) &
+strings.MinRunes(3) &
+=~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" |
+{
+	number | bool
+	_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #S3Location: close({
-	S3Bucket!:        #S3BucketName
-	S3ObjectKey!:     #S3ObjectKey
-	S3ObjectVersion?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	S3Bucket!:    #S3BucketName
+	S3ObjectKey!: #S3ObjectKey
+	S3ObjectVersion?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #S3ObjectKey: strings.MaxRunes(1024) &
 strings.MinRunes(1) &
 =~"[\\.\\-\\!\\*\\_\\'\\(\\)a-zA-Z0-9][\\.\\-\\!\\*\\_\\'\\(\\)\\/a-zA-Z0-9]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) &
+	strings.MinRunes(1) &
+	=~"[\\.\\-\\!\\*\\_\\'\\(\\)a-zA-Z0-9][\\.\\-\\!\\*\\_\\'\\(\\)\\/a-zA-Z0-9]*$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#SSMLMessage: close({Value!: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression}) |
+#SSMLMessage: close({
+	Value!: strings.MaxRunes(1000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #SampleUtterance: close({Utterance!: #Utterance}) | fn.#ObjectExpression
 
 #SampleUtterancesList: [...#SampleUtterance] | fn.#ListExpression
 
-#SampleValue: close({Value!: strings.MaxRunes(140) & strings.MinRunes(1) | fn.#StringExpression}) | fn.#ObjectExpression
+#SampleValue: close({
+	Value!: strings.MaxRunes(140) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(140) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #SecretsManagerSecretArn: strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:aws[A-Za-z-]*:secretsmanager:[a-z0-9-]{1,20}:[0-9]{12}:secret:[A-Za-z0-9/_+=.@-]{1,512}-[A-Za-z0-9]{6}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^arn:aws[A-Za-z-]*:secretsmanager:[a-z0-9-]{1,20}:[0-9]{12}:secret:[A-Za-z0-9/_+=.@-]{1,512}-[A-Za-z0-9]{6}$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #SessionAttribute: close({
-	Key!:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1047,7 +1342,14 @@ fn.#ObjectExpression
 
 #SlotConstraint: "Required" | "Optional" | fn.#StringExpression
 
-#SlotDefaultValue: close({DefaultValue!: strings.MaxRunes(202) & strings.MinRunes(1) | fn.#StringExpression}) |
+#SlotDefaultValue: close({
+	DefaultValue!: strings.MaxRunes(202) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(202) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #SlotDefaultValueSpecification: close(
@@ -1077,9 +1379,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SlotTypeId: strings.MaxRunes(25) & strings.MinRunes(1) & =~"^((AMAZON\\.)[a-zA-Z_]+?|[0-9a-zA-Z]+)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(25) & strings.MinRunes(1) & =~"^((AMAZON\\.)[a-zA-Z_]+?|[0-9a-zA-Z]+)$" & "\(self)"
+} |
 fn.#StringExpression
 
-#SlotTypeName: string | fn.#StringExpression
+#SlotTypeName: string | number | bool | fn.#StringExpression
 
 #SlotTypeValue: close({
 	SampleValue!: #SampleValue
@@ -1089,7 +1395,14 @@ fn.#ObjectExpression
 
 #SlotTypeValues: list.MaxItems(10000) & [...#SlotTypeValue] | fn.#ListExpression
 
-#SlotValue: close({InterpretedValue?: strings.MaxRunes(202) & strings.MinRunes(1) | fn.#StringExpression}) |
+#SlotValue: close({
+	InterpretedValue?: strings.MaxRunes(202) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(202) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #SlotValueElicitationSetting: close({
@@ -1115,7 +1428,14 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#SlotValueRegexFilter: close({Pattern!: strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression}) |
+#SlotValueRegexFilter: close({
+	Pattern!: strings.MaxRunes(300) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(300) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #SlotValueResolutionStrategy: "ORIGINAL_VALUE" | "TOP_RESOLUTION" | "CONCATENATION" | fn.#StringExpression
@@ -1196,16 +1516,29 @@ fn.#ObjectExpression
 	fn.#NumberExpression
 
 #SubSlotSetting: close({
-	Expression?: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"[0-9A-Za-z_\\-\\s\\(\\)]+" | fn.#StringExpression
+	Expression?: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"[0-9A-Za-z_\\-\\s\\(\\)]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"[0-9A-Za-z_\\-\\s\\(\\)]+" & "\(self)"
+	} |
+	fn.#StringExpression
 	SlotSpecifications?: struct.MaxFields(6) & struct.MinFields(0) & close({
 
-		{[=~"^([0-9a-zA-Z][_-]?){1,100}$"]: #Specifications}}) |
+		{[=~"^(?:Ref)$"]: error("disallowed")}
+
+		{[=~"^([0-9a-zA-Z][_-]?){1,100}$"]: #Specifications}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 #SubSlotTypeComposition: close({
-	Name!:         strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
+	Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?){1,100}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^([0-9a-zA-Z][_-]?){1,100}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	SlotTypeId?:   #SlotTypeId
 	SlotTypeName?: #SlotTypeName
 	if SlotTypeId != _|_ if SlotTypeId."Fn::If" == _|_ {
@@ -1227,8 +1560,18 @@ fn.#ObjectExpression
 #SynonymList: list.MaxItems(10000) & [...#SampleValue] | fn.#ListExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1274,18 +1617,18 @@ fn.#ObjectExpression
 
 #UnifiedSpeechSettings: close({
 	SpeechFoundationModel!: close({
-		ModelArn!: string | fn.#StringExpression
-		VoiceId?:  string | fn.#StringExpression
+		ModelArn!: string | number | bool | fn.#StringExpression
+		VoiceId?:  string | number | bool | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Utterance: string | fn.#StringExpression
+#Utterance: string | number | bool | fn.#StringExpression
 
 #VoiceSettings: close({
 	Engine?:  "standard" | "neural" | "long-form" | "generative" | fn.#StringExpression
-	VoiceId!: string | fn.#StringExpression
+	VoiceId!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

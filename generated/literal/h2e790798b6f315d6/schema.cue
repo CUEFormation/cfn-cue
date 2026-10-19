@@ -48,7 +48,9 @@ import (
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$"
 
 	// The AWS KMS customer managed key used to encrypt the data associated with the PartnerApp.
-	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~".*"
@@ -63,14 +65,14 @@ import (
 	Tags?: list.MaxItems(50) & [...] & [...#Tag]
 
 	// The tier of the PartnerApp.
-	Tier!: strings.MaxRunes(64) & strings.MinRunes(1)
+	Tier!: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(64) & strings.MinRunes(1)
 
 	// The type of PartnerApp.
 	Type!: "lakera-guard" | "comet" | "deepchecks-llm-evaluation" | "fiddler"
 })
 
 // A collection of AdminUsers for the PartnerApp
-#PartnerAppAdminUserList: strings.MaxRunes(256) & strings.MinRunes(1)
+#PartnerAppAdminUserList: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(256) & strings.MinRunes(1)
 
 // A collection of configuration settings for the PartnerApp.
 #PartnerAppConfig: close({
@@ -78,7 +80,12 @@ import (
 	AdminUsers?: list.MaxItems(5) & list.UniqueItems() & [...] & [...#PartnerAppAdminUserList]
 
 	// A list of arguments to pass to the PartnerApp.
-	Arguments?: struct.MaxFields(5) & {...}
+	Arguments?: struct.MaxFields(5) & close({
+
+		{[=~"^(?:\\s*$)"]: error("disallowed")}
+
+		{[=~"^.{1,256}$"]: strings.MaxRunes(1024)}
+	})
 })
 
 // A collection of settings that specify the maintenance schedule for the PartnerApp.

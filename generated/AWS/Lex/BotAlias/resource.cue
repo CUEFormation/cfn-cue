@@ -5,14 +5,12 @@ package BotAlias
 import schema "github.com/cueformation/cfn-cue/resources/hbd9038aafc9156bf:schema"
 
 #Resource:                         schema.#Resource
-#Arn:                              schema.#Arn
 #AudioLogDestination:              schema.#AudioLogDestination
 #AudioLogSetting:                  schema.#AudioLogSetting
 #AudioLogSettings:                 schema.#AudioLogSettings
 #BotAliasLocaleSettings:           schema.#BotAliasLocaleSettings
 #BotAliasLocaleSettingsItem:       schema.#BotAliasLocaleSettingsItem
 #BotAliasLocaleSettingsList:       schema.#BotAliasLocaleSettingsList
-#BotAliasStatus:                   schema.#BotAliasStatus
 #BotVersion:                       schema.#BotVersion
 #CloudWatchLogGroupLogDestination: schema.#CloudWatchLogGroupLogDestination
 #CodeHookSpecification:            schema.#CodeHookSpecification
@@ -20,7 +18,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hbd9038aafc9156bf:schem
 #Description:                      schema.#Description
 #Id:                               schema.#Id
 #LambdaCodeHook:                   schema.#LambdaCodeHook
-#LocaleId:                         schema.#LocaleId
 #Name:                             schema.#Name
 #S3BucketLogDestination:           schema.#S3BucketLogDestination
 #Tag:                              schema.#Tag

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,18 +17,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // interface group association for a local gateway.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::LocalGatewayRouteTableVirtualInterfaceGroupAssociation"
-	Properties!: close({
-		LocalGatewayRouteTableId!:            string | fn.#StringExpression
-		LocalGatewayVirtualInterfaceGroupId!: string | fn.#StringExpression
+	let properties = close({
+		LocalGatewayRouteTableId!:            string | number | bool | fn.#StringExpression
+		LocalGatewayVirtualInterfaceGroupId!: string | number | bool | fn.#StringExpression
 
 		// The tags for the local gateway route table virtual interface group association.
 		Tags?: #Tags
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key?:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Key?: matchN(0, [=~"^(?:aws:.*)"]) & string & strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: matchN(0, [=~"^(?:aws:.*)"]) & string & strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: matchN(0, [=~"^(?:aws:.*)"]) & string & strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: matchN(0, [=~"^(?:aws:.*)"]) & string & strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

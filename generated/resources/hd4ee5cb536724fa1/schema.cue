@@ -3,22 +3,24 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecretsManager::RotationSchedule
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecretsManager::RotationSchedule"
-	Properties!: close({
+	let properties = close({
 		ExternalSecretRotationMetadata?: [...#ExternalSecretRotationMetadataItem] | fn.#ListExpression
-		ExternalSecretRotationRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		ExternalSecretRotationRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Creates a new Lambda rotation function based on one of the Secrets Manager
 		// rotation function templates. To use a rotation function that already exists,
@@ -32,33 +34,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		RotationLambdaARN?: string | fn.#StringExpression
+		RotationLambdaARN?: string | number | bool | fn.#StringExpression
 
 		// A structure that defines the rotation configuration for this secret.
 		RotationRules?: #RotationRules
-		SecretId!:      string | fn.#StringExpression
+		SecretId!:      string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ExternalSecretRotationMetadataItem: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #HostedRotationLambda: close({
-	ExcludeCharacters?: string | fn.#StringExpression
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	MasterSecretArn?:          string | fn.#StringExpression
-	MasterSecretKmsKeyArn?:    string | fn.#StringExpression
-	RotationLambdaName?:       string | fn.#StringExpression
-	RotationType!:             string | fn.#StringExpression
-	Runtime?:                  string | fn.#StringExpression
-	SuperuserSecretArn?:       string | fn.#StringExpression
-	SuperuserSecretKmsKeyArn?: string | fn.#StringExpression
-	VpcSecurityGroupIds?:      string | fn.#StringExpression
-	VpcSubnetIds?:             string | fn.#StringExpression
+	ExcludeCharacters?: string | number | bool | fn.#StringExpression
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	MasterSecretArn?:          string | number | bool | fn.#StringExpression
+	MasterSecretKmsKeyArn?:    string | number | bool | fn.#StringExpression
+	RotationLambdaName?:       string | number | bool | fn.#StringExpression
+	RotationType!:             string | number | bool | fn.#StringExpression
+	Runtime?:                  string | number | bool | fn.#StringExpression
+	SuperuserSecretArn?:       string | number | bool | fn.#StringExpression
+	SuperuserSecretKmsKeyArn?: string | number | bool | fn.#StringExpression
+	VpcSecurityGroupIds?:      string | number | bool | fn.#StringExpression
+	VpcSubnetIds?:             string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -77,7 +87,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Duration?:           string | fn.#StringExpression
-	ScheduleExpression?: string | fn.#StringExpression
+	Duration?:           string | number | bool | fn.#StringExpression
+	ScheduleExpression?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

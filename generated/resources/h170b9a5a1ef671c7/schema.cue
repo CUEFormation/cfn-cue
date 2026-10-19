@@ -7,12 +7,10 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -21,12 +19,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // on chat messages.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Chime::ChannelFlow"
-	Properties!: close({
-		AppInstanceArn!: strings.MaxRunes(1600) & strings.MinRunes(5) | fn.#StringExpression
-		Name!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		Processors!:     list.MaxItems(3) & list.MinItems(1) & [...#Processor] | fn.#ListExpression
-		Tags?:           list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+	let properties = close({
+		AppInstanceArn!: strings.MaxRunes(1600) & strings.MinRunes(5) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1600) & strings.MinRunes(5) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Processors!: list.MaxItems(3) & list.MinItems(1) & [...#Processor] | fn.#ListExpression
+		Tags?:       list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #LambdaConfiguration: close({
@@ -34,6 +46,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	ResourceArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(15) &
 	=~"^arn:aws:lambda:[a-z]{2}-[a-z]+-\\d{1}:\\d{12}:function:[a-zA-Z0-9\\-_\\.]+(:(\\$LATEST|[a-zA-Z0-9\\-_]+))?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(15) &
+		=~"^arn:aws:lambda:[a-z]{2}-[a-z]+-\\d{1}:\\d{12}:function:[a-zA-Z0-9\\-_\\.]+(:(\\$LATEST|[a-zA-Z0-9\\-_]+))?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -57,14 +76,29 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	FallbackAction!: "CONTINUE" | "ABORT" | fn.#StringExpression
-	Name!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Name!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ProcessorConfiguration: close({Lambda!: #LambdaConfiguration}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

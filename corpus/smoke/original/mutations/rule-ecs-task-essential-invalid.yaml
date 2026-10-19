@@ -1,0 +1,8 @@
+Resources:
+  Thing:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      ContainerDefinitions:
+      - Name: web
+        Image: nginx
+        Essential: 'false'

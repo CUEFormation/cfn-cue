@@ -7,21 +7,30 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This resource schema represents the ResourceCollection resource in the Amazon DevOps Guru.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DevOpsGuru::ResourceCollection"
-	Properties!: close({ResourceCollectionFilter!: #ResourceCollectionFilter})
+	Type!: "AWS::DevOpsGuru::ResourceCollection"
+	let properties = close({ResourceCollectionFilter!: #ResourceCollectionFilter})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CloudFormationCollectionFilter: close({
-	StackNames?: list.MaxItems(1000) & list.MinItems(1) & [
-		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z*]+[a-zA-Z0-9-]*$" | fn.#StringExpression
-	] |
+	StackNames?: list.MaxItems(1000) & list.MinItems(1) & [...strings.MaxRunes(128) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z*]+[a-zA-Z0-9-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z*]+[a-zA-Z0-9-]*$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -33,10 +42,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TagCollection: close({
-	AppBoundaryKey?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	TagValues?: list.MaxItems(1000) & list.MinItems(1) & [
-		...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	AppBoundaryKey?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TagValues?: list.MaxItems(1000) & list.MinItems(1) & [...strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression

@@ -109,7 +109,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h504f72b102a70499:schem
 #ConditionalFormattingIconSet:                     schema.#ConditionalFormattingIconSet
 #ConditionalFormattingIconSetType:                 schema.#ConditionalFormattingIconSetType
 #ConditionalFormattingSolidColor:                  schema.#ConditionalFormattingSolidColor
-#ContextMenuOption:                                schema.#ContextMenuOption
 #ContributionAnalysisDefault:                      schema.#ContributionAnalysisDefault
 #CrossDatasetTypes:                                schema.#CrossDatasetTypes
 #CurrencyDisplayFormatConfiguration:               schema.#CurrencyDisplayFormatConfiguration
@@ -128,13 +127,10 @@ import schema "github.com/cueformation/cfn-cue/resources/h504f72b102a70499:schem
 #CustomParameterValues:                            schema.#CustomParameterValues
 #CustomValuesConfiguration:                        schema.#CustomValuesConfiguration
 #DashboardBehavior:                                schema.#DashboardBehavior
-#DashboardError:                                   schema.#DashboardError
-#DashboardErrorType:                               schema.#DashboardErrorType
 #DashboardPublishOptions:                          schema.#DashboardPublishOptions
 #DashboardSourceEntity:                            schema.#DashboardSourceEntity
 #DashboardSourceTemplate:                          schema.#DashboardSourceTemplate
 #DashboardUIState:                                 schema.#DashboardUIState
-#DashboardVersion:                                 schema.#DashboardVersion
 #DashboardVersionDefinition:                       schema.#DashboardVersionDefinition
 #DashboardVisualPublishOptions:                    schema.#DashboardVisualPublishOptions
 #DataBarsOptions:                                  schema.#DataBarsOptions
@@ -204,7 +200,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h504f72b102a70499:schem
 #DropDownControlDisplayOptions:                    schema.#DropDownControlDisplayOptions
 #DynamicDefaultValue:                              schema.#DynamicDefaultValue
 #EmptyVisual:                                      schema.#EmptyVisual
-#Entity:                                           schema.#Entity
 #ExcludePeriodConfiguration:                       schema.#ExcludePeriodConfiguration
 #ExecutiveSummaryOption:                           schema.#ExecutiveSummaryOption
 #ExplicitHierarchy:                                schema.#ExplicitHierarchy
@@ -536,7 +531,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h504f72b102a70499:schem
 #RelativeFontSize:                                 schema.#RelativeFontSize
 #ResizeOption:                                     schema.#ResizeOption
 #ResourcePermission:                               schema.#ResourcePermission
-#ResourceStatus:                                   schema.#ResourceStatus
 #RollingDateConfiguration:                         schema.#RollingDateConfiguration
 #RowAlternateColorOptions:                         schema.#RowAlternateColorOptions
 #SameSheetTargetVisualConfiguration:               schema.#SameSheetTargetVisualConfiguration
@@ -568,7 +562,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h504f72b102a70499:schem
 #SeriesItem:                                       schema.#SeriesItem
 #SetParameterValueConfiguration:                   schema.#SetParameterValueConfiguration
 #ShapeConditionalFormat:                           schema.#ShapeConditionalFormat
-#Sheet:                                            schema.#Sheet
 #SheetContentType:                                 schema.#SheetContentType
 #SheetControlDateTimePickerType:                   schema.#SheetControlDateTimePickerType
 #SheetControlInfoIconLabelOptions:                 schema.#SheetControlInfoIconLabelOptions
@@ -734,4 +727,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h504f72b102a70499:schem
 #WordCloudWordOrientation:                         schema.#WordCloudWordOrientation
 #WordCloudWordPadding:                             schema.#WordCloudWordPadding
 #WordCloudWordScaling:                             schema.#WordCloudWordScaling
-#YAxisOptions:                                     schema.#YAxisOptions

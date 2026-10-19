@@ -2,7 +2,10 @@
 
 package schema
 
-import "strings"
+import (
+	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
+)
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -33,7 +36,7 @@ import "strings"
 
 // ARN of resource to share.
 _#defs: "/$defs/Properties/definitions/Resource": close({
-	Cidr?:       strings.MaxRunes(255) & strings.MinRunes(0)
+	Cidr?:       fn.#IPv4Network & string & strings.MaxRunes(255) & strings.MinRunes(0)
 	EndpointId?: strings.MaxRunes(255) & strings.MinRunes(0)
 	Region?:     strings.MaxRunes(255) & strings.MinRunes(0)
 })

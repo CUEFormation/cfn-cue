@@ -3,26 +3,29 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::SqlHaStandbyDetectedInstance
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::SqlHaStandbyDetectedInstance"
-	Properties!: close({
+	let properties = close({
 		InstanceId!:           #InstanceId
 		SqlServerCredentials?: #SqlServerCredentials
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#HaStatus: "processing" | "active" | "standby" | "invalid" | fn.#StringExpression
+#InstanceId: =~"^i-[0-9a-f]{8,17}$" |
+{
+	number | bool
+	_cfnString: =~"^i-[0-9a-f]{8,17}$" & "\(self)"
+} |
+fn.#StringExpression
 
-#InstanceId: =~"^i-[0-9a-f]{8,17}$" | fn.#StringExpression
-
-#LastUpdatedTime: string | fn.#StringExpression
-
-#SqlServerCredentials: string | fn.#StringExpression
-
-#SqlServerLicenseUsage: "full" | "waived" | fn.#StringExpression
+#SqlServerCredentials: string | number | bool | fn.#StringExpression

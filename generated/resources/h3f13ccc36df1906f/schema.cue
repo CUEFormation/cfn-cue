@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,22 +17,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // you create the rule.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AccessAnalyzer::ArchiveRule"
-	Properties!: close({
+	let properties = close({
 		AnalyzerName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_.-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_.-]*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Filter!: close({
 
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
 			{
 				[=~"^.+$"]: close({
-					Contains?: list.MaxItems(20) & list.MinItems(1) & [...string | fn.#StringExpression] |
+					Contains?: list.MaxItems(20) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
 						fn.#ListExpression
-					Eq?: list.MaxItems(20) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+					Eq?: list.MaxItems(20) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+						fn.#ListExpression
 					Exists?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-					Neq?: list.MaxItems(20) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+					Neq?: list.MaxItems(20) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+						fn.#ListExpression
 				}) |
 				fn.#ObjectExpression
-			}}) |
+			}
+		}) |
 		fn.#ObjectExpression
-		RuleName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_.-]*$" | fn.#StringExpression
+		RuleName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_.-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_.-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

@@ -3,27 +3,29 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Backup::RestoreTestingSelection
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Backup::RestoreTestingSelection"
-	Properties!: close({
-		IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		ProtectedResourceArns?:       [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		IamRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ProtectedResourceArns?:       [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		ProtectedResourceConditions?: #ProtectedResourceConditions
-		ProtectedResourceType!:       string | fn.#StringExpression
+		ProtectedResourceType!:       string | number | bool | fn.#StringExpression
 		RestoreMetadataOverrides?:    #SensitiveStringMap
-		RestoreTestingPlanName!:      string | fn.#StringExpression
-		RestoreTestingSelectionName!: string | fn.#StringExpression
+		RestoreTestingPlanName!:      string | number | bool | fn.#StringExpression
+		RestoreTestingSelectionName!: string | number | bool | fn.#StringExpression
 		ValidationWindowHours?: int |
 			{
 				string &
@@ -41,11 +43,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #KeyValue: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -57,5 +63,10 @@ fn.#ObjectExpression
 
 #SensitiveStringMap: close({
 
-	{[=~".+"]: string | fn.#StringExpression}}) |
+	{[=~".+"]: string | number | bool | fn.#StringExpression}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression

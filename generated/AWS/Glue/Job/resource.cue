@@ -4,10 +4,8 @@ package Job
 
 import schema "github.com/cueformation/cfn-cue/resources/h819f78390ce0312f:schema"
 
-#Resource:                schema.#Resource
-#ConnectionsList:         schema.#ConnectionsList
-#DefaultArguments:        schema.#DefaultArguments
-#ExecutionProperty:       schema.#ExecutionProperty
-#JobCommand:              schema.#JobCommand
-#NonOverridableArguments: schema.#NonOverridableArguments
-#NotificationProperty:    schema.#NotificationProperty
+#Resource:             schema.#Resource
+#ConnectionsList:      schema.#ConnectionsList
+#ExecutionProperty:    schema.#ExecutionProperty
+#JobCommand:           schema.#JobCommand
+#NotificationProperty: schema.#NotificationProperty

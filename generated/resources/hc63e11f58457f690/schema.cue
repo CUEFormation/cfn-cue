@@ -7,15 +7,15 @@ import (
 	"list"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::Transcribe::MedicalVocabulary
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Transcribe::MedicalVocabulary"
-	Properties!: close({
+	let properties = close({
 		LanguageCode!: "af-ZA" |
 			"ar-AE" |
 			"ar-SA" |
@@ -58,13 +58,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#StringExpression
 		Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 		VocabularyFileUri?: strings.MaxRunes(2000) & strings.MinRunes(1) & =~"(s3://|http(s*)://).+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2000) & strings.MinRunes(1) & =~"(s3://|http(s*)://).+" & "\(self)"
+		} |
 		fn.#StringExpression
-		VocabularyName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
+		VocabularyName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

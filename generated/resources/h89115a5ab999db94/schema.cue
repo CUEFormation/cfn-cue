@@ -7,23 +7,41 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::SES::MailManagerAddonInstance Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SES::MailManagerAddonInstance"
-	Properties!: close({
+	let properties = close({
 		AddonSubscriptionId!: strings.MaxRunes(67) & strings.MinRunes(4) & =~"^as-[a-zA-Z0-9]{1,64}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(67) & strings.MinRunes(4) & =~"^as-[a-zA-Z0-9]{1,64}$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

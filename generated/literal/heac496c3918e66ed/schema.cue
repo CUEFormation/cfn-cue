@@ -5,26 +5,52 @@ package schema
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::FSx::FileSystem
-#Properties: close({
+#Properties: matchIf({
+	FileSystemType!: "WINDOWS"
+	...
+}, {
+	StorageCapacity?: null | bool | <=65536 & >=32 | string | [...] | {...}
+	...
+}, _) & matchIf({
+	FileSystemType!: "LUSTRE"
+	...
+}, {
+	StorageCapacity?: null | bool | >=1200 | string | [...] | {...}
+	...
+}, _) & matchIf({
+	FileSystemType!: "OPENZFS"
+	...
+}, {
+	StorageCapacity?: null | bool | <=524288 & >=64 | string | [...] | {...}
+	...
+}, _) & matchIf({
+	FileSystemType!: "ONTAP"
+	...
+}, {
+	StorageCapacity?: null | bool | >=1024 | string | [...] | {...}
+	...
+}, _) & close({
 	BackupId?:              string
 	DNSName?:               string
 	FileSystemType!:        string
 	FileSystemTypeVersion?: string
 	Id?:                    string
-	KmsKeyId?:              =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
-	LustreConfiguration?:   #LustreConfiguration
-	LustreMountName?:       string
-	NetworkType?:           string
-	OntapConfiguration?:    #OntapConfiguration
-	OpenZFSConfiguration?:  #OpenZFSConfiguration
-	ResourceARN?:           string
-	RootVolumeId?:          string
-	SecurityGroupIds?:      [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
-	StorageCapacity?:       int
-	StorageType?:           string
-	SubnetIds!:             [...string]
-	Tags?:                  [...#Tag]
-	WindowsConfiguration?:  #WindowsConfiguration
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
+	LustreConfiguration?:  #LustreConfiguration
+	LustreMountName?:      string
+	NetworkType?:          string
+	OntapConfiguration?:   #OntapConfiguration
+	OpenZFSConfiguration?: #OpenZFSConfiguration
+	ResourceARN?:          string
+	RootVolumeId?:         string
+	SecurityGroupIds?:     [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"]
+	StorageCapacity?:      int
+	StorageType?:          string
+	SubnetIds!:            [...string]
+	Tags?:                 [...#Tag]
+	WindowsConfiguration?: #WindowsConfiguration
 })
 
 #AuditLogConfiguration: close({

@@ -1,0 +1,16 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "MethodSettings": [
+          {
+            "HttpMethod": "*",
+            "ResourcePath": "x"
+          }
+        ],
+        "RestApiId": "abc"
+      },
+      "Type": "AWS::ApiGateway::Stage"
+    }
+  }
+}

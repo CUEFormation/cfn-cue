@@ -7,7 +7,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h53563c740e029e36:schem
 #Resource:         schema.#Resource
 #Filter:           schema.#Filter
 #FilterType:       schema.#FilterType
-#RegistryId:       schema.#RegistryId
 #RepositoryFilter: schema.#RepositoryFilter
 #ScanFrequency:    schema.#ScanFrequency
 #ScanType:         schema.#ScanType

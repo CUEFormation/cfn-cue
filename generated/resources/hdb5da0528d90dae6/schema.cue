@@ -7,20 +7,23 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AnomalyDetector schema for cloudformation.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::APS::AnomalyDetector"
-	Properties!: close({
-		Alias!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Alias!: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Determines the anomaly detector's algorithm and its configuration.
 		Configuration!: #AnomalyDetectorConfiguration
@@ -46,8 +49,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		MissingDataAction?: #MissingDataAction
 		Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		Workspace!: =~"^arn:(aws|aws-us-gov|aws-cn):aps:[a-z0-9-]+:[0-9]+:workspace/[a-zA-Z0-9-]+$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:(aws|aws-us-gov|aws-cn):aps:[a-z0-9-]+:[0-9]+:workspace/[a-zA-Z0-9-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AnomalyDetectorConfiguration: close({RandomCutForest!: #RandomCutForestConfiguration}) | fn.#ObjectExpression
@@ -58,8 +69,44 @@ number |
 string |
 [...] |
 close({
-	Amount?: number | fn.#NumberExpression
-	Ratio?:  number | fn.#NumberExpression
+	Amount?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
+	Ratio?: number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		fn.#NumberExpression
 	if Amount != _|_ if Amount."Fn::If" == _|_ {
 		Ratio?: close({"Fn::If": _}) | error("Ratio cannot be used with Amount; set exactly one of Amount, Ratio")
 	}
@@ -67,8 +114,18 @@ close({
 fn.#ValueExpression
 
 #Label: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -78,8 +135,8 @@ number |
 string |
 [...] |
 close({
-	MarkAsAnomaly?: bool | fn.#BooleanExpression
-	Skip?:          bool | fn.#BooleanExpression
+	MarkAsAnomaly?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Skip?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	if MarkAsAnomaly != _|_ if MarkAsAnomaly."Fn::If" == _|_ {
 		Skip?: close({"Fn::If": _}) | error(
 			"Skip cannot be used with MarkAsAnomaly; set exactly one of MarkAsAnomaly, Skip",
@@ -91,7 +148,12 @@ fn.#ValueExpression
 #RandomCutForestConfiguration: close({
 	IgnoreNearExpectedFromAbove?: #IgnoreNearExpected
 	IgnoreNearExpectedFromBelow?: #IgnoreNearExpected
-	Query!:                       strings.MinRunes(1) | fn.#StringExpression
+	Query!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	SampleSize?: int & <=1024 & >=256 |
 		{
 			string &
@@ -128,7 +190,17 @@ fn.#ValueExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

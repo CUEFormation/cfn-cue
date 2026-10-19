@@ -6,17 +6,17 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppSync::DataSource
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppSync::DataSource"
-	Properties!: close({
-		ApiId!:       string | fn.#StringExpression
-		Description?: string | fn.#StringExpression
+	let properties = close({
+		ApiId!:       string | number | bool | fn.#StringExpression
+		Description?: string | number | bool | fn.#StringExpression
 
 		// AWS Region and TableName for an Amazon DynamoDB table in your account.
 		DynamoDBConfig?: #DynamoDBConfig
@@ -37,15 +37,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Lambda function that exists in the current account or in another account.
 		LambdaConfig?:  #LambdaConfig
 		MetricsConfig?: "DISABLED" | "ENABLED" | fn.#StringExpression
-		Name!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
+		Name!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// AWS Region and Endpoints for an Amazon OpenSearch Service domain in your account.
 		OpenSearchServiceConfig?: #OpenSearchServiceConfig
 
 		// Relational Database configuration of the relational database data source.
 		RelationalDatabaseConfig?: #RelationalDatabaseConfig
-		ServiceRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		ServiceRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Type!: "AMAZON_BEDROCK_RUNTIME" |
 			"AMAZON_DYNAMODB" |
 			"AMAZON_ELASTICSEARCH" |
@@ -57,6 +66,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"RELATIONAL_DATABASE" |
 			fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AuthorizationConfig: close({
@@ -68,58 +81,58 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #AwsIamConfig: close({
-	SigningRegion?:      string | fn.#StringExpression
-	SigningServiceName?: string | fn.#StringExpression
+	SigningRegion?:      string | number | bool | fn.#StringExpression
+	SigningServiceName?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DeltaSyncConfig: close({
-	BaseTableTTL!:       string | fn.#StringExpression
-	DeltaSyncTableName!: string | fn.#StringExpression
-	DeltaSyncTableTTL!:  string | fn.#StringExpression
+	BaseTableTTL!:       string | number | bool | fn.#StringExpression
+	DeltaSyncTableName!: string | number | bool | fn.#StringExpression
+	DeltaSyncTableTTL!:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DynamoDBConfig: close({
-	AwsRegion!: string | fn.#StringExpression
+	AwsRegion!: string | number | bool | fn.#StringExpression
 
 	// The DeltaSyncConfig for a versioned datasource.
 	DeltaSyncConfig?:      #DeltaSyncConfig
-	TableName!:            string | fn.#StringExpression
+	TableName!:            string | number | bool | fn.#StringExpression
 	UseCallerCredentials?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Versioned?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #ElasticsearchConfig: close({
-	AwsRegion!: string | fn.#StringExpression
-	Endpoint!:  string | fn.#StringExpression
+	AwsRegion!: string | number | bool | fn.#StringExpression
+	Endpoint!:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#EventBridgeConfig: close({EventBusArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#EventBridgeConfig: close({EventBusArn!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #HttpConfig: close({
 	// The authorization configuration.
 	AuthorizationConfig?: #AuthorizationConfig
-	Endpoint!:            string | fn.#StringExpression
+	Endpoint!:            string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#LambdaConfig: close({LambdaFunctionArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#LambdaConfig: close({LambdaFunctionArn!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #OpenSearchServiceConfig: close({
-	AwsRegion!: string | fn.#StringExpression
-	Endpoint!:  string | fn.#StringExpression
+	AwsRegion!: string | number | bool | fn.#StringExpression
+	Endpoint!:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RdsHttpEndpointConfig: close({
-	AwsRegion!:           string | fn.#StringExpression
-	AwsSecretStoreArn!:   string | fn.#StringExpression
-	DatabaseName?:        string | fn.#StringExpression
-	DbClusterIdentifier!: string | fn.#StringExpression
-	Schema?:              string | fn.#StringExpression
+	AwsRegion!:           string | number | bool | fn.#StringExpression
+	AwsSecretStoreArn!:   string | number | bool | fn.#StringExpression
+	DatabaseName?:        string | number | bool | fn.#StringExpression
+	DbClusterIdentifier!: string | number | bool | fn.#StringExpression
+	Schema?:              string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

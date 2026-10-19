@@ -4,9 +4,8 @@ package Stream
 
 import schema "github.com/cueformation/cfn-cue/resources/hbfcac9d3fd69f2e4:schema"
 
-#Resource:             schema.#Resource
-#EnhancedMetric:       schema.#EnhancedMetric
-#StreamEncryption:     schema.#StreamEncryption
-#StreamModeDetails:    schema.#StreamModeDetails
-#Tag:                  schema.#Tag
-#WarmThroughputObject: schema.#WarmThroughputObject
+#Resource:          schema.#Resource
+#EnhancedMetric:    schema.#EnhancedMetric
+#StreamEncryption:  schema.#StreamEncryption
+#StreamModeDetails: schema.#StreamModeDetails
+#Tag:               schema.#Tag

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,21 +17,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // enriched with AWS resource tags and metadata.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudWatch::OTelEnrichment"
-	Properties?: close({
+	let properties = close({
 		ExcludeFilters?: list.MaxItems(100) & list.UniqueItems() & [...] & [...#OTelEnrichmentMetricSelector] |
 			fn.#ListExpression
 		IncludeFilters?: list.MaxItems(100) & list.UniqueItems() & [...] & [...#OTelEnrichmentMetricSelector] |
 			fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #OTelEnrichmentMetricSelector: close({
-	MetricNames?: list.MaxItems(100) & list.UniqueItems() & [...] & [
-		...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	MetricNames?: list.MaxItems(100) & list.UniqueItems() & [...] & [...strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Namespace!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:].*$" | fn.#StringExpression
+	Namespace!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:].*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[^:].*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Status: "RUNNING" | "STOPPED" | fn.#StringExpression

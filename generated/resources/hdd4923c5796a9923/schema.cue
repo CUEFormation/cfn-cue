@@ -7,25 +7,40 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ImageBuilder::LifecyclePolicy
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ImageBuilder::LifecyclePolicy"
-	Properties!: close({
-		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ExecutionRole!: strings.MaxRunes(2048) &
 		strings.MinRunes(1) &
 		=~"^(?:arn:aws(?:-[a-z]+)*:iam::[0-9]{12}:role/)?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^(?:arn:aws(?:-[a-z]+)*:iam::[0-9]{12}:role/)?[a-zA-Z_0-9+=,.@\\-_/]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name!:          =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
+		Name!: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" |
+		{
+			number | bool
+			_cfnString: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" & "\(self)"
+		} |
+		fn.#StringExpression
 		PolicyDetails!: list.MaxItems(3) & list.MinItems(1) & [...#PolicyDetail] | fn.#ListExpression
 
 		// The resource selection of the lifecycle policy.
@@ -34,9 +49,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Status?:            "DISABLED" | "ENABLED" | fn.#StringExpression
 		Tags?: close({
 
-			{[=~".{1,}"]: string | fn.#StringExpression}}) |
+			{[=~".{1,}"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Action: close({
@@ -50,12 +74,28 @@ fn.#ObjectExpression
 
 	// Use to apply lifecycle policy actions on AMIs launched before a certain time.
 	LastLaunched?: #LastLaunched
-	Regions?:      [...strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	SharedAccounts?: list.MaxItems(1536) & list.MinItems(1) & [...=~"^[0-9]{12}$" | fn.#StringExpression] |
-		fn.#ListExpression
+	Regions?: [...strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SharedAccounts?: list.MaxItems(1536) & list.MinItems(1) & [...=~"^[0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	TagMap?: close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		{[=~".{1,}"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
@@ -64,7 +104,12 @@ fn.#ObjectExpression
 	Amis?: #AmiExclusionRules
 	TagMap?: close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		{[=~".{1,}"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
@@ -146,8 +191,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RecipeSelection: close({
-	Name!:            =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
-	SemanticVersion!: =~"^(?:[0-9]+|x)\\.(?:[0-9]+|x)\\.(?:[0-9]+|x)$" | fn.#StringExpression
+	Name!: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" |
+	{
+		number | bool
+		_cfnString: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SemanticVersion!: =~"^(?:[0-9]+|x)\\.(?:[0-9]+|x)\\.(?:[0-9]+|x)$" |
+	{
+		number | bool
+		_cfnString: =~"^(?:[0-9]+|x)\\.(?:[0-9]+|x)\\.(?:[0-9]+|x)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -155,7 +210,12 @@ fn.#ObjectExpression
 	Recipes?: list.MaxItems(50) & list.MinItems(1) & [...#RecipeSelection] | fn.#ListExpression
 	TagMap?: close({
 
-		{[=~".{1,}"]: string | fn.#StringExpression}}) |
+		{[=~".{1,}"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression

@@ -9,5 +9,4 @@ import schema "github.com/cueformation/cfn-cue/resources/h3abbf840b37fa128:schem
 #CriterionAdditionalProperties: schema.#CriterionAdditionalProperties
 #FindingCriteria:               schema.#FindingCriteria
 #FindingFilterAction:           schema.#FindingFilterAction
-#FindingsFilterListItem:        schema.#FindingsFilterListItem
 #Tag:                           schema.#Tag

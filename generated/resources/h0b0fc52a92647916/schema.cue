@@ -6,12 +6,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -40,7 +38,53 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Developer Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SQS::Queue"
-	Properties?: close({
+	let properties = matchIf({
+		FifoQueue!: true | "true" | "True" | "TRUE"
+		...
+	}, matchIf({
+		QueueName!: string | number | bool
+		...
+	}, {
+		QueueName?: null |
+		bool |
+		"true" |
+		"True" |
+		"TRUE" |
+		"false" |
+		"False" |
+		"FALSE" |
+		number |
+		{
+			string &
+				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+				cfnScalarStrings.Repeat(
+					self,
+					len(cfnScalarStrconv.FormatFloat(
+						cfnScalarStrconv.ParseFloat(
+							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
+							64,
+						) &
+							number,
+						"g",
+						-1,
+						64,
+					))*0 + 1,
+				)
+		} |
+		=~"^.*\\.fifo$" |
+		[...] |
+		{...} |
+		fn.#ValueExpression
+		...
+	}, _), _) & matchIf({
+		FifoQueue?: false | "false" | "False" | "FALSE"
+		...
+	}, {
+		ContentBasedDeduplication?: error("disallowed")
+		DeduplicationScope?:        error("disallowed")
+		FifoThroughputLimit?:       error("disallowed")
+		...
+	}, _) & close({
 		ContentBasedDeduplication?: bool |
 			"true" |
 			"True" |
@@ -49,7 +93,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		DeduplicationScope?: string | fn.#StringExpression
+		DeduplicationScope?: string | number | bool | fn.#StringExpression
 		DelaySeconds?: int & <=900 & >=0 |
 			{
 				string &
@@ -69,7 +113,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		FifoQueue?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		FifoThroughputLimit?: string | fn.#StringExpression
+		FifoThroughputLimit?: string | number | bool | fn.#StringExpression
 		KmsDataKeyReusePeriodSeconds?: int & <=86400 & >=60 |
 			{
 				string &
@@ -88,9 +132,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		KmsMasterKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string |
-			fn.#StringExpression
+		KmsMasterKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+		} |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+				"\(self)"
+		} |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		MaximumMessageSize?: int & <=1048576 & >=1024 |
 			{
 				string &
@@ -127,7 +185,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		QueueName?: string | fn.#StringExpression
+		QueueName?: string | number | bool | fn.#StringExpression
 		ReceiveMessageWaitTimeSeconds?: int & <=20 & >=0 |
 			{
 				string &
@@ -146,10 +204,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		RedriveAllowPolicy?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		RedriveAllowPolicy?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		RedrivePolicy?: string |
+		number |
+		bool |
 		close({
-			deadLetterTargetArn?: string | fn.#StringExpression
+			deadLetterTargetArn?: string | number | bool | fn.#StringExpression
 			maxReceiveCount?: int |
 				{
 					string &
@@ -189,10 +249,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

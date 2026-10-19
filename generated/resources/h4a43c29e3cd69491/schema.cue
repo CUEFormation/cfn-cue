@@ -7,28 +7,46 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Neptune::GlobalCluster
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Neptune::GlobalCluster"
-	Properties?: close({
+	let properties = close({
 		DeletionProtection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Engine?:             "neptune" | fn.#StringExpression
-		EngineVersion?:      string | fn.#StringExpression
+		EngineVersion?:      string | number | bool | fn.#StringExpression
 		GlobalClusterIdentifier?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][0-9A-Za-z-:._]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][0-9A-Za-z-:._]*$" & "\(self)"
+		} |
 		fn.#StringExpression
-		SourceDBClusterIdentifier?: string | fn.#StringExpression
+		SourceDBClusterIdentifier?: string | number | bool | fn.#StringExpression
 		StorageEncrypted?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Tags?:             list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

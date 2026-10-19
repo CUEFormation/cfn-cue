@@ -1,0 +1,131 @@
+{
+  "after": {
+    "both-accept": 537,
+    "both-reject": 150,
+    "cue-accepts-lint-lifecycle-only": 250,
+    "cue-accepts-lint-rejects": 54,
+    "cue-rejects-lint-accepts": 18,
+    "cue-unsupported": 83,
+    "normalization-error": 9
+  },
+  "after_schema_sha256": "b30aa602518eb812aa8d12f6056602f6bd792a74918c8e3c20188e6f5f73b622",
+  "after_validator_sha256": "9aeb1a289a8a11fad13f579c7cc2dc978f4f3d888ca616f0265a51988c4def16",
+  "before": {
+    "both-accept": 537,
+    "both-reject": 144,
+    "cue-accepts-lint-lifecycle-only": 250,
+    "cue-accepts-lint-rejects": 60,
+    "cue-rejects-lint-accepts": 18,
+    "cue-unsupported": 83,
+    "normalization-error": 9
+  },
+  "before_schema_sha256": "58111f2d528363b29e45ebacbecdce0b459be30e98f7e8c9d61481d51c068c7c",
+  "before_validator_sha256": "b05ac99f89ef15510c2c031b5ebea3399c2ac764f778279a0f543b413a6b059d",
+  "changes": [
+    {
+      "after": "both-reject",
+      "after_cue_ms": 52,
+      "before": "cue-accepts-lint-rejects",
+      "before_cue_ms": 59,
+      "id": "428ce7e988c6e558",
+      "path": "tests/examples_output/RDS_with_DBParameterGroup.template",
+      "region": "us-east-1",
+      "url": "https://github.com/cloudtools/troposphere/blob/8cd7a25e5d3c65aee7e3e12d7abf9465c4a0d3c8/tests/examples_output/RDS_with_DBParameterGroup.template"
+    },
+    {
+      "after": "both-reject",
+      "after_cue_ms": 48,
+      "before": "cue-accepts-lint-rejects",
+      "before_cue_ms": 26,
+      "id": "71b3ab0a689188b0",
+      "path": "test/fixtures/templates/public/rds-cluster.yaml",
+      "region": "us-east-1",
+      "url": "https://github.com/aws-cloudformation/cfn-lint/blob/be66fb3e224b41c85065cb3002ad0b24e31db535/test/fixtures/templates/public/rds-cluster.yaml"
+    },
+    {
+      "after": "both-reject",
+      "after_cue_ms": 67,
+      "before": "cue-accepts-lint-rejects",
+      "before_cue_ms": 46,
+      "id": "76f46b9d78a7cecf",
+      "path": "tests/translator/output/connector_appsync_to_table.json",
+      "region": "us-east-1",
+      "url": "https://github.com/aws/serverless-application-model/blob/a130d8b4c43895b860d5b01b0fcc71bc465b91cf/tests/translator/output/connector_appsync_to_table.json"
+    },
+    {
+      "after": "both-reject",
+      "after_cue_ms": 54,
+      "before": "cue-accepts-lint-rejects",
+      "before_cue_ms": 37,
+      "id": "c2cbcd943fe206d3",
+      "path": "tests/examples_output/AuroraServerlessRDS_SecretsManager.template",
+      "region": "us-east-1",
+      "url": "https://github.com/cloudtools/troposphere/blob/8cd7a25e5d3c65aee7e3e12d7abf9465c4a0d3c8/tests/examples_output/AuroraServerlessRDS_SecretsManager.template"
+    },
+    {
+      "after": "both-reject",
+      "after_cue_ms": 90,
+      "before": "cue-accepts-lint-rejects",
+      "before_cue_ms": 67,
+      "id": "da05ca261fff8588",
+      "path": "test/fixtures/templates/bad/resources/rds/instance_sizes.yaml",
+      "region": "us-east-1",
+      "url": "https://github.com/aws-cloudformation/cfn-lint/blob/be66fb3e224b41c85065cb3002ad0b24e31db535/test/fixtures/templates/bad/resources/rds/instance_sizes.yaml"
+    },
+    {
+      "after": "both-reject",
+      "after_cue_ms": 53,
+      "before": "cue-accepts-lint-rejects",
+      "before_cue_ms": 29,
+      "id": "edcf8acebee14b28",
+      "path": "tests/examples_output/RDS_VPC.template",
+      "region": "us-east-1",
+      "url": "https://github.com/cloudtools/troposphere/blob/8cd7a25e5d3c65aee7e3e12d7abf9465c4a0d3c8/tests/examples_output/RDS_VPC.template"
+    }
+  ],
+  "evaluations": 1101,
+  "memory_soft_target": "2GiB",
+  "timeout_seconds": 6.0,
+  "transitions": [
+    {
+      "after": "both-accept",
+      "before": "both-accept",
+      "count": 537
+    },
+    {
+      "after": "both-reject",
+      "before": "both-reject",
+      "count": 144
+    },
+    {
+      "after": "cue-accepts-lint-lifecycle-only",
+      "before": "cue-accepts-lint-lifecycle-only",
+      "count": 250
+    },
+    {
+      "after": "both-reject",
+      "before": "cue-accepts-lint-rejects",
+      "count": 6
+    },
+    {
+      "after": "cue-accepts-lint-rejects",
+      "before": "cue-accepts-lint-rejects",
+      "count": 54
+    },
+    {
+      "after": "cue-rejects-lint-accepts",
+      "before": "cue-rejects-lint-accepts",
+      "count": 18
+    },
+    {
+      "after": "cue-unsupported",
+      "before": "cue-unsupported",
+      "count": 83
+    },
+    {
+      "after": "normalization-error",
+      "before": "normalization-error",
+      "count": 9
+    }
+  ]
+}

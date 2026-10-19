@@ -6,12 +6,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // identified by the returned usage limit identifier.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Redshift::UsageLimit"
-	Properties!: close({
+	let properties = close({
 		Amount!: number |
 			{
 				string &
@@ -40,8 +38,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		BreachAction?:      "log" | "emit-metric" | "disable" | fn.#StringExpression
-		ClusterIdentifier!: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
+		BreachAction?: "log" | "emit-metric" | "disable" | fn.#StringExpression
+		ClusterIdentifier!: strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		FeatureType!: "spectrum" |
 			"concurrency-scaling" |
 			"cross-region-datasharing" |
@@ -51,10 +54,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Period?:    "daily" | "weekly" | "monthly" | fn.#StringExpression
 		Tags?:      [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -6,28 +6,55 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Events::EventBusPolicy
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Events::EventBusPolicy"
-	Properties!: close({
+	let properties = close({
 		Action?: "events:PutEvents" & strings.MaxRunes(64) & strings.MinRunes(1) & =~"events:[a-zA-Z]+" |
+		{
+			number | bool
+			_cfnString: "events:PutEvents" &
+			strings.MaxRunes(64) &
+			strings.MinRunes(1) &
+			=~"events:[a-zA-Z]+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Condition?:    #Condition
-		EventBusName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\.\\-_A-Za-z0-9]+" | fn.#StringExpression
-		Principal?:    strings.MaxRunes(12) & strings.MinRunes(1) & =~"(\\d{12}|\\*)" | fn.#StringExpression
-		Statement?:    fn.#Object & {...} | string | fn.#StringObjectExpression
-		StatementId!:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9-_]+" | fn.#StringExpression
+		Condition?: #Condition
+		EventBusName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\.\\-_A-Za-z0-9]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[\\.\\-_A-Za-z0-9]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		Principal?: strings.MaxRunes(12) & strings.MinRunes(1) & =~"(\\d{12}|\\*)" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(1) & =~"(\\d{12}|\\*)" & "\(self)"
+		} |
+		fn.#StringExpression
+		Statement?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		StatementId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9-_]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[a-zA-Z0-9-_]+" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Condition: close({
-	Key?:   string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
 	Type?:  "StringEquals" | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

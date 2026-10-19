@@ -3,24 +3,22 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaLive::Channel
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaLive::Channel"
-	Properties?: close({
+	let properties = close({
 		AnywhereSettings?:      #AnywhereSettings
 		CdiInputSpecification?: #CdiInputSpecification
-		ChannelClass?:          string | fn.#StringExpression
+		ChannelClass?:          string | number | bool | fn.#StringExpression
 		ChannelEngineVersion?:  #ChannelEngineVersionRequest
-		ChannelSecurityGroups?: [...string | fn.#StringExpression] | fn.#ListExpression
+		ChannelSecurityGroups?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Destinations?:          [...#OutputDestination] | fn.#ListExpression
 		DryRun?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		EncoderSettings?:       #EncoderSettings
@@ -28,14 +26,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		InputAttachments?:      [...#InputAttachment] | fn.#ListExpression
 		InputSpecification?:    #InputSpecification
 		LinkedChannelSettings?: #LinkedChannelSettings
-		LogLevel?:              string | fn.#StringExpression
+		LogLevel?:              string | number | bool | fn.#StringExpression
 		Maintenance?:           #MaintenanceCreateSettings
-		Name?:                  string | fn.#StringExpression
-		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		Tags?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		Name?:                  string | number | bool | fn.#StringExpression
+		RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		Vpc?:  #VpcOutputSettings
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #AacSettings: close({
@@ -58,11 +64,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	CodingMode?:      string | fn.#StringExpression
-	InputType?:       string | fn.#StringExpression
-	Profile?:         string | fn.#StringExpression
-	RateControlMode?: string | fn.#StringExpression
-	RawFormat?:       string | fn.#StringExpression
+	CodingMode?:      string | number | bool | fn.#StringExpression
+	InputType?:       string | number | bool | fn.#StringExpression
+	Profile?:         string | number | bool | fn.#StringExpression
+	RateControlMode?: string | number | bool | fn.#StringExpression
+	RawFormat?:       string | number | bool | fn.#StringExpression
 	SampleRate?: number |
 		{
 			string &
@@ -82,8 +88,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Spec?:       string | fn.#StringExpression
-	VbrQuality?: string | fn.#StringExpression
+	Spec?:       string | number | bool | fn.#StringExpression
+	VbrQuality?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -149,7 +155,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Ac3Settings: close({
-	AttenuationControl?: string | fn.#StringExpression
+	AttenuationControl?: string | number | bool | fn.#StringExpression
 	Bitrate?: number |
 		{
 			string &
@@ -169,8 +175,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	BitstreamMode?: string | fn.#StringExpression
-	CodingMode?:    string | fn.#StringExpression
+	BitstreamMode?: string | number | bool | fn.#StringExpression
+	CodingMode?:    string | number | bool | fn.#StringExpression
 	Dialnorm?: int |
 		{
 			string &
@@ -185,9 +191,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	DrcProfile?:      string | fn.#StringExpression
-	LfeFilter?:       string | fn.#StringExpression
-	MetadataControl?: string | fn.#StringExpression
+	DrcProfile?:      string | number | bool | fn.#StringExpression
+	LfeFilter?:       string | number | bool | fn.#StringExpression
+	MetadataControl?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -212,8 +218,8 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #AnywhereSettings: close({
-	ChannelPlacementGroupId?: string | fn.#StringExpression
-	ClusterId?:               string | fn.#StringExpression
+	ChannelPlacementGroupId?: string | number | bool | fn.#StringExpression
+	ClusterId?:               string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -225,7 +231,8 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ArchiveFrameCaptureHlsS3Settings: close({CannedAcl?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#ArchiveFrameCaptureHlsS3Settings: close({CannedAcl?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #ArchiveGroupSettings: close({
 	ArchiveCdnSettings?: #ArchiveCdnSettings
@@ -249,8 +256,8 @@ fn.#ObjectExpression
 
 #ArchiveOutputSettings: close({
 	ContainerSettings?: #ArchiveContainerSettings
-	Extension?:         string | fn.#StringExpression
-	NameModifier?:      string | fn.#StringExpression
+	Extension?:         string | number | bool | fn.#StringExpression
+	NameModifier?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -285,46 +292,46 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #AudioDescription: close({
-	AudioDashRoles?:             [...string | fn.#StringExpression] | fn.#ListExpression
+	AudioDashRoles?:             [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	AudioNormalizationSettings?: #AudioNormalizationSettings
-	AudioSelectorName?:          string | fn.#StringExpression
-	AudioType?:                  string | fn.#StringExpression
-	AudioTypeControl?:           string | fn.#StringExpression
+	AudioSelectorName?:          string | number | bool | fn.#StringExpression
+	AudioType?:                  string | number | bool | fn.#StringExpression
+	AudioTypeControl?:           string | number | bool | fn.#StringExpression
 	AudioWatermarkingSettings?:  #AudioWatermarkSettings
 	CodecSettings?:              #AudioCodecSettings
-	DvbDashAccessibility?:       string | fn.#StringExpression
-	LanguageCode?:               string | fn.#StringExpression
-	LanguageCodeControl?:        string | fn.#StringExpression
-	Name?:                       string | fn.#StringExpression
+	DvbDashAccessibility?:       string | number | bool | fn.#StringExpression
+	LanguageCode?:               string | number | bool | fn.#StringExpression
+	LanguageCodeControl?:        string | number | bool | fn.#StringExpression
+	Name?:                       string | number | bool | fn.#StringExpression
 	RemixSettings?:              #RemixSettings
-	StreamName?:                 string | fn.#StringExpression
+	StreamName?:                 string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#AudioDolbyEDecode: close({ProgramSelection?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#AudioDolbyEDecode: close({ProgramSelection?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #AudioFeedInput: close({
-	AudioSelectorName?: string | fn.#StringExpression
-	FeedInput?:         string | fn.#StringExpression
+	AudioSelectorName?: string | number | bool | fn.#StringExpression
+	FeedInput?:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AudioHlsRenditionSelection: close({
-	GroupId?: string | fn.#StringExpression
-	Name?:    string | fn.#StringExpression
+	GroupId?: string | number | bool | fn.#StringExpression
+	Name?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AudioLanguageSelection: close({
-	LanguageCode?:            string | fn.#StringExpression
-	LanguageSelectionPolicy?: string | fn.#StringExpression
+	LanguageCode?:            string | number | bool | fn.#StringExpression
+	LanguageSelectionPolicy?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AudioNormalizationSettings: close({
-	Algorithm?:        string | fn.#StringExpression
-	AlgorithmControl?: string | fn.#StringExpression
-	PeakCalculation?:  string | fn.#StringExpression
+	Algorithm?:        string | number | bool | fn.#StringExpression
+	AlgorithmControl?: string | number | bool | fn.#StringExpression
+	PeakCalculation?:  string | number | bool | fn.#StringExpression
 	PeakLimiterThreshold?: number |
 		{
 			string &
@@ -367,10 +374,10 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #AudioOnlyHlsSettings: close({
-	AudioGroupId?:   string | fn.#StringExpression
+	AudioGroupId?:   string | number | bool | fn.#StringExpression
 	AudioOnlyImage?: #InputLocation
-	AudioTrackType?: string | fn.#StringExpression
-	SegmentType?:    string | fn.#StringExpression
+	AudioTrackType?: string | number | bool | fn.#StringExpression
+	SegmentType?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -453,7 +460,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #AudioSelector: close({
-	Name?:             string | fn.#StringExpression
+	Name?:             string | number | bool | fn.#StringExpression
 	SelectorSettings?: #AudioSelectorSettings
 }) |
 fn.#ObjectExpression
@@ -467,7 +474,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #AudioSilenceFailoverSettings: close({
-	AudioSelectorName?: string | fn.#StringExpression
+	AudioSelectorName?: string | number | bool | fn.#StringExpression
 	AudioSilenceThresholdMsec?: int |
 		{
 			string &
@@ -528,8 +535,8 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	FailoverConditions?: [...#FailoverCondition] | fn.#ListExpression
-	InputPreference?:    string | fn.#StringExpression
-	SecondaryInputId?:   string | fn.#StringExpression
+	InputPreference?:    string | number | bool | fn.#StringExpression
+	SecondaryInputId?:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -543,8 +550,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Av1Settings: close({
-	AfdSignaling?: string | fn.#StringExpression
-	BitDepth?:     string | fn.#StringExpression
+	AfdSignaling?: string | number | bool | fn.#StringExpression
+	BitDepth?:     string | number | bool | fn.#StringExpression
 	Bitrate?: int |
 		{
 			string &
@@ -574,7 +581,7 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	ColorSpaceSettings?: #Av1ColorSpaceSettings
-	FixedAfd?:           string | fn.#StringExpression
+	FixedAfd?:           string | number | bool | fn.#StringExpression
 	FramerateDenominator?: int |
 		{
 			string &
@@ -622,9 +629,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	GopSizeUnits?:         string | fn.#StringExpression
-	Level?:                string | fn.#StringExpression
-	LookAheadRateControl?: string | fn.#StringExpression
+	GopSizeUnits?:         string | number | bool | fn.#StringExpression
+	Level?:                string | number | bool | fn.#StringExpression
+	LookAheadRateControl?: string | number | bool | fn.#StringExpression
 	MaxBitrate?: int |
 		{
 			string &
@@ -709,24 +716,24 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	RateControlMode?:        string | fn.#StringExpression
-	SceneChangeDetect?:      string | fn.#StringExpression
-	SpatialAq?:              string | fn.#StringExpression
-	TemporalAq?:             string | fn.#StringExpression
+	RateControlMode?:        string | number | bool | fn.#StringExpression
+	SceneChangeDetect?:      string | number | bool | fn.#StringExpression
+	SpatialAq?:              string | number | bool | fn.#StringExpression
+	TemporalAq?:             string | number | bool | fn.#StringExpression
 	TimecodeBurninSettings?: #TimecodeBurninSettings
-	TimecodeInsertion?:      string | fn.#StringExpression
+	TimecodeInsertion?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AvailBlanking: close({
 	AvailBlankingImage?: #InputLocation
-	State?:              string | fn.#StringExpression
+	State?:              string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AvailConfiguration: close({
 	AvailSettings?:           #AvailSettings
-	Scte35SegmentationScope?: string | fn.#StringExpression
+	Scte35SegmentationScope?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -738,23 +745,23 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #BandwidthReductionFilterSettings: close({
-	PostFilterSharpening?: string | fn.#StringExpression
-	Strength?:             string | fn.#StringExpression
+	PostFilterSharpening?: string | number | bool | fn.#StringExpression
+	Strength?:             string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #BlackoutSlate: close({
 	BlackoutSlateImage?:      #InputLocation
-	NetworkEndBlackout?:      string | fn.#StringExpression
+	NetworkEndBlackout?:      string | number | bool | fn.#StringExpression
 	NetworkEndBlackoutImage?: #InputLocation
-	NetworkId?:               string | fn.#StringExpression
-	State?:                   string | fn.#StringExpression
+	NetworkId?:               string | number | bool | fn.#StringExpression
+	State?:                   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #BurnInDvbSubDestinationSettings: close({
-	Alignment?:       string | fn.#StringExpression
-	BackgroundColor?: string | fn.#StringExpression
+	Alignment?:       string | number | bool | fn.#StringExpression
+	BackgroundColor?: string | number | bool | fn.#StringExpression
 	BackgroundOpacity?: int |
 		{
 			string &
@@ -770,7 +777,7 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	Font?:      #InputLocation
-	FontColor?: string | fn.#StringExpression
+	FontColor?: string | number | bool | fn.#StringExpression
 	FontOpacity?: int |
 		{
 			string &
@@ -799,8 +806,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	FontSize?:     string | fn.#StringExpression
-	OutlineColor?: string | fn.#StringExpression
+	FontSize?:     string | number | bool | fn.#StringExpression
+	OutlineColor?: string | number | bool | fn.#StringExpression
 	OutlineSize?: int |
 		{
 			string &
@@ -815,7 +822,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ShadowColor?: string | fn.#StringExpression
+	ShadowColor?: string | number | bool | fn.#StringExpression
 	ShadowOpacity?: int |
 		{
 			string &
@@ -858,8 +865,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SubtitleRows?:        string | fn.#StringExpression
-	TeletextGridControl?: string | fn.#StringExpression
+	SubtitleRows?:        string | number | bool | fn.#StringExpression
+	TeletextGridControl?: string | number | bool | fn.#StringExpression
 	XPosition?: int |
 		{
 			string &
@@ -892,14 +899,14 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CaptionDescription: close({
-	Accessibility?:        string | fn.#StringExpression
-	CaptionDashRoles?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	CaptionSelectorName?:  string | fn.#StringExpression
+	Accessibility?:        string | number | bool | fn.#StringExpression
+	CaptionDashRoles?:     [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	CaptionSelectorName?:  string | number | bool | fn.#StringExpression
 	DestinationSettings?:  #CaptionDestinationSettings
-	DvbDashAccessibility?: string | fn.#StringExpression
-	LanguageCode?:         string | fn.#StringExpression
-	LanguageDescription?:  string | fn.#StringExpression
-	Name?:                 string | fn.#StringExpression
+	DvbDashAccessibility?: string | number | bool | fn.#StringExpression
+	LanguageCode?:         string | number | bool | fn.#StringExpression
+	LanguageDescription?:  string | number | bool | fn.#StringExpression
+	Name?:                 string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -935,8 +942,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	LanguageCode?:        string | fn.#StringExpression
-	LanguageDescription?: string | fn.#StringExpression
+	LanguageCode?:        string | number | bool | fn.#StringExpression
+	LanguageDescription?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1021,8 +1028,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CaptionSelector: close({
-	LanguageCode?:     string | fn.#StringExpression
-	Name?:             string | fn.#StringExpression
+	LanguageCode?:     string | number | bool | fn.#StringExpression
+	Name?:             string | number | bool | fn.#StringExpression
 	SelectorSettings?: #CaptionSelectorSettings
 }) |
 fn.#ObjectExpression
@@ -1039,9 +1046,9 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#CdiInputSpecification: close({Resolution?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#CdiInputSpecification: close({Resolution?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
-#ChannelEngineVersionRequest: close({Version?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#ChannelEngineVersionRequest: close({Version?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #CmafIngestCaptionLanguageMapping: close({
 	CaptionChannel?: int |
@@ -1058,24 +1065,25 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	LanguageCode?: string | fn.#StringExpression
+	LanguageCode?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#CmafIngestFrameCaptureOutputSettings: close({NameModifier?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#CmafIngestFrameCaptureOutputSettings: close({NameModifier?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #CmafIngestGroupSettings: close({
 	AdditionalDestinations?:  [...#AdditionalDestinations] | fn.#ListExpression
 	CaptionLanguageMappings?: [...#CmafIngestCaptionLanguageMapping] | fn.#ListExpression
 	Destination?:             #OutputLocationRef
-	Id3Behavior?:             string | fn.#StringExpression
-	Id3NameModifier?:         string | fn.#StringExpression
-	KlvBehavior?:             string | fn.#StringExpression
-	KlvNameModifier?:         string | fn.#StringExpression
-	NielsenId3Behavior?:      string | fn.#StringExpression
-	NielsenId3NameModifier?:  string | fn.#StringExpression
-	Scte35NameModifier?:      string | fn.#StringExpression
-	Scte35Type?:              string | fn.#StringExpression
+	Id3Behavior?:             string | number | bool | fn.#StringExpression
+	Id3NameModifier?:         string | number | bool | fn.#StringExpression
+	KlvBehavior?:             string | number | bool | fn.#StringExpression
+	KlvNameModifier?:         string | number | bool | fn.#StringExpression
+	NielsenId3Behavior?:      string | number | bool | fn.#StringExpression
+	NielsenId3NameModifier?:  string | number | bool | fn.#StringExpression
+	Scte35NameModifier?:      string | number | bool | fn.#StringExpression
+	Scte35Type?:              string | number | bool | fn.#StringExpression
 	SegmentLength?: int |
 		{
 			string &
@@ -1090,7 +1098,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SegmentLengthUnits?: string | fn.#StringExpression
+	SegmentLengthUnits?: string | number | bool | fn.#StringExpression
 	SendDelayMs?: int |
 		{
 			string &
@@ -1105,7 +1113,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TimedMetadataId3Frame?: string | fn.#StringExpression
+	TimedMetadataId3Frame?: string | number | bool | fn.#StringExpression
 	TimedMetadataId3Period?: int |
 		{
 			string &
@@ -1120,7 +1128,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TimedMetadataPassthrough?: string | fn.#StringExpression
+	TimedMetadataPassthrough?: string | number | bool | fn.#StringExpression
 	WatermarkingSettings?:     #CmafIngestWatermarkingSettings
 }) |
 fn.#ObjectExpression
@@ -1129,7 +1137,7 @@ fn.#ObjectExpression
 	AdditionalDestinationsAlternateDestinations?: [...#OutputLocationRef] | fn.#ListExpression
 	AlternateDestination?:                        #OutputLocationRef
 	CustomProfile?:                               #AbWatermarkingCustomProfile
-	License?:                                     string | fn.#StringExpression
+	License?:                                     string | number | bool | fn.#StringExpression
 	OperatorId?: int |
 		{
 			string &
@@ -1158,8 +1166,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Profile?:           string | fn.#StringExpression
-	WatermarkIdLength?: string | fn.#StringExpression
+	Profile?:           string | number | bool | fn.#StringExpression
+	WatermarkIdLength?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1169,16 +1177,16 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #ColorCorrection: close({
-	InputColorSpace?:  string | fn.#StringExpression
-	OutputColorSpace?: string | fn.#StringExpression
-	Uri?:              string | fn.#StringExpression
+	InputColorSpace?:  string | number | bool | fn.#StringExpression
+	OutputColorSpace?: string | number | bool | fn.#StringExpression
+	Uri?:              string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ColorCorrectionSettings: close({GlobalColorCorrections?: [...#ColorCorrection] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-#DisabledLockingSettings: close({CustomEpoch?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#DisabledLockingSettings: close({CustomEpoch?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #DvbNitSettings: close({
 	NetworkId?: int |
@@ -1195,7 +1203,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	NetworkName?: string | fn.#StringExpression
+	NetworkName?: string | number | bool | fn.#StringExpression
 	RepInterval?: int |
 		{
 			string &
@@ -1214,7 +1222,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DvbSdtSettings: close({
-	OutputSdt?: string | fn.#StringExpression
+	OutputSdt?: string | number | bool | fn.#StringExpression
 	RepInterval?: int |
 		{
 			string &
@@ -1229,8 +1237,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ServiceName?:         string | fn.#StringExpression
-	ServiceProviderName?: string | fn.#StringExpression
+	ServiceName?:         string | number | bool | fn.#StringExpression
+	ServiceProviderName?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1272,7 +1280,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	CodingMode?: string | fn.#StringExpression
+	CodingMode?: string | number | bool | fn.#StringExpression
 	Dialnorm?: int |
 		{
 			string &
@@ -1287,8 +1295,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	DrcLine?: string | fn.#StringExpression
-	DrcRf?:   string | fn.#StringExpression
+	DrcLine?: string | number | bool | fn.#StringExpression
+	DrcRf?:   string | number | bool | fn.#StringExpression
 	HeightTrim?: number |
 		{
 			string &
@@ -1331,7 +1339,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Eac3Settings: close({
-	AttenuationControl?: string | fn.#StringExpression
+	AttenuationControl?: string | number | bool | fn.#StringExpression
 	Bitrate?: number |
 		{
 			string &
@@ -1351,9 +1359,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	BitstreamMode?: string | fn.#StringExpression
-	CodingMode?:    string | fn.#StringExpression
-	DcFilter?:      string | fn.#StringExpression
+	BitstreamMode?: string | number | bool | fn.#StringExpression
+	CodingMode?:    string | number | bool | fn.#StringExpression
+	DcFilter?:      string | number | bool | fn.#StringExpression
 	Dialnorm?: int |
 		{
 			string &
@@ -1368,10 +1376,10 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	DrcLine?:    string | fn.#StringExpression
-	DrcRf?:      string | fn.#StringExpression
-	LfeControl?: string | fn.#StringExpression
-	LfeFilter?:  string | fn.#StringExpression
+	DrcLine?:    string | number | bool | fn.#StringExpression
+	DrcRf?:      string | number | bool | fn.#StringExpression
+	LfeControl?: string | number | bool | fn.#StringExpression
+	LfeFilter?:  string | number | bool | fn.#StringExpression
 	LoRoCenterMixLevel?: number |
 		{
 			string &
@@ -1448,17 +1456,17 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	MetadataControl?:    string | fn.#StringExpression
-	PassthroughControl?: string | fn.#StringExpression
-	PhaseControl?:       string | fn.#StringExpression
-	StereoDownmix?:      string | fn.#StringExpression
-	SurroundExMode?:     string | fn.#StringExpression
-	SurroundMode?:       string | fn.#StringExpression
+	MetadataControl?:    string | number | bool | fn.#StringExpression
+	PassthroughControl?: string | number | bool | fn.#StringExpression
+	PhaseControl?:       string | number | bool | fn.#StringExpression
+	StereoDownmix?:      string | number | bool | fn.#StringExpression
+	SurroundExMode?:     string | number | bool | fn.#StringExpression
+	SurroundMode?:       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EbuTtDDestinationSettings: close({
-	CopyrightHolder?: string | fn.#StringExpression
+	CopyrightHolder?: string | number | bool | fn.#StringExpression
 	DefaultFontSize?: int |
 		{
 			string &
@@ -1487,35 +1495,17 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	FillLineGap?:  string | fn.#StringExpression
-	FontFamily?:   string | fn.#StringExpression
-	StyleControl?: string | fn.#StringExpression
+	FillLineGap?:  string | number | bool | fn.#StringExpression
+	FontFamily?:   string | number | bool | fn.#StringExpression
+	StyleControl?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#EmbeddedCaptionPositionSettings: close({
-	YPositionLine?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-	fn.#ObjectExpression
-
-#EmbeddedDestinationSettings: fn.#Object & {...} | string | fn.#StringObjectExpression
+#EmbeddedDestinationSettings: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 #EmbeddedSourceSettings: close({
-	Convert608To708?: string | fn.#StringExpression
-	Scte20Detection?: string | fn.#StringExpression
+	Convert608To708?: string | number | bool | fn.#StringExpression
+	Scte20Detection?: string | number | bool | fn.#StringExpression
 	Source608ChannelNumber?: int |
 		{
 			string &
@@ -1568,13 +1558,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #EpochLockingSettings: close({
-	CustomEpoch?: string | fn.#StringExpression
-	JamSyncTime?: string | fn.#StringExpression
+	CustomEpoch?: string | number | bool | fn.#StringExpression
+	JamSyncTime?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Esam: close({
-	AcquisitionPointId?: string | fn.#StringExpression
+	AcquisitionPointId?: string | number | bool | fn.#StringExpression
 	AdAvailOffset?: int |
 		{
 			string &
@@ -1589,10 +1579,10 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	PasswordParam?: string | fn.#StringExpression
-	PoisEndpoint?:  string | fn.#StringExpression
-	Username?:      string | fn.#StringExpression
-	ZoneIdentity?:  string | fn.#StringExpression
+	PasswordParam?: string | number | bool | fn.#StringExpression
+	PoisEndpoint?:  string | number | bool | fn.#StringExpression
+	Username?:      string | number | bool | fn.#StringExpression
+	ZoneIdentity?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1606,8 +1596,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #FeatureActivations: close({
-	InputPrepareScheduleActions?:             string | fn.#StringExpression
-	OutputStaticImageOverlayScheduleActions?: string | fn.#StringExpression
+	InputPrepareScheduleActions?:             string | number | bool | fn.#StringExpression
+	OutputStaticImageOverlayScheduleActions?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1626,7 +1616,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	IncludeFec?: string | fn.#StringExpression
+	IncludeFec?: string | number | bool | fn.#StringExpression
 	RowLength?: int |
 		{
 			string &
@@ -1645,15 +1635,15 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Fmp4HlsSettings: close({
-	AudioRenditionSets?:    string | fn.#StringExpression
-	NielsenId3Behavior?:    string | fn.#StringExpression
-	TimedMetadataBehavior?: string | fn.#StringExpression
+	AudioRenditionSets?:    string | number | bool | fn.#StringExpression
+	NielsenId3Behavior?:    string | number | bool | fn.#StringExpression
+	TimedMetadataBehavior?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FollowerChannelSettings: close({
-	LinkedChannelType?: string | fn.#StringExpression
-	PrimaryChannelArn?: string | fn.#StringExpression
+	LinkedChannelType?: string | number | bool | fn.#StringExpression
+	PrimaryChannelArn?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1680,7 +1670,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	CaptureIntervalUnits?:   string | fn.#StringExpression
+	CaptureIntervalUnits?:   string | number | bool | fn.#StringExpression
 	TimecodeBurninSettings?: #TimecodeBurninSettings
 }) |
 fn.#ObjectExpression
@@ -1700,12 +1690,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	InputEndAction?:            string | fn.#StringExpression
+	InputEndAction?:            string | number | bool | fn.#StringExpression
 	InputLossBehavior?:         #InputLossBehavior
-	OutputLockingMode?:         string | fn.#StringExpression
+	OutputLockingMode?:         string | number | bool | fn.#StringExpression
 	OutputLockingSettings?:     #OutputLockingSettings
-	OutputTimingSource?:        string | fn.#StringExpression
-	SupportLowFramerateInputs?: string | fn.#StringExpression
+	OutputTimingSource?:        string | number | bool | fn.#StringExpression
+	SupportLowFramerateInputs?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1723,8 +1713,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #H264Settings: close({
-	AdaptiveQuantization?: string | fn.#StringExpression
-	AfdSignaling?:         string | fn.#StringExpression
+	AdaptiveQuantization?: string | number | bool | fn.#StringExpression
+	AfdSignaling?:         string | number | bool | fn.#StringExpression
 	Bitrate?: int |
 		{
 			string &
@@ -1767,14 +1757,14 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ColorMetadata?:      string | fn.#StringExpression
+	ColorMetadata?:      string | number | bool | fn.#StringExpression
 	ColorSpaceSettings?: #H264ColorSpaceSettings
-	EntropyEncoding?:    string | fn.#StringExpression
+	EntropyEncoding?:    string | number | bool | fn.#StringExpression
 	FilterSettings?:     #H264H265FilterSettings
-	FixedAfd?:           string | fn.#StringExpression
-	FlickerAq?:          string | fn.#StringExpression
-	ForceFieldPictures?: string | fn.#StringExpression
-	FramerateControl?:   string | fn.#StringExpression
+	FixedAfd?:           string | number | bool | fn.#StringExpression
+	FlickerAq?:          string | number | bool | fn.#StringExpression
+	ForceFieldPictures?: string | number | bool | fn.#StringExpression
+	FramerateControl?:   string | number | bool | fn.#StringExpression
 	FramerateDenominator?: int |
 		{
 			string &
@@ -1803,7 +1793,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	GopBReference?: string | fn.#StringExpression
+	GopBReference?: string | number | bool | fn.#StringExpression
 	GopClosedCadence?: int |
 		{
 			string &
@@ -1851,9 +1841,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	GopSizeUnits?:         string | fn.#StringExpression
-	Level?:                string | fn.#StringExpression
-	LookAheadRateControl?: string | fn.#StringExpression
+	GopSizeUnits?:         string | number | bool | fn.#StringExpression
+	Level?:                string | number | bool | fn.#StringExpression
+	LookAheadRateControl?: string | number | bool | fn.#StringExpression
 	MaxBitrate?: int |
 		{
 			string &
@@ -1924,7 +1914,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ParControl?: string | fn.#StringExpression
+	ParControl?: string | number | bool | fn.#StringExpression
 	ParDenominator?: int |
 		{
 			string &
@@ -1953,8 +1943,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Profile?:      string | fn.#StringExpression
-	QualityLevel?: string | fn.#StringExpression
+	Profile?:      string | number | bool | fn.#StringExpression
+	QualityLevel?: string | number | bool | fn.#StringExpression
 	QvbrQualityLevel?: int |
 		{
 			string &
@@ -1969,9 +1959,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	RateControlMode?:   string | fn.#StringExpression
-	ScanType?:          string | fn.#StringExpression
-	SceneChangeDetect?: string | fn.#StringExpression
+	RateControlMode?:   string | number | bool | fn.#StringExpression
+	ScanType?:          string | number | bool | fn.#StringExpression
+	SceneChangeDetect?: string | number | bool | fn.#StringExpression
 	Slices?: int |
 		{
 			string &
@@ -2000,12 +1990,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SpatialAq?:              string | fn.#StringExpression
-	SubgopLength?:           string | fn.#StringExpression
-	Syntax?:                 string | fn.#StringExpression
-	TemporalAq?:             string | fn.#StringExpression
+	SpatialAq?:              string | number | bool | fn.#StringExpression
+	SubgopLength?:           string | number | bool | fn.#StringExpression
+	Syntax?:                 string | number | bool | fn.#StringExpression
+	TemporalAq?:             string | number | bool | fn.#StringExpression
 	TimecodeBurninSettings?: #TimecodeBurninSettings
-	TimecodeInsertion?:      string | fn.#StringExpression
+	TimecodeInsertion?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -2020,9 +2010,9 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #H265Settings: close({
-	AdaptiveQuantization?:        string | fn.#StringExpression
-	AfdSignaling?:                string | fn.#StringExpression
-	AlternativeTransferFunction?: string | fn.#StringExpression
+	AdaptiveQuantization?:        string | number | bool | fn.#StringExpression
+	AfdSignaling?:                string | number | bool | fn.#StringExpression
+	AlternativeTransferFunction?: string | number | bool | fn.#StringExpression
 	Bitrate?: int |
 		{
 			string &
@@ -2051,12 +2041,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ColorMetadata?:      string | fn.#StringExpression
+	ColorMetadata?:      string | number | bool | fn.#StringExpression
 	ColorSpaceSettings?: #H265ColorSpaceSettings
-	Deblocking?:         string | fn.#StringExpression
+	Deblocking?:         string | number | bool | fn.#StringExpression
 	FilterSettings?:     #H264H265FilterSettings
-	FixedAfd?:           string | fn.#StringExpression
-	FlickerAq?:          string | fn.#StringExpression
+	FixedAfd?:           string | number | bool | fn.#StringExpression
+	FlickerAq?:          string | number | bool | fn.#StringExpression
 	FramerateDenominator?: int |
 		{
 			string &
@@ -2085,7 +2075,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	GopBReference?: string | fn.#StringExpression
+	GopBReference?: string | number | bool | fn.#StringExpression
 	GopClosedCadence?: int |
 		{
 			string &
@@ -2133,9 +2123,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	GopSizeUnits?:         string | fn.#StringExpression
-	Level?:                string | fn.#StringExpression
-	LookAheadRateControl?: string | fn.#StringExpression
+	GopSizeUnits?:         string | number | bool | fn.#StringExpression
+	Level?:                string | number | bool | fn.#StringExpression
+	LookAheadRateControl?: string | number | bool | fn.#StringExpression
 	MaxBitrate?: int |
 		{
 			string &
@@ -2192,8 +2182,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	MvOverPictureBoundaries?: string | fn.#StringExpression
-	MvTemporalPredictor?:     string | fn.#StringExpression
+	MvOverPictureBoundaries?: string | number | bool | fn.#StringExpression
+	MvTemporalPredictor?:     string | number | bool | fn.#StringExpression
 	ParDenominator?: int |
 		{
 			string &
@@ -2222,7 +2212,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Profile?: string | fn.#StringExpression
+	Profile?: string | number | bool | fn.#StringExpression
 	QvbrQualityLevel?: int |
 		{
 			string &
@@ -2237,9 +2227,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	RateControlMode?:   string | fn.#StringExpression
-	ScanType?:          string | fn.#StringExpression
-	SceneChangeDetect?: string | fn.#StringExpression
+	RateControlMode?:   string | number | bool | fn.#StringExpression
+	ScanType?:          string | number | bool | fn.#StringExpression
+	SceneChangeDetect?: string | number | bool | fn.#StringExpression
 	Slices?: int |
 		{
 			string &
@@ -2254,8 +2244,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SubgopLength?: string | fn.#StringExpression
-	Tier?:         string | fn.#StringExpression
+	SubgopLength?: string | number | bool | fn.#StringExpression
+	Tier?:         string | number | bool | fn.#StringExpression
 	TileHeight?: int |
 		{
 			string &
@@ -2270,7 +2260,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TilePadding?: string | fn.#StringExpression
+	TilePadding?: string | number | bool | fn.#StringExpression
 	TileWidth?: int |
 		{
 			string &
@@ -2286,8 +2276,8 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	TimecodeBurninSettings?: #TimecodeBurninSettings
-	TimecodeInsertion?:      string | fn.#StringExpression
-	TreeblockSize?:          string | fn.#StringExpression
+	TimecodeInsertion?:      string | number | bool | fn.#StringExpression
+	TreeblockSize?:          string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -2352,7 +2342,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	HttpTransferMode?: string | fn.#StringExpression
+	HttpTransferMode?: string | number | bool | fn.#StringExpression
 	NumRetries?: int |
 		{
 			string &
@@ -2381,8 +2371,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Salt?:  string | fn.#StringExpression
-	Token?: string | fn.#StringExpression
+	Salt?:  string | number | bool | fn.#StringExpression
+	Token?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -2456,24 +2446,24 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #HlsGroupSettings: close({
-	AdMarkers?:                 [...string | fn.#StringExpression] | fn.#ListExpression
-	BaseUrlContent?:            string | fn.#StringExpression
-	BaseUrlContent1?:           string | fn.#StringExpression
-	BaseUrlManifest?:           string | fn.#StringExpression
-	BaseUrlManifest1?:          string | fn.#StringExpression
+	AdMarkers?:                 [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	BaseUrlContent?:            string | number | bool | fn.#StringExpression
+	BaseUrlContent1?:           string | number | bool | fn.#StringExpression
+	BaseUrlManifest?:           string | number | bool | fn.#StringExpression
+	BaseUrlManifest1?:          string | number | bool | fn.#StringExpression
 	CaptionLanguageMappings?:   [...#CaptionLanguageMapping] | fn.#ListExpression
-	CaptionLanguageSetting?:    string | fn.#StringExpression
-	ClientCache?:               string | fn.#StringExpression
-	CodecSpecification?:        string | fn.#StringExpression
-	ConstantIv?:                string | fn.#StringExpression
+	CaptionLanguageSetting?:    string | number | bool | fn.#StringExpression
+	ClientCache?:               string | number | bool | fn.#StringExpression
+	CodecSpecification?:        string | number | bool | fn.#StringExpression
+	ConstantIv?:                string | number | bool | fn.#StringExpression
 	Destination?:               #OutputLocationRef
-	DirectoryStructure?:        string | fn.#StringExpression
-	DiscontinuityTags?:         string | fn.#StringExpression
-	EncryptionType?:            string | fn.#StringExpression
+	DirectoryStructure?:        string | number | bool | fn.#StringExpression
+	DiscontinuityTags?:         string | number | bool | fn.#StringExpression
+	EncryptionType?:            string | number | bool | fn.#StringExpression
 	HlsCdnSettings?:            #HlsCdnSettings
-	HlsId3SegmentTagging?:      string | fn.#StringExpression
-	IFrameOnlyPlaylists?:       string | fn.#StringExpression
-	IncompleteSegmentBehavior?: string | fn.#StringExpression
+	HlsId3SegmentTagging?:      string | number | bool | fn.#StringExpression
+	IFrameOnlyPlaylists?:       string | number | bool | fn.#StringExpression
+	IncompleteSegmentBehavior?: string | number | bool | fn.#StringExpression
 	IndexNSegments?: int |
 		{
 			string &
@@ -2488,9 +2478,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	InputLossAction?: string | fn.#StringExpression
-	IvInManifest?:    string | fn.#StringExpression
-	IvSource?:        string | fn.#StringExpression
+	InputLossAction?: string | number | bool | fn.#StringExpression
+	IvInManifest?:    string | number | bool | fn.#StringExpression
+	IvSource?:        string | number | bool | fn.#StringExpression
 	KeepSegments?: int |
 		{
 			string &
@@ -2505,11 +2495,11 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	KeyFormat?:              string | fn.#StringExpression
-	KeyFormatVersions?:      string | fn.#StringExpression
+	KeyFormat?:              string | number | bool | fn.#StringExpression
+	KeyFormatVersions?:      string | number | bool | fn.#StringExpression
 	KeyProviderSettings?:    #KeyProviderSettings
-	ManifestCompression?:    string | fn.#StringExpression
-	ManifestDurationFormat?: string | fn.#StringExpression
+	ManifestCompression?:    string | number | bool | fn.#StringExpression
+	ManifestDurationFormat?: string | number | bool | fn.#StringExpression
 	MinSegmentLength?: int |
 		{
 			string &
@@ -2524,10 +2514,10 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Mode?:                 string | fn.#StringExpression
-	OutputSelection?:      string | fn.#StringExpression
-	ProgramDateTime?:      string | fn.#StringExpression
-	ProgramDateTimeClock?: string | fn.#StringExpression
+	Mode?:                 string | number | bool | fn.#StringExpression
+	OutputSelection?:      string | number | bool | fn.#StringExpression
+	ProgramDateTime?:      string | number | bool | fn.#StringExpression
+	ProgramDateTimeClock?: string | number | bool | fn.#StringExpression
 	ProgramDateTimePeriod?: int |
 		{
 			string &
@@ -2542,7 +2532,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	RedundantManifest?: string | fn.#StringExpression
+	RedundantManifest?: string | number | bool | fn.#StringExpression
 	SegmentLength?: int |
 		{
 			string &
@@ -2557,7 +2547,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SegmentationMode?: string | fn.#StringExpression
+	SegmentationMode?: string | number | bool | fn.#StringExpression
 	SegmentsPerSubdirectory?: int |
 		{
 			string &
@@ -2572,8 +2562,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	StreamInfResolution?:   string | fn.#StringExpression
-	TimedMetadataId3Frame?: string | fn.#StringExpression
+	StreamInfResolution?:   string | number | bool | fn.#StringExpression
+	TimedMetadataId3Frame?: string | number | bool | fn.#StringExpression
 	TimedMetadataId3Period?: int |
 		{
 			string &
@@ -2602,7 +2592,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TsFileMode?: string | fn.#StringExpression
+	TsFileMode?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -2663,7 +2653,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Scte35Source?: string | fn.#StringExpression
+	Scte35Source?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -2696,7 +2686,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	MediaStoreStorageClass?: string | fn.#StringExpression
+	MediaStoreStorageClass?: string | number | bool | fn.#StringExpression
 	NumRetries?: int |
 		{
 			string &
@@ -2729,10 +2719,10 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #HlsOutputSettings: close({
-	H265PackagingType?: string | fn.#StringExpression
+	H265PackagingType?: string | number | bool | fn.#StringExpression
 	HlsSettings?:       #HlsSettings
-	NameModifier?:      string | fn.#StringExpression
-	SegmentModifier?:   string | fn.#StringExpression
+	NameModifier?:      string | number | bool | fn.#StringExpression
+	SegmentModifier?:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -2773,7 +2763,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	HttpTransferMode?: string | fn.#StringExpression
+	HttpTransferMode?: string | number | bool | fn.#StringExpression
 	NumRetries?: int |
 		{
 			string &
@@ -2807,17 +2797,17 @@ fn.#ObjectExpression
 
 #InferenceSettings: close({
 	AudioFeedInputs?:   [...#AudioFeedInput] | fn.#ListExpression
-	EnrichmentMethods?: [...string | fn.#StringExpression] | fn.#ListExpression
-	FeedArn?:           string | fn.#StringExpression
+	EnrichmentMethods?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	FeedArn?:           string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #InputAttachment: close({
 	AutomaticInputFailoverSettings?: #AutomaticInputFailoverSettings
-	InputAttachmentName?:            string | fn.#StringExpression
-	InputId?:                        string | fn.#StringExpression
+	InputAttachmentName?:            string | number | bool | fn.#StringExpression
+	InputId?:                        string | number | bool | fn.#StringExpression
 	InputSettings?:                  #InputSettings
-	LogicalInterfaceNames?:          [...string | fn.#StringExpression] | fn.#ListExpression
+	LogicalInterfaceNames?:          [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -2854,9 +2844,9 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #InputLocation: close({
-	PasswordParam?: string | fn.#StringExpression
-	Uri?:           string | fn.#StringExpression
-	Username?:      string | fn.#StringExpression
+	PasswordParam?: string | number | bool | fn.#StringExpression
+	Uri?:           string | number | bool | fn.#StringExpression
+	Username?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -2875,9 +2865,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	InputLossImageColor?: string | fn.#StringExpression
+	InputLossImageColor?: string | number | bool | fn.#StringExpression
 	InputLossImageSlate?: #InputLocation
-	InputLossImageType?:  string | fn.#StringExpression
+	InputLossImageType?:  string | number | bool | fn.#StringExpression
 	RepeatFrameMsec?: int |
 		{
 			string &
@@ -2916,8 +2906,8 @@ fn.#ObjectExpression
 #InputSettings: close({
 	AudioSelectors?:   [...#AudioSelector] | fn.#ListExpression
 	CaptionSelectors?: [...#CaptionSelector] | fn.#ListExpression
-	DeblockFilter?:    string | fn.#StringExpression
-	DenoiseFilter?:    string | fn.#StringExpression
+	DeblockFilter?:    string | number | bool | fn.#StringExpression
+	DenoiseFilter?:    string | number | bool | fn.#StringExpression
 	FilterStrength?: int |
 		{
 			string &
@@ -2932,7 +2922,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	InputFilter?:          string | fn.#StringExpression
+	InputFilter?:          string | number | bool | fn.#StringExpression
 	NetworkInputSettings?: #NetworkInputSettings
 	Scte35Pid?: int |
 		{
@@ -2948,16 +2938,16 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Smpte2038DataPreference?: string | fn.#StringExpression
-	SourceEndBehavior?:       string | fn.#StringExpression
+	Smpte2038DataPreference?: string | number | bool | fn.#StringExpression
+	SourceEndBehavior?:       string | number | bool | fn.#StringExpression
 	VideoSelector?:           #VideoSelector
 }) |
 fn.#ObjectExpression
 
 #InputSpecification: close({
-	Codec?:          string | fn.#StringExpression
-	MaximumBitrate?: string | fn.#StringExpression
-	Resolution?:     string | fn.#StringExpression
+	Codec?:          string | number | bool | fn.#StringExpression
+	MaximumBitrate?: string | number | bool | fn.#StringExpression
+	Resolution?:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -2970,11 +2960,11 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #M2tsSettings: close({
-	AbsentInputAudioBehavior?: string | fn.#StringExpression
-	Arib?:                     string | fn.#StringExpression
-	AribCaptionsPid?:          string | fn.#StringExpression
-	AribCaptionsPidControl?:   string | fn.#StringExpression
-	AudioBufferModel?:         string | fn.#StringExpression
+	AbsentInputAudioBehavior?: string | number | bool | fn.#StringExpression
+	Arib?:                     string | number | bool | fn.#StringExpression
+	AribCaptionsPid?:          string | number | bool | fn.#StringExpression
+	AribCaptionsPidControl?:   string | number | bool | fn.#StringExpression
+	AudioBufferModel?:         string | number | bool | fn.#StringExpression
 	AudioFramesPerPes?: int |
 		{
 			string &
@@ -2989,8 +2979,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	AudioPids?:       string | fn.#StringExpression
-	AudioStreamType?: string | fn.#StringExpression
+	AudioPids?:       string | number | bool | fn.#StringExpression
+	AudioStreamType?: string | number | bool | fn.#StringExpression
 	Bitrate?: int |
 		{
 			string &
@@ -3005,15 +2995,15 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	BufferModel?:      string | fn.#StringExpression
-	CcDescriptor?:     string | fn.#StringExpression
+	BufferModel?:      string | number | bool | fn.#StringExpression
+	CcDescriptor?:     string | number | bool | fn.#StringExpression
 	DvbNitSettings?:   #DvbNitSettings
 	DvbSdtSettings?:   #DvbSdtSettings
-	DvbSubPids?:       string | fn.#StringExpression
+	DvbSubPids?:       string | number | bool | fn.#StringExpression
 	DvbTdtSettings?:   #DvbTdtSettings
-	DvbTeletextPid?:   string | fn.#StringExpression
-	Ebif?:             string | fn.#StringExpression
-	EbpAudioInterval?: string | fn.#StringExpression
+	DvbTeletextPid?:   string | number | bool | fn.#StringExpression
+	Ebif?:             string | number | bool | fn.#StringExpression
+	EbpAudioInterval?: string | number | bool | fn.#StringExpression
 	EbpLookaheadMs?: int |
 		{
 			string &
@@ -3028,11 +3018,11 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	EbpPlacement?:   string | fn.#StringExpression
-	EcmPid?:         string | fn.#StringExpression
-	EsRateInPes?:    string | fn.#StringExpression
-	EtvPlatformPid?: string | fn.#StringExpression
-	EtvSignalPid?:   string | fn.#StringExpression
+	EbpPlacement?:   string | number | bool | fn.#StringExpression
+	EcmPid?:         string | number | bool | fn.#StringExpression
+	EsRateInPes?:    string | number | bool | fn.#StringExpression
+	EtvPlatformPid?: string | number | bool | fn.#StringExpression
+	EtvSignalPid?:   string | number | bool | fn.#StringExpression
 	FragmentTime?: number |
 		{
 			string &
@@ -3052,9 +3042,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Klv?:                string | fn.#StringExpression
-	KlvDataPids?:        string | fn.#StringExpression
-	NielsenId3Behavior?: string | fn.#StringExpression
+	Klv?:                string | number | bool | fn.#StringExpression
+	KlvDataPids?:        string | number | bool | fn.#StringExpression
+	NielsenId3Behavior?: string | number | bool | fn.#StringExpression
 	NullPacketBitrate?: number |
 		{
 			string &
@@ -3088,7 +3078,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	PcrControl?: string | fn.#StringExpression
+	PcrControl?: string | number | bool | fn.#StringExpression
 	PcrPeriod?: int |
 		{
 			string &
@@ -3103,7 +3093,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	PcrPid?: string | fn.#StringExpression
+	PcrPid?: string | number | bool | fn.#StringExpression
 	PmtInterval?: int |
 		{
 			string &
@@ -3118,7 +3108,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	PmtPid?: string | fn.#StringExpression
+	PmtPid?: string | number | bool | fn.#StringExpression
 	ProgramNum?: int |
 		{
 			string &
@@ -3133,10 +3123,10 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	RateMode?:      string | fn.#StringExpression
-	Scte27Pids?:    string | fn.#StringExpression
-	Scte35Control?: string | fn.#StringExpression
-	Scte35Pid?:     string | fn.#StringExpression
+	RateMode?:      string | number | bool | fn.#StringExpression
+	Scte27Pids?:    string | number | bool | fn.#StringExpression
+	Scte35Control?: string | number | bool | fn.#StringExpression
+	Scte35Pid?:     string | number | bool | fn.#StringExpression
 	Scte35PrerollPullupMilliseconds?: number |
 		{
 			string &
@@ -3156,8 +3146,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SegmentationMarkers?: string | fn.#StringExpression
-	SegmentationStyle?:   string | fn.#StringExpression
+	SegmentationMarkers?: string | number | bool | fn.#StringExpression
+	SegmentationStyle?:   string | number | bool | fn.#StringExpression
 	SegmentationTime?: number |
 		{
 			string &
@@ -3177,8 +3167,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TimedMetadataBehavior?: string | fn.#StringExpression
-	TimedMetadataPid?:      string | fn.#StringExpression
+	TimedMetadataBehavior?: string | number | bool | fn.#StringExpression
+	TimedMetadataPid?:      string | number | bool | fn.#StringExpression
 	TransportStreamId?: int |
 		{
 			string &
@@ -3193,7 +3183,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	VideoPid?: string | fn.#StringExpression
+	VideoPid?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -3212,11 +3202,11 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	AudioPids?:          string | fn.#StringExpression
-	EcmPid?:             string | fn.#StringExpression
-	KlvBehavior?:        string | fn.#StringExpression
-	KlvDataPids?:        string | fn.#StringExpression
-	NielsenId3Behavior?: string | fn.#StringExpression
+	AudioPids?:          string | number | bool | fn.#StringExpression
+	EcmPid?:             string | number | bool | fn.#StringExpression
+	KlvBehavior?:        string | number | bool | fn.#StringExpression
+	KlvDataPids?:        string | number | bool | fn.#StringExpression
+	NielsenId3Behavior?: string | number | bool | fn.#StringExpression
 	PatInterval?: int |
 		{
 			string &
@@ -3231,7 +3221,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	PcrControl?: string | fn.#StringExpression
+	PcrControl?: string | number | bool | fn.#StringExpression
 	PcrPeriod?: int |
 		{
 			string &
@@ -3246,7 +3236,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	PcrPid?: string | fn.#StringExpression
+	PcrPid?: string | number | bool | fn.#StringExpression
 	PmtInterval?: int |
 		{
 			string &
@@ -3261,7 +3251,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	PmtPid?: string | fn.#StringExpression
+	PmtPid?: string | number | bool | fn.#StringExpression
 	ProgramNum?: int |
 		{
 			string &
@@ -3276,10 +3266,10 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Scte35Behavior?:        string | fn.#StringExpression
-	Scte35Pid?:             string | fn.#StringExpression
-	TimedMetadataBehavior?: string | fn.#StringExpression
-	TimedMetadataPid?:      string | fn.#StringExpression
+	Scte35Behavior?:        string | number | bool | fn.#StringExpression
+	Scte35Pid?:             string | number | bool | fn.#StringExpression
+	TimedMetadataBehavior?: string | number | bool | fn.#StringExpression
+	TimedMetadataPid?:      string | number | bool | fn.#StringExpression
 	TransportStreamId?: int |
 		{
 			string &
@@ -3294,28 +3284,30 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	VideoPid?: string | fn.#StringExpression
+	VideoPid?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MaintenanceCreateSettings: close({
-	MaintenanceDay?:       string | fn.#StringExpression
-	MaintenanceStartTime?: string | fn.#StringExpression
+	MaintenanceDay?:       string | number | bool | fn.#StringExpression
+	MaintenanceStartTime?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#MediaConnectRouterGroupSettings: close({AvailabilityZones?: [...string | fn.#StringExpression] | fn.#ListExpression}) |
+#MediaConnectRouterGroupSettings: close(
+	{AvailabilityZones?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 #MediaConnectRouterOutputConnectionMap: close({
-	Pipeline0?: string | fn.#StringExpression
-	Pipeline1?: string | fn.#StringExpression
+	Pipeline0?: string | number | bool | fn.#StringExpression
+	Pipeline1?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MediaConnectRouterOutputDestinationSettings: close({
-	EncryptionType?: string | fn.#StringExpression
-	SecretArn?:      string | fn.#StringExpression
+	EncryptionType?: string | number | bool | fn.#StringExpression
+	SecretArn?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -3333,32 +3325,23 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #MediaPackageOutputDestinationSettings: close({
-	ChannelEndpointId?:      string | fn.#StringExpression
-	ChannelGroup?:           string | fn.#StringExpression
-	ChannelId?:              string | fn.#StringExpression
-	ChannelName?:            string | fn.#StringExpression
-	MediaPackageRegionName?: string | fn.#StringExpression
+	ChannelEndpointId?:      string | number | bool | fn.#StringExpression
+	ChannelGroup?:           string | number | bool | fn.#StringExpression
+	ChannelId?:              string | number | bool | fn.#StringExpression
+	ChannelName?:            string | number | bool | fn.#StringExpression
+	MediaPackageRegionName?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#MediaPackageOutputSettings: fn.#Object & {...} | string | fn.#StringObjectExpression
-
-#MediaPackageV2DestinationSettings: close({
-	AudioGroupId?:       string | fn.#StringExpression
-	AudioRenditionSets?: string | fn.#StringExpression
-	HlsAutoSelect?:      string | fn.#StringExpression
-	HlsDefault?:         string | fn.#StringExpression
-	OutputUsage?:        [...string | fn.#StringExpression] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
+#MediaPackageOutputSettings: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 #MediaPackageV2GroupSettings: close({
 	AdditionalDestinations?:  [...#AdditionalDestinations] | fn.#ListExpression
 	CaptionLanguageMappings?: [...#CaptionLanguageMapping] | fn.#ListExpression
-	Id3Behavior?:             string | fn.#StringExpression
-	KlvBehavior?:             string | fn.#StringExpression
-	NielsenId3Behavior?:      string | fn.#StringExpression
-	Scte35Type?:              string | fn.#StringExpression
+	Id3Behavior?:             string | number | bool | fn.#StringExpression
+	KlvBehavior?:             string | number | bool | fn.#StringExpression
+	NielsenId3Behavior?:      string | number | bool | fn.#StringExpression
+	Scte35Type?:              string | number | bool | fn.#StringExpression
 	SegmentLength?: int |
 		{
 			string &
@@ -3373,8 +3356,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SegmentLengthUnits?:    string | fn.#StringExpression
-	TimedMetadataId3Frame?: string | fn.#StringExpression
+	SegmentLengthUnits?:    string | number | bool | fn.#StringExpression
+	TimedMetadataId3Frame?: string | number | bool | fn.#StringExpression
 	TimedMetadataId3Period?: int |
 		{
 			string &
@@ -3389,7 +3372,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TimedMetadataPassthrough?: string | fn.#StringExpression
+	TimedMetadataPassthrough?: string | number | bool | fn.#StringExpression
 	WatermarkingSettings?:     #MediaPackageV2WatermarkingSettings
 }) |
 fn.#ObjectExpression
@@ -3400,7 +3383,7 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #MotionGraphicsConfiguration: close({
-	MotionGraphicsInsertion?: string | fn.#StringExpression
+	MotionGraphicsInsertion?: string | number | bool | fn.#StringExpression
 	MotionGraphicsSettings?:  #MotionGraphicsSettings
 }) |
 fn.#ObjectExpression
@@ -3427,7 +3410,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	CodingMode?: string | fn.#StringExpression
+	CodingMode?: string | number | bool | fn.#StringExpression
 	SampleRate?: number |
 		{
 			string &
@@ -3453,13 +3436,13 @@ fn.#ObjectExpression
 #Mpeg2FilterSettings: close({TemporalFilterSettings?: #TemporalFilterSettings}) | fn.#ObjectExpression
 
 #Mpeg2Settings: close({
-	AdaptiveQuantization?: string | fn.#StringExpression
-	AfdSignaling?:         string | fn.#StringExpression
-	ColorMetadata?:        string | fn.#StringExpression
-	ColorSpace?:           string | fn.#StringExpression
-	DisplayAspectRatio?:   string | fn.#StringExpression
+	AdaptiveQuantization?: string | number | bool | fn.#StringExpression
+	AfdSignaling?:         string | number | bool | fn.#StringExpression
+	ColorMetadata?:        string | number | bool | fn.#StringExpression
+	ColorSpace?:           string | number | bool | fn.#StringExpression
+	DisplayAspectRatio?:   string | number | bool | fn.#StringExpression
 	FilterSettings?:       #Mpeg2FilterSettings
-	FixedAfd?:             string | fn.#StringExpression
+	FixedAfd?:             string | number | bool | fn.#StringExpression
 	FramerateDenominator?: int |
 		{
 			string &
@@ -3535,18 +3518,18 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	GopSizeUnits?:           string | fn.#StringExpression
-	ScanType?:               string | fn.#StringExpression
-	SubgopLength?:           string | fn.#StringExpression
+	GopSizeUnits?:           string | number | bool | fn.#StringExpression
+	ScanType?:               string | number | bool | fn.#StringExpression
+	SubgopLength?:           string | number | bool | fn.#StringExpression
 	TimecodeBurninSettings?: #TimecodeBurninSettings
-	TimecodeInsertion?:      string | fn.#StringExpression
+	TimecodeInsertion?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MsSmoothGroupSettings: close({
-	AcquisitionPointId?:       string | fn.#StringExpression
-	AudioOnlyTimecodeControl?: string | fn.#StringExpression
-	CertificateMode?:          string | fn.#StringExpression
+	AcquisitionPointId?:       string | number | bool | fn.#StringExpression
+	AudioOnlyTimecodeControl?: string | number | bool | fn.#StringExpression
+	CertificateMode?:          string | number | bool | fn.#StringExpression
 	ConnectionRetryInterval?: int |
 		{
 			string &
@@ -3562,9 +3545,9 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	Destination?:       #OutputLocationRef
-	EventId?:           string | fn.#StringExpression
-	EventIdMode?:       string | fn.#StringExpression
-	EventStopBehavior?: string | fn.#StringExpression
+	EventId?:           string | number | bool | fn.#StringExpression
+	EventIdMode?:       string | number | bool | fn.#StringExpression
+	EventStopBehavior?: string | number | bool | fn.#StringExpression
 	FilecacheDuration?: int |
 		{
 			string &
@@ -3593,7 +3576,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	InputLossAction?: string | fn.#StringExpression
+	InputLossAction?: string | number | bool | fn.#StringExpression
 	NumRetries?: int |
 		{
 			string &
@@ -3622,7 +3605,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SegmentationMode?: string | fn.#StringExpression
+	SegmentationMode?: string | number | bool | fn.#StringExpression
 	SendDelayMs?: int |
 		{
 			string &
@@ -3637,27 +3620,27 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SparseTrackType?:        string | fn.#StringExpression
-	StreamManifestBehavior?: string | fn.#StringExpression
-	TimestampOffset?:        string | fn.#StringExpression
-	TimestampOffsetMode?:    string | fn.#StringExpression
+	SparseTrackType?:        string | number | bool | fn.#StringExpression
+	StreamManifestBehavior?: string | number | bool | fn.#StringExpression
+	TimestampOffset?:        string | number | bool | fn.#StringExpression
+	TimestampOffsetMode?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MsSmoothOutputSettings: close({
-	H265PackagingType?: string | fn.#StringExpression
-	NameModifier?:      string | fn.#StringExpression
+	H265PackagingType?: string | number | bool | fn.#StringExpression
+	NameModifier?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#MulticastInputSettings: close({SourceIpAddress?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#MulticastInputSettings: close({SourceIpAddress?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #MultiplexContainerSettings: close({MultiplexM2tsSettings?: #MultiplexM2tsSettings}) | fn.#ObjectExpression
 
 #MultiplexM2tsSettings: close({
-	AbsentInputAudioBehavior?: string | fn.#StringExpression
-	Arib?:                     string | fn.#StringExpression
-	AudioBufferModel?:         string | fn.#StringExpression
+	AbsentInputAudioBehavior?: string | number | bool | fn.#StringExpression
+	Arib?:                     string | number | bool | fn.#StringExpression
+	AudioBufferModel?:         string | number | bool | fn.#StringExpression
 	AudioFramesPerPes?: int |
 		{
 			string &
@@ -3672,13 +3655,13 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	AudioStreamType?:    string | fn.#StringExpression
-	CcDescriptor?:       string | fn.#StringExpression
-	Ebif?:               string | fn.#StringExpression
-	EsRateInPes?:        string | fn.#StringExpression
-	Klv?:                string | fn.#StringExpression
-	NielsenId3Behavior?: string | fn.#StringExpression
-	PcrControl?:         string | fn.#StringExpression
+	AudioStreamType?:    string | number | bool | fn.#StringExpression
+	CcDescriptor?:       string | number | bool | fn.#StringExpression
+	Ebif?:               string | number | bool | fn.#StringExpression
+	EsRateInPes?:        string | number | bool | fn.#StringExpression
+	Klv?:                string | number | bool | fn.#StringExpression
+	NielsenId3Behavior?: string | number | bool | fn.#StringExpression
+	PcrControl?:         string | number | bool | fn.#StringExpression
 	PcrPeriod?: int |
 		{
 			string &
@@ -3693,7 +3676,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Scte35Control?: string | fn.#StringExpression
+	Scte35Control?: string | number | bool | fn.#StringExpression
 	Scte35PrerollPullupMilliseconds?: number |
 		{
 			string &
@@ -3723,33 +3706,33 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #MultiplexProgramChannelDestinationSettings: close({
-	MultiplexId?: string | fn.#StringExpression
-	ProgramName?: string | fn.#StringExpression
+	MultiplexId?: string | number | bool | fn.#StringExpression
+	ProgramName?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #NetworkInputSettings: close({
 	HlsInputSettings?:       #HlsInputSettings
 	MulticastInputSettings?: #MulticastInputSettings
-	ServerValidation?:       string | fn.#StringExpression
+	ServerValidation?:       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #NielsenCBET: close({
-	CbetCheckDigitString?: string | fn.#StringExpression
-	CbetStepaside?:        string | fn.#StringExpression
-	Csid?:                 string | fn.#StringExpression
+	CbetCheckDigitString?: string | number | bool | fn.#StringExpression
+	CbetStepaside?:        string | number | bool | fn.#StringExpression
+	Csid?:                 string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #NielsenConfiguration: close({
-	DistributorId?:          string | fn.#StringExpression
-	NielsenPcmToId3Tagging?: string | fn.#StringExpression
+	DistributorId?:          string | number | bool | fn.#StringExpression
+	NielsenPcmToId3Tagging?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #NielsenNaesIiNwOnlySettings: close({
-	CheckDigitString?: string | fn.#StringExpression
+	CheckDigitString?: string | number | bool | fn.#StringExpression
 	Sid?: number |
 		{
 			string &
@@ -3769,30 +3752,30 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Timezone?: string | fn.#StringExpression
+	Timezone?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #NielsenWatermarksSettings: close({
 	NielsenCbetSettings?:     #NielsenCBET
-	NielsenDistributionType?: string | fn.#StringExpression
+	NielsenDistributionType?: string | number | bool | fn.#StringExpression
 	NielsenNaesIiNwSettings?: #NielsenNaesIiNwOnlySettings
 	NielsenNwOnlySettings?:   #NielsenNaesIiNwOnlySettings
 }) |
 fn.#ObjectExpression
 
 #Output: close({
-	AudioDescriptionNames?:   [...string | fn.#StringExpression] | fn.#ListExpression
-	CaptionDescriptionNames?: [...string | fn.#StringExpression] | fn.#ListExpression
-	OutputName?:              string | fn.#StringExpression
+	AudioDescriptionNames?:   [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	CaptionDescriptionNames?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	OutputName?:              string | number | bool | fn.#StringExpression
 	OutputSettings?:          #OutputSettings
-	VideoDescriptionName?:    string | fn.#StringExpression
+	VideoDescriptionName?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OutputDestination: close({
-	Id?:                         string | fn.#StringExpression
-	LogicalInterfaceNames?:      [...string | fn.#StringExpression] | fn.#ListExpression
+	Id?:                         string | number | bool | fn.#StringExpression
+	LogicalInterfaceNames?:      [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	MediaConnectRouterSettings?: [...#MediaConnectRouterOutputDestinationSettings] | fn.#ListExpression
 	MediaPackageSettings?:       [...#MediaPackageOutputDestinationSettings] | fn.#ListExpression
 	MultiplexSettings?:          #MultiplexProgramChannelDestinationSettings
@@ -3802,16 +3785,16 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #OutputDestinationSettings: close({
-	PasswordParam?:        string | fn.#StringExpression
-	StreamName?:           string | fn.#StringExpression
-	Url?:                  string | fn.#StringExpression
-	Username?:             string | fn.#StringExpression
-	VirtualSourceAddress?: string | fn.#StringExpression
+	PasswordParam?:        string | number | bool | fn.#StringExpression
+	StreamName?:           string | number | bool | fn.#StringExpression
+	Url?:                  string | number | bool | fn.#StringExpression
+	Username?:             string | number | bool | fn.#StringExpression
+	VirtualSourceAddress?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OutputGroup: close({
-	Name?:                string | fn.#StringExpression
+	Name?:                string | number | bool | fn.#StringExpression
 	OutputGroupSettings?: #OutputGroupSettings
 	Outputs?:             [...#Output] | fn.#ListExpression
 }) |
@@ -3832,7 +3815,7 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#OutputLocationRef: close({DestinationRefId?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#OutputLocationRef: close({DestinationRefId?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #OutputLockingSettings: close({
 	DisabledLockingSettings?: #DisabledLockingSettings
@@ -3856,9 +3839,10 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#PipelineLockingSettings: fn.#Object & {...} | string | fn.#StringObjectExpression
+#PipelineLockingSettings: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
-#PrimaryChannelSettings: close({LinkedChannelType?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#PrimaryChannelSettings: close({LinkedChannelType?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #RemixSettings: close({
 	ChannelMappings?: [...#AudioChannelMapping] | fn.#ListExpression
@@ -3894,9 +3878,9 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RtmpGroupSettings: close({
-	AdMarkers?:            [...string | fn.#StringExpression] | fn.#ListExpression
-	AuthenticationScheme?: string | fn.#StringExpression
-	CacheFullBehavior?:    string | fn.#StringExpression
+	AdMarkers?:            [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	AuthenticationScheme?: string | number | bool | fn.#StringExpression
+	CacheFullBehavior?:    string | number | bool | fn.#StringExpression
 	CacheLength?: int |
 		{
 			string &
@@ -3911,9 +3895,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	CaptionData?:           string | fn.#StringExpression
-	IncludeFillerNalUnits?: string | fn.#StringExpression
-	InputLossAction?:       string | fn.#StringExpression
+	CaptionData?:           string | number | bool | fn.#StringExpression
+	IncludeFillerNalUnits?: string | number | bool | fn.#StringExpression
+	InputLossAction?:       string | number | bool | fn.#StringExpression
 	RestartDelay?: int |
 		{
 			string &
@@ -3932,7 +3916,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RtmpOutputSettings: close({
-	CertificateMode?: string | fn.#StringExpression
+	CertificateMode?: string | number | bool | fn.#StringExpression
 	ConnectionRetryInterval?: int |
 		{
 			string &
@@ -3966,7 +3950,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Scte20SourceSettings: close({
-	Convert608To708?: string | fn.#StringExpression
+	Convert608To708?: string | number | bool | fn.#StringExpression
 	Source608ChannelNumber?: int |
 		{
 			string &
@@ -3985,7 +3969,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Scte27DvbSubSourceSettings: close({
-	OcrLanguage?: string | fn.#StringExpression
+	OcrLanguage?: string | number | bool | fn.#StringExpression
 	Pid?: int |
 		{
 			string &
@@ -4018,22 +4002,22 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	NoRegionalBlackoutFlag?: string | fn.#StringExpression
-	WebDeliveryAllowedFlag?: string | fn.#StringExpression
+	NoRegionalBlackoutFlag?: string | number | bool | fn.#StringExpression
+	WebDeliveryAllowedFlag?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SmartSubtitleSourceSettings: close({
-	CaptionSynchronizationMode?: string | fn.#StringExpression
-	InferenceFeedOutput?:        string | fn.#StringExpression
+	CaptionSynchronizationMode?: string | number | bool | fn.#StringExpression
+	InferenceFeedOutput?:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#SrtGroupSettings: close({InputLossAction?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#SrtGroupSettings: close({InputLossAction?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #SrtOutputDestinationSettings: close({
-	ConnectionMode?:                string | fn.#StringExpression
-	EncryptionPassphraseSecretArn?: string | fn.#StringExpression
+	ConnectionMode?:                string | number | bool | fn.#StringExpression
+	EncryptionPassphraseSecretArn?: string | number | bool | fn.#StringExpression
 	ListenerPort?: int |
 		{
 			string &
@@ -4048,8 +4032,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	StreamId?: string | fn.#StringExpression
-	Url?:      string | fn.#StringExpression
+	StreamId?: string | number | bool | fn.#StringExpression
+	Url?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -4070,7 +4054,7 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	ContainerSettings?: #UdpMediaConnectRouterContainerSettings
 	Destination?:       #OutputLocationRef
-	EncryptionType?:    string | fn.#StringExpression
+	EncryptionType?:    string | number | bool | fn.#StringExpression
 	Latency?: int |
 		{
 			string &
@@ -4089,26 +4073,26 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #StandardHlsSettings: close({
-	AudioRenditionSets?: string | fn.#StringExpression
+	AudioRenditionSets?: string | number | bool | fn.#StringExpression
 	M3u8Settings?:       #M3u8Settings
 }) |
 fn.#ObjectExpression
 
 #StaticKeySettings: close({
 	KeyProviderServer?: #InputLocation
-	StaticKeyValue?:    string | fn.#StringExpression
+	StaticKeyValue?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TeletextSourceSettings: close({
 	OutputRectangle?: #CaptionRectangle
-	PageNumber?:      string | fn.#StringExpression
+	PageNumber?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TemporalFilterSettings: close({
-	PostFilterSharpening?: string | fn.#StringExpression
-	Strength?:             string | fn.#StringExpression
+	PostFilterSharpening?: string | number | bool | fn.#StringExpression
+	Strength?:             string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -4130,17 +4114,17 @@ fn.#ObjectExpression
 }) |
 	fn.#ObjectExpression
 
-#ThumbnailConfiguration: close({State?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#ThumbnailConfiguration: close({State?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #TimecodeBurninSettings: close({
-	FontSize?: string | fn.#StringExpression
-	Position?: string | fn.#StringExpression
-	Prefix?:   string | fn.#StringExpression
+	FontSize?: string | number | bool | fn.#StringExpression
+	Position?: string | number | bool | fn.#StringExpression
+	Prefix?:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TimecodeConfig: close({
-	Source?: string | fn.#StringExpression
+	Source?: string | number | bool | fn.#StringExpression
 	SyncThreshold?: int |
 		{
 			string &
@@ -4160,13 +4144,13 @@ fn.#ObjectExpression
 
 #TtmlDestinationSettings: close({
 	Position?:     #TextCaptionPositionSettings
-	StyleControl?: string | fn.#StringExpression
+	StyleControl?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #UdpGroupSettings: close({
-	InputLossAction?:       string | fn.#StringExpression
-	TimedMetadataId3Frame?: string | fn.#StringExpression
+	InputLossAction?:       string | number | bool | fn.#StringExpression
+	TimedMetadataId3Frame?: string | number | bool | fn.#StringExpression
 	TimedMetadataId3Period?: int |
 		{
 			string &
@@ -4284,10 +4268,10 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Name?:                    string | fn.#StringExpression
+	Name?:                    string | number | bool | fn.#StringExpression
 	OutputPositionRectangle?: #VideoPositionRectangle
-	RespondToAfd?:            string | fn.#StringExpression
-	ScalingBehavior?:         string | fn.#StringExpression
+	RespondToAfd?:            string | number | bool | fn.#StringExpression
+	ScalingBehavior?:         string | number | bool | fn.#StringExpression
 	Sharpness?: int |
 		{
 			string &
@@ -4380,9 +4364,9 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VideoSelector: close({
-	ColorSpace?:         string | fn.#StringExpression
+	ColorSpace?:         string | number | bool | fn.#StringExpression
 	ColorSpaceSettings?: #VideoSelectorColorSpaceSettings
-	ColorSpaceUsage?:    string | fn.#StringExpression
+	ColorSpaceUsage?:    string | number | bool | fn.#StringExpression
 	SelectorSettings?:   #VideoSelectorSettings
 }) |
 fn.#ObjectExpression
@@ -4432,13 +4416,15 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VpcOutputSettings: close({
-	PublicAddressAllocationIds?: [...string | fn.#StringExpression] | fn.#ListExpression
-	SecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SubnetIds?: [...string | fn.#StringExpression] | fn.#ListExpression
+	PublicAddressAllocationIds?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SubnetIds?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -4462,7 +4448,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	CodingMode?: string | fn.#StringExpression
+	CodingMode?: string | number | bool | fn.#StringExpression
 	SampleRate?: number |
 		{
 			string &
@@ -4487,6 +4473,6 @@ fn.#ObjectExpression
 
 #WebvttDestinationSettings: close({
 	Position?:     #TextCaptionPositionSettings
-	StyleControl?: string | fn.#StringExpression
+	StyleControl?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

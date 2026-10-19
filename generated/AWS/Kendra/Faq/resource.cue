@@ -8,7 +8,6 @@ import schema "github.com/cueformation/cfn-cue/resources/ha7c346d39edd95dd:schem
 #Description:  schema.#Description
 #FaqName:      schema.#FaqName
 #FileFormat:   schema.#FileFormat
-#Id:           schema.#Id
 #IndexId:      schema.#IndexId
 #LanguageCode: schema.#LanguageCode
 #RoleArn:      schema.#RoleArn

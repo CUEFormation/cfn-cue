@@ -7,27 +7,25 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaTailor::Function
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaTailor::Function"
-	Properties!: close({
+	let properties = close({
 		AwsServiceRequestConfiguration?: #AwsServiceRequestConfiguration
 
 		// The configuration for a CONCURRENT_EXECUTOR function. Required when
 		// FunctionType is CONCURRENT_EXECUTOR.
 		ConcurrentExecutorConfiguration?: #ConcurrentExecutorConfiguration
 		CustomOutputConfiguration?:       #CustomOutputConfiguration
-		Description?:                     string | fn.#StringExpression
-		FunctionId!:                      string | fn.#StringExpression
+		Description?:                     string | number | bool | fn.#StringExpression
+		FunctionId!:                      string | number | bool | fn.#StringExpression
 
 		// The type of the function. Determines which configuration object is used.
 		FunctionType!:                    #FunctionType
@@ -36,18 +34,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:                            list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		VastRequestConfiguration?:        #VastRequestConfiguration
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AwsServiceRequestConfiguration: close({
-	Body?: string | fn.#StringExpression
+	Body?: string | number | bool | fn.#StringExpression
 	Headers?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
+		{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	MethodType!: #MethodType
 	Output?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
+		{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	RequestTimeoutMilliseconds!: int & <=2000 & >=100 |
 		{
@@ -65,10 +77,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Runtime!:       #RuntimeType
-	TargetRegion!:  strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	TargetService!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"[a-z0-9-]+" | fn.#StringExpression
-	Url!:           string | fn.#StringExpression
+	Runtime!: #RuntimeType
+	TargetRegion!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TargetService!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"[a-z0-9-]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"[a-z0-9-]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	Url!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -92,7 +114,12 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	Output!: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
+		{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	Runtime!: #RuntimeType
 	TimeoutMilliseconds!: int & <=2000 & >=100 |
@@ -124,9 +151,9 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #FunctionRef: close({
-	Alias?:        string | fn.#StringExpression
-	FunctionId?:   string | fn.#StringExpression
-	RunCondition?: string | fn.#StringExpression
+	Alias?:        string | number | bool | fn.#StringExpression
+	FunctionId?:   string | number | bool | fn.#StringExpression
+	RunCondition?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -139,7 +166,7 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #HttpRequestConfiguration: close({
-	Body?: string | fn.#StringExpression
+	Body?: string | number | bool | fn.#StringExpression
 
 	// A map of HTTP headers to include in the request.
 	Headers?: #StringMap
@@ -167,7 +194,7 @@ fn.#ObjectExpression
 
 	// The runtime environment for the function expression language.
 	Runtime!: #RuntimeType
-	Url!:     string | fn.#StringExpression
+	Url!:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -179,7 +206,12 @@ fn.#ObjectExpression
 	FunctionList!: [...#FunctionRef] | fn.#ListExpression
 	Output?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
+		{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	Runtime!: #RuntimeType
 	TimeoutMilliseconds!: int |
@@ -201,25 +233,40 @@ fn.#ObjectExpression
 
 #StringMap: close({
 
-	{[=~".*"]: string | fn.#StringExpression}}) |
+	{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VastRequestConfiguration: close({
-	Body?: string | fn.#StringExpression
+	Body?: string | number | bool | fn.#StringExpression
 	Headers?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
+		{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	MethodType!: #MethodType
 	Output?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
+		{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	RequestTimeoutMilliseconds!: int & <=2000 & >=100 |
 		{
@@ -238,6 +285,6 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	Runtime!: #RuntimeType
-	Url!:     string | fn.#StringExpression
+	Url!:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -3,23 +3,21 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAFRegional::RateBasedRule
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WAFRegional::RateBasedRule"
-	Properties!: close({
+	let properties = close({
 		MatchPredicates?: [...#Predicate] | fn.#ListExpression
-		MetricName!:      string | fn.#StringExpression
-		Name!:            string | fn.#StringExpression
-		RateKey!:         string | fn.#StringExpression
+		MetricName!:      string | number | bool | fn.#StringExpression
+		Name!:            string | number | bool | fn.#StringExpression
+		RateKey!:         string | number | bool | fn.#StringExpression
 		RateLimit!: int |
 			{
 				string &
@@ -37,11 +35,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Predicate: close({
-	DataId!:  string | fn.#StringExpression
+	DataId!:  string | number | bool | fn.#StringExpression
 	Negated!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Type!:    string | fn.#StringExpression
+	Type!:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

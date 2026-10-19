@@ -3,18 +3,22 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApiGateway::BasePathMappingV2
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::BasePathMappingV2"
-	Properties!: close({
-		BasePath?:      string | fn.#StringExpression
-		DomainNameArn!: string | fn.#StringExpression
-		RestApiId!:     string | fn.#StringExpression
-		Stage?:         string | fn.#StringExpression
+	let properties = close({
+		BasePath?:      string | number | bool | fn.#StringExpression
+		DomainNameArn!: string | number | bool | fn.#StringExpression
+		RestApiId!:     string | number | bool | fn.#StringExpression
+		Stage?:         string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

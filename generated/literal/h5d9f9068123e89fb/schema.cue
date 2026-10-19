@@ -22,7 +22,12 @@ import (
 	Values?:          [...#ThemeValues]
 })
 
-#Tags: {...}
+#Tags: close({
+
+	{[=~"^(?:aws:)"]: error("disallowed")}
+
+	{[=~"^[a-zA-Z+-=._:/]+$"]: strings.MaxRunes(256) & strings.MinRunes(1)}
+})
 
 #ThemeValue: close({
 	Children?: [...#ThemeValues]

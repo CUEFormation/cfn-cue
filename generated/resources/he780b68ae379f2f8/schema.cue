@@ -3,24 +3,28 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApiGateway::DomainNameAccessAssociation.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::DomainNameAccessAssociation"
-	Properties!: close({
-		AccessAssociationSource!:     string | fn.#StringExpression
+	let properties = close({
+		AccessAssociationSource!:     string | number | bool | fn.#StringExpression
 		AccessAssociationSourceType!: "VPCE" | fn.#StringExpression
-		DomainNameArn!:               string | fn.#StringExpression
+		DomainNameArn!:               string | number | bool | fn.#StringExpression
 		Tags?:                        [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

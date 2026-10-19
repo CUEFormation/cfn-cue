@@ -18,7 +18,16 @@ import (
 // [DeletionPolicy
 // Attribute](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html).
 // You can only delete empty buckets. Deletion fails for buckets that have contents.
-#Properties: close({
+#Properties: matchIf({
+	AccessControl!: matchN(0, ["Private" | "BucketOwnerFullControl" | "BucketOwnerRead"]) & string
+	...
+}, {
+	OwnershipControls!: null | bool | number | string | [...] | {
+		Rules!: null | bool | number | string | list.MinItems(1) | {...}
+		...
+	}
+	...
+}, _) & close({
 	// The ABAC status of the general purpose bucket. When ABAC is enabled for the
 	// general purpose bucket, you can use tags to manage access to the general
 	// purpose buckets as well as for cost tracking purposes. When ABAC is disabled
@@ -88,7 +97,10 @@ import (
 	// If you specify a name, you can't perform updates that require replacement of
 	// this resource. You can perform updates that require no or some interruption.
 	// If you need to replace the resource, specify a new name.
-	BucketName?:       strings.MaxRunes(63) & =~"^([a-z0-9][a-z0-9.-]*[a-z0-9])?$"
+	BucketName?: =~"(?:^[a-z0-9.\\-]{3,63}\\n?$)|^$" &
+	=~"(?:^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$)|^$" &
+	strings.MaxRunes(63) &
+	=~"^([a-z0-9][a-z0-9.-]*[a-z0-9])?$"
 	BucketNamePrefix?: string
 	BucketNamespace?:  "global" | "account-regional"
 
@@ -1058,23 +1070,19 @@ import (
 })
 
 // Specifies the redirect behavior of all requests to a website endpoint of an Amazon S3 bucket.
-#RedirectAllRequestsTo: matchN(3, [
-	matchN(0, [null | bool | number | string | [...] | {
-		RedirectAllRequestsTo!: _
-		ErrorDocument!:         _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		RedirectAllRequestsTo!: _
-		IndexDocument!:         _
-		...
-	}]) & {...},
-	matchN(0, [null | bool | number | string | [...] | {
-		RedirectAllRequestsTo!: _
-		RoutingRules!:          _
-		...
-	}]) & {...}
-]) & close({
+#RedirectAllRequestsTo: matchN(3, [matchN(0, [null | bool | number | string | [...] | {
+	RedirectAllRequestsTo!: _
+	ErrorDocument!:         _
+	...
+}]), matchN(0, [null | bool | number | string | [...] | {
+	RedirectAllRequestsTo!: _
+	IndexDocument!:         _
+	...
+}]), matchN(0, [null | bool | number | string | [...] | {
+	RedirectAllRequestsTo!: _
+	RoutingRules!:          _
+	...
+}])]) & close({
 	// Name of the host where requests are redirected.
 	HostName!: string
 
@@ -1569,7 +1577,9 @@ import (
 	// see [Asymmetric keys in
 	// KMS](https://docs.aws.amazon.com//kms/latest/developerguide/symmetric-asymmetric.html)
 	// in the *Key Management Service Developer Guide*.
-	KMSMasterKeyID?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string
+	KMSMasterKeyID?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$"
 
 	// Server-side encryption algorithm to use for the default encryption.
 	// For directory buckets, there are only two supported values for server-side

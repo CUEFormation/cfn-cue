@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -12,9 +12,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // The device and link must be in the same global network and the same site.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::NetworkManager::LinkAssociation"
-	Properties!: close({
-		DeviceId!:        string | fn.#StringExpression
-		GlobalNetworkId!: string | fn.#StringExpression
-		LinkId!:          string | fn.#StringExpression
+	let properties = close({
+		DeviceId!:        string | number | bool | fn.#StringExpression
+		GlobalNetworkId!: string | number | bool | fn.#StringExpression
+		LinkId!:          string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

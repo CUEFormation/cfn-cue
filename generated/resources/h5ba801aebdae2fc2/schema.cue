@@ -7,15 +7,15 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::IntegrationAssociation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::IntegrationAssociation"
-	Properties!: close({
+	let properties = close({
 		InstanceId!:            #InstanceId
 		IntegrationArn!:        #IntegrationArn
 		IntegrationType!:       #IntegrationType
@@ -24,16 +24,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		SourceType?:            #SourceType
 		Tags?:                  list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #InstanceId: strings.MaxRunes(100) &
 strings.MinRunes(1) &
 =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(100) &
+	strings.MinRunes(1) &
+	=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#IntegrationArn: strings.MaxRunes(140) & strings.MinRunes(1) | fn.#StringExpression
-
-#IntegrationAssociationId: string | fn.#StringExpression
+#IntegrationArn: strings.MaxRunes(140) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(140) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #IntegrationType: "LEX_BOT" |
 	"LAMBDA_FUNCTION" |
@@ -49,14 +63,39 @@ fn.#StringExpression
 	"EVENT" |
 	fn.#StringExpression
 
-#SourceApplicationName: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_ -]+$" | fn.#StringExpression
+#SourceApplicationName: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_ -]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_ -]+$" & "\(self)"
+} |
+fn.#StringExpression
 
-#SourceApplicationUrl: strings.MaxRunes(2000) & strings.MinRunes(1) | fn.#StringExpression
+#SourceApplicationUrl: strings.MaxRunes(2000) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2000) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #SourceType: "SALESFORCE" | "ZENDESK" | "CASES" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

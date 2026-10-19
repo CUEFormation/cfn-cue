@@ -3,12 +3,10 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -22,10 +20,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *API Gateway Developer Guide.*
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGatewayV2::Api"
-	Properties?: close({
-		ApiKeySelectionExpression?: string | fn.#StringExpression
-		BasePath?:                  string | fn.#StringExpression
-		Body?:                      fn.#Object & {...} | string | fn.#StringObjectExpression
+	let properties = close({
+		ApiKeySelectionExpression?: string | number | bool | fn.#StringExpression
+		BasePath?:                  string | number | bool | fn.#StringExpression
+		Body?:                      fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 		// The S3 location of an OpenAPI definition. Supported only for HTTP APIs. To
 		// import an HTTP API, you must specify a ``Body`` or ``BodyS3Location``. If
@@ -39,8 +37,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// CORS](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-cors.html)
 		// for more information.
 		CorsConfiguration?: #Cors
-		CredentialsArn?:    string | fn.#StringExpression
-		Description?:       string | fn.#StringExpression
+		CredentialsArn?:    string | number | bool | fn.#StringExpression
+		Description?:       string | number | bool | fn.#StringExpression
 		DisableExecuteApiEndpoint?: bool |
 			"true" |
 			"True" |
@@ -51,34 +49,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#BooleanExpression
 		DisableSchemaValidation?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		FailOnWarnings?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		IpAddressType?:            string | fn.#StringExpression
-		Name?:                     string | fn.#StringExpression
-		ProtocolType?:             string | fn.#StringExpression
-		RouteKey?:                 string | fn.#StringExpression
-		RouteSelectionExpression?: string | fn.#StringExpression
+		IpAddressType?:            string | number | bool | fn.#StringExpression
+		Name?:                     string | number | bool | fn.#StringExpression
+		ProtocolType?:             string | number | bool | fn.#StringExpression
+		RouteKey?:                 string | number | bool | fn.#StringExpression
+		RouteSelectionExpression?: string | number | bool | fn.#StringExpression
 		Tags?: close({
 
-			{[=~".*"]: string | fn.#StringExpression}}) |
+			{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
-		Target?:  string | fn.#StringExpression
-		Version?: string | fn.#StringExpression
+		Target?:  string | number | bool | fn.#StringExpression
+		Version?: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #BodyS3Location: close({
-	Bucket?:  string | fn.#StringExpression
-	Etag?:    string | fn.#StringExpression
-	Key?:     string | fn.#StringExpression
-	Version?: string | fn.#StringExpression
+	Bucket?:  string | number | bool | fn.#StringExpression
+	Etag?:    string | number | bool | fn.#StringExpression
+	Key?:     string | number | bool | fn.#StringExpression
+	Version?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Cors: close({
 	AllowCredentials?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	AllowHeaders?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	AllowMethods?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	AllowOrigins?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	ExposeHeaders?:    [...string | fn.#StringExpression] | fn.#ListExpression
+	AllowHeaders?:     [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	AllowMethods?:     [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	AllowOrigins?:     [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	ExposeHeaders?:    [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	MaxAge?: int |
 		{
 			string &

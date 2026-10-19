@@ -10,9 +10,7 @@ import schema "github.com/cueformation/cfn-cue/resources/h8dc1a56804094f8b:schem
 #CfnTemplateProviderDetail:       schema.#CfnTemplateProviderDetail
 #PathId:                          schema.#PathId
 #ProductId:                       schema.#ProductId
-#ProjectArn:                      schema.#ProjectArn
 #ProjectDescription:              schema.#ProjectDescription
-#ProjectId:                       schema.#ProjectId
 #ProjectName:                     schema.#ProjectName
 #ProvisionedProductStatusMessage: schema.#ProvisionedProductStatusMessage
 #ProvisioningArtifactId:          schema.#ProvisioningArtifactId

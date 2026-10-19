@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -12,7 +12,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // a local gateway route table.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::LocalGatewayRoute"
-	Properties?: matchN(1, [{
+	let properties = matchN(1, [{
 		DestinationCidrBlock!:                _
 		LocalGatewayRouteTableId!:            _
 		LocalGatewayVirtualInterfaceGroupId!: _
@@ -23,9 +23,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		NetworkInterfaceId!:       _
 		...
 	}]) & close({
-		DestinationCidrBlock?:                string | fn.#StringExpression
-		LocalGatewayRouteTableId?:            string | fn.#StringExpression
-		LocalGatewayVirtualInterfaceGroupId?: string | fn.#StringExpression
-		NetworkInterfaceId?:                  string | fn.#StringExpression
+		DestinationCidrBlock?: fn.#IPv4Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv4Network & string & "\(self)"
+		} |
+		fn.#StringExpression
+		LocalGatewayRouteTableId?:            string | number | bool | fn.#StringExpression
+		LocalGatewayVirtualInterfaceGroupId?: string | number | bool | fn.#StringExpression
+		NetworkInterfaceId?:                  string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }

@@ -6,21 +6,19 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaTailor::Channel Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaTailor::Channel"
-	Properties!: close({
-		Audiences?:              [...string | fn.#StringExpression] | fn.#ListExpression
-		ChannelName!:            string | fn.#StringExpression
+	let properties = close({
+		Audiences?:              [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		ChannelName!:            string | number | bool | fn.#StringExpression
 		FillerSlate?:            #SlateSource
 		LogConfiguration?:       #LogConfigurationForChannel
 		Outputs!:                [...#RequestOutputItem] | fn.#ListExpression
@@ -29,6 +27,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tier?:                   #Tier
 		TimeShiftConfiguration?: #TimeShiftConfiguration
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AdMarkupType: "DATERANGE" | "SCTE35_ENHANCED" | fn.#StringExpression
@@ -146,20 +148,20 @@ fn.#ObjectExpression
 #RequestOutputItem: close({
 	DashPlaylistSettings?: #DashPlaylistSettings
 	HlsPlaylistSettings?:  #HlsPlaylistSettings
-	ManifestName!:         string | fn.#StringExpression
-	SourceGroup!:          string | fn.#StringExpression
+	ManifestName!:         string | number | bool | fn.#StringExpression
+	SourceGroup!:          string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SlateSource: close({
-	SourceLocationName?: string | fn.#StringExpression
-	VodSourceName?:      string | fn.#StringExpression
+	SourceLocationName?: string | number | bool | fn.#StringExpression
+	VodSourceName?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

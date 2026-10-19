@@ -3,21 +3,35 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::PCAConnectorAD::DirectoryRegistration Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::PCAConnectorAD::DirectoryRegistration"
-	Properties!: close({
-		DirectoryId!: =~"^d-[0-9a-f]{10}$" | fn.#StringExpression
-		Tags?:        #Tags
+	let properties = close({
+		DirectoryId!: =~"^d-[0-9a-f]{10}$" |
+		{
+			number | bool
+			_cfnString: =~"^d-[0-9a-f]{10}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: #Tags
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tags: close({
 
-	{[=~".+"]: string | fn.#StringExpression}}) |
+	{[=~".+"]: string | number | bool | fn.#StringExpression}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression

@@ -6,5 +6,4 @@ import schema "github.com/cueformation/cfn-cue/resources/h5aeb907c1b454d5a:schem
 
 #Resource:         schema.#Resource
 #EncryptionConfig: schema.#EncryptionConfig
-#LogSource:        schema.#LogSource
 #Tag:              schema.#Tag

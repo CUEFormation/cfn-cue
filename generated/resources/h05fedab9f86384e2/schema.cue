@@ -8,8 +8,8 @@ import (
 	"struct"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,16 +17,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // structured and information rich format.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Logs::Transformer"
-	Properties!: close({
-		LogGroupIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"[\\w#+=/:,.@-]*" | fn.#StringExpression
-		TransformerConfig!:  list.MaxItems(20) & list.MinItems(1) & [...#Processor] | fn.#ListExpression
+	let properties = close({
+		LogGroupIdentifier!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"[\\w#+=/:,.@-]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"[\\w#+=/:,.@-]*" & "\(self)"
+		} |
+		fn.#StringExpression
+		TransformerConfig!: list.MaxItems(20) & list.MinItems(1) & [...#Processor] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AddKeyEntry: close({
 	Key!:               #NonEmptyAndMaxLengthString
 	OverwriteIfExists?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Value!:             strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -41,11 +55,21 @@ fn.#ObjectExpression
 
 #EventSource: "CloudTrail" | "Route53Resolver" | "VPCFlow" | "EKSAudit" | "AWSWAF" | fn.#StringExpression
 
-#MappingVersion: strings.MaxRunes(10) & strings.MinRunes(1) & =~"^v\\d+\\.\\d+(\\.\\d+)?$" | fn.#StringExpression
+#MappingVersion: strings.MaxRunes(10) & strings.MinRunes(1) & =~"^v\\d+\\.\\d+(\\.\\d+)?$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(10) & strings.MinRunes(1) & =~"^v\\d+\\.\\d+(\\.\\d+)?$" & "\(self)"
+} |
+fn.#StringExpression
 
 #MatchPattern: #NonEmptyString
 
-#MaxLengthString: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#MaxLengthString: strings.MaxRunes(128) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #MoveKeyEntry: close({
 	OverwriteIfExists?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -54,9 +78,19 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#NonEmptyAndMaxLengthString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*[a-zA-Z0-9]+.*$" | fn.#StringExpression
+#NonEmptyAndMaxLengthString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*[a-zA-Z0-9]+.*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*[a-zA-Z0-9]+.*$" & "\(self)"
+} |
+fn.#StringExpression
 
-#NonEmptyString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*[a-zA-Z0-9]+.*$" | fn.#StringExpression
+#NonEmptyString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*[a-zA-Z0-9]+.*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*[a-zA-Z0-9]+.*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #OcsfVersion: "V1.1" | "V1.5" | fn.#StringExpression
 
@@ -86,21 +120,56 @@ fn.#ObjectExpression
 	CopyValue?: close({Entries!: list.MaxItems(5) & list.MinItems(1) & [...#CopyValueEntry] | fn.#ListExpression}) |
 		fn.#ObjectExpression
 	Csv?: close({
-		Columns?:        list.MaxItems(100) & list.MinItems(1) & [...#Column] | fn.#ListExpression
-		Delimiter?:      strings.MaxRunes(2) & strings.MinRunes(1) | fn.#StringExpression
-		QuoteCharacter?: strings.MaxRunes(1) & strings.MinRunes(1) | fn.#StringExpression
-		Source?:         strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		Columns?: list.MaxItems(100) & list.MinItems(1) & [...#Column] | fn.#ListExpression
+		Delimiter?: strings.MaxRunes(2) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		QuoteCharacter?: strings.MaxRunes(1) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Source?: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	DateTimeConverter?: close({
-		Locale?: strings.MinRunes(1) | fn.#StringExpression
+		Locale?: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		MatchPatterns!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#MatchPattern] |
 			fn.#ListExpression
-		Source!:         #NonEmptyString
-		SourceTimezone?: strings.MinRunes(1) | fn.#StringExpression
-		Target!:         #NonEmptyAndMaxLengthString
-		TargetFormat?:   strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-		TargetTimezone?: strings.MinRunes(1) | fn.#StringExpression
+		Source!: #NonEmptyString
+		SourceTimezone?: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Target!: #NonEmptyAndMaxLengthString
+		TargetFormat?: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		TargetTimezone?: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	DeleteKeys?: close(
@@ -108,7 +177,12 @@ fn.#ObjectExpression
 	) |
 		fn.#ObjectExpression
 	Grok?: close({
-		Match!:  strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+		Match!: strings.MaxRunes(512) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Source?: #NonEmptyString
 	}) |
 	fn.#ObjectExpression
@@ -130,14 +204,29 @@ fn.#ObjectExpression
 	ParseCloudfront?: #ParseCloudfront
 	ParseJSON?: close({
 		Destination?: #NonEmptyAndMaxLengthString
-		Source?:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		Source?: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	ParseKeyValue?: close({
-		Destination?:       #NonEmptyString
-		FieldDelimiter?:    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		KeyPrefix?:         #NonEmptyString
-		KeyValueDelimiter?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		Destination?: #NonEmptyString
+		FieldDelimiter?: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		KeyPrefix?: #NonEmptyString
+		KeyValueDelimiter?: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		NonMatchValue?:     #NonEmptyString
 		OverwriteIfExists?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Source?:            #NonEmptyString
@@ -179,8 +268,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SplitStringEntry: close({
-	Delimiter!: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Source!:    #NonEmptyString
+	Delimiter!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Source!: #NonEmptyString
 }) |
 fn.#ObjectExpression
 
@@ -197,4 +291,9 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#WithKey: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+#WithKey: strings.MaxRunes(128) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression

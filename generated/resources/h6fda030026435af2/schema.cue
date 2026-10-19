@@ -8,28 +8,35 @@ import (
 	"list"
 	"struct"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::IoTFleetWise::Vehicle Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTFleetWise::Vehicle"
-	Properties!: close({
+	let properties = close({
 		AssociationBehavior?: #VehicleAssociationBehavior
 		Attributes?:          #attributesMap
-		DecoderManifestArn!:  string | fn.#StringExpression
-		ModelManifestArn!:    string | fn.#StringExpression
-		Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
+		DecoderManifestArn!:  string | number | bool | fn.#StringExpression
+		ModelManifestArn!:    string | number | bool | fn.#StringExpression
+		Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		StateTemplates?: list.MaxItems(20) & list.UniqueItems() & [...] & [...#StateTemplateAssociation] |
 			fn.#ListExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #OnChangeStateTemplateUpdateStrategy: close({}) | fn.#ObjectExpression
@@ -37,7 +44,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #PeriodicStateTemplateUpdateStrategy: close({StateTemplateUpdateRate!: #TimePeriod}) | fn.#ObjectExpression
 
 #StateTemplateAssociation: struct.MinFields(0) & close({
-	Identifier!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
+	Identifier!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	StateTemplateUpdateStrategy!: #StateTemplateUpdateStrategy
 }) |
 fn.#ObjectExpression
@@ -48,8 +60,18 @@ fn.#ObjectExpression
 fn.#ValueExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -83,5 +105,8 @@ fn.#ObjectExpression
 
 #attributesMap: struct.MinFields(1) & close({
 
-	{[=~"^[a-zA-Z0-9_.-]+$"]: string | fn.#StringExpression}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{[=~"^[a-zA-Z0-9_.-]+$"]: string | number | bool | fn.#StringExpression}
+}) |
 fn.#ObjectExpression

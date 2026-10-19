@@ -6,16 +6,31 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SSM::ResourcePolicy
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSM::ResourcePolicy"
-	Properties!: close({
-		Policy!:      fn.#Object & {...} | string | fn.#StringObjectExpression
-		ResourceArn!: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
+	let properties = close({
+		Policy!: matchN(0, [=~"^(?:\\s*$)"]) & fn.#Object |
+		=~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string |
+		{
+			number | bool
+			_cfnString: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & "\(self)"
+		} |
+		fn.#StringObjectExpression
+		ResourceArn!: strings.MaxRunes(2048) & strings.MinRunes(20) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

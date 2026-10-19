@@ -3,13 +3,17 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::VPCBlockPublicAccessOptions
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::EC2::VPCBlockPublicAccessOptions"
-	Properties!: close({InternetGatewayBlockMode!: "block-bidirectional" | "block-ingress" | fn.#StringExpression})
+	Type!: "AWS::EC2::VPCBlockPublicAccessOptions"
+	let properties = close({InternetGatewayBlockMode!: "block-bidirectional" | "block-ingress" | fn.#StringExpression})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

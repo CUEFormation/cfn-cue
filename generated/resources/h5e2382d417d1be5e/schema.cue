@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -15,9 +15,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *API Gateway Developer Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::RequestValidator"
-	Properties!: close({
-		Name?:                string | fn.#StringExpression
-		RestApiId!:           string | fn.#StringExpression
+	let properties = close({
+		Name?:                string | number | bool | fn.#StringExpression
+		RestApiId!:           string | number | bool | fn.#StringExpression
 		ValidateRequestBody?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		ValidateRequestParameters?: bool |
 			"true" |
@@ -28,4 +28,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"FALSE" |
 			fn.#BooleanExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

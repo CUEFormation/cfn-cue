@@ -10,5 +10,4 @@ import schema "github.com/cueformation/cfn-cue/resources/ha601633fbdb4f18e:schem
 #LogPublishingOptions:    schema.#LogPublishingOptions
 #ResourcePolicy:          schema.#ResourcePolicy
 #Tag:                     schema.#Tag
-#VpcEndpoint:             schema.#VpcEndpoint
 #VpcOptions:              schema.#VpcOptions

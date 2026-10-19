@@ -3,19 +3,17 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Engagement Plan for a SSM Incident Manager Contact.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSMContacts::Plan"
-	Properties?: matchN(1, [{
+	let properties = matchN(1, [{
 		ContactId!: _
 		Stages!:    _
 		...
@@ -25,14 +23,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		...
 	}]) & close({
 		ContactId?: =~"arn:[-\\w+=\\/,.@]+:[-\\w+=\\/,.@]+:[-\\w+=\\/,.@]*:[0-9]+:([\\w+=\\/,.@:-]+)*" |
-			fn.#StringExpression
-		RotationIds?: [...string | fn.#StringExpression] | fn.#ListExpression
+		{
+			number | bool
+			_cfnString: =~"arn:[-\\w+=\\/,.@]+:[-\\w+=\\/,.@]+:[-\\w+=\\/,.@]*:[0-9]+:([\\w+=\\/,.@:-]+)*" & "\(self)"
+		} |
+		fn.#StringExpression
+		RotationIds?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Stages?:      [...#Stage] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #ChannelTargetInfo: close({
-	ChannelId!: string | fn.#StringExpression
+	ChannelId!: string | number | bool | fn.#StringExpression
 	RetryIntervalInMinutes!: int |
 		{
 			string &
@@ -51,7 +57,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #ContactTargetInfo: close({
-	ContactId!:   string | fn.#StringExpression
+	ContactId!:   string | number | bool | fn.#StringExpression
 	IsEssential!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression

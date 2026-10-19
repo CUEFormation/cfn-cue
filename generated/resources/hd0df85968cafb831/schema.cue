@@ -5,18 +5,18 @@ package schema
 import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
-	"struct"
 	"list"
+	"struct"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Events::Connection.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Events::Connection"
-	Properties?: close({
+	let properties = close({
 		AuthParameters?: struct.MaxFields(2) & struct.MinFields(1) & (close({
 			ApiKeyAuthParameters?: #ApiKeyAuthParameters
 			BasicAuthParameters?:  #BasicAuthParameters
@@ -24,6 +24,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				ResourceParameters!: close({
 					ResourceConfigurationArn!: strings.MaxRunes(2048) &
 					=~"^arn:[a-z0-9f\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}$" |
+					{
+						number | bool
+						_cfnString: strings.MaxRunes(2048) &
+						=~"^arn:[a-z0-9f\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}$" &
+						"\(self)"
+					} |
 					fn.#StringExpression
 				}) |
 				fn.#ObjectExpression
@@ -47,63 +53,94 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		}) & matchN(>=1, [{BasicAuthParameters!: _}, {OAuthParameters!: _}, {ApiKeyAuthParameters!: _}])) |
 		fn.#ObjectExpression
 		AuthorizationType?: "API_KEY" | "BASIC" | "OAUTH_CLIENT_CREDENTIALS" | fn.#StringExpression
-		Description?:       strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+		Description?: strings.MaxRunes(512) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		InvocationConnectivityParameters?: close({
 			ResourceParameters!: close({
 				ResourceConfigurationArn!: strings.MaxRunes(2048) &
 				=~"^arn:[a-z0-9f\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}$" |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(2048) &
+					=~"^arn:[a-z0-9f\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}$" &
+					"\(self)"
+				} |
 				fn.#StringExpression
 			}) |
 			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
-		KmsKeyIdentifier?: strings.MaxRunes(2048) & =~"^[a-zA-Z0-9_\\-/:]*$" | fn.#StringExpression
-		Name?:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\.\\-_A-Za-z0-9]+" | fn.#StringExpression
+		KmsKeyIdentifier?: strings.MaxRunes(2048) & =~"^[a-zA-Z0-9_\\-/:]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & =~"^[a-zA-Z0-9_\\-/:]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\.\\-_A-Za-z0-9]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[\\.\\-_A-Za-z0-9]+" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #ApiKeyAuthParameters: close({
 	ApiKeyName!: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^[ \\t]*[^\\x00-\\x1F\\x7F]+([ \\t]+[^\\x00-\\x1F\\x7F]+)*[ \\t]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^[ \\t]*[^\\x00-\\x1F\\x7F]+([ \\t]+[^\\x00-\\x1F\\x7F]+)*[ \\t]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	ApiKeyValue!: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^[ \\t]*[^\\x00-\\x1F\\x7F]+([ \\t]+[^\\x00-\\x1F\\x7F]+)*[ \\t]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^[ \\t]*[^\\x00-\\x1F\\x7F]+([ \\t]+[^\\x00-\\x1F\\x7F]+)*[ \\t]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
-fn.#ObjectExpression
-
-#AuthParameters: struct.MaxFields(2) & struct.MinFields(1) & (close({
-	ApiKeyAuthParameters?:     #ApiKeyAuthParameters
-	BasicAuthParameters?:      #BasicAuthParameters
-	ConnectivityParameters?:   #ConnectivityParameters
-	InvocationHttpParameters?: #ConnectionHttpParameters
-	OAuthParameters?:          #OAuthParameters
-	if BasicAuthParameters != _|_ if BasicAuthParameters."Fn::If" == _|_ {
-		OAuthParameters?: close({"Fn::If": _}) | error(
-			"OAuthParameters cannot be used with BasicAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
-		)
-		ApiKeyAuthParameters?: close({"Fn::If": _}) | error(
-			"ApiKeyAuthParameters cannot be used with BasicAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
-		)
-	}
-	if OAuthParameters != _|_ if OAuthParameters."Fn::If" == _|_ {
-		ApiKeyAuthParameters?: close({"Fn::If": _}) | error(
-			"ApiKeyAuthParameters cannot be used with OAuthParameters; set exactly one of BasicAuthParameters, OAuthParameters, ApiKeyAuthParameters",
-		)
-	}
-}) & matchN(>=1, [{BasicAuthParameters!: _}, {OAuthParameters!: _}, {ApiKeyAuthParameters!: _}])) |
 fn.#ObjectExpression
 
 #BasicAuthParameters: close({
 	Password!: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^[ \\t]*[^\\x00-\\x1F\\x7F]+([ \\t]+[^\\x00-\\x1F\\x7F]+)*[ \\t]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^[ \\t]*[^\\x00-\\x1F\\x7F]+([ \\t]+[^\\x00-\\x1F\\x7F]+)*[ \\t]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Username!: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^[ \\t]*[^\\x00-\\x1F\\x7F]+([ \\t]+[^\\x00-\\x1F\\x7F]+)*[ \\t]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^[ \\t]*[^\\x00-\\x1F\\x7F]+([ \\t]+[^\\x00-\\x1F\\x7F]+)*[ \\t]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -112,10 +149,24 @@ fn.#ObjectExpression
 	ClientID!: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^[ \\t]*[^\\x00-\\x1F\\x7F]+([ \\t]+[^\\x00-\\x1F\\x7F]+)*[ \\t]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^[ \\t]*[^\\x00-\\x1F\\x7F]+([ \\t]+[^\\x00-\\x1F\\x7F]+)*[ \\t]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	ClientSecret!: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^[ \\t]*[^\\x00-\\x1F\\x7F]+([ \\t]+[^\\x00-\\x1F\\x7F]+)*[ \\t]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^[ \\t]*[^\\x00-\\x1F\\x7F]+([ \\t]+[^\\x00-\\x1F\\x7F]+)*[ \\t]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -127,12 +178,17 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ConnectivityParameters: close({ResourceParameters!: #ResourceParameters}) | fn.#ObjectExpression
-
 #OAuthParameters: close({
 	AuthorizationEndpoint!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^((%[0-9A-Fa-f]{2}|[-()_.!~*';/?:@\\x26=+$,A-Za-z0-9])+)([).!';/?:,])?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^((%[0-9A-Fa-f]{2}|[-()_.!~*';/?:@\\x26=+$,A-Za-z0-9])+)([).!';/?:,])?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	ClientParameters!:    #ClientParameters
 	HttpMethod!:          "GET" | "POST" | "PUT" | fn.#StringExpression
@@ -142,19 +198,20 @@ fn.#ObjectExpression
 
 #Parameter: close({
 	IsValueSecret?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Key!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[!#$%&'*+-.^_`|~0-9a-zA-Z]+$" | fn.#StringExpression
+	Key!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[!#$%&'*+-.^_`|~0-9a-zA-Z]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[!#$%&'*+-.^_`|~0-9a-zA-Z]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Value!: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^[ \\t]*[\\x20-\\x7E]+([ \\t]+[\\x20-\\x7E]+)*[ \\t]*$" |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#ResourceParameters: close({
-	ResourceAssociationArn?: strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:servicenetworkresourceassociation/snra-[0-9a-z]{17}$" |
-	fn.#StringExpression
-	ResourceConfigurationArn!: strings.MaxRunes(2048) &
-	=~"^arn:[a-z0-9f\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) &
+		strings.MinRunes(0) &
+		=~"^[ \\t]*[\\x20-\\x7E]+([ \\t]+[\\x20-\\x7E]+)*[ \\t]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

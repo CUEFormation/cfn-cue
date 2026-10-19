@@ -5,5 +5,4 @@ package TransactionSearchConfig
 import schema "github.com/cueformation/cfn-cue/resources/h22dfefdabcfb4132:schema"
 
 #Resource:           schema.#Resource
-#AccountId:          schema.#AccountId
 #IndexingPercentage: schema.#IndexingPercentage

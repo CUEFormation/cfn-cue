@@ -4,6 +4,5 @@ package ServiceProfile
 
 import schema "github.com/cueformation/cfn-cue/resources/h2bb3db1d6643db98:schema"
 
-#Resource:              schema.#Resource
-#LoRaWANServiceProfile: schema.#LoRaWANServiceProfile
-#Tag:                   schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

@@ -4,7 +4,5 @@ package Flow
 
 import schema "github.com/cueformation/cfn-cue/resources/h6a45f5962667b1bb:schema"
 
-#Resource:         schema.#Resource
-#FlowPublishState: schema.#FlowPublishState
-#Permission:       schema.#Permission
-#StepAliasMapping: schema.#StepAliasMapping
+#Resource:   schema.#Resource
+#Permission: schema.#Permission

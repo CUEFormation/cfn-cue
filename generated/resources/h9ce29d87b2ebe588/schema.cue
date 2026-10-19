@@ -7,8 +7,8 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,15 +17,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // source with REST-based APIs.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::ConnectionType"
-	Properties!: close({
-		ConnectionProperties?:                 #ConnectionPropertiesConfiguration
-		ConnectionType!:                       strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		ConnectionProperties?: #ConnectionPropertiesConfiguration
+		ConnectionType!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ConnectorAuthenticationConfiguration?: #ConnectorAuthenticationConfiguration
-		Description?:                          strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		IntegrationType?:                      "REST" | fn.#StringExpression
-		RestConfiguration!:                    #RestConfiguration
-		Tags?:                                 list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		IntegrationType?:   "REST" | fn.#StringExpression
+		RestConfiguration!: #RestConfiguration
+		Tags?:              list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #BasicAuthenticationProperties: close({
@@ -35,9 +49,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #BetweenConfiguration: close({
-	HighBoundKey?: string | fn.#StringExpression
-	LowBoundKey?:  string | fn.#StringExpression
-	Template?:     string | fn.#StringExpression
+	HighBoundKey?: string | number | bool | fn.#StringExpression
+	LowBoundKey?:  string | number | bool | fn.#StringExpression
+	Template?:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -90,10 +104,20 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ConnectorProperty: close({
-	AllowedValues?:    [...string | fn.#StringExpression] | fn.#ListExpression
-	DefaultValue?:     string | fn.#StringExpression
-	KeyOverride?:      strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Name!:             strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	AllowedValues?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	DefaultValue?:  string | number | bool | fn.#StringExpression
+	KeyOverride?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	PropertyLocation?: "HEADER" | "BODY" | "QUERY_PARAM" | "PATH" | fn.#StringExpression
 	PropertyType!:     "USER_INPUT" | "SECRET" | "READ_ONLY" | "UNUSED" | "SECRET_OR_USER_INPUT" | fn.#StringExpression
 	Required!:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -112,15 +136,28 @@ fn.#ObjectExpression
 #EntityConfiguration: close({
 	Schema?: close({
 
-		{[=~"^[a-zA-Z0-9_ -]+$"]: #FieldDefinition}}) |
+		{[=~"^(?:Ref)$"]: error("disallowed")}
+
+		{[=~"^[a-zA-Z0-9_ -]+$"]: #FieldDefinition}
+	}) |
 	fn.#ObjectExpression
 	SourceConfiguration?: #SourceConfiguration
 }) |
 fn.#ObjectExpression
 
 #ExtractedParameter: close({
-	DefaultValue?:     strings.MaxRunes(1024) & strings.MinRunes(1) & =~"[^<>&'\"]" | fn.#StringExpression
-	Key?:              strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	DefaultValue?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"[^<>&'\"]" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"[^<>&'\"]" & "\(self)"
+	} |
+	fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	PropertyLocation?: "HEADER" | "BODY" | "QUERY_PARAM" | "PATH" | fn.#StringExpression
 	Value?:            #ResponseExtractionMapping
 }) |
@@ -151,19 +188,24 @@ fn.#ObjectExpression
 	IsOrderable?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IsPartitionable?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IsQueryable?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name!:               string | fn.#StringExpression
-	ResponseDateFormat?: string | fn.#StringExpression
+	Name!:               string | number | bool | fn.#StringExpression
+	ResponseDateFormat?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FilterConfiguration: close({
 	BetweenConfiguration?:      #BetweenConfiguration
-	DateTimeFormat?:            string | fn.#StringExpression
+	DateTimeFormat?:            string | number | bool | fn.#StringExpression
 	FilterMode!:                "QUERY_PARAMS" | "FILTER_STRING" | fn.#StringExpression
 	FilterStringConfiguration?: #FilterStringConfiguration
 	OperatorMappings?: close({
 
-		{[=~"^.+$"]: string | fn.#StringExpression}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+	}) |
 	fn.#ObjectExpression
 	StripQuotes?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
@@ -171,18 +213,23 @@ fn.#ObjectExpression
 
 #FilterOverrides: close({
 	BetweenConfiguration?: #BetweenConfiguration
-	DateTimeFormat?:       string | fn.#StringExpression
-	FieldName?:            string | fn.#StringExpression
+	DateTimeFormat?:       string | number | bool | fn.#StringExpression
+	FieldName?:            string | number | bool | fn.#StringExpression
 	OperatorMappings?: close({
 
-		{[=~"^.+$"]: string | fn.#StringExpression}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 #FilterStringConfiguration: close({
-	QueryParameterName!: string | fn.#StringExpression
-	QuoteCharacter?:     string | fn.#StringExpression
+	QueryParameterName!: string | number | bool | fn.#StringExpression
+	QuoteCharacter?:     string | number | bool | fn.#StringExpression
 	QuoteStringValues?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
@@ -210,28 +257,64 @@ fn.#ObjectExpression
 
 #ResponseConfiguration: close({
 	ErrorPath?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^\\$(\\.[a-zA-Z0-9_.@\\[\\]\\(\\)-]+)*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^\\$(\\.[a-zA-Z0-9_.@\\[\\]\\(\\)-]+)*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	ResultPath!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^\\$(\\.[a-zA-Z0-9_.@\\[\\]\\(\\)-]+)*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^\\$(\\.[a-zA-Z0-9_.@\\[\\]\\(\\)-]+)*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ResponseExtractionMapping: close({
 	ContentPath?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^\\$(\\.[a-zA-Z0-9_.@\\[\\]\\(\\)-]+)*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^\\$(\\.[a-zA-Z0-9_.@\\[\\]\\(\\)-]+)*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	HeaderKey?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	HeaderKey?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RestConfiguration: close({
 	EntityConfigurations?: close({
 
-		{[=~"^[a-zA-Z0-9_ -]+$"]: #EntityConfiguration}}) |
+		{[=~"^(?:Ref)$"]: error("disallowed")}
+
+		{[=~"^[a-zA-Z0-9_ -]+$"]: #EntityConfiguration}
+	}) |
 	fn.#ObjectExpression
 	GlobalSourceConfiguration?: #SourceConfiguration
 	ValidationEndpointConfiguration?: close({
 		RequestMethod?: "GET" | "POST" | fn.#StringExpression
 		RequestPath?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^/[a-zA-Z0-9._~:/?#\\[\\]@!$&'()*+,;={}-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) &
+			strings.MinRunes(1) &
+			=~"^/[a-zA-Z0-9._~:/?#\\[\\]@!$&'()*+,;={}-]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
@@ -239,8 +322,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SecretConnectorProperty: close({
-	KeyOverride?:      strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Name!:             strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	KeyOverride?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	PropertyLocation?: "HEADER" | "BODY" | "QUERY_PARAM" | "PATH" | fn.#StringExpression
 	PropertyType!:     "SECRET" | fn.#StringExpression
 	Required!:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -253,13 +346,30 @@ fn.#ObjectExpression
 	RequestMethod?:           "GET" | "POST" | fn.#StringExpression
 	RequestParameters?:       [...#ConnectorProperty] | fn.#ListExpression
 	RequestPath?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^/[a-zA-Z0-9._~:/?#\\[\\]@!$&'()*+,;={}-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^/[a-zA-Z0-9._~:/?#\\[\\]@!$&'()*+,;={}-]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	ResponseConfiguration?: #ResponseConfiguration
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

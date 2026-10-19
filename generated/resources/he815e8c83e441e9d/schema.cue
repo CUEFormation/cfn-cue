@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,42 +16,102 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Manager to manage resources in external cloud providers.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSM::CloudConnector"
-	Properties!: close({
+	let properties = close({
 		ConfigConnectorArn!: strings.MaxRunes(512) &
 		strings.MinRunes(1) &
 		=~"^arn:aws(-cn|-us-gov)?:config:[a-z0-9-]+:\\d{12}:connector/.+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) &
+			strings.MinRunes(1) &
+			=~"^arn:aws(-cn|-us-gov)?:config:[a-z0-9-]+:\\d{12}:connector/.+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 
 		// The configuration for the cloud connector.
 		Configuration!: #CloudConnectorConfiguration
 		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		DisplayName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AzureConfiguration: close({
 	ApplicationDisplayName?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*)$" & "\(self)"
+	} |
 	fn.#StringExpression
 	ApplicationId!: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Targets?: #ConfigurationTargets
 	TenantDisplayName?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*)$" & "\(self)"
+	} |
 	fn.#StringExpression
-	TenantId!: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" | fn.#StringExpression
+	TenantId!: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AzureSubscription: close({
 	DisplayName?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}\\p{P}\\p{M}]*)$" & "\(self)"
+	} |
 	fn.#StringExpression
 	Id!: strings.MaxRunes(256) &
 	strings.MinRunes(1) &
 	=~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -64,7 +124,17 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

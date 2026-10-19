@@ -7,20 +7,32 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Omics::Configuration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Omics::Configuration"
-	Properties!: close({
+	let properties = close({
 		Description?: strings.MaxRunes(256) &
 		strings.MinRunes(1) &
 		=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}||\\p{M}||\\p{Z}||\\p{S}||\\p{N}||\\p{P}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9\\-\\._]*$" | fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9\\-\\._]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[A-Za-z0-9][A-Za-z0-9\\-\\._]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Required run-specific configurations.
 		RunConfigurations!: #RunConfigurations
@@ -28,27 +40,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Tags for the configuration.
 		Tags?: #TagMap
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #RunConfigurations: close({VpcConfig?: #VpcConfig}) | fn.#ObjectExpression
 
 #TagMap: close({
 
-	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
+	{
+		[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #VpcConfig: close({
-	SecurityGroupIds?: list.MaxItems(5) & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroupIds?: list.MaxItems(5) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(128) &
+	strings.MinRunes(4) &
+	=~"^sg-[0-9a-f]+$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(128) &
 		strings.MinRunes(4) &
-		=~"^sg-[0-9a-f]+$" |
-		fn.#StringExpression
-	] |
+		=~"^sg-[0-9a-f]+$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	SubnetIds?: list.MaxItems(16) & [
-		...strings.MaxRunes(128) & strings.MinRunes(8) & =~"^subnet-[0-9a-f]+$" | fn.#StringExpression
-	] |
+	SubnetIds?: list.MaxItems(16) & [...strings.MaxRunes(128) & strings.MinRunes(8) & =~"^subnet-[0-9a-f]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(8) & =~"^subnet-[0-9a-f]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression

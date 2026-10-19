@@ -6,18 +6,37 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ServiceCatalog::PortfolioShare
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ServiceCatalog::PortfolioShare"
-	Properties!: close({
-		AcceptLanguage?:  strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-		AccountId!:       =~"^[0-9]{12}$" | fn.#StringExpression
-		PortfolioId!:     strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" | fn.#StringExpression
+	let properties = close({
+		AcceptLanguage?: strings.MaxRunes(100) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		AccountId!: =~"^[0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: =~"^[0-9]{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		PortfolioId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ShareTagOptions?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

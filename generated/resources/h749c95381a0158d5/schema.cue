@@ -7,31 +7,59 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for Identity Center (SSO) Application
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSO::Application"
-	Properties!: close({
+	let properties = close({
 		ApplicationProviderArn!: strings.MaxRunes(1224) &
 		strings.MinRunes(10) &
 		=~"^arn:aws(-[a-z]{1,5}){0,3}:sso::aws:applicationProvider/[a-zA-Z0-9-/]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1224) &
+			strings.MinRunes(10) &
+			=~"^arn:aws(-[a-z]{1,5}){0,3}:sso::aws:applicationProvider/[a-zA-Z0-9-/]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Description?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		Description?: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		InstanceArn!: strings.MaxRunes(1224) &
 		strings.MinRunes(10) &
 		=~"^arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1224) &
+			strings.MinRunes(10) &
+			=~"^arn:aws(-[a-z]{1,5}){0,3}:sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\w+=,.@-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[\\w+=,.@-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// A structure that describes the options for the portal associated with an application
 		PortalOptions?: #PortalOptionsConfiguration
 		Status?:        "ENABLED" | "DISABLED" | fn.#StringExpression
 		Tags?:          list.MaxItems(75) & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #PortalOptionsConfiguration: close({
@@ -45,13 +73,30 @@ fn.#ObjectExpression
 	ApplicationUrl?: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^http(s)?:\\/\\/[-a-zA-Z0-9+&@#\\/%?=~_|!:,.;]*[-a-zA-Z0-9+&bb@#\\/%?=~_|]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^http(s)?:\\/\\/[-a-zA-Z0-9+&@#\\/%?=~_|!:,.;]*[-a-zA-Z0-9+&bb@#\\/%?=~_|]$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Origin!: "IDENTITY_CENTER" | "APPLICATION" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w+=,.@-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w+=,.@-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

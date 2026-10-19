@@ -7,7 +7,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h73d3c6fee785b82f:schem
 #Resource:                            schema.#Resource
 #AdditionalClaims:                    schema.#AdditionalClaims
 #AtlassianOauth2ProviderConfigInput:  schema.#AtlassianOauth2ProviderConfigInput
-#ClientSecretArn:                     schema.#ClientSecretArn
 #CustomOauth2ProviderConfigInput:     schema.#CustomOauth2ProviderConfigInput
 #GithubOauth2ProviderConfigInput:     schema.#GithubOauth2ProviderConfigInput
 #GoogleOauth2ProviderConfigInput:     schema.#GoogleOauth2ProviderConfigInput
@@ -19,7 +18,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h73d3c6fee785b82f:schem
 #Oauth2AuthorizationServerMetadata:   schema.#Oauth2AuthorizationServerMetadata
 #Oauth2Discovery:                     schema.#Oauth2Discovery
 #Oauth2ProviderConfigInput:           schema.#Oauth2ProviderConfigInput
-#Oauth2ProviderConfigOutput:          schema.#Oauth2ProviderConfigOutput
 #OnBehalfOfTokenExchangeConfig:       schema.#OnBehalfOfTokenExchangeConfig
 #PrivateEndpoint:                     schema.#PrivateEndpoint
 #PrivateEndpointOverride:             schema.#PrivateEndpointOverride

@@ -2,7 +2,10 @@
 
 package schema
 
-import "list"
+import (
+	"github.com/cueformation/cfn-cue/fn:fn"
+	"list"
+)
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,9 +19,9 @@ import "list"
 })
 
 #Ingress: close({
-	CIDRIP?:                  string
+	CIDRIP?:                  fn.#IPv4Network & string
 	EC2SecurityGroupId?:      =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$"
-	EC2SecurityGroupName?:    string
+	EC2SecurityGroupName?:    =~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$"
 	EC2SecurityGroupOwnerId?: string
 })
 

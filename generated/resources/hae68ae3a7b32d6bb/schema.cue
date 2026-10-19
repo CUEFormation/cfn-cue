@@ -3,23 +3,27 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::EC2::TransitGatewayMeteringPolicy Resource Definition
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::TransitGatewayMeteringPolicy"
-	Properties!: close({
-		MiddleboxAttachmentIds?: [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		MiddleboxAttachmentIds?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Tags?:                   [...#Tag] | fn.#ListExpression
-		TransitGatewayId!:       string | fn.#StringExpression
+		TransitGatewayId!:       string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

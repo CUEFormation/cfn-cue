@@ -6,7 +6,6 @@ import schema "github.com/cueformation/cfn-cue/resources/ha63c8073a7f9803b:schem
 
 #Resource:                    schema.#Resource
 #IngressPointConfiguration:   schema.#IngressPointConfiguration
-#IngressPointStatus:          schema.#IngressPointStatus
 #IngressPointStatusToUpdate:  schema.#IngressPointStatusToUpdate
 #IngressPointType:            schema.#IngressPointType
 #IpType:                      schema.#IpType

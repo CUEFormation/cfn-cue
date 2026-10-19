@@ -7,21 +7,39 @@ import (
 	"list"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::BedrockAgentCore::Dataset Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::Dataset"
-	Properties!: close({
-		DatasetName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
-		Description?: strings.MaxRunes(200) | fn.#StringExpression
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	let properties = close({
+		DatasetName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(200) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & "\(self)"
+		} |
+		fn.#StringExpression
+		KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(1) &
 		=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		SchemaType!: "AGENTCORE_EVALUATION_PREDEFINED_V1" |
 			"AGENTCORE_EVALUATION_SIMULATED_V1" |
@@ -30,6 +48,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Source?: #DataSourceType
 		Tags?:   list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #DataSourceType: close({
@@ -44,10 +66,20 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#S3Source: close({S3Uri!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#S3Source: close({S3Uri!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

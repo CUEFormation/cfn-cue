@@ -6,49 +6,96 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ImageBuilder::InfrastructureConfiguration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ImageBuilder::InfrastructureConfiguration"
-	Properties!: close({
-		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The instance metadata option settings for the infrastructure configuration.
 		InstanceMetadataOptions?: #InstanceMetadataOptions
-		InstanceProfileName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-		InstanceTypes?:       [...string | fn.#StringExpression] | fn.#ListExpression
-		KeyPair?:             strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		InstanceProfileName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		InstanceTypes?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		KeyPair?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The logging configuration of the infrastructure configuration.
 		Logging?: #Logging
-		Name!:    =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
+		Name!: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" |
+		{
+			number | bool
+			_cfnString: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The placement option settings for the infrastructure configuration.
 		Placement?: #Placement
 		ResourceTags?: close({
 
-			{[=~".{1,}"]: string | fn.#StringExpression}}) |
+			{[=~".{1,}"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
-		SecurityGroupIds?: [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
-			fn.#StringExpression
-		] |
+		SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+			strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		SnsTopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		SnsTopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" &
 			=~"^arn:aws[^:]*:sns:[^:]+:[0-9]{12}:[a-zA-Z0-9-_]{1,256}$" |
-			fn.#StringExpression
-		SubnetId?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" &
+				=~"^arn:aws[^:]*:sns:[^:]+:[0-9]{12}:[a-zA-Z0-9-_]{1,256}$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+			strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: close({
 
-			{[=~".{1,}"]: string | fn.#StringExpression}}) |
+			{[=~".{1,}"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 		TerminateInstanceOnFailure?: bool |
 			"true" |
@@ -59,6 +106,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"FALSE" |
 			fn.#BooleanExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #InstanceMetadataOptions: close({
@@ -85,21 +136,47 @@ fn.#ObjectExpression
 #Logging: close({S3Logs?: #S3Logs}) | fn.#ObjectExpression
 
 #Placement: close({
-	AvailabilityZone?:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	HostId?:               strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	HostResourceGroupArn?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Tenancy?:              "default" | "dedicated" | "host" | fn.#StringExpression
+	AvailabilityZone?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	HostId?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	HostResourceGroupArn?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Tenancy?: "default" | "dedicated" | "host" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #S3Logs: close({
-	S3BucketName?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	S3KeyPrefix?:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#TagMap: close({
-	TagKey?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	TagValue?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	S3BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	S3KeyPrefix?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

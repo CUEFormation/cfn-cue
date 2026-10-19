@@ -4,11 +4,7 @@ package Catalog
 
 import schema "github.com/cueformation/cfn-cue/resources/h68bb9b9593ab1989:schema"
 
-#Resource:                 schema.#Resource
-#CatalogProperties:        schema.#CatalogProperties
-#DataLakeAccessProperties: schema.#DataLakeAccessProperties
-#DataLakePrincipal:        schema.#DataLakePrincipal
-#FederatedCatalog:         schema.#FederatedCatalog
-#PrincipalPermissions:     schema.#PrincipalPermissions
-#Tag:                      schema.#Tag
-#TargetRedshiftCatalog:    schema.#TargetRedshiftCatalog
+#Resource:              schema.#Resource
+#FederatedCatalog:      schema.#FederatedCatalog
+#Tag:                   schema.#Tag
+#TargetRedshiftCatalog: schema.#TargetRedshiftCatalog

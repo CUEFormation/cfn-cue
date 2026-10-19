@@ -68,7 +68,10 @@ import (
 	RamDiskId?: strings.MaxRunes(255) & strings.MinRunes(1)
 
 	// A list that contains the security groups to assign to the instances in the Auto Scaling group.
-	SecurityGroups?: [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" | string]
+	SecurityGroups?: [...] & [
+		...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+			=~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$"
+	]
 
 	// The maximum hourly price you are willing to pay for any Spot Instances
 	// launched to fulfill the request.
@@ -79,7 +82,25 @@ import (
 })
 
 // BlockDevice is a subproperty of BlockDeviceMapping that describes an Amazon EBS volume.
-#BlockDevice: close({
+#BlockDevice: matchIf({
+	VolumeType!: "io1"
+	...
+}, {
+	Iops!: null | bool | <=64000 & >=100 | string | [...] | {...}
+	...
+}, _) & matchIf({
+	VolumeType!: "io2"
+	...
+}, {
+	Iops!: null | bool | <=256000 & >=100 | string | [...] | {...}
+	...
+}, _) & matchIf({
+	VolumeType!: "gp3"
+	...
+}, {
+	Iops?: null | bool | <=16000 & >=3000 | string | [...] | {...}
+	...
+}, _) & close({
 	// Indicates whether the volume is deleted on instance termination.
 	DeleteOnTermination?: bool
 
@@ -104,7 +125,14 @@ import (
 
 // BlockDeviceMapping is a property of AWS::AutoScaling::LaunchConfiguration
 // that describes a block device mapping for an Auto Scaling group.
-#BlockDeviceMapping: close({
+#BlockDeviceMapping: matchIf({
+	Ebs?:         error("disallowed")
+	VirtualName!: _
+	...
+}, {
+	VirtualName?: null | bool | number | =~"^ephemeral([0-9]|[1][0-9]|[2][0-3])$" | [...] | {...}
+	...
+}, _) & (close({
 	// The device name exposed to the EC2 instance (for example, /dev/sdh or xvdh).
 	DeviceName!: strings.MaxRunes(255) & strings.MinRunes(1)
 
@@ -130,7 +158,7 @@ import (
 			"NoDevice cannot be used with Ebs; set exactly one of VirtualName, Ebs, NoDevice",
 		)
 	}
-}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}])
+}) & matchN(>=1, [{VirtualName!: _}, {Ebs!: _}, {NoDevice!: _}]))
 
 // MetadataOptions is a property of AWS::AutoScaling::LaunchConfiguration that
 // describes metadata options for the instances.

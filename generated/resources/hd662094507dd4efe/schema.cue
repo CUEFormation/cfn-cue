@@ -3,32 +3,28 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaLive::ChannelPlacementGroup Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaLive::ChannelPlacementGroup"
-	Properties?: close({
-		ClusterId?: string | fn.#StringExpression
-		Name?:      string | fn.#StringExpression
-		Nodes?:     [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		ClusterId?: string | number | bool | fn.#StringExpression
+		Name?:      string | number | bool | fn.#StringExpression
+		Nodes?:     [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Tags?:      [...#Tags] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
-#ChannelPlacementGroupState: "UNASSIGNED" |
-	"ASSIGNING" |
-	"ASSIGNED" |
-	"DELETING" |
-	"DELETED" |
-	"UNASSIGNING" |
-	fn.#StringExpression
-
 #Tags: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

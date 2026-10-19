@@ -5,7 +5,6 @@ package Index
 import schema "github.com/cueformation/cfn-cue/resources/h6427e88e413173ca:schema"
 
 #Resource:                          schema.#Resource
-#Arn:                               schema.#Arn
 #CapacityUnitsConfiguration:        schema.#CapacityUnitsConfiguration
 #ClaimRegex:                        schema.#ClaimRegex
 #Description:                       schema.#Description
@@ -17,7 +16,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h6427e88e413173ca:schem
 #Edition:                           schema.#Edition
 #Freshness:                         schema.#Freshness
 #GroupAttributeField:               schema.#GroupAttributeField
-#Id:                                schema.#Id
 #Importance:                        schema.#Importance
 #Issuer:                            schema.#Issuer
 #JsonTokenTypeConfiguration:        schema.#JsonTokenTypeConfiguration

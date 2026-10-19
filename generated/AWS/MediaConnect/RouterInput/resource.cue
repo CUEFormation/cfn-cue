@@ -20,7 +20,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hdcc7c01fc8360b02:schem
 #ForwardErrorCorrectionState:                  schema.#ForwardErrorCorrectionState
 #FrozenFramesConfiguration:                    schema.#FrozenFramesConfiguration
 #MaintenanceConfiguration:                     schema.#MaintenanceConfiguration
-#MaintenanceType:                              schema.#MaintenanceType
 #MediaConnectFlowRouterInputConfiguration:     schema.#MediaConnectFlowRouterInputConfiguration
 #MediaLiveChannelPipelineId:                   schema.#MediaLiveChannelPipelineId
 #MediaLiveChannelRouterInputConfiguration:     schema.#MediaLiveChannelRouterInputConfiguration
@@ -32,16 +31,13 @@ import schema "github.com/cueformation/cfn-cue/resources/hdcc7c01fc8360b02:schem
 #PreferredDayTimeMaintenanceConfiguration:     schema.#PreferredDayTimeMaintenanceConfiguration
 #RistRouterInputConfiguration:                 schema.#RistRouterInputConfiguration
 #RouterContentQualityAnalysisConfiguration:    schema.#RouterContentQualityAnalysisConfiguration
-#RouterContentQualityAnalysisType:             schema.#RouterContentQualityAnalysisType
 #RouterInputConfiguration:                     schema.#RouterInputConfiguration
 #RouterInputProtocol:                          schema.#RouterInputProtocol
 #RouterInputProtocolConfiguration:             schema.#RouterInputProtocolConfiguration
-#RouterInputState:                             schema.#RouterInputState
 #RouterInputTier:                              schema.#RouterInputTier
 #RouterInputTransitEncryption:                 schema.#RouterInputTransitEncryption
 #RouterInputTransitEncryptionKeyConfiguration: schema.#RouterInputTransitEncryptionKeyConfiguration
 #RouterInputTransitEncryptionKeyType:          schema.#RouterInputTransitEncryptionKeyType
-#RouterInputType:                              schema.#RouterInputType
 #RoutingScope:                                 schema.#RoutingScope
 #RtpRouterInputConfiguration:                  schema.#RtpRouterInputConfiguration
 #SecretsManagerEncryptionKeyConfiguration:     schema.#SecretsManagerEncryptionKeyConfiguration

@@ -6,8 +6,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -15,7 +15,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // data set revisions to Amazon S3 when a revision is published.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataExchange::EventAction"
-	Properties!: close({
+	let properties = close({
 		// What occurs after a certain event.
 		Action!: #Action
 
@@ -23,13 +23,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Event!: #Event
 		Tags?:  list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Action: close({ExportRevisionToS3?: #AutoExportRevisionToS3RequestDetails}) | fn.#ObjectExpression
 
 #AutoExportRevisionDestinationEntry: close({
-	Bucket!:     string | fn.#StringExpression
-	KeyPattern?: string | fn.#StringExpression
+	Bucket!:     string | number | bool | fn.#StringExpression
+	KeyPattern?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -42,16 +46,28 @@ fn.#ObjectExpression
 #Event: close({RevisionPublished?: #RevisionPublished}) | fn.#ObjectExpression
 
 #ExportServerSideEncryption: close({
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Type!: "aws:kms" | "AES256" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#RevisionPublished: close({DataSetId!: =~"^[a-zA-Z0-9]{30,40}$" | fn.#StringExpression}) | fn.#ObjectExpression
+#RevisionPublished: close({
+	DataSetId!: =~"^[a-zA-Z0-9]{30,40}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9]{30,40}$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

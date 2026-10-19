@@ -6,6 +6,5 @@ import schema "github.com/cueformation/cfn-cue/resources/h76f4cbe4b532b656:schem
 
 #Resource:              schema.#Resource
 #AccountGrouping:       schema.#AccountGrouping
-#BillingGroupStatus:    schema.#BillingGroupStatus
 #ComputationPreference: schema.#ComputationPreference
 #Tag:                   schema.#Tag

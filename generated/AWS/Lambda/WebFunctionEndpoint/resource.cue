@@ -4,8 +4,7 @@ package WebFunctionEndpoint
 
 import schema "github.com/cueformation/cfn-cue/resources/h49d736445a911b0e:schema"
 
-#Resource:         schema.#Resource
-#RegionalEndpoint: schema.#RegionalEndpoint
-#RevisionWeight:   schema.#RevisionWeight
-#ScalingConfig:    schema.#ScalingConfig
-#ThrottleConfig:   schema.#ThrottleConfig
+#Resource:       schema.#Resource
+#RevisionWeight: schema.#RevisionWeight
+#ScalingConfig:  schema.#ScalingConfig
+#ThrottleConfig: schema.#ThrottleConfig

@@ -6,8 +6,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -15,9 +15,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Policy resource parameters.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::XRay::ResourcePolicy"
-	Properties!: close({
+	let properties = close({
 		BypassPolicyLockoutCheck?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		PolicyDocument!:           strings.MaxRunes(5120) & strings.MinRunes(1) | fn.#StringExpression
-		PolicyName!:               strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" | fn.#StringExpression
+		PolicyDocument!: strings.MaxRunes(5120) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(5120) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		PolicyName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[\\w+=,.@-]+" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

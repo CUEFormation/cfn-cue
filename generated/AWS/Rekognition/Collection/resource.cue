@@ -5,6 +5,5 @@ package Collection
 import schema "github.com/cueformation/cfn-cue/resources/h1cc370b8158d7b55:schema"
 
 #Resource:     schema.#Resource
-#Arn:          schema.#Arn
 #CollectionId: schema.#CollectionId
 #Tag:          schema.#Tag

@@ -3,12 +3,10 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -43,7 +41,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // are included in the snapshot.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::Volume"
-	Properties?: matchN(>=1, [{
+	let properties = matchN(>=1, [{
 		AvailabilityZone!: _
 		Size!:             _
 		...
@@ -64,8 +62,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		...
 	}]) & close({
 		AutoEnableIO?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		AvailabilityZone?:   string | fn.#StringExpression
-		AvailabilityZoneId?: string | fn.#StringExpression
+		AvailabilityZone?:   string | number | bool | fn.#StringExpression
+		AvailabilityZoneId?: string | number | bool | fn.#StringExpression
 		Encrypted?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Iops?: int |
 			{
@@ -83,11 +81,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string |
-			fn.#StringExpression
+		KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+		} |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+				"\(self)"
+		} |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		MultiAttachEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		OutpostArn?:         string | fn.#StringExpression
+		OutpostArn?:         string | number | bool | fn.#StringExpression
 		Size?: int |
 			{
 				string &
@@ -104,8 +116,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		SnapshotId?:     string | fn.#StringExpression
-		SourceVolumeId?: string | fn.#StringExpression
+		SnapshotId?:     string | number | bool | fn.#StringExpression
+		SourceVolumeId?: string | number | bool | fn.#StringExpression
 		Tags?:           [...#Tag] | fn.#ListExpression
 		Throughput?: int |
 			{
@@ -139,12 +151,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		VolumeType?: =~"(?i)^(?:gp2|gp3|io1|io2|sc1|st1|standard)$" | fn.#StringExpression
+		VolumeType?: =~"(?i)^(?:gp2|gp3|io1|io2|sc1|st1|standard)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:gp2|gp3|io1|io2|sc1|st1|standard)$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

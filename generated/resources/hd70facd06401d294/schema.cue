@@ -8,19 +8,17 @@ import (
 	"strings"
 	"struct"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::ModelPackage
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::ModelPackage"
-	Properties?: close({
+	let properties = close({
 		AdditionalInferenceSpecifications?:      #AdditionalInferenceSpecifications
 		AdditionalInferenceSpecificationsToAdd?: #AdditionalInferenceSpecifications
 		ApprovalDescription?:                    #ApprovalDescription
@@ -48,12 +46,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Task?:                                   #Task
 		ValidationSpecification?:                #ValidationSpecification
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #AdditionalInferenceSpecificationDefinition: close({
-	Containers!:  list.MaxItems(15) & list.MinItems(1) & [...#ModelPackageContainerDefinition] | fn.#ListExpression
-	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" | fn.#StringExpression
+	Containers!: list.MaxItems(15) & list.MinItems(1) & [...#ModelPackageContainerDefinition] | fn.#ListExpression
+	Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	SupportedContentTypes?:                   [...#ContentType] | fn.#ListExpression
 	SupportedRealtimeInferenceInstanceTypes?: [...#InferenceInstanceType] | fn.#ListExpression
 	SupportedResponseMIMETypes?:              [...#ResponseMIMEType] | fn.#ListExpression
@@ -66,7 +78,12 @@ fn.#ObjectExpression
 ] |
 	fn.#ListExpression
 
-#ApprovalDescription: strings.MaxRunes(1024) & =~".*" | fn.#StringExpression
+#ApprovalDescription: strings.MaxRunes(1024) & =~".*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & =~".*" & "\(self)"
+} |
+fn.#StringExpression
 
 #Bias: close({
 	PostTrainingReport?: #MetricsSource
@@ -77,27 +94,54 @@ fn.#ObjectExpression
 
 #CertifyForMarketplace: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-#ClientToken: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+#ClientToken: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" & "\(self)"
+} |
+fn.#StringExpression
 
-#ContentType: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-
-#CreationTime: string | fn.#StringExpression
+#ContentType: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" & "\(self)"
+} |
+fn.#StringExpression
 
 #CustomerMetadataProperties: struct.MaxFields(50) & struct.MinFields(1) & close({
 
-	{[=~"^([\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*)${1,128}"]: strings.MaxRunes(256) &
-	strings.MinRunes(1) &
-	=~"^([\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*)${1,256}" |
-	fn.#StringExpression}
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
 
-	{[=~"^([\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*)${1,256}"]: strings.MaxRunes(256) & strings.MinRunes(1) |
-	fn.#StringExpression}
+	{
+		[=~"^([\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*)${1,128}"]: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^([\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*)${1,256}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(1) &
+			=~"^([\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*)${1,256}" &
+			"\(self)"
+		} |
+		fn.#StringExpression
+	}
+
+	{
+		[=~"^([\\p{L}\\p{Z}\\p{N}_.:\\/=+\\-@]*)${1,256}"]: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
 }) |
 fn.#ObjectExpression
 
 #DataSource: close({S3DataSource!: #S3DataSource}) | fn.#ObjectExpression
 
-#Domain: string | fn.#StringExpression
+#Domain: string | number | bool | fn.#StringExpression
 
 #DriftCheckBaselines: close({
 	Bias?:             #DriftCheckBias
@@ -134,9 +178,27 @@ fn.#ObjectExpression
 
 #Environment: struct.MaxFields(16) & close({
 
-	{[=~"[\\S\\s]*"]: strings.MaxRunes(1024) | fn.#StringExpression}
+	{
+		[=~"[\\S\\s]*"]: strings.MaxRunes(1024) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
 
-	{[=~"[a-zA-Z_][a-zA-Z0-9_]*"]: strings.MaxRunes(1024) | fn.#StringExpression}
+	{
+		[=~"[a-zA-Z_][a-zA-Z0-9_]*"]: strings.MaxRunes(1024) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
 }) |
 fn.#ObjectExpression
 
@@ -144,13 +206,27 @@ fn.#ObjectExpression
 
 #FileSource: close({
 	ContentDigest?: strings.MaxRunes(72) & strings.MinRunes(0) & =~"^[Ss][Hh][Aa]256:[0-9a-fA-F]{64}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(72) & strings.MinRunes(0) & =~"^[Ss][Hh][Aa]256:[0-9a-fA-F]{64}$" & "\(self)"
+	} |
 	fn.#StringExpression
-	ContentType?: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	S3Uri!:       strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" | fn.#StringExpression
+	ContentType?: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
+	S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#InferenceInstanceType: string | fn.#StringExpression
+#InferenceInstanceType: string | number | bool | fn.#StringExpression
 
 #InferenceSpecification: close({
 	Containers!: list.MaxItems(15) & list.MinItems(1) & list.UniqueItems() & [...#ModelPackageContainerDefinition] |
@@ -162,21 +238,53 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#LastModifiedTime: string | fn.#StringExpression
-
 #MetadataProperties: close({
-	CommitId?:    strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	GeneratedBy?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	ProjectId?:   strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	Repository?:  strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+	CommitId?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
+	GeneratedBy?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
+	ProjectId?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
+	Repository?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MetricsSource: close({
 	ContentDigest?: strings.MaxRunes(72) & strings.MinRunes(0) & =~"^[Ss][Hh][Aa]256:[0-9a-fA-F]{64}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(72) & strings.MinRunes(0) & =~"^[Ss][Hh][Aa]256:[0-9a-fA-F]{64}$" & "\(self)"
+	} |
 	fn.#StringExpression
-	ContentType!: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	S3Uri!:       strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" | fn.#StringExpression
+	ContentType!: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
+	S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -188,8 +296,13 @@ fn.#ObjectExpression
 #ModelApprovalStatus: "Approved" | "Rejected" | "PendingManualApproval" | fn.#StringExpression
 
 #ModelCard: close({
-	ModelCardContent!: strings.MaxRunes(100000) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	ModelCardStatus!:  "Draft" | "PendingReview" | "Approved" | "Archived" | fn.#StringExpression
+	ModelCardContent!: strings.MaxRunes(100000) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100000) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
+	ModelCardStatus!: "Draft" | "PendingReview" | "Approved" | "Archived" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -209,43 +322,94 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ModelPackageArn: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-
 #ModelPackageContainerDefinition: close({
-	ContainerHostname?: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" | fn.#StringExpression
-	Environment?:       #Environment
-	Framework?:         string | fn.#StringExpression
-	FrameworkVersion?:  strings.MaxRunes(10) & strings.MinRunes(3) & =~"[0-9]\\.[A-Za-z0-9.]+" | fn.#StringExpression
-	Image!:             strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\S]{1,255}" | fn.#StringExpression
+	ContainerHostname?: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" & "\(self)"
+	} |
+	fn.#StringExpression
+	Environment?: #Environment
+	Framework?:   string | number | bool | fn.#StringExpression
+	FrameworkVersion?: strings.MaxRunes(10) & strings.MinRunes(3) & =~"[0-9]\\.[A-Za-z0-9.]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10) & strings.MinRunes(3) & =~"[0-9]\\.[A-Za-z0-9.]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	Image!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\S]{1,255}" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\S]{1,255}" & "\(self)"
+	} |
+	fn.#StringExpression
 	ImageDigest?: strings.MaxRunes(72) & strings.MinRunes(0) & =~"^[Ss][Hh][Aa]256:[0-9a-fA-F]{64}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(72) & strings.MinRunes(0) & =~"^[Ss][Hh][Aa]256:[0-9a-fA-F]{64}$" & "\(self)"
+	} |
 	fn.#StringExpression
 	ModelDataSource?: #ModelDataSource
 	ModelDataUrl?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" & "\(self)"
+	} |
 	fn.#StringExpression
-	ModelInput?: close(
-		{DataInputConfig!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"[\\S\\s]+" | fn.#StringExpression},
-	) |
+	ModelInput?: close({
+		DataInputConfig!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"[\\S\\s]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"[\\S\\s]+" & "\(self)"
+		} |
+		fn.#StringExpression
+	}) |
 	fn.#ObjectExpression
-	NearestModelName?: string | fn.#StringExpression
+	NearestModelName?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ModelPackageDescription: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"[\\p{L}\\p{M}\\p{Z}\\p{S}\\p{N}\\p{P}]*" & "\(self)"
+} |
 fn.#StringExpression
 
-#ModelPackageGroupName: strings.MaxRunes(170) & strings.MinRunes(1) | fn.#StringExpression
+#ModelPackageGroupName: =~"(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:[a-z\\-]*\\/)?([a-zA-Z0-9]([a-zA-Z0-9-]){0,62})$" &
+matchN(0, [=~"(?:-)$"]) &
+string &
+strings.MaxRunes(170) &
+strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: =~"(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:[a-z\\-]*\\/)?([a-zA-Z0-9]([a-zA-Z0-9-]){0,62})$" &
+	matchN(0, [=~"(?:-)$"]) &
+	string &
+	strings.MaxRunes(170) &
+	strings.MinRunes(1) &
+	"\(self)"
+} |
+fn.#StringExpression
 
 #ModelPackageName: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" & "\(self)"
+} |
 fn.#StringExpression
-
-#ModelPackageStatus: "Pending" | "Deleting" | "InProgress" | "Completed" | "Failed" | fn.#StringExpression
 
 #ModelPackageStatusDetails: close({ValidationStatuses?: [...#ModelPackageStatusItem] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
 #ModelPackageStatusItem: close({
-	FailureReason?: string | fn.#StringExpression
-	Name!:   strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" | fn.#StringExpression
+	FailureReason?: string | number | bool | fn.#StringExpression
+	Name!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Status!: "NotStarted" | "Failed" | "InProgress" | "Completed" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -272,11 +436,21 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ResponseMIMEType: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[-\\w]+\\/.+$" | fn.#StringExpression
+#ResponseMIMEType: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[-\\w]+\\/.+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[-\\w]+\\/.+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #S3DataSource: close({
 	S3DataType!: "ManifestFile" | "S3Prefix" | "AugmentedManifestFile" | fn.#StringExpression
-	S3Uri!:      strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" | fn.#StringExpression
+	S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -284,19 +458,39 @@ fn.#ObjectExpression
 	CompressionType!:   "None" | "Gzip" | fn.#StringExpression
 	ModelAccessConfig?: #ModelAccessConfig
 	S3DataType!:        "S3Prefix" | "S3Object" | fn.#StringExpression
-	S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" | fn.#StringExpression
+	S3Uri!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SamplePayloadUrl: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" & "\(self)"
+} |
 fn.#StringExpression
 
 #SecurityConfig: close({
-	KmsKeyId!: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
+	KmsKeyId!: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~"^[a-zA-Z0-9:/_-]*$" |
+	{
+		number | bool
+		_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~"^[a-zA-Z0-9:/_-]*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -304,8 +498,26 @@ fn.#ObjectExpression
 #SkipModelValidation: "None" | "All" | fn.#StringExpression
 
 #SourceAlgorithm: close({
-	AlgorithmName!: strings.MaxRunes(170) & strings.MinRunes(1) | fn.#StringExpression
+	AlgorithmName!: =~"(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:[a-z\\-]*\\/)?([a-zA-Z0-9]([a-zA-Z0-9-]){0,62})$" &
+	matchN(0, [=~"(?:-)$"]) &
+	string &
+	strings.MaxRunes(170) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:[a-z\\-]*\\/)?([a-zA-Z0-9]([a-zA-Z0-9-]){0,62})$" &
+		matchN(0, [=~"(?:-)$"]) &
+		string &
+		strings.MaxRunes(170) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
 	ModelDataUrl?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -315,25 +527,45 @@ fn.#ObjectExpression
 ) |
 	fn.#ObjectExpression
 
-#SourceUri: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+#SourceUri: strings.MaxRunes(1024) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Task: string | fn.#StringExpression
+#Task: string | number | bool | fn.#StringExpression
 
 #TransformInput: close({
 	CompressionType?: "None" | "Gzip" | fn.#StringExpression
-	ContentType?:     strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
-	DataSource!:      #DataSource
-	SplitType?:       "None" | "TFRecord" | "Line" | "RecordIO" | fn.#StringExpression
+	ContentType?: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
+	DataSource!: #DataSource
+	SplitType?:  "None" | "TFRecord" | "Line" | "RecordIO" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#TransformInstanceType: string | fn.#StringExpression
+#TransformInstanceType: string | number | bool | fn.#StringExpression
 
 #TransformJobDefinition: close({
 	BatchStrategy?: "MultiRecord" | "SingleRecord" | fn.#StringExpression
@@ -375,15 +607,35 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TransformOutput: close({
-	Accept?:       strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+	Accept?: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
 	AssembleWith?: "None" | "Line" | fn.#StringExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(0) &
 	=~".*" |
+	{
+		number | bool
+		_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(0) &
+		=~".*" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	S3OutputPath!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -404,13 +656,22 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	InstanceType!:   string | fn.#StringExpression
-	VolumeKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+	InstanceType!: string | number | bool | fn.#StringExpression
+	VolumeKmsKeyId?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ValidationProfile: close({
 	ProfileName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}$" & "\(self)"
+	} |
 	fn.#StringExpression
 	TransformJobDefinition!: #TransformJobDefinition
 }) |
@@ -421,6 +682,13 @@ fn.#ObjectExpression
 	ValidationRole!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -6,22 +6,44 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Athena::DataCatalog
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Athena::DataCatalog"
-	Properties!: close({
-		ConnectionType?: string | fn.#StringExpression
-		Description?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		Error?:          string | fn.#StringExpression
-		Name!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		ConnectionType?: string | number | bool | fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Error?: string | number | bool | fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Parameters?: close({
 
-			{[=~".*"]: strings.MaxRunes(51200) | fn.#StringExpression}}) |
+			{
+				[=~".*"]: strings.MaxRunes(51200) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(51200) & "\(self)"
+				} |
+				fn.#StringExpression
+			}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 		Status?: "CREATE_IN_PROGRESS" |
 			"CREATE_COMPLETE" |
@@ -38,11 +60,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?: #Tags
 		Type!: "LAMBDA" | "GLUE" | "HIVE" | "FEDERATED" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

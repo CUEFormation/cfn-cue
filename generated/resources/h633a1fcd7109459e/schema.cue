@@ -9,34 +9,42 @@ import (
 	"time"
 	"struct"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::DataSet Resource Type.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QuickSight::DataSet"
-	Properties?: close({
-		AwsAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-		ColumnGroups?: list.MaxItems(8) & list.MinItems(1) & [...#ColumnGroup] | fn.#ListExpression
+	let properties = close({
+		AwsAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ColumnGroups?:               list.MaxItems(8) & list.MinItems(1) & [...#ColumnGroup] | fn.#ListExpression
 		ColumnLevelPermissionRules?: list.MinItems(1) & [...#ColumnLevelPermissionRule] | fn.#ListExpression
 		DataPrepConfiguration?:      #DataPrepConfiguration
-		DataSetId?:                  string | fn.#StringExpression
+		DataSetId?:                  string | number | bool | fn.#StringExpression
 		DataSetRefreshProperties?:   #DataSetRefreshProperties
 		DataSetUsageConfiguration?:  #DataSetUsageConfiguration
 		DatasetParameters?:          list.MaxItems(32) & [...] & [...#DatasetParameter] | fn.#ListExpression
 		FieldFolders?:               #FieldFolderMap
-		FolderArns?:                 list.MaxItems(10) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-		ImportMode?:                 #DataSetImportMode
-		IngestionWaitPolicy?:        #IngestionWaitPolicy
-		LogicalTableMap?:            #LogicalTableMap
-		Name?:                       strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		PerformanceConfiguration?:   #PerformanceConfiguration
+		FolderArns?: list.MaxItems(10) & [...] & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		ImportMode?: #DataSetImportMode
+		IngestionWaitPolicy?: #IngestionWaitPolicy
+		LogicalTableMap?:     #LogicalTableMap
+		Name?: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		PerformanceConfiguration?:  #PerformanceConfiguration
 		Permissions?:               list.MaxItems(64) & list.MinItems(1) & [...#ResourcePermission] | fn.#ListExpression
 		PhysicalTableMap?:          #PhysicalTableMap
 		RowLevelPermissionDataSet?: #RowLevelPermissionDataSet
@@ -45,17 +53,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:                               list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 		UseAs?:                              #DataSetUseAs
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
-#AdditionalNotes: close({Text?: strings.MaxRunes(2000) & strings.MinRunes(0) | fn.#StringExpression}) |
+#AdditionalNotes: close({
+	Text?: strings.MaxRunes(2000) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2000) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #AggregateOperation: close({
 	Aggregations!: list.MaxItems(128) & [...] & [...#Aggregation] | fn.#ListExpression
-	Alias!:        strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	GroupByColumnNames?: list.MaxItems(128) & [...] & [
-		...strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	Alias!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	GroupByColumnNames?: list.MaxItems(128) & [...] & [...strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	Source!: #TransformOperationSource
 }) |
@@ -63,13 +90,28 @@ fn.#ObjectExpression
 
 #Aggregation: close({
 	AggregationFunction!: #DataPrepAggregationFunction
-	NewColumnId!:         strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	NewColumnName!:       strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+	NewColumnId!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	NewColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AppendOperation: close({
-	Alias!:           strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	Alias!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	AppendedColumns!: list.MaxItems(2048) & [...] & [...#AppendedColumn] | fn.#ListExpression
 	FirstSource?:     #TransformOperationSource
 	SecondSource?:    #TransformOperationSource
@@ -77,28 +119,68 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #AppendedColumn: close({
-	ColumnName!:  strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	NewColumnId!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	ColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	NewColumnId!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CalculatedColumn: close({
-	ColumnId!:   strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	ColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Expression!: strings.MaxRunes(250000) & strings.MinRunes(1) | fn.#StringExpression
+	ColumnId!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Expression!: strings.MaxRunes(250000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(250000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CastColumnTypeOperation: close({
-	ColumnName!:    strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Format?:        strings.MaxRunes(32) & strings.MinRunes(0) | fn.#StringExpression
+	ColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Format?: strings.MaxRunes(32) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	NewColumnType!: #ColumnDataType
 	SubType?:       #ColumnDataSubType
 }) |
 fn.#ObjectExpression
 
 #CastColumnTypesOperation: close({
-	Alias!:                    strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	Alias!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	CastColumnTypeOperations!: list.MaxItems(2048) & [...] & [...#CastColumnTypeOperation] | fn.#ListExpression
 	Source!:                   #TransformOperationSource
 }) |
@@ -108,14 +190,22 @@ fn.#ObjectExpression
 
 #ColumnDataType: "STRING" | "INTEGER" | "DECIMAL" | "DATETIME" | fn.#StringExpression
 
-#ColumnDescription: close({Text?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression}) |
+#ColumnDescription: close({
+	Text?: strings.MaxRunes(500) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #ColumnGroup: close({GeoSpatialColumnGroup?: #GeoSpatialColumnGroup}) | fn.#ObjectExpression
 
 #ColumnLevelPermissionRule: close({
-	ColumnNames?: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	Principals?:  list.MaxItems(100) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+	ColumnNames?: list.MinItems(1) & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Principals?: list.MaxItems(100) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -137,13 +227,28 @@ fn.#ObjectExpression
 #ColumnTagName: "COLUMN_GEOGRAPHIC_ROLE" | "COLUMN_DESCRIPTION" | fn.#StringExpression
 
 #ColumnToUnpivot: close({
-	ColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	NewValue?:   strings.MaxRunes(2047) & strings.MinRunes(0) | fn.#StringExpression
+	ColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	NewValue?: strings.MaxRunes(2047) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2047) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CreateColumnsOperation: close({
-	Alias?:   strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	Alias?: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Columns!: list.MaxItems(256) & [...] & [...#CalculatedColumn] | fn.#ListExpression
 	Source?:  #TransformOperationSource
 }) |
@@ -153,9 +258,19 @@ fn.#ObjectExpression
 
 #CustomSql: close({
 	Columns!:       list.MaxItems(2048) & [...] & [...#InputColumn] | fn.#ListExpression
-	DataSourceArn!: string | fn.#StringExpression
-	Name!:          strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	SqlQuery!:      strings.MaxRunes(168000) & strings.MinRunes(1) | fn.#StringExpression
+	DataSourceArn!: string | number | bool | fn.#StringExpression
+	Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	SqlQuery!: strings.MaxRunes(168000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(168000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -174,14 +289,24 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DataPrepListAggregationFunction: close({
-	Distinct!:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InputColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Separator!:       string | fn.#StringExpression
+	Distinct!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	InputColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Separator!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DataPrepPercentileAggregationFunction: close({
-	InputColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+	InputColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	PercentileValue!: <=100 & >=0 |
 		{
 			string &
@@ -206,8 +331,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DataPrepSimpleAggregationFunction: close({
-	FunctionType!:    #DataPrepSimpleAggregationFunctionType
-	InputColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+	FunctionType!: #DataPrepSimpleAggregationFunctionType
+	InputColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -223,8 +353,18 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #DataSetColumnIdMapping: close({
-	SourceColumnId!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	TargetColumnId!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	SourceColumnId!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TargetColumnId!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -241,7 +381,12 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #DataSetDateFilterCondition: close({
-	ColumnName?:                strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+	ColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ComparisonFilterCondition?: #DataSetDateComparisonFilterCondition
 	RangeFilterCondition?:      #DataSetDateRangeFilterCondition
 }) |
@@ -274,7 +419,12 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #DataSetNumericFilterCondition: close({
-	ColumnName?:                strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+	ColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ComparisonFilterCondition?: #DataSetNumericComparisonFilterCondition
 	RangeFilterCondition?:      #DataSetNumericRangeFilterCondition
 }) |
@@ -317,7 +467,14 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DataSetSemanticDescription: close({Text!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression}) |
+#DataSetSemanticDescription: close({
+	Text!: strings.MaxRunes(500) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #DataSetSemanticMetadata: close({
@@ -341,13 +498,25 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #DataSetStringFilterCondition: close({
-	ColumnName?:                strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+	ColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ComparisonFilterCondition?: #DataSetStringComparisonFilterCondition
 	ListFilterCondition?:       #DataSetStringListFilterCondition
 }) |
 fn.#ObjectExpression
 
-#DataSetStringFilterValue: close({StaticValue?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression}) |
+#DataSetStringFilterValue: close({
+	StaticValue?: strings.MaxRunes(512) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #DataSetStringListFilterCondition: close({
@@ -359,7 +528,12 @@ fn.#ObjectExpression
 #DataSetStringListFilterOperator: "INCLUDE" | "EXCLUDE" | fn.#StringExpression
 
 #DataSetStringListFilterValue: close({
-	StaticValues?: list.MaxItems(1000) & [...] & [...strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression] |
+	StaticValues?: list.MaxItems(1000) & [...] & [...strings.MaxRunes(512) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -390,24 +564,44 @@ fn.#ObjectExpression
 #DatasetParameterValueType: "MULTI_VALUED" | "SINGLE_VALUED" | fn.#StringExpression
 
 #DateTimeDatasetParameter: close({
-	DefaultValues?:   #DateTimeDatasetParameterDefaultValues
-	Id!:              strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	Name!:            strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
+	DefaultValues?: #DateTimeDatasetParameterDefaultValues
+	Id!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	TimeGranularity?: #TimeGranularity
 	ValueType!:       #DatasetParameterValueType
 }) |
 fn.#ObjectExpression
 
 #DateTimeDatasetParameterDefaultValues: close(
-	{StaticValues?: list.MaxItems(32) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression},
+	{StaticValues?: list.MaxItems(32) & [...] & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression},
 ) |
 	fn.#ObjectExpression
 
 #DecimalDatasetParameter: close({
 	DefaultValues?: #DecimalDatasetParameterDefaultValues
-	Id!:            strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	Name!:          strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	ValueType!:     #DatasetParameterValueType
+	Id!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ValueType!: #DatasetParameterValueType
 }) |
 fn.#ObjectExpression
 
@@ -438,36 +632,64 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #DestinationTable: close({
-	Alias!:  strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	Alias!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Source!: #DestinationTableSource
 }) |
 fn.#ObjectExpression
 
 #DestinationTableMap: struct.MaxFields(1) & struct.MinFields(1) & close({
 
-	{[=~"^[0-9a-zA-Z-]*$"]: #DestinationTable}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{[=~"^[0-9a-zA-Z-]*$"]: #DestinationTable}
+}) |
 fn.#ObjectExpression
 
-#DestinationTableSource: close(
-	{TransformOperationId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" | fn.#StringExpression},
-) |
+#DestinationTableSource: close({
+	TransformOperationId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #FieldFolder: close({
-	Columns?:     list.MaxItems(5000) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	Description?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
+	Columns?: list.MaxItems(5000) & [...] & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Description?: strings.MaxRunes(500) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FieldFolderMap: close({
 
-	{[=~".+"]: #FieldFolder}}) |
+	{[=~".+"]: #FieldFolder}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #FileFormat: "CSV" | "TSV" | "CLF" | "ELF" | "XLSX" | "JSON" | fn.#StringExpression
 
 #FilterOperation: close({
-	ConditionExpression?:    strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	ConditionExpression?: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	DateFilterCondition?:    #DataSetDateFilterCondition
 	NumericFilterCondition?: #DataSetNumericFilterCondition
 	StringFilterCondition?:  #DataSetStringFilterCondition
@@ -475,19 +697,32 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #FiltersOperation: close({
-	Alias!:            strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	Alias!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	FilterOperations!: list.MaxItems(128) & [...] & [...#FilterOperation] | fn.#ListExpression
 	Source!:           #TransformOperationSource
 }) |
 fn.#ObjectExpression
 
 #GeoSpatialColumnGroup: close({
-	Columns!: list.MaxItems(16) & list.MinItems(1) & [
-		...strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	Columns!: list.MaxItems(16) & list.MinItems(1) & [...strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	CountryCode?: #GeoSpatialCountryCode
-	Name!:        strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	Name!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -507,14 +742,24 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #ImportTableOperation: close({
-	Alias!:  strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	Alias!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Source!: #ImportTableOperationSource
 }) |
 fn.#ObjectExpression
 
 #ImportTableOperationSource: close({
 	ColumnIdMappings?: list.MaxItems(2048) & list.MinItems(1) & [...#DataSetColumnIdMapping] | fn.#ListExpression
-	SourceTableId!:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" | fn.#StringExpression
+	SourceTableId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -546,14 +791,29 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #InlineCustomInstruction: close({
-	InstructionText!:          strings.MaxRunes(50000) & strings.MinRunes(0) | fn.#StringExpression
+	InstructionText!: strings.MaxRunes(50000) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50000) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	UploadedDocumentMetadata?: #UploadedDocumentMetadata
 }) |
 fn.#ObjectExpression
 
 #InputColumn: close({
-	Id?:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:    strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+	Id?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	SubType?: #ColumnDataSubType
 	Type!:    #InputColumnDataType
 }) |
@@ -571,9 +831,19 @@ fn.#ObjectExpression
 
 #IntegerDatasetParameter: close({
 	DefaultValues?: #IntegerDatasetParameterDefaultValues
-	Id!:            strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	Name!:          strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	ValueType!:     #DatasetParameterValueType
+	Id!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ValueType!: #DatasetParameterValueType
 }) |
 fn.#ObjectExpression
 
@@ -601,12 +871,27 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #JoinInstruction: close({
-	LeftJoinKeyProperties?:  #JoinKeyProperties
-	LeftOperand!:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" | fn.#StringExpression
-	OnClause!:               strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	LeftJoinKeyProperties?: #JoinKeyProperties
+	LeftOperand!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	OnClause!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	RightJoinKeyProperties?: #JoinKeyProperties
-	RightOperand!:           strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" | fn.#StringExpression
-	Type!:                   #JoinType
+	RightOperand!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: #JoinType
 }) |
 fn.#ObjectExpression
 
@@ -622,10 +907,20 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #JoinOperation: close({
-	Alias!:                  strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	LeftOperand!:            #TransformOperationSource
-	LeftOperandProperties?:  #JoinOperandProperties
-	OnClause!:               strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	Alias!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	LeftOperand!:           #TransformOperationSource
+	LeftOperandProperties?: #JoinOperandProperties
+	OnClause!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	RightOperand!:           #TransformOperationSource
 	RightOperandProperties?: #JoinOperandProperties
 	Type!:                   #JoinOperationType
@@ -637,7 +932,12 @@ fn.#ObjectExpression
 #JoinType: "INNER" | "OUTER" | "LEFT" | "RIGHT" | fn.#StringExpression
 
 #LogicalTable: close({
-	Alias!:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	Alias!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	DataTransforms?: list.MaxItems(2048) & list.MinItems(1) & [...#TransformOperation] | fn.#ListExpression
 	Source!:         #LogicalTableSource
 }) |
@@ -645,18 +945,26 @@ fn.#ObjectExpression
 
 #LogicalTableMap: struct.MaxFields(256) & struct.MinFields(1) & close({
 
-	{[=~"^[0-9a-zA-Z-]*$"]: #LogicalTable}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{[=~"^[0-9a-zA-Z-]*$"]: #LogicalTable}
+}) |
 fn.#ObjectExpression
 
 #LogicalTableSource: close({
-	DataSetArn?:      string | fn.#StringExpression
+	DataSetArn?:      string | number | bool | fn.#StringExpression
 	JoinInstruction?: #JoinInstruction
-	PhysicalTableId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" | fn.#StringExpression
+	PhysicalTableId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LookbackWindow: close({
-	ColumnName!: string | fn.#StringExpression
+	ColumnName!: string | number | bool | fn.#StringExpression
 	Size!: >=1 |
 		{
 			string &
@@ -683,7 +991,8 @@ fn.#ObjectExpression
 #LookbackWindowSizeUnit: "HOUR" | "DAY" | "WEEK" | fn.#StringExpression
 
 #NewDefaultValues: close({
-	DateTimeStaticValues?: list.MaxItems(32) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+	DateTimeStaticValues?: list.MaxItems(32) & [...] & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
 	DecimalStaticValues?: list.MaxItems(32) & [...] & [
 		...number |
 			{
@@ -725,37 +1034,51 @@ fn.#ObjectExpression
 			fn.#NumberExpression
 	] |
 		fn.#ListExpression
-	StringStaticValues?: list.MaxItems(32) & [...] & [
-		...strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-	] |
+	StringStaticValues?: list.MaxItems(32) & [...] & [...strings.MaxRunes(512) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#OutputColumn: close({
-	Description?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	Id?:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	Name?:        strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	SubType?:     #ColumnDataSubType
-	Type?:        #ColumnDataType
-}) |
-fn.#ObjectExpression
-
 #OutputColumnNameOverride: close({
-	OutputColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	SourceColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+	OutputColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	SourceColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #OverrideDatasetParameterOperation: close({
 	NewDefaultValues?: #NewDefaultValues
-	NewParameterName?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	ParameterName!:    strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
+	NewParameterName?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ParameterName!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ParentDataSet: close({
-	DataSetArn!:   string | fn.#StringExpression
+	DataSetArn!:   string | number | bool | fn.#StringExpression
 	InputColumns!: list.MaxItems(2048) & [...] & [...#InputColumn] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -775,20 +1098,36 @@ fn.#ObjectExpression
 
 #PhysicalTableMap: struct.MaxFields(32) & struct.MinFields(0) & close({
 
-	{[=~"^[0-9a-zA-Z-]*$"]: #PhysicalTable}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{[=~"^[0-9a-zA-Z-]*$"]: #PhysicalTable}
+}) |
 fn.#ObjectExpression
 
 #PivotConfiguration: close({
-	LabelColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	PivotedLabels!:   list.MaxItems(100) & [...] & [...#PivotedLabel] | fn.#ListExpression
+	LabelColumnName?: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	PivotedLabels!: list.MaxItems(100) & [...] & [...#PivotedLabel] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #PivotOperation: close({
-	Alias!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	GroupByColumnNames?: list.MaxItems(128) & [...] & [
-		...strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	Alias!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	GroupByColumnNames?: list.MaxItems(128) & [...] & [...strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	PivotConfiguration!:       #PivotConfiguration
 	Source!:                   #TransformOperationSource
@@ -797,16 +1136,37 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PivotedLabel: close({
-	LabelName!:     strings.MaxRunes(2047) & strings.MinRunes(0) | fn.#StringExpression
-	NewColumnId!:   strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	NewColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+	LabelName!: strings.MaxRunes(2047) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2047) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	NewColumnId!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	NewColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ProjectOperation: close({
-	Alias?:            strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	ProjectedColumns?: list.MaxItems(2048) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-	Source?:           #TransformOperationSource
+	Alias?: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ProjectedColumns?: list.MaxItems(2048) & [...] & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
+	Source?: #TransformOperationSource
 }) |
 fn.#ObjectExpression
 
@@ -819,30 +1179,66 @@ fn.#ObjectExpression
 #RefreshFailureEmailAlert: close({AlertStatus?: #RefreshFailureAlertStatus}) | fn.#ObjectExpression
 
 #RelationalTable: close({
-	Catalog?:       strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	DataSourceArn!: string | fn.#StringExpression
+	Catalog?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	DataSourceArn!: string | number | bool | fn.#StringExpression
 	InputColumns!:  list.MaxItems(2048) & [...] & [...#InputColumn] | fn.#ListExpression
-	Name!:          strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Schema?:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Name!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Schema?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RenameColumnOperation: close({
-	ColumnName!:    strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	NewColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+	ColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	NewColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RenameColumnsOperation: close({
-	Alias!:                  strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	Alias!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	RenameColumnOperations!: list.MaxItems(2048) & [...] & [...#RenameColumnOperation] | fn.#ListExpression
 	Source!:                 #TransformOperationSource
 }) |
 fn.#ObjectExpression
 
 #ResourcePermission: close({
-	Actions!:   list.MaxItems(30) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Actions!: list.MaxItems(30) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
+	Principal!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -853,9 +1249,14 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RowLevelPermissionDataSet: close({
-	Arn!:              string | fn.#StringExpression
-	FormatVersion?:    #RowLevelPermissionFormatVersion
-	Namespace?:        strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[a-zA-Z0-9._-]*$" | fn.#StringExpression
+	Arn!:           string | number | bool | fn.#StringExpression
+	FormatVersion?: #RowLevelPermissionFormatVersion
+	Namespace?: strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[a-zA-Z0-9._-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[a-zA-Z0-9._-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	PermissionPolicy!: #RowLevelPermissionPolicy
 	Status?:           #Status
 }) |
@@ -867,34 +1268,50 @@ fn.#ObjectExpression
 
 #RowLevelPermissionTagConfiguration: close({
 	Status?: #Status
-	TagRuleConfigurations?: list.MaxItems(50) & list.MinItems(1) & [
-		...list.MaxItems(50) & list.MinItems(1) & [
-			...strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		] |
-		fn.#ListExpression
-	] |
+	TagRuleConfigurations?: list.MaxItems(50) & list.MinItems(1) & [...list.MaxItems(50) & list.MinItems(1) & [...strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression] |
 	fn.#ListExpression
 	TagRules!: list.MaxItems(50) & list.MinItems(1) & [...#RowLevelPermissionTagRule] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #RowLevelPermissionTagRule: close({
-	ColumnName!:             string | fn.#StringExpression
-	MatchAllValue?:          strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	TagKey!:                 strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	TagMultiValueDelimiter?: strings.MaxRunes(10) & strings.MinRunes(0) | fn.#StringExpression
+	ColumnName!: string | number | bool | fn.#StringExpression
+	MatchAllValue?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TagKey!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TagMultiValueDelimiter?: strings.MaxRunes(10) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #S3Source: close({
-	DataSourceArn!:  string | fn.#StringExpression
+	DataSourceArn!:  string | number | bool | fn.#StringExpression
 	InputColumns!:   list.MaxItems(2048) & [...] & [...#InputColumn] | fn.#ListExpression
 	UploadSettings?: #UploadSettings
 }) |
 fn.#ObjectExpression
 
 #SaaSTable: close({
-	DataSourceArn!: string | fn.#StringExpression
+	DataSourceArn!: string | number | bool | fn.#StringExpression
 	InputColumns!:  list.MaxItems(2048) & [...] & [...#InputColumn] | fn.#ListExpression
 	TablePath!:     list.MaxItems(32) & list.MinItems(1) & [...#TablePathElement] | fn.#ListExpression
 }) |
@@ -907,8 +1324,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SemanticTable: close({
-	Alias!:              strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	DestinationTableId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" | fn.#StringExpression
+	Alias!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	DestinationTableId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	RowLevelPermissionConfiguration?: #RowLevelPermissionConfiguration
 	SemanticMetadata?:                #TableSemanticMetadata
 }) |
@@ -916,45 +1343,81 @@ fn.#ObjectExpression
 
 #SemanticTableMap: struct.MaxFields(1) & struct.MinFields(1) & close({
 
-	{[=~"^[0-9a-zA-Z-]*$"]: #SemanticTable}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{[=~"^[0-9a-zA-Z-]*$"]: #SemanticTable}
+}) |
 fn.#ObjectExpression
 
 #SharedColumnSemanticMetadata: close({
-	ColumnNames?:      list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+	ColumnNames?:      list.MinItems(1) & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	ColumnProperties!: list.MaxItems(3) & list.MinItems(1) & [...#ColumnSemanticProperty] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #SourceTable: close({
-	DataSet?:         #ParentDataSet
-	PhysicalTableId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" | fn.#StringExpression
+	DataSet?: #ParentDataSet
+	PhysicalTableId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SourceTableMap: struct.MaxFields(32) & struct.MinFields(1) & close({
 
-	{[=~"^[0-9a-zA-Z-]*$"]: #SourceTable}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{[=~"^[0-9a-zA-Z-]*$"]: #SourceTable}
+}) |
 fn.#ObjectExpression
 
 #Status: "ENABLED" | "DISABLED" | fn.#StringExpression
 
 #StringDatasetParameter: close({
 	DefaultValues?: #StringDatasetParameterDefaultValues
-	Id!:            strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	Name!:          strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
-	ValueType!:     #DatasetParameterValueType
+	Id!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ValueType!: #DatasetParameterValueType
 }) |
 fn.#ObjectExpression
 
 #StringDatasetParameterDefaultValues: close({
-	StaticValues?: list.MaxItems(32) & [...] & [...strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression] |
+	StaticValues?: list.MaxItems(32) & [...] & [...strings.MaxRunes(512) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #TablePathElement: close({
-	Id?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Name?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Id?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -964,14 +1427,29 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TagColumnOperation: close({
-	ColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Tags!:       list.MaxItems(16) & list.MinItems(1) & [...#ColumnTag] | fn.#ListExpression
+	ColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Tags!: list.MaxItems(16) & list.MinItems(1) & [...#ColumnTag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -1001,8 +1479,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TransformOperationSource: close({
-	ColumnIdMappings?:     list.MaxItems(2048) & list.MinItems(1) & [...#DataSetColumnIdMapping] | fn.#ListExpression
-	TransformOperationId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" | fn.#StringExpression
+	ColumnIdMappings?: list.MaxItems(2048) & list.MinItems(1) & [...#DataSetColumnIdMapping] | fn.#ListExpression
+	TransformOperationId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -1023,38 +1506,79 @@ fn.#ObjectExpression
 
 #TransformStepMap: struct.MaxFields(256) & struct.MinFields(1) & close({
 
-	{[=~"^[0-9a-zA-Z-]*$"]: #TransformStep}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{[=~"^[0-9a-zA-Z-]*$"]: #TransformStep}
+}) |
 fn.#ObjectExpression
 
 #UniqueKey: close({
-	ColumnNames!: list.MaxItems(1) & list.MinItems(1) & [
-		...strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	ColumnNames!: list.MaxItems(1) & list.MinItems(1) & [...strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #UnpivotOperation: close({
-	Alias!:                    strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	ColumnsToUnpivot!:         list.MaxItems(100) & [...] & [...#ColumnToUnpivot] | fn.#ListExpression
-	Source!:                   #TransformOperationSource
-	UnpivotedLabelColumnId!:   strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	UnpivotedLabelColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	UnpivotedValueColumnId!:   strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	UnpivotedValueColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
+	Alias!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ColumnsToUnpivot!: list.MaxItems(100) & [...] & [...#ColumnToUnpivot] | fn.#ListExpression
+	Source!:           #TransformOperationSource
+	UnpivotedLabelColumnId!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	UnpivotedLabelColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	UnpivotedValueColumnId!: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	UnpivotedValueColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #UntagColumnOperation: close({
-	ColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	TagNames!:   [...#ColumnTagName] | fn.#ListExpression
+	ColumnName!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TagNames!: [...#ColumnTagName] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #UploadSettings: close({
 	ContainsHeader?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Delimiter?:      strings.MaxRunes(1) & strings.MinRunes(1) | fn.#StringExpression
-	Format?:         #FileFormat
+	Delimiter?: strings.MaxRunes(1) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Format?: #FileFormat
 	StartFromRow?: >=1 |
 		{
 			string &
@@ -1078,7 +1602,14 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#UploadedDocumentMetadata: close({Name?: strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression}) |
+#UploadedDocumentMetadata: close({
+	Name?: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #ValueColumnConfiguration: close({AggregationFunction?: #DataPrepAggregationFunction}) | fn.#ObjectExpression

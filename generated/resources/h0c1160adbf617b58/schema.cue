@@ -8,19 +8,17 @@ import (
 	"time"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a budget to set spending thresholds for your rendering activity.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Deadline::Budget"
-	Properties!: close({
+	let properties = close({
 		Actions!: list.MaxItems(10) & [...] & [...#BudgetActionToAdd] | fn.#ListExpression
 		ApproximateDollarLimit!: >=0.01 |
 			{
@@ -41,17 +39,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Description?:           strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-		DisplayName!:           strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		FarmId!:                =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
+		Description?: strings.MaxRunes(100) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DisplayName!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		FarmId!: =~"^farm-[0-9a-f]{32}$" |
+		{
+			number | bool
+			_cfnString: =~"^farm-[0-9a-f]{32}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Schedule!:              #BudgetSchedule
 		Tags?:                  list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 		UsageTrackingResource!: #UsageTrackingResource
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #BudgetActionToAdd: close({
-	Description?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+	Description?: strings.MaxRunes(100) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	ThresholdPercentage!: <=100 & >=0 |
 		{
 			string &
@@ -85,9 +107,27 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#UsageTrackingResource: close({QueueId!: =~"^queue-[0-9a-f]{32}$" | fn.#StringExpression}) | fn.#ObjectExpression
+#UsageTrackingResource: close({
+	QueueId!: =~"^queue-[0-9a-f]{32}$" |
+	{
+		number | bool
+		_cfnString: =~"^queue-[0-9a-f]{32}$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression

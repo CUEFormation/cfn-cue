@@ -6,17 +6,36 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema for AWS::ServiceCatalog::ServiceActionAssociation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ServiceCatalog::ServiceActionAssociation"
-	Properties!: close({
-		ProductId!:              strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		ProvisioningArtifactId!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		ServiceActionId!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		ProductId!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ProvisioningArtifactId!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ServiceActionId!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

@@ -1,0 +1,146 @@
+{
+  "after": {
+    "both-accept": 537,
+    "both-reject": 144,
+    "cue-accepts-lint-lifecycle-only": 250,
+    "cue-accepts-lint-rejects": 60,
+    "cue-rejects-lint-accepts": 18,
+    "cue-unsupported": 83,
+    "normalization-error": 9
+  },
+  "after_schema_sha256": "16130b1cbacc74d360891da159d2c3e948fab8540aef2a3d5e0400df3852b6b2",
+  "after_validator_sha256": "50f9f30b282e22528114843d56cd43b68e6450e61f21976d731f2152dec5facd",
+  "before": {
+    "both-accept": 537,
+    "both-reject": 139,
+    "cue-accepts-lint-lifecycle-only": 250,
+    "cue-accepts-lint-rejects": 66,
+    "cue-rejects-lint-accepts": 18,
+    "cue-unsupported": 82,
+    "normalization-error": 9
+  },
+  "before_schema_sha256": "a75d9d325af7b12b9469e8a43c8c677508bae8a39bda33a6bc9abf722d62450a",
+  "before_validator_sha256": "3211e20499f1a4e02870aa39bbda0cb112d8c6bb3812207ed9a583980f5aa052",
+  "changes": [
+    {
+      "after": "both-reject",
+      "after_cue_ms": 55,
+      "before": "cue-accepts-lint-rejects",
+      "before_cue_ms": 44,
+      "id": "030eea20a0bd3d02",
+      "path": "tests/examples_output/S3_Bucket.template",
+      "region": "us-east-1",
+      "url": "https://github.com/cloudtools/troposphere/blob/8cd7a25e5d3c65aee7e3e12d7abf9465c4a0d3c8/tests/examples_output/S3_Bucket.template"
+    },
+    {
+      "after": "both-reject",
+      "after_cue_ms": 47,
+      "before": "cue-accepts-lint-rejects",
+      "before_cue_ms": 46,
+      "id": "4b810f5707e895f4",
+      "path": "test/fixtures/templates/bad/resources/lambda/required_properties.yaml",
+      "region": "us-east-1",
+      "url": "https://github.com/aws-cloudformation/cfn-lint/blob/be66fb3e224b41c85065cb3002ad0b24e31db535/test/fixtures/templates/bad/resources/lambda/required_properties.yaml"
+    },
+    {
+      "after": "cue-unsupported",
+      "after_cue_ms": 30,
+      "before": "both-reject",
+      "before_cue_ms": 32,
+      "id": "68a2d33d226cf732",
+      "path": "tests/translator/output/unsupported_resources.json",
+      "region": "us-east-1",
+      "url": "https://github.com/aws/serverless-application-model/blob/a130d8b4c43895b860d5b01b0fcc71bc465b91cf/tests/translator/output/unsupported_resources.json"
+    },
+    {
+      "after": "both-reject",
+      "after_cue_ms": 43,
+      "before": "cue-accepts-lint-rejects",
+      "before_cue_ms": 45,
+      "id": "799dec99a4d66e61",
+      "path": "tests/examples_output/S3_Bucket_With_AccelerateConfiguration.template",
+      "region": "us-east-1",
+      "url": "https://github.com/cloudtools/troposphere/blob/8cd7a25e5d3c65aee7e3e12d7abf9465c4a0d3c8/tests/examples_output/S3_Bucket_With_AccelerateConfiguration.template"
+    },
+    {
+      "after": "both-reject",
+      "after_cue_ms": 48,
+      "before": "cue-accepts-lint-rejects",
+      "before_cue_ms": 46,
+      "id": "9fc14a8cba9c1b2b",
+      "path": "tests/examples_output/S3_Bucket_With_Versioning_And_Lifecycle_Rules.template",
+      "region": "us-east-1",
+      "url": "https://github.com/cloudtools/troposphere/blob/8cd7a25e5d3c65aee7e3e12d7abf9465c4a0d3c8/tests/examples_output/S3_Bucket_With_Versioning_And_Lifecycle_Rules.template"
+    },
+    {
+      "after": "both-reject",
+      "after_cue_ms": 122,
+      "before": "cue-accepts-lint-rejects",
+      "before_cue_ms": 66,
+      "id": "cb4160b157816265",
+      "path": "test/fixtures/templates/bad/route53.yaml",
+      "region": "us-east-1",
+      "url": "https://github.com/aws-cloudformation/cfn-lint/blob/be66fb3e224b41c85065cb3002ad0b24e31db535/test/fixtures/templates/bad/route53.yaml"
+    },
+    {
+      "after": "both-reject",
+      "after_cue_ms": 43,
+      "before": "cue-accepts-lint-rejects",
+      "before_cue_ms": 44,
+      "id": "f0f1ee07038a6197",
+      "path": "tests/examples_output/S3_Website_Bucket_With_Retain_On_Delete.template",
+      "region": "us-east-1",
+      "url": "https://github.com/cloudtools/troposphere/blob/8cd7a25e5d3c65aee7e3e12d7abf9465c4a0d3c8/tests/examples_output/S3_Website_Bucket_With_Retain_On_Delete.template"
+    }
+  ],
+  "evaluations": 1101,
+  "memory_soft_target": "2GiB",
+  "timeout_seconds": 6.0,
+  "transitions": [
+    {
+      "after": "both-accept",
+      "before": "both-accept",
+      "count": 537
+    },
+    {
+      "after": "both-reject",
+      "before": "both-reject",
+      "count": 138
+    },
+    {
+      "after": "cue-unsupported",
+      "before": "both-reject",
+      "count": 1
+    },
+    {
+      "after": "cue-accepts-lint-lifecycle-only",
+      "before": "cue-accepts-lint-lifecycle-only",
+      "count": 250
+    },
+    {
+      "after": "both-reject",
+      "before": "cue-accepts-lint-rejects",
+      "count": 6
+    },
+    {
+      "after": "cue-accepts-lint-rejects",
+      "before": "cue-accepts-lint-rejects",
+      "count": 60
+    },
+    {
+      "after": "cue-rejects-lint-accepts",
+      "before": "cue-rejects-lint-accepts",
+      "count": 18
+    },
+    {
+      "after": "cue-unsupported",
+      "before": "cue-unsupported",
+      "count": 82
+    },
+    {
+      "after": "normalization-error",
+      "before": "normalization-error",
+      "count": 9
+    }
+  ]
+}

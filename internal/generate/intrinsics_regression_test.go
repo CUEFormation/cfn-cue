@@ -134,7 +134,7 @@ func TestIntrinsicConditionalQuotedScalars(t *testing.T) {
 		{"numberInvalid", "#NumberExpression", `{"Fn::If":["Enabled","twenty-two",2]}`, false},
 		{"booleanInvalid", "#BooleanExpression", `{"Fn::If":["Enabled","yes",false]}`, false},
 		{"arity", "#NumberExpression", `{"Fn::If":["Enabled","22"]}`, false},
-		{"stringNativeNumber", "#StringExpression", `{"Fn::If":["Enabled",22,"two"]}`, false},
+		{"stringNativeNumber", "#StringExpression", `{"Fn::If":["Enabled",22,"two"]}`, true},
 		{"reservedFunction", "#NumberExpression", `{"Fn::If":["Enabled",{"Fn::Bogus":"22"},2]}`, false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

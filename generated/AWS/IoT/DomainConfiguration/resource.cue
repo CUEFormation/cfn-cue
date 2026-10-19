@@ -4,10 +4,9 @@ package DomainConfiguration
 
 import schema "github.com/cueformation/cfn-cue/resources/hecae0ee7068b46f4:schema"
 
-#Resource:                 schema.#Resource
-#AuthorizerConfig:         schema.#AuthorizerConfig
-#ClientCertificateConfig:  schema.#ClientCertificateConfig
-#ServerCertificateConfig:  schema.#ServerCertificateConfig
-#ServerCertificateSummary: schema.#ServerCertificateSummary
-#Tag:                      schema.#Tag
-#TlsConfig:                schema.#TlsConfig
+#Resource:                schema.#Resource
+#AuthorizerConfig:        schema.#AuthorizerConfig
+#ClientCertificateConfig: schema.#ClientCertificateConfig
+#ServerCertificateConfig: schema.#ServerCertificateConfig
+#Tag:                     schema.#Tag
+#TlsConfig:               schema.#TlsConfig

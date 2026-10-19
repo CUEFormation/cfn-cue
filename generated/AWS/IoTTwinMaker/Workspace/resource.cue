@@ -4,5 +4,4 @@ package Workspace
 
 import schema "github.com/cueformation/cfn-cue/resources/h018fdc19d92df05d:schema"
 
-#Resource:       schema.#Resource
-#DateTimeFormat: schema.#DateTimeFormat
+#Resource: schema.#Resource

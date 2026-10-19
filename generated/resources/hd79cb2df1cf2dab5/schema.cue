@@ -7,25 +7,65 @@ import (
 	"list"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::MemoryDB::ParameterGroup resource creates an Amazon MemoryDB ParameterGroup.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MemoryDB::ParameterGroup"
-	Properties!: close({
-		Description?:        string | fn.#StringExpression
-		Family!:             string | fn.#StringExpression
-		ParameterGroupName!: string | fn.#StringExpression
-		Parameters?:         fn.#Object & {...} | string | fn.#StringObjectExpression
+	let properties = close({
+		Description?:        string | number | bool | fn.#StringExpression
+		Family!:             string | number | bool | fn.#StringExpression
+		ParameterGroupName!: string | number | bool | fn.#StringExpression
+		Parameters?:         fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		Tags?:               list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]{1,128}$" &
+	matchN(0, [=~"^(?:aws:)"]) &
+	string &
+	matchN(0, [=~"^(?:memorydb:)"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]{1,128}$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		matchN(0, [=~"^(?:memorydb:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]{1,256}$" &
+	matchN(0, [=~"^(?:aws:)"]) &
+	string &
+	matchN(0, [=~"^(?:memorydb:)"]) &
+	string &
+	strings.MaxRunes(256) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]{1,256}$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		matchN(0, [=~"^(?:memorydb:)"]) &
+		string &
+		strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

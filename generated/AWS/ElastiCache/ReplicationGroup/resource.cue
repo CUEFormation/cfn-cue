@@ -7,7 +7,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h4eaa9c534366089c:schem
 #Resource:                          schema.#Resource
 #CloudWatchLogsDestinationDetails:  schema.#CloudWatchLogsDestinationDetails
 #DestinationDetails:                schema.#DestinationDetails
-#Endpoint:                          schema.#Endpoint
 #KinesisFirehoseDestinationDetails: schema.#KinesisFirehoseDestinationDetails
 #LogDeliveryConfigurationRequest:   schema.#LogDeliveryConfigurationRequest
 #NodeGroupConfiguration:            schema.#NodeGroupConfiguration

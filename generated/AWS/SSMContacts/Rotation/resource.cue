@@ -6,7 +6,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h58ddc3ba9929d605:schem
 
 #Resource:           schema.#Resource
 #CoverageTime:       schema.#CoverageTime
-#DailySetting:       schema.#DailySetting
 #DayOfWeek:          schema.#DayOfWeek
 #HandOffTime:        schema.#HandOffTime
 #MonthlySetting:     schema.#MonthlySetting

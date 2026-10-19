@@ -36,7 +36,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h55084ac78d9eab9f:schem
 #PutItemInput:               schema.#PutItemInput
 #RepublishAction:            schema.#RepublishAction
 #RepublishActionHeaders:     schema.#RepublishActionHeaders
-#RoleArn:                    schema.#RoleArn
 #S3Action:                   schema.#S3Action
 #SigV4Authorization:         schema.#SigV4Authorization
 #SnsAction:                  schema.#SnsAction

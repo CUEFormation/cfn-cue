@@ -6,8 +6,8 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -36,22 +36,67 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Policies](https://docs.aws.amazon.com/lambda/latest/dg/access-control-resource-based.html).
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lambda::Permission"
-	Properties!: close({
+	let properties = close({
 		Action!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(lambda:[*]|lambda:[a-zA-Z]+|[*])$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(1) &
+			=~"^(lambda:[*]|lambda:[a-zA-Z]+|[*])$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		EventSourceToken?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._\\-]+$" | fn.#StringExpression
+		EventSourceToken?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._\\-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._\\-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		FunctionName!: strings.MaxRunes(140) &
 		strings.MinRunes(1) &
 		=~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_]+))?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(140) &
+			strings.MinRunes(1) &
+			=~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_]+))?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		FunctionUrlAuthType?:   "AWS_IAM" | "NONE" | fn.#StringExpression
 		InvokedViaFunctionUrl?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Principal!:             strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-		PrincipalOrgID?: strings.MaxRunes(34) & strings.MinRunes(12) & =~"^o-[a-z0-9]{10,32}$" | fn.#StringExpression
-		SourceAccount?:  strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" | fn.#StringExpression
+		Principal!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^.*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		PrincipalOrgID?: strings.MaxRunes(34) & strings.MinRunes(12) & =~"^o-[a-z0-9]{10,32}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(34) & strings.MinRunes(12) & =~"^o-[a-z0-9]{10,32}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SourceAccount?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		SourceArn?: strings.MaxRunes(1024) &
 		strings.MinRunes(12) &
 		=~"^arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(12) &
+			=~"^arn:(aws[a-zA-Z0-9-]*):([a-zA-Z0-9\\-])+:((eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1})?:(\\d{12})?:(.*)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

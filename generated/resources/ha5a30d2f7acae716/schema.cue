@@ -7,30 +7,42 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a rule for the specified CON instance.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::Rule"
-	Properties!: close({
+	let properties = close({
 		// A list of actions to be run when the rule is triggered.
-		Actions!:     #Actions
-		Function!:    string | fn.#StringExpression
-		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-		Name!:        =~"^[a-zA-Z0-9._-]{1,200}$" | fn.#StringExpression
+		Actions!:  #Actions
+		Function!: string | number | bool | fn.#StringExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: =~"^[a-zA-Z0-9._-]{1,200}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9._-]{1,200}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		PublishStatus!: "DRAFT" | "PUBLISHED" | fn.#StringExpression
 		Tags?:          list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 
 		// The event source to trigger the rule.
 		TriggerEventSource!: #RuleTriggerEventSource
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Actions: close({
@@ -56,7 +68,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#AssignContactCategoryAction: fn.#Object & {...} | string | fn.#StringObjectExpression
+#AssignContactCategoryAction: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 #AssignContactCategoryActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
 	...#AssignContactCategoryAction
@@ -65,8 +77,18 @@ fn.#ObjectExpression
 
 #AssignSlaAction: close({
 	CaseSlaConfiguration!: close({
-		FieldId?:           strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-		Name!:              strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+		FieldId?: strings.MaxRunes(500) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(500) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		TargetFieldValues?: list.MaxItems(1) & [...#SlaTargetFieldValue] | fn.#ListExpression
 		TargetSlaMinutes!: <=1051200 & >=1 |
 			{
@@ -98,26 +120,44 @@ fn.#ObjectExpression
 #AssignSlaActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#AssignSlaAction] | fn.#ListExpression
 
 #CreateCaseAction: close({
-	Fields!:     #Fields
-	TemplateId!: strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+	Fields!: #Fields
+	TemplateId!: strings.MaxRunes(500) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CreateCaseActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#CreateCaseAction] |
 	fn.#ListExpression
 
-#EndAssociatedTasksAction: fn.#Object & {...} | string | fn.#StringObjectExpression
+#EndAssociatedTasksAction: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 #EndAssociatedTasksActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#EndAssociatedTasksAction] |
 	fn.#ListExpression
 
-#EventBridgeAction: close({Name!: =~"^[a-zA-Z0-9._-]{1,100}$" | fn.#StringExpression}) | fn.#ObjectExpression
+#EventBridgeAction: close({
+	Name!: =~"^[a-zA-Z0-9._-]{1,100}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9._-]{1,100}$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #EventBridgeActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#EventBridgeAction] |
 	fn.#ListExpression
 
 #Field: close({
-	Id!:    strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+	Id!: strings.MaxRunes(500) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Value!: #FieldValue
 }) |
 fn.#ObjectExpression
@@ -143,8 +183,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	EmptyValue?:  fn.#Object & {...} | string | fn.#StringObjectExpression
-	StringValue?: string | fn.#StringExpression
+	EmptyValue?:  fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+	StringValue?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -159,14 +199,24 @@ fn.#ObjectExpression
 	[...] |
 	close({
 
-		{[=~"^.{1,128}$"]: string | fn.#StringExpression}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{[=~"^.{1,128}$"]: string | number | bool | fn.#StringExpression}
+	}) |
 	fn.#ValueExpression
 }) |
 fn.#ObjectExpression
 
 #Reference: close({
-	Type!:  "URL" | "ATTACHMENT" | "NUMBER" | "STRING" | "DATE" | "EMAIL" | fn.#StringExpression
-	Value!: =~"^(/|https:)" | fn.#StringExpression
+	Type!: "URL" | "ATTACHMENT" | "NUMBER" | "STRING" | "DATE" | "EMAIL" | fn.#StringExpression
+	Value!: =~"^(/|https:)" |
+	{
+		number | bool
+		_cfnString: =~"^(/|https:)" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -189,32 +239,52 @@ fn.#ObjectExpression
 		"OnScheduleTimeOffRequestActivity" |
 		fn.#StringExpression
 	IntegrationAssociationArn?: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/integration-association/[-a-zA-Z0-9]*$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/integration-association/[-a-zA-Z0-9]*$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SendNotificationAction: close({
-	Content!:        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Content!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ContentType!:    "PLAIN_TEXT" | fn.#StringExpression
 	DeliveryMethod!: "EMAIL" | fn.#StringExpression
 	Exclusion?:      #NotificationRecipientType
 
 	// Notification recipient.
 	Recipient!: #NotificationRecipientType
-	Subject?:   strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+	Subject?: strings.MaxRunes(200) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SendNotificationActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#SendNotificationAction] |
 	fn.#ListExpression
 
-#SlaTargetFieldValue: close({StringValue?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#SlaTargetFieldValue: close({StringValue?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #SubmitAutoEvaluationAction: close({
 	EvaluationFormArn!: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/evaluation-form/[-a-zA-Z0-9]*$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/evaluation-form/[-a-zA-Z0-9]*$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression
 
 #SubmitAutoEvaluationActions: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [
 	...#SubmitAutoEvaluationAction
@@ -222,16 +292,41 @@ fn.#ObjectExpression
 	fn.#ListExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z+-=._:/]+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z+-=._:/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z+-=._:/]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TaskAction: close({
 	ContactFlowArn!: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*$" |
-		fn.#StringExpression
-	Description?: strings.MaxRunes(4096) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/contact-flow/[-a-zA-Z0-9]*$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
+	Description?: strings.MaxRunes(4096) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	References?: null |
 	bool |
 	number |
@@ -239,7 +334,12 @@ fn.#ObjectExpression
 	[...] |
 	close({
 
-		{[=~"^.+$"]: #Reference}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{[=~"^.+$"]: #Reference}
+	}) |
 	fn.#ValueExpression
 }) |
 fn.#ObjectExpression
@@ -252,4 +352,9 @@ fn.#ObjectExpression
 	fn.#ListExpression
 
 #UserArn: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent/[-a-zA-Z0-9]*$|^\\$\\..+$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^$|arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/agent/[-a-zA-Z0-9]*$|^\\$\\..+$" &
+		"\(self)"
+} |
+fn.#StringExpression

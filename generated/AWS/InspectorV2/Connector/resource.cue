@@ -4,15 +4,7 @@ package Connector
 
 import schema "github.com/cueformation/cfn-cue/resources/hdb56896404e619ab:schema"
 
-#Resource:                   schema.#Resource
-#AzureProviderConfiguration: schema.#AzureProviderConfiguration
-#AzureScopeConfigurationMap: schema.#AzureScopeConfigurationMap
-#CloudProvider:              schema.#CloudProvider
-#ConnectorHealth:            schema.#ConnectorHealth
-#ConnectorHealthStatus:      schema.#ConnectorHealthStatus
-#ConnectorState:             schema.#ConnectorState
-#ProviderConfiguration:      schema.#ProviderConfiguration
-#ScopeConfiguration:         schema.#ScopeConfiguration
-#ScopeState:                 schema.#ScopeState
-#ScopeType:                  schema.#ScopeType
-#Tag:                        schema.#Tag
+#Resource:      schema.#Resource
+#CloudProvider: schema.#CloudProvider
+#ScopeType:     schema.#ScopeType
+#Tag:           schema.#Tag

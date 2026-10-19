@@ -6,12 +6,8 @@ import schema "github.com/cueformation/cfn-cue/resources/h0b63587608f8d57b:schem
 
 #Resource:                            schema.#Resource
 #AgentManagedRuntimeType:             schema.#AgentManagedRuntimeType
-#AgentRuntimeArn:                     schema.#AgentRuntimeArn
 #AgentRuntimeArtifact:                schema.#AgentRuntimeArtifact
-#AgentRuntimeId:                      schema.#AgentRuntimeId
 #AgentRuntimeName:                    schema.#AgentRuntimeName
-#AgentRuntimeVersion:                 schema.#AgentRuntimeVersion
-#AgentStatus:                         schema.#AgentStatus
 #AllowedAudience:                     schema.#AllowedAudience
 #AllowedAudienceList:                 schema.#AllowedAudienceList
 #AllowedClient:                       schema.#AllowedClient
@@ -27,11 +23,9 @@ import schema "github.com/cueformation/cfn-cue/resources/h0b63587608f8d57b:schem
 #CapacityProviderVolumeName:          schema.#CapacityProviderVolumeName
 #ClaimMatchOperator:                  schema.#ClaimMatchOperator
 #ClaimMatchValueType:                 schema.#ClaimMatchValueType
-#ClientToken:                         schema.#ClientToken
 #Code:                                schema.#Code
 #CodeConfiguration:                   schema.#CodeConfiguration
 #ContainerConfiguration:              schema.#ContainerConfiguration
-#CreatedAt:                           schema.#CreatedAt
 #CustomClaimValidationType:           schema.#CustomClaimValidationType
 #CustomClaimsList:                    schema.#CustomClaimsList
 #CustomJWTAuthorizerConfiguration:    schema.#CustomJWTAuthorizerConfiguration
@@ -40,8 +34,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h0b63587608f8d57b:schem
 #EfsAccessPointArn:                   schema.#EfsAccessPointArn
 #EfsAccessPointConfiguration:         schema.#EfsAccessPointConfiguration
 #EntryPoints:                         schema.#EntryPoints
-#EnvironmentVariableKey:              schema.#EnvironmentVariableKey
-#EnvironmentVariableValue:            schema.#EnvironmentVariableValue
 #EnvironmentVariablesMap:             schema.#EnvironmentVariablesMap
 #FilesystemConfiguration:             schema.#FilesystemConfiguration
 #FilesystemConfigurations:            schema.#FilesystemConfigurations
@@ -50,7 +42,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h0b63587608f8d57b:schem
 #HostingEnvironmentsList:             schema.#HostingEnvironmentsList
 #InboundTokenClaimName:               schema.#InboundTokenClaimName
 #InboundTokenClaimValueType:          schema.#InboundTokenClaimValueType
-#LastUpdatedAt:                       schema.#LastUpdatedAt
 #LifecycleConfiguration:              schema.#LifecycleConfiguration
 #ManagedVpcResource:                  schema.#ManagedVpcResource
 #MatchValueString:                    schema.#MatchValueString
@@ -79,5 +70,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h0b63587608f8d57b:schem
 #TagsMap:                             schema.#TagsMap
 #VpcConfig:                           schema.#VpcConfig
 #WorkloadIdentitiesList:              schema.#WorkloadIdentitiesList
-#WorkloadIdentityArn:                 schema.#WorkloadIdentityArn
-#WorkloadIdentityDetails:             schema.#WorkloadIdentityDetails

@@ -18,9 +18,19 @@ import (
 	=~"^arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:service/svc-[0-9a-z]{17}/listener/listener-[0-9a-z]{17}$"
 	DefaultAction!: #DefaultAction
 	Id?:            strings.MaxRunes(26) & strings.MinRunes(26) & =~"^listener-[0-9a-z]{17}$"
-	Name?:          strings.MaxRunes(63) & strings.MinRunes(3)
-	Port?:          int & <=65535 & >=1
-	Protocol!:      "HTTP" | "HTTPS" | "TLS_PASSTHROUGH"
+	Name?: =~"^[a-z0-9-]+$" &
+	matchN(0, [=~"^(?:listener-)"]) &
+	string &
+	matchN(0, [=~"^(?:[-])"]) &
+	string &
+	matchN(0, [=~"^(?:.*[-]$)"]) &
+	string &
+	matchN(0, [=~"^(?:.*[-]{2})"]) &
+	string &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3)
+	Port?:     int & <=65535 & >=1
+	Protocol!: "HTTP" | "HTTPS" | "TLS_PASSTHROUGH"
 	ServiceArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(21) &
 	=~"^arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:service/svc-[0-9a-z]{17}$"

@@ -1,0 +1,25 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "id",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "id",
+            "KeyType": "HASH"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": "0",
+          "WriteCapacityUnits": "5"
+        }
+      },
+      "Type": "AWS::DynamoDB::Table"
+    }
+  }
+}

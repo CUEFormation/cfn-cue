@@ -9,4 +9,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h69770719902b8e29:schem
 #EncryptionConfiguration: schema.#EncryptionConfiguration
 #JobBookmarksEncryption:  schema.#JobBookmarksEncryption
 #S3Encryption:            schema.#S3Encryption
-#S3Encryptions:           schema.#S3Encryptions

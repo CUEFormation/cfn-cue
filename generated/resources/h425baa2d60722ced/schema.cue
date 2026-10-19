@@ -3,30 +3,32 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaLive::SdiSource Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaLive::SdiSource"
-	Properties!: close({
+	let properties = close({
 		Mode?: #SdiSourceMode
-		Name!: string | fn.#StringExpression
+		Name!: string | number | bool | fn.#StringExpression
 		Tags?: [...#Tags] | fn.#ListExpression
 		Type!: #SdiSourceType
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #SdiSourceMode: "QUADRANT" | "INTERLEAVE" | fn.#StringExpression
 
-#SdiSourceState: "IDLE" | "IN_USE" | "DELETED" | fn.#StringExpression
-
 #SdiSourceType: "SINGLE" | "QUAD" | fn.#StringExpression
 
 #Tags: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

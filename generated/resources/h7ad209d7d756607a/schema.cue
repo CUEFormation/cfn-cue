@@ -3,49 +3,56 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApiGatewayV2::Stage
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGatewayV2::Stage"
-	Properties!: close({
+	let properties = close({
 		// Settings for logging access in this stage.
 		AccessLogSettings?:   #AccessLogSettings
-		ApiId!:               string | fn.#StringExpression
+		ApiId!:               string | number | bool | fn.#StringExpression
 		AutoDeploy?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ClientCertificateId?: string | fn.#StringExpression
+		ClientCertificateId?: string | number | bool | fn.#StringExpression
 
 		// The default route settings for the stage.
 		DefaultRouteSettings?: #RouteSettings
-		DeploymentId?:         string | fn.#StringExpression
-		Description?:          string | fn.#StringExpression
-		RouteSettings?:        fn.#Object & {...} | string | fn.#StringObjectExpression
-		StageName!:            string | fn.#StringExpression
-		StageVariables?:       fn.#Object & {...} | string | fn.#StringObjectExpression
+		DeploymentId?:         string | number | bool | fn.#StringExpression
+		Description?:          string | number | bool | fn.#StringExpression
+		RouteSettings?:        fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		StageName!:            string | number | bool | fn.#StringExpression
+		StageVariables?:       fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		Tags?: close({
 
-			{[=~".*"]: string | fn.#StringExpression}}) |
+			{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AccessLogSettings: close({
-	DestinationArn?: string | fn.#StringExpression
-	Format?:         string | fn.#StringExpression
+	DestinationArn?: string | number | bool | fn.#StringExpression
+	Format?:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RouteSettings: close({
 	DataTraceEnabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DetailedMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LoggingLevel?:           string | fn.#StringExpression
+	LoggingLevel?:           string | number | bool | fn.#StringExpression
 	ThrottlingBurstLimit?: int |
 		{
 			string &

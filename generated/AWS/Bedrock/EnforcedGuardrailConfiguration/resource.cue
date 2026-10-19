@@ -5,6 +5,5 @@ package EnforcedGuardrailConfiguration
 import schema "github.com/cueformation/cfn-cue/resources/h50d30b4fbe9565ed:schema"
 
 #Resource:                 schema.#Resource
-#ConfigOwner:              schema.#ConfigOwner
 #ModelEnforcement:         schema.#ModelEnforcement
 #SelectiveContentGuarding: schema.#SelectiveContentGuarding

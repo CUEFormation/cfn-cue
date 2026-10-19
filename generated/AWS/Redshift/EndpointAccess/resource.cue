@@ -4,6 +4,4 @@ package EndpointAccess
 
 import schema "github.com/cueformation/cfn-cue/resources/h6297fd8c4752122e:schema"
 
-#Resource:         schema.#Resource
-#NetworkInterface: schema.#NetworkInterface
-#VpcSecurityGroup: schema.#VpcSecurityGroup
+#Resource: schema.#Resource

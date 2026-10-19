@@ -5,12 +5,7 @@ package FHIRDatastore
 import schema "github.com/cueformation/cfn-cue/resources/h279712b535c6ebd9:schema"
 
 #Resource:                      schema.#Resource
-#CreatedAt:                     schema.#CreatedAt
-#DatastoreArn:                  schema.#DatastoreArn
-#DatastoreEndpoint:             schema.#DatastoreEndpoint
-#DatastoreId:                   schema.#DatastoreId
 #DatastoreName:                 schema.#DatastoreName
-#DatastoreStatus:               schema.#DatastoreStatus
 #DatastoreTypeVersion:          schema.#DatastoreTypeVersion
 #IdentityProviderConfiguration: schema.#IdentityProviderConfiguration
 #KmsEncryptionConfig:           schema.#KmsEncryptionConfig

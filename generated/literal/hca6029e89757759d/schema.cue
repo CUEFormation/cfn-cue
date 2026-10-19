@@ -54,7 +54,10 @@ import "strings"
 	// (-). The alias name cannot begin with ``alias/aws/``. The ``alias/aws/``
 	// prefix is reserved for
 	// [](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#aws-managed-cmk).
-	AliasName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(alias/)[a-zA-Z0-9:/_-]+$"
+	AliasName!: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" &
+	strings.MaxRunes(256) &
+	strings.MinRunes(1) &
+	=~"^(alias/)[a-zA-Z0-9:/_-]+$"
 
 	// Associates the alias with the specified
 	// [](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#customer-cmk).

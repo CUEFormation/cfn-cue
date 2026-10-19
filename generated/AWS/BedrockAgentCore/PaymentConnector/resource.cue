@@ -7,6 +7,5 @@ import schema "github.com/cueformation/cfn-cue/resources/h76f08cafdc82a25e:schem
 #Resource:                               schema.#Resource
 #CredentialsProviderConfiguration:       schema.#CredentialsProviderConfiguration
 #PaymentConnectorProvisionMode:          schema.#PaymentConnectorProvisionMode
-#PaymentConnectorStatus:                 schema.#PaymentConnectorStatus
 #PaymentConnectorType:                   schema.#PaymentConnectorType
 #PaymentCredentialProviderConfiguration: schema.#PaymentCredentialProviderConfiguration

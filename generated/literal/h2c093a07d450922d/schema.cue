@@ -28,8 +28,8 @@ import (
 })
 
 #Tag: close({
-	Key?:   strings.MaxRunes(127) & strings.MinRunes(1)
-	Value?: strings.MaxRunes(255) & strings.MinRunes(1)
+	Key?:   matchN(0, [=~"^(?:aws:.*)"]) & string & strings.MaxRunes(127) & strings.MinRunes(1)
+	Value?: matchN(0, [=~"^(?:aws:.*)"]) & string & strings.MaxRunes(255) & strings.MinRunes(1)
 })
 
 #Tags: list.UniqueItems() & [...#Tag]

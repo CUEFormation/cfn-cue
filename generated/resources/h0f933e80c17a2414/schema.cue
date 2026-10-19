@@ -3,23 +3,21 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::CapacityReservation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::CapacityReservation"
-	Properties!: close({
-		AvailabilityZone?:   string | fn.#StringExpression
-		AvailabilityZoneId?: string | fn.#StringExpression
+	let properties = close({
+		AvailabilityZone?:   string | number | bool | fn.#StringExpression
+		AvailabilityZoneId?: string | number | bool | fn.#StringExpression
 		EbsOptimized?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		EndDate?:            string | fn.#StringExpression
+		EndDate?:            string | number | bool | fn.#StringExpression
 		EndDateType?:        "limited" | "unlimited" | fn.#StringExpression
 		EphemeralStorage?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		InstanceCount!: int |
@@ -58,38 +56,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"Windows with SQL Server Standard" |
 			"Windows with SQL Server Web" |
 			fn.#StringExpression
-		InstanceType!: string | fn.#StringExpression
-		OutPostArn?: =~"^arn:aws([a-z-]+)?:outposts:[a-z\\d-]+:\\d{12}:outpost/op-[a-f0-9]{17}$" | fn.#StringExpression
+		InstanceType!: string | number | bool | fn.#StringExpression
+		OutPostArn?: =~"^arn:aws([a-z-]+)?:outposts:[a-z\\d-]+:\\d{12}:outpost/op-[a-f0-9]{17}$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws([a-z-]+)?:outposts:[a-z\\d-]+:\\d{12}:outpost/op-[a-f0-9]{17}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		PlacementGroupArn?: =~"^arn:aws([a-z-]+)?:ec2:[a-z\\d-]+:\\d{12}:placement-group/^.{1,255}$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws([a-z-]+)?:ec2:[a-z\\d-]+:\\d{12}:placement-group/^.{1,255}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		TagSpecifications?:               [...#TagSpecification] | fn.#ListExpression
 		Tenancy?:                         "dedicated" | "default" | fn.#StringExpression
-		UnusedReservationBillingOwnerId?: string | fn.#StringExpression
+		UnusedReservationBillingOwnerId?: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#CapacityAllocation: close({
-	AllocationType?: string | fn.#StringExpression
-	Count?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

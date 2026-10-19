@@ -3,19 +3,23 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for ManagedNotificationAccountContactAssociation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Notifications::ManagedNotificationAccountContactAssociation"
-	Properties!: close({
+	let properties = close({
 		ContactIdentifier!:                   #ContactIdentifier
 		IsSensitiveEventsSubscribed?:         #IsSensitiveEventsSubscribed
 		ManagedNotificationConfigurationArn!: #ManagedNotificationConfigurationArn
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ContactIdentifier: "ACCOUNT_PRIMARY" |
@@ -27,4 +31,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #IsSensitiveEventsSubscribed: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 #ManagedNotificationConfigurationArn: =~"^arn:[a-z-]{3,10}:notifications::([0-9]{12}|):managed-notification-configuration/category/[a-zA-Z0-9\\-]{3,64}/sub-category/[a-zA-Z0-9\\-]{3,64}$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^arn:[a-z-]{3,10}:notifications::([0-9]{12}|):managed-notification-configuration/category/[a-zA-Z0-9\\-]{3,64}/sub-category/[a-zA-Z0-9\\-]{3,64}$" &
+		"\(self)"
+} |
+fn.#StringExpression

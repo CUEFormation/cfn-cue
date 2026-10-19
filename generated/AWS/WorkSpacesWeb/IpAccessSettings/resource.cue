@@ -8,4 +8,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h8d2a8acae8a74d23:schem
 #EncryptionContextMap: schema.#EncryptionContextMap
 #IpRule:               schema.#IpRule
 #Tag:                  schema.#Tag
-#Unit:                 schema.#Unit

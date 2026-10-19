@@ -7,19 +7,17 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This resource represents a schema of Glue Schema Registry.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::Schema"
-	Properties!: close({
+	let properties = close({
 		CheckpointVersion?: #SchemaVersion
 		Compatibility!: "NONE" |
 			"DISABLED" |
@@ -30,18 +28,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"FULL" |
 			"FULL_ALL" |
 			fn.#StringExpression
-		DataFormat!:       "AVRO" | "JSON" | "PROTOBUF" | fn.#StringExpression
-		Description?:      strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-		Name!:             strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Registry?:         #Registry
-		SchemaDefinition?: strings.MaxRunes(170000) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-		Tags?:             list.MaxItems(10) & [...] & [...#Tag] | fn.#ListExpression
+		DataFormat!: "AVRO" | "JSON" | "PROTOBUF" | fn.#StringExpression
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Registry?: #Registry
+		SchemaDefinition?: strings.MaxRunes(170000) & strings.MinRunes(1) & =~"\\S" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(170000) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(10) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Registry: close({
-	Arn?:  =~"arn:aws(-(cn|us-gov|iso(-[bef])?))?:glue:.*" | fn.#StringExpression
-	Name?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Arn?: =~"arn:aws(-(cn|us-gov|iso(-[bef])?))?:glue:.*" |
+	{
+		number | bool
+		_cfnString: =~"arn:aws(-(cn|us-gov|iso(-[bef])?))?:glue:.*" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -67,7 +94,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

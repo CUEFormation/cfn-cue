@@ -6,8 +6,8 @@ package schema
 
 // Resource Type definition for AWS::ElastiCache::SecurityGroupIngress
 #Properties: close({
-	CacheSecurityGroupName!:  string
-	EC2SecurityGroupName!:    string
+	CacheSecurityGroupName!:  =~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$"
+	EC2SecurityGroupName!:    =~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$"
 	EC2SecurityGroupOwnerId?: string
 	Id?:                      string
 })

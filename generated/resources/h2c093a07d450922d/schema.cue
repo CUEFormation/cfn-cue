@@ -7,25 +7,43 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for Carrier Gateway which describes the Carrier Gateway resource
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::CarrierGateway"
-	Properties!: close({
+	let properties = close({
 		// The tags for the carrier gateway.
 		Tags?: #Tags
-		VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key?:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Key?: matchN(0, [=~"^(?:aws:.*)"]) & string & strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: matchN(0, [=~"^(?:aws:.*)"]) & string & strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: matchN(0, [=~"^(?:aws:.*)"]) & string & strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: matchN(0, [=~"^(?:aws:.*)"]) & string & strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

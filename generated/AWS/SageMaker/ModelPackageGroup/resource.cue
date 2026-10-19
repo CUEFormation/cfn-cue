@@ -5,7 +5,6 @@ package ModelPackageGroup
 import schema "github.com/cueformation/cfn-cue/resources/h2eb83da727ca85c0:schema"
 
 #Resource:                     schema.#Resource
-#ModelPackageGroupArn:         schema.#ModelPackageGroupArn
 #ModelPackageGroupDescription: schema.#ModelPackageGroupDescription
 #ModelPackageGroupName:        schema.#ModelPackageGroupName
 #Tag:                          schema.#Tag

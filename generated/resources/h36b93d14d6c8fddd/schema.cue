@@ -7,19 +7,17 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ImageBuilder::ContainerRecipe
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ImageBuilder::ContainerRecipe"
-	Properties?: {
+	let properties = {
 		Name!:             _
 		Version!:          _
 		ParentImage!:      _
@@ -27,44 +25,109 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ContainerType!:    _
 		...
 	} & close({
-		Components?:             list.MinItems(1) & [...#ComponentConfiguration] | fn.#ListExpression
-		ContainerType?:          "DOCKER" | fn.#StringExpression
-		Description?:            strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		DockerfileTemplateData?: strings.MaxRunes(16000) & strings.MinRunes(1) & =~"^[^\\x00]+$" | fn.#StringExpression
-		DockerfileTemplateUri?:  string | fn.#StringExpression
-		ImageOsVersionOverride?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Components?:    list.MinItems(1) & [...#ComponentConfiguration] | fn.#ListExpression
+		ContainerType?: "DOCKER" | fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		DockerfileTemplateData?: strings.MaxRunes(16000) & strings.MinRunes(1) & =~"^[^\\x00]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(16000) & strings.MinRunes(1) & =~"^[^\\x00]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DockerfileTemplateUri?: string | number | bool | fn.#StringExpression
+		ImageOsVersionOverride?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// A group of options that can be used to configure an instance for building and
 		// testing container images.
 		InstanceConfiguration?: #InstanceConfiguration
-		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string) & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+				=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+				=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+			strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name?:             =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
-		ParentImage?:      strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Name?: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" |
+		{
+			number | bool
+			_cfnString: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ParentImage?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		PlatformOverride?: "Windows" | "Linux" | fn.#StringExpression
 		Tags?: close({
 
-			{[=~".{1,}"]: string | fn.#StringExpression}}) |
+			{[=~".{1,}"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 
 		// The destination repository for the container image.
 		TargetRepository?: #TargetContainerRepository
-		Version?:          string | fn.#StringExpression
-		WorkingDirectory?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Version?:          string | number | bool | fn.#StringExpression
+		WorkingDirectory?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #ComponentConfiguration: close({
 	ComponentArn?: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws(?:-[a-z-]+)?|third-party):component/[a-z0-9-_]+/(?:(?:([0-9]+|x)\\.([0-9]+|x)\\.([0-9]+|x))|(?:[0-9]+\\.[0-9]+\\.[0-9]+/[0-9]+))$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[^:]*:imagebuilder:[^:]+:(?:[0-9]{12}|aws(?:-[a-z-]+)?|third-party):component/[a-z0-9-_]+/(?:(?:([0-9]+|x)\\.([0-9]+|x)\\.([0-9]+|x))|(?:[0-9]+\\.[0-9]+\\.[0-9]+/[0-9]+))$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	Parameters?: list.MinItems(1) & [...#ComponentParameter] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #ComponentParameter: close({
-	Name!:  strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x00]+$" | fn.#StringExpression
-	Value!: [...strings.MinRunes(0) & =~"^[^\\x00]*$" | fn.#StringExpression] | fn.#ListExpression
+	Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x00]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x00]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: [...strings.MinRunes(0) & =~"^[^\\x00]*$" |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(0) & =~"^[^\\x00]*$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -87,10 +150,25 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	SnapshotId?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	SnapshotId?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Throughput?: int & <=1000 & >=125 |
 		{
 			string &
@@ -128,31 +206,48 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #InstanceBlockDeviceMapping: close({
-	DeviceName?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	DeviceName?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// Use to manage Amazon EBS-specific configuration for this mapping.
-	Ebs?:         #EbsInstanceBlockDeviceSpecification
-	NoDevice?:    strings.MaxRunes(0) & strings.MinRunes(0) | fn.#StringExpression
-	VirtualName?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Ebs?: #EbsInstanceBlockDeviceSpecification
+	NoDevice?: strings.MaxRunes(0) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(0) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	VirtualName?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #InstanceConfiguration: close({
 	BlockDeviceMappings?: [...#InstanceBlockDeviceMapping] | fn.#ListExpression
-	Image?:               strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#LatestVersion: close({
-	Arn?:   string | fn.#StringExpression
-	Major?: string | fn.#StringExpression
-	Minor?: string | fn.#StringExpression
-	Patch?: string | fn.#StringExpression
+	Image?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TargetContainerRepository: close({
-	RepositoryName?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Service?:        "ECR" | fn.#StringExpression
+	RepositoryName?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Service?: "ECR" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

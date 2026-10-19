@@ -8,7 +8,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hd9b6820ae8f3320f:schem
 #DnsSecValidationType:      schema.#DnsSecValidationType
 #EdnsClientSubnetType:      schema.#EdnsClientSubnetType
 #FirewallRulesFailOpenType: schema.#FirewallRulesFailOpenType
-#ProfileResourceStatus:     schema.#ProfileResourceStatus
 #ResourceDescription:       schema.#ResourceDescription
 #ResourceName:              schema.#ResourceName
 #Tag:                       schema.#Tag

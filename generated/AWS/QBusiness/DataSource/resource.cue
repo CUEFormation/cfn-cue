@@ -8,7 +8,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h9af3fd84049a9894:schem
 #AttributeValueOperator:                schema.#AttributeValueOperator
 #AudioExtractionConfiguration:          schema.#AudioExtractionConfiguration
 #AudioExtractionStatus:                 schema.#AudioExtractionStatus
-#DataSourceStatus:                      schema.#DataSourceStatus
 #DataSourceVpcConfiguration:            schema.#DataSourceVpcConfiguration
 #DocumentAttributeCondition:            schema.#DocumentAttributeCondition
 #DocumentAttributeTarget:               schema.#DocumentAttributeTarget

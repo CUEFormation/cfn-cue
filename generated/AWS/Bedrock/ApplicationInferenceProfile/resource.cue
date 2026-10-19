@@ -5,9 +5,5 @@ package ApplicationInferenceProfile
 import schema "github.com/cueformation/cfn-cue/resources/h61a88c281d07a14a:schema"
 
 #Resource:                    schema.#Resource
-#InferenceProfileModel:       schema.#InferenceProfileModel
 #InferenceProfileModelSource: schema.#InferenceProfileModelSource
-#InferenceProfileStatus:      schema.#InferenceProfileStatus
-#InferenceProfileType:        schema.#InferenceProfileType
 #Tag:                         schema.#Tag
-#Unit:                        schema.#Unit

@@ -6,21 +6,25 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GuardDuty::Detector
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GuardDuty::Detector"
-	Properties!: close({
+	let properties = close({
 		DataSources?: #CFNDataSourceConfigurations
 		Enable!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Features?:    [...#CFNFeatureConfiguration] | fn.#ListExpression
 		FindingPublishingFrequency?: "FIFTEEN_MINUTES" | "ONE_HOUR" | "SIX_HOURS" | fn.#StringExpression
 		Tags?:                       [...#TagItem] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CFNDataSourceConfigurations: close({
@@ -32,8 +36,20 @@ fn.#ObjectExpression
 
 #CFNFeatureAdditionalConfiguration: close({
 	Name?: ("EC2_AGENT_MANAGEMENT" | "ECS_FARGATE_AGENT_MANAGEMENT" | "EKS_ADDON_MANAGEMENT" | "RDS_DATA_RISK") & (strings.MaxRunes(256) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: ("EC2_AGENT_MANAGEMENT" | "ECS_FARGATE_AGENT_MANAGEMENT" | "EKS_ADDON_MANAGEMENT" | "RDS_DATA_RISK") &
+		strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Status?: ("DISABLED" | "ENABLED") & (strings.MaxRunes(128) & strings.MinRunes(1)) | fn.#StringExpression
+	Status?: ("DISABLED" | "ENABLED") & (strings.MaxRunes(128) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: ("DISABLED" | "ENABLED") & strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -48,6 +64,20 @@ fn.#ObjectExpression
 		"RDS_LOGIN_EVENTS" |
 		"RUNTIME_MONITORING" |
 		"S3_DATA_EVENTS") & strings.MaxRunes(128) |
+	{
+		number | bool
+		_cfnString: ("AI_ANALYST" |
+			"AI_PROTECTION" |
+			"EBS_MALWARE_PROTECTION" |
+			"EKS_AUDIT_LOGS" |
+			"EKS_RUNTIME_MONITORING" |
+			"LAMBDA_NETWORK_LOGS" |
+			"RDS_LOGIN_EVENTS" |
+			"RUNTIME_MONITORING" |
+			"S3_DATA_EVENTS") &
+		strings.MaxRunes(128) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Status!: "ENABLED" | "DISABLED" | fn.#StringExpression
 }) |
@@ -74,7 +104,17 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #TagItem: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

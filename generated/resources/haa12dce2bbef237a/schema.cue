@@ -3,12 +3,10 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -23,34 +21,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::VPNConnection"
-	Properties!: close({
-		CustomerGatewayId!:     string | fn.#StringExpression
+	let properties = close({
+		CustomerGatewayId!:     string | number | bool | fn.#StringExpression
 		EnableAcceleration?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		LocalIpv4NetworkCidr?:  string | fn.#StringExpression
-		LocalIpv6NetworkCidr?:  string | fn.#StringExpression
-		OutsideIpAddressType?:  string | fn.#StringExpression
+		LocalIpv4NetworkCidr?:  string | number | bool | fn.#StringExpression
+		LocalIpv6NetworkCidr?:  string | number | bool | fn.#StringExpression
+		OutsideIpAddressType?:  string | number | bool | fn.#StringExpression
 		PreSharedKeyStorage?:   "Standard" | "SecretsManager" | fn.#StringExpression
-		RemoteIpv4NetworkCidr?: string | fn.#StringExpression
-		RemoteIpv6NetworkCidr?: string | fn.#StringExpression
+		RemoteIpv4NetworkCidr?: string | number | bool | fn.#StringExpression
+		RemoteIpv6NetworkCidr?: string | number | bool | fn.#StringExpression
 		StaticRoutesOnly?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Tags?:                  [...#Tag] | fn.#ListExpression
-		TransitGatewayId?:      string | fn.#StringExpression
-		TransportTransitGatewayAttachmentId?: string | fn.#StringExpression
+		TransitGatewayId?:      string | number | bool | fn.#StringExpression
+		TransportTransitGatewayAttachmentId?: string | number | bool | fn.#StringExpression
 		TunnelBandwidth?:                     "standard" | "large" | fn.#StringExpression
-		TunnelInsideIpVersion?:               string | fn.#StringExpression
-		Type!:                                string | fn.#StringExpression
-		VpnConcentratorId?:                   string | fn.#StringExpression
-		VpnGatewayId?:                        string | fn.#StringExpression
+		TunnelInsideIpVersion?:               string | number | bool | fn.#StringExpression
+		Type!:                                string | number | bool | fn.#StringExpression
+		VpnConcentratorId?:                   string | number | bool | fn.#StringExpression
+		VpnGatewayId?:                        string | number | bool | fn.#StringExpression
 		VpnTunnelOptionsSpecifications?:      [...#VpnTunnelOptionsSpecification] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CloudwatchLogOptionsSpecification: close({
 	BgpLogEnabled?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	BgpLogGroupArn?:     string | fn.#StringExpression
+	BgpLogGroupArn?:     string | number | bool | fn.#StringExpression
 	BgpLogOutputFormat?: "json" | "text" | fn.#StringExpression
 	LogEnabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	LogGroupArn?:        string | fn.#StringExpression
+	LogGroupArn?:        string | number | bool | fn.#StringExpression
 	LogOutputFormat?:    "json" | "text" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -90,8 +92,8 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -161,7 +163,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	PreSharedKey?: string | fn.#StringExpression
+	PreSharedKey?: string | number | bool | fn.#StringExpression
 	RekeyFuzzPercentage?: int & <=100 & >=0 |
 		{
 			string &
@@ -210,7 +212,7 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	StartupAction?:        "add" | "start" | fn.#StringExpression
-	TunnelInsideCidr?:     string | fn.#StringExpression
-	TunnelInsideIpv6Cidr?: string | fn.#StringExpression
+	TunnelInsideCidr?:     string | number | bool | fn.#StringExpression
+	TunnelInsideIpv6Cidr?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

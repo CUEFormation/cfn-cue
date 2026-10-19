@@ -7,31 +7,80 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Outposts::Outpost Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Outposts::Outpost"
-	Properties!: close({
+	let properties = close({
 		AvailabilityZone?: strings.MaxRunes(1000) &
 		strings.MinRunes(1) &
 		=~"^([a-zA-Z]+-){1,3}([a-zA-Z]+)?(\\d+[a-zA-Z]?)?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) &
+			strings.MinRunes(1) &
+			=~"^([a-zA-Z]+-){1,3}([a-zA-Z]+)?(\\d+[a-zA-Z]?)?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		AvailabilityZoneId?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z]+\\d-[a-zA-Z]+\\d$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z]+\\d-[a-zA-Z]+\\d$" & "\(self)"
+		} |
 		fn.#StringExpression
-		Description?: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\S ]*$" | fn.#StringExpression
-		Name!:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\S ]+$" | fn.#StringExpression
-		SiteId!:      strings.MaxRunes(255) & strings.MinRunes(1) & =~"^os-[a-f0-9]{17}$" | fn.#StringExpression
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\S ]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[\\S ]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\S ]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[\\S ]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SiteId!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^os-[a-f0-9]{17}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^os-[a-f0-9]{17}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		SupportedHardwareType?: "RACK" | "SERVER" | fn.#StringExpression
 		Tags?:                  list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	}) & matchN(>=1, [{AvailabilityZone!: _}, {AvailabilityZoneId!: _}])
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\S \\n]+$" | fn.#StringExpression
+	Key!: =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+$" &
+	matchN(0, [=~"^(?:[aA][wW][sS]:)"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+$" &
+		matchN(0, [=~"^(?:[aA][wW][sS]:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\S \\n]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\S \\n]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

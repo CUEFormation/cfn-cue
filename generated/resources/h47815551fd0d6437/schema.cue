@@ -7,33 +7,59 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a table that can be associated with collaborations
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CleanRooms::ConfiguredTable"
-	Properties!: close({
-		AllowedColumns!: list.MaxItems(100) & list.MinItems(1) & [
-			...strings.MaxRunes(128) & =~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$" | fn.#StringExpression
-		] |
+	let properties = close({
+		AllowedColumns!: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(128) &
+		=~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & =~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		AnalysisMethod!: #AnalysisMethod
 		AnalysisRules?:  list.MaxItems(1) & list.MinItems(1) & [...#AnalysisRule] | fn.#ListExpression
 		Description?: strings.MaxRunes(255) &
 		=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) &
+			=~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t\\r\\n]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name!:                    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+		Name!: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t]*$" &
+		matchN(0, [=~"^(?:\\s*$)"]) &
+		string &
+		strings.MaxRunes(100) &
+		strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^[\\x{0020}-\\x{D7FF}\\x{E000}-\\x{FFFD}\\x{D800}\\x{DBFF}-\\x{DC00}\\x{DFFF}\\t]*$" &
+			matchN(0, [=~"^(?:\\s*$)"]) &
+			string &
+			strings.MaxRunes(100) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 		SelectedAnalysisMethods?: #SelectedAnalysisMethods
 		TableReference!:          #TableReference
 		Tags?:                    list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AdditionalAnalyses: "ALLOWED" | "REQUIRED" | "NOT_ALLOWED" | fn.#StringExpression
@@ -107,9 +133,21 @@ fn.#ObjectExpression
 #AllowedAnalysis: strings.MaxRunes(200) &
 strings.MinRunes(0) &
 =~"(ANY_QUERY|ANY_JOB|arn:[\\w]{3}:cleanrooms:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:membership/[\\d\\w-]+/analysistemplate/[\\d\\w-]+)" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(200) &
+	strings.MinRunes(0) &
+	=~"(ANY_QUERY|ANY_JOB|arn:[\\w]{3}:cleanrooms:[\\w]{2}-[\\w]{4,9}-[\\d]:[\\d]{12}:membership/[\\d\\w-]+/analysistemplate/[\\d\\w-]+)" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#AllowedAnalysisProvider: strings.MaxRunes(12) & strings.MinRunes(12) & =~"\\d+" | fn.#StringExpression
+#AllowedAnalysisProvider: strings.MaxRunes(12) & strings.MinRunes(12) & =~"\\d+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"\\d+" & "\(self)"
+} |
+fn.#StringExpression
 
 #AllowedAnalysisProviders: [...] & [...#AllowedAnalysisProvider] | fn.#ListExpression
 
@@ -134,6 +172,10 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #AnalysisRuleColumnName: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-z0-9_](([a-z0-9_ ]+-)*([a-z0-9_ ]+))?$" & "\(self)"
+} |
 fn.#StringExpression
 
 #AnalysisRuleCustom: close({
@@ -156,12 +198,37 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #AthenaTableReference: close({
-	CatalogName?:    strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	DatabaseName!:   strings.MaxRunes(128) | fn.#StringExpression
-	OutputLocation?: strings.MaxRunes(1024) & strings.MinRunes(8) | fn.#StringExpression
-	Region?:         #CommercialRegion
-	TableName!:      strings.MaxRunes(128) | fn.#StringExpression
-	WorkGroup!:      strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	CatalogName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	DatabaseName!: strings.MaxRunes(128) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & "\(self)"
+	} |
+	fn.#StringExpression
+	OutputLocation?: strings.MaxRunes(1024) & strings.MinRunes(8) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(8) & "\(self)"
+	} |
+	fn.#StringExpression
+	Region?: #CommercialRegion
+	TableName!: strings.MaxRunes(128) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & "\(self)"
+	} |
+	fn.#StringExpression
+	WorkGroup!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -221,15 +288,24 @@ fn.#ValueExpression
 #DifferentialPrivacy: close({Columns!: list.MinItems(1) & [...#DifferentialPrivacyColumn] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-#DifferentialPrivacyColumn: close({Name!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#DifferentialPrivacyColumn: close({Name!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #DisallowedOutputColumns: [...] & [...#AnalysisRuleColumnName] | fn.#ListExpression
 
 #GlueTableReference: close({
 	DatabaseName!: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" & "\(self)"
+	} |
 	fn.#StringExpression
-	Region?:    #CommercialRegion
-	TableName!: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" | fn.#StringExpression
+	Region?: #CommercialRegion
+	TableName!: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & =~"^[a-zA-Z0-9_](([a-zA-Z0-9_ ]+-)*([a-zA-Z0-9_ ]+))?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -289,12 +365,37 @@ fn.#ObjectExpression
 #SelectedAnalysisMethods: [...#SelectedAnalysisMethod] | fn.#ListExpression
 
 #SnowflakeTableReference: close({
-	AccountIdentifier!: strings.MaxRunes(256) & strings.MinRunes(3) | fn.#StringExpression
-	DatabaseName!:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	SchemaName!:        strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	SecretArn!:         strings.MaxRunes(256) | fn.#StringExpression
-	TableName!:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	TableSchema!:       #SnowflakeTableSchema
+	AccountIdentifier!: strings.MaxRunes(256) & strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(3) & "\(self)"
+	} |
+	fn.#StringExpression
+	DatabaseName!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	SchemaName!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	SecretArn!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
+	TableName!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TableSchema!: #SnowflakeTableSchema
 }) |
 fn.#ObjectExpression
 
@@ -304,8 +405,18 @@ fn.#ObjectExpression
 	fn.#ValueExpression
 
 #SnowflakeTableSchemaV1: close({
-	ColumnName!: strings.MaxRunes(128) | fn.#StringExpression
-	ColumnType!: strings.MaxRunes(255) | fn.#StringExpression
+	ColumnName!: strings.MaxRunes(128) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & "\(self)"
+	} |
+	fn.#StringExpression
+	ColumnType!: strings.MaxRunes(255) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -319,7 +430,17 @@ fn.#ObjectExpression
 fn.#ValueExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

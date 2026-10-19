@@ -8,6 +8,5 @@ import schema "github.com/cueformation/cfn-cue/resources/h1d2e26597c7817f0:schem
 #CategoricalHyperParameterRange: schema.#CategoricalHyperParameterRange
 #ContinuousHyperParameterRange:  schema.#ContinuousHyperParameterRange
 #IntegerHyperParameterRange:     schema.#IntegerHyperParameterRange
-#SolutionArn:                    schema.#SolutionArn
 #SolutionConfig:                 schema.#SolutionConfig
 #Tag:                            schema.#Tag

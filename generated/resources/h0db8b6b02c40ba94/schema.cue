@@ -6,18 +6,23 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This schema is for testing purpose only.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RoboMaker::SimulationApplication"
-	Properties!: close({
-		CurrentRevisionId?: string | fn.#StringExpression
-		Environment?:       string | fn.#StringExpression
-		Name?:              strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\-]*" | fn.#StringExpression
+	let properties = close({
+		CurrentRevisionId?: string | number | bool | fn.#StringExpression
+		Environment?:       string | number | bool | fn.#StringExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\-]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9_\\-]*" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The rendering engine for the simulation application.
 		RenderingEngine?: #RenderingEngine
@@ -30,13 +35,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Sources?:                 [...#SourceConfig] | fn.#ListExpression
 		Tags?:                    #Tags
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" | fn.#StringExpression
-
 #RenderingEngine: close({
-	Name!:    "OGRE" | fn.#StringExpression
-	Version!: =~"1.x" | fn.#StringExpression
+	Name!: "OGRE" | fn.#StringExpression
+	Version!: =~"1.x" |
+	{
+		number | bool
+		_cfnString: =~"1.x" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -48,18 +60,43 @@ fn.#ObjectExpression
 
 #SimulationSoftwareSuite: close({
 	Name!:    "Gazebo" | "RosbagPlay" | "SimulationRuntime" | fn.#StringExpression
-	Version?: "7" | "9" | "11" | "Kinetic" | "Melodic" | "Dashing" | "Foxy" | fn.#StringExpression
+	Version?: "7" | 7 | "9" | 9 | "11" | 11 | "Kinetic" | "Melodic" | "Dashing" | "Foxy" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SourceConfig: close({
 	Architecture!: "X86_64" | "ARM64" | "ARMHF" | fn.#StringExpression
-	S3Bucket!:     =~"[a-z0-9][a-z0-9.\\-]*[a-z0-9]" | fn.#StringExpression
-	S3Key!:        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		=~"[a-z0-9][a-z0-9.\\-]*[a-z0-9]" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+			=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+			=~"[a-z0-9][a-z0-9.\\-]*[a-z0-9]" &
+			"\(self)"
+	} |
+	fn.#StringExpression
+	S3Key!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tags: close({
 
-	{[=~"^[a-zA-Z0-9-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{
+		[=~"^[a-zA-Z0-9-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression

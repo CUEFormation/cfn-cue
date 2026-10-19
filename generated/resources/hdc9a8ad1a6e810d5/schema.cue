@@ -6,12 +6,10 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,8 +18,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // an auto scaling configuration across multiple services.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppRunner::AutoScalingConfiguration"
-	Properties?: close({
+	let properties = close({
 		AutoScalingConfigurationName?: strings.MaxRunes(32) & strings.MinRunes(4) & =~"[A-Za-z0-9][A-Za-z0-9\\-_]{3,31}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32) & strings.MinRunes(4) & =~"[A-Za-z0-9][A-Za-z0-9\\-_]{3,31}" & "\(self)"
+		} |
 		fn.#StringExpression
 		MaxConcurrency?: int & <=200 & >=1 |
 			{
@@ -78,10 +80,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key?: =~"^.+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^.+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

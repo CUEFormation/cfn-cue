@@ -6,12 +6,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,26 +18,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // borrow limits.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Batch::QuotaShare"
-	Properties!: close({
+	let properties = close({
 		CapacityLimits!: [...#QuotaShareCapacityLimit] | fn.#ListExpression
-		JobQueue!:       string | fn.#StringExpression
+		JobQueue!:       string | number | bool | fn.#StringExpression
 
 		// Specifies the preemption behavior for jobs in a quota share.
 		PreemptionConfiguration!: #QuotaSharePreemptionConfiguration
-		QuotaShareName!:          strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+		QuotaShareName!: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Specifies whether a quota share reserves, lends, or both lends and borrows idle compute capacity.
 		ResourceSharingConfiguration!: #QuotaShareResourceSharingConfiguration
 		State?:                        "ENABLED" | "DISABLED" | fn.#StringExpression
 		Tags?: close({
 
-			{[=~".*"]: string | fn.#StringExpression}}) |
+			{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #QuotaShareCapacityLimit: close({
-	CapacityUnit!: string | fn.#StringExpression
+	CapacityUnit!: string | number | bool | fn.#StringExpression
 	MaxCapacity!: int & >=1 |
 		{
 			string &
@@ -58,8 +70,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#QuotaSharePreemptionConfiguration: close({InSharePreemption!: =~"(?i)^(?:disabled|enabled)$" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#QuotaSharePreemptionConfiguration: close({
+	InSharePreemption!: =~"(?i)^(?:disabled|enabled)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:disabled|enabled)$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #QuotaShareResourceSharingConfiguration: close({
 	BorrowLimit?: int & >=-1 |
@@ -77,9 +96,11 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Strategy!: =~"(?i)^(?:lend|lend_and_borrow|reserve)$" | fn.#StringExpression
+	Strategy!: =~"(?i)^(?:lend|lend_and_borrow|reserve)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:lend|lend_and_borrow|reserve)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#ResourceArn: =~"^arn:aws[a-z\\-]*:batch:[a-z0-9\\-]+:[0-9]{12}:job-queue/[a-zA-Z0-9_\\-]{1,128}/quota-share/[a-zA-Z0-9_\\-]{1,128}$" |
-	fn.#StringExpression

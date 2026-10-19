@@ -37,7 +37,7 @@ import (
 	// you provide a value for this parameter, don't specify values for the
 	// following settings because Amazon DocumentDB uses the values from the
 	// specified source DB cluster: Engine, EngineVersion, StorageEncrypted
-	SourceDBClusterIdentifier?: matchN(1, [=~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$", string])
+	SourceDBClusterIdentifier?: matchN(1, [=~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$", =~"^arn.*" & =~"^(?:.{40,128}$)"])
 
 	// Indicates whether the global cluster has storage encryption enabled.
 	StorageEncrypted?: bool

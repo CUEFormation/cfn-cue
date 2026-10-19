@@ -4,5 +4,4 @@ package Component
 
 import schema "github.com/cueformation/cfn-cue/resources/h6885175a1bba3a7c:schema"
 
-#Resource:      schema.#Resource
-#LatestVersion: schema.#LatestVersion
+#Resource: schema.#Resource

@@ -6,20 +6,29 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GuardDuty::Member
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GuardDuty::Member"
-	Properties!: close({
-		DetectorId?:               strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		DetectorId?: strings.MaxRunes(300) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(300) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		DisableEmailNotification?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Email!:                    string | fn.#StringExpression
-		MemberId?:                 string | fn.#StringExpression
-		Message?:                  string | fn.#StringExpression
+		Email!:                    string | number | bool | fn.#StringExpression
+		MemberId?:                 string | number | bool | fn.#StringExpression
+		Message?:                  string | number | bool | fn.#StringExpression
 		Status?: "Created" | "Disabled" | "Enabled" | "Invited" | "Removed" | "Resigned" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

@@ -7,28 +7,60 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::SSMGuiConnect::Preferences Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSMGuiConnect::Preferences"
-	Properties?: close({
+	let properties = close({
 		ConnectionRecordingPreferences?: close({
 			KMSKeyArn!:             #KMSKeyArn
 			RecordingDestinations!: #RecordingDestinations
 		}) |
 		fn.#ObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
-#BucketName: string | fn.#StringExpression
+#BucketName: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+=~"(^(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)*([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])$)" &
+=~"^(?:^.{3,63}$)" &
+matchN(0, [=~"^(?:^(\\d+\\.)+\\d+$)"]) &
+string |
+{
+	number | bool
+	_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	=~"(^(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)*([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])$)" &
+	=~"^(?:^.{3,63}$)" &
+	matchN(0, [=~"^(?:^(\\d+\\.)+\\d+$)"]) &
+	string &
+	"\(self)"
+} |
+fn.#StringExpression
 
-#BucketOwner: =~"^[0-9]{12}$" | fn.#StringExpression
+#BucketOwner: =~"^[0-9]{12}$" |
+{
+	number | bool
+	_cfnString: =~"^[0-9]{12}$" & "\(self)"
+} |
+fn.#StringExpression
 
-#KMSKeyArn: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+#KMSKeyArn: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #RecordingDestinations: close({S3Buckets!: #S3Buckets}) | fn.#ObjectExpression

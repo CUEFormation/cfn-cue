@@ -7,19 +7,17 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::Stack
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppStream::Stack"
-	Properties?: close({
+	let properties = close({
 		AccessEndpoints?: list.MaxItems(4) & list.MinItems(1) & [...#AccessEndpoint] | fn.#ListExpression
 
 		// The configuration for agent access on the stack. If specified, agent access
@@ -31,27 +29,62 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// settings are automatically saved after each session and applied to the next
 		// session.
 		ApplicationSettings?: #ApplicationSettings
-		AttributesToDelete?:  [...string | fn.#StringExpression] | fn.#ListExpression
+		AttributesToDelete?:  [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 
 		// The content redirection settings for the stack. These settings control URL
 		// redirection between the streaming session and the local device.
 		ContentRedirection?:      #ContentRedirection
 		DeleteStorageConnectors?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Description?:             strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		DisplayName?:             strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-		EmbedHostDomains?: list.MaxItems(20) & list.MinItems(1) & [
-			...strings.MaxRunes(128) &
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DisplayName?: strings.MaxRunes(100) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		EmbedHostDomains?: list.MaxItems(20) & list.MinItems(1) & [...strings.MaxRunes(128) &
+		strings.MinRunes(0) &
+		=~"^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
 			strings.MinRunes(0) &
-			=~"^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$" |
-			fn.#StringExpression
-		] |
+			=~"^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		FeedbackURL?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-		Name?:        =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
-		RedirectURL?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
+		FeedbackURL?: strings.MaxRunes(1000) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name?: =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		RedirectURL?: strings.MaxRunes(1000) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		StorageConnectors?: [...close({
 			ConnectorType!: "GOOGLE_DRIVE" | "HOMEFOLDERS" | "ONE_DRIVE" | fn.#StringExpression
-			Domains?: list.MaxItems(50) & [...] & [...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression] |
+			Domains?: list.MaxItems(50) & [...] & [...strings.MaxRunes(64) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression] |
 			fn.#ListExpression
 		}) |
 		fn.#ObjectExpression] |
@@ -63,17 +96,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:                        [...#Tag] | fn.#ListExpression
 		UserSettings?:                list.MinItems(1) & [...#UserSetting] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #AccessEndpoint: close({
 	EndpointType!: "STREAMING" | fn.#StringExpression
-	VpceId!:       strings.MinRunes(1) | fn.#StringExpression
+	VpceId!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AgentAccessConfig: close({
 	S3BucketArn?: =~"^arn:aws(?:\\-cn|\\-iso\\-b|\\-iso|\\-us\\-gov)?:s3:::[a-z0-9][a-z0-9.\\-]{1,61}[a-z0-9]$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws(?:\\-cn|\\-iso\\-b|\\-iso|\\-us\\-gov)?:s3:::[a-z0-9][a-z0-9.\\-]{1,61}[a-z0-9]$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	ScreenImageFormat!:        "JPEG" | "PNG" | fn.#StringExpression
 	ScreenResolution!:         "W_1280xH_720" | fn.#StringExpression
 	ScreenshotsUploadEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -89,8 +136,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ApplicationSettings: close({
-	Enabled!:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SettingsGroup?: strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
+	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SettingsGroup?: strings.MaxRunes(100) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -100,30 +152,32 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#StorageConnector: close({
-	ConnectorType!: "GOOGLE_DRIVE" | "HOMEFOLDERS" | "ONE_DRIVE" | fn.#StringExpression
-	Domains?: list.MaxItems(50) & [...] & [...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression] |
-	fn.#ListExpression
-	ResourceIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #StreamingExperienceSettings: close({PreferredProtocol?: "TCP" | "UDP" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #UrlRedirectionConfig: close({
-	AllowedUrls?: list.MaxItems(100) & [...] & [
-		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(\\*|https?://[^\\s,;]+)$" | fn.#StringExpression
-	] |
+	AllowedUrls?: list.MaxItems(100) & [...] & [...strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^(\\*|https?://[^\\s,;]+)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(\\*|https?://[^\\s,;]+)$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	DeniedUrls?: list.MaxItems(100) & [...] & [
-		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(\\*|https?://[^\\s,;]+)$" | fn.#StringExpression
-	] |
+	DeniedUrls?: list.MaxItems(100) & [...] & [...strings.MaxRunes(2048) &
+	strings.MinRunes(1) &
+	=~"^(\\*|https?://[^\\s,;]+)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(\\*|https?://[^\\s,;]+)$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	Enabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |

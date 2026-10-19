@@ -5,9 +5,10 @@ package schema
 import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"struct"
+	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,15 +17,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in each region in which you enable Security Hub V2.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityHub::HubV2"
-	Properties?: close({
+	let properties = close({
 		NetworkScanning?: #NetworkScanning
 		Tags?:            #Tags
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
-
-#ISO8601DateString: =~"^(\\d\\d\\d\\d)-([0][1-9]|[1][0-2])-([0][1-9]|[1-2](\\d)|[3][0-1])[T](?:([0-1](\\d)|[2][0-3]):[0-5](\\d):[0-5](\\d)|23:59:60)(?:\\.(\\d)+)?([Z]|[+-](\\d\\d)(:?(\\d\\d))?)$" |
-	fn.#StringExpression
 
 #NetworkScanning: close({Status!: "ENABLED" | "DISABLED" | fn.#StringExpression}) | fn.#ObjectExpression
 
-#Tags: struct.MaxFields(50) & {...} | fn.#ObjectExpression
+#Tags: struct.MaxFields(50) & close({
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^(?:aws:)"]: error("disallowed")}
+
+	{
+		[=~"^[a-zA-Z+-=._:/]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
+fn.#ObjectExpression

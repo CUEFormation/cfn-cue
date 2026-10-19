@@ -7,39 +7,70 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Deadline::Queue
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Deadline::Queue"
-	Properties!: close({
-		AllowedStorageProfileIds?: list.MaxItems(20) & list.UniqueItems() & [...] & [
-			...=~"^sp-[0-9a-f]{32}$" | fn.#StringExpression
-		] |
-			fn.#ListExpression
-		DefaultBudgetAction?:   #DefaultQueueBudgetAction
-		Description?:           strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-		DisplayName!:           strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		FarmId!:                =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
+	let properties = close({
+		AllowedStorageProfileIds?: list.MaxItems(20) & list.UniqueItems() & [...] & [...=~"^sp-[0-9a-f]{32}$" |
+		{
+			number | bool
+			_cfnString: =~"^sp-[0-9a-f]{32}$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		DefaultBudgetAction?: #DefaultQueueBudgetAction
+		Description?: strings.MaxRunes(100) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DisplayName!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		FarmId!: =~"^farm-[0-9a-f]{32}$" |
+		{
+			number | bool
+			_cfnString: =~"^farm-[0-9a-f]{32}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		JobAttachmentSettings?: #JobAttachmentSettings
 		JobRunAsUser?:          #JobRunAsUser
-		RequiredFileSystemLocationNames?: list.MaxItems(20) & list.UniqueItems() & [...] & [
-			...strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z ]*$" | fn.#StringExpression
-		] |
+		RequiredFileSystemLocationNames?: list.MaxItems(20) & list.UniqueItems() & [...] & [...strings.MaxRunes(64) &
+		strings.MinRunes(1) &
+		=~"^[0-9A-Za-z ]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9A-Za-z ]*$" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 			=~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+				=~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		SchedulingConfiguration?: #SchedulingConfiguration
 		Tags?:                    list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #DefaultQueueBudgetAction: "NONE" |
@@ -48,8 +79,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#StringExpression
 
 #JobAttachmentSettings: close({
-	RootPrefix!:   strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_/]+$" | fn.#StringExpression
-	S3BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+	RootPrefix!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_/]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	S3BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	=~"(^(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)*([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])$)" &
+	matchN(0, [=~"^(?:^(\\d+\\.)+\\d+$)"]) &
+	string &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		=~"(^(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)*([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])$)" &
+		matchN(0, [=~"^(?:^(\\d+\\.)+\\d+$)"]) &
+		string &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) &
+		"\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -61,8 +115,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PosixUser: close({
-	Group!: strings.MaxRunes(31) & strings.MinRunes(0) & =~"^(?:[a-z][a-z0-9-]{0,30})?$" | fn.#StringExpression
-	User!:  strings.MaxRunes(31) & strings.MinRunes(0) & =~"^(?:[a-z][a-z0-9-]{0,30})?$" | fn.#StringExpression
+	Group!: strings.MaxRunes(31) & strings.MinRunes(0) & =~"^(?:[a-z][a-z0-9-]{0,30})?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(31) & strings.MinRunes(0) & =~"^(?:[a-z][a-z0-9-]{0,30})?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	User!: strings.MaxRunes(31) & strings.MinRunes(0) & =~"^(?:[a-z][a-z0-9-]{0,30})?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(31) & strings.MinRunes(0) & =~"^(?:[a-z][a-z0-9-]{0,30})?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -90,7 +154,7 @@ fn.#ObjectExpression
 
 #RunAs: "QUEUE_CONFIGURED_USER" | "WORKER_AGENT_USER" | fn.#StringExpression
 
-#SchedulingConfiguration: fn.#Object & {...} & matchN(1, [close(
+#SchedulingConfiguration: fn.#Object & matchN(1, [close(
 	{PriorityFifo!: #PriorityFifoSchedulingConfiguration},
 ), close(
 	{PriorityBalanced!: #PriorityBalancedSchedulingConfiguration},
@@ -110,8 +174,18 @@ fn.#ObjectExpression
 #SchedulingMinPriorityOverrideAlwaysScheduleLast: close({}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -218,7 +292,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #WindowsUser: close({
-	PasswordArn!: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-	User!:        strings.MaxRunes(111) & strings.MinRunes(0) & =~"^[^\"'/\\[\\]:;|=,+*?<>\\s]*$" | fn.#StringExpression
+	PasswordArn!: strings.MaxRunes(2048) & strings.MinRunes(20) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
+	} |
+	fn.#StringExpression
+	User!: strings.MaxRunes(111) & strings.MinRunes(0) & =~"^[^\"'/\\[\\]:;|=,+*?<>\\s]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(111) & strings.MinRunes(0) & =~"^[^\"'/\\[\\]:;|=,+*?<>\\s]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

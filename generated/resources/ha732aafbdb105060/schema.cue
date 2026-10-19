@@ -7,20 +7,23 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema of AWS::EC2::IPAMPool Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::IPAMPool"
-	Properties!: close({
-		AddressFamily!: =~"(?i)^(?:ipv4|ipv6)$" | fn.#StringExpression
+	let properties = close({
+		AddressFamily!: =~"(?i)^(?:ipv4|ipv6)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:ipv4|ipv6)$" & "\(self)"
+		} |
+		fn.#StringExpression
 		AllocationDefaultNetmaskLength?: int & <=128 & >=0 |
 			{
 				string &
@@ -77,33 +80,72 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		AllocationResourceTags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		AutoImport?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		AwsService?:             =~"(?i)^(?:ec2|global-services)$" | fn.#StringExpression
-		Description?:            string | fn.#StringExpression
-		IpamScopeId!:            string | fn.#StringExpression
-		Locale?:                 string | fn.#StringExpression
-		ProvisionedCidrs?:       list.UniqueItems() & [...#ProvisionedCidr] | fn.#ListExpression
-		PublicIpSource?:         =~"(?i)^(?:amazon|byoip)$" | fn.#StringExpression
-		PubliclyAdvertisable?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		SourceIpamPoolId?:       string | fn.#StringExpression
-		SourceResource?:         #SourceResource
-		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		AwsService?: =~"(?i)^(?:ec2|global-services)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:ec2|global-services)$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?:      string | number | bool | fn.#StringExpression
+		IpamScopeId!:      string | number | bool | fn.#StringExpression
+		Locale?:           string | number | bool | fn.#StringExpression
+		ProvisionedCidrs?: list.UniqueItems() & [...#ProvisionedCidr] | fn.#ListExpression
+		PublicIpSource?: =~"(?i)^(?:amazon|byoip)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:amazon|byoip)$" & "\(self)"
+		} |
+		fn.#StringExpression
+		PubliclyAdvertisable?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		SourceIpamPoolId?:     string | number | bool | fn.#StringExpression
+		SourceResource?:       #SourceResource
+		Tags?:                 list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Cidr: string & string | fn.#StringExpression
+#Cidr: fn.#IPv4Network & string |
+{
+	number | bool
+	_cfnString: fn.#IPv4Network & string & "\(self)"
+} |
+fn.#IPv6Network & string |
+{
+	number | bool
+	_cfnString: fn.#IPv6Network & string & "\(self)"
+} |
+fn.#StringExpression
 
 #ProvisionedCidr: close({Cidr!: #Cidr}) | fn.#ObjectExpression
 
 #SourceResource: close({
-	ResourceId!:     string | fn.#StringExpression
-	ResourceOwner!:  string | fn.#StringExpression
-	ResourceRegion!: string | fn.#StringExpression
-	ResourceType!:   =~"(?i)^(?:vpc)$" | fn.#StringExpression
+	ResourceId!:     string | number | bool | fn.#StringExpression
+	ResourceOwner!:  string | number | bool | fn.#StringExpression
+	ResourceRegion!: string | number | bool | fn.#StringExpression
+	ResourceType!: =~"(?i)^(?:vpc)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:vpc)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

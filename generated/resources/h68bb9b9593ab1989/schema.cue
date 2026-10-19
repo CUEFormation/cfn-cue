@@ -7,96 +7,90 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a catalog in the Glue Data Catalog.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Glue::Catalog"
-	Properties!: close({
+	let properties = close({
 		AllowFullTableExternalDataAccess?: "True" | "False" | fn.#StringExpression
 		CatalogProperties?: close({
 			DataLakeAccessProperties?: close({
 				AllowFullTableExternalDataAccess?: "True" | "False" | fn.#StringExpression
-				CatalogType?:                      string | fn.#StringExpression
+				CatalogType?:                      string | number | bool | fn.#StringExpression
 				DataLakeAccess?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-				DataTransferRole?: string | fn.#StringExpression
-				KmsKey?:           string | fn.#StringExpression
+				DataTransferRole?: string | number | bool | fn.#StringExpression
+				KmsKey?:           string | number | bool | fn.#StringExpression
 			}) |
 			fn.#ObjectExpression
 		}) |
 		fn.#ObjectExpression
 		CreateDatabaseDefaultPermissions?: [...close({}) | fn.#ObjectExpression] | fn.#ListExpression
 		CreateTableDefaultPermissions?:    [...close({}) | fn.#ObjectExpression] | fn.#ListExpression
-		Description?:                      strings.MaxRunes(2048) | fn.#StringExpression
-		FederatedCatalog?:                 #FederatedCatalog
-		Name!:                             strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Description?: strings.MaxRunes(2048) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & "\(self)"
+		} |
+		fn.#StringExpression
+		FederatedCatalog?: #FederatedCatalog
+		Name!: =~"^.*$" &
+		matchN(0, [=~"^(?:(.*[.\\/\\\\]|aws:))"]) &
+		string &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^.*$" &
+			matchN(0, [=~"^(?:(.*[.\\/\\\\]|aws:))"]) &
+			string &
+			strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 		OverwriteChildResourcePermissionsWithDefault?: "Accept" | "Deny" | fn.#StringExpression
 		Parameters?: close({
 
-			{[=~"^.+$"]: string | fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+		}) |
 		fn.#ObjectExpression
 		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		TargetRedshiftCatalog?: #TargetRedshiftCatalog
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#CatalogProperties: close({
-	CustomProperties?: close({
-
-		{[=~"^.+$"]: string | fn.#StringExpression}}) |
-	fn.#ObjectExpression
-	DataLakeAccessProperties?: #DataLakeAccessProperties
-}) |
-fn.#ObjectExpression
-
-#DataLakeAccessProperties: close({
-	AllowFullTableExternalDataAccess?: "True" | "False" | fn.#StringExpression
-	CatalogType?:                      string | fn.#StringExpression
-	DataLakeAccess?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DataTransferRole?:       string | fn.#StringExpression
-	KmsKey?:                 string | fn.#StringExpression
-	ManagedWorkgroupName?:   string | fn.#StringExpression
-	ManagedWorkgroupStatus?: string | fn.#StringExpression
-	RedshiftDatabaseName?:   string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#DataLakePrincipal: close(
-	{DataLakePrincipalIdentifier?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression},
-) |
-fn.#ObjectExpression
-
 #FederatedCatalog: close({
-	ConnectionName?: string | fn.#StringExpression
-	Identifier?:     string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#PrincipalPermissions: close({
-	Permissions?: [
-		..."ALL" |
-			"SELECT" |
-			"ALTER" |
-			"DROP" |
-			"DELETE" |
-			"INSERT" |
-			"CREATE_DATABASE" |
-			"CREATE_TABLE" |
-			"DATA_LOCATION_ACCESS" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Principal?: #DataLakePrincipal
+	ConnectionName?: string | number | bool | fn.#StringExpression
+	Identifier?:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#TargetRedshiftCatalog: close({CatalogArn!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#TargetRedshiftCatalog: close({CatalogArn!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression

@@ -4,8 +4,5 @@ package OdbNetwork
 
 import schema "github.com/cueformation/cfn-cue/resources/he350b14092469acb:schema"
 
-#Resource:                          schema.#Resource
-#CrossRegionS3RestoreSourcesAccess: schema.#CrossRegionS3RestoreSourcesAccess
-#ManagedResourceStatus:             schema.#ManagedResourceStatus
-#ManagedServices:                   schema.#ManagedServices
-#Tag:                               schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

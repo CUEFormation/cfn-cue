@@ -20,7 +20,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h762fd64dd35d68ca:schem
 #MonitoringOutput:                    schema.#MonitoringOutput
 #MonitoringOutputConfig:              schema.#MonitoringOutputConfig
 #MonitoringResources:                 schema.#MonitoringResources
-#MonitoringTimeOffsetString:          schema.#MonitoringTimeOffsetString
 #NetworkConfig:                       schema.#NetworkConfig
 #Parquet:                             schema.#Parquet
 #ProcessingJobName:                   schema.#ProcessingJobName

@@ -4,9 +4,7 @@ package IdMappingTable
 
 import schema "github.com/cueformation/cfn-cue/resources/h1cc6d9fcb337adc8:schema"
 
-#Resource:                               schema.#Resource
-#IdMappingTableInputReferenceConfig:     schema.#IdMappingTableInputReferenceConfig
-#IdMappingTableInputReferenceProperties: schema.#IdMappingTableInputReferenceProperties
-#IdMappingTableInputSource:              schema.#IdMappingTableInputSource
-#Tag:                                    schema.#Tag
-#UUID:                                   schema.#UUID
+#Resource:                           schema.#Resource
+#IdMappingTableInputReferenceConfig: schema.#IdMappingTableInputReferenceConfig
+#Tag:                                schema.#Tag
+#UUID:                               schema.#UUID

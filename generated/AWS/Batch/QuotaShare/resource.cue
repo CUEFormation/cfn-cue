@@ -8,4 +8,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h348629a2cb335dfe:schem
 #QuotaShareCapacityLimit:                schema.#QuotaShareCapacityLimit
 #QuotaSharePreemptionConfiguration:      schema.#QuotaSharePreemptionConfiguration
 #QuotaShareResourceSharingConfiguration: schema.#QuotaShareResourceSharingConfiguration
-#ResourceArn:                            schema.#ResourceArn

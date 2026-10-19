@@ -1,0 +1,5 @@
+Resources:
+  Thing:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      TargetType: lambda

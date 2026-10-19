@@ -8,13 +8,8 @@ import schema "github.com/cueformation/cfn-cue/resources/hf8c234d13fefa0b0:schem
 #Certificate:                         schema.#Certificate
 #CertificateList:                     schema.#CertificateList
 #CertificateLocation:                 schema.#CertificateLocation
-#CodeInterpreterArn:                  schema.#CodeInterpreterArn
-#CodeInterpreterId:                   schema.#CodeInterpreterId
 #CodeInterpreterNetworkConfiguration: schema.#CodeInterpreterNetworkConfiguration
 #CodeInterpreterNetworkMode:          schema.#CodeInterpreterNetworkMode
-#CodeInterpreterStatus:               schema.#CodeInterpreterStatus
-#CodeInterpreterSummaries:            schema.#CodeInterpreterSummaries
-#CodeInterpreterSummary:              schema.#CodeInterpreterSummary
 #Description:                         schema.#Description
 #RoleArn:                             schema.#RoleArn
 #SandboxName:                         schema.#SandboxName

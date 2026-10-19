@@ -2,6 +2,7 @@ package generate
 
 import (
 	"cuelang.org/go/cue/ast"
+	"cuelang.org/go/cue/parser"
 	"cuelang.org/go/cue/token"
 	"fmt"
 	"regexp"
@@ -56,7 +57,9 @@ func Intrinsics(extensions bool) *ast.File {
 	fn("Equals", "Fn::Equals", tuple(r("RuleValue"), r("RuleValue")))
 	add("RuleValueExpression", refs("RefAll", "ValueOf", "ValueOfAll"))
 	add("RuleValue", union(r("Value"), r("RuleValueExpression")))
-	add("RuleList", union(r("ListValue"), refs("RefAll", "ValueOfAll")))
+	// Fn::ValueOf returns a list for a list parameter, such as the VpcId of
+	// each subnet in a List<AWS::EC2::Subnet::Id>.
+	add("RuleList", union(r("ListValue"), refs("RefAll", "ValueOf", "ValueOfAll")))
 	fn("Contains", "Fn::Contains", tuple(r("RuleList"), r("RuleValue")))
 	fn("EachMemberEquals", "Fn::EachMemberEquals", tuple(r("RuleList"), r("RuleValue")))
 	fn("EachMemberIn", "Fn::EachMemberIn", tuple(r("RuleList"), r("RuleList")))
@@ -65,6 +68,20 @@ func Intrinsics(extensions bool) *ast.File {
 	fn("ValueOfAll", "Fn::ValueOfAll", tuple(id("string"), id("string")))
 	add("ConditionExpression", union(id("bool"), condition))
 	fn("If", "Fn::If", tuple(id("string"), r("Value"), r("Value")))
+	// CloudFormation converts a number or boolean chosen by Fn::If for a
+	// string result to its string form, as it does for a literal property
+	// value, so Fn::If: [C, 2, x] is a string. Only Fn::If branches gain these
+	// scalars: #StringValue and function arguments keep their string type.
+	// Lists, objects and null remain invalid branches.
+	stringBranch := func(values []ast.Expr, number, boolean bool) []ast.Expr {
+		if !number {
+			values = append(values, id("number"))
+		}
+		if !boolean {
+			values = append(values, id("bool"))
+		}
+		return values
+	}
 	classLiterals := map[string]ast.Expr{}
 	for _, name := range []string{"String", "Number", "Boolean", "List", "Object"} {
 		literal := map[string]ast.Expr{"String": id("string"), "Number": id("number"), "Boolean": id("bool"), "List": r("List"), "Object": r("Object")}[name]
@@ -77,7 +94,11 @@ func Intrinsics(extensions bool) *ast.File {
 		}
 		classLiterals[name] = literal
 		add(name+"Value", union(literal, r(name+"Expression")))
-		fn("If"+name, "Fn::If", tuple(id("string"), r(name+"Value"), r(name+"Value")))
+		branch := r(name + "Value")
+		if name == "String" {
+			branch = union(append(stringBranch([]ast.Expr{literal}, false, false), r(name+"Expression"))...)
+		}
+		fn("If"+name, "Fn::If", tuple(id("string"), branch, branch))
 	}
 	add("String", r("StringValue"))
 	add("Number", r("NumberValue"))
@@ -109,11 +130,29 @@ func Intrinsics(extensions bool) *ast.File {
 		stringNames = append(stringNames, "ToJsonString")
 		numberNames = append(numberNames, "Length")
 	}
-	add("StringExpression", refs(stringNames...))
-	add("NumberExpression", refs(numberNames...))
-	add("BooleanExpression", refs(boolNames...))
-	add("ListExpression", refs(listNames...))
-	add("ObjectExpression", refs(objectNames...))
+	// CloudFormation resolves a dynamic reference before it checks the
+	// property, so a string, number or boolean property accepts one in place
+	// of its literal constraints, as cfn-lint does. The value is a string.
+	add("DynamicReference", and(id("string"), &ast.UnaryExpr{Op: token.MAT, X: str(dynamicReferencePattern)}))
+	addImport(f, "net", "net")
+	for _, name := range []string{"IPv4Address", "IPv6Address", "IPv4Network", "IPv4NetworkMasks", "IPv6Network"} {
+		x, err := parser.ParseExpr(name, networkFormats[name])
+		if err != nil {
+			panic(err)
+		}
+		add(name, x)
+	}
+	expression := func(class string, names []string) ast.Expr {
+		if strings.Contains(class, "String") || strings.Contains(class, "Number") || strings.Contains(class, "Boolean") {
+			return union(refs(names...), r("DynamicReference"))
+		}
+		return refs(names...)
+	}
+	add("StringExpression", expression("String", stringNames))
+	add("NumberExpression", expression("Number", numberNames))
+	add("BooleanExpression", expression("Boolean", boolNames))
+	add("ListExpression", expression("List", listNames))
+	add("ObjectExpression", expression("Object", objectNames))
 	// A union of return classes needs one function table, not a disjunction
 	// of tables with different optional Fn::If fields. Shared functions such
 	// as Ref would otherwise match several distinct, incomplete alternatives.
@@ -138,15 +177,21 @@ func Intrinsics(extensions bool) *ast.File {
 				}
 			}
 		}
+		// A numeric or boolean class already decides those scalars.
+		if mask&1 != 0 {
+			values = stringBranch(values, mask&2 != 0, mask&4 != 0)
+		}
 		branch := union(append(values, r(name+"Expression"))...)
 		fn("If"+name, "Fn::If", tuple(id("string"), branch, branch))
-		add(name+"Expression", refs(append(names, "If"+name)...))
+		add(name+"Expression", expression(name, append(names, "If"+name)))
 	}
 	all := []string{"Ref", "GetAtt", "FindInMap", "Select", "Transform", "Base64", "ImportValue", "Join", "Sub", "GetStackOutput", "If", "Cidr", "GetAZs", "Split"}
 	if extensions {
 		all = append(all, "Length", "ToJsonString")
 	}
-	add("ValueExpression", refs(all...))
+	// Schemas without a type, such as enum-only or format-only properties,
+	// fall back to ValueExpression and accept dynamic references too.
+	add("ValueExpression", union(refs(all...), r("DynamicReference")))
 	names := map[string]string{}
 	for name := range signatures {
 		names[name] = name
@@ -184,15 +229,76 @@ func Intrinsics(extensions bool) *ast.File {
 		}
 		return keyed(fields)
 	}
+	// NoValue uses the same keyed form, so an empty object, which a branch
+	// such as an all-optional Properties or UpdatePolicy also accepts, does not
+	// leave the choice between them ambiguous.
 	for _, name := range sortedStringKeys(names) {
-		if name == "NoValue" {
-			add(name, obj(field("Ref", str("AWS::NoValue"), false)))
-		} else {
-			add(name, restriction([]string{name}))
-		}
+		add(name, restriction([]string{name}))
 	}
 	for i, names := range choices {
 		add(fmt.Sprintf("Choice%d", i), restriction(names))
 	}
 	return f
+}
+
+// networkFormats check the ipv4, ipv6, ipv4-network and ipv6-network formats
+// as cfn-lint does with Python's ipaddress module. A network is an address
+// with an optional prefix length and no host bits set. Like any format, they
+// constrain only strings.
+//
+// Python's IPv4Network also accepts a dotted netmask or hostmask in place of
+// the prefix length, such as 10.0.0.0/255.0.0.0 or 10.0.0.0/0.255.255.255.
+// Only a contiguous mask is valid, and Python rejects leading zeros in its
+// octets, so each valid mask has one spelling: #IPv4NetworkMasks maps all of
+// them to their prefix lengths. The address is then checked with that prefix,
+// including its host bits. As in Python, a mask that reads as both a netmask
+// and a hostmask (0.0.0.0 and 255.255.255.255) is a netmask.
+var networkFormats = map[string]string{
+	// Like Python's IPv4Address, Go's netip rejects IPv4 leading zeros.
+	"IPv4Address": `string & =~"^[0-9.]+$" & net.IPv4 | number | bool | null | [...] | {...}`,
+	"IPv6Address": `string & =~":" & net.IPv6 | number | bool | null | [...] | {...}`,
+	"IPv4Network": `{
+	string & =~"^[0-9.]+/[0-9]+$" & net.IPCIDR
+	_hostBits: net.IPString(cfnScalarStrings.SplitN(self, "/", 2)[0]) & net.ParseCIDR(self).prefix_addr
+} | {
+	string & =~"^[0-9.]+/[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$"
+	_cidr: cfnScalarStrings.SplitN(self, "/", 2)[0] + "/" + #IPv4NetworkMasks[cfnScalarStrings.SplitN(self, "/", 2)[1]]
+	_cidr: net.IPCIDR
+	_hostBits: net.IPString(cfnScalarStrings.SplitN(_cidr, "/", 2)[0]) & net.ParseCIDR(_cidr).prefix_addr
+} | string & =~"^[0-9.]+$" & net.IPv4 | number | bool | null | [...] | {...}`,
+	"IPv4NetworkMasks": ipv4NetworkMasks(),
+	"IPv6Network": `{
+	string & =~":" & =~"/[0-9]+$" & net.IPCIDR
+	_hostBits: net.IPString(cfnScalarStrings.SplitN(self, "/", 2)[0]) & net.ParseCIDR(self).prefix_addr
+} | string & =~":" & !~"/" & net.IPv6 | number | bool | null | [...] | {...}`,
+}
+
+// ipv4NetworkMasks returns a closed CUE struct from each valid dotted IPv4
+// netmask and hostmask to its prefix length, as Python's IPv4Network reads
+// them: a netmask first, then a hostmask.
+func ipv4NetworkMasks() string {
+	dotted := func(x uint32) string {
+		return fmt.Sprintf("%d.%d.%d.%d", x>>24, x>>16&0xff, x>>8&0xff, x&0xff)
+	}
+	prefixes := map[string]int{}
+	var order []string
+	for _, hostmask := range []bool{false, true} {
+		for prefix := 0; prefix <= 32; prefix++ {
+			mask := uint32(0xffffffff) << (32 - prefix) // Go shifts of 32 give 0.
+			if hostmask {
+				mask = ^mask
+			}
+			if _, found := prefixes[dotted(mask)]; !found {
+				prefixes[dotted(mask)] = prefix
+				order = append(order, dotted(mask))
+			}
+		}
+	}
+	var b strings.Builder
+	b.WriteString("close({\n")
+	for _, mask := range order {
+		fmt.Fprintf(&b, "\t%q: %q\n", mask, fmt.Sprint(prefixes[mask]))
+	}
+	b.WriteString("})")
+	return b.String()
 }

@@ -3,77 +3,58 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::NetworkManager::CoreNetwork Resource Type Definition.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::NetworkManager::CoreNetwork"
-	Properties!: close({
-		Description?:     strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-		GlobalNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		GlobalNetworkId!: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		PolicyDocument?: fn.#Object & {...} |
 		strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
 		fn.#StringObjectExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#CoreNetworkEdge: close({
-	Asn?: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	EdgeLocation?:     string | fn.#StringExpression
-	InsideCidrBlocks?: [...string | fn.#StringExpression] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#CoreNetworkNetworkFunctionGroup: close({
-	EdgeLocations?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Name?:          string | fn.#StringExpression
-	Segments?: close({
-		SendTo?:  [...string | fn.#StringExpression] | fn.#ListExpression
-		SendVia?: [...string | fn.#StringExpression] | fn.#ListExpression
-	}) |
-	fn.#ObjectExpression
-}) |
-fn.#ObjectExpression
-
-#CoreNetworkSegment: close({
-	EdgeLocations?:  [...string | fn.#StringExpression] | fn.#ListExpression
-	Name?:           string | fn.#StringExpression
-	SharedSegments?: [...string | fn.#StringExpression] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
-	Key!:   strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000000) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

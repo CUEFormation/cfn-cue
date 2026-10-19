@@ -2,6 +2,8 @@
 
 package schema
 
+import "github.com/cueformation/cfn-cue/fn:fn"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema of AWS::EC2::IPAMAllocation Type
@@ -21,4 +23,4 @@ package schema
 })
 
 // Represents an IPAM custom allocation of a single IPv4 or IPv6 CIDR
-#Cidr: string
+#Cidr: fn.#IPv4Network & string

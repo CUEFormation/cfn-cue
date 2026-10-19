@@ -6,17 +6,26 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SecretsManager::SecretTargetAttachment
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecretsManager::SecretTargetAttachment"
-	Properties!: close({
-		SecretId!:   strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		TargetId!:   string | fn.#StringExpression
-		TargetType!: string | fn.#StringExpression
+	let properties = close({
+		SecretId!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		TargetId!:   string | number | bool | fn.#StringExpression
+		TargetType!: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

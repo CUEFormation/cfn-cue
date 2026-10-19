@@ -7,33 +7,55 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::RoutingProfile
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::RoutingProfile"
-	Properties!: close({
+	let properties = close({
 		AgentAvailabilityTimer?: "TIME_SINCE_LAST_ACTIVITY" | "TIME_SINCE_LAST_INBOUND" | fn.#StringExpression
 		DefaultOutboundQueueArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/queue/[-a-zA-Z0-9]*$" |
-			fn.#StringExpression
-		Description!: strings.MaxRunes(250) & strings.MinRunes(1) | fn.#StringExpression
-		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/queue/[-a-zA-Z0-9]*$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		Description!: strings.MaxRunes(250) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(250) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ManualAssignmentQueueConfigs?: list.MaxItems(10) & list.MinItems(1) & [
 			...#RoutingProfileManualAssignmentQueueConfig
 		] |
 			fn.#ListExpression
 		MediaConcurrencies!: [...#MediaConcurrency] | fn.#ListExpression
-		Name!:               strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-		QueueConfigs?:       list.MinItems(1) & [...#RoutingProfileQueueConfig] | fn.#ListExpression
-		Tags?:               list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Name!: strings.MaxRunes(127) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		QueueConfigs?: list.MinItems(1) & [...#RoutingProfileQueueConfig] | fn.#ListExpression
+		Tags?:         list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #BehaviorType: "ROUTE_CURRENT_CHANNEL_ONLY" | "ROUTE_ANY_CHANNEL" | fn.#StringExpression
@@ -101,7 +123,12 @@ fn.#ObjectExpression
 	fn.#NumberExpression
 
 #QueueArn: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/queue/[-a-zA-Z0-9]*$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*/queue/[-a-zA-Z0-9]*$" &
+		"\(self)"
+} |
+fn.#StringExpression
 
 #RoutingProfileManualAssignmentQueueConfig: close({QueueReference!: #RoutingProfileQueueReference}) |
 	fn.#ObjectExpression
@@ -120,7 +147,22 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

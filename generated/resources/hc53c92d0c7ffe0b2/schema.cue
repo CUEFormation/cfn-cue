@@ -3,17 +3,21 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a GraphQL type in an AWS AppSync GraphQL API.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppSync::Type"
-	Properties!: close({
-		ApiId!:      string | fn.#StringExpression
-		Definition!: string | fn.#StringExpression
+	let properties = close({
+		ApiId!:      string | number | bool | fn.#StringExpression
+		Definition!: string | number | bool | fn.#StringExpression
 		Format!:     "SDL" | "JSON" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

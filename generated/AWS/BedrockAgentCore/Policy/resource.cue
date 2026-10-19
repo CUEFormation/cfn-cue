@@ -9,5 +9,4 @@ import schema "github.com/cueformation/cfn-cue/resources/h88e492e105550378:schem
 #EnforcementMode:      schema.#EnforcementMode
 #PolicyDefinition:     schema.#PolicyDefinition
 #PolicyStatement:      schema.#PolicyStatement
-#PolicyStatus:         schema.#PolicyStatus
 #PolicyValidationMode: schema.#PolicyValidationMode

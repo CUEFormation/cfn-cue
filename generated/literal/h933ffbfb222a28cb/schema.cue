@@ -140,14 +140,18 @@ import (
 	FormName!: #FormName
 
 	// The ID of the metadata form type.
-	TypeIdentifier?: strings.MaxRunes(385) & strings.MinRunes(1)
+	TypeIdentifier?: =~"^[\\w\\.]*\\w$" &
+	matchN(0, [=~"^(?:\\.)"]) &
+	string &
+	strings.MaxRunes(385) &
+	strings.MinRunes(1)
 
 	// The revision of the metadata form type.
 	TypeRevision?: #TypeRevision
 })
 
 // The name of the metadata form.
-#FormName: strings.MaxRunes(128) & strings.MinRunes(1)
+#FormName: (=~"^_\\w*[a-zA-Z0-9]\\w*$" | =~"^\\w+$" & matchN(0, [=~"^(?:[0-9_])"]) & string) & (strings.MaxRunes(128) & strings.MinRunes(1))
 
 #GlueRunConfigurationInput: close({
 	// Specifies whether to automatically import data quality metrics as part of the data source run.

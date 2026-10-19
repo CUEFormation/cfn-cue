@@ -7,10 +7,5 @@ import schema "github.com/cueformation/cfn-cue/resources/h67ce621e3982ba40:schem
 #Resource:                   schema.#Resource
 #AzureProviderConfiguration: schema.#AzureProviderConfiguration
 #AzureScopeConfiguration:    schema.#AzureScopeConfiguration
-#ConnectorStatus:            schema.#ConnectorStatus
-#EnablementStatus:           schema.#EnablementStatus
-#HealthIssue:                schema.#HealthIssue
-#HealthIssueCode:            schema.#HealthIssueCode
-#ISO8601DateString:          schema.#ISO8601DateString
 #Provider:                   schema.#Provider
 #Tags:                       schema.#Tags

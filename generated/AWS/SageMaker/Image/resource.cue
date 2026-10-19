@@ -5,7 +5,6 @@ package Image
 import schema "github.com/cueformation/cfn-cue/resources/h3211995b17eb3616:schema"
 
 #Resource:         schema.#Resource
-#ImageArn:         schema.#ImageArn
 #ImageDescription: schema.#ImageDescription
 #ImageDisplayName: schema.#ImageDisplayName
 #ImageName:        schema.#ImageName

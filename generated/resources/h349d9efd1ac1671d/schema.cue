@@ -7,30 +7,33 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Version: None. Resource Type definition for AWS::DynamoDB::GlobalTable
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DynamoDB::GlobalTable"
-	Properties!: matchIf({
+	let properties = matchIf({
 		LocalSecondaryIndexes!: _
 		...
 	}, {
 		AttributeDefinitions?: null | bool | number | string | list.MinItems(2) | {...} | fn.#ValueExpression
 		KeySchema?:            null | bool | number | string | list.MinItems(2) | {...} | fn.#ValueExpression
 		...
-	}, _) & {...} & close({
+	}, _) & close({
 		AttributeDefinitions?:   list.MinItems(1) & list.UniqueItems() & [...#AttributeDefinition] | fn.#ListExpression
 		BillingMode?:            "PAY_PER_REQUEST" | "PROVISIONED" | fn.#StringExpression
 		GlobalSecondaryIndexes?: list.UniqueItems() & [...#GlobalSecondaryIndex] | fn.#ListExpression
-		GlobalTableSourceArn?:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		GlobalTableSourceArn?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		GlobalTableWitnesses?: list.MaxItems(1) & list.MinItems(1) & list.UniqueItems() & [...#GlobalTableWitness] |
 			fn.#ListExpression
 		KeySchema?: #KeySchema & (null | bool | number | string | list.MaxItems(2) & list.MinItems(1) | {...}) |
@@ -42,17 +45,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Replicas!:            list.MinItems(1) & list.UniqueItems() & [...#ReplicaSpecification] | fn.#ListExpression
 		SSESpecification?:    #SSESpecification
 		StreamSpecification?: #StreamSpecification
-		TableName?:           strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		TableName?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		TimeToLiveSpecification?:         #TimeToLiveSpecification
 		VectorIndexes?:                   list.MinItems(1) & list.UniqueItems() & [...#VectorIndex] | fn.#ListExpression
 		WarmThroughput?:                  #WarmThroughput
 		WriteOnDemandThroughputSettings?: #WriteOnDemandThroughputSettings
 		WriteProvisionedThroughputSettings?: #WriteProvisionedThroughputSettings
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AttributeDefinition: close({
-	AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	AttributeType!: "B" | "N" | "S" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -133,10 +150,20 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #GlobalSecondaryIndex: close({
-	IndexName!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+	IndexName!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	KeySchema!: list.MinItems(1) & list.UniqueItems() & [...close({
-		AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		KeyType!:       "HASH" | "RANGE" | fn.#StringExpression
+		AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		KeyType!: "HASH" | "RANGE" | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression] |
 	fn.#ListExpression
@@ -149,7 +176,7 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#GlobalTableWitness: close({Region?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#GlobalTableWitness: close({Region?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #KeySchema: list.UniqueItems() & {
 	[...]
@@ -161,25 +188,14 @@ fn.#ObjectExpression
 		KeyType!: "RANGE" | fn.#StringExpression
 		...
 	} | fn.#ObjectExpression
-	[>=2 | {
-		string &
-			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatFloat(
-					cfnScalarStrconv.ParseFloat(
-						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-						64,
-					) &
-						>=2,
-					"g",
-					-1,
-					64,
-				))*0 + 1,
-			)
-	}]: close({
-		AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		KeyType!:       "HASH" | "RANGE" | fn.#StringExpression
+	[>=2]: close({
+		AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		KeyType!: "HASH" | "RANGE" | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 } |
@@ -187,12 +203,17 @@ fn.#ListExpression
 
 #KinesisStreamSpecification: close({
 	ApproximateCreationDateTimePrecision?: "MICROSECOND" | "MILLISECOND" | fn.#StringExpression
-	StreamArn!:                            string | fn.#StringExpression
+	StreamArn!:                            string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LocalSecondaryIndex: close({
-	IndexName!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
+	IndexName!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	KeySchema!: #KeySchema & (null | bool | number | string | list.MaxItems(2) & list.MinItems(2) | {...}) |
 	fn.#ListExpression
 	Projection!: #Projection
@@ -226,9 +247,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Projection: close({
-	NonKeyAttributes?: list.MaxItems(20) & list.UniqueItems() & [
-		...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	NonKeyAttributes?: list.MaxItems(20) & list.UniqueItems() & [...strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	ProjectionType?: "ALL" | "INCLUDE" | "KEYS_ONLY" | fn.#StringExpression
 }) |
@@ -274,14 +298,27 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ReplicaGlobalSecondaryIndexSpecification: close({
-	ContributorInsightsSpecification?:  #ContributorInsightsSpecification
-	IndexName!:                         strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
+	ContributorInsightsSpecification?: #ContributorInsightsSpecification
+	IndexName!: strings.MaxRunes(255) & strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & "\(self)"
+	} |
+	fn.#StringExpression
 	ReadOnDemandThroughputSettings?:    #ReadOnDemandThroughputSettings
 	ReadProvisionedThroughputSettings?: #ReadProvisionedThroughputSettings
 }) |
 fn.#ObjectExpression
 
-#ReplicaSSESpecification: close({KMSMasterKeyId!: string & string | fn.#StringExpression}) | fn.#ObjectExpression
+#ReplicaSSESpecification: close({
+	KMSMasterKeyId!: string & string |
+	{
+		number | bool
+		_cfnString: string & string & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #ReplicaSpecification: close({
 	ContributorInsightsSpecification?: #ContributorInsightsSpecification
@@ -292,11 +329,11 @@ fn.#ObjectExpression
 	PointInTimeRecoverySpecification?:   #PointInTimeRecoverySpecification
 	ReadOnDemandThroughputSettings?:     #ReadOnDemandThroughputSettings
 	ReadProvisionedThroughputSettings?:  #ReadProvisionedThroughputSettings
-	Region!:                             string | fn.#StringExpression
+	Region!:                             string | number | bool | fn.#StringExpression
 	ReplicaStreamSpecification?:         #ReplicaStreamSpecification
 	ResourcePolicy?:                     #ResourcePolicy
 	SSESpecification?:                   #ReplicaSSESpecification
-	TableClass?:                         string | fn.#StringExpression
+	TableClass?:                         string | number | bool | fn.#StringExpression
 	Tags?:                               list.UniqueItems() & [...#Tag] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -307,7 +344,7 @@ fn.#ObjectExpression
 }) & matchN(>=1, [{ResourcePolicy!: _}, {Tags!: _}]) |
 fn.#ObjectExpression
 
-#ResourcePolicy: close({PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression}) |
+#ResourcePolicy: close({PolicyDocument!: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression}) |
 fn.#ObjectExpression
 
 #SSESpecification: close({
@@ -317,7 +354,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SearchSchemaElement: close({
-	AttributeName!:           strings.MaxRunes(65535) & strings.MinRunes(0) | fn.#StringExpression
+	AttributeName!: strings.MaxRunes(65535) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(65535) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	SearchSchemaElementType!: "HASH" | "INLINE_FILTER" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -328,8 +370,8 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -388,12 +430,19 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TimeToLiveSpecification: close({
-	AttributeName?: string | fn.#StringExpression
+	AttributeName?: string | number | bool | fn.#StringExpression
 	Enabled!:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-#VectorAttribute: close({AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression}) |
+#VectorAttribute: close({
+	AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #VectorIndex: close({
@@ -414,10 +463,15 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	DistanceFunction!: "COSINE" | "DOT_PRODUCT" | "EUCLIDEAN" | fn.#StringExpression
-	IndexName!:        strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" | fn.#StringExpression
-	Projection!:       #Projection
-	SearchSchema?:     list.MinItems(1) & list.UniqueItems() & [...#SearchSchemaElement] | fn.#ListExpression
-	VectorAttribute!:  #VectorAttribute
+	IndexName!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_.-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Projection!:      #Projection
+	SearchSchema?:    list.MinItems(1) & list.UniqueItems() & [...#SearchSchemaElement] | fn.#ListExpression
+	VectorAttribute!: #VectorAttribute
 }) |
 fn.#ObjectExpression
 

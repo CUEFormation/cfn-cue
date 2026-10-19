@@ -2,7 +2,10 @@
 
 package schema
 
-import "list"
+import (
+	"list"
+	"strings"
+)
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -77,4 +80,9 @@ import "list"
 #Provider: close({Azure!: #AzureProviderConfiguration})
 
 // A key-value pair to associate with a resource.
-#Tags: {...}
+#Tags: close({
+
+	{[=~"^(?:aws:)"]: error("disallowed")}
+
+	{[=~"^[a-zA-Z+-=._:/]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(0)}
+})

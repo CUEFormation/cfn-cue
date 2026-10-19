@@ -4,7 +4,5 @@ package NotificationHub
 
 import schema "github.com/cueformation/cfn-cue/resources/hb7dbe6bd5b22279e:schema"
 
-#Resource:                     schema.#Resource
-#NotificationHubStatus:        schema.#NotificationHubStatus
-#NotificationHubStatusSummary: schema.#NotificationHubStatusSummary
-#Region:                       schema.#Region
+#Resource: schema.#Resource
+#Region:   schema.#Region

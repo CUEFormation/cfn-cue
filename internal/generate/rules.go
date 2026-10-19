@@ -16,6 +16,9 @@ import (
 type fieldRules struct {
 	excluded [][3]string // field, other field, message suffix
 	atLeast  [][]string  // at least one field of each group must be set
+	// scoped holds compiled cfn-lint rules, which read the named fields.
+	scoped      []ast.Decl
+	scopedNames []string
 }
 
 // A placeholder property marks the object's struct for applyRules.
@@ -104,7 +107,7 @@ func (r *fieldRules) exclude(m map[string]any) {
 
 // mark adds a placeholder property for r to normalized object m.
 func (c *converter) mark(m map[string]any, r *fieldRules) {
-	if len(r.excluded) == 0 && len(r.atLeast) == 0 {
+	if len(r.excluded) == 0 && len(r.atLeast) == 0 && len(r.scoped) == 0 {
 		return
 	}
 	props, _ := m["properties"].(map[string]any)
@@ -166,8 +169,8 @@ func (c *converter) applyRules(f *ast.File) error {
 		}
 		return true
 	})
-	for i := range c.rules {
-		if !placed[i] {
+	for i, r := range c.rules {
+		if r != nil && !placed[i] {
 			return fmt.Errorf("field rule %d was not placed by the JSON Schema extractor", i)
 		}
 	}
@@ -185,6 +188,9 @@ func (r *fieldRules) names() map[string]bool {
 		for _, n := range g {
 			out[n] = true
 		}
+	}
+	for _, n := range r.scopedNames {
+		out[n] = true
 	}
 	return out
 }
@@ -213,6 +219,7 @@ func (r *fieldRules) cue() ([]ast.Decl, ast.Expr) {
 			Value: body,
 		})
 	}
+	decls = append(decls, r.scoped...)
 	var checks []ast.Expr
 	for _, names := range r.atLeast {
 		alternatives := []ast.Expr{}

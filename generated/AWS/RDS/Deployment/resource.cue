@@ -4,7 +4,5 @@ package Deployment
 
 import schema "github.com/cueformation/cfn-cue/resources/h181eca5ba3683eab:schema"
 
-#Resource:         schema.#Resource
-#DeploymentTask:   schema.#DeploymentTask
-#SwitchoverDetail: schema.#SwitchoverDetail
-#Tag:              schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

@@ -7,21 +7,24 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GlobalAccelerator::EndpointGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GlobalAccelerator::EndpointGroup"
-	Properties!: close({
+	let properties = close({
 		EndpointConfigurations?: list.MaxItems(10) & [...] & [...#EndpointConfiguration] | fn.#ListExpression
-		EndpointGroupRegion!:    strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		EndpointGroupRegion!: strings.MaxRunes(255) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		HealthCheckIntervalSeconds?: int & <=30 & >=10 |
 			{
 				string &
@@ -41,6 +44,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		HealthCheckPath?: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^/[-a-zA-Z0-9@:%_\\\\+.~#?&/=]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^/[-a-zA-Z0-9@:%_\\\\+.~#?&/=]*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		HealthCheckPort?: int & <=65535 & >=-1 |
 			{
@@ -61,8 +68,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		HealthCheckProtocol?: "TCP" | "HTTP" | "HTTPS" | fn.#StringExpression
-		ListenerArn!:         strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-		PortOverrides?:       list.MaxItems(10) & [...] & [...#PortOverride] | fn.#ListExpression
+		ListenerArn!: strings.MaxRunes(255) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		PortOverrides?: list.MaxItems(10) & [...] & [...#PortOverride] | fn.#ListExpression
 		ThresholdCount?: int & <=10 & >=1 |
 			{
 				string &
@@ -102,12 +114,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #EndpointConfiguration: close({
-	AttachmentArn?:               strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	AttachmentArn?: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	ClientIPPreservationEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EndpointId!:                  strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	EndpointId!: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	Weight?: int & <=255 & >=0 |
 		{
 			string &

@@ -4,6 +4,5 @@ package Application
 
 import schema "github.com/cueformation/cfn-cue/resources/h8e63acbdcca77401:schema"
 
-#Resource:         schema.#Resource
-#IdCConfiguration: schema.#IdCConfiguration
-#Tag:              schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

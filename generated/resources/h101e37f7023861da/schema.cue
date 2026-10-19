@@ -7,25 +7,44 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for an AWS Serverless Application Repository application.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ServerlessRepo::Application"
-	Properties!: close({
-		Author!:          strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-		Description!:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		HomePageUrl?:     string | fn.#StringExpression
-		Labels?:          list.MaxItems(10) & [...string | fn.#StringExpression] | fn.#ListExpression
-		LicenseBody?:     string | fn.#StringExpression
-		Name!:            strings.MaxRunes(140) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\-]+" | fn.#StringExpression
-		ReadmeBody?:      string | fn.#StringExpression
-		SemanticVersion?: string | fn.#StringExpression
-		SourceCodeUrl?:   string | fn.#StringExpression
-		SpdxLicenseId?:   string | fn.#StringExpression
-		TemplateBody?:    string | fn.#StringExpression
+	let properties = close({
+		Author!: strings.MaxRunes(127) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Description!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		HomePageUrl?: string | number | bool | fn.#StringExpression
+		Labels?:      list.MaxItems(10) & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		LicenseBody?: string | number | bool | fn.#StringExpression
+		Name!: strings.MaxRunes(140) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(140) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\-]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		ReadmeBody?:      string | number | bool | fn.#StringExpression
+		SemanticVersion?: string | number | bool | fn.#StringExpression
+		SourceCodeUrl?:   string | number | bool | fn.#StringExpression
+		SpdxLicenseId?:   string | number | bool | fn.#StringExpression
+		TemplateBody?:    string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

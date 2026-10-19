@@ -4,12 +4,9 @@ package Capability
 
 import schema "github.com/cueformation/cfn-cue/resources/h6da5750a5b2e7915:schema"
 
-#Resource:                schema.#Resource
-#Ack:                     schema.#Ack
-#ArgoCd:                  schema.#ArgoCd
-#ArgoCdRoleMapping:       schema.#ArgoCdRoleMapping
-#AwsIdc:                  schema.#AwsIdc
-#CapabilityConfiguration: schema.#CapabilityConfiguration
-#NetworkAccess:           schema.#NetworkAccess
-#SsoIdentity:             schema.#SsoIdentity
-#Tag:                     schema.#Tag
+#Resource:          schema.#Resource
+#Ack:               schema.#Ack
+#ArgoCdRoleMapping: schema.#ArgoCdRoleMapping
+#NetworkAccess:     schema.#NetworkAccess
+#SsoIdentity:       schema.#SsoIdentity
+#Tag:               schema.#Tag

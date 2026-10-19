@@ -5,5 +5,4 @@ package Service
 import schema "github.com/cueformation/cfn-cue/resources/hb038cf15ba6df18b:schema"
 
 #Resource: schema.#Resource
-#DnsEntry: schema.#DnsEntry
 #Tag:      schema.#Tag

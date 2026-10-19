@@ -4,6 +4,5 @@ package CompositeAlarm
 
 import schema "github.com/cueformation/cfn-cue/resources/h47bc3223d6d88916:schema"
 
-#Resource:       schema.#Resource
-#AlarmActionARN: schema.#AlarmActionARN
-#Tag:            schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

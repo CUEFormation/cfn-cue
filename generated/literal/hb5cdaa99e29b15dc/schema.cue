@@ -17,7 +17,7 @@ import (
 	CreationTime?: string
 
 	// A description of the event bus. Control characters and Unicode line separators are not allowed.
-	Description?: strings.MaxRunes(512)
+	Description?: =~"^[^\\x{0000}-\\x{001F}\\x{007F}-\\x{009F}\\x{2028}\\x{2029}]*$" & strings.MaxRunes(512)
 
 	// Encryption configuration for the event bus. The service stores and returns
 	// the customer managed key as its key ARN. The key ARN is recommended so that
@@ -69,9 +69,9 @@ import (
 	// The tag key. For each resource, each tag key must be unique and each key can
 	// have only one value; keys are case sensitive. A key cannot begin or end with
 	// a whitespace character; whitespace inside the key is allowed.
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!: =~"^\\S([\\s\\S]*\\S)?$" & (strings.MaxRunes(128) & strings.MinRunes(1))
 
 	// The tag value. May be empty. A value cannot begin or end with a whitespace
 	// character; whitespace inside the value is allowed.
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0)
+	Value!: =~"^(\\S([\\s\\S]*\\S)?)?$" & (strings.MaxRunes(256) & strings.MinRunes(0))
 })

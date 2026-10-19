@@ -24,7 +24,11 @@ import "strings"
 	DashboardName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$"
 
 	// The ID of the project in which to create the dashboard.
-	ProjectId?: strings.MaxRunes(36) & strings.MinRunes(36)
+	ProjectId?: =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+	matchN(0, [=~"^(?:00000000-0000-0000-0000-000000000000)"]) &
+	string &
+	strings.MaxRunes(36) &
+	strings.MinRunes(36)
 
 	// A list of key-value pairs that contain metadata for the dashboard.
 	Tags?: [...#Tag]

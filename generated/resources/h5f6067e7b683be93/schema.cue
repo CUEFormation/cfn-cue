@@ -6,39 +6,58 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MSK::VpcConnection
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MSK::VpcConnection"
-	Properties!: close({
+	let properties = close({
 		Authentication!:   #Authentication
 		ClientSubnets!:    #ClientSubnets
 		SecurityGroups!:   #SecurityGroups
 		Tags?:             #Tags
-		TargetClusterArn!: string | fn.#StringExpression
+		TargetClusterArn!: string | number | bool | fn.#StringExpression
 		VpcId!:            #VpcId
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Authentication: ("SASL_IAM" | "SASL_SCRAM" | "TLS") & (strings.MaxRunes(10) & strings.MinRunes(3)) |
+{
+	number | bool
+	_cfnString: ("SASL_IAM" | "SASL_SCRAM" | "TLS") & strings.MaxRunes(10) & strings.MinRunes(3) & "\(self)"
+} |
 fn.#StringExpression
 
-#ClientSubnets: [...string | fn.#StringExpression] | fn.#ListExpression
+#ClientSubnets: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 
-#SecurityGroups: [
-	...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-] |
-	fn.#ListExpression
+#SecurityGroups: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+{
+	number | bool
+	_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+} |
+fn.#StringExpression] |
+fn.#ListExpression
 
 #Tags: close({
 
-	{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | number | bool | fn.#StringExpression}
+}) |
 fn.#ObjectExpression
 
-#VpcId: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-	fn.#StringExpression
+#VpcId: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+{
+	number | bool
+	_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+} |
+fn.#StringExpression

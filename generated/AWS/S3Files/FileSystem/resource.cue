@@ -4,8 +4,7 @@ package FileSystem
 
 import schema "github.com/cueformation/cfn-cue/resources/ha174c50d940570c4:schema"
 
-#Resource:                     schema.#Resource
-#ExpirationDataRule:           schema.#ExpirationDataRule
-#ImportDataRule:               schema.#ImportDataRule
-#SynchronizationConfiguration: schema.#SynchronizationConfiguration
-#Tag:                          schema.#Tag
+#Resource:           schema.#Resource
+#ExpirationDataRule: schema.#ExpirationDataRule
+#ImportDataRule:     schema.#ImportDataRule
+#Tag:                schema.#Tag

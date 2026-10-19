@@ -15,6 +15,4 @@ import schema "github.com/cueformation/cfn-cue/resources/h0543738693bf7047:schem
 #PermissionType:              schema.#PermissionType
 #RoleValues:                  schema.#RoleValues
 #SamlConfiguration:           schema.#SamlConfiguration
-#SamlConfigurationStatus:     schema.#SamlConfigurationStatus
 #VpcConfiguration:            schema.#VpcConfiguration
-#WorkspaceStatus:             schema.#WorkspaceStatus

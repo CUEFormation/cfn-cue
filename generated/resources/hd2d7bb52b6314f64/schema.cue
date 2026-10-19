@@ -7,8 +7,8 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,20 +17,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // resource applies only to Aurora DB clusters.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RDS::DBClusterEndpoint"
-	Properties!: close({
+	let properties = close({
 		CustomEndpointType!: "READER" | "WRITER" | "ANY" | fn.#StringExpression
 		DBClusterEndpointIdentifier!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		DBClusterIdentifier!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$" & "\(self)"
+		} |
 		fn.#StringExpression
-		ExcludedMembers?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		StaticMembers?:   list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		ExcludedMembers?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		StaticMembers?:   list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Tags?:            list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

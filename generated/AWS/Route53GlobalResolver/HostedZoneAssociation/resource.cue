@@ -4,8 +4,7 @@ package HostedZoneAssociation
 
 import schema "github.com/cueformation/cfn-cue/resources/h985f2dc430ddb16f:schema"
 
-#Resource:                    schema.#Resource
-#HostedZoneAssociationStatus: schema.#HostedZoneAssociationStatus
-#HostedZoneId:                schema.#HostedZoneId
-#ResourceArn:                 schema.#ResourceArn
-#ResourceName:                schema.#ResourceName
+#Resource:     schema.#Resource
+#HostedZoneId: schema.#HostedZoneId
+#ResourceArn:  schema.#ResourceArn
+#ResourceName: schema.#ResourceName

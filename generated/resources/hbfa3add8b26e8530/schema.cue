@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -13,9 +13,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // applied to.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::UsagePlanKey"
-	Properties!: close({
-		KeyId!:       string | fn.#StringExpression
+	let properties = close({
+		KeyId!:       string | number | bool | fn.#StringExpression
 		KeyType!:     "API_KEY" | fn.#StringExpression
-		UsagePlanId!: string | fn.#StringExpression
+		UsagePlanId!: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

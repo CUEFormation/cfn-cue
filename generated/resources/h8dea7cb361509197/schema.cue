@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,9 +17,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // CodePipeline)
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodeConnections::Connection"
-	Properties!: close({
-		ConnectionName!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
+	let properties = close({
+		ConnectionName!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		HostArn?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"arn:aws(-[\\w]+)*:.+:.+:[0-9]{12}:.+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) &
+			strings.MinRunes(0) &
+			=~"arn:aws(-[\\w]+)*:.+:.+:[0-9]{12}:.+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ProviderType?: "AzureDevOps" |
 			"Bitbucket" |
@@ -30,10 +42,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#StringExpression
 		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -6,19 +6,17 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Route53GlobalResolver::FirewallRule
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53GlobalResolver::FirewallRule"
-	Properties!: close({
+	let properties = close({
 		Action!:               #FirewallRuleAction
 		BlockOverrideDnsType?: #BlockOverrideDnsQueryType
 		BlockOverrideDomain?:  #Domain
@@ -40,14 +38,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		BlockResponse?:         #FirewallBlockResponse
-		ClientToken?:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		BlockResponse?: #FirewallBlockResponse
+		ClientToken?: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ConfidenceThreshold?:   #ConfidenceThreshold
 		Description?:           #ResourceDescription
 		DnsAdvancedProtection?: #DnsAdvancedProtection
-		DnsViewId!:             strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
-		FirewallDomainListId?:  strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" | fn.#StringExpression
-		Name!:                  #ResourceName
+		DnsViewId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		FirewallDomainListId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[-.a-zA-Z0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: #ResourceName
 		Priority?: int & <=10000 & >=1 |
 			{
 				string &
@@ -66,24 +79,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		QType?: strings.MaxRunes(16) & strings.MinRunes(0) | fn.#StringExpression
+		QType?: strings.MaxRunes(16) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(16) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #BlockOverrideDnsQueryType: "CNAME" | fn.#StringExpression
-
-#CRResourceStatus: "CREATING" | "OPERATIONAL" | "UPDATING" | "DELETING" | fn.#StringExpression
 
 #ConfidenceThreshold: "LOW" | "MEDIUM" | "HIGH" | fn.#StringExpression
 
 #DnsAdvancedProtection: "DGA" | "DNS_TUNNELING" | "DICTIONARY_DGA" | fn.#StringExpression
 
-#Domain: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\*?[-a-zA-Z0-9.]+" | fn.#StringExpression
+#Domain: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\*?[-a-zA-Z0-9.]+" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\*?[-a-zA-Z0-9.]+" & "\(self)"
+} |
+fn.#StringExpression
 
 #FirewallBlockResponse: "NODATA" | "NXDOMAIN" | "OVERRIDE" | fn.#StringExpression
 
 #FirewallRuleAction: "ALLOW" | "ALERT" | "BLOCK" | fn.#StringExpression
 
-#ResourceDescription: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+#ResourceDescription: strings.MaxRunes(256) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#ResourceName: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+#ResourceName: (=~"^(?:([a-zA-Z0-9-_' ']+))" & matchN(0, [=~"^(?:^[0-9]+$)"]) & string |
+=~"^(?s:.)+(?:([a-zA-Z0-9-_' ']+))") & (strings.MaxRunes(64) & strings.MinRunes(1)) |
+{
+	number | bool
+	_cfnString: (=~"^(?:([a-zA-Z0-9-_' ']+))" & matchN(0, [=~"^(?:^[0-9]+$)"]) & string |
+	=~"^(?s:.)+(?:([a-zA-Z0-9-_' ']+))") &
+	strings.MaxRunes(64) &
+	strings.MinRunes(1) &
+	"\(self)"
+} |
+fn.#StringExpression

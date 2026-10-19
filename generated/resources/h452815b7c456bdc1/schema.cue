@@ -7,12 +7,15 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
+import (
+	cfnScalarStrconv "strconv"
+	cfnRuleStrings "strings"
+	cfnRuleMath "math"
+	cfnRuleList "list"
+)
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -73,18 +76,81 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Attribute](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-attribute-deletionpolicy.html).
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RDS::DBCluster"
-	Properties?: matchN(2, [
+	let properties = matchN(6, [
 		{
 			MasterUsername?: matchN(0, ["rdsadmin"]) | fn.#ValueExpression
 			...
-		},
-		matchIf({
+		}, matchIf({
 			Engine!: "aurora-postgresql" | "postgresql" | fn.#ValueExpression
 			...
 		}, {
 			MasterUsername?: matchN(0, ["admin"]) | fn.#ValueExpression
 			...
-		}, _) & {...}
+		}, _), matchIf({
+			Engine!: "aurora-mysql" | "aurora-postgresql"
+			...
+		}, {
+			AllocatedStorage?:       error("disallowed")
+			DBClusterInstanceClass?: error("disallowed")
+			Iops?:                   error("disallowed")
+			PubliclyAccessible?:     error("disallowed")
+			StorageType?:            matchIf(string, "aurora" | "aurora-iopt1", _) | fn.#ValueExpression
+			...
+		}, _), matchIf({
+			MonitoringRoleArn!: _
+			...
+		}, {
+			MonitoringInterval!: null | bool | >0 | string | [...] | {...} | fn.#ValueExpression
+			...
+		}, matchIf({
+			MonitoringInterval!: matchN(0, [matchN(0, [>0])])
+			...
+		}, {
+			MonitoringRoleArn!: _
+			...
+		}, _)), matchIf({
+			Engine!: "mysql" | "postgres"
+			...
+		}, {
+			AvailabilityZones?:                error("disallowed")
+			BacktrackWindow?:                  error("disallowed")
+			Domain?:                           error("disallowed")
+			DomainIAMRoleName?:                error("disallowed")
+			EnableGlobalWriteForwarding?:      error("disallowed")
+			EnableHttpEndpoint?:               error("disallowed")
+			EnableIAMDatabaseAuthentication?:  error("disallowed")
+			EngineMode?:                       error("disallowed")
+			GlobalClusterIdentifier?:          error("disallowed")
+			NetworkType?:                      error("disallowed")
+			ReplicationSourceIdentifier?:      error("disallowed")
+			ScalingConfiguration?:             error("disallowed")
+			ServerlessV2ScalingConfiguration?: error("disallowed")
+			SourceRegion?:                     error("disallowed")
+			StorageType!:                      matchIf(string, "io1" | "io2" | "gp3", _) | fn.#ValueExpression
+			AllocatedStorage!:                 _
+			DBClusterInstanceClass!:           _
+			Iops!:                             _
+			...
+		}, _),
+		matchIf({
+			EngineMode!: "provisioned"
+			...
+		}, {
+			ScalingConfiguration?: error("disallowed")
+			...
+		}, _) & matchIf({
+			EngineMode!: "serverless"
+			...
+		}, {
+			ServerlessV2ScalingConfiguration?: error("disallowed")
+			...
+		}, _) & matchIf({
+			EngineMode?: error("disallowed")
+			...
+		}, {
+			ScalingConfiguration?: error("disallowed")
+			...
+		}, _)
 	]) & close({
 		MasterUserPassword?: _
 		if MasterUserPassword != _|_ {
@@ -109,7 +175,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		AssociatedRoles?: list.MaxItems(15) & list.UniqueItems() & [...] & [...#DBClusterRole] | fn.#ListExpression
 		AutoMinorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		AvailabilityZones?:       list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		AvailabilityZones?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		BacktrackWindow?: int & >=0 |
 			{
 				string &
@@ -148,19 +214,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ClusterScalabilityType?: "limitless" | "standard" | fn.#StringExpression
 		CopyTagsToSnapshot?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		DBClusterIdentifier?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		DBClusterInstanceClass?:       string | fn.#StringExpression
-		DBClusterParameterGroupName?:  string | fn.#StringExpression
-		DBInstanceParameterGroupName?: string | fn.#StringExpression
-		DBSubnetGroupName?:            string | fn.#StringExpression
-		DBSystemId?:                   string | fn.#StringExpression
+		DBClusterInstanceClass?:       string | number | bool | fn.#StringExpression
+		DBClusterParameterGroupName?:  string | number | bool | fn.#StringExpression
+		DBInstanceParameterGroupName?: string | number | bool | fn.#StringExpression
+		DBSubnetGroupName?:            string | number | bool | fn.#StringExpression
+		DBSystemId?:                   string | number | bool | fn.#StringExpression
 		DatabaseInsightsMode?:         "advanced" | "standard" | fn.#StringExpression
-		DatabaseName?:                 string | fn.#StringExpression
+		DatabaseName?:                 string | number | bool | fn.#StringExpression
 		DeleteAutomatedBackups?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		DeletionProtection?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Domain?:                 string | fn.#StringExpression
-		DomainIAMRoleName?:      string | fn.#StringExpression
-		EnableCloudwatchLogsExports?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		Domain?:                 string | number | bool | fn.#StringExpression
+		DomainIAMRoleName?:      string | number | bool | fn.#StringExpression
+		EnableCloudwatchLogsExports?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
 		EnableGlobalWriteForwarding?: bool |
 			"true" |
 			"True" |
@@ -186,13 +260,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		Engine?:                 string | fn.#StringExpression
-		EngineLifecycleSupport?: string | fn.#StringExpression
-		EngineMode?:             string | fn.#StringExpression
-		EngineVersion?:          string | fn.#StringExpression
+		Engine?:                 string | number | bool | fn.#StringExpression
+		EngineLifecycleSupport?: string | number | bool | fn.#StringExpression
+		EngineMode?:             string | number | bool | fn.#StringExpression
+		EngineVersion?:          string | number | bool | fn.#StringExpression
 		GlobalClusterIdentifier?: strings.MaxRunes(63) &
 		strings.MinRunes(0) &
 		=~"^$|^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) &
+			strings.MinRunes(0) &
+			=~"^$|^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Iops?: int |
 			{
@@ -210,19 +291,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string |
-			fn.#StringExpression
+		KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+		} |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+				"\(self)"
+		} |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ManageMasterUserPassword?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		MasterUserAuthenticationType?: "iam-db-auth" | "password" | fn.#StringExpression
-		"MasterUserPassword"?:         string | fn.#StringExpression
+		"MasterUserPassword"?:         string | number | bool | fn.#StringExpression
 		MasterUserSecret?: close({
-			KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				string |
-				fn.#StringExpression
+			KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			{
+				number | bool
+				_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+			} |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			{
+				number | bool
+				_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+					"\(self)"
+			} |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+			{
+				number | bool
+				_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
-			fn.#ObjectExpression
-		MasterUsername?: strings.MinRunes(1) & =~"^[a-zA-Z]{1}[a-zA-Z0-9_]*$" | fn.#StringExpression
+		fn.#ObjectExpression
+		MasterUsername?: strings.MinRunes(1) & =~"^[a-zA-Z]{1}[a-zA-Z0-9_]*$" |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & =~"^[a-zA-Z]{1}[a-zA-Z0-9_]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		MonitoringInterval?: int |
 			{
 				string &
@@ -239,9 +353,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		MonitoringRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		NetworkType?: string | fn.#StringExpression
+		MonitoringRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		NetworkType?: string | number | bool | fn.#StringExpression
 		PerformanceInsightsEnabled?: bool |
 			"true" |
 			"True" |
@@ -250,7 +368,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		PerformanceInsightsKmsKeyId?: string | fn.#StringExpression
+		PerformanceInsightsKmsKeyId?: string | number | bool | fn.#StringExpression
 		PerformanceInsightsRetentionPeriod?: int |
 			{
 				string &
@@ -283,12 +401,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		PreferredBackupWindow?:      string | fn.#StringExpression
-		PreferredMaintenanceWindow?: string | fn.#StringExpression
+		PreferredBackupWindow?:      string | number | bool | fn.#StringExpression
+		PreferredMaintenanceWindow?: string | number | bool | fn.#StringExpression
 		PubliclyAccessible?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ReplicationSourceIdentifier?: string | fn.#StringExpression
-		RestoreToTime?:               string | fn.#StringExpression
-		RestoreType?:                 string | fn.#StringExpression
+		ReplicationSourceIdentifier?: string | number | bool | fn.#StringExpression
+		RestoreToTime?:               string | number | bool | fn.#StringExpression
+		RestoreType?:                 string | number | bool | fn.#StringExpression
 
 		// The scaling configuration of an Aurora Serverless v1 DB cluster.
 		// This property is only supported for Aurora Serverless v1. For Aurora
@@ -301,47 +419,986 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Serverless v1, Use the ``ScalingConfiguration`` property.
 		// Valid for: Aurora Serverless v2 DB clusters only
 		ServerlessV2ScalingConfiguration?: #ServerlessV2ScalingConfiguration
-		SnapshotIdentifier?:               string | fn.#StringExpression
-		SourceDBClusterIdentifier?:        string | fn.#StringExpression
-		SourceDbClusterResourceId?:        string | fn.#StringExpression
-		SourceRegion?:                     string | fn.#StringExpression
+		SnapshotIdentifier?:               string | number | bool | fn.#StringExpression
+		SourceDBClusterIdentifier?:        string | number | bool | fn.#StringExpression
+		SourceDbClusterResourceId?:        string | number | bool | fn.#StringExpression
+		SourceRegion?:                     string | number | bool | fn.#StringExpression
 		StorageEncrypted?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		StorageType?:             string | fn.#StringExpression
+		StorageType?:             string | number | bool | fn.#StringExpression
 		Tags?:                    list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		UseLatestRestorableTime?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		VpcSecurityGroupIds?: list.UniqueItems() & [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
+		VpcSecurityGroupIds?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		// cfn-lint E3690: aws_rds_dbcluster/engine_version.json
+		if Engine != _|_ if ((Engine =~ "") & true) != _|_ if (((len(Engine) == 1) && (len([for cfnRuleKey, _ in Engine if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+			cfnRuleKey,
+			"Fn::",
+		) {
+			0
+		}]) == 1)) &
+		true) == _|_ {
+			if Engine != _|_ {
+				if !(((((len(Engine) == 1) && (len([for cfnRuleKey, _ in Engine if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+					cfnRuleKey,
+					"Fn::",
+				) {
+					0
+				}]) == 1)) &
+				true) != _|_) || (((Engine =~ "^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*\\n?$") &
+					true) != _|_) || ((((Engine == "aurora-mysql") || (Engine == "aurora-postgresql") || (Engine == "mysql") || (Engine == "postgres")) &
+					true) != _|_)) {
+					error("E3690: Engine must be supported, and EngineVersion valid for the Engine")
+				}
+			}
+		}
+		if Engine != _|_ if EngineVersion != _|_ if ((Engine == "aurora-mysql") & true) != _|_ if (((EngineVersion =~ "") &
+			true) != _|_) || (((cfnRuleMath.Abs(EngineVersion) >= 0) & true) != _|_) if (((len(Engine) == 1) && (len([for cfnRuleKey, _ in Engine if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+			cfnRuleKey,
+			"Fn::",
+		) {
+			0
+		}]) == 1)) &
+		true) == _|_ if (((len(EngineVersion) == 1) && (len([for cfnRuleKey, _ in EngineVersion if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+			cfnRuleKey,
+			"Fn::",
+		) {
+			0
+		}]) == 1)) &
+		true) == _|_ {
+			if EngineVersion != _|_ {
+				if !(((((len(EngineVersion) == 1) && (len([for cfnRuleKey, _ in EngineVersion if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+					cfnRuleKey,
+					"Fn::",
+				) {
+					0
+				}]) == 1)) &
+				true) != _|_) || (((EngineVersion =~ "^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*\\n?$") &
+					true) != _|_) || (((cfnRuleList.Contains(
+					[
+						"5.7",
+						5.7,
+						"5.7.12",
+						"5.7.mysql_aurora.2.02.3",
+						"5.7.mysql_aurora.2.03.2",
+						"5.7.mysql_aurora.2.03.3",
+						"5.7.mysql_aurora.2.03.4",
+						"5.7.mysql_aurora.2.04.0",
+						"5.7.mysql_aurora.2.04.1",
+						"5.7.mysql_aurora.2.04.2",
+						"5.7.mysql_aurora.2.04.3",
+						"5.7.mysql_aurora.2.04.4",
+						"5.7.mysql_aurora.2.04.5",
+						"5.7.mysql_aurora.2.04.6",
+						"5.7.mysql_aurora.2.04.7",
+						"5.7.mysql_aurora.2.04.8",
+						"5.7.mysql_aurora.2.04.8.3",
+						"5.7.mysql_aurora.2.04.9",
+						"5.7.mysql_aurora.2.05.0",
+						"5.7.mysql_aurora.2.05.1",
+						"5.7.mysql_aurora.2.06.0",
+						"5.7.mysql_aurora.2.07.0",
+						"5.7.mysql_aurora.2.07.1",
+						"5.7.mysql_aurora.2.07.10",
+						"5.7.mysql_aurora.2.07.2",
+						"5.7.mysql_aurora.2.07.3",
+						"5.7.mysql_aurora.2.07.4",
+						"5.7.mysql_aurora.2.07.5",
+						"5.7.mysql_aurora.2.07.6",
+						"5.7.mysql_aurora.2.07.7",
+						"5.7.mysql_aurora.2.07.8",
+						"5.7.mysql_aurora.2.07.9",
+						"5.7.mysql_aurora.2.08.0",
+						"5.7.mysql_aurora.2.08.1",
+						"5.7.mysql_aurora.2.08.2",
+						"5.7.mysql_aurora.2.08.3",
+						"5.7.mysql_aurora.2.08.4",
+						"5.7.mysql_aurora.2.09.0",
+						"5.7.mysql_aurora.2.09.1",
+						"5.7.mysql_aurora.2.09.2",
+						"5.7.mysql_aurora.2.09.3",
+						"5.7.mysql_aurora.2.10.0",
+						"5.7.mysql_aurora.2.10.0.1",
+						"5.7.mysql_aurora.2.10.1",
+						"5.7.mysql_aurora.2.10.2",
+						"5.7.mysql_aurora.2.10.3",
+						"5.7.mysql_aurora.2.11.0",
+						"5.7.mysql_aurora.2.11.1",
+						"5.7.mysql_aurora.2.11.2",
+						"5.7.mysql_aurora.2.11.3",
+						"5.7.mysql_aurora.2.11.4",
+						"5.7.mysql_aurora.2.11.5",
+						"5.7.mysql_aurora.2.11.6",
+						"5.7.mysql_aurora.2.12.0",
+						"5.7.mysql_aurora.2.12.0.1",
+						"5.7.mysql_aurora.2.12.1",
+						"5.7.mysql_aurora.2.12.2",
+						"5.7.mysql_aurora.2.12.3",
+						"5.7.mysql_aurora.2.12.4",
+						"5.7.mysql_aurora.2.12.5",
+						"5.7.mysql_aurora.2.12.6",
+						"8.0",
+						"8.0.mysql_aurora.3.01.0",
+						"8.0.mysql_aurora.3.01.1",
+						"8.0.mysql_aurora.3.02.0",
+						"8.0.mysql_aurora.3.02.1",
+						"8.0.mysql_aurora.3.02.2",
+						"8.0.mysql_aurora.3.02.3",
+						"8.0.mysql_aurora.3.03.0",
+						"8.0.mysql_aurora.3.03.1",
+						"8.0.mysql_aurora.3.03.2",
+						"8.0.mysql_aurora.3.03.3",
+						"8.0.mysql_aurora.3.04.0",
+						"8.0.mysql_aurora.3.04.1",
+						"8.0.mysql_aurora.3.04.2",
+						"8.0.mysql_aurora.3.04.3",
+						"8.0.mysql_aurora.3.04.4",
+						"8.0.mysql_aurora.3.04.6",
+						"8.0.mysql_aurora.3.05.0",
+						"8.0.mysql_aurora.3.05.0.1",
+						"8.0.mysql_aurora.3.05.1",
+						"8.0.mysql_aurora.3.05.2",
+						"8.0.mysql_aurora.3.06.0",
+						"8.0.mysql_aurora.3.06.1",
+						"8.0.mysql_aurora.3.07.0",
+						"8.0.mysql_aurora.3.07.1",
+						"8.0.mysql_aurora.3.08.0",
+						"8.0.mysql_aurora.3.08.1",
+						"8.0.mysql_aurora.3.08.2",
+						"8.0.mysql_aurora.3.09.0",
+						"8.0.mysql_aurora.3.10.0",
+						"8.0.mysql_aurora.3.10.1",
+						"8.0.mysql_aurora.3.10.2",
+						"8.0.mysql_aurora.3.10.3",
+						"8.0.mysql_aurora.3.10.4",
+						"8.0.mysql_aurora.3.10.5",
+						"8.0.mysql_aurora.3.11.0",
+						"8.0.mysql_aurora.3.11.1",
+						"8.0.mysql_aurora.3.12.0",
+						"8.0.mysql_aurora.3.13.0",
+						"8.4",
+						8.4,
+						"8.4.mysql_aurora.8.4.7",
+						"8.4.mysql_aurora.8.4.8",
+					],
+					EngineVersion,
+				) &
+					true) != _|_) || ((((EngineVersion == 8) && ("\(EngineVersion)" =~ "[.eE]")) & true) != _|_))) {
+					error("E3690: Engine must be supported, and EngineVersion valid for the Engine")
+				}
+			}
+		}
+		if Engine != _|_ if EngineVersion != _|_ if ((Engine == "aurora-postgresql") & true) != _|_ if (((EngineVersion =~ "") &
+			true) != _|_) || (((cfnRuleMath.Abs(EngineVersion) >= 0) & true) != _|_) if (((len(Engine) == 1) && (len([for cfnRuleKey, _ in Engine if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+			cfnRuleKey,
+			"Fn::",
+		) {
+			0
+		}]) == 1)) &
+		true) == _|_ if (((len(EngineVersion) == 1) && (len([for cfnRuleKey, _ in EngineVersion if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+			cfnRuleKey,
+			"Fn::",
+		) {
+			0
+		}]) == 1)) &
+		true) == _|_ {
+			if EngineVersion != _|_ {
+				if !(((((len(EngineVersion) == 1) && (len([for cfnRuleKey, _ in EngineVersion if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+					cfnRuleKey,
+					"Fn::",
+				) {
+					0
+				}]) == 1)) &
+				true) != _|_) || (((EngineVersion =~ "^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*\\n?$") &
+					true) != _|_) || ((cfnRuleList.Contains(
+					[
+						"10",
+						10,
+						"10.21",
+						10.21,
+						"10.7",
+						10.7,
+						"11",
+						11,
+						"11.12",
+						11.12,
+						"11.13",
+						11.13,
+						"11.14",
+						11.14,
+						"11.15",
+						11.15,
+						"11.16",
+						11.16,
+						"11.17",
+						11.17,
+						"11.18",
+						11.18,
+						"11.19",
+						11.19,
+						"11.20",
+						"11.21",
+						11.21,
+						"11.9",
+						11.9,
+						"12",
+						12,
+						"12.10",
+						"12.11",
+						12.11,
+						"12.12",
+						12.12,
+						"12.13",
+						12.13,
+						"12.14",
+						12.14,
+						"12.15",
+						12.15,
+						"12.16",
+						12.16,
+						"12.17",
+						12.17,
+						"12.18",
+						12.18,
+						"12.19",
+						12.19,
+						"12.20",
+						"12.22",
+						12.22,
+						"12.4",
+						12.4,
+						"12.7",
+						12.7,
+						"12.8",
+						12.8,
+						"12.9",
+						12.9,
+						"13",
+						13,
+						"13.10",
+						"13.11",
+						13.11,
+						"13.12",
+						13.12,
+						"13.13",
+						13.13,
+						"13.14",
+						13.14,
+						"13.15",
+						13.15,
+						"13.16",
+						13.16,
+						"13.18",
+						13.18,
+						"13.20",
+						"13.21",
+						13.21,
+						"13.22",
+						13.22,
+						"13.23",
+						13.23,
+						"13.3",
+						13.3,
+						"13.4",
+						13.4,
+						"13.5",
+						13.5,
+						"13.6",
+						13.6,
+						"13.7",
+						13.7,
+						"13.8",
+						13.8,
+						"13.9",
+						13.9,
+						"14",
+						14,
+						"14.10",
+						"14.11",
+						14.11,
+						"14.12",
+						14.12,
+						"14.13",
+						14.13,
+						"14.15",
+						14.15,
+						"14.17",
+						14.17,
+						"14.18",
+						14.18,
+						"14.19",
+						14.19,
+						"14.20",
+						"14.22",
+						14.22,
+						"14.23",
+						14.23,
+						"14.24",
+						14.24,
+						"14.3",
+						14.3,
+						"14.4",
+						14.4,
+						"14.5",
+						14.5,
+						"14.6",
+						14.6,
+						"14.7",
+						14.7,
+						"14.8",
+						14.8,
+						"14.9",
+						14.9,
+						"15",
+						15,
+						"15.10",
+						"15.12",
+						15.12,
+						"15.13",
+						15.13,
+						"15.14",
+						15.14,
+						"15.15",
+						15.15,
+						"15.17",
+						15.17,
+						"15.18",
+						15.18,
+						"15.19",
+						15.19,
+						"15.2",
+						15.2,
+						"15.3",
+						15.3,
+						"15.4",
+						15.4,
+						"15.5",
+						15.5,
+						"15.6",
+						15.6,
+						"15.7",
+						15.7,
+						"15.8",
+						15.8,
+						"16",
+						16,
+						"16.1",
+						16.1,
+						"16.10",
+						"16.10-limitless",
+						"16.11",
+						16.11,
+						"16.11-limitless",
+						"16.13",
+						16.13,
+						"16.13-limitless",
+						"16.14",
+						16.14,
+						"16.15",
+						16.15,
+						"16.2",
+						16.2,
+						"16.3",
+						16.3,
+						"16.4",
+						16.4,
+						"16.4-limitless",
+						"16.6",
+						16.6,
+						"16.6-limitless",
+						"16.8",
+						16.8,
+						"16.8-limitless",
+						"16.9",
+						16.9,
+						"16.9-limitless",
+						"17",
+						17,
+						"17.10",
+						"17.11",
+						17.11,
+						"17.4",
+						17.4,
+						"17.5",
+						17.5,
+						"17.6",
+						17.6,
+						"17.7",
+						17.7,
+						"17.9",
+						17.9,
+						"18",
+						18,
+						"18.3",
+						18.3,
+						"18.4",
+						18.4,
+						"18.6",
+						18.6,
+						"9",
+						9,
+						"9.6.22",
+					],
+					EngineVersion,
+				) &
+					true) != _|_)) {
+					error("E3690: Engine must be supported, and EngineVersion valid for the Engine")
+				}
+			}
+		}
+		if Engine != _|_ if EngineVersion != _|_ if ((Engine == "mysql") & true) != _|_ if (((EngineVersion =~ "") &
+			true) != _|_) || (((cfnRuleMath.Abs(EngineVersion) >= 0) & true) != _|_) if (((len(Engine) == 1) && (len([for cfnRuleKey, _ in Engine if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+			cfnRuleKey,
+			"Fn::",
+		) {
+			0
+		}]) == 1)) &
+		true) == _|_ if (((len(EngineVersion) == 1) && (len([for cfnRuleKey, _ in EngineVersion if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+			cfnRuleKey,
+			"Fn::",
+		) {
+			0
+		}]) == 1)) &
+		true) == _|_ {
+			if EngineVersion != _|_ {
+				if !(((((len(EngineVersion) == 1) && (len([for cfnRuleKey, _ in EngineVersion if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+					cfnRuleKey,
+					"Fn::",
+				) {
+					0
+				}]) == 1)) &
+				true) != _|_) || (((EngineVersion =~ "^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*\\n?$") &
+					true) != _|_) || ((cfnRuleList.Contains(
+					[
+						"5.5.62",
+						"5.6.51",
+						"5.7.33",
+						"5.7.34",
+						"5.7.36",
+						"5.7.37",
+						"5.7.38",
+						"5.7.39",
+						"5.7.40",
+						"5.7.41",
+						"5.7.42",
+						"5.7.43",
+						"5.7.44",
+						"5.7.44-rds.20240408",
+						"5.7.44-rds.20240529",
+						"5.7.44-rds.20240808",
+						"5.7.44-rds.20250103",
+						"5.7.44-rds.20250213",
+						"5.7.44-rds.20250508",
+						"5.7.44-rds.20250818",
+						"5.7.44-rds.20251212",
+						"5.7.44-rds.20260212",
+						"5.7.44-rds.20260521",
+						"5.7.44-rds.20260624",
+						"5.7.44-rds.20260902",
+						"8.0.11",
+						"8.0.13",
+						"8.0.15",
+						"8.0.16",
+						"8.0.17",
+						"8.0.19",
+						"8.0.20",
+						"8.0.21",
+						"8.0.23",
+						"8.0.25",
+						"8.0.26",
+						"8.0.27",
+						"8.0.28",
+						"8.0.29",
+						"8.0.30",
+						"8.0.31",
+						"8.0.32",
+						"8.0.33",
+						"8.0.34",
+						"8.0.35",
+						"8.0.36",
+						"8.0.37",
+						"8.0.39",
+						"8.0.40",
+						"8.0.41",
+						"8.0.42",
+						"8.0.43",
+						"8.0.44",
+						"8.0.45",
+						"8.0.46",
+						"8.0.46-rds.20260624",
+						"8.0.46-rds.20260908",
+						"8.4.10",
+						"8.4.11",
+						"8.4.3",
+						"8.4.4",
+						"8.4.5",
+						"8.4.6",
+						"8.4.7",
+						"8.4.8",
+						"8.4.9",
+					],
+					EngineVersion,
+				) &
+					true) != _|_)) {
+					error("E3690: Engine must be supported, and EngineVersion valid for the Engine")
+				}
+			}
+		}
+		if Engine != _|_ if EngineVersion != _|_ if ((Engine == "postgres") & true) != _|_ if (((EngineVersion =~ "") &
+			true) != _|_) || (((cfnRuleMath.Abs(EngineVersion) >= 0) & true) != _|_) if (((len(Engine) == 1) && (len([for cfnRuleKey, _ in Engine if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+			cfnRuleKey,
+			"Fn::",
+		) {
+			0
+		}]) == 1)) &
+		true) == _|_ if (((len(EngineVersion) == 1) && (len([for cfnRuleKey, _ in EngineVersion if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+			cfnRuleKey,
+			"Fn::",
+		) {
+			0
+		}]) == 1)) &
+		true) == _|_ {
+			if EngineVersion != _|_ {
+				if !(((((len(EngineVersion) == 1) && (len([for cfnRuleKey, _ in EngineVersion if (cfnRuleKey == "Ref") || cfnRuleStrings.HasPrefix(
+					cfnRuleKey,
+					"Fn::",
+				) {
+					0
+				}]) == 1)) &
+				true) != _|_) || (((EngineVersion =~ "^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*\\n?$") &
+					true) != _|_) || ((cfnRuleList.Contains(
+					[
+						"10.1",
+						10.1,
+						"10.10",
+						"10.11",
+						10.11,
+						"10.12",
+						10.12,
+						"10.13",
+						10.13,
+						"10.14",
+						10.14,
+						"10.15",
+						10.15,
+						"10.16",
+						10.16,
+						"10.17",
+						10.17,
+						"10.18",
+						10.18,
+						"10.19",
+						10.19,
+						"10.20",
+						"10.21",
+						10.21,
+						"10.22",
+						10.22,
+						"10.23",
+						10.23,
+						"10.3",
+						10.3,
+						"10.4",
+						10.4,
+						"10.5",
+						10.5,
+						"10.6",
+						10.6,
+						"10.7",
+						10.7,
+						"10.9",
+						10.9,
+						"11.1",
+						11.1,
+						"11.10",
+						"11.11",
+						11.11,
+						"11.12",
+						11.12,
+						"11.13",
+						11.13,
+						"11.14",
+						11.14,
+						"11.15",
+						11.15,
+						"11.16",
+						11.16,
+						"11.17",
+						11.17,
+						"11.18",
+						11.18,
+						"11.19",
+						11.19,
+						"11.2",
+						11.2,
+						"11.20",
+						"11.21",
+						11.21,
+						"11.22",
+						11.22,
+						"11.22-rds.20240418",
+						"11.22-rds.20240509",
+						"11.22-rds.20240808",
+						"11.22-rds.20241121",
+						"11.22-rds.20250220",
+						"11.22-rds.20250508",
+						"11.22-rds.20250814",
+						"11.22-rds.20251114",
+						"11.22-rds.20260224",
+						"11.4",
+						11.4,
+						"11.5",
+						11.5,
+						"11.6",
+						11.6,
+						"11.7",
+						11.7,
+						"11.8",
+						11.8,
+						"11.9",
+						11.9,
+						"12.10",
+						"12.11",
+						12.11,
+						"12.12",
+						12.12,
+						"12.13",
+						12.13,
+						"12.14",
+						12.14,
+						"12.15",
+						12.15,
+						"12.16",
+						12.16,
+						"12.17",
+						12.17,
+						"12.18",
+						12.18,
+						"12.19",
+						12.19,
+						"12.2",
+						12.2,
+						"12.20",
+						"12.21",
+						12.21,
+						"12.22",
+						12.22,
+						"12.22-rds.20250220",
+						"12.22-rds.20250508",
+						"12.22-rds.20250814",
+						"12.22-rds.20251114",
+						"12.22-rds.20260224",
+						"12.3",
+						12.3,
+						"12.4",
+						12.4,
+						"12.5",
+						12.5,
+						"12.6",
+						12.6,
+						"12.7",
+						12.7,
+						"12.8",
+						12.8,
+						"12.9",
+						12.9,
+						"13.1",
+						13.1,
+						"13.10",
+						"13.11",
+						13.11,
+						"13.12",
+						13.12,
+						"13.13",
+						13.13,
+						"13.14",
+						13.14,
+						"13.15",
+						13.15,
+						"13.16",
+						13.16,
+						"13.17",
+						13.17,
+						"13.18",
+						13.18,
+						"13.19",
+						13.19,
+						"13.2",
+						13.2,
+						"13.20",
+						"13.21",
+						13.21,
+						"13.22",
+						13.22,
+						"13.23",
+						13.23,
+						"13.23-rds.20260224",
+						"13.3",
+						13.3,
+						"13.4",
+						13.4,
+						"13.5",
+						13.5,
+						"13.6",
+						13.6,
+						"13.7",
+						13.7,
+						"13.8",
+						13.8,
+						"13.9",
+						13.9,
+						"14.1",
+						14.1,
+						"14.10",
+						"14.11",
+						14.11,
+						"14.12",
+						14.12,
+						"14.13",
+						14.13,
+						"14.14",
+						14.14,
+						"14.15",
+						14.15,
+						"14.16",
+						14.16,
+						"14.17",
+						14.17,
+						"14.18",
+						14.18,
+						"14.19",
+						14.19,
+						"14.2",
+						14.2,
+						"14.20",
+						"14.21",
+						14.21,
+						"14.22",
+						14.22,
+						"14.23",
+						14.23,
+						"14.24",
+						14.24,
+						"14.3",
+						14.3,
+						"14.4",
+						14.4,
+						"14.5",
+						14.5,
+						"14.6",
+						14.6,
+						"14.7",
+						14.7,
+						"14.8",
+						14.8,
+						"14.9",
+						14.9,
+						"15.10",
+						"15.11",
+						15.11,
+						"15.12",
+						15.12,
+						"15.13",
+						15.13,
+						"15.14",
+						15.14,
+						"15.15",
+						15.15,
+						"15.16",
+						15.16,
+						"15.17",
+						15.17,
+						"15.18",
+						15.18,
+						"15.19",
+						15.19,
+						"15.2",
+						15.2,
+						"15.3",
+						15.3,
+						"15.4",
+						15.4,
+						"15.5",
+						15.5,
+						"15.6",
+						15.6,
+						"15.7",
+						15.7,
+						"15.8",
+						15.8,
+						"15.9",
+						15.9,
+						"16.1",
+						16.1,
+						"16.10",
+						"16.11",
+						16.11,
+						"16.12",
+						16.12,
+						"16.13",
+						16.13,
+						"16.14",
+						16.14,
+						"16.15",
+						16.15,
+						"16.2",
+						16.2,
+						"16.3",
+						16.3,
+						"16.4",
+						16.4,
+						"16.5",
+						16.5,
+						"16.6",
+						16.6,
+						"16.7",
+						16.7,
+						"16.8",
+						16.8,
+						"16.9",
+						16.9,
+						"17.1",
+						17.1,
+						"17.10",
+						"17.11",
+						17.11,
+						"17.2",
+						17.2,
+						"17.3",
+						17.3,
+						"17.4",
+						17.4,
+						"17.5",
+						17.5,
+						"17.6",
+						17.6,
+						"17.7",
+						17.7,
+						"17.8",
+						17.8,
+						"17.9",
+						17.9,
+						"18.1",
+						18.1,
+						"18.2",
+						18.2,
+						"18.3",
+						18.3,
+						"18.4",
+						18.4,
+						"18.6",
+						18.6,
+						"9.3.1",
+						"9.3.10",
+						"9.3.12",
+						"9.3.14",
+						"9.3.16",
+						"9.3.17",
+						"9.3.19",
+						"9.3.2",
+						"9.3.20",
+						"9.3.22",
+						"9.3.23",
+						"9.3.24",
+						"9.3.25",
+						"9.3.3",
+						"9.3.5",
+						"9.3.6",
+						"9.3.9",
+						"9.4.1",
+						"9.4.11",
+						"9.4.12",
+						"9.4.14",
+						"9.4.15",
+						"9.4.17",
+						"9.4.18",
+						"9.4.19",
+						"9.4.20",
+						"9.4.21",
+						"9.4.23",
+						"9.4.24",
+						"9.4.25",
+						"9.4.26",
+						"9.4.4",
+						"9.4.5",
+						"9.4.7",
+						"9.4.9",
+						"9.5.10",
+						"9.5.12",
+						"9.5.13",
+						"9.5.14",
+						"9.5.15",
+						"9.5.16",
+						"9.5.18",
+						"9.5.19",
+						"9.5.2",
+						"9.5.20",
+						"9.5.21",
+						"9.5.22",
+						"9.5.23",
+						"9.5.24",
+						"9.5.25",
+						"9.5.4",
+						"9.5.6",
+						"9.5.7",
+						"9.5.9",
+						"9.6.1",
+						"9.6.10",
+						"9.6.11",
+						"9.6.12",
+						"9.6.14",
+						"9.6.15",
+						"9.6.16",
+						"9.6.17",
+						"9.6.18",
+						"9.6.19",
+						"9.6.2",
+						"9.6.20",
+						"9.6.21",
+						"9.6.22",
+						"9.6.23",
+						"9.6.24",
+						"9.6.3",
+						"9.6.5",
+						"9.6.6",
+						"9.6.8",
+						"9.6.9",
+					],
+					EngineVersion,
+				) &
+					true) != _|_)) {
+					error("E3690: Engine must be supported, and EngineVersion valid for the Engine")
+				}
+			}
+		}
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #DBClusterRole: close({
-	FeatureName?: string | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	FeatureName?: string | number | bool | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-z-]*:iam::[0-9]*:role/.*$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[a-z-]*:iam::[0-9]*:role/.*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Endpoint: close({
-	Address?: string | fn.#StringExpression
-	Port?:    string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#MasterUserSecret: close({
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
-	SecretArn?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#ReadEndpoint: close({Address?: string | fn.#StringExpression}) | fn.#ObjectExpression
 
 #ScalingConfiguration: close({
 	AutoPause?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -401,7 +1458,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	TimeoutAction?: string | fn.#StringExpression
+	TimeoutAction?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -462,7 +1519,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

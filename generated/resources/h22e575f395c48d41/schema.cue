@@ -3,25 +3,27 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppMesh::VirtualRouter
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppMesh::VirtualRouter"
-	Properties!: close({
-		MeshName!:          string | fn.#StringExpression
-		MeshOwner?:         string | fn.#StringExpression
+	let properties = close({
+		MeshName!:          string | number | bool | fn.#StringExpression
+		MeshOwner?:         string | number | bool | fn.#StringExpression
 		Spec!:              #VirtualRouterSpec
 		Tags?:              [...#Tag] | fn.#ListExpression
-		VirtualRouterName?: string | fn.#StringExpression
+		VirtualRouterName?: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #PortMapping: close({
@@ -39,13 +41,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Protocol!: string | fn.#StringExpression
+	Protocol!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

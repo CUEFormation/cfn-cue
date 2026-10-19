@@ -7,20 +7,29 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This schema provides construct and validation rules for AWS-XRay Group resource parameters.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::XRay::Group"
-	Properties!: close({
-		FilterExpression?:      string | fn.#StringExpression
-		GroupName!:             strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		FilterExpression?: string | number | bool | fn.#StringExpression
+		GroupName!: strings.MaxRunes(32) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		InsightsConfiguration?: #InsightsConfiguration
 		Tags?:                  #Tags
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #InsightsConfiguration: close({
@@ -30,8 +39,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

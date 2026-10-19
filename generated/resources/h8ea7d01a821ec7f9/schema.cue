@@ -7,12 +7,10 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -21,13 +19,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // service.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::VpcLattice::TargetGroup"
-	Properties!: close({
-		Config?:  #TargetGroupConfig
-		Name?:    strings.MaxRunes(128) & strings.MinRunes(3) | fn.#StringExpression
+	let properties = close({
+		Config?: #TargetGroupConfig
+		Name?: =~"^[a-z0-9-]+$" &
+		matchN(0, [=~"^(?:tg-)"]) &
+		string &
+		matchN(0, [=~"^(?:[-])"]) &
+		string &
+		matchN(0, [=~"^(?:.*[-]$)"]) &
+		string &
+		matchN(0, [=~"^(?:.*[-]{2})"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: =~"^[a-z0-9-]+$" &
+			matchN(0, [=~"^(?:tg-)"]) &
+			string &
+			matchN(0, [=~"^(?:[-])"]) &
+			string &
+			matchN(0, [=~"^(?:.*[-]$)"]) &
+			string &
+			matchN(0, [=~"^(?:.*[-]{2})"]) &
+			string &
+			strings.MaxRunes(128) &
+			strings.MinRunes(3) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 		Tags?:    list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 		Targets?: list.MaxItems(100) & [...] & [...#Target] | fn.#ListExpression
 		Type!:    "IP" | "LAMBDA" | "INSTANCE" | "ALB" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #HealthCheckConfig: close({
@@ -81,7 +109,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	Matcher?: #Matcher
-	Path?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"(^/[a-zA-Z0-9@:%_+.~#?&/=-]*$|(^$))" | fn.#StringExpression
+	Path?: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"(^/[a-zA-Z0-9@:%_+.~#?&/=-]*$|(^$))" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & =~"(^/[a-zA-Z0-9@:%_+.~#?&/=-]*$|(^$))" & "\(self)"
+	} |
+	fn.#StringExpression
 	Port?: int & <=65535 & >=1 |
 		{
 			string &
@@ -119,17 +152,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#Matcher: close({HttpCode!: strings.MaxRunes(2000) & strings.MinRunes(3) & =~"^[0-9-,]+$" | fn.#StringExpression}) |
+#Matcher: close({
+	HttpCode!: strings.MaxRunes(2000) & strings.MinRunes(3) & =~"^[0-9-,]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2000) & strings.MinRunes(3) & =~"^[0-9-,]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Target: close({
-	Id!: string | fn.#StringExpression
+	Id!: string | number | bool | fn.#StringExpression
 	Port?: int & <=65535 & >=1 |
 		{
 			string &
@@ -172,6 +222,10 @@ fn.#ObjectExpression
 	Protocol?:        "HTTP" | "HTTPS" | "TCP" | fn.#StringExpression
 	ProtocolVersion?: "HTTP1" | "HTTP2" | "GRPC" | fn.#StringExpression
 	VpcIdentifier?: strings.MaxRunes(2048) & strings.MinRunes(5) & =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(5) & =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -3,17 +3,26 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::TransitGatewayMulticastDomainAssociation type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::TransitGatewayMulticastDomainAssociation"
-	Properties!: close({
-		SubnetId!:                        string | fn.#StringExpression
-		TransitGatewayAttachmentId!:      string | fn.#StringExpression
-		TransitGatewayMulticastDomainId!: string | fn.#StringExpression
+	let properties = close({
+		SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		TransitGatewayAttachmentId!:      string | number | bool | fn.#StringExpression
+		TransitGatewayMulticastDomainId!: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

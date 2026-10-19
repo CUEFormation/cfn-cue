@@ -4,10 +4,8 @@ package IdNamespaceAssociation
 
 import schema "github.com/cueformation/cfn-cue/resources/h6da403c9332872c6:schema"
 
-#Resource:                                       schema.#Resource
-#Document:                                       schema.#Document
-#IdMappingConfig:                                schema.#IdMappingConfig
-#IdNamespaceAssociationInputReferenceConfig:     schema.#IdNamespaceAssociationInputReferenceConfig
-#IdNamespaceAssociationInputReferenceProperties: schema.#IdNamespaceAssociationInputReferenceProperties
-#Tag:                                            schema.#Tag
-#UUID:                                           schema.#UUID
+#Resource:                                   schema.#Resource
+#IdMappingConfig:                            schema.#IdMappingConfig
+#IdNamespaceAssociationInputReferenceConfig: schema.#IdNamespaceAssociationInputReferenceConfig
+#Tag:                                        schema.#Tag
+#UUID:                                       schema.#UUID

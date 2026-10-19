@@ -7,35 +7,74 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CodeCommit::Repository
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodeCommit::Repository"
-	Properties!: close({
+	let properties = close({
 		// Information about code to be committed to a repository after it is created in
 		// an AWS CloudFormation stack. Information about code is only used in resource
 		// creation. Updates to a stack will not reflect changes made to code
 		// properties after initial resource creation.
 		Code?: #Code
-		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string) &
+		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 		strings.MaxRunes(100) &
 		strings.MinRunes(1) &
 		=~"^[a-zA-Z0-9:/_-]+$" |
+		{
+			number | bool
+			_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+				=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+				=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+			strings.MaxRunes(100) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z0-9:/_-]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		RepositoryDescription?: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-		RepositoryName!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		Triggers?:              [...#RepositoryTrigger] | fn.#ListExpression
+		RepositoryDescription?: strings.MaxRunes(1000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		RepositoryName!: =~"^[a-zA-Z0-9._\\-]+$" &
+		matchN(0, [=~"(?:\\.git)$"]) &
+		string &
+		strings.MaxRunes(100) &
+		strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9._\\-]+$" &
+			matchN(0, [=~"(?:\\.git)$"]) &
+			string &
+			strings.MaxRunes(100) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		Triggers?: [...#RepositoryTrigger] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Code: close({
-	BranchName?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	BranchName?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// Information about the Amazon S3 bucket that contains a ZIP file of code to be
 	// committed to the repository. Changes to this property are ignored after
@@ -45,24 +84,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #RepositoryTrigger: close({
-	Branches?:       [...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-	CustomData?:     string | fn.#StringExpression
-	DestinationArn!: string | fn.#StringExpression
+	Branches?: [...strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	CustomData?:     string | number | bool | fn.#StringExpression
+	DestinationArn!: string | number | bool | fn.#StringExpression
 	Events!: [..."all" | "createReference" | "deleteReference" | "updateReference" | fn.#StringExpression] |
 		fn.#ListExpression
-	Name!: string | fn.#StringExpression
+	Name!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #S3: close({
-	Bucket!:        strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	Key!:           strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	ObjectVersion?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & "\(self)"
+	} |
+	fn.#StringExpression
+	Key!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ObjectVersion?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

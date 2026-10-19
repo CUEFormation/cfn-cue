@@ -6,8 +6,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -18,9 +18,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *API Gateway Developer Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::DocumentationVersion"
-	Properties!: close({
-		Description?:          string | fn.#StringExpression
-		DocumentationVersion!: strings.MinRunes(1) | fn.#StringExpression
-		RestApiId!:            strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Description?: string | number | bool | fn.#StringExpression
+		DocumentationVersion!: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		RestApiId!: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

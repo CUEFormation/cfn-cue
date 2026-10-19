@@ -7,25 +7,42 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::PaymentCryptography::Key Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::PaymentCryptography::Key"
-	Properties!: close({
+	let properties = close({
 		DeriveKeyUsage?:         #DeriveKeyUsage
 		Enabled?:                bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Exportable!:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		KeyAttributes!:          #KeyAttributes
 		KeyCheckValueAlgorithm?: #KeyCheckValueAlgorithm
 		Policy?: strings.MaxRunes(20480) & strings.MinRunes(1) & =~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(20480) &
+			strings.MinRunes(1) &
+			=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{00FF}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		ReplicationRegions?: [...=~"^[a-z]{2}-[a-z]{1,16}-[0-9]+$" | fn.#StringExpression] | fn.#ListExpression
-		Tags?:               list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		ReplicationRegions?: [...=~"^[a-z]{2}-[a-z]{1,16}-[0-9]+$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-z]{2}-[a-z]{1,16}-[0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #DeriveKeyUsage: "TR31_B0_BASE_DERIVATION_KEY" |
@@ -91,12 +108,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#KeyOrigin: "EXTERNAL" | "AWS_PAYMENT_CRYPTOGRAPHY" | fn.#StringExpression
-
-#KeyReplicationState: "IN_PROGRESS" | "DELETE_IN_PROGRESS" | "FAILED" | "SYNCHRONIZED" | fn.#StringExpression
-
-#KeyState: "CREATE_IN_PROGRESS" | "CREATE_COMPLETE" | "DELETE_PENDING" | "DELETE_COMPLETE" | fn.#StringExpression
-
 #KeyUsage: "TR31_B0_BASE_DERIVATION_KEY" |
 	"TR31_C0_CARD_VERIFICATION_KEY" |
 	"TR31_D0_SYMMETRIC_DATA_ENCRYPTION_KEY" |
@@ -123,30 +134,18 @@ fn.#ObjectExpression
 	"TR31_K2_TR34_ASYMMETRIC_KEY" |
 	fn.#StringExpression
 
-#ReplicationStatus: close({
-
-	{[=~"^[a-z]{2}-[a-z]{1,16}-[0-9]+$"]: #ReplicationStatusType}}) |
-fn.#ObjectExpression
-
-#ReplicationStatusType: close({
-	KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(20) &
-	=~"^arn:aws(-[^:]+)?:kms:[a-z0-9-]{1,20}:[0-9]{12}:key/[a-zA-Z0-9-]+$" |
-	fn.#StringExpression
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) &
-	strings.MaxRunes(2048) &
-	strings.MinRunes(1) &
-	=~"^[a-zA-Z0-9:/_-]+$" |
-	fn.#StringExpression
-	Status!:        #KeyReplicationState
-	StatusMessage?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

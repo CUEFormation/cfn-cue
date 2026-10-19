@@ -5,14 +5,10 @@ package AutomatedReasoningPolicy
 import schema "github.com/cueformation/cfn-cue/resources/ha7b581bebf2c3106:schema"
 
 #Resource:                      schema.#Resource
-#CreatedAt:                     schema.#CreatedAt
-#DefinitionHash:                schema.#DefinitionHash
 #Description:                   schema.#Description
 #ForceDelete:                   schema.#ForceDelete
-#KmsKeyArn:                     schema.#KmsKeyArn
 #KmsKeyId:                      schema.#KmsKeyId
 #Name:                          schema.#Name
-#PolicyArn:                     schema.#PolicyArn
 #PolicyDefinition:              schema.#PolicyDefinition
 #PolicyDefinitionRule:          schema.#PolicyDefinitionRule
 #PolicyDefinitionRuleList:      schema.#PolicyDefinitionRuleList
@@ -22,8 +18,5 @@ import schema "github.com/cueformation/cfn-cue/resources/ha7b581bebf2c3106:schem
 #PolicyDefinitionTypeValueList: schema.#PolicyDefinitionTypeValueList
 #PolicyDefinitionVariable:      schema.#PolicyDefinitionVariable
 #PolicyDefinitionVariableList:  schema.#PolicyDefinitionVariableList
-#PolicyId:                      schema.#PolicyId
 #Tag:                           schema.#Tag
 #Tags:                          schema.#Tags
-#UpdatedAt:                     schema.#UpdatedAt
-#Version:                       schema.#Version

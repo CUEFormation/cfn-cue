@@ -8,12 +8,10 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -26,16 +24,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *IAM User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IAM::Role"
-	Properties!: close({
+	let properties = close({
 		AssumeRolePolicyDocument!: iam.#TrustPolicyValue
 		Description?: strings.MaxRunes(1000) &
 		strings.MinRunes(0) &
 		=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) &
+			strings.MinRunes(0) &
+			=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007E}\\x{00A1}-\\x{00FF}]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		ManagedPolicyArns?: list.UniqueItems() & [...] & [
-			...=~"arn:(aws[a-zA-Z-]*)?:iam::(\\d{12}|aws):policy/[a-zA-Z_0-9+=,.@\\-_/]+" | fn.#StringExpression
-		] |
-			fn.#ListExpression
+		ManagedPolicyArns?: list.UniqueItems() & [...] & [...=~"arn:(aws[a-zA-Z-]*)?:iam::(\\d{12}|aws):policy/[a-zA-Z_0-9+=,.@\\-_/]+" |
+		{
+			number | bool
+			_cfnString: =~"arn:(aws[a-zA-Z-]*)?:iam::(\\d{12}|aws):policy/[a-zA-Z_0-9+=,.@\\-_/]+" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		MaxSessionDuration?: int & <=43200 & >=3600 |
 			{
 				string &
@@ -57,22 +65,53 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Path?: strings.MaxRunes(512) &
 		strings.MinRunes(1) &
 		=~"^(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F})$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) &
+			strings.MinRunes(1) &
+			=~"^(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F})$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		PermissionsBoundary?: strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-		Policies?:            [...#Policy] | fn.#ListExpression
-		RoleName?:            strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-		Tags?:                list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
+		PermissionsBoundary?: strings.MaxRunes(2048) & strings.MinRunes(20) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
+		} |
+		fn.#StringExpression
+		Policies?: [...#Policy] | fn.#ListExpression
+		RoleName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Policy: close({
 	PolicyDocument!: iam.#IdentityPolicyValue
-	PolicyName!:     string | fn.#StringExpression
+	PolicyName!:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -7,20 +7,23 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for an Amazon Chime SDK Media Pipeline Kinesis Video Stream Pool
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Chime::MediaPipelineKinesisVideoStreamPool"
-	Properties!: close({
-		PoolName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
+	let properties = close({
+		PoolName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		StreamConfiguration!: close({
 			DataRetentionInHours?: int & >=0 |
 				{
@@ -39,14 +42,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 						)
 				} |
 				fn.#NumberExpression
-			Region!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^([a-z]+-){2,}\\d+$" | fn.#StringExpression
+			Region!: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^([a-z]+-){2,}\\d+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^([a-z]+-){2,}\\d+$" & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 		Tags?: list.MaxItems(200) & [...] & [...close({
-			Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-			Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+			Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

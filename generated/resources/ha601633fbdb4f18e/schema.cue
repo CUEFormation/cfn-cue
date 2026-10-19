@@ -7,19 +7,17 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An OpenSearch Ingestion Service Data Prepper pipeline running Data Prepper.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::OSIS::Pipeline"
-	Properties!: close({
+	let properties = close({
 		BufferOptions?:           #BufferOptions
 		EncryptionAtRestOptions?: #EncryptionAtRestOptions
 		LogPublishingOptions?:    #LogPublishingOptions
@@ -59,17 +57,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		PipelineConfigurationBody!: strings.MaxRunes(100000) & strings.MinRunes(1) | fn.#StringExpression
-		PipelineName!: strings.MaxRunes(28) & strings.MinRunes(3) & =~"[a-z][a-z0-9\\-]+" | fn.#StringExpression
-		PipelineRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		PipelineConfigurationBody!: strings.MaxRunes(100000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		PipelineName!: strings.MaxRunes(28) & strings.MinRunes(3) & =~"[a-z][a-z0-9\\-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(28) & strings.MinRunes(3) & =~"[a-z][a-z0-9\\-]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		PipelineRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:(aws|aws\\-cn|aws\\-us\\-gov|aws\\-iso|aws\\-iso\\-b|aws\\-iso\\-e|aws\\-iso\\-f):iam::[0-9]+:role\\/.*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:(aws|aws\\-cn|aws\\-us\\-gov|aws\\-iso|aws\\-iso\\-b|aws\\-iso\\-e|aws\\-iso\\-f):iam::[0-9]+:role\\/.*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ResourcePolicy?: #ResourcePolicy
 		Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		VpcOptions?:     #VpcOptions
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #BufferOptions: close(
@@ -78,7 +98,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 
 #EncryptionAtRestOptions: close({
-	KmsKeyArn!: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(7)) |
+	KmsKeyArn!: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(7)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(7) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -86,6 +113,13 @@ fn.#ObjectExpression
 #LogPublishingOptions: close({
 	CloudWatchLogDestination?: close({
 		LogGroup!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"\\/aws\\/vendedlogs\\/[\\.\\-_/#A-Za-z0-9]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) &
+			strings.MinRunes(1) &
+			=~"\\/aws\\/vendedlogs\\/[\\.\\-_/#A-Za-z0-9]+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
@@ -96,36 +130,58 @@ fn.#ObjectExpression
 #ResourcePolicy: close({Policy!: fn.#Object & {...} | fn.#ObjectExpression}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#VpcEndpoint: close({
-	VpcEndpointId?: string | fn.#StringExpression
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	VpcOptions?: #VpcOptions
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #VpcOptions: close({
-	SecurityGroupIds?: list.MaxItems(12) & list.MinItems(1) & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroupIds?: list.MaxItems(12) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(20) &
+	strings.MinRunes(11) &
+	=~"sg-\\w{8}(\\w{9})?" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(20) &
 		strings.MinRunes(11) &
-		=~"sg-\\w{8}(\\w{9})?" |
-		fn.#StringExpression
-	] |
+		=~"sg-\\w{8}(\\w{9})?" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	SubnetIds!: list.MaxItems(12) & list.MinItems(1) & [
-		...strings.MaxRunes(24) & strings.MinRunes(15) & =~"subnet-\\w{8}(\\w{9})?" | fn.#StringExpression
-	] |
+	SubnetIds!: list.MaxItems(12) & list.MinItems(1) & [...strings.MaxRunes(24) &
+	strings.MinRunes(15) &
+	=~"subnet-\\w{8}(\\w{9})?" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(24) & strings.MinRunes(15) & =~"subnet-\\w{8}(\\w{9})?" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	VpcAttachmentOptions?: close({
 		AttachToVpc!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		CidrBlock!: =~"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[12]?[0-9])$" |
-			fn.#StringExpression
+		CidrBlock!: fn.#IPv4Network &
+			string &
+			=~"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[12]?[0-9])$" |
+		{
+			number | bool
+			_cfnString: fn.#IPv4Network &
+				string &
+				=~"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/(3[0-2]|[12]?[0-9])$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	VpcEndpointManagement?: "CUSTOMER" | "SERVICE" | fn.#StringExpression

@@ -7,31 +7,62 @@ import (
 	"list"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::QBusiness::Permission Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QBusiness::Permission"
-	Properties!: close({
-		Actions!: list.MaxItems(10) & list.MinItems(1) & [...=~"^qbusiness:[a-zA-Z]+$" | fn.#StringExpression] |
-			fn.#ListExpression
+	let properties = close({
+		Actions!: list.MaxItems(10) & list.MinItems(1) & [...=~"^qbusiness:[a-zA-Z]+$" |
+		{
+			number | bool
+			_cfnString: =~"^qbusiness:[a-zA-Z]+$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		ApplicationId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]{35}$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Conditions?: list.MaxItems(10) & list.MinItems(1) & [...#Condition] | fn.#ListExpression
 		Principal!: strings.MaxRunes(1284) &
 		strings.MinRunes(1) &
 		=~"^arn:aws:iam::[0-9]{12}:role/[a-zA-Z0-9_/+=,.@-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1284) &
+			strings.MinRunes(1) &
+			=~"^arn:aws:iam::[0-9]{12}:role/[a-zA-Z0-9_/+=,.@-]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		StatementId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+		StatementId!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Condition: close({
-	ConditionKey!:      =~"^aws:PrincipalTag/qbusiness-dataaccessor:[a-zA-Z]+" | fn.#StringExpression
+	ConditionKey!: =~"^aws:PrincipalTag/qbusiness-dataaccessor:[a-zA-Z]+" |
+	{
+		number | bool
+		_cfnString: =~"^aws:PrincipalTag/qbusiness-dataaccessor:[a-zA-Z]+" & "\(self)"
+	} |
+	fn.#StringExpression
 	ConditionOperator!: "StringEquals" | fn.#StringExpression
-	ConditionValues!:   list.MaxItems(1) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
+	ConditionValues!: list.MaxItems(1) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
 }) |
 fn.#ObjectExpression

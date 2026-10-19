@@ -6,24 +6,37 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GuardDuty::Filter
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GuardDuty::Filter"
-	Properties!: close({
-		Action?:          "ARCHIVE" | "NOOP" | fn.#StringExpression
-		Description?:     strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-		DetectorId!:      strings.MaxRunes(300) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Action?: "ARCHIVE" | "NOOP" | fn.#StringExpression
+		Description?: strings.MaxRunes(512) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DetectorId!: strings.MaxRunes(300) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(300) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		FindingCriteria!: #FindingCriteria
-		Name!:            strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Rank?: int & <=100 & >=1 |
 			{
 				string &
@@ -44,11 +57,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		Tags?: [...#TagItem] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Condition: close({
-	Eq?:     [...string | fn.#StringExpression] | fn.#ListExpression
-	Equals?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Eq?:     [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Equals?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	GreaterThan?: int |
 		{
 			string &
@@ -161,23 +178,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Matches?:    [...string | fn.#StringExpression] | fn.#ListExpression
-	Neq?:        [...string | fn.#StringExpression] | fn.#ListExpression
-	NotEquals?:  [...string | fn.#StringExpression] | fn.#ListExpression
-	NotMatches?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Matches?:    [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Neq?:        [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	NotEquals?:  [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	NotMatches?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #FindingCriteria: close({
 	Criterion?: close({
 
-		{[=~"^.+$"]: #Condition}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{[=~"^.+$"]: #Condition}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 #TagItem: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -7,25 +7,27 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ECS::CapacityProvider.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ECS::CapacityProvider"
-	Properties?: close({
+	let properties = close({
 		AutoScalingGroupProvider?: #AutoScalingGroupProvider
-		ClusterName?:              string | fn.#StringExpression
+		ClusterName?:              string | number | bool | fn.#StringExpression
 		ManagedInstancesProvider?: #ManagedInstancesProvider
-		Name?:                     string | fn.#StringExpression
+		Name?:                     string | number | bool | fn.#StringExpression
 		Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #AcceleratorCountRequest: close({
@@ -95,7 +97,7 @@ fn.#ObjectExpression
 #AutoRepairConfiguration: close({ActionsStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #AutoScalingGroupProvider: close({
-	AutoScalingGroupArn!:          string | fn.#StringExpression
+	AutoScalingGroupArn!:          string | number | bool | fn.#StringExpression
 	ManagedDraining?:              "DISABLED" | "ENABLED" | fn.#StringExpression
 	ManagedScaling?:               #ManagedScaling
 	ManagedTerminationProtection?: "DISABLED" | "ENABLED" | fn.#StringExpression
@@ -135,7 +137,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CapacityReservationRequest: close({
-	ReservationGroupArn?:   string | fn.#StringExpression
+	ReservationGroupArn?:   string | number | bool | fn.#StringExpression
 	ReservationPreference?: "RESERVATIONS_ONLY" | "RESERVATIONS_FIRST" | "RESERVATIONS_EXCLUDED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -143,7 +145,7 @@ fn.#ObjectExpression
 #InstanceLaunchTemplate: close({
 	CapacityOptionType?:    "ON_DEMAND" | "SPOT" | "RESERVED" | fn.#StringExpression
 	CapacityReservations?:  #CapacityReservationRequest
-	Ec2InstanceProfileArn!: string | fn.#StringExpression
+	Ec2InstanceProfileArn!: string | number | bool | fn.#StringExpression
 	FipsEnabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	InstanceMetadataTagsPropagation?: bool |
 		"true" |
@@ -192,17 +194,27 @@ fn.#ObjectExpression
 		fn.#ListExpression
 	AcceleratorTotalMemoryMiB?: #AcceleratorTotalMemoryMiBRequest
 	AcceleratorTypes?:          [..."gpu" | "fpga" | "inference" | fn.#StringExpression] | fn.#ListExpression
-	AllowedInstanceTypes?: list.MaxItems(400) & [...] & [
-		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\*]+" | fn.#StringExpression
-	] |
+	AllowedInstanceTypes?: list.MaxItems(400) & [...] & [...strings.MaxRunes(30) &
+	strings.MinRunes(1) &
+	=~"[a-zA-Z0-9\\.\\*]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\*]+" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	BareMetal?:                "included" | "required" | "excluded" | fn.#StringExpression
 	BaselineEbsBandwidthMbps?: #BaselineEbsBandwidthMbpsRequest
 	BurstablePerformance?:     "included" | "required" | "excluded" | fn.#StringExpression
 	CpuManufacturers?:         [..."intel" | "amd" | "amazon-web-services" | fn.#StringExpression] | fn.#ListExpression
-	ExcludedInstanceTypes?: list.MaxItems(400) & [...] & [
-		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\*]+" | fn.#StringExpression
-	] |
+	ExcludedInstanceTypes?: list.MaxItems(400) & [...] & [...strings.MaxRunes(30) &
+	strings.MinRunes(1) &
+	=~"[a-zA-Z0-9\\.\\*]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9\\.\\*]+" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	InstanceGenerations?: [..."current" | "previous" | fn.#StringExpression] | fn.#ListExpression
 	LocalStorage?:        "included" | "required" | "excluded" | fn.#StringExpression
@@ -267,12 +279,20 @@ fn.#ObjectExpression
 #ManagedInstancesMonitoringOptions: "BASIC" | "DETAILED" | fn.#StringExpression
 
 #ManagedInstancesNetworkConfiguration: close({
-	SecurityGroups!: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Subnets!: [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroups!: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Subnets!: [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -299,8 +319,12 @@ fn.#ObjectExpression
 			fn.#NumberExpression
 	}) |
 		fn.#ObjectExpression
-	InfrastructureRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	InfrastructureRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	InstanceLaunchTemplate!: #InstanceLaunchTemplate
 	PropagateTags?:          "CAPACITY_PROVIDER" | "NONE" | fn.#StringExpression
 }) |
@@ -543,8 +567,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

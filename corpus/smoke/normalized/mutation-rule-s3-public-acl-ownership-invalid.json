@@ -1,0 +1,10 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "AccessControl": "PublicRead"
+      },
+      "Type": "AWS::S3::Bucket"
+    }
+  }
+}

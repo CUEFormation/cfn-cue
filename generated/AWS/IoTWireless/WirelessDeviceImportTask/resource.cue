@@ -4,7 +4,6 @@ package WirelessDeviceImportTask
 
 import schema "github.com/cueformation/cfn-cue/resources/h3ab827d7c3aff8d8:schema"
 
-#Resource:               schema.#Resource
-#DeviceCreationFileList: schema.#DeviceCreationFileList
-#Role:                   schema.#Role
-#Tag:                    schema.#Tag
+#Resource: schema.#Resource
+#Role:     schema.#Role
+#Tag:      schema.#Tag

@@ -6,8 +6,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -15,10 +15,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // RobotApplicationVersion. This helps you control which code your robot uses.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RoboMaker::RobotApplicationVersion"
-	Properties!: close({
-		Application!:       #Arn
-		CurrentRevisionId?: strings.MaxRunes(40) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.\\-]*" | fn.#StringExpression
+	let properties = close({
+		Application!: #Arn
+		CurrentRevisionId?: strings.MaxRunes(40) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.\\-]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(40) & strings.MinRunes(1) & =~"[a-zA-Z0-9_.\\-]*" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" | fn.#StringExpression
+#Arn: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" |
+{
+	number | bool
+	_cfnString: =~"arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*" & "\(self)"
+} |
+fn.#StringExpression

@@ -13,7 +13,7 @@ import (
 // This is a CloudFormation resource for the first-party AWS::Hooks::LambdaHook.
 #Properties: close({
 	// The typename alias for the hook.
-	Alias!: string
+	Alias!: =~"^[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}::[A-Za-z0-9]{2,64}$" & matchN(0, [=~"^(?:(?i)aws)"]) & string
 
 	// Whether to automatically update the extension in this account and Region when
 	// a new minor version is published by the extension publisher.
@@ -104,7 +104,10 @@ import (
 #LoggingConfig: close({
 	// The Amazon CloudWatch Logs group to which CloudFormation sends error logging
 	// information when invoking the extension's handlers.
-	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\.\\-_/#A-Za-z0-9]+$"
+	LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"^[\\.\\-_/#A-Za-z0-9]+$"
 
 	// The ARN of the role that CloudFormation should assume when sending log
 	// entries to CloudWatch Logs.
@@ -124,7 +127,7 @@ import (
 #StackRole: (=~"arn:.+:iam::[0-9]{12}:role/.+" | string) & strings.MaxRunes(256)
 
 // Type name of hook target. Hook targets are the destination where hooks will be invoked against.
-#TargetName: strings.MaxRunes(256) & strings.MinRunes(1)
+#TargetName: =~"^.*$" & matchN(0, [=~"^(?:.*\\*\\?)"]) & string & strings.MaxRunes(256) & strings.MinRunes(1)
 
 // Which operations should this Hook run against? Resource changes, stacks or change sets.
 #TargetOperation: "RESOURCE" | "STACK" | "CHANGE_SET" | "CLOUD_CONTROL"

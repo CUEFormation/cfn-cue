@@ -7,7 +7,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h6427a5646a39aa08:schem
 #Resource:                    schema.#Resource
 #CaptureContentTypeHeader:    schema.#CaptureContentTypeHeader
 #DataStorageConfig:           schema.#DataStorageConfig
-#EndpointMetadata:            schema.#EndpointMetadata
 #EndpointName:                schema.#EndpointName
 #InferenceExperimentSchedule: schema.#InferenceExperimentSchedule
 #ModelInfrastructureConfig:   schema.#ModelInfrastructureConfig

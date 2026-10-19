@@ -8,34 +8,51 @@ import (
 	"list"
 	"struct"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::BedrockAgentCore::GatewayTarget Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::GatewayTarget"
-	Properties!: close({
+	let properties = close({
 		CredentialProviderConfigurations?: list.MaxItems(1) & list.MinItems(1) & [...#CredentialProviderConfiguration] |
 			fn.#ListExpression
-		Description?:           strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-		GatewayIdentifier?:     =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" | fn.#StringExpression
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		GatewayIdentifier?: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		MetadataConfiguration?: #MetadataConfiguration
-		Name?:                  =~"^([0-9a-zA-Z][-]?){1,100}$" | fn.#StringExpression
-		PrivateEndpoint?:       #PrivateEndpoint
-		TargetConfiguration!:   #TargetConfiguration
+		Name?: =~"^([0-9a-zA-Z][-]?){1,100}$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-zA-Z][-]?){1,100}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		PrivateEndpoint?:     #PrivateEndpoint
+		TargetConfiguration!: #TargetConfiguration
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ApiGatewayTargetConfiguration: close({
 	ApiGatewayToolConfiguration!: #ApiGatewayToolConfiguration
-	RestApiId!:                   string | fn.#StringExpression
-	Stage!:                       string | fn.#StringExpression
+	RestApiId!:                   string | number | bool | fn.#StringExpression
+	Stage!:                       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -46,26 +63,41 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ApiGatewayToolFilter: close({
-	FilterPath!: string | fn.#StringExpression
+	FilterPath!: string | number | bool | fn.#StringExpression
 	Methods!:    [...#RestApiMethod] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #ApiGatewayToolOverride: close({
-	Description?: string | fn.#StringExpression
+	Description?: string | number | bool | fn.#StringExpression
 	Method!:      #RestApiMethod
-	Name!:        string | fn.#StringExpression
-	Path!:        string | fn.#StringExpression
+	Name!:        string | number | bool | fn.#StringExpression
+	Path!:        string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ApiKeyCredentialLocation: "HEADER" | "QUERY_PARAMETER" | fn.#StringExpression
 
 #ApiKeyCredentialProvider: close({
-	CredentialLocation?:      #ApiKeyCredentialLocation
-	CredentialParameterName?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	CredentialPrefix?:        strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-	ProviderArn!:             =~"^arn:([^:]*):([^:]*):([^:]*):([0-9]{12})?:(.+)$" | fn.#StringExpression
+	CredentialLocation?: #ApiKeyCredentialLocation
+	CredentialParameterName?: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	CredentialPrefix?: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ProviderArn!: =~"^arn:([^:]*):([^:]*):([^:]*):([0-9]{12})?:(.+)$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:([^:]*):([^:]*):([^:]*):([0-9]{12})?:(.+)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -74,30 +106,46 @@ fn.#ObjectExpression
 ]) |
 fn.#ValueExpression
 
-#AuthorizationData: close({Oauth2!: #OAuth2AuthorizationData}) | fn.#ValueExpression
-
 #ConnectorConfiguration: close({
-	Description?:        strings.MaxRunes(2000) | fn.#StringExpression
-	Name!:               strings.MaxRunes(64) & =~"^[a-zA-Z][a-zA-Z0-9_-]*$" | fn.#StringExpression
+	Description?: strings.MaxRunes(2000) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2000) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(64) & =~"^[a-zA-Z][a-zA-Z0-9_-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & =~"^[a-zA-Z][a-zA-Z0-9_-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ParameterOverrides?: [...#ConnectorParameterOverride] | fn.#ListExpression
 	ParameterValues?:    fn.#Value
 }) |
 fn.#ObjectExpression
 
 #ConnectorParameterOverride: close({
-	Description?: string | fn.#StringExpression
-	Path!:        string | fn.#StringExpression
+	Description?: string | number | bool | fn.#StringExpression
+	Path!:        string | number | bool | fn.#StringExpression
 	Visible?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-#ConnectorSource: close({ConnectorId!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}) |
+#ConnectorSource: close({
+	ConnectorId!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #ConnectorTargetConfiguration: close({
 	Configurations?: [...#ConnectorConfiguration] | fn.#ListExpression
-	Enabled?:        list.MaxItems(50) & list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression
-	Source!:         #ConnectorSource
+	Enabled?: list.MaxItems(50) & list.MinItems(1) & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
+	Source!: #ConnectorSource
 }) |
 fn.#ObjectExpression
 
@@ -129,10 +177,27 @@ fn.#ObjectExpression
 
 #HttpConnectorParameters: struct.MaxFields(10) & struct.MinFields(0) & close({
 
-	{[=~"^[a-zA-Z][a-zA-Z0-9_-]*$"]: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{
+		[=~"^[a-zA-Z][a-zA-Z0-9_-]*$"]: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
-#HttpConnectorSource: close({ConnectorId!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}) |
+#HttpConnectorSource: close({
+	ConnectorId!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #HttpConnectorTargetConfiguration: close({
@@ -151,25 +216,59 @@ fn.#ObjectExpression
 fn.#ValueExpression
 
 #IamCredentialProvider: close({
-	Region?:  strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-	Service!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$" | fn.#StringExpression
+	Region?: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Service!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#InferenceConnectorSource: close({ConnectorId!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression}) |
+#InferenceConnectorSource: close({
+	ConnectorId!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #InferenceConnectorTargetConfiguration: close({Source!: #InferenceConnectorSource}) | fn.#ObjectExpression
 
 #InferenceOperationConfiguration: close({
-	Models?:       list.MaxItems(100) & list.MinItems(1) & [...#ModelEntry] | fn.#ListExpression
-	Path!:         strings.MaxRunes(256) & strings.MinRunes(1) & =~"^/[a-zA-Z0-9\\-\\._/]+$" | fn.#StringExpression
-	ProviderPath?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^/[a-zA-Z0-9\\-\\._/]+$" | fn.#StringExpression
+	Models?: list.MaxItems(100) & list.MinItems(1) & [...#ModelEntry] | fn.#ListExpression
+	Path!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^/[a-zA-Z0-9\\-\\._/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^/[a-zA-Z0-9\\-\\._/]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ProviderPath?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^/[a-zA-Z0-9\\-\\._/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^/[a-zA-Z0-9\\-\\._/]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #InferenceProviderTargetConfiguration: close({
 	Endpoint!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[a-zA-Z0-9\\-\\.]+(:[0-9]{1,5})?(/.*)?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^https://[a-zA-Z0-9\\-\\.]+(:[0-9]{1,5})?(/.*)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	ModelMapping?: #ModelMapping
 	Operations?:   list.MaxItems(10) & list.MinItems(1) & [...#InferenceOperationConfiguration] | fn.#ListExpression
@@ -185,42 +284,64 @@ fn.#ValueExpression
 
 #ListingMode: "DEFAULT" | "DYNAMIC" | fn.#StringExpression
 
-#ManagedResourceDetails: close({
-	Domain?: string | fn.#StringExpression
-	ResourceAssociationArn?: =~"^(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:servicenetworkresourceassociation/)?snra-[0-9a-f]{17}$" |
-		fn.#StringExpression
-	ResourceGatewayArn?: =~"^arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourcegateway/rgw-[0-9a-z]{17}$" |
-		fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #ManagedVpcResource: close({
 	EndpointIpAddressType!: #EndpointIpAddressType
-	RoutingDomain?:         strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
-	SecurityGroupIds?: list.MaxItems(5) & [...] & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-			=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SubnetIds!:     [...=~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression] | fn.#ListExpression
-	Tags?:          #TagsMap
-	VpcIdentifier!: =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" | fn.#StringExpression
+	RoutingDomain?: strings.MaxRunes(255) & strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & "\(self)"
+	} |
+	fn.#StringExpression
+	SecurityGroupIds?: list.MaxItems(5) & [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SubnetIds!: [...=~"^subnet-[0-9a-zA-Z]{8,17}$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-[0-9a-zA-Z]{8,17}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Tags?: #TagsMap
+	VpcIdentifier!: =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #McpLambdaTargetConfiguration: close({
-	LambdaArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	LambdaArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 	strings.MaxRunes(170) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws[a-zA-Z-]*)?:lambda:([a-z]{2}(-gov)?-[a-z]+-\\d{1}):(\\d{12}):function:([a-zA-Z0-9-_.]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+		strings.MaxRunes(170) &
+		strings.MinRunes(1) &
+		=~"^arn:(aws[a-zA-Z-]*)?:lambda:([a-z]{2}(-gov)?-[a-z]+-\\d{1}):(\\d{12}):function:([a-zA-Z0-9-_.]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	ToolSchema!: #ToolSchema
 }) |
 fn.#ObjectExpression
 
 #McpServerTargetConfiguration: close({
-	Endpoint!:      =~"^https://.*" | fn.#StringExpression
+	Endpoint!: =~"^https://.*" |
+	{
+		number | bool
+		_cfnString: =~"^https://.*" & "\(self)"
+	} |
+	fn.#StringExpression
 	ListingMode?:   #ListingMode
 	McpToolSchema?: #McpToolSchemaConfiguration
 	ResourcePriority?: <=1000 & >=0 |
@@ -267,49 +388,85 @@ fn.#ValueExpression
 fn.#ValueExpression
 
 #MetadataConfiguration: close({
-	AllowedQueryParameters?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(40) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	AllowedQueryParameters?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(40) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(40) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	AllowedRequestHeaders?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	AllowedRequestHeaders?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	AllowedResponseHeaders?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	AllowedResponseHeaders?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #ModelEntry: close({
 	Model!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\._\\*\\?@]+(/[a-zA-Z0-9\\-\\._\\*\\?@]+)*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9\\-\\._\\*\\?@]+(/[a-zA-Z0-9\\-\\._\\*\\?@]+)*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ModelMapping: close({ProviderPrefix?: #ProviderPrefix}) | fn.#ObjectExpression
 
-#OAuth2AuthorizationData: close({
-	AuthorizationUrl!: strings.MinRunes(1) | fn.#StringExpression
-	UserId?:           strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #OAuthCredentialProvider: close({
 	CustomParameters?: #OAuthCustomParameters
 	DefaultReturnUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^\\w+:(\\/?\\/?)[^\\s]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^\\w+:(\\/?\\/?)[^\\s]+$" & "\(self)"
+	} |
 	fn.#StringExpression
-	GrantType?:   #OAuthGrantType | fn.#ValueExpression
-	ProviderArn!: =~"^arn:([^:]*):([^:]*):([^:]*):([0-9]{12})?:(.+)$" | fn.#StringExpression
-	Scopes!: list.MaxItems(100) & [...strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression] |
+	GrantType?: #OAuthGrantType | fn.#ValueExpression
+	ProviderArn!: =~"^arn:([^:]*):([^:]*):([^:]*):([0-9]{12})?:(.+)$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:([^:]*):([^:]*):([^:]*):([0-9]{12})?:(.+)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Scopes!: list.MaxItems(100) & [...strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #OAuthCustomParameters: struct.MaxFields(10) & struct.MinFields(1) & close({
 
-	{[=~".+"]: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression}}) |
+	{
+		[=~".+"]: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #OAuthGrantType: "CLIENT_CREDENTIALS" | "AUTHORIZATION_CODE" | "TOKEN_EXCHANGE" | fn.#StringExpression
@@ -318,6 +475,13 @@ fn.#ObjectExpression
 
 #PassthroughTargetConfiguration: close({
 	Endpoint!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^https://[a-zA-Z0-9\\-\\.]+(:[0-9]{1,5})?(/.*)?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^https://[a-zA-Z0-9\\-\\.]+(:[0-9]{1,5})?(/.*)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	ProtocolType!:            #PassthroughProtocolType
 	Schema?:                  #HttpApiSchemaConfiguration
@@ -331,8 +495,13 @@ fn.#ObjectExpression
 fn.#ValueExpression
 
 #ProviderPrefix: close({
-	Separator?: strings.MaxRunes(1) & strings.MinRunes(1) | fn.#StringExpression
-	Strip?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Separator?: strings.MaxRunes(1) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Strip?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
@@ -340,30 +509,50 @@ fn.#ObjectExpression
 
 #RuntimeTargetConfiguration: close({
 	Arn!: =~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:runtime/[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}$" |
-		fn.#StringExpression
-	Qualifier?: =~"([1-9][0-9]{0,4})|([a-zA-Z][a-zA-Z0-9_]{0,47})" | fn.#StringExpression
-	Schema?:    #HttpApiSchemaConfiguration
+	{
+		number | bool
+		_cfnString: =~"^arn:aws(-[^:]+)?:bedrock-agentcore:[a-z0-9-]+:[0-9]{12}:runtime/[a-zA-Z][a-zA-Z0-9_]{0,47}-[a-zA-Z0-9]{10}$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
+	Qualifier?: =~"([1-9][0-9]{0,4})|([a-zA-Z][a-zA-Z0-9_]{0,47})" |
+	{
+		number | bool
+		_cfnString: =~"([1-9][0-9]{0,4})|([a-zA-Z][a-zA-Z0-9_]{0,47})" & "\(self)"
+	} |
+	fn.#StringExpression
+	Schema?: #HttpApiSchemaConfiguration
 }) |
 fn.#ObjectExpression
 
 #S3Configuration: close({
-	BucketOwnerAccountId?: =~"^[0-9]{12}$" | fn.#StringExpression
-	Uri?:                  string | fn.#StringExpression
+	BucketOwnerAccountId?: =~"^[0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Uri?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SchemaDefinition: close({
-	Description?: string | fn.#StringExpression
+	Description?: string | number | bool | fn.#StringExpression
 	Items?:       #SchemaDefinition
 	Properties?:  #SchemaProperties
-	Required?:    [...string | fn.#StringExpression] | fn.#ListExpression
+	Required?:    [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Type!:        #SchemaType
 }) |
 fn.#ObjectExpression
 
 #SchemaProperties: close({
 
-	{[=~".+"]: #SchemaDefinition}}) |
+	{[=~".+"]: #SchemaDefinition}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #SchemaType: "string" | "number" | "object" | "array" | "boolean" | "integer" | fn.#StringExpression
@@ -372,12 +561,24 @@ fn.#ObjectExpression
 	ResourceConfigurationIdentifier!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((rcfg-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}))$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^((rcfg-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}))$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ValueExpression
 
 #StickinessConfiguration: close({
-	Identifier!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Identifier!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Timeout?: <=86400 & >=1 |
 		{
 			string &
@@ -403,8 +604,21 @@ fn.#ObjectExpression
 
 #TagsMap: struct.MaxFields(50) & close({
 
-	{[=~"^[a-zA-Z0-9\\s._:/=+@-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
-	fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[a-zA-Z0-9\\s._:/=+@-]{1,128}$"]: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #TargetConfiguration: matchN(1, [close(
@@ -416,25 +630,10 @@ fn.#ObjectExpression
 )]) |
 fn.#ValueExpression
 
-#TargetProtocolType: "MCP" | "HTTP" | fn.#StringExpression
-
-#TargetStatus: "CREATING" |
-	"UPDATING" |
-	"UPDATE_UNSUCCESSFUL" |
-	"DELETING" |
-	"READY" |
-	"FAILED" |
-	"SYNCHRONIZING" |
-	"SYNCHRONIZE_UNSUCCESSFUL" |
-	"CREATE_PENDING_AUTH" |
-	"UPDATE_PENDING_AUTH" |
-	"SYNCHRONIZE_PENDING_AUTH" |
-	fn.#StringExpression
-
 #ToolDefinition: close({
-	Description!:  string | fn.#StringExpression
+	Description!:  string | number | bool | fn.#StringExpression
 	InputSchema!:  #SchemaDefinition
-	Name!:         string | fn.#StringExpression
+	Name!:         string | number | bool | fn.#StringExpression
 	OutputSchema?: #SchemaDefinition
 }) |
 fn.#ObjectExpression

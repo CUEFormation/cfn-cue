@@ -11,7 +11,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h1efd629bf9cec78e:schem
 #CapacityProviderPredefinedMetricType: schema.#CapacityProviderPredefinedMetricType
 #CapacityProviderScalingConfig:        schema.#CapacityProviderScalingConfig
 #CapacityProviderScalingMode:          schema.#CapacityProviderScalingMode
-#CapacityProviderState:                schema.#CapacityProviderState
 #CapacityProviderTelemetryConfig:      schema.#CapacityProviderTelemetryConfig
 #CapacityProviderVpcConfig:            schema.#CapacityProviderVpcConfig
 #InstanceRequirements:                 schema.#InstanceRequirements

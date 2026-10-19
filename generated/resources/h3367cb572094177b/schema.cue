@@ -6,20 +6,34 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Tables::Namespace
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3Tables::Namespace"
-	Properties!: close({
+	let properties = close({
 		Namespace!:      #Namespace
 		TableBucketARN!: #TableBucketARN
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Namespace: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#Namespace: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" | fn.#StringExpression
+#TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" |
+{
+	number | bool
+	_cfnString: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" & "\(self)"
+} |
+fn.#StringExpression

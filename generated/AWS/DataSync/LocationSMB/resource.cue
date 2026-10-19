@@ -4,9 +4,7 @@ package LocationSMB
 
 import schema "github.com/cueformation/cfn-cue/resources/h0e85de07e0cfd58f:schema"
 
-#Resource:            schema.#Resource
-#CmkSecretConfig:     schema.#CmkSecretConfig
-#CustomSecretConfig:  schema.#CustomSecretConfig
-#ManagedSecretConfig: schema.#ManagedSecretConfig
-#MountOptions:        schema.#MountOptions
-#Tag:                 schema.#Tag
+#Resource:           schema.#Resource
+#CustomSecretConfig: schema.#CustomSecretConfig
+#MountOptions:       schema.#MountOptions
+#Tag:                schema.#Tag

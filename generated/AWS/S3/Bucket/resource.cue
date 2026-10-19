@@ -9,8 +9,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h69ff2c30cdaed778:schem
 #AccelerateConfiguration:              schema.#AccelerateConfiguration
 #AccessControlTranslation:             schema.#AccessControlTranslation
 #AnalyticsConfiguration:               schema.#AnalyticsConfiguration
-#AnnotationTableConfiguration:         schema.#AnnotationTableConfiguration
-#Arn:                                  schema.#Arn
 #BlockedEncryptionTypeList:            schema.#BlockedEncryptionTypeList
 #BlockedEncryptionTypes:               schema.#BlockedEncryptionTypes
 #BucketEncryption:                     schema.#BucketEncryption
@@ -26,14 +24,9 @@ import schema "github.com/cueformation/cfn-cue/resources/h69ff2c30cdaed778:schem
 #FilterRule:                           schema.#FilterRule
 #IntelligentTieringConfiguration:      schema.#IntelligentTieringConfiguration
 #InventoryConfiguration:               schema.#InventoryConfiguration
-#InventoryTableConfiguration:          schema.#InventoryTableConfiguration
-#JournalTableConfiguration:            schema.#JournalTableConfiguration
 #LambdaConfiguration:                  schema.#LambdaConfiguration
 #LifecycleConfiguration:               schema.#LifecycleConfiguration
 #LoggingConfiguration:                 schema.#LoggingConfiguration
-#MetadataConfiguration:                schema.#MetadataConfiguration
-#MetadataDestination:                  schema.#MetadataDestination
-#MetadataTableConfiguration:           schema.#MetadataTableConfiguration
 #MetadataTableEncryptionConfiguration: schema.#MetadataTableEncryptionConfiguration
 #Metrics:                              schema.#Metrics
 #MetricsConfiguration:                 schema.#MetricsConfiguration
@@ -63,7 +56,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h69ff2c30cdaed778:schem
 #RoutingRuleCondition:                 schema.#RoutingRuleCondition
 #Rule:                                 schema.#Rule
 #S3KeyFilter:                          schema.#S3KeyFilter
-#S3TablesDestination:                  schema.#S3TablesDestination
 #ServerSideEncryptionByDefault:        schema.#ServerSideEncryptionByDefault
 #ServerSideEncryptionRule:             schema.#ServerSideEncryptionRule
 #SourceSelectionCriteria:              schema.#SourceSelectionCriteria

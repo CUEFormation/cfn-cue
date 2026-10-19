@@ -87,6 +87,7 @@ func TestRegionalGenerationAndValidation(t *testing.T) {
 		`{Resources:{Thing:{Type:"AWS::Test::Thing",Properties:{Name:"one",Policy:{Version:"2012-10-17",Statement:[{Action:"sts:AssumeRole",Condition:{StringEquals:{ExternalId:{Ref:"P"}}}}]}}}}}`,
 		`{Conditions:{Yes:{"Fn::And":[{"Fn::Equals":[{Ref:"P"},"a"]},{Condition:"Other"}]}},Resources:{Thing:{Type:"AWS::Test::Thing",Properties:{Name:{"Fn::If":["Yes",{"Fn::Sub":"x"},{Ref:"AWS::NoValue"}]}}}}}`,
 		`{Rules:{Check:{Assertions:[{Assert:{"Fn::EachMemberIn":[{"Fn::ValueOfAll":["AWS::EC2::Subnet::Id","VpcId"]},{"Fn::RefAll":"AWS::EC2::VPC::Id"}]}}]}},Resources:{Thing:{Type:"AWS::Test::Thing",Properties:{Name:"one"}}}}`,
+		`{Rules:{Check:{Assertions:[{Assert:{"Fn::EachMemberEquals":[{"Fn::ValueOf":["Subnets","VpcId"]},{Ref:"VpcId"}]}}]}},Resources:{Thing:{Type:"AWS::Test::Thing",Properties:{Name:"one"}}}}`,
 	} {
 		validate(t, schema, data, true)
 	}
@@ -143,6 +144,118 @@ func TestDefinitionNames(t *testing.T) {
 	validate(t, resource, `{Type:"AWS::Test::Named",Properties:{Tag:{Key:"k"},Target:{Arn:"a"},Settings:{Mode:"a"}}}`, true)
 	validate(t, resource, `{Type:"AWS::Test::Named",Properties:{Target:{}}}`, false)
 	validate(t, resource, `{Type:"AWS::Test::Named",Properties:{Settings:{Mode:"c"}}}`, false)
+}
+
+// TestPrunedDefinitions checks that resources packages drop provider
+// definitions the template input schema no longer reaches, transitively, while
+// literal packages keep every definition. Percent-encoded references and,
+// in TestRootReferenceKept, references from the root schema keep their targets.
+// A field rule inside a pruned definition is dropped; one in a kept
+// definition still applies.
+func TestPrunedDefinitions(t *testing.T) {
+	root := `{"typeName":"AWS::Test::Pruned","type":"object","additionalProperties":false,
+		"properties":{"Id":{"$ref":"#/definitions/AccountId"},"Wrapper":{"$ref":"#/definitions/Wrapper"},"Odd":{"$ref":"#/definitions/odd~1name"},"Spaced":{"$ref":"#/definitions%2Fodd%20space"}},
+		"readOnlyProperties":["/properties/Id"],
+		"definitions":{
+			"AccountId":{"allOf":[{"$ref":"#/definitions/Digits"}]},
+			"Digits":{"type":"string","pattern":"^[0-9]+$"},
+			"Wrapper":{"type":"object","additionalProperties":false,"properties":{"Inner":{"$ref":"#/definitions/Inner"},"Other":{"type":"string"}},"requiredXor":["Inner","Other"]},
+			"Inner":{"type":"string"},
+			"odd space":{"type":"string"},
+			"odd/name":{"type":"string"},
+			"odd/orphan":{"type":"string"},
+			"Orphan":{"type":"object","properties":{"X":{"type":"string"},"Y":{"type":"string"}},"requiredXor":["X","Y"]}}}`
+	out := filepath.Join(t.TempDir(), "generated")
+	if _, e := Generate(&Source{Label: "pruned", SHA256: "pruned", files: map[string][]byte{
+		"providers/us-east-1.json": []byte(`{"AWS::Test::Pruned":"pruned"}`),
+		"resources/pruned.json":    []byte(root),
+	}}, Options{Out: out, Regions: []string{"us-east-1"}}); e != nil {
+		t.Fatal(e)
+	}
+	pkg := build(t, out, "./resources/hpruned")
+	for name, want := range map[string]bool{"AccountId": false, "Digits": false, "Orphan": false, "Wrapper": true, "Inner": true} {
+		if got := pkg.LookupPath(cue.MakePath(cue.Def(name))).Exists(); got != want {
+			t.Errorf("resources #%s exists=%v want=%v", name, got, want)
+		}
+	}
+	b, e := os.ReadFile(filepath.Join(out, "resources", "hpruned", "schema.cue"))
+	if e != nil {
+		t.Fatal(e)
+	}
+	if !strings.Contains(string(b), "odd~1name") || strings.Contains(string(b), "odd~1orphan") {
+		t.Errorf("nested definitions not pruned as expected:\n%s", b)
+	}
+	literal := build(t, out, "./literal/hpruned")
+	for _, name := range []string{"AccountId", "Digits", "Orphan"} {
+		if !literal.LookupPath(cue.MakePath(cue.Def(name))).Exists() {
+			t.Errorf("literal #%s missing", name)
+		}
+	}
+	resource := pkg.LookupPath(cue.MakePath(cue.Def("Resource")))
+	validate(t, resource, `{Type:"AWS::Test::Pruned",Properties:{Wrapper:{Inner:"x"},Odd:"y",Spaced:"z"}}`, true)
+	validate(t, resource, `{Type:"AWS::Test::Pruned",Properties:{Id:"123456789012"}}`, false)
+	validate(t, resource, `{Type:"AWS::Test::Pruned",Properties:{Wrapper:{Inner:"x",Other:"y"}}}`, false)
+}
+
+// TestReadOnlyRuleDefinitions covers the two pinned schemas whose template
+// input orphans a definition carrying a field rule (issue #12). GroundStation's
+// EndpointDetails, field rule 2 of 4, is reached only by a read-only property.
+// Events::Connection's AuthParameters, field rule 0, is inlined into its
+// property when a read-only path below it is removed. Generation must succeed,
+// the orphaned rule must be dropped with its definition, and the rules either
+// side of it must still apply.
+func TestReadOnlyRuleDefinitions(t *testing.T) {
+	source, e := OpenSource(context.Background(), "../../snapshots/schemas-2026-10-12.zip")
+	if e != nil {
+		t.Fatal(e)
+	}
+	out := filepath.Join(t.TempDir(), "generated")
+	if _, e = Generate(source, Options{Out: out, Regions: []string{"us-east-1"}, Resources: []string{"AWS::GroundStation::DataflowEndpointGroupV2", "AWS::Events::Connection"}}); e != nil {
+		t.Fatal(e)
+	}
+	for _, c := range []struct {
+		pkg, def string
+		exists   bool
+	}{
+		{"./resources/ha3fc2798aeb3e8b6", "EndpointDetails", false},
+		{"./resources/ha3fc2798aeb3e8b6", "CreateEndpointDetails", true},
+		{"./resources/ha3fc2798aeb3e8b6", "DownlinkDataflowDetails", true},
+		{"./resources/ha3fc2798aeb3e8b6", "UplinkDataflowDetails", true},
+		{"./literal/ha3fc2798aeb3e8b6", "EndpointDetails", true},
+		{"./resources/hd0df85968cafb831", "AuthParameters", false},
+		{"./literal/hd0df85968cafb831", "AuthParameters", true},
+	} {
+		def := build(t, out, c.pkg).LookupPath(cue.MakePath(cue.Def(c.def)))
+		if def.Exists() != c.exists {
+			t.Errorf("%s #%s exists=%v want=%v", c.pkg, c.def, def.Exists(), c.exists)
+			continue
+		}
+		if c.exists {
+			// Every field is optional, so only the at-least-one rule rejects {}.
+			validate(t, def, `{}`, false)
+		}
+	}
+	properties := propertiesSchema(t, out, "./resources/hd0df85968cafb831")
+	validate(t, properties, `{AuthorizationType:"API_KEY",AuthParameters:{ApiKeyAuthParameters:{ApiKeyName:"k",ApiKeyValue:"v"},ConnectivityParameters:{Ref:"Config"}}}`, true)
+	validate(t, properties, `{AuthorizationType:"API_KEY",AuthParameters:{ConnectivityParameters:{Ref:"Config"}}}`, false)
+}
+
+// TestRootReferenceKept checks that a definition referenced by the root
+// schema's own $ref survives pruning. Read-only removal inlines a root $ref, so
+// this fixture has no read-only properties.
+func TestRootReferenceKept(t *testing.T) {
+	root := `{"typeName":"AWS::Test::RootRef","type":"object","$ref":"#/definitions/Shape",
+		"definitions":{"Shape":{"type":"object","properties":{"Name":{"type":"string"}},"required":["Name"]}}}`
+	out := filepath.Join(t.TempDir(), "generated")
+	if _, e := Generate(&Source{Label: "rootref", SHA256: "rootref", files: map[string][]byte{
+		"providers/us-east-1.json": []byte(`{"AWS::Test::RootRef":"rootref"}`),
+		"resources/rootref.json":   []byte(root),
+	}}, Options{Out: out, Regions: []string{"us-east-1"}}); e != nil {
+		t.Fatal(e)
+	}
+	if !build(t, out, "./resources/hrootref").LookupPath(cue.MakePath(cue.Def("Shape"))).Exists() {
+		t.Error("resources #Shape pruned")
+	}
 }
 func TestExtensions(t *testing.T) {
 	out := filepath.Join(t.TempDir(), "generated")

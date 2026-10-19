@@ -1,6 +1,8 @@
 package generate
 
 import (
+	"strconv"
+
 	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/format"
 	"cuelang.org/go/cue/token"
@@ -43,6 +45,14 @@ func pattern(label, value ast.Expr) *ast.StructLit {
 func sel(pkg, name string) ast.Expr { return ast.NewSel(ast.NewIdent(pkg), "#"+name) }
 func file(pkg string) *ast.File {
 	return &ast.File{Decls: []ast.Decl{&ast.Package{Name: ast.NewIdent(pkg)}}}
+}
+func imports(f *ast.File, path string) bool {
+	for spec := range f.ImportSpecs() {
+		if spec.Path.Value == strconv.Quote(path) {
+			return true
+		}
+	}
+	return false
 }
 func addImport(f *ast.File, alias, path string) {
 	d := &ast.ImportDecl{Specs: []*ast.ImportSpec{ast.NewImport(ast.NewIdent(alias), path)}}

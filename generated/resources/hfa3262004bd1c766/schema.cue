@@ -7,32 +7,53 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents an AWS Supply Chain data integration flow.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SCN::DataIntegrationFlow"
-	Properties!: close({
+	let properties = close({
 		InstanceId!: strings.MaxRunes(36) &
 		strings.MinRunes(36) &
 		=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) &
+			strings.MinRunes(36) &
+			=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name!:           strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9-]+$" | fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Sources!:        list.MaxItems(40) & list.MinItems(1) & [...#DataIntegrationFlowSource] | fn.#ListExpression
 		Tags?:           list.MaxItems(200) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		Target!:         #DataIntegrationFlowTarget
 		Transformation!: #DataIntegrationFlowTransformation
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #DataIntegrationFlowSource: close({
 	DatasetSource?: #DatasetSourceConfiguration
 	S3Source?:      #S3SourceConfiguration
-	SourceName!:    strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_]+$" | fn.#StringExpression
-	SourceType!:    "S3" | "DATASET" | fn.#StringExpression
+	SourceName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SourceType!: "S3" | "DATASET" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -56,14 +77,24 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DatasetSourceConfiguration: close({
-	DatasetIdentifier!: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^[-_/A-Za-z0-9:]+$" | fn.#StringExpression
-	Options?:           #DatasetOptions
+	DatasetIdentifier!: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^[-_/A-Za-z0-9:]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^[-_/A-Za-z0-9:]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Options?: #DatasetOptions
 }) |
 fn.#ObjectExpression
 
 #DatasetTargetConfiguration: close({
-	DatasetIdentifier!: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^[-_/A-Za-z0-9:]+$" | fn.#StringExpression
-	Options?:           #DatasetOptions
+	DatasetIdentifier!: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^[-_/A-Za-z0-9:]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^[-_/A-Za-z0-9:]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Options?: #DatasetOptions
 }) |
 fn.#ObjectExpression
 
@@ -74,7 +105,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #FieldPriorityDedupeField: close({
-	Name!:      strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z0-9_]+$" | fn.#StringExpression
+	Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z0-9_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-z0-9_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	SortOrder!: "ASC" | "DESC" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -87,17 +123,53 @@ fn.#ObjectExpression
 #S3Options: close({FileType?: "CSV" | "PARQUET" | "JSON" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #S3SourceConfiguration: close({
-	BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][a-z0-9.-]*[a-z0-9]$" | fn.#StringExpression
-	Options?:    #S3Options
-	Prefix!:     strings.MaxRunes(700) & strings.MinRunes(0) & =~"^[/A-Za-z0-9._-]+$" | fn.#StringExpression
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) &
+	=~"^[a-z0-9][a-z0-9.-]*[a-z0-9]$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) &
+		=~"^[a-z0-9][a-z0-9.-]*[a-z0-9]$" &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Options?: #S3Options
+	Prefix!: strings.MaxRunes(700) & strings.MinRunes(0) & =~"^[/A-Za-z0-9._-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(700) & strings.MinRunes(0) & =~"^[/A-Za-z0-9._-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#SqlTransformationConfiguration: close({Query!: strings.MaxRunes(65535) & strings.MinRunes(1) | fn.#StringExpression}) |
+#SqlTransformationConfiguration: close({
+	Query!: strings.MaxRunes(65535) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(65535) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

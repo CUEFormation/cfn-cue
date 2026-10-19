@@ -3,25 +3,34 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SES::ReceiptFilter
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SES::ReceiptFilter"
-	Properties!: close({Filter!: #Filter})
+	Type!: "AWS::SES::ReceiptFilter"
+	let properties = close({Filter!: #Filter})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Filter: close({
 	IpFilter!: #IpFilter
-	Name?:     string | fn.#StringExpression
+	Name?:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #IpFilter: close({
-	Cidr!:   string | fn.#StringExpression
+	Cidr!: fn.#IPv4Network & string |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network & string & "\(self)"
+	} |
+	fn.#StringExpression
 	Policy!: "Allow" | "Block" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

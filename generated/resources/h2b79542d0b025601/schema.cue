@@ -6,16 +6,30 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::VerifiedPermissions::PolicyStoreAlias Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::VerifiedPermissions::PolicyStoreAlias"
-	Properties!: close({
-		AliasName!:     strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_/]*$" | fn.#StringExpression
-		PolicyStoreId!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" | fn.#StringExpression
+	let properties = close({
+		AliasName!: strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_/]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_/]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		PolicyStoreId!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

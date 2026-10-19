@@ -7,38 +7,60 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Wisdom::KnowledgeBase Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Wisdom::KnowledgeBase"
-	Properties!: close({
-		Description?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		KnowledgeBaseType!: #KnowledgeBaseType
-		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		RenderingConfiguration?:            #RenderingConfiguration
 		ServerSideEncryptionConfiguration?: #ServerSideEncryptionConfiguration
 		SourceConfiguration?:               #SourceConfiguration
 		Tags?:                              list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		VectorIngestionConfiguration?:      #VectorIngestionConfiguration
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AppIntegrationsConfiguration: close({
 	AppIntegrationArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:[a-z-]+?:[a-z-]+?:[a-z0-9-]*?:([0-9]{12})?:[a-zA-Z0-9-:/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:[a-z-]+?:[a-z-]+?:[a-z0-9-]*?:([0-9]{12})?:[a-zA-Z0-9-:/]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	ObjectFields?: list.MaxItems(100) & list.MinItems(1) & [
-		...strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	ObjectFields?: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -47,8 +69,22 @@ fn.#ObjectExpression
 	ModelArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}::foundation-model\\/anthropic.claude-3-haiku-20240307-v1:0$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}::foundation-model\\/anthropic.claude-3-haiku-20240307-v1:0$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	ParsingPrompt?: close({ParsingPromptText!: strings.MaxRunes(10000) & strings.MinRunes(1) | fn.#StringExpression}) |
+	ParsingPrompt?: close({
+		ParsingPromptText!: strings.MaxRunes(10000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(10000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
@@ -149,10 +185,25 @@ fn.#ObjectExpression
 
 #ManagedSourceConfiguration: close({WebCrawlerConfiguration!: #WebCrawlerConfiguration}) | fn.#ValueExpression
 
-#RenderingConfiguration: close({TemplateUri?: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression}) |
+#RenderingConfiguration: close({
+	TemplateUri?: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
-#SeedUrl: close({Url?: =~"^https?://[A-Za-z0-9][^\\s]*$" | fn.#StringExpression}) | fn.#ObjectExpression
+#SeedUrl: close({
+	Url?: =~"^https?://[A-Za-z0-9][^\\s]*$" |
+	{
+		number | bool
+		_cfnString: =~"^https?://[A-Za-z0-9][^\\s]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #SemanticChunkingConfiguration: close({
 	BreakpointPercentileThreshold!: <=99 & >=50 |
@@ -218,8 +269,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ServerSideEncryptionConfiguration: close({
-	KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string) & (strings.MaxRunes(4096) & strings.MinRunes(1)) |
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(4096) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+		strings.MaxRunes(4096) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -232,14 +293,34 @@ fn.#ObjectExpression
 fn.#ValueExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #UrlFilterList: list.MaxItems(25) & list.MinItems(1) & [...#UrlFilterPattern] | fn.#ListExpression
 
-#UrlFilterPattern: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+#UrlFilterPattern: strings.MaxRunes(1000) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #VectorIngestionConfiguration: close({
 	ChunkingConfiguration?: close({

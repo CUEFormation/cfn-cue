@@ -3,12 +3,12 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -18,26 +18,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // the agent is invoked.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::HarnessEndpoint"
-	Properties!: close({
-		Description?:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		EndpointName!:  =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
-		HarnessId!:     =~"^[a-zA-Z][a-zA-Z0-9_]{0,39}-[a-zA-Z0-9]{10}$" | fn.#StringExpression
-		Tags?:          list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-		TargetVersion?: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^([1-9][0-9]{0,4})$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		EndpointName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		HarnessId!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,39}-[a-zA-Z0-9]{10}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z][a-zA-Z0-9_]{0,39}-[a-zA-Z0-9]{10}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		TargetVersion?: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^([1-9][0-9]{0,4})$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^([1-9][0-9]{0,4})$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#HarnessEndpointStatus: "CREATING" |
-	"CREATE_FAILED" |
-	"UPDATING" |
-	"UPDATE_FAILED" |
-	"READY" |
-	"DELETING" |
-	"DELETE_FAILED" |
-	fn.#StringExpression
-
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.:/=+\\-@]*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s_.:/=+\\-@]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.:/=+\\-@]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.:/=+\\-@]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s_.:/=+\\-@]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s_.:/=+\\-@]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

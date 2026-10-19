@@ -3,16 +3,20 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::StackFleetAssociation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppStream::StackFleetAssociation"
-	Properties!: close({
-		FleetName!: string | fn.#StringExpression
-		StackName!: string | fn.#StringExpression
+	let properties = close({
+		FleetName!: string | number | bool | fn.#StringExpression
+		StackName!: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

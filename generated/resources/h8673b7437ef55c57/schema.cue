@@ -7,52 +7,106 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::DataSync::LocationEFS.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataSync::LocationEFS"
-	Properties!: close({
+	let properties = close({
 		AccessPointArn?: strings.MaxRunes(128) &
 		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):elasticfilesystem:[a-z\\-0-9]+:[0-9]{12}:access-point/fsap-[0-9a-f]{8,40}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):elasticfilesystem:[a-z\\-0-9]+:[0-9]{12}:access-point/fsap-[0-9a-f]{8,40}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Ec2Config!: #Ec2Config
 		EfsFilesystemArn?: strings.MaxRunes(128) &
 		strings.MinRunes(0) &
 		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):elasticfilesystem:[a-z\\-0-9]*:[0-9]{12}:file-system/fs-.*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(0) &
+			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):elasticfilesystem:[a-z\\-0-9]*:[0-9]{12}:file-system/fs-.*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		FileSystemAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		FileSystemAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(128) &
 		strings.MinRunes(0) &
 		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(128) &
+			strings.MinRunes(0) &
+			=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):iam::[0-9]{12}:role/.*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		InTransitEncryption?: "NONE" | "TLS1_2" | fn.#StringExpression
 		Subdirectory?: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4096) &
+			strings.MinRunes(0) &
+			=~"^[a-zA-Z0-9_\\-\\+\\./\\(\\)\\$\\p{Zs}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Ec2Config: close({
-	SecurityGroupArns!: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(128) &
+	SecurityGroupArns!: list.MaxItems(5) & list.MinItems(1) & [...strings.MaxRunes(128) &
+	strings.MinRunes(0) &
+	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:security-group/.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) &
 		strings.MinRunes(0) &
-		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:security-group/.*$" |
-		fn.#StringExpression
-	] |
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:security-group/.*$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	SubnetArn!: strings.MaxRunes(128) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:subnet/.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) &
+		strings.MinRunes(0) &
+		=~"^arn:(aws|aws-cn|aws-us-gov|aws-eusc|aws-iso|aws-iso-b):ec2:[a-z\\-0-9]*:[0-9]{12}:subnet/.*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" | fn.#StringExpression
+	Key!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:/-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s+=._:@/-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

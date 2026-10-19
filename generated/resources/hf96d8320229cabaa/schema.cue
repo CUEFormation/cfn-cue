@@ -6,30 +6,42 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::ElasticBeanstalk::Application resource specifies an Elastic Beanstalk application.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ElasticBeanstalk::Application"
-	Properties?: close({
-		ApplicationName?: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		Description?:     strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		ApplicationName?: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(200) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Specifies an application resource lifecycle configuration to prevent your
 		// application from accumulating too many versions.
 		ResourceLifecycleConfig?: #ApplicationResourceLifecycleConfig
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #ApplicationResourceLifecycleConfig: close({
-	ServiceRole?: string | fn.#StringExpression
+	ServiceRole?: string | number | bool | fn.#StringExpression
 
 	// Defines lifecycle settings for application versions.
 	VersionLifecycleConfig?: #ApplicationVersionLifecycleConfig

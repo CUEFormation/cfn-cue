@@ -7,26 +7,49 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type Definition for AWS::S3Outposts::Bucket
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3Outposts::Bucket"
-	Properties!: close({
-		BucketName!: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+	let properties = close({
+		BucketName!: =~"(^(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)*([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])$)" &
+		=~"^(?:^.{3,63}$)" &
+		matchN(0, [=~"^(?:^(\\d+\\.)+\\d+$)"]) &
+		string &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: =~"(^(([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])\\.)*([a-z0-9]|[a-z0-9][a-z0-9\\-]*[a-z0-9])$)" &
+			=~"^(?:^.{3,63}$)" &
+			matchN(0, [=~"^(?:^(\\d+\\.)+\\d+$)"]) &
+			string &
+			strings.MaxRunes(63) &
+			strings.MinRunes(3) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 
 		// Rules that define how Amazon S3Outposts manages objects during their lifetime.
 		LifecycleConfiguration?: #LifecycleConfiguration
-		OutpostId!:              =~"^(op-[a-f0-9]{17}|\\d{12}|ec2)$" | fn.#StringExpression
-		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		OutpostId!: =~"^(op-[a-f0-9]{17}|\\d{12}|ec2)$" |
+		{
+			number | bool
+			_cfnString: =~"^(op-[a-f0-9]{17}|\\d{12}|ec2)$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AbortIncompleteMultipartUpload: close({
@@ -55,12 +78,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ValueExpression
 
-#FilterPrefix: string | fn.#StringExpression
+#FilterPrefix: string | number | bool | fn.#StringExpression
 
 #FilterTag: close({
 	Key!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -127,17 +164,48 @@ fn.#ObjectExpression
 		}
 	}) & matchN(>=1, [{Prefix!: _}, {Tag!: _}, {AndOperator!: _}]) |
 	fn.#ObjectExpression
-	Id?:     strings.MaxRunes(255) | fn.#StringExpression
+	Id?: strings.MaxRunes(255) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & "\(self)"
+	} |
+	fn.#StringExpression
 	Status?: "Enabled" | "Disabled" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" &
+	matchN(0, [=~"^(?:aws:.*)"]) &
+	string &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" &
+		matchN(0, [=~"^(?:aws:.*)"]) &
+		string &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
 	Value!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^([\\p{L}\\p{Z}\\p{N}_.:=+\\/\\-@%]*)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #iso8601UTC: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^([0-2]\\d{3})-(0[0-9]|1[0-2])-([0-2]\\d|3[01])T([01]\\d|2[0-4]):([0-5]\\d):([0-6]\\d)((\\.\\d{3})?)Z$" &
+		"\(self)"
+} |
+fn.#StringExpression

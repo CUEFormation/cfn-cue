@@ -7,16 +7,20 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::App
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::App"
-	Properties!: close({
+	let properties = close({
 		AppName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" & "\(self)"
+		} |
 		fn.#StringExpression
 		AppType!: "JupyterServer" |
 			"KernelGateway" |
@@ -24,7 +28,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"RSessionGateway" |
 			"Canvas" |
 			fn.#StringExpression
-		DomainId!:     strings.MaxRunes(63) & strings.MinRunes(1) & =~"^d-(-*[a-z0-9]){1,61}$" | fn.#StringExpression
+		DomainId!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^d-(-*[a-z0-9]){1,61}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^d-(-*[a-z0-9]){1,61}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		RecoveryMode?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 		// The instance type and the Amazon Resource Name (ARN) of the SageMaker image
@@ -32,8 +41,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ResourceSpec?: #ResourceSpec
 		Tags?:         list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 		UserProfileName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" & "\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ResourceSpec: close({
@@ -204,20 +221,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	LifecycleConfigArn?: strings.MaxRunes(256) &
 	strings.MinRunes(0) &
 	=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:studio-lifecycle-config/.*|None)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	SageMakerImageArn?: strings.MaxRunes(256) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[\\w]+)*:sagemaker:.+:[0-9]{12}:image/[a-z0-9]([-.]?[a-z0-9])*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[\\w]+)*:sagemaker:.+:[0-9]{12}:image/[a-z0-9]([-.]?[a-z0-9])*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	SageMakerImageVersionArn?: strings.MaxRunes(256) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[\\w]+)*:sagemaker:.+:[0-9]{12}:image-version/[a-z0-9]([-.]?[a-z0-9])*/[0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[\\w]+)*:sagemaker:.+:[0-9]{12}:image-version/[a-z0-9]([-.]?[a-z0-9])*/[0-9]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

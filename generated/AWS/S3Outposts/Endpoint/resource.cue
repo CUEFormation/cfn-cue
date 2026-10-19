@@ -4,7 +4,5 @@ package Endpoint
 
 import schema "github.com/cueformation/cfn-cue/resources/h45020daf4d3178bc:schema"
 
-#Resource:         schema.#Resource
-#FailedReason:     schema.#FailedReason
-#NetworkInterface: schema.#NetworkInterface
-#iso8601UTC:       schema.#iso8601UTC
+#Resource:     schema.#Resource
+#FailedReason: schema.#FailedReason

@@ -47,6 +47,6 @@ import "strings"
 })
 
 #Tag: close({
-	Key?:   strings.MaxRunes(127) & strings.MinRunes(1)
+	Key?:   =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(127) & strings.MinRunes(1)
 	Value?: strings.MaxRunes(255) & strings.MinRunes(1)
 })

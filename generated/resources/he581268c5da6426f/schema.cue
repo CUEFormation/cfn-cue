@@ -3,16 +3,20 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Associates a specified resource with a resource share.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RAM::ResourceAssociation"
-	Properties!: close({
-		ResourceArn!:      string | fn.#StringExpression
-		ResourceShareArn!: string | fn.#StringExpression
+	let properties = close({
+		ResourceArn!:      string | number | bool | fn.#StringExpression
+		ResourceShareArn!: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

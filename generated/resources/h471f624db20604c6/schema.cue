@@ -8,12 +8,10 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -21,12 +19,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Configuration Policy in your account.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityHub::ConfigurationPolicy"
-	Properties!: close({
+	let properties = close({
 		ConfigurationPolicy!: #Policy
-		Description?:         strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S" | fn.#StringExpression
-		Name!:                strings.MaxRunes(128) & strings.MinRunes(1) & =~"\\S" | fn.#StringExpression
-		Tags?:                #Tags
+		Description?: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"\\S" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"\\S" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: #Tags
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ParameterConfiguration: close({
@@ -56,8 +68,18 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Enum?: strings.MaxRunes(2048) | fn.#StringExpression
-	EnumList?: list.MaxItems(100) & list.UniqueItems() & [...strings.MaxRunes(2048) | fn.#StringExpression] |
+	Enum?: strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression
+	EnumList?: list.MaxItems(100) & list.UniqueItems() & [...strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	Integer?: int |
 		{
@@ -92,8 +114,18 @@ fn.#ObjectExpression
 			fn.#NumberExpression
 	] |
 		fn.#ListExpression
-	String?: strings.MaxRunes(2048) | fn.#StringExpression
-	StringList?: list.MaxItems(100) & list.UniqueItems() & [...strings.MaxRunes(2048) | fn.#StringExpression] |
+	String?: strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression
+	StringList?: list.MaxItems(100) & list.UniqueItems() & [...strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -103,20 +135,36 @@ fn.#ObjectExpression
 #SecurityControlCustomParameter: close({
 	Parameters?: struct.MinFields(1) & close({
 
-		{[=~"^[-_+=.:/@\\w\\s]{1,128}$"]: #ParameterConfiguration}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{[=~"^[-_+=.:/@\\w\\s]{1,128}$"]: #ParameterConfiguration}
+	}) |
 	fn.#ObjectExpression
-	SecurityControlId?: strings.MaxRunes(2048) | fn.#StringExpression
+	SecurityControlId?: strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SecurityControlsConfiguration: close({
-	DisabledSecurityControlIdentifiers?: list.MaxItems(1000) & list.UniqueItems() & [
-		...strings.MaxRunes(2048) | fn.#StringExpression
-	] |
+	DisabledSecurityControlIdentifiers?: list.MaxItems(1000) & list.UniqueItems() & [...strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	EnabledSecurityControlIdentifiers?: list.MaxItems(1000) & list.UniqueItems() & [
-		...strings.MaxRunes(2048) | fn.#StringExpression
-	] |
+	EnabledSecurityControlIdentifiers?: list.MaxItems(1000) & list.UniqueItems() & [...strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	SecurityControlCustomParameters?: list.MaxItems(1000) & list.UniqueItems() & [...#SecurityControlCustomParameter] |
 		fn.#ListExpression
@@ -124,13 +172,33 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SecurityHubPolicy: close({
-	EnabledStandardIdentifiers?: list.MaxItems(1000) & list.UniqueItems() & [
-		...strings.MaxRunes(2048) | fn.#StringExpression
-	] |
+	EnabledStandardIdentifiers?: list.MaxItems(1000) & list.UniqueItems() & [...strings.MaxRunes(2048) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	SecurityControlsConfiguration?: #SecurityControlsConfiguration
 	ServiceEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
-#Tags: {...} | fn.#ObjectExpression
+#Tags: close({
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^(?:aws:)"]: error("disallowed")}
+
+	{
+		[=~"^[a-zA-Z+-=._:/]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
+fn.#ObjectExpression

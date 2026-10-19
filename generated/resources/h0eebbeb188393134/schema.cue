@@ -6,18 +6,32 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a service function within a Resilience Hub service.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ResilienceHubV2::ServiceFunction"
-	Properties!: close({
+	let properties = close({
 		Criticality!: "PRIMARY" | "SUPPLEMENTAL" | fn.#StringExpression
-		Description?: strings.MaxRunes(500) | fn.#StringExpression
-		Name!:        =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
-		ServiceArn!:  string | fn.#StringExpression
+		Description?: strings.MaxRunes(500) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" |
+		{
+			number | bool
+			_cfnString: =~"^[A-Za-z0-9][A-Za-z0-9_\\-]{1,59}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ServiceArn!: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

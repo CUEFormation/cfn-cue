@@ -7,8 +7,8 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -27,9 +27,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *IAM User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IAM::UserPolicy"
-	Properties!: close({
+	let properties = close({
 		PolicyDocument?: iam.#IdentityPolicyValue
-		PolicyName!:     strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-		UserName!:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
+		PolicyName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		UserName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

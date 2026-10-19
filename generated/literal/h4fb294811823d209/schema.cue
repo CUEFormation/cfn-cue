@@ -14,7 +14,7 @@ import (
 	NotificationARNs?: list.MaxItems(5) & [...string]
 	Parameters?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: bool | int | string | [...] | {...}}})
+		{[=~"[a-zA-Z0-9]+"]: bool | number | string | [...] | {...}}})
 	StackId?:          string
 	Tags?:             list.MaxItems(50) & [...#Tag]
 	TemplateURL!:      strings.MaxRunes(1024) & strings.MinRunes(1)

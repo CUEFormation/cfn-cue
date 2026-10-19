@@ -7,24 +7,31 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GlobalAccelerator::Listener
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GlobalAccelerator::Listener"
-	Properties!: close({
-		AcceleratorArn!: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		AcceleratorArn!: strings.MaxRunes(255) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		ClientAffinity?: "NONE" | "SOURCE_IP" | fn.#StringExpression
 		PortRanges!:     list.MaxItems(10) & list.MinItems(1) & [...#PortRange] | fn.#ListExpression
 		Protocol!:       "TCP" | "UDP" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Port: int & <=65535 & >=0 |

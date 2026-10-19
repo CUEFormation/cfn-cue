@@ -7,12 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -21,31 +19,78 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // devices (things or thing groups) connected to AWS IoT.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::Job"
-	Properties!: close({
+	let properties = close({
 		AbortConfig?: #AbortConfig
-		Description?: strings.MaxRunes(2028) & strings.MinRunes(1) & =~"^[^\\p{C}]+$" | fn.#StringExpression
-		DestinationPackageVersions?: [
-			...strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:[!-~]+$" | fn.#StringExpression
-		] |
+		Description?: strings.MaxRunes(2028) & strings.MinRunes(1) & =~"^[^\\p{C}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2028) & strings.MinRunes(1) & =~"^[^\\p{C}]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DestinationPackageVersions?: [...strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:[!-~]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:[!-~]+$" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		Document?: strings.MaxRunes(32768) & strings.MinRunes(0) | fn.#StringExpression
+		Document?: strings.MaxRunes(32768) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32768) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		DocumentParameters?: close({
 
-			{[=~"^[a-zA-Z0-9_-]+$"]: strings.MaxRunes(30720) & strings.MinRunes(1) | fn.#StringExpression}}) |
+			{[=~"^(?:Ref)$"]: error("disallowed")}
+
+			{
+				[=~"^[a-zA-Z0-9_-]+$"]: strings.MaxRunes(30720) & strings.MinRunes(1) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(30720) & strings.MinRunes(1) & "\(self)"
+				} |
+				fn.#StringExpression
+			}
+		}) |
 		fn.#ObjectExpression
-		DocumentSource?:             strings.MaxRunes(1350) & strings.MinRunes(1) | fn.#StringExpression
+		DocumentSource?: strings.MaxRunes(1350) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1350) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		JobExecutionsRetryConfig?:   #JobExecutionsRetryConfig
 		JobExecutionsRolloutConfig?: #JobExecutionsRolloutConfig
-		JobId!:              strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		JobTemplateArn?:     strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:[!-~]+$" | fn.#StringExpression
+		JobId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		JobTemplateArn?: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:[!-~]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:[!-~]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		PresignedUrlConfig?: #PresignedUrlConfig
 		SchedulingConfig?:   #SchedulingConfig
 		Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		TargetSelection?:    "CONTINUOUS" | "SNAPSHOT" | fn.#StringExpression
-		Targets!: list.MinItems(1) & [...strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression] |
+		Targets!: list.MinItems(1) & [...strings.MaxRunes(2048) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		TimeoutConfig?: #TimeoutConfig
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AbortConfig: close({CriteriaList!: list.MinItems(1) & [...#AbortCriteria] | fn.#ListExpression}) | fn.#ObjectExpression
@@ -173,7 +218,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	StartTime!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	StartTime!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -194,7 +244,14 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -255,16 +312,36 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SchedulingConfig: close({
-	EndBehavior?:        "STOP_ROLLOUT" | "CANCEL" | "FORCE_CANCEL" | fn.#StringExpression
-	EndTime?:            strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	EndBehavior?: "STOP_ROLLOUT" | "CANCEL" | "FORCE_CANCEL" | fn.#StringExpression
+	EndTime?: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	MaintenanceWindows?: [...#MaintenanceWindow] | fn.#ListExpression
-	StartTime?:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	StartTime?: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

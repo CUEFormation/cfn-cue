@@ -5,7 +5,6 @@ package SimulationApplication
 import schema "github.com/cueformation/cfn-cue/resources/h0db8b6b02c40ba94:schema"
 
 #Resource:                schema.#Resource
-#Arn:                     schema.#Arn
 #RenderingEngine:         schema.#RenderingEngine
 #RobotSoftwareSuite:      schema.#RobotSoftwareSuite
 #SimulationSoftwareSuite: schema.#SimulationSoftwareSuite

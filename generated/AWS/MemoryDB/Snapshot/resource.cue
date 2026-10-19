@@ -4,6 +4,5 @@ package Snapshot
 
 import schema "github.com/cueformation/cfn-cue/resources/he90161737ddac635:schema"
 
-#Resource:             schema.#Resource
-#ClusterConfiguration: schema.#ClusterConfiguration
-#Tag:                  schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

@@ -4,6 +4,5 @@ package TrafficMirrorSession
 
 import schema "github.com/cueformation/cfn-cue/resources/h87807f5f29de999d:schema"
 
-#Resource:                  schema.#Resource
-#Tag:                       schema.#Tag
-#TrafficMirrorSessionField: schema.#TrafficMirrorSessionField
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

@@ -42,7 +42,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hd53f4c27e174f8ba:schem
 #TopicColumn:                     schema.#TopicColumn
 #TopicConfigOptions:              schema.#TopicConfigOptions
 #TopicDateRangeFilter:            schema.#TopicDateRangeFilter
-#TopicDetails:                    schema.#TopicDetails
 #TopicFilter:                     schema.#TopicFilter
 #TopicNamedEntity:                schema.#TopicNamedEntity
 #TopicNumericEqualityFilter:      schema.#TopicNumericEqualityFilter

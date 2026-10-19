@@ -3,25 +3,29 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The description of the Traffic Mirror target.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::TrafficMirrorTarget"
-	Properties?: close({
-		Description?:                   string | fn.#StringExpression
-		GatewayLoadBalancerEndpointId?: string | fn.#StringExpression
-		NetworkInterfaceId?:            string | fn.#StringExpression
-		NetworkLoadBalancerArn?:        string | fn.#StringExpression
+	let properties = close({
+		Description?:                   string | number | bool | fn.#StringExpression
+		GatewayLoadBalancerEndpointId?: string | number | bool | fn.#StringExpression
+		NetworkInterfaceId?:            string | number | bool | fn.#StringExpression
+		NetworkLoadBalancerArn?:        string | number | bool | fn.#StringExpression
 		Tags?:                          [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

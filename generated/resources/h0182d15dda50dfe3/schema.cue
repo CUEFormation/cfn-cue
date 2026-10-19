@@ -3,19 +3,17 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::TransitGateway
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::TransitGateway"
-	Properties?: close({
+	let properties = close({
 		AmazonSideAsn?: int |
 			{
 				string &
@@ -32,24 +30,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		AssociationDefaultRouteTableId?:  string | fn.#StringExpression
-		AutoAcceptSharedAttachments?:     string | fn.#StringExpression
-		DefaultRouteTableAssociation?:    string | fn.#StringExpression
-		DefaultRouteTablePropagation?:    string | fn.#StringExpression
-		Description?:                     string | fn.#StringExpression
-		DnsSupport?:                      string | fn.#StringExpression
+		AssociationDefaultRouteTableId?:  string | number | bool | fn.#StringExpression
+		AutoAcceptSharedAttachments?:     string | number | bool | fn.#StringExpression
+		DefaultRouteTableAssociation?:    string | number | bool | fn.#StringExpression
+		DefaultRouteTablePropagation?:    string | number | bool | fn.#StringExpression
+		Description?:                     string | number | bool | fn.#StringExpression
+		DnsSupport?:                      string | number | bool | fn.#StringExpression
 		EncryptionSupport?:               "disable" | "enable" | fn.#StringExpression
-		MulticastSupport?:                string | fn.#StringExpression
-		PropagationDefaultRouteTableId?:  string | fn.#StringExpression
-		SecurityGroupReferencingSupport?: string | fn.#StringExpression
+		MulticastSupport?:                string | number | bool | fn.#StringExpression
+		PropagationDefaultRouteTableId?:  string | number | bool | fn.#StringExpression
+		SecurityGroupReferencingSupport?: string | number | bool | fn.#StringExpression
 		Tags?:                            [...#Tag] | fn.#ListExpression
-		TransitGatewayCidrBlocks?:        [...string | fn.#StringExpression] | fn.#ListExpression
-		VpnEcmpSupport?:                  string | fn.#StringExpression
+		TransitGatewayCidrBlocks?:        [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		VpnEcmpSupport?:                  string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

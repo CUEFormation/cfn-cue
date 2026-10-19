@@ -7,18 +7,30 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type Definition for AWS::Forecast::Dataset
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Forecast::Dataset"
-	Properties!: close({
+	let properties = close({
 		DataFrequency?: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^Y|M|W|D|H|30min|15min|10min|5min|1min$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(5) &
+			strings.MinRunes(1) &
+			=~"^Y|M|W|D|H|30min|15min|10min|5min|1min$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		DatasetName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*" | fn.#StringExpression
+		DatasetName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*" & "\(self)"
+		} |
+		fn.#StringExpression
 		DatasetType!: "TARGET_TIME_SERIES" | "RELATED_TIME_SERIES" | "ITEM_METADATA" | fn.#StringExpression
 		Domain!: "RETAIL" |
 			"CUSTOM" |
@@ -41,27 +53,62 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ObjectExpression] |
 		fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Attributes: list.MaxItems(100) & list.MinItems(1) & [...close({
-	AttributeName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*" | fn.#StringExpression
+	AttributeName?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9_]*" & "\(self)"
+	} |
+	fn.#StringExpression
 	AttributeType?: "string" | "integer" | "float" | "timestamp" | "geolocation" | fn.#StringExpression
 }) |
 fn.#ObjectExpression] |
 fn.#ListExpression
 
-#Key: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+#Key: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+} |
+fn.#StringExpression
 
-#KmsKeyArn: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#KmsKeyArn: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"arn:aws[-a-z]*:kms:.*:key/.*" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(256) &
+	strings.MinRunes(0) &
+	=~"arn:aws[-a-z]*:kms:.*:key/.*" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#RoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(256) &
 strings.MinRunes(0) &
 =~"^[a-zA-Z0-9\\-\\_\\.\\/\\:]+$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(256) &
+	strings.MinRunes(0) &
+	=~"^[a-zA-Z0-9\\-\\_\\.\\/\\:]+$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#Value: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+#Value: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+} |
+fn.#StringExpression

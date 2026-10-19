@@ -20,8 +20,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hfab9d0fe4deb6b63:schem
 #CustomTransformationConfiguration:                    schema.#CustomTransformationConfiguration
 #DailySchedule:                                        schema.#DailySchedule
 #DataDeletionPolicy:                                   schema.#DataDeletionPolicy
-#DataSourceConfiguration:                              schema.#DataSourceConfiguration
-#DataSourceStatus:                                     schema.#DataSourceStatus
 #DataSourceType:                                       schema.#DataSourceType
 #DayOfMonth:                                           schema.#DayOfMonth
 #DayOfWeek:                                            schema.#DayOfWeek
@@ -65,9 +63,7 @@ import schema "github.com/cueformation/cfn-cue/resources/hfab9d0fe4deb6b63:schem
 #UrlConfiguration:                                     schema.#UrlConfiguration
 #VectorIngestionConfiguration:                         schema.#VectorIngestionConfiguration
 #VideoExtractionConfiguration:                         schema.#VideoExtractionConfiguration
-#WebCrawlerConfiguration:                              schema.#WebCrawlerConfiguration
 #WebCrawlerLimits:                                     schema.#WebCrawlerLimits
-#WebDataSourceConfiguration:                           schema.#WebDataSourceConfiguration
 #WebScopeType:                                         schema.#WebScopeType
 #WebSourceConfiguration:                               schema.#WebSourceConfiguration
 #WeeklySchedule:                                       schema.#WeeklySchedule

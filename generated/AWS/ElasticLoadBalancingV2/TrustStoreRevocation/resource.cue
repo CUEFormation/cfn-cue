@@ -4,7 +4,5 @@ package TrustStoreRevocation
 
 import schema "github.com/cueformation/cfn-cue/resources/h1f343ce3fddeb0d9:schema"
 
-#Resource:             schema.#Resource
-#RevocationContent:    schema.#RevocationContent
-#RevocationId:         schema.#RevocationId
-#TrustStoreRevocation: schema.#TrustStoreRevocation
+#Resource:          schema.#Resource
+#RevocationContent: schema.#RevocationContent

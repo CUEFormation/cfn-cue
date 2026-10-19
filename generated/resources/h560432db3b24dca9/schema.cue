@@ -6,26 +6,50 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Wisdom::AIPrompt Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Wisdom::AIPrompt"
-	Properties!: close({
+	let properties = close({
 		ApiFormat!: #AIPromptAPIFormat
 		AssistantId?: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$|^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}$" |
-			fn.#StringExpression
-		Description?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
-		ModelId!:     strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		Name?:        strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" | fn.#StringExpression
-		Tags?:        #Tags
+		{
+			number | bool
+			_cfnString: =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$|^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){0,2}$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		ModelId!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s_.,-]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?:                  #Tags
 		TemplateConfiguration!: #AIPromptTemplateConfiguration
 		TemplateType!:          #AIPromptTemplateType
 		Type!:                  #AIPromptType
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AIPromptAPIFormat: "ANTHROPIC_CLAUDE_MESSAGES" |
@@ -55,9 +79,31 @@ fn.#ObjectExpression
 	"CASE_SUMMARIZATION" |
 	fn.#StringExpression
 
-#Tags: {...} | fn.#ObjectExpression
+#Tags: close({
 
-#TextFullAIPromptEditTemplateConfiguration: close(
-	{Text!: strings.MaxRunes(200000) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^(?:aws:)"]: error("disallowed")}
+
+	{
+		[=~"^[a-zA-Z+-=._:/]+$"]: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
+fn.#ObjectExpression
+
+#TextFullAIPromptEditTemplateConfiguration: close({
+	Text!: strings.MaxRunes(200000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression

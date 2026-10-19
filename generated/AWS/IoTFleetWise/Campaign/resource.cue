@@ -5,7 +5,6 @@ package Campaign
 import schema "github.com/cueformation/cfn-cue/resources/h92f6743f6f5f72cc:schema"
 
 #Resource:                        schema.#Resource
-#CampaignStatus:                  schema.#CampaignStatus
 #CollectionScheme:                schema.#CollectionScheme
 #Compression:                     schema.#Compression
 #ConditionBasedCollectionScheme:  schema.#ConditionBasedCollectionScheme
@@ -36,8 +35,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h92f6743f6f5f72cc:schem
 #Tag:                             schema.#Tag
 #TimeBasedCollectionScheme:       schema.#TimeBasedCollectionScheme
 #TimeBasedSignalFetchConfig:      schema.#TimeBasedSignalFetchConfig
-#TimePeriod:                      schema.#TimePeriod
-#TimeUnit:                        schema.#TimeUnit
 #TimestreamConfig:                schema.#TimestreamConfig
 #TriggerMode:                     schema.#TriggerMode
 #UpdateCampaignAction:            schema.#UpdateCampaignAction

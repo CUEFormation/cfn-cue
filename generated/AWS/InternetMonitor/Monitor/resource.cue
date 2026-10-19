@@ -9,7 +9,5 @@ import schema "github.com/cueformation/cfn-cue/resources/h98ee62f174d3f25a:schem
 #InternetMeasurementsLogDelivery: schema.#InternetMeasurementsLogDelivery
 #LocalHealthEventsConfig:         schema.#LocalHealthEventsConfig
 #MonitorConfigState:              schema.#MonitorConfigState
-#MonitorProcessingStatusCode:     schema.#MonitorProcessingStatusCode
 #S3Config:                        schema.#S3Config
 #Tag:                             schema.#Tag
-#iso8601UTC:                      schema.#iso8601UTC

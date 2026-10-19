@@ -5,9 +5,6 @@ package Channel
 import schema "github.com/cueformation/cfn-cue/resources/hc61e4bdd908d2527:schema"
 
 #Resource:    schema.#Resource
-#ChannelArn:  schema.#ChannelArn
 #ChannelName: schema.#ChannelName
 #Destination: schema.#Destination
 #Tag:         schema.#Tag
-#Timestamp:   schema.#Timestamp
-#UUID:        schema.#UUID

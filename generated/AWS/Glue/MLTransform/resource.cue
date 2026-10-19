@@ -9,6 +9,5 @@ import schema "github.com/cueformation/cfn-cue/resources/h3e5d7a4b8846cf2f:schem
 #GlueTables:            schema.#GlueTables
 #InputRecordTables:     schema.#InputRecordTables
 #MLUserDataEncryption:  schema.#MLUserDataEncryption
-#Tag:                   schema.#Tag
 #TransformEncryption:   schema.#TransformEncryption
 #TransformParameters:   schema.#TransformParameters

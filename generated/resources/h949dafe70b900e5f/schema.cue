@@ -7,12 +7,10 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -22,7 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // these custom actions in the stage of a pipeline.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodePipeline::CustomActionType"
-	Properties!: close({
+	let properties = close({
 		Category!: "Approval" | "Build" | "Compute" | "Deploy" | "Invoke" | "Source" | "Test" | fn.#StringExpression
 		ConfigurationProperties?: list.MaxItems(10) & list.UniqueItems() & [...] & [...#ConfigurationProperties] |
 			fn.#ListExpression
@@ -32,13 +30,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		// The details of the output artifact of the action, such as its commit ID.
 		OutputArtifactDetails!: #ArtifactDetails
-		Provider!:              strings.MaxRunes(35) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
+		Provider!: strings.MaxRunes(35) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(35) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// URLs that provide users information about this custom action.
 		Settings?: #Settings
 		Tags?:     [...#Tag] | fn.#ListExpression
-		Version!:  strings.MaxRunes(9) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
+		Version!: strings.MaxRunes(9) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(9) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ArtifactDetails: close({
@@ -78,26 +90,66 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #ConfigurationProperties: close({
-	Description?: strings.MaxRunes(160) & strings.MinRunes(1) | fn.#StringExpression
-	Key!:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name!:        strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	Queryable?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Required!:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Secret!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Type?:        "Boolean" | "Number" | "String" | fn.#StringExpression
+	Description?: strings.MaxRunes(160) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(160) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Key!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Name!: strings.MaxRunes(50) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Queryable?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Required!:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Secret!:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Type?:      "Boolean" | "Number" | "String" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Settings: close({
-	EntityUrlTemplate?:          strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	ExecutionUrlTemplate?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	RevisionUrlTemplate?:        strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	ThirdPartyConfigurationUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	EntityUrlTemplate?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ExecutionUrlTemplate?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	RevisionUrlTemplate?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ThirdPartyConfigurationUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -18,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // S3 bucket for delivery of these reports.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CUR::ReportDefinition"
-	Properties!: close({
+	let properties = close({
 		AdditionalArtifacts?: [..."REDSHIFT" | "QUICKSIGHT" | "ATHENA" | fn.#StringExpression] | fn.#ListExpression
 		AdditionalSchemaElements?: [
 			..."RESOURCES" | "SPLIT_COST_ALLOCATION_DATA" | "MANUAL_DISCOUNT_COMPATIBILITY" | fn.#StringExpression
@@ -27,22 +27,67 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		BillingViewArn?: strings.MaxRunes(128) &
 		strings.MinRunes(1) &
 		=~"(arn:aws(-cn)?:billing::[0-9]{12}:billingview/)?[a-zA-Z0-9_\\+=\\.\\-@].{1,30}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			=~"(arn:aws(-cn)?:billing::[0-9]{12}:billingview/)?[a-zA-Z0-9_\\+=\\.\\-@].{1,30}" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Compression!:          "ZIP" | "GZIP" | "Parquet" | fn.#StringExpression
 		Format!:               "textORcsv" | "Parquet" | fn.#StringExpression
 		RefreshClosedReports!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ReportName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[0-9A-Za-z!\\-_.*\\'()]+" | fn.#StringExpression
+		ReportName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[0-9A-Za-z!\\-_.*\\'()]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[0-9A-Za-z!\\-_.*\\'()]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		ReportVersioning!: "CREATE_NEW_REPORT" | "OVERWRITE_REPORT" | fn.#StringExpression
-		S3Bucket!:         strings.MaxRunes(256) & strings.MinRunes(1) & =~"[A-Za-z0-9_\\.\\-]+" | fn.#StringExpression
-		S3Prefix!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[0-9A-Za-z!\\-_.*\\'()/]*" | fn.#StringExpression
-		S3Region!: string | fn.#StringExpression
+		S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"[A-Za-z0-9_\\.\\-]+" |
+		{
+			number | bool
+			_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+			=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+			strings.MaxRunes(256) &
+			strings.MinRunes(1) &
+			=~"[A-Za-z0-9_\\.\\-]+" &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		S3Prefix!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[0-9A-Za-z!\\-_.*\\'()/]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[0-9A-Za-z!\\-_.*\\'()/]*" & "\(self)"
+		} |
+		fn.#StringExpression
+		S3Region!: string | number | bool | fn.#StringExpression
 		Tags?:     list.MaxItems(100) & [...] & [...#Tag] | fn.#ListExpression
 		TimeUnit!: "HOURLY" | "DAILY" | "MONTHLY" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

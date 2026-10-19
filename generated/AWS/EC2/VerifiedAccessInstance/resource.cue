@@ -5,7 +5,6 @@ package VerifiedAccessInstance
 import schema "github.com/cueformation/cfn-cue/resources/h3653c5fbd88331d8:schema"
 
 #Resource:                      schema.#Resource
-#Nameserver:                    schema.#Nameserver
 #Tag:                           schema.#Tag
 #VerifiedAccessLogs:            schema.#VerifiedAccessLogs
 #VerifiedAccessTrustProvider:   schema.#VerifiedAccessTrustProvider

@@ -3,20 +3,33 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CloudFormation::Macro
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFormation::Macro"
-	Properties!: close({
-		Description?:  string | fn.#StringExpression
-		FunctionName!: string | fn.#StringExpression
-		LogGroupName?: string | fn.#StringExpression
-		LogRoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		Name!: string | fn.#StringExpression
+	let properties = close({
+		Description?:  string | number | bool | fn.#StringExpression
+		FunctionName!: string | number | bool | fn.#StringExpression
+		LogGroupName?: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" |
+		{
+			number | bool
+			_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		LogRoleARN?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

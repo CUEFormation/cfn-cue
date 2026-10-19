@@ -22,7 +22,7 @@ import (
 	// The IAM policy arn for pods
 	PodExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MinRunes(1)
 	Selectors!:           list.MinItems(1) & [...#Selector]
-	Subnets?:             [...string]
+	Subnets?:             [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"]
 
 	// An array of key-value pairs to apply to this resource.
 	Tags?: list.UniqueItems() & [...#Tag]

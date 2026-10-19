@@ -7,35 +7,80 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ODB::OdbPeeringConnection.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ODB::OdbPeeringConnection"
-	Properties?: close({
-		AdditionalPeerNetworkCidrs?: [...string | fn.#StringExpression] | fn.#ListExpression
-		DisplayName?:                strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		AdditionalPeerNetworkCidrs?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		DisplayName?: =~"^[a-zA-Z_][a-zA-Z0-9_-]*$" &
+		matchN(0, [=~"^(?s:.){1}(?:.*--)"]) &
+		string &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z_][a-zA-Z0-9_-]*$" &
+			matchN(0, [=~"^(?s:.){1}(?:.*--)"]) &
+			string &
+			strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 		OdbNetworkId?: strings.MaxRunes(2048) &
 		strings.MinRunes(6) &
 		=~"^(arn:(?:aws|aws-cn|aws-us-gov|aws-iso-{0,1}[a-z]{0,1}):[a-z0-9-]+:[a-z0-9-]*:[0-9]+:[a-z0-9-]+/[a-zA-Z0-9_~.-]{6,64}|[a-zA-Z0-9_~.-]{6,64})$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(6) &
+			=~"^(arn:(?:aws|aws-cn|aws-us-gov|aws-iso-{0,1}[a-z]{0,1}):[a-z0-9-]+:[a-z0-9-]*:[0-9]+:[a-z0-9-]+/[a-zA-Z0-9_~.-]{6,64}|[a-zA-Z0-9_~.-]{6,64})$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		PeerNetworkId?: strings.MaxRunes(2048) &
 		strings.MinRunes(6) &
 		=~"^(arn:(?:aws|aws-cn|aws-us-gov|aws-iso-{0,1}[a-z]{0,1}):[a-z0-9-]+:[a-z0-9-]*:[0-9]+:[a-z0-9-]+/[a-zA-Z0-9_~.-]{6,64}|[a-zA-Z0-9_~.-]{6,64})$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(6) &
+			=~"^(arn:(?:aws|aws-cn|aws-us-gov|aws-iso-{0,1}[a-z]{0,1}):[a-z0-9-]+:[a-z0-9-]*:[0-9]+:[a-z0-9-]+/[a-zA-Z0-9_~.-]{6,64}|[a-zA-Z0-9_~.-]{6,64})$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		PeerNetworkRouteTableIds?: list.MaxItems(1) & list.MinItems(1) & [
-			...=~"^rtb-[a-z0-9]{8,17}$" | fn.#StringExpression
-		] |
-			fn.#ListExpression
+		PeerNetworkRouteTableIds?: list.MaxItems(1) & list.MinItems(1) & [...=~"^rtb-[a-z0-9]{8,17}$" |
+		{
+			number | bool
+			_cfnString: =~"^rtb-[a-z0-9]{8,17}$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

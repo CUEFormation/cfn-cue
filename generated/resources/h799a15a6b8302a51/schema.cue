@@ -7,26 +7,57 @@ import (
 	"list"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MemoryDB::ACL
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MemoryDB::ACL"
-	Properties!: close({
-		ACLName!: =~"[a-z][a-z0-9\\\\-]*" | fn.#StringExpression
-		Tags?:    list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-		UserNames?: list.UniqueItems() & [...] & [
-			...strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9\\-]*$" | fn.#StringExpression
-		] |
+	let properties = close({
+		ACLName!: =~"[a-z][a-z0-9\\\\-]*" |
+		{
+			number | bool
+			_cfnString: =~"[a-z][a-z0-9\\\\-]*" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		UserNames?: list.UniqueItems() & [...] & [...strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9\\-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & =~"^[a-zA-Z][a-zA-Z0-9\\-]*$" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]*$" | fn.#StringExpression
+	Key!: =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]*$" &
+	matchN(0, [=~"^(?:aws:)"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]*$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9 _\\.\\/=+:\\-@]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

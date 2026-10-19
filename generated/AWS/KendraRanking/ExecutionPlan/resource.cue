@@ -5,10 +5,8 @@ package ExecutionPlan
 import schema "github.com/cueformation/cfn-cue/resources/h6a3f794f1fbb171b:schema"
 
 #Resource:                   schema.#Resource
-#Arn:                        schema.#Arn
 #CapacityUnitsConfiguration: schema.#CapacityUnitsConfiguration
 #Description:                schema.#Description
-#Id:                         schema.#Id
 #Name:                       schema.#Name
 #RescoreCapacityUnits:       schema.#RescoreCapacityUnits
 #Tag:                        schema.#Tag

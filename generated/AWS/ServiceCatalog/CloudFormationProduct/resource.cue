@@ -6,7 +6,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h18025c682c5375c5:schem
 
 #Resource:                       schema.#Resource
 #CodeStarParameters:             schema.#CodeStarParameters
-#ConnectionParameters:           schema.#ConnectionParameters
 #ProvisioningArtifactProperties: schema.#ProvisioningArtifactProperties
 #SourceConnection:               schema.#SourceConnection
 #Tag:                            schema.#Tag

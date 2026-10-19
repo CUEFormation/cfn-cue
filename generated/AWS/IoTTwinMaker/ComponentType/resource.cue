@@ -9,7 +9,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h76ceaa095e2169de:schem
 #DataConnector:          schema.#DataConnector
 #DataType:               schema.#DataType
 #DataValue:              schema.#DataValue
-#DateTimeFormat:         schema.#DateTimeFormat
 #Function:               schema.#Function
 #LambdaFunction:         schema.#LambdaFunction
 #ParentComponentType:    schema.#ParentComponentType
@@ -18,4 +17,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h76ceaa095e2169de:schem
 #PropertyName:           schema.#PropertyName
 #Relationship:           schema.#Relationship
 #RequiredProperty:       schema.#RequiredProperty
-#Status:                 schema.#Status

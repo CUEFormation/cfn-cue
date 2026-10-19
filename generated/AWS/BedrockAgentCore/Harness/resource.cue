@@ -20,13 +20,11 @@ import schema "github.com/cueformation/cfn-cue/resources/h9aa56266f6e8c87e:schem
 #HarnessAgentCoreGatewayConfig:          schema.#HarnessAgentCoreGatewayConfig
 #HarnessAgentCoreMemoryConfiguration:    schema.#HarnessAgentCoreMemoryConfiguration
 #HarnessAgentCoreMemoryRetrievalConfig:  schema.#HarnessAgentCoreMemoryRetrievalConfig
-#HarnessAgentCoreRuntimeEnvironment:     schema.#HarnessAgentCoreRuntimeEnvironment
 #HarnessBedrockModelConfig:              schema.#HarnessBedrockModelConfig
 #HarnessBeforeInvocationHook:            schema.#HarnessBeforeInvocationHook
 #HarnessBeforeToolCallHook:              schema.#HarnessBeforeToolCallHook
 #HarnessDisabledMemoryConfiguration:     schema.#HarnessDisabledMemoryConfiguration
 #HarnessEnvironmentArtifact:             schema.#HarnessEnvironmentArtifact
-#HarnessEnvironmentProvider:             schema.#HarnessEnvironmentProvider
 #HarnessGatewayOutboundAuth:             schema.#HarnessGatewayOutboundAuth
 #HarnessGeminiModelConfig:               schema.#HarnessGeminiModelConfig
 #HarnessHook:                            schema.#HarnessHook
@@ -36,8 +34,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h9aa56266f6e8c87e:schem
 #HarnessHookTarget:                      schema.#HarnessHookTarget
 #HarnessInlineFunctionConfig:            schema.#HarnessInlineFunctionConfig
 #HarnessLiteLlmModelConfig:              schema.#HarnessLiteLlmModelConfig
-#HarnessManagedMemoryConfiguration:      schema.#HarnessManagedMemoryConfiguration
-#HarnessMemoryConfiguration:             schema.#HarnessMemoryConfiguration
 #HarnessModelConfiguration:              schema.#HarnessModelConfiguration
 #HarnessOpenAiModelConfig:               schema.#HarnessOpenAiModelConfig
 #HarnessRemoteMcpConfig:                 schema.#HarnessRemoteMcpConfig
@@ -47,7 +43,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h9aa56266f6e8c87e:schem
 #HarnessSkillGitSource:                  schema.#HarnessSkillGitSource
 #HarnessSkillS3Source:                   schema.#HarnessSkillS3Source
 #HarnessSlidingWindowConfiguration:      schema.#HarnessSlidingWindowConfiguration
-#HarnessStatus:                          schema.#HarnessStatus
 #HarnessSummarizationConfiguration:      schema.#HarnessSummarizationConfiguration
 #HarnessSystemContentBlock:              schema.#HarnessSystemContentBlock
 #HarnessTool:                            schema.#HarnessTool

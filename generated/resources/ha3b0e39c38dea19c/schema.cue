@@ -6,8 +6,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -68,16 +68,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // 1. Delete all the existing ``AWS::Lambda::Permission`` resources for the function.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lambda::ResourcePolicy"
-	Properties!: close({
+	let properties = close({
 		PolicyDocument!: fn.#Object & {...} | fn.#ObjectExpression
 		ResourceArn!: #FunctionResourceArn &
 		string &
 		strings.MaxRunes(1024) &
 		strings.MinRunes(12) &
 		=~"^arn:(aws[a-zA-Z-]*)?:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:(runtime/|function:)[a-zA-Z0-9-_]+(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_])+)?$" |
+		{
+			number | bool
+			_cfnString: #FunctionResourceArn &
+			string &
+			strings.MaxRunes(1024) &
+			strings.MinRunes(12) &
+			=~"^arn:(aws[a-zA-Z-]*)?:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:(runtime/|function:)[a-zA-Z0-9-_]+(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_])+)?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #FunctionResourceArn: =~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_]+))?$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:(\\$LATEST(\\.PUBLISHED)?|[a-zA-Z0-9-_]+))?$" &
+		"\(self)"
+} |
+fn.#StringExpression

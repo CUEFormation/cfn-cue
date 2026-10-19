@@ -58,7 +58,60 @@ import (
 // For a complete introduction to Lambda functions, see [What is
 // Lambda?](https://docs.aws.amazon.com/lambda/latest/dg/lambda-welcome.html)
 // in the *Lambda developer guide.*
-#Properties: close({
+#Properties: matchN(5, [matchIf({
+	CapacityProviderConfig?: error("disallowed")
+	...
+}, {
+	Timeout?: null | bool | <=900 | string | [...] | {...}
+	...
+}, _), matchIf({
+	LoggingConfig!: null | bool | number | string | [...] | {
+		LogFormat!: "Text"
+		...
+	}
+	...
+}, {
+	LoggingConfig?: null | bool | number | string | [...] | {
+		SystemLogLevel?: error("disallowed")
+		...
+	}
+	...
+}, _), matchIf({
+	PackageType!: "Image"
+	...
+}, matchN(0, [null | bool | number | string | [...] | {
+	PackageType!: _
+	Handler!:     _
+	...
+}]) & matchN(0, [null | bool | number | string | [...] | {
+	PackageType!: _
+	Runtime!:     _
+	...
+}]) & matchN(0, [null | bool | number | string | [...] | {
+	PackageType!: _
+	Layers!:      _
+	...
+}]), _), matchIf({
+	Code!: {
+		ZipFile!: _
+		...
+	}
+	Runtime!: string
+	...
+}, {
+	Runtime?:  null | bool | number | =~"^(nodejs.*|python.*)$" | [...] | {...}
+	required?: _
+	...
+}, _), matchIf({
+	Code!: {
+		ZipFile!: _
+		...
+	}
+	...
+}, {
+	Runtime!: _
+	...
+}, _)]) & close({
 	// The instruction set architecture that the function supports. Enter a string
 	// array with one of the valid values (arm64 or x86_64). The default value is
 	// ``x86_64``.
@@ -348,7 +401,13 @@ import (
 
 	// An Amazon S3 bucket in the same AWS-Region as your function. The bucket can
 	// be in a different AWS-account.
-	S3Bucket?: strings.MaxRunes(63) & strings.MinRunes(3)
+	S3Bucket?: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	=~"^[0-9A-Za-z\\.\\-_]*$" &
+	matchN(0, [=~"(?:\\.)$"]) &
+	string &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3)
 
 	// The Amazon S3 key of the deployment package.
 	S3Key?: strings.MaxRunes(1024) & strings.MinRunes(1)
@@ -442,7 +501,7 @@ import (
 	// If the value of the environment variable is a time or a duration, enclose the value in quotes.
 	Variables?: close({
 
-		{[=~"[a-zA-Z][a-zA-Z0-9_]+"]: bool | int | string | [...] | {...}}})
+		{[=~"[a-zA-Z][a-zA-Z0-9_]+"]: bool | number | string | [...] | {...}}})
 })
 
 // The size of the function's ``/tmp`` directory in MB. The default value is

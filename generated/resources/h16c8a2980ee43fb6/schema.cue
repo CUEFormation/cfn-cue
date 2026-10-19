@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -15,9 +15,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // region of FindingAggregator.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityHub::OrganizationConfiguration"
-	Properties!: close({
+	let properties = close({
 		AutoEnable!:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		AutoEnableStandards?: "DEFAULT" | "NONE" | fn.#StringExpression
 		ConfigurationType?:   "CENTRAL" | "LOCAL" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

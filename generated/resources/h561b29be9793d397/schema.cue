@@ -3,44 +3,69 @@
 package schema
 
 import (
+	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
-	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::AgentAlias Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Bedrock::AgentAlias"
-	Properties!: close({
-		AgentAliasName!:       =~"^([0-9a-zA-Z][_-]?){1,100}$" | fn.#StringExpression
-		AgentId!:              =~"^[0-9a-zA-Z]{10}$" | fn.#StringExpression
-		Description?:          strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		AgentAliasName!: =~"^([0-9a-zA-Z][_-]?){1,100}$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-zA-Z][_-]?){1,100}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		AgentId!: =~"^[0-9a-zA-Z]{10}$" |
+		{
+			number | bool
+			_cfnString: =~"^[0-9a-zA-Z]{10}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		RoutingConfiguration?: list.MaxItems(1) & [...#AgentAliasRoutingConfigurationListItem] | fn.#ListExpression
 		Tags?:                 #TagsMap
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
-
-#AgentAliasHistoryEvent: close({
-	EndDate?:              string | fn.#StringExpression
-	RoutingConfiguration?: list.MaxItems(1) & [...#AgentAliasRoutingConfigurationListItem] | fn.#ListExpression
-	StartDate?:            string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
 
 #AgentAliasRoutingConfigurationListItem: close({
 	AgentVersion!: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]{0,4}[1-9][0-9]{0,4})$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]{0,4}[1-9][0-9]{0,4})$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#AgentAliasStatus: "CREATING" | "PREPARED" | "FAILED" | "UPDATING" | "DELETING" | fn.#StringExpression
-
 #TagsMap: close({
 
-	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
-	fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression

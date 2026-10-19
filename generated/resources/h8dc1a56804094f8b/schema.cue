@@ -7,15 +7,15 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::Project
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::Project"
-	Properties!: close({
+	let properties = close({
 		ProjectDescription?: #ProjectDescription
 		ProjectName!:        #ProjectName
 		ServiceCatalogProvisionedProductDetails?: close({
@@ -39,11 +39,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			)
 		}
 	}) & matchN(>=1, [{ServiceCatalogProvisioningDetails!: _}, {TemplateProviderDetails!: _}])
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CfnStackParameter: close({
-	Key!:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(4096) | fn.#StringExpression
+	Key!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(4096) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -51,45 +65,100 @@ fn.#ObjectExpression
 
 #CfnTemplateProviderDetail: close({
 	Parameters?: #CfnStackParameters
-	RoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleARN?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"arn:aws[a-z\\-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	TemplateName!: strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
-	TemplateURL!:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	TemplateName!: strings.MaxRunes(32) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TemplateURL!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#PathId: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" | fn.#StringExpression
-
-#ProductId: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" | fn.#StringExpression
-
-#ProjectArn: strings.MaxRunes(2048) &
-strings.MinRunes(1) &
-=~"arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:project.*" |
+#PathId: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" & "\(self)"
+} |
 fn.#StringExpression
 
-#ProjectDescription: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+#ProductId: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" & "\(self)"
+} |
+fn.#StringExpression
 
-#ProjectId: strings.MaxRunes(20) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*" | fn.#StringExpression
+#ProjectDescription: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" & "\(self)"
+} |
+fn.#StringExpression
 
-#ProjectName: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" | fn.#StringExpression
+#ProjectName: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" & "\(self)"
+} |
+fn.#StringExpression
 
-#ProvisionedProductStatusMessage: string | fn.#StringExpression
+#ProvisionedProductStatusMessage: string | number | bool | fn.#StringExpression
 
 #ProvisioningArtifactId: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9])*$" & "\(self)"
+} |
 fn.#StringExpression
 
 #ProvisioningParameter: close({
-	Key!:   strings.MaxRunes(1000) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
-	Value!: strings.MaxRunes(4096) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+	Key!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(4096) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

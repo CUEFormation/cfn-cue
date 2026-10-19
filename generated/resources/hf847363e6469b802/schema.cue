@@ -8,28 +8,49 @@ import (
 	"strings"
 	"struct"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // CIS Scan Configuration resource schema
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::InspectorV2::CisScanConfiguration"
-	Properties!: close({
-		ScanName!:      strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		ScanName!: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Schedule!:      #Schedule
 		SecurityLevel!: #CisSecurityLevel
 		Tags?:          #CisTagMap
 		Targets!:       #CisTargets
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CisSecurityLevel: "LEVEL_1" | "LEVEL_2" | fn.#StringExpression
 
 #CisTagMap: close({
 
-	{[=~"^.{2,127}$"]: =~"^.{1,255}$" | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^.{2,127}$"]: =~"^.{1,255}$" |
+		{
+			number | bool
+			_cfnString: =~"^.{1,255}$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #CisTargets: null |
@@ -38,10 +59,13 @@ number |
 string |
 [...] |
 close({
-	AccountIds!: list.MaxItems(10000) & list.MinItems(1) & list.UniqueItems() & [
-		...=~"^\\d{12}|ALL_ACCOUNTS|SELF$" | fn.#StringExpression
-	] |
-		fn.#ListExpression
+	AccountIds!: list.MaxItems(10000) & list.MinItems(1) & list.UniqueItems() & [...=~"^\\d{12}|ALL_ACCOUNTS|SELF$" |
+	{
+		number | bool
+		_cfnString: =~"^\\d{12}|ALL_ACCOUNTS|SELF$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	TargetResourceTags!: #TargetResourceTags
 }) |
 fn.#ValueExpression
@@ -58,7 +82,7 @@ fn.#ValueExpression
 }) |
 fn.#ObjectExpression
 
-#OneTimeSchedule: fn.#Object & {...} | string | fn.#StringObjectExpression
+#OneTimeSchedule: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 #Schedule: null |
 bool |
@@ -74,7 +98,9 @@ string |
 } |
 fn.#ValueExpression
 
-#TagValueList: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...string | fn.#StringExpression] |
+#TagValueList: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [
+	...string | number | bool | fn.#StringExpression
+] |
 	fn.#ListExpression
 
 #TargetResourceTags: null |
@@ -84,12 +110,22 @@ string |
 [...] |
 struct.MaxFields(5) & close({
 
-	{[=~"^.+$"]: #TagValueList}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^.+$"]: #TagValueList}
+}) |
 fn.#ValueExpression
 
 #Time: close({
-	TimeOfDay!: =~"^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$" | fn.#StringExpression
-	TimeZone!:  string | fn.#StringExpression
+	TimeOfDay!: =~"^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TimeZone!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

@@ -7,29 +7,69 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Deadline::Monitor
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Deadline::Monitor"
-	Properties!: close({
-		DisplayName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		DisplayName!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		IdentityCenterInstanceArn!: =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" |
-			fn.#StringExpression
-		IdentityCenterRegion?: strings.MaxRunes(25) & strings.MinRunes(1) & =~"^[a-z0-9-]+$" | fn.#StringExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		{
+			number | bool
+			_cfnString: =~"^arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):sso:::instance/(sso)?ins-[a-zA-Z0-9-.]{16}$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		IdentityCenterRegion?: strings.MaxRunes(25) & strings.MinRunes(1) & =~"^[a-z0-9-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(25) & strings.MinRunes(1) & =~"^[a-z0-9-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 			=~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$" |
-			fn.#StringExpression
-		Subdomain!: =~"^[a-z0-9-]{1,100}$" | fn.#StringExpression
-		Tags?:      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+				=~"^arn:(aws[a-zA-Z-]*):iam::\\d{12}:role(/[!-.0-~]+)*/[\\w+=,.@-]+$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		Subdomain!: =~"^[a-z0-9-]{1,100}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-z0-9-]{1,100}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

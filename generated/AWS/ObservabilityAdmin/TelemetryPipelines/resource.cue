@@ -6,8 +6,4 @@ import schema "github.com/cueformation/cfn-cue/resources/hf377bd59aab7a82f:schem
 
 #Resource:                       schema.#Resource
 #Tag:                            schema.#Tag
-#TelemetryPipeline:              schema.#TelemetryPipeline
 #TelemetryPipelineConfiguration: schema.#TelemetryPipelineConfiguration
-#TelemetryPipelineStatus:        schema.#TelemetryPipelineStatus
-#TelemetryPipelineStatusReason:  schema.#TelemetryPipelineStatusReason
-#Unit:                           schema.#Unit

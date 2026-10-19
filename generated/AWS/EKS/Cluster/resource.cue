@@ -6,14 +6,11 @@ import schema "github.com/cueformation/cfn-cue/resources/h917baacf1f83857b:schem
 
 #Resource:                                schema.#Resource
 #AccessConfig:                            schema.#AccessConfig
-#ActiveCertificateAuthority:              schema.#ActiveCertificateAuthority
 #BlockStorage:                            schema.#BlockStorage
-#CertificateAuthority:                    schema.#CertificateAuthority
 #ClusterLogging:                          schema.#ClusterLogging
 #ComputeConfig:                           schema.#ComputeConfig
 #ControlPlanePlacement:                   schema.#ControlPlanePlacement
 #ControlPlaneScalingConfig:               schema.#ControlPlaneScalingConfig
-#DeletionProtection:                      schema.#DeletionProtection
 #ElasticLoadBalancing:                    schema.#ElasticLoadBalancing
 #EnabledTypes:                            schema.#EnabledTypes
 #EncryptionConfig:                        schema.#EncryptionConfig
@@ -22,7 +19,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h917baacf1f83857b:schem
 #KubeApiServerConfig:                     schema.#KubeApiServerConfig
 #KubeControllerManagerConfig:             schema.#KubeControllerManagerConfig
 #KubeSchedulerConfig:                     schema.#KubeSchedulerConfig
-#KubernetesNetworkConfig:                 schema.#KubernetesNetworkConfig
 #Logging:                                 schema.#Logging
 #LoggingTypeConfig:                       schema.#LoggingTypeConfig
 #NodeResourcesFitConfig:                  schema.#NodeResourcesFitConfig

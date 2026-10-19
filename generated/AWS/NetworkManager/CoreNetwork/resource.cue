@@ -4,8 +4,5 @@ package CoreNetwork
 
 import schema "github.com/cueformation/cfn-cue/resources/h4d10de7a561dfb3e:schema"
 
-#Resource:                        schema.#Resource
-#CoreNetworkEdge:                 schema.#CoreNetworkEdge
-#CoreNetworkNetworkFunctionGroup: schema.#CoreNetworkNetworkFunctionGroup
-#CoreNetworkSegment:              schema.#CoreNetworkSegment
-#Tag:                             schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

@@ -7,28 +7,40 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApplicationSignals::ServiceLevelObjective
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApplicationSignals::ServiceLevelObjective"
-	Properties!: close({
+	let properties = close({
 		BurnRateConfigurations?: #BurnRateConfigurations
-		Description?:            strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		ExclusionWindows?:       #ExclusionWindows
-		Goal?:                   #Goal
-		Name!:                   =~"^[0-9A-Za-z][-._0-9A-Za-z ]{0,126}[0-9A-Za-z]$" | fn.#StringExpression
-		RequestBasedSli?:        #RequestBasedSli
-		Sli?:                    #Sli
-		Tags?:                   #Tags
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ExclusionWindows?: #ExclusionWindows
+		Goal?:             #Goal
+		Name!: =~"^[0-9A-Za-z][-._0-9A-Za-z ]{0,126}[0-9A-Za-z]$" |
+		{
+			number | bool
+			_cfnString: =~"^[0-9A-Za-z][-._0-9A-Za-z ]{0,126}[0-9A-Za-z]$" & "\(self)"
+		} |
+		fn.#StringExpression
+		RequestBasedSli?: #RequestBasedSli
+		Sli?:             #Sli
+		Tags?:            #Tags
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #BurnRateConfiguration: close({
@@ -75,7 +87,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#CompositeSliComponent: close({OperationName!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#CompositeSliComponent: close({OperationName!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #CompositeSliComponents: list.MaxItems(20) & list.MinItems(2) & [...#CompositeSliComponent] | fn.#ListExpression
 
@@ -87,7 +99,12 @@ fn.#ObjectExpression
 
 #DependencyConfig: close({
 	DependencyKeyAttributes!: #DependencyKeyAttributes
-	DependencyOperationName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	DependencyOperationName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -98,12 +115,17 @@ string |
 [...] |
 close({
 
-	{[=~"^.+$"]: string | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+}) |
 fn.#ValueExpression
 
 #Dimension: close({
-	Name!:  string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Name!:  string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -126,9 +148,14 @@ fn.#ObjectExpression
 #DurationUnit: "MINUTE" | "HOUR" | "DAY" | "MONTH" | fn.#StringExpression
 
 #ExclusionWindow: close({
-	Reason?:         strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Reason?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	RecurrenceRule?: #RecurrenceRule
-	StartTime?:      string | fn.#StringExpression
+	StartTime?:      string | number | bool | fn.#StringExpression
 	Window!:         #Window
 }) |
 fn.#ObjectExpression
@@ -191,22 +218,27 @@ string |
 [...] |
 close({
 
-	{[=~"^.+$"]: string | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+}) |
 fn.#ValueExpression
 
 #Metric: close({
 	Dimensions?: [...#Dimension] | fn.#ListExpression
-	MetricName?: string | fn.#StringExpression
-	Namespace?:  string | fn.#StringExpression
+	MetricName?: string | number | bool | fn.#StringExpression
+	Namespace?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MetricDataQueries: [...#MetricDataQuery] | fn.#ListExpression
 
 #MetricDataQuery: close({
-	AccountId?:  string | fn.#StringExpression
-	Expression?: string | fn.#StringExpression
-	Id!:         string | fn.#StringExpression
+	AccountId?:  string | number | bool | fn.#StringExpression
+	Expression?: string | number | bool | fn.#StringExpression
+	Id!:         string | number | bool | fn.#StringExpression
 
 	// A metric to be used directly for the SLO, or to be used in the math
 	// expression that will be used for the SLO. Within one MetricDataQuery, you
@@ -216,7 +248,12 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#MetricName: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#MetricName: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #MetricSource: close({
 	MetricSourceAttributes?:    #MetricSourceAttributes
@@ -231,7 +268,12 @@ string |
 [...] |
 close({
 
-	{[=~"^.+$"]: string | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+}) |
 fn.#ValueExpression
 
 #MetricSourceKeyAttributes: null |
@@ -241,7 +283,12 @@ string |
 [...] |
 close({
 
-	{[=~"^.+$"]: string | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+}) |
 fn.#ValueExpression
 
 #MetricStat: close({
@@ -260,8 +307,8 @@ fn.#ValueExpression
 				)
 		} |
 		fn.#NumberExpression
-	Stat!: string | fn.#StringExpression
-	Unit?: string | fn.#StringExpression
+	Stat!: string | number | bool | fn.#StringExpression
+	Unit?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -278,7 +325,14 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#RecurrenceRule: close({Expression!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression}) |
+#RecurrenceRule: close({
+	Expression!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #RequestBasedSli: close({
@@ -318,7 +372,12 @@ fn.#ObjectExpression
 	MetricSource?:                #MetricSource
 	MetricType?:                  "LATENCY" | "AVAILABILITY" | fn.#StringExpression
 	MonitoredRequestCountMetric?: #MonitoredRequestCountMetric
-	OperationName?:               strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	OperationName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// This structure defines the metric that is used as the "total requests" number
 	// for a request-based SLO. The number observed for this metric is divided by
@@ -335,8 +394,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SelectionConfig: close({
-	Pattern?: =~"^.+$" | fn.#StringExpression
-	Type!:    #SelectionType
+	Pattern?: =~"^.+$" |
+	{
+		number | bool
+		_cfnString: =~"^.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: #SelectionType
 }) |
 fn.#ObjectExpression
 
@@ -379,7 +443,12 @@ fn.#ObjectExpression
 	MetricName?:         #MetricName
 	MetricSource?:       #MetricSource
 	MetricType?:         "LATENCY" | "AVAILABILITY" | fn.#StringExpression
-	OperationName?:      strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	OperationName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	PeriodSeconds?: int & <=900 & >=60 |
 		{
 			string &
@@ -396,13 +465,33 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Statistic?: strings.MaxRunes(20) & strings.MinRunes(1) | fn.#StringExpression
+	Statistic?: strings.MaxRunes(20) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(20) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

@@ -7,32 +7,72 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Files::MountTarget
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3Files::MountTarget"
-	Properties!: close({
+	let properties = close({
 		FileSystemId!: strings.MaxRunes(128) &
 		=~"^(arn:aws[-a-z]*:s3files:[0-9a-z-:]+:file-system/fs-[0-9a-f]{17,40}|fs-[0-9a-f]{17,40})$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			=~"^(arn:aws[-a-z]*:s3files:[0-9a-z-:]+:file-system/fs-[0-9a-f]{17,40}|fs-[0-9a-f]{17,40})$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		IpAddressType?: "IPV4_ONLY" | "IPV6_ONLY" | "DUAL_STACK" | fn.#StringExpression
 		Ipv4Address?: strings.MaxRunes(15) &
 		strings.MinRunes(7) &
 		=~"^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(15) &
+			strings.MinRunes(7) &
+			=~"^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Ipv6Address?: strings.MaxRunes(39) & strings.MinRunes(3) | fn.#StringExpression
-		SecurityGroups?: list.MaxItems(100) & list.UniqueItems() & [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		Ipv6Address?: strings.MaxRunes(39) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(39) & strings.MinRunes(3) & "\(self)"
+		} |
+		fn.#StringExpression
+		SecurityGroups?: list.MaxItems(100) & list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		strings.MaxRunes(43) &
+		strings.MinRunes(11) &
+		=~"^(sg-[0-9a-f]{8,40})$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 			strings.MaxRunes(43) &
 			strings.MinRunes(11) &
-			=~"^(sg-[0-9a-f]{8,40})$" |
-			fn.#StringExpression
-		] |
+			=~"^(sg-[0-9a-f]{8,40})$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		SubnetId!: strings.MaxRunes(47) & strings.MinRunes(15) & =~"^subnet-[0-9a-f]{8,40}$" | fn.#StringExpression
+		SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(47) &
+		strings.MinRunes(15) &
+		=~"^subnet-[0-9a-f]{8,40}$" |
+		{
+			number | bool
+			_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+			strings.MaxRunes(47) &
+			strings.MinRunes(15) &
+			=~"^subnet-[0-9a-f]{8,40}$" &
+			"\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

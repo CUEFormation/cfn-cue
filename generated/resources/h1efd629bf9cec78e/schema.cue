@@ -7,22 +7,27 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a capacity provider that manages compute resources for Lambda functions
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lambda::CapacityProvider"
-	Properties!: close({
+	let properties = close({
 		CapacityProviderName?: strings.MaxRunes(140) &
 		strings.MinRunes(1) &
 		=~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:capacity-provider:[a-zA-Z0-9-_]+)|[a-zA-Z0-9-_]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(140) &
+			strings.MinRunes(1) &
+			=~"^(arn:aws[a-zA-Z-]*:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:capacity-provider:[a-zA-Z0-9-_]+)|[a-zA-Z0-9-_]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 
 		// The scaling configuration for the capacity provider.
@@ -30,10 +35,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		// The instance requirements for compute resources managed by the capacity provider.
 		InstanceRequirements?: #InstanceRequirements
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		strings.MaxRunes(10000) &
 		strings.MinRunes(0) &
 		=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+			strings.MaxRunes(10000) &
+			strings.MinRunes(0) &
+			=~"^(arn:(aws[a-zA-Z-]*)?:[a-z0-9-.]+:.*)|()$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 
 		// The permissions configuration for the capacity provider.
@@ -49,21 +62,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// The VPC configuration for the capacity provider.
 		VpcConfig!: #CapacityProviderVpcConfig
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Architecture: "x86_64" | "arm64" | fn.#StringExpression
 
 #CapacityProviderLoggingConfig: close({
-	LogGroup?:       strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
+	LogGroup?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" & "\(self)"
+	} |
+	fn.#StringExpression
 	SystemLogLevel?: "DEBUG" | "INFO" | "WARN" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CapacityProviderPermissionsConfig: close({
-	CapacityProviderOperatorRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	CapacityProviderOperatorRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(10000) &
 	strings.MinRunes(0) &
 	=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(10000) &
+		strings.MinRunes(0) &
+		=~"^arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -98,8 +128,6 @@ fn.#ObjectExpression
 
 #CapacityProviderScalingMode: "Auto" | "Manual" | fn.#StringExpression
 
-#CapacityProviderState: "Pending" | "Active" | "Failed" | "Deleting" | fn.#StringExpression
-
 #CapacityProviderTelemetryConfig: close({
 	// The capacity provider's Amazon CloudWatch Logs configuration settings.
 	LoggingConfig?: #CapacityProviderLoggingConfig
@@ -107,30 +135,51 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CapacityProviderVpcConfig: close({
-	SecurityGroupIds!: list.MaxItems(5) & [...] & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	SecurityGroupIds!: list.MaxItems(5) & [...] & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(0) &
+	=~"^sg-[0-9a-zA-Z]*$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 		strings.MaxRunes(1024) &
 		strings.MinRunes(0) &
-		=~"^sg-[0-9a-zA-Z]*$" |
-		fn.#StringExpression
-	] |
+		=~"^sg-[0-9a-zA-Z]*$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	SubnetIds!: list.MaxItems(16) & list.MinItems(1) & [
-		...strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^subnet-[0-9a-z]*$" | fn.#StringExpression
-	] |
+	SubnetIds!: list.MaxItems(16) & list.MinItems(1) & [...strings.MaxRunes(1024) &
+	strings.MinRunes(0) &
+	=~"^subnet-[0-9a-z]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^subnet-[0-9a-z]*$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #InstanceRequirements: close({
-	AllowedInstanceTypes?: list.MaxItems(400) & [...] & [
-		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\*\\-]+$" | fn.#StringExpression
-	] |
+	AllowedInstanceTypes?: list.MaxItems(400) & [...] & [...strings.MaxRunes(30) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9\\.\\*\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\*\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	Architectures?: list.MaxItems(1) & list.MinItems(1) & [...#Architecture] | fn.#ListExpression
-	ExcludedInstanceTypes?: list.MaxItems(400) & [...] & [
-		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\*\\-]+$" | fn.#StringExpression
-	] |
+	ExcludedInstanceTypes?: list.MaxItems(400) & [...] & [...strings.MaxRunes(30) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9\\.\\*\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\*\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -147,8 +196,18 @@ fn.#ObjectExpression
 #PropagateTagsMode: "None" | "Explicit" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

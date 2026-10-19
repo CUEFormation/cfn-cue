@@ -6,23 +6,32 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::CodeDeploy::Application resource creates an AWS CodeDeploy application
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodeDeploy::Application"
-	Properties?: close({
-		ApplicationName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" | fn.#StringExpression
+	let properties = close({
+		ApplicationName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ComputePlatform?: "ECS" | "Lambda" | "Server" | fn.#StringExpression
 		Tags?:            [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

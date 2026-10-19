@@ -12,7 +12,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hd70facd06401d294:schem
 #CertifyForMarketplace:                      schema.#CertifyForMarketplace
 #ClientToken:                                schema.#ClientToken
 #ContentType:                                schema.#ContentType
-#CreationTime:                               schema.#CreationTime
 #CustomerMetadataProperties:                 schema.#CustomerMetadataProperties
 #DataSource:                                 schema.#DataSource
 #Domain:                                     schema.#Domain
@@ -26,7 +25,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hd70facd06401d294:schem
 #FileSource:                                 schema.#FileSource
 #InferenceInstanceType:                      schema.#InferenceInstanceType
 #InferenceSpecification:                     schema.#InferenceSpecification
-#LastModifiedTime:                           schema.#LastModifiedTime
 #MetadataProperties:                         schema.#MetadataProperties
 #MetricsSource:                              schema.#MetricsSource
 #ModelAccessConfig:                          schema.#ModelAccessConfig
@@ -35,12 +33,10 @@ import schema "github.com/cueformation/cfn-cue/resources/hd70facd06401d294:schem
 #ModelDataQuality:                           schema.#ModelDataQuality
 #ModelDataSource:                            schema.#ModelDataSource
 #ModelMetrics:                               schema.#ModelMetrics
-#ModelPackageArn:                            schema.#ModelPackageArn
 #ModelPackageContainerDefinition:            schema.#ModelPackageContainerDefinition
 #ModelPackageDescription:                    schema.#ModelPackageDescription
 #ModelPackageGroupName:                      schema.#ModelPackageGroupName
 #ModelPackageName:                           schema.#ModelPackageName
-#ModelPackageStatus:                         schema.#ModelPackageStatus
 #ModelPackageStatusDetails:                  schema.#ModelPackageStatusDetails
 #ModelPackageStatusItem:                     schema.#ModelPackageStatusItem
 #ModelPackageVersion:                        schema.#ModelPackageVersion

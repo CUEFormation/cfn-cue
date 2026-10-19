@@ -47,7 +47,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hf12d97b46529f54a:schem
 #MarketoDestinationProperties:         schema.#MarketoDestinationProperties
 #MarketoSourceProperties:              schema.#MarketoSourceProperties
 #MetadataCatalogConfig:                schema.#MetadataCatalogConfig
-#Name:                                 schema.#Name
 #Object:                               schema.#Object
 #Operator:                             schema.#Operator
 #OperatorPropertiesKeys:               schema.#OperatorPropertiesKeys
@@ -85,7 +84,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hf12d97b46529f54a:schem
 #SnowflakeDestinationProperties:       schema.#SnowflakeDestinationProperties
 #SourceConnectorProperties:            schema.#SourceConnectorProperties
 #SourceFlowConfig:                     schema.#SourceFlowConfig
-#Status:                               schema.#Status
 #SuccessResponseHandlingConfig:        schema.#SuccessResponseHandlingConfig
 #Tag:                                  schema.#Tag
 #TargetFileSize:                       schema.#TargetFileSize

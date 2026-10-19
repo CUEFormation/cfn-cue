@@ -5,6 +5,4 @@ package AutoshiftObserverNotificationStatus
 import schema "github.com/cueformation/cfn-cue/resources/h11376fee0279dcb6:schema"
 
 #Resource:                            schema.#Resource
-#AccountId:                           schema.#AccountId
 #AutoshiftObserverNotificationStatus: schema.#AutoshiftObserverNotificationStatus
-#Region:                              schema.#Region

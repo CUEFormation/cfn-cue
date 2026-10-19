@@ -7,12 +7,10 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -36,25 +34,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Amazon EC2 Auto Scaling User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AutoScaling::AutoScalingGroup"
-	Properties!: close({
-		AutoScalingGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		AutoScalingGroupName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The EC2 instance capacity distribution across Availability Zones for the Auto Scaling group.
 		AvailabilityZoneDistribution?: #AvailabilityZoneDistribution
-		AvailabilityZoneIds?: list.UniqueItems() & [
-			...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		] |
+		AvailabilityZoneIds?: list.UniqueItems() & [...strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 
 		// The Availability Zone impairment policy for the Auto Scaling group.
 		AvailabilityZoneImpairmentPolicy?: #AvailabilityZoneImpairmentPolicy
-		AvailabilityZones?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		AvailabilityZones?: [...strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		CapacityRebalance?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 		// The capacity reservation specification for the Auto Scaling group.
 		CapacityReservationSpecification?: #CapacityReservationSpecification
-		Context?:                          string | fn.#StringExpression
-		Cooldown?:                         string | fn.#StringExpression
+		Context?:                          string | number | bool | fn.#StringExpression
+		Cooldown?:                         string | number | bool | fn.#StringExpression
 		DefaultInstanceWarmup?: int |
 			{
 				string &
@@ -71,9 +83,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		DeletionProtection?:  "none" | "prevent-all-deletion" | "prevent-force-deletion" | fn.#StringExpression
-		DesiredCapacity?:     =~"^[0-9]+$" | fn.#StringExpression
-		DesiredCapacityType?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		DeletionProtection?: "none" | "prevent-all-deletion" | "prevent-force-deletion" | fn.#StringExpression
+		DesiredCapacity?: =~"^[0-9]+$" |
+		{
+			number | bool
+			_cfnString: =~"^[0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DesiredCapacityType?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		HealthCheckGracePeriod?: int |
 			{
 				string &
@@ -93,8 +115,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		HealthCheckType?: strings.MaxRunes(32) &
 		strings.MinRunes(1) &
 		=~"^(EBS|EC2|ELB|VPC_LATTICE)(,(EBS|EC2|ELB|VPC_LATTICE))*,?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32) &
+			strings.MinRunes(1) &
+			=~"^(EBS|EC2|ELB|VPC_LATTICE)(,(EBS|EC2|ELB|VPC_LATTICE))*,?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		InstanceId?: strings.MaxRunes(19) & strings.MinRunes(1) | fn.#StringExpression
+		InstanceId?: strings.MaxRunes(19) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(19) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The instance lifecycle policy for the Auto Scaling group.
 		InstanceLifecyclePolicy?: #InstanceLifecyclePolicy
@@ -104,7 +138,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// policy](https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-instance-maintenance-policy.html)
 		// in the *Amazon EC2 Auto Scaling User Guide*.
 		InstanceMaintenancePolicy?: #InstanceMaintenancePolicy
-		LaunchConfigurationName?:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		LaunchConfigurationName?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Information used to specify the launch template and version to use to launch
 		// instances. You can alternatively associate a launch template to the Auto
@@ -117,7 +156,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// ``LaunchConfigurationName``, or ``InstanceId``.
 		LaunchTemplate?:                 #LaunchTemplateSpecification
 		LifecycleHookSpecificationList?: [...#LifecycleHookSpecification] | fn.#ListExpression
-		LoadBalancerNames?: [...strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
+		LoadBalancerNames?: [...strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		MaxInstanceLifetime?: int |
 			{
 				string &
@@ -134,9 +179,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		MaxSize!:           =~"^[0-9]+$" | fn.#StringExpression
+		MaxSize!: =~"^[0-9]+$" |
+		{
+			number | bool
+			_cfnString: =~"^[0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		MetricsCollection?: [...#MetricsCollection] | fn.#ListExpression
-		MinSize!:           =~"^[0-9]+$" | fn.#StringExpression
+		MinSize!: =~"^[0-9]+$" |
+		{
+			number | bool
+			_cfnString: =~"^[0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// An embedded object that specifies a mixed instances policy.
 		// The policy includes properties that not only define the distribution of
@@ -161,16 +216,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#BooleanExpression
 		NotificationConfiguration?:  #NotificationConfiguration
 		NotificationConfigurations?: [...#NotificationConfiguration] | fn.#ListExpression
-		PlacementGroup?:             strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		ServiceLinkedRoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1600) & strings.MinRunes(1)) |
+		PlacementGroup?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ServiceLinkedRoleARN?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1600) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(1600) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		SkipZonalShiftValidation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Tags?:                     [...#TagProperty] | fn.#ListExpression
-		TargetGroupARNs?: [...strings.MaxRunes(511) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-		TerminationPolicies?: [...strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression] |
+		TargetGroupARNs?: [...strings.MaxRunes(511) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(511) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		TerminationPolicies?: [...strings.MaxRunes(1600) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1600) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		TrafficSources?:    list.UniqueItems() & [...#TrafficSourceIdentifier] | fn.#ListExpression
-		VPCZoneIdentifier?: [...string | fn.#StringExpression] | fn.#ListExpression
+		VPCZoneIdentifier?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		if InstanceId != _|_ if InstanceId."Fn::If" == _|_ {
 			LaunchConfigurationName?: close({"Fn::If": _}) | error(
 				"LaunchConfigurationName cannot be used with InstanceId; set exactly one of InstanceId, LaunchConfigurationName, LaunchTemplate, MixedInstancesPolicy",
@@ -199,6 +277,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		>=1,
 		[{InstanceId!: _}, {LaunchConfigurationName!: _}, {LaunchTemplate!: _}, {MixedInstancesPolicy!: _}],
 	)
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AcceleratorCountRequest: close({
@@ -323,14 +405,22 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#CapacityReservationIds: list.UniqueItems() & [
-	...strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-_\\/]+$" | fn.#StringExpression
-] |
+#CapacityReservationIds: list.UniqueItems() & [...strings.MaxRunes(255) &
+strings.MinRunes(1) &
+=~"^[A-Za-z0-9\\-_\\/]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-_\\/]+$" & "\(self)"
+} |
+fn.#StringExpression] |
 fn.#ListExpression
 
-#CapacityReservationResourceGroupArns: list.UniqueItems() & [
-	...strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
-] |
+#CapacityReservationResourceGroupArns: list.UniqueItems() & [...strings.MaxRunes(1600) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1600) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression] |
 fn.#ListExpression
 
 #CapacityReservationSpecification: close({
@@ -450,9 +540,14 @@ fn.#ObjectExpression
 	AcceleratorTotalMemoryMiB?: #AcceleratorTotalMemoryMiBRequest
 	AcceleratorTypes?: list.UniqueItems() & [..."fpga" | "gpu" | "inference" | fn.#StringExpression] |
 		fn.#ListExpression
-	AllowedInstanceTypes?: list.MaxItems(400) & list.UniqueItems() & [...] & [
-		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\*\\-]+$" | fn.#StringExpression
-	] |
+	AllowedInstanceTypes?: list.MaxItems(400) & list.UniqueItems() & [...] & [...strings.MaxRunes(30) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9\\.\\*\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\*\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	BareMetal?: "excluded" | "included" | "required" | fn.#StringExpression
 
@@ -470,9 +565,14 @@ fn.#ObjectExpression
 		..."amazon-web-services" | "amd" | "apple" | "intel" | fn.#StringExpression
 	] |
 		fn.#ListExpression
-	ExcludedInstanceTypes?: list.MaxItems(400) & list.UniqueItems() & [...] & [
-		...strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\*\\-]+$" | fn.#StringExpression
-	] |
+	ExcludedInstanceTypes?: list.MaxItems(400) & list.UniqueItems() & [...] & [...strings.MaxRunes(30) &
+	strings.MinRunes(1) &
+	=~"^[a-zA-Z0-9\\.\\*\\-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(30) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\.\\*\\-]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	InstanceGenerations?: list.UniqueItems() & [..."current" | "previous" | fn.#StringExpression] | fn.#ListExpression
 	LocalStorage?:        "excluded" | "included" | "required" | fn.#StringExpression
@@ -550,7 +650,7 @@ fn.#ObjectExpression
 
 #InstancesDistribution: close({
 	DistributionSegments?:       list.MaxItems(1) & list.MinItems(1) & [...#DistributionSegment] | fn.#ListExpression
-	OnDemandAllocationStrategy?: string | fn.#StringExpression
+	OnDemandAllocationStrategy?: string | number | bool | fn.#StringExpression
 	OnDemandBaseCapacity?: int |
 		{
 			string &
@@ -579,7 +679,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SpotAllocationStrategy?: string | fn.#StringExpression
+	SpotAllocationStrategy?: string | number | bool | fn.#StringExpression
 	SpotInstancePools?: int |
 		{
 			string &
@@ -594,7 +694,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SpotMaxPrice?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	SpotMaxPrice?: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -606,10 +711,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #LaunchTemplateOverrides: close({
-	ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	ImageId?: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" &
 	strings.MaxRunes(21) &
 	strings.MinRunes(5) &
 	=~"^ami-[a-z0-9]{1,17}$" |
+	{
+		number | bool
+		_cfnString: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" &
+		strings.MaxRunes(21) &
+		strings.MinRunes(5) &
+		=~"^ami-[a-z0-9]{1,17}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 
 	// The instance requirements. Amazon EC2 Auto Scaling uses your specified
@@ -622,7 +735,12 @@ fn.#ObjectExpression
 	// a compatible set of instance requirements for each launch template.
 	// If you specify ``InstanceRequirements``, you can't specify ``InstanceType``.
 	InstanceRequirements?: #InstanceRequirements
-	InstanceType?:         strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	InstanceType?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// Provides a launch template for the specified instance type or set of instance
 	// requirements. For example, some instance types might require a launch
@@ -636,15 +754,34 @@ fn.#ObjectExpression
 	// templates specified in the overrides and in the ``LaunchTemplate``
 	// definition count towards this limit.
 	LaunchTemplateSpecification?: #LaunchTemplateSpecification
-	WeightedCapacity?:            strings.MaxRunes(32) & strings.MinRunes(1) | fn.#StringExpression
+	WeightedCapacity?: strings.MaxRunes(32) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LaunchTemplateSpecification: close({
-	LaunchTemplateId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	LaunchTemplateName?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9\\(\\)\\.\\-/_]+$" |
+	LaunchTemplateId?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
 	fn.#StringExpression
-	Version!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	LaunchTemplateName?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9\\(\\)\\.\\-/_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9\\(\\)\\.\\-/_]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Version!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	if LaunchTemplateId != _|_ if LaunchTemplateId."Fn::If" == _|_ {
 		LaunchTemplateName?: close({"Fn::If": _}) | error(
 			"LaunchTemplateName cannot be used with LaunchTemplateId; set exactly one of LaunchTemplateId, LaunchTemplateName",
@@ -654,7 +791,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #LifecycleHookSpecification: close({
-	DefaultResult?: string | fn.#StringExpression
+	DefaultResult?: string | number | bool | fn.#StringExpression
 	HeartbeatTimeout?: int |
 		{
 			string &
@@ -669,14 +806,38 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	LifecycleHookName!:   strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-_\\/]+$" | fn.#StringExpression
-	LifecycleTransition!: string | fn.#StringExpression
+	LifecycleHookName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-_\\/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-_\\/]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LifecycleTransition!: string | number | bool | fn.#StringExpression
 	NotificationMetadata?: strings.MaxRunes(4000) &
 	strings.MinRunes(1) &
 	=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007e}]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4000) &
+		strings.MinRunes(1) &
+		=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007e}]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	NotificationTargetARN?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	RoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+	NotificationTargetARN?: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleARN?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -758,8 +919,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #MetricsCollection: close({
-	Granularity!: string | fn.#StringExpression
-	Metrics?:     [...string | fn.#StringExpression] | fn.#ListExpression
+	Granularity!: string | number | bool | fn.#StringExpression
+	Metrics?:     [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -850,26 +1011,41 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #NotificationConfiguration: close({
-	NotificationTypes?: [...string | fn.#StringExpression] | fn.#ListExpression
+	NotificationTypes?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	TopicARN!: string |
-		[
-			...=~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
-		fn.#StringListExpression
+	number |
+	bool |
+	[...=~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#StringListExpression
 }) |
 fn.#ObjectExpression
 
-#PerformanceFactorReferenceRequest: close({InstanceFamily?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#PerformanceFactorReferenceRequest: close({InstanceFamily?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #PerformanceFactorReferenceSetRequest: list.UniqueItems() & [...#PerformanceFactorReferenceRequest] | fn.#ListExpression
 
 #RetentionTriggers: close({TerminateHookAbandon?: "retain" | "terminate" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #TagProperty: close({
-	Key!:               strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	PropagateAtLaunch!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Value!:             strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -916,8 +1092,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #TrafficSourceIdentifier: close({
-	Identifier!: strings.MaxRunes(511) & strings.MinRunes(1) | fn.#StringExpression
-	Type!:       strings.MaxRunes(511) & strings.MinRunes(1) | fn.#StringExpression
+	Identifier!: strings.MaxRunes(511) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(511) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: strings.MaxRunes(511) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(511) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

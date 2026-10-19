@@ -8,8 +8,6 @@ import schema "github.com/cueformation/cfn-cue/resources/haab7b2693aa9455d:schem
 #Accounting:            schema.#Accounting
 #AuthKey:               schema.#AuthKey
 #CgroupCustomSetting:   schema.#CgroupCustomSetting
-#Endpoint:              schema.#Endpoint
-#ErrorInfo:             schema.#ErrorInfo
 #JwtAuth:               schema.#JwtAuth
 #JwtKey:                schema.#JwtKey
 #SecurityGroupId:       schema.#SecurityGroupId
@@ -17,4 +15,3 @@ import schema "github.com/cueformation/cfn-cue/resources/haab7b2693aa9455d:schem
 #SlurmRest:             schema.#SlurmRest
 #SlurmdbdCustomSetting: schema.#SlurmdbdCustomSetting
 #SubnetId:              schema.#SubnetId
-#Tag:                   schema.#Tag

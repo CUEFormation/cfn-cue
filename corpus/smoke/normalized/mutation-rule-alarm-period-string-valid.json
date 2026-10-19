@@ -1,0 +1,16 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "ComparisonOperator": "GreaterThanThreshold",
+        "EvaluationPeriods": 1,
+        "MetricName": "Errors",
+        "Namespace": "AWS/Lambda",
+        "Period": "300",
+        "Statistic": "Sum",
+        "Threshold": 1
+      },
+      "Type": "AWS::CloudWatch::Alarm"
+    }
+  }
+}

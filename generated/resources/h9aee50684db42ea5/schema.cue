@@ -7,21 +7,19 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::Neptune::DBCluster resource creates an Amazon Neptune DB cluster.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Neptune::DBCluster"
-	Properties?: close({
+	let properties = close({
 		AssociatedRoles?:   list.UniqueItems() & [...#DBClusterRole] | fn.#ListExpression
-		AvailabilityZones?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		AvailabilityZones?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		BackupRetentionPeriod?: int & >=1 |
 			{
 				string &
@@ -41,9 +39,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		CopyTagsToSnapshot?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		DBClusterIdentifier?: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		DBClusterParameterGroupName?:  string | fn.#StringExpression
-		DBInstanceParameterGroupName?: string | fn.#StringExpression
+		DBClusterParameterGroupName?:  string | number | bool | fn.#StringExpression
+		DBInstanceParameterGroupName?: string | number | bool | fn.#StringExpression
 		DBPort?: int |
 			{
 				string &
@@ -60,42 +65,71 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		DBSubnetGroupName?:  string | fn.#StringExpression
+		DBSubnetGroupName?:  string | number | bool | fn.#StringExpression
 		DeletionProtection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		EnableCloudwatchLogsExports?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		EngineVersion?:               string | fn.#StringExpression
+		EnableCloudwatchLogsExports?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
+		EngineVersion?: string | number | bool | fn.#StringExpression
 		GlobalClusterIdentifier?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][0-9A-Za-z-:._]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][0-9A-Za-z-:._]*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		IamAuthEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string |
-			fn.#StringExpression
+		KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+		} |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+				"\(self)"
+		} |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		NetworkType?:                "IPV4" | "DUAL" | fn.#StringExpression
-		PreferredBackupWindow?:      string | fn.#StringExpression
-		PreferredMaintenanceWindow?: string | fn.#StringExpression
-		RestoreToTime?:              string | fn.#StringExpression
-		RestoreType?:                string | fn.#StringExpression
+		PreferredBackupWindow?:      string | number | bool | fn.#StringExpression
+		PreferredMaintenanceWindow?: string | number | bool | fn.#StringExpression
+		RestoreToTime?:              string | number | bool | fn.#StringExpression
+		RestoreType?:                string | number | bool | fn.#StringExpression
 
 		// Contains the scaling configuration used by the Neptune Serverless Instances
 		// within this DB cluster.
 		ServerlessScalingConfiguration?: #ServerlessScalingConfiguration
-		SnapshotIdentifier?:             string | fn.#StringExpression
-		SourceDBClusterIdentifier?:      string | fn.#StringExpression
+		SnapshotIdentifier?:             string | number | bool | fn.#StringExpression
+		SourceDBClusterIdentifier?:      string | number | bool | fn.#StringExpression
 		StorageEncrypted?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Tags?:                    list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		UseLatestRestorableTime?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		VpcSecurityGroupIds?: list.UniqueItems() & [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
+		VpcSecurityGroupIds?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #DBClusterRole: close({
-	FeatureName?: string | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	FeatureName?: string | number | bool | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -144,7 +178,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -8,52 +8,112 @@ import (
 	"list"
 	"struct"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource for Greengrass V2 deployment.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GreengrassV2::Deployment"
-	Properties!: close({
+	let properties = close({
 		Components?: close({
 
-			{[=~".+"]: #ComponentDeploymentSpecification}}) |
+			{[=~".+"]: #ComponentDeploymentSpecification}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
-		DeploymentName?:      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		DeploymentName?: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		DeploymentPolicies?:  #DeploymentPolicies
 		IotJobConfiguration?: #DeploymentIoTJobConfiguration
-		ParentTargetArn?:     =~"arn:[^:]*:iot:[^:]*:[0-9]+:thinggroup/.+" | fn.#StringExpression
+		ParentTargetArn?: =~"arn:[^:]*:iot:[^:]*:[0-9]+:thinggroup/.+" |
+		{
+			number | bool
+			_cfnString: =~"arn:[^:]*:iot:[^:]*:[0-9]+:thinggroup/.+" & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: struct.MaxFields(200) & close({
 
-			{[=~".*"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
+			{
+				[=~".*"]: strings.MaxRunes(256) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(256) & "\(self)"
+				} |
+				fn.#StringExpression
+			}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
-		TargetArn!: =~"arn:[^:]*:iot:[^:]*:[0-9]+:(thing|thinggroup)/.+" | fn.#StringExpression
+		TargetArn!: =~"arn:[^:]*:iot:[^:]*:[0-9]+:(thing|thinggroup)/.+" |
+		{
+			number | bool
+			_cfnString: =~"arn:[^:]*:iot:[^:]*:[0-9]+:(thing|thinggroup)/.+" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ComponentConfigurationUpdate: close({
-	Merge?: strings.MaxRunes(10485760) & strings.MinRunes(1) | fn.#StringExpression
-	Reset?: [...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
+	Merge?: strings.MaxRunes(10485760) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10485760) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Reset?: [...strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #ComponentDeploymentSpecification: close({
-	ComponentVersion?:    strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	ComponentVersion?: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ConfigurationUpdate?: #ComponentConfigurationUpdate
 	RunWith?:             #ComponentRunWith
 }) |
 fn.#ObjectExpression
 
 #ComponentRunWith: close({
-	PosixUser?:            strings.MinRunes(1) | fn.#StringExpression
+	PosixUser?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	SystemResourceLimits?: #SystemResourceLimits
-	WindowsUser?:          strings.MinRunes(1) | fn.#StringExpression
+	WindowsUser?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -219,7 +279,7 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#IoTJobRateIncreaseCriteria: fn.#Object & {...} & matchN(1, [
+#IoTJobRateIncreaseCriteria: fn.#Object & matchN(1, [
 	close({NumberOfNotifiedThings?: #NumberOfThings}), close({NumberOfSucceededThings?: #NumberOfThings}),
 ]) |
 fn.#ObjectExpression

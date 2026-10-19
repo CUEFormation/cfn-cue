@@ -1,0 +1,3 @@
+Resources:
+  5xxQueue:
+    Type: AWS::SQS::Queue

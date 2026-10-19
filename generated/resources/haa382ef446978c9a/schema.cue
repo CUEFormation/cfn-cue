@@ -7,12 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -21,20 +19,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // transferred to an IoT device.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::Stream"
-	Properties!: close({
-		Description?: strings.MaxRunes(2028) & strings.MinRunes(0) & =~"^[^\\p{C}]+$" | fn.#StringExpression
-		Files!:       list.MaxItems(50) & list.MinItems(1) & [...#StreamFile] | fn.#ListExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	let properties = close({
+		Description?: strings.MaxRunes(2028) & strings.MinRunes(0) & =~"^[^\\p{C}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2028) & strings.MinRunes(0) & =~"^[^\\p{C}]+$" & "\(self)"
+		} |
 		fn.#StringExpression
-		StreamId!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		Tags?:     [...#Tag] | fn.#ListExpression
+		Files!: list.MaxItems(50) & list.MinItems(1) & [...#StreamFile] | fn.#ListExpression
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		StreamId!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #S3Location: close({
-	Bucket?:  strings.MinRunes(1) | fn.#StringExpression
-	Key?:     strings.MinRunes(1) | fn.#StringExpression
-	Version?: string | fn.#StringExpression
+	Bucket?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Key?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Version?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -60,7 +89,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

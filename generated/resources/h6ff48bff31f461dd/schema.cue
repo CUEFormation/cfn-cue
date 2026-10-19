@@ -3,19 +3,21 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoT::ThingPrincipalAttachment
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::ThingPrincipalAttachment"
-	Properties!: close({
-		Principal!:          string | fn.#StringExpression
-		ThingName!:          string | fn.#StringExpression
-		ThingPrincipalType?: string | fn.#StringExpression
+	let properties = close({
+		Principal!:          string | number | bool | fn.#StringExpression
+		ThingName!:          string | number | bool | fn.#StringExpression
+		ThingPrincipalType?: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
-
-_#defs: "/$defs/Properties/definitions/_PropertyRef0fa0f63af5e72a77": string | fn.#StringExpression

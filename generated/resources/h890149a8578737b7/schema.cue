@@ -6,22 +6,20 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Route53::RecordSetGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53::RecordSetGroup"
-	Properties?: close({
-		Comment?:        string | fn.#StringExpression
-		HostedZoneId?:   string | fn.#StringExpression
-		HostedZoneName?: string | fn.#StringExpression
+	let properties = close({
+		Comment?:        string | number | bool | fn.#StringExpression
+		HostedZoneId?:   string | number | bool | fn.#StringExpression
+		HostedZoneName?: string | number | bool | fn.#StringExpression
 		RecordSets?:     list.UniqueItems() & [...#RecordSet] | fn.#ListExpression
 		if HostedZoneId != _|_ if HostedZoneId."Fn::If" == _|_ {
 			HostedZoneName?: close({"Fn::If": _}) | error(
@@ -29,36 +27,199 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			)
 		}
 	}) & matchN(>=1, [{HostedZoneId!: _}, {HostedZoneName!: _}])
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #AliasTarget: close({
-	DNSName!:              string | fn.#StringExpression
+	DNSName!:              string | number | bool | fn.#StringExpression
 	EvaluateTargetHealth?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	HostedZoneId!:         string | fn.#StringExpression
+	HostedZoneId!:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
+#CfnLintE3023AAAARecord: fn.#IPv6Address | fn.#ValueExpression
+
+#CfnLintE3023ARecord: fn.#IPv4Address | fn.#ValueExpression
+
+#CfnLintE3023CAARecord: null |
+bool |
+"true" |
+"True" |
+"TRUE" |
+"false" |
+"False" |
+"FALSE" |
+number |
+{
+	string &
+		=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+		cfnScalarStrings.Repeat(
+			self,
+			len(cfnScalarStrconv.FormatFloat(
+				cfnScalarStrconv.ParseFloat(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1), 64) &
+					number,
+				"g",
+				-1,
+				64,
+			))*0 + 1,
+		)
+} |
+=~"^(0|128)\\s([a-zA-Z0-9]+)\\s(\".+\")$" |
+[...] |
+{...} |
+fn.#ValueExpression
+
+#CfnLintE3023CNAMERecord: #CfnLintE3023DomainName |
+null |
+bool |
+"true" |
+"True" |
+"TRUE" |
+"false" |
+"False" |
+"FALSE" |
+number |
+{
+	string &
+		=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+		cfnScalarStrings.Repeat(
+			self,
+			len(cfnScalarStrconv.FormatFloat(
+				cfnScalarStrconv.ParseFloat(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1), 64) &
+					number,
+				"g",
+				-1,
+				64,
+			))*0 + 1,
+		)
+} |
+=~"^.*\\.acm-validations\\.aws\\.?$" |
+[...] |
+{...} |
+fn.#ValueExpression
+
+#CfnLintE3023DSRecord: fn.#Value
+
+#CfnLintE3023DomainName: null |
+bool |
+"true" |
+"True" |
+"TRUE" |
+"false" |
+"False" |
+"FALSE" |
+number |
+{
+	string &
+		=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+		cfnScalarStrings.Repeat(
+			self,
+			len(cfnScalarStrconv.FormatFloat(
+				cfnScalarStrconv.ParseFloat(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1), 64) &
+					number,
+				"g",
+				-1,
+				64,
+			))*0 + 1,
+		)
+} |
+=~"^[a-zA-Z0-9\\!\"\\#\\$\\%\\&\\'\\(\\)\\*\\+\\,-\\/\\:\\;\\<\\=\\>\\?\\@\\[\\\\\\]\\^\\_\\`\\{\\|\\}\\~\\.]+$" |
+[...] |
+{...} |
+fn.#ValueExpression
+
+#CfnLintE3023MXRecord: null |
+bool |
+"true" |
+"True" |
+"TRUE" |
+"false" |
+"False" |
+"FALSE" |
+number |
+{
+	string &
+		=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+		cfnScalarStrings.Repeat(
+			self,
+			len(cfnScalarStrconv.FormatFloat(
+				cfnScalarStrconv.ParseFloat(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1), 64) &
+					number,
+				"g",
+				-1,
+				64,
+			))*0 + 1,
+		)
+} |
+=~"^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{1-3}|65[0-4][0-9]{1-2}|655[0-2][0-9]|6553[0-5])\\s[a-zA-Z0-9\\!\"\\#\\$\\%\\&\\'\\(\\)\\*\\+\\,-\\/\\:\\;\\<\\=\\>\\?\\@\\[\\\\\\]\\^\\_\\`\\{\\|\\}\\~\\.]+$" |
+[...] |
+{...} |
+fn.#ValueExpression
+
+#CfnLintE3023NAPTRRecord: fn.#Value
+
+#CfnLintE3023NSRecord: #CfnLintE3023DomainName
+
+#CfnLintE3023PTRRecord: #CfnLintE3023DomainName
+
+#CfnLintE3023SOARecord: fn.#Value
+
+#CfnLintE3023SPFRecord: fn.#Value
+
+#CfnLintE3023SRVRecord: fn.#Value
+
+#CfnLintE3023TXTRecord: null |
+bool |
+"true" |
+"True" |
+"TRUE" |
+"false" |
+"False" |
+"FALSE" |
+number |
+{
+	string &
+		=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+		cfnScalarStrings.Repeat(
+			self,
+			len(cfnScalarStrconv.FormatFloat(
+				cfnScalarStrconv.ParseFloat(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1), 64) &
+					number,
+				"g",
+				-1,
+				64,
+			))*0 + 1,
+		)
+} |
+=~"^(\"[^\"]{1,255}\" *)*\"[^\"]{1,255}\"$" |
+[...] |
+{...} |
+fn.#ValueExpression
+
 #CidrRoutingConfig: close({
-	CollectionId!: string | fn.#StringExpression
-	LocationName!: string | fn.#StringExpression
+	CollectionId!: string | number | bool | fn.#StringExpression
+	LocationName!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Coordinates: close({
-	Latitude!:  string | fn.#StringExpression
-	Longitude!: string | fn.#StringExpression
+	Latitude!:  string | number | bool | fn.#StringExpression
+	Longitude!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GeoLocation: close({
-	ContinentCode?:   string | fn.#StringExpression
-	CountryCode?:     string | fn.#StringExpression
-	SubdivisionCode?: string | fn.#StringExpression
+	ContinentCode?:   string | number | bool | fn.#StringExpression
+	CountryCode?:     string | number | bool | fn.#StringExpression
+	SubdivisionCode?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GeoProximityLocation: close({
-	AWSRegion?: string | fn.#StringExpression
+	AWSRegion?: string | number | bool | fn.#StringExpression
 	Bias?: int |
 		{
 			string &
@@ -74,26 +235,125 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	Coordinates?:    #Coordinates
-	LocalZoneGroup?: string | fn.#StringExpression
+	LocalZoneGroup?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#RecordSet: close({
+#RecordSet: matchN(2, [
+	matchIf({
+		AliasTarget!: null | bool | number | string | list.MinItems(1) | {...}
+		...
+	}, {
+		TTL?: error("disallowed")
+		...
+	}, _),
+	matchIf({
+		Type?: "A"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | [...#CfnLintE3023ARecord] | {...} | fn.#ValueExpression
+		...
+	}, _) & matchIf({
+		Type?: "AAAA"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | [...#CfnLintE3023AAAARecord] | {...} | fn.#ValueExpression
+		...
+	}, _) & matchIf({
+		Type?: "CAA"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | [...#CfnLintE3023CAARecord] | {...} | fn.#ValueExpression
+		...
+	}, _) & matchIf({
+		Type?: "CNAME"
+		...
+	}, {
+		ResourceRecords?: null |
+		bool |
+		number |
+		string |
+		list.MaxItems(1) & [...#CfnLintE3023CNAMERecord] |
+		{...} |
+		fn.#ValueExpression
+		...
+	}, _) & matchIf({
+		Type?: "DS"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | [...#CfnLintE3023DSRecord] | {...} | fn.#ValueExpression
+		...
+	}, _) & matchIf({
+		Type?: "MX"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | [...#CfnLintE3023MXRecord] | {...} | fn.#ValueExpression
+		...
+	}, _) & matchIf({
+		Type?: "NAPTR"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | [...#CfnLintE3023NAPTRRecord] | {...} | fn.#ValueExpression
+		...
+	}, _) & matchIf({
+		Type?: "NS"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | [...#CfnLintE3023NSRecord] | {...} | fn.#ValueExpression
+		...
+	}, _) & matchIf({
+		Type?: "PTR"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | [...#CfnLintE3023PTRRecord] | {...} | fn.#ValueExpression
+		...
+	}, _) & matchIf({
+		Type?: "SOA"
+		...
+	}, {
+		ResourceRecords?: null |
+		bool |
+		number |
+		string |
+		list.MaxItems(1) & [...#CfnLintE3023SOARecord] |
+		{...} |
+		fn.#ValueExpression
+		...
+	}, _) & matchIf({
+		Type?: "SPF"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | [...#CfnLintE3023SPFRecord] | {...} | fn.#ValueExpression
+		...
+	}, _) & matchIf({
+		Type?: "SRV"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | [...#CfnLintE3023SRVRecord] | {...} | fn.#ValueExpression
+		...
+	}, _) & matchIf({
+		Type?: "TXT"
+		...
+	}, {
+		ResourceRecords?: null | bool | number | string | [...#CfnLintE3023TXTRecord] | {...} | fn.#ValueExpression
+		...
+	}, _)
+]) & close({
 	AliasTarget?:          #AliasTarget
 	CidrRoutingConfig?:    #CidrRoutingConfig
-	Failover?:             string | fn.#StringExpression
+	Failover?:             string | number | bool | fn.#StringExpression
 	GeoLocation?:          #GeoLocation
 	GeoProximityLocation?: #GeoProximityLocation
-	HealthCheckId?:        string | fn.#StringExpression
-	HostedZoneId?:         string | fn.#StringExpression
-	HostedZoneName?:       string | fn.#StringExpression
+	HealthCheckId?:        string | number | bool | fn.#StringExpression
+	HostedZoneId?:         string | number | bool | fn.#StringExpression
+	HostedZoneName?:       string | number | bool | fn.#StringExpression
 	MultiValueAnswer?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name!:                 string | fn.#StringExpression
-	Region?:               string | fn.#StringExpression
-	ResourceRecords?:      list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SetIdentifier?:        string | fn.#StringExpression
-	TTL?:                  string | fn.#StringExpression
-	Type!:                 string | fn.#StringExpression
+	Name!:                 string | number | bool | fn.#StringExpression
+	Region?:               string | number | bool | fn.#StringExpression
+	ResourceRecords?:      list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	SetIdentifier?:        string | number | bool | fn.#StringExpression
+	TTL?:                  string | number | bool | fn.#StringExpression
+	Type!:                 string | number | bool | fn.#StringExpression
 	Weight?: int |
 		{
 			string &

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,46 +16,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // resource type that you can use to add computation to S3 actions
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3ObjectLambda::AccessPoint"
-	Properties!: close({
-		Name?: strings.MaxRunes(45) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" | fn.#StringExpression
+	let properties = close({
+		Name?: strings.MaxRunes(45) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(45) & strings.MinRunes(3) & =~"^[a-z0-9]([a-z0-9\\-]*[a-z0-9])?$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The Object lambda Access Point Configuration that configures transformations
 		// to be applied on the objects on specified S3 Actions
 		ObjectLambdaConfiguration!: #ObjectLambdaConfiguration
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Action: string | fn.#StringExpression
-
-#Alias: close({
-	Status?: =~"^[A-Z]*$" | fn.#StringExpression
-	Value!:  =~"^[a-z0-9\\-]*$" | fn.#StringExpression
-}) |
-fn.#ObjectExpression
+#Action: string | number | bool | fn.#StringExpression
 
 #AwsLambda: close({
-	FunctionArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	FunctionArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	FunctionPayload?: string | fn.#StringExpression
+	FunctionPayload?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ObjectLambdaConfiguration: close({
-	AllowedFeatures?:              list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	CloudWatchMetricsEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SupportingAccessPoint!:        strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	AllowedFeatures?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	CloudWatchMetricsEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	SupportingAccessPoint!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	TransformationConfigurations!: list.UniqueItems() & [...#TransformationConfiguration] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#PolicyStatus: close({IsPublic?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression}) |
-	fn.#ObjectExpression
-
-#PublicAccessBlockConfiguration: close({
-	BlockPublicAcls?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	BlockPublicPolicy?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IgnorePublicAcls?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RestrictPublicBuckets?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 

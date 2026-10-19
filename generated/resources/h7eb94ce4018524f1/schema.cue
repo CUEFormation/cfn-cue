@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,8 +16,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // accuracy of domain-specific words and phrases.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Transcribe::Vocabulary"
-	Properties!: close({
-		DataAccessRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	let properties = close({
+		DataAccessRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		LanguageCode!: "ab-GE" |
 			"af-ZA" |
@@ -137,17 +144,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"zh-TW" |
 			"zu-ZA" |
 			fn.#StringExpression
-		Phrases?: [...strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.+$" | fn.#StringExpression] |
+		Phrases?: [...strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.+$" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 		VocabularyFileUri?: strings.MaxRunes(2000) & strings.MinRunes(1) & =~"^(s3://|http(s*)://).+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2000) & strings.MinRunes(1) & =~"^(s3://|http(s*)://).+$" & "\(self)"
+		} |
 		fn.#StringExpression
-		VocabularyName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
+		VocabularyName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

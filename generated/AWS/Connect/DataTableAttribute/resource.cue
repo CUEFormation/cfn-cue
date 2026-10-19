@@ -5,7 +5,6 @@ package DataTableAttribute
 import schema "github.com/cueformation/cfn-cue/resources/hbf241fcd578a8413:schema"
 
 #Resource:       schema.#Resource
-#AttributeId:    schema.#AttributeId
 #Description:    schema.#Description
 #LengthBoundary: schema.#LengthBoundary
 #ValueBoundary:  schema.#ValueBoundary

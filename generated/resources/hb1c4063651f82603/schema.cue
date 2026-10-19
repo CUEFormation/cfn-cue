@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,7 +20,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Amazon ECR Public User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ECR::PublicRepository"
-	Properties?: close({
+	let properties = close({
 		RepositoryCatalogData?: close({
 			AboutText?:             #AboutText
 			Architectures?:         #ArchitectureList
@@ -29,30 +29,79 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			UsageText?:             #UsageText
 		}) |
 		fn.#ObjectExpression
-		RepositoryName?:       strings.MaxRunes(256) & strings.MinRunes(2) | fn.#StringExpression
-		RepositoryPolicyText?: fn.#Object & {...} | string | fn.#StringObjectExpression
+		RepositoryName?: =~"^((?:[a-z0-9]+(?:[._-][a-z0-9]+)*/)*[a-z0-9]+(?:[._-][a-z0-9]+)*)$" &
+		=~"^(?:.{2,256}$)" &
+		strings.MaxRunes(256) &
+		strings.MinRunes(2) |
+		{
+			number | bool
+			_cfnString: =~"^((?:[a-z0-9]+(?:[._-][a-z0-9]+)*/)*[a-z0-9]+(?:[._-][a-z0-9]+)*)$" &
+			=~"^(?:.{2,256}$)" &
+			strings.MaxRunes(256) &
+			strings.MinRunes(2) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		RepositoryPolicyText?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
-#AboutText: strings.MaxRunes(10240) | fn.#StringExpression
+#AboutText: strings.MaxRunes(10240) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(10240) & "\(self)"
+} |
+fn.#StringExpression
 
-#Architecture: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+#Architecture: strings.MaxRunes(50) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #ArchitectureList: list.MaxItems(50) & list.UniqueItems() & [...#Architecture] | fn.#ListExpression
 
-#OperatingSystem: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+#OperatingSystem: strings.MaxRunes(50) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #OperatingSystemList: list.MaxItems(50) & list.UniqueItems() & [...#OperatingSystem] | fn.#ListExpression
 
-#RegistryId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
-
-#RepositoryDescription: strings.MaxRunes(1024) | fn.#StringExpression
+#RepositoryDescription: strings.MaxRunes(1024) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#UsageText: strings.MaxRunes(10240) | fn.#StringExpression
+#UsageText: strings.MaxRunes(10240) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(10240) & "\(self)"
+} |
+fn.#StringExpression

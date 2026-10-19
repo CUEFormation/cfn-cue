@@ -4,11 +4,8 @@ package Node
 
 import schema "github.com/cueformation/cfn-cue/resources/h61d25da4b3d00bbc:schema"
 
-#Resource:                          schema.#Resource
-#NodeConnectionState:               schema.#NodeConnectionState
-#NodeInterfaceMapping:              schema.#NodeInterfaceMapping
-#NodeInterfaceMappingCreateRequest: schema.#NodeInterfaceMappingCreateRequest
-#NodeRole:                          schema.#NodeRole
-#NodeState:                         schema.#NodeState
-#SdiSourceMapping:                  schema.#SdiSourceMapping
-#Tag:                               schema.#Tag
+#Resource:             schema.#Resource
+#NodeInterfaceMapping: schema.#NodeInterfaceMapping
+#NodeRole:             schema.#NodeRole
+#SdiSourceMapping:     schema.#SdiSourceMapping
+#Tag:                  schema.#Tag

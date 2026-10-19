@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -23,6 +23,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [mappings](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/mappings-section-structure.html).
 // Tags aren't supported for this resource.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::SecurityHub::DelegatedAdmin"
-	Properties!: close({AdminAccountId!: =~"^[0-9]{12}$" | fn.#StringExpression})
+	Type!: "AWS::SecurityHub::DelegatedAdmin"
+	let properties = close({
+		AdminAccountId!: =~"^[0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: =~"^[0-9]{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
+	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

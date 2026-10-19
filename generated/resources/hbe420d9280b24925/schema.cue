@@ -7,28 +7,63 @@ import (
 	"list"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DirectConnect::Connection
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DirectConnect::Connection"
-	Properties!: close({
-		Bandwidth!:      =~"^[1-9][0-9]*(M|G)bps$" | fn.#StringExpression
-		ConnectionName!: =~"^[\\w \\-_,\\/]{1,200}$" | fn.#StringExpression
+	let properties = close({
+		Bandwidth!: =~"^[1-9][0-9]*(M|G)bps$" |
+		{
+			number | bool
+			_cfnString: =~"^[1-9][0-9]*(M|G)bps$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ConnectionName!: =~"^[\\w \\-_,\\/]{1,200}$" |
+		{
+			number | bool
+			_cfnString: =~"^[\\w \\-_,\\/]{1,200}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		LagId?: string & =~"^(arn:aws[a-z-]*:directconnect:[a-z0-9-]+:[0-9]{12}:dxlag/)?dxlag-[a-zA-Z0-9]{8,21}$" |
-			fn.#StringExpression
-		Location!:      =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-		ProviderName?:  string | fn.#StringExpression
+		{
+			number | bool
+			_cfnString: string &
+				=~"^(arn:aws[a-z-]*:directconnect:[a-z0-9-]+:[0-9]{12}:dxlag/)?dxlag-[a-zA-Z0-9]{8,21}$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		Location!: =~"^[a-zA-Z0-9-]+$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ProviderName?:  string | number | bool | fn.#StringExpression
 		RequestMACSec?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Tags?:          list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

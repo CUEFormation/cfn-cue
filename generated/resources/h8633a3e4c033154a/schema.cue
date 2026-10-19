@@ -8,12 +8,10 @@ import (
 	"strings"
 	"math"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -30,13 +28,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Amazon CloudFront Developer Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFront::ResponseHeadersPolicy"
-	Properties!: close({
+	let properties = close({
 		// A response headers policy configuration.
 		ResponseHeadersPolicyConfig!: #ResponseHeadersPolicyConfig
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#AccessControlAllowHeaders: close({Items!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression}) |
+#AccessControlAllowHeaders: close(
+	{Items!: list.MinItems(1) & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 #AccessControlAllowMethods: close({
@@ -47,14 +51,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 	fn.#ObjectExpression
 
-#AccessControlAllowOrigins: close({Items!: list.MinItems(1) & [...string | fn.#StringExpression] | fn.#ListExpression}) |
+#AccessControlAllowOrigins: close(
+	{Items!: list.MinItems(1) & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
-#AccessControlExposeHeaders: close({Items!: [...string | fn.#StringExpression] | fn.#ListExpression}) |
+#AccessControlExposeHeaders: close({Items!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
 #ContentSecurityPolicy: close({
-	ContentSecurityPolicy!: string | fn.#StringExpression
+	ContentSecurityPolicy!: string | number | bool | fn.#StringExpression
 	Override!:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
@@ -124,34 +130,49 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CustomHeader: close({
-	Header!:   string | fn.#StringExpression
+	Header!:   string | number | bool | fn.#StringExpression
 	Override!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Value!:    string | fn.#StringExpression
+	Value!:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CustomHeadersConfig: close({Items!: [...#CustomHeader] | fn.#ListExpression}) | fn.#ObjectExpression
 
 #FrameOptions: close({
-	FrameOption!: =~"^(DENY|SAMEORIGIN)$" | fn.#StringExpression
-	Override!:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	FrameOption!: =~"^(DENY|SAMEORIGIN)$" |
+	{
+		number | bool
+		_cfnString: =~"^(DENY|SAMEORIGIN)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Override!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #ReferrerPolicy: close({
 	Override!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ReferrerPolicy!: =~"^(no-referrer|no-referrer-when-downgrade|origin|origin-when-cross-origin|same-origin|strict-origin|strict-origin-when-cross-origin|unsafe-url)$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^(no-referrer|no-referrer-when-downgrade|origin|origin-when-cross-origin|same-origin|strict-origin|strict-origin-when-cross-origin|unsafe-url)$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#RemoveHeader: close({Header!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#RemoveHeader: close({Header!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #RemoveHeadersConfig: close({Items!: list.UniqueItems() & [...#RemoveHeader] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
 #ResponseHeadersPolicyConfig: close({
-	Comment?: strings.MaxRunes(128) | fn.#StringExpression
+	Comment?: strings.MaxRunes(128) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// A configuration for a set of HTTP response headers that are used for
 	// cross-origin resource sharing (CORS).
@@ -159,7 +180,7 @@ fn.#ObjectExpression
 
 	// A configuration for a set of custom HTTP response headers.
 	CustomHeadersConfig?: #CustomHeadersConfig
-	Name!:                string | fn.#StringExpression
+	Name!:                string | number | bool | fn.#StringExpression
 
 	// A configuration for a set of HTTP headers to remove from the HTTP response.
 	RemoveHeadersConfig?: #RemoveHeadersConfig
@@ -253,6 +274,6 @@ fn.#ObjectExpression
 	ModeBlock?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Override!:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Protection!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ReportUri?:  string | fn.#StringExpression
+	ReportUri?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

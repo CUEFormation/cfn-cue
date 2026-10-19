@@ -17,7 +17,9 @@ import "strings"
 	// Redshift permission. If no key is specified, the default key is used. Marked
 	// writeOnly because Create accepts aliases/key-ids but Describe returns the
 	// resolved key ARN, which would fail drift detection.
-	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(2147483647) & strings.MinRunes(0))
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(2147483647) & strings.MinRunes(0))
 
 	// The name of the snapshot copy grant. This name must be unique in the region for the AWS account.
 	SnapshotCopyGrantName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-z][a-z0-9]*(-[a-z0-9]+)*$"

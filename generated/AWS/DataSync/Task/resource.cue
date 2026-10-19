@@ -4,14 +4,12 @@ package Task
 
 import schema "github.com/cueformation/cfn-cue/resources/h5ce0bc0a4a34bba5:schema"
 
-#Resource:                        schema.#Resource
-#DestinationNetworkInterfaceArns: schema.#DestinationNetworkInterfaceArns
-#FilterRule:                      schema.#FilterRule
-#ManifestConfig:                  schema.#ManifestConfig
-#ManifestConfigSourceS3:          schema.#ManifestConfigSourceS3
-#Options:                         schema.#Options
-#SourceNetworkInterfaceArns:      schema.#SourceNetworkInterfaceArns
-#Tag:                             schema.#Tag
-#TaskReportConfig:                schema.#TaskReportConfig
-#TaskReportConfigDestinationS3:   schema.#TaskReportConfigDestinationS3
-#TaskSchedule:                    schema.#TaskSchedule
+#Resource:                      schema.#Resource
+#FilterRule:                    schema.#FilterRule
+#ManifestConfig:                schema.#ManifestConfig
+#ManifestConfigSourceS3:        schema.#ManifestConfigSourceS3
+#Options:                       schema.#Options
+#Tag:                           schema.#Tag
+#TaskReportConfig:              schema.#TaskReportConfig
+#TaskReportConfigDestinationS3: schema.#TaskReportConfigDestinationS3
+#TaskSchedule:                  schema.#TaskSchedule

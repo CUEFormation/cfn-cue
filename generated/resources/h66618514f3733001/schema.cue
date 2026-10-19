@@ -8,8 +8,8 @@ import (
 	"time"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,16 +17,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // e-invoice delivery and purchase order retrieval.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Invoicing::ProcurementPortalPreference"
-	Properties!: close({
-		BuyerDomain!:             "NetworkID" | fn.#StringExpression
-		BuyerIdentifier!:         strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
+	let properties = close({
+		BuyerDomain!: "NetworkID" | fn.#StringExpression
+		BuyerIdentifier!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Contacts!:                list.MaxItems(1) & list.MinItems(1) & [...#Contact] | fn.#ListExpression
 		EinvoiceDeliveryEnabled!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		EinvoiceDeliveryPreference?: #EinvoiceDeliveryPreference
 		ProcurementPortalInstanceEndpoint?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" & "\(self)"
+		} |
 		fn.#StringExpression
-		ProcurementPortalName!:         "SAP_BUSINESS_NETWORK" | "COUPA" | fn.#StringExpression
-		ProcurementPortalSharedSecret?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
+		ProcurementPortalName!: "SAP_BUSINESS_NETWORK" | "COUPA" | fn.#StringExpression
+		ProcurementPortalSharedSecret?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		PurchaseOrderRetrievalEnabled!: bool |
 			"true" |
 			"True" |
@@ -35,18 +49,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		Selector?:           #ProcurementPortalPreferenceSelector
-		SupplierDomain!:     "NetworkID" | fn.#StringExpression
-		SupplierIdentifier!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
-		Tags?:               list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
-		TestEnvPreference?:  #TestEnvPreference
+		Selector?:       #ProcurementPortalPreferenceSelector
+		SupplierDomain!: "NetworkID" | fn.#StringExpression
+		SupplierIdentifier!: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?:              list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
+		TestEnvPreference?: #TestEnvPreference
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Contact: close({
 	Email?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Name?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression
+	Name?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -69,12 +104,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #ProcurementPortalPreferenceSelector: close({
-	InvoiceUnitArns?: list.MaxItems(500) & [...] & [
-		...strings.MaxRunes(256) &
+	InvoiceUnitArns?: list.MaxItems(500) & [...] & [...strings.MaxRunes(256) &
+	strings.MinRunes(1) &
+	=~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
 		strings.MinRunes(1) &
-		=~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$" |
-		fn.#StringExpression
-	] |
+		=~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -93,17 +133,47 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TestEnvPreference: close({
-	BuyerDomain?:                       "NetworkID" | fn.#StringExpression
-	BuyerIdentifier?:                   strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
-	ProcurementPortalInstanceEndpoint?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
-	ProcurementPortalSharedSecret?:     strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
-	SupplierDomain?:                    "NetworkID" | fn.#StringExpression
-	SupplierIdentifier?:                strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" | fn.#StringExpression
+	BuyerDomain?: "NetworkID" | fn.#StringExpression
+	BuyerIdentifier?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ProcurementPortalInstanceEndpoint?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ProcurementPortalSharedSecret?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SupplierDomain?: "NetworkID" | fn.#StringExpression
+	SupplierIdentifier?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^\\S+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

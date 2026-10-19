@@ -8,7 +8,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h4ebfdf01c09130a6:schem
 #CompressionOption:         schema.#CompressionOption
 #DataQuery:                 schema.#DataQuery
 #DestinationConfigurations: schema.#DestinationConfigurations
-#Export:                    schema.#Export
 #FormatOption:              schema.#FormatOption
 #FrequencyOption:           schema.#FrequencyOption
 #OverwriteOption:           schema.#OverwriteOption

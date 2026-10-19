@@ -21,7 +21,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hb002adf67de66b12:schem
 #GatewayPolicyEngineMode:             schema.#GatewayPolicyEngineMode
 #GatewayProtocolConfiguration:        schema.#GatewayProtocolConfiguration
 #GatewayProtocolType:                 schema.#GatewayProtocolType
-#GatewayStatus:                       schema.#GatewayStatus
 #InboundTokenClaimValueType:          schema.#InboundTokenClaimValueType
 #InterceptorConfiguration:            schema.#InterceptorConfiguration
 #InterceptorInputConfiguration:       schema.#InterceptorInputConfiguration
@@ -39,4 +38,3 @@ import schema "github.com/cueformation/cfn-cue/resources/hb002adf67de66b12:schem
 #TagsMap:                             schema.#TagsMap
 #WafConfiguration:                    schema.#WafConfiguration
 #WafFailureMode:                      schema.#WafFailureMode
-#WorkloadIdentityDetails:             schema.#WorkloadIdentityDetails

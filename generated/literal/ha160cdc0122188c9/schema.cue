@@ -16,5 +16,14 @@ import "strings"
 	Policy?: string | {...}
 
 	// Tags to apply to the sink
-	Tags?: {...}
+	Tags?: close({
+
+		{[=~"^(?:aws:.*)"]: error("disallowed")}
+
+		{[=~"^.{1,128}$"]: =~"^.{0,256}$" &
+		matchN(0, [=~"^(?:aws:.*)"]) &
+		string &
+		strings.MaxRunes(256) &
+		strings.MinRunes(0)}
+	})
 })

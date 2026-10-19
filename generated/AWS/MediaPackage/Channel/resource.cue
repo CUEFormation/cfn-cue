@@ -5,7 +5,5 @@ package Channel
 import schema "github.com/cueformation/cfn-cue/resources/h6419c3b48987583d:schema"
 
 #Resource:         schema.#Resource
-#HlsIngest:        schema.#HlsIngest
-#IngestEndpoint:   schema.#IngestEndpoint
 #LogConfiguration: schema.#LogConfiguration
 #Tag:              schema.#Tag

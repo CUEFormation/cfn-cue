@@ -6,23 +6,21 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EMR::InstanceGroupConfig
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EMR::InstanceGroupConfig"
-	Properties!: close({
+	let properties = close({
 		AutoScalingPolicy?: #AutoScalingPolicy
-		BidPrice?:          string | fn.#StringExpression
+		BidPrice?:          string | number | bool | fn.#StringExpression
 		Configurations?:    [...#AppConfiguration] | fn.#ListExpression
-		CustomAmiId?:       string | fn.#StringExpression
+		CustomAmiId?:       string | number | bool | fn.#StringExpression
 		EbsConfiguration?:  #EbsConfiguration
 		InstanceCount!: int |
 			{
@@ -40,19 +38,33 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		InstanceRole!: string | fn.#StringExpression
-		InstanceType!: string | fn.#StringExpression
-		JobFlowId!:    strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		Market?:       string | fn.#StringExpression
-		Name?:         string | fn.#StringExpression
+		InstanceRole!: string | number | bool | fn.#StringExpression
+		InstanceType!: string | number | bool | fn.#StringExpression
+		JobFlowId!: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Market?: string | number | bool | fn.#StringExpression
+		Name?:   string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AppConfiguration: close({
-	Classification?: string | fn.#StringExpression
+	Classification?: string | number | bool | fn.#StringExpression
 	ConfigurationProperties?: close({
 
-		{[=~"^.*$"]: string | fn.#StringExpression}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{[=~"^.*$"]: string | number | bool | fn.#StringExpression}
+	}) |
 	fn.#ObjectExpression
 	Configurations?: [...#AppConfiguration] | fn.#ListExpression
 }) |
@@ -65,7 +77,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CloudWatchAlarmDefinition: close({
-	ComparisonOperator!: string | fn.#StringExpression
+	ComparisonOperator!: string | number | bool | fn.#StringExpression
 	Dimensions?:         [...#MetricDimension] | fn.#ListExpression
 	EvaluationPeriods?: int |
 		{
@@ -81,8 +93,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	MetricName!: string | fn.#StringExpression
-	Namespace?:  string | fn.#StringExpression
+	MetricName!: string | number | bool | fn.#StringExpression
+	Namespace?:  string | number | bool | fn.#StringExpression
 	Period!: int |
 		{
 			string &
@@ -97,7 +109,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Statistic?: string | fn.#StringExpression
+	Statistic?: string | number | bool | fn.#StringExpression
 	Threshold!: number |
 		{
 			string &
@@ -117,7 +129,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Unit?: string | fn.#StringExpression
+	Unit?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -147,13 +159,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #MetricDimension: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ScalingAction: close({
-	Market?:                           string | fn.#StringExpression
+	Market?:                           string | number | bool | fn.#StringExpression
 	SimpleScalingPolicyConfiguration!: #SimpleScalingPolicyConfiguration
 }) |
 fn.#ObjectExpression
@@ -192,8 +204,8 @@ fn.#ObjectExpression
 
 #ScalingRule: close({
 	Action!:      #ScalingAction
-	Description?: string | fn.#StringExpression
-	Name!:        string | fn.#StringExpression
+	Description?: string | number | bool | fn.#StringExpression
+	Name!:        string | number | bool | fn.#StringExpression
 	Trigger!:     #ScalingTrigger
 }) |
 fn.#ObjectExpression
@@ -201,7 +213,7 @@ fn.#ObjectExpression
 #ScalingTrigger: close({CloudWatchAlarmDefinition!: #CloudWatchAlarmDefinition}) | fn.#ObjectExpression
 
 #SimpleScalingPolicyConfiguration: close({
-	AdjustmentType?: string | fn.#StringExpression
+	AdjustmentType?: string | number | bool | fn.#StringExpression
 	CoolDown?: int |
 		{
 			string &
@@ -276,6 +288,6 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	VolumeType!: string | fn.#StringExpression
+	VolumeType!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

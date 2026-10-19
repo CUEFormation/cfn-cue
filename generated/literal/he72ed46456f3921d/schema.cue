@@ -100,7 +100,7 @@ import (
 // An arbitrary set of tags (key-value pairs) for this AppSync API.
 #Tag: close({
 	// A string used to identify this tag. You can specify a maximum of 128 characters for a tag key.
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!: =~"^[ a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// A string containing the value for this tag. You can specify a maximum of 256
 	// characters for a tag value.

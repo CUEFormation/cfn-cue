@@ -4,8 +4,7 @@ package Network
 
 import schema "github.com/cueformation/cfn-cue/resources/h907eeeb73d163d49:schema"
 
-#Resource:     schema.#Resource
-#IpPool:       schema.#IpPool
-#NetworkState: schema.#NetworkState
-#Route:        schema.#Route
-#Tags:         schema.#Tags
+#Resource: schema.#Resource
+#IpPool:   schema.#IpPool
+#Route:    schema.#Route
+#Tags:     schema.#Tags

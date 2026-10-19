@@ -5,18 +5,13 @@ package Link
 import schema "github.com/cueformation/cfn-cue/resources/hf4df10470daccb0c:schema"
 
 #Resource:                         schema.#Resource
-#Arn:                              schema.#Arn
-#CreatedTimestamp:                 schema.#CreatedTimestamp
 #Filter:                           schema.#Filter
 #FilterCriterion:                  schema.#FilterCriterion
 #GatewayId:                        schema.#GatewayId
 #HeaderTagAction:                  schema.#HeaderTagAction
 #HttpResponderAllowed:             schema.#HttpResponderAllowed
 #LinkAttributes:                   schema.#LinkAttributes
-#LinkDirection:                    schema.#LinkDirection
-#LinkId:                           schema.#LinkId
 #LinkLogSettings:                  schema.#LinkLogSettings
-#LinkStatus:                       schema.#LinkStatus
 #ModuleConfiguration:              schema.#ModuleConfiguration
 #ModuleConfigurationList:          schema.#ModuleConfigurationList
 #ModuleParameters:                 schema.#ModuleParameters
@@ -27,4 +22,3 @@ import schema "github.com/cueformation/cfn-cue/resources/hf4df10470daccb0c:schem
 #ResponderErrorMaskingLoggingType: schema.#ResponderErrorMaskingLoggingType
 #Tag:                              schema.#Tag
 #Tags:                             schema.#Tags
-#UpdatedTimestamp:                 schema.#UpdatedTimestamp

@@ -272,7 +272,10 @@ def cue(args, path, region, resource=None):
     command = [str(args.validator.resolve()), "-schemas", str(args.schemas.resolve()),
                "-template", str(path.resolve()), "-region", region, "-timeout", f"{args.timeout}s"]
     if resource is not None:
-        command += ["-resource", resource]
+        # Isolated resource checks are structural; semantic checks need the whole template.
+        command += ["-resource", resource, "-checks", "structural"]
+    else:
+        command += ["-checks", args.checks]
     env = os.environ.copy()
     env["GOMEMLIMIT"] = args.memory
     code, stdout, stderr = execute(command, args.timeout + 3, env)
@@ -287,6 +290,17 @@ def cue(args, path, region, resource=None):
         return dict(status="timeout" if code == 124 else "error", message=(stderr or stdout)[:4000], exit_code=code)
 
 
+# These cfn-lint errors compare a Lambda runtime's create-block (E2531) and
+# update-block (E2533) dates with today's date. Schemas cannot express them,
+# and the same template can pass today and fail next year.
+LIFECYCLE_RULES = frozenset({"E2531", "E2533"})
+
+
+def lifecycle_only(lint_result):
+    errors = [m for m in lint_result.get("matches", []) if m.get("Level") == "Error"]
+    return bool(errors) and all(m.get("Rule", {}).get("Id") in LIFECYCLE_RULES for m in errors)
+
+
 def classify(cue_result, lint_result):
     c, l = cue_result["status"], lint_result["status"]
     if c in ("error", "timeout", "unsupported"):
@@ -299,6 +313,8 @@ def classify(cue_result, lint_result):
         return "both-reject"
     if l == "valid":
         return "cue-rejects-lint-accepts"
+    if lifecycle_only(lint_result):
+        return "cue-accepts-lint-lifecycle-only"
     return "cue-accepts-lint-rejects"
 
 
@@ -354,6 +370,9 @@ def run(args):
                  validator_sha256=validator_sha, driver_sha256=driver_sha, runtime=versions(),
                  selected_ids=[r["id"] for r in records], regions=regions, timeout=args.timeout,
                  memory=args.memory, resources=args.resources, max_resource_checks=args.max_resource_checks, expected=expected)
+    if args.checks != "structural":
+        # Recorded only when it differs so earlier structural runs can resume.
+        state["checks"] = args.checks
     state_path = args.report / "run.json"
     completed = {}
     if args.resume:
@@ -474,7 +493,7 @@ def summarize(results, index, manifest, sha, args):
                 unique_resource_types=len(types), resource_types=types, accepted_resource_types=accepted,
                 intrinsics=intrinsic_names, schema_manifest_sha256=sha, schema_source_sha256=manifest["sourceSHA256"],
                 normalizer=index["normalizer"], lint_runtime=versions(), source_lock_sha256=index["source_lock_sha256"],
-                timeout_seconds=args.timeout, memory_soft_target=args.memory,
+                timeout_seconds=args.timeout, memory_soft_target=args.memory, checks=args.checks,
                 resource_checks=sum(len(r.get("resources", {})) for r in results),
                 resource_checks_skipped=sum(len(r.get("resource_checks_skipped", [])) for r in results),
                 sources=index.get("sources", []))
@@ -483,7 +502,7 @@ def summarize(results, index, manifest, sha, args):
 def markdown(path, summary, results):
     lines = ["# CloudFormation corpus validation", "", f"{summary['templates']} templates; {summary['evaluations']} region evaluations; {summary['unique_resource_types']} resource types encountered; {len(summary['accepted_resource_types'])} types in CUE-accepted templates; {summary['resource_checks']} individual resource checks ({summary['resource_checks_skipped']} omitted by the resource check cap).", "",
              "Original YAML was compared with cfn-lint. CUE received JSON with expanded intrinsic tags and unchanged scalar types. No stacks were deployed or custom macros executed.", "",
-             f"CUE process deadline: {summary['timeout_seconds']}s. GOMEMLIMIT soft target: {summary['memory_soft_target']} (not a hard memory limit or a peak measurement).", "",
+             f"Validator checks: {summary['checks']}. CUE process deadline: {summary['timeout_seconds']}s. GOMEMLIMIT soft target: {summary['memory_soft_target']} (not a hard memory limit or a peak measurement).", "",
              "| Result | Evaluations |", "| --- | ---: |"]
     lines += [f"| {key} | {count} |" for key, count in sorted(summary["classifications"].items())]
     lines += ["", "## Scale", "", "| Resources per template | Accepted by both | CUE timeouts | Other results |", "| --- | ---: | ---: | ---: |"]
@@ -492,7 +511,11 @@ def markdown(path, summary, results):
         lines.append(f"| {label} | {counts.get('both-accept', 0)} | {counts.get('cue-timeout', 0)} | {sum(counts.values()) - counts.get('both-accept', 0) - counts.get('cue-timeout', 0)} |")
     lines += ["", "Disagreements require triage: cfn-lint acceptance is a comparison signal, not proof of deployability. CUE checks structure and intrinsic argument/result classes; reference resolution, conditions, macros, and service behavior require semantic validation.", "",
               "## Cases requiring attention", "", "| Source template | Region | Result | CUE time (ms) |", "| --- | --- | --- | ---: |"]
-    lines += [f"| [{r['path']}]({r['url']}) | {r['region']} | {r['classification']} | {r['cue'].get('elapsedMs', '')} |" for r in results if r["classification"] != "both-accept"]
+    lines += [f"| [{r['path']}]({r['url']}) | {r['region']} | {r['classification']} | {r['cue'].get('elapsedMs', '')} |" for r in results
+              if r["classification"] not in ("both-accept", "cue-accepts-lint-lifecycle-only")]
+    lifecycle = summary["classifications"].get("cue-accepts-lint-lifecycle-only", 0)
+    if lifecycle:
+        lines += ["", f"{lifecycle} evaluations are omitted above because cfn-lint's only errors were Lambda runtime lifecycle dates (E2531, E2533)."]
     lines += ["", "Full diagnostics, source hashes, tool versions, intrinsic coverage, and accepted resource coverage are in report.json; isolated resource timings are in resources.csv.", ""]
     write(path, "\n".join(lines).encode())
 
@@ -519,6 +542,8 @@ def main():
     p.add_argument("--memory", default="2GiB", help="Go memory soft target, not a hard limit")
     p.add_argument("--resources", choices=["none", "failures", "all"], default="failures")
     p.add_argument("--max-resource-checks", type=int, default=10, help="per-template resource check cap; 0 checks every resource")
+    p.add_argument("--checks", choices=["structural", "semantic", "all"], default="structural",
+                   help="validator checks: CUE schemas, semantic references, or both")
     p.add_argument("--expect", type=Path, help="exact expected CUE and lint statuses for every selected case/region")
     p.add_argument("--fail-on-disagreement", action="store_true")
     p.add_argument("--resume", action="store_true", help="resume a journal only when all inputs, tools, and options match")

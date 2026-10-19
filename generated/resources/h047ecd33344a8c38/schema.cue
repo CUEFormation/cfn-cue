@@ -7,12 +7,10 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -24,16 +22,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // delegated administrator.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ComputeOptimizer::AutomationRule"
-	Properties!: close({
+	let properties = close({
 		// Filter criteria that specify which recommended actions qualify for implementation.
 		Criteria?: #Criteria
 		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\s@\\.]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_\\-\\s@\\.]*$" & "\(self)"
+		} |
 		fn.#StringExpression
-		Name!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_-]*$" | fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[a-zA-Z0-9_-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Organization configuration for organization rules, including rule apply order and account scope.
 		OrganizationConfiguration?: #OrganizationConfiguration
-		Priority?:                  string | fn.#StringExpression
+		Priority?:                  string | number | bool | fn.#StringExpression
 		RecommendedActionTypes!: list.MinItems(1) & [
 			..."SnapshotAndDeleteUnattachedEbsVolume" | "UpgradeEbsVolumeType" | fn.#StringExpression
 		] |
@@ -45,6 +52,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Status!:   "Active" | "Inactive" | fn.#StringExpression
 		Tags?:     list.MaxItems(200) & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Criteria: close({
@@ -139,7 +150,13 @@ fn.#ObjectExpression
 #IntegerCriteriaConditionList: [...#IntegerCriteriaCondition] | fn.#ListExpression
 
 #OrganizationConfiguration: close({
-	AccountIds?: list.MaxItems(50) & list.MinItems(1) & [...=~"^[0-9]{12}$" | fn.#StringExpression] | fn.#ListExpression
+	AccountIds?: list.MaxItems(50) & list.MinItems(1) & [...=~"^[0-9]{12}$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	RuleApplyOrder?: "BeforeAccountRules" | "AfterAccountRules" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -159,11 +176,17 @@ fn.#ObjectExpression
 		"NumericGreaterThanEquals" |
 		fn.#StringExpression
 	Key?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\s\\.\\-\\:\\/\\=\\+\\@\\*\\?]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\s\\.\\-\\:\\/\\=\\+\\@\\*\\?]+$" & "\(self)"
+	} |
 	fn.#StringExpression
-	Values?: [
-		...strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\s\\.\\-\\:\\/\\=\\+\\@\\*\\?]+$" |
-		fn.#StringExpression
-	] |
+	Values?: [...strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\s\\.\\-\\:\\/\\=\\+\\@\\*\\?]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\s\\.\\-\\:\\/\\=\\+\\@\\*\\?]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -187,8 +210,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ScheduleExpression?:         string | fn.#StringExpression
-	ScheduleExpressionTimezone?: string | fn.#StringExpression
+	ScheduleExpression?:         string | number | bool | fn.#StringExpression
+	ScheduleExpressionTimezone?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -206,10 +229,12 @@ fn.#ObjectExpression
 		"NumericGreaterThan" |
 		"NumericGreaterThanEquals" |
 		fn.#StringExpression
-	Values?: [
-		...strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\s\\.\\-\\:\\/\\=\\+\\@\\*\\?]+$" |
-		fn.#StringExpression
-	] |
+	Values?: [...strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\s\\.\\-\\:\\/\\=\\+\\@\\*\\?]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[\\w\\s\\.\\-\\:\\/\\=\\+\\@\\*\\?]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -217,7 +242,17 @@ fn.#ObjectExpression
 #StringCriteriaConditionList: [...#StringCriteriaCondition] | fn.#ListExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\s\\.\\-\\:\\/\\=\\+\\@]+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & =~"^[\\w\\s\\.\\-\\:\\/\\=\\+\\@]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\s\\.\\-\\:\\/\\=\\+\\@]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w\\s\\.\\-\\:\\/\\=\\+\\@]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & =~"^[\\w\\s\\.\\-\\:\\/\\=\\+\\@]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & =~"^[\\w\\s\\.\\-\\:\\/\\=\\+\\@]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -3,32 +3,44 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Batch::ServiceEnvironment
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Batch::ServiceEnvironment"
-	Properties!: close({
+	let properties = close({
 		CapacityLimits!:         #CapacityLimits
-		ServiceEnvironmentName?: string | fn.#StringExpression
-		ServiceEnvironmentType!: =~"(?i)^(?:sagemaker_training)$" | fn.#StringExpression
-		State?:                  string | fn.#StringExpression
+		ServiceEnvironmentName?: string | number | bool | fn.#StringExpression
+		ServiceEnvironmentType!: =~"(?i)^(?:sagemaker_training)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:sagemaker_training)$" & "\(self)"
+		} |
+		fn.#StringExpression
+		State?: string | number | bool | fn.#StringExpression
 		Tags?: close({
 
-			{[=~".*"]: string | fn.#StringExpression}}) |
+			{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CapacityLimit: close({
-	CapacityUnit?: string | fn.#StringExpression
+	CapacityUnit?: string | number | bool | fn.#StringExpression
 	MaxCapacity?: int |
 		{
 			string &

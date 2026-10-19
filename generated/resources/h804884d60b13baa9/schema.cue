@@ -6,8 +6,8 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,18 +16,53 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // your devices through Iot core service.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::Logging"
-	Properties!: close({
-		AccountId!:           strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+	let properties = close({
+		AccountId!: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		DefaultLogLevel!:     "ERROR" | "WARN" | "INFO" | "DEBUG" | "DISABLED" | fn.#StringExpression
 		EventConfigurations?: [...#EventConfiguration] | fn.#ListExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #EventConfiguration: close({
-	EventType!:      strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	LogDestination?: strings.MaxRunes(512) & strings.MinRunes(1) | fn.#StringExpression
-	LogLevel?:       "ERROR" | "WARN" | "INFO" | "DEBUG" | "DISABLED" | fn.#StringExpression
+	EventType!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	LogDestination?: =~"^[a-zA-Z0-9_\\-/.#]+$" &
+	matchN(0, [=~"^(?:aws/)"]) &
+	string &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9_\\-/.#]+$" &
+		matchN(0, [=~"^(?:aws/)"]) &
+		string &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	LogLevel?: "ERROR" | "WARN" | "INFO" | "DEBUG" | "DISABLED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression

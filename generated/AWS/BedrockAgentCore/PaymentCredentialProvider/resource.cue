@@ -6,13 +6,9 @@ import schema "github.com/cueformation/cfn-cue/resources/h73e91902e061915a:schem
 
 #Resource:                            schema.#Resource
 #CoinbaseCdpConfigurationInput:       schema.#CoinbaseCdpConfigurationInput
-#CoinbaseCdpConfigurationOutput:      schema.#CoinbaseCdpConfigurationOutput
 #PaymentCredentialProviderVendorType: schema.#PaymentCredentialProviderVendorType
 #PaymentProviderConfigurationInput:   schema.#PaymentProviderConfigurationInput
-#PaymentProviderConfigurationOutput:  schema.#PaymentProviderConfigurationOutput
-#SecretInfo:                          schema.#SecretInfo
 #SecretReference:                     schema.#SecretReference
 #SecretSourceType:                    schema.#SecretSourceType
 #StripePrivyConfigurationInput:       schema.#StripePrivyConfigurationInput
-#StripePrivyConfigurationOutput:      schema.#StripePrivyConfigurationOutput
 #Tag:                                 schema.#Tag

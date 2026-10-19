@@ -5,7 +5,6 @@ package Service
 import schema "github.com/cueformation/cfn-cue/resources/h58a12dc15086a8cc:schema"
 
 #Resource:                              schema.#Resource
-#AdditionalServiceDetails:              schema.#AdditionalServiceDetails
 #ApiKeyDetails:                         schema.#ApiKeyDetails
 #AzureIdentityServiceDetails:           schema.#AzureIdentityServiceDetails
 #BearerTokenDetails:                    schema.#BearerTokenDetails
@@ -30,18 +29,7 @@ import schema "github.com/cueformation/cfn-cue/resources/h58a12dc15086a8cc:schem
 #OAuthClientDetails:                    schema.#OAuthClientDetails
 #PagerDutyAuthorizationConfig:          schema.#PagerDutyAuthorizationConfig
 #PagerDutyDetails:                      schema.#PagerDutyDetails
-#RegisteredAzureIdentityDetails:        schema.#RegisteredAzureIdentityDetails
-#RegisteredDynatraceDetails:            schema.#RegisteredDynatraceDetails
-#RegisteredGitHubServiceDetails:        schema.#RegisteredGitHubServiceDetails
-#RegisteredGitLabServiceDetails:        schema.#RegisteredGitLabServiceDetails
-#RegisteredMCPServerDetails:            schema.#RegisteredMCPServerDetails
-#RegisteredMCPServerGrafanaDetails:     schema.#RegisteredMCPServerGrafanaDetails
-#RegisteredMCPServerSigV4Details:       schema.#RegisteredMCPServerSigV4Details
-#RegisteredNewRelicDetails:             schema.#RegisteredNewRelicDetails
-#RegisteredPagerDutyDetails:            schema.#RegisteredPagerDutyDetails
-#RegisteredServiceNowDetails:           schema.#RegisteredServiceNowDetails
 #ServiceDetails:                        schema.#ServiceDetails
-#ServiceId:                             schema.#ServiceId
 #ServiceNowAuthorizationConfig:         schema.#ServiceNowAuthorizationConfig
 #ServiceNowServiceDetails:              schema.#ServiceNowServiceDetails
 #ServiceType:                           schema.#ServiceType

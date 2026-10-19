@@ -3,38 +3,46 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApiGateway::DomainNameV2.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::DomainNameV2"
-	Properties?: close({
-		CertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		DomainName?:            string | fn.#StringExpression
-		EndpointAccessMode?:    string | fn.#StringExpression
+	let properties = close({
+		CertificateArn?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainName?:            string | number | bool | fn.#StringExpression
+		EndpointAccessMode?:    string | number | bool | fn.#StringExpression
 		EndpointConfiguration?: #EndpointConfiguration
-		Policy?:                fn.#Object & {...} | string | fn.#StringObjectExpression
+		Policy?:                fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		RoutingMode?: "BASE_PATH_MAPPING_ONLY" |
 			"ROUTING_RULE_THEN_BASE_PATH_MAPPING" |
 			"ROUTING_RULE_ONLY" |
 			fn.#StringExpression
-		SecurityPolicy?: string | fn.#StringExpression
+		SecurityPolicy?: string | number | bool | fn.#StringExpression
 		Tags?:           [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #EndpointConfiguration: close({
-	IpAddressType?: string | fn.#StringExpression
-	Types?:         [...string | fn.#StringExpression] | fn.#ListExpression
+	IpAddressType?: string | number | bool | fn.#StringExpression
+	Types?:         [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

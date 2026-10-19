@@ -7,23 +7,37 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MSK::ServerlessCluster
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MSK::ServerlessCluster"
-	Properties!: close({
+	let properties = close({
 		ClientAuthentication!: #ClientAuthentication
-		ClusterName!:          strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		ClusterName!: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: close({
 
-			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | number | bool | fn.#StringExpression}
+		}) |
 		fn.#ObjectExpression
 		VpcConfigs!: list.UniqueItems() & [...#VpcConfig] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ClientAuthentication: close({Sasl!: #Sasl}) | fn.#ObjectExpression
@@ -34,11 +48,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #Sasl: close({Iam!: #Iam}) | fn.#ObjectExpression
 
 #VpcConfig: close({
-	SecurityGroups?: list.UniqueItems() & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SubnetIds!: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	SecurityGroups?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SubnetIds!: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression

@@ -3,41 +3,45 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::ExperimentTrialComponent
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::ExperimentTrialComponent"
-	Properties!: close({
-		DisplayName?:        string | fn.#StringExpression
-		EndTime?:            string | fn.#StringExpression
+	let properties = close({
+		DisplayName?:        string | number | bool | fn.#StringExpression
+		EndTime?:            string | number | bool | fn.#StringExpression
 		MetadataProperties?: #MetadataProperties
-		StartTime?:          string | fn.#StringExpression
+		StartTime?:          string | number | bool | fn.#StringExpression
 		Status?:             #Status
 		Tags?:               [...#TagsItems] | fn.#ListExpression
-		TrialComponentName!: string | fn.#StringExpression
+		TrialComponentName!: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #MetadataProperties: close({
-	CommitId?:    string | fn.#StringExpression
-	GeneratedBy?: string | fn.#StringExpression
-	ProjectId?:   string | fn.#StringExpression
-	Repository?:  string | fn.#StringExpression
+	CommitId?:    string | number | bool | fn.#StringExpression
+	GeneratedBy?: string | number | bool | fn.#StringExpression
+	ProjectId?:   string | number | bool | fn.#StringExpression
+	Repository?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Status: close({
-	Message?:       string | fn.#StringExpression
-	PrimaryStatus?: string | fn.#StringExpression
+	Message?:       string | number | bool | fn.#StringExpression
+	PrimaryStatus?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TagsItems: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

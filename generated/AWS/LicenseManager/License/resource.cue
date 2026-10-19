@@ -5,7 +5,6 @@ package License
 import schema "github.com/cueformation/cfn-cue/resources/h5679e57ffa9755d0:schema"
 
 #Resource:                 schema.#Resource
-#Arn:                      schema.#Arn
 #BorrowConfiguration:      schema.#BorrowConfiguration
 #ConsumptionConfiguration: schema.#ConsumptionConfiguration
 #Entitlement:              schema.#Entitlement

@@ -3,34 +3,72 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::FSx::FileSystem
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::FSx::FileSystem"
-	Properties!: close({
-		BackupId?:              string | fn.#StringExpression
-		FileSystemType!:        string | fn.#StringExpression
-		FileSystemTypeVersion?: string | fn.#StringExpression
-		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string |
-			fn.#StringExpression
+	let properties = matchIf({
+		FileSystemType!: "WINDOWS"
+		...
+	}, {
+		StorageCapacity?: null | bool | <=65536 & >=32 | string | [...] | {...} | fn.#ValueExpression
+		...
+	}, _) & matchIf({
+		FileSystemType!: "LUSTRE"
+		...
+	}, {
+		StorageCapacity?: null | bool | >=1200 | string | [...] | {...} | fn.#ValueExpression
+		...
+	}, _) & matchIf({
+		FileSystemType!: "OPENZFS"
+		...
+	}, {
+		StorageCapacity?: null | bool | <=524288 & >=64 | string | [...] | {...} | fn.#ValueExpression
+		...
+	}, _) & matchIf({
+		FileSystemType!: "ONTAP"
+		...
+	}, {
+		StorageCapacity?: null | bool | >=1024 | string | [...] | {...} | fn.#ValueExpression
+		...
+	}, _) & close({
+		BackupId?:              string | number | bool | fn.#StringExpression
+		FileSystemType!:        string | number | bool | fn.#StringExpression
+		FileSystemTypeVersion?: string | number | bool | fn.#StringExpression
+		KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+		} |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+				"\(self)"
+		} |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		LustreConfiguration?:  #LustreConfiguration
-		NetworkType?:          string | fn.#StringExpression
+		NetworkType?:          string | number | bool | fn.#StringExpression
 		OntapConfiguration?:   #OntapConfiguration
 		OpenZFSConfiguration?: #OpenZFSConfiguration
-		SecurityGroupIds?: [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
+		SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		StorageCapacity?: int |
 			{
 				string &
@@ -47,23 +85,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		StorageType?:          string | fn.#StringExpression
-		SubnetIds!:            [...string | fn.#StringExpression] | fn.#ListExpression
+		StorageType?:          string | number | bool | fn.#StringExpression
+		SubnetIds!:            [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Tags?:                 [...#Tag] | fn.#ListExpression
 		WindowsConfiguration?: #WindowsConfiguration
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AuditLogConfiguration: close({
-	AuditLogDestination?:          string | fn.#StringExpression
-	FileAccessAuditLogLevel!:      string | fn.#StringExpression
-	FileShareAccessAuditLogLevel!: string | fn.#StringExpression
+	AuditLogDestination?:          string | number | bool | fn.#StringExpression
+	FileAccessAuditLogLevel!:      string | number | bool | fn.#StringExpression
+	FileShareAccessAuditLogLevel!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ClientConfigurations: close({
-	Clients?: string | fn.#StringExpression
-	Options?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Clients?: string | number | bool | fn.#StringExpression
+	Options?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -82,7 +124,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SizingMode?: string | fn.#StringExpression
+	SizingMode?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -101,24 +143,24 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Mode?: string | fn.#StringExpression
+	Mode?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #FsrmConfiguration: close({
-	EventLogDestination?: string | fn.#StringExpression
+	EventLogDestination?: string | number | bool | fn.#StringExpression
 	FsrmServiceEnabled!:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #LogConfiguration: close({
-	Destination?: string | fn.#StringExpression
-	Level!:       string | fn.#StringExpression
+	Destination?: string | number | bool | fn.#StringExpression
+	Level!:       string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LustreConfiguration: close({
-	AutoImportPolicy?: string | fn.#StringExpression
+	AutoImportPolicy?: string | number | bool | fn.#StringExpression
 	AutomaticBackupRetentionDays?: int |
 		{
 			string &
@@ -134,14 +176,14 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	CopyTagsToBackups?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DailyAutomaticBackupStartTime?: string | fn.#StringExpression
-	DataCompressionType?:           string | fn.#StringExpression
+	DailyAutomaticBackupStartTime?: string | number | bool | fn.#StringExpression
+	DataCompressionType?:           string | number | bool | fn.#StringExpression
 	DataReadCacheConfiguration?:    #DataReadCacheConfiguration
-	DeploymentType?:                string | fn.#StringExpression
-	DriveCacheType?:                string | fn.#StringExpression
+	DeploymentType?:                string | number | bool | fn.#StringExpression
+	DriveCacheType?:                string | number | bool | fn.#StringExpression
 	EfaEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExportPath?: string | fn.#StringExpression
-	ImportPath?: string | fn.#StringExpression
+	ExportPath?: string | number | bool | fn.#StringExpression
+	ImportPath?: string | number | bool | fn.#StringExpression
 	ImportedFileChunkSize?: int |
 		{
 			string &
@@ -186,7 +228,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	WeeklyMaintenanceStartTime?: string | fn.#StringExpression
+	WeeklyMaintenanceStartTime?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -205,7 +247,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Mode?: string | fn.#StringExpression
+	Mode?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -226,12 +268,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	DailyAutomaticBackupStartTime?: string | fn.#StringExpression
-	DeploymentType!:                string | fn.#StringExpression
+	DailyAutomaticBackupStartTime?: string | number | bool | fn.#StringExpression
+	DeploymentType!:                string | number | bool | fn.#StringExpression
 	DiskIopsConfiguration?:         #DiskIopsConfiguration
-	EndpointIpAddressRange?:        string | fn.#StringExpression
-	EndpointIpv6AddressRange?:      string | fn.#StringExpression
-	FsxAdminPassword?:              string | fn.#StringExpression
+	EndpointIpAddressRange?:        string | number | bool | fn.#StringExpression
+	EndpointIpv6AddressRange?:      string | number | bool | fn.#StringExpression
+	FsxAdminPassword?:              string | number | bool | fn.#StringExpression
 	HAPairs?: int |
 		{
 			string &
@@ -246,8 +288,8 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	PreferredSubnetId?: string | fn.#StringExpression
-	RouteTableIds?:     [...string | fn.#StringExpression] | fn.#ListExpression
+	PreferredSubnetId?: string | number | bool | fn.#StringExpression
+	RouteTableIds?:     [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	ThroughputCapacity?: int |
 		{
 			string &
@@ -276,7 +318,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	WeeklyMaintenanceStartTime?: string | fn.#StringExpression
+	WeeklyMaintenanceStartTime?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -297,16 +339,16 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	CopyTagsToBackups?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CopyTagsToVolumes?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DailyAutomaticBackupStartTime?: string | fn.#StringExpression
-	DeploymentType!:                string | fn.#StringExpression
+	DailyAutomaticBackupStartTime?: string | number | bool | fn.#StringExpression
+	DeploymentType!:                string | number | bool | fn.#StringExpression
 	DiskIopsConfiguration?:         #DiskIopsConfiguration
-	EndpointIpAddressRange?:        string | fn.#StringExpression
-	EndpointIpv6AddressRange?:      string | fn.#StringExpression
-	Options?:                       [...string | fn.#StringExpression] | fn.#ListExpression
-	PreferredSubnetId?:             string | fn.#StringExpression
+	EndpointIpAddressRange?:        string | number | bool | fn.#StringExpression
+	EndpointIpv6AddressRange?:      string | number | bool | fn.#StringExpression
+	Options?:                       [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	PreferredSubnetId?:             string | number | bool | fn.#StringExpression
 	ReadCacheConfiguration?:        #ReadCacheConfiguration
 	RootVolumeConfiguration?:       #RootVolumeConfiguration
-	RouteTableIds?:                 [...string | fn.#StringExpression] | fn.#ListExpression
+	RouteTableIds?:                 [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	ThroughputCapacity?: int |
 		{
 			string &
@@ -321,7 +363,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	WeeklyMaintenanceStartTime?: string | fn.#StringExpression
+	WeeklyMaintenanceStartTime?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -340,13 +382,13 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SizingMode?: string | fn.#StringExpression
+	SizingMode?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RootVolumeConfiguration: close({
 	CopyTagsToSnapshots?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DataCompressionType?: string | fn.#StringExpression
+	DataCompressionType?: string | number | bool | fn.#StringExpression
 	NfsExports?:          [...#NfsExports] | fn.#ListExpression
 	ReadOnly?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RecordSizeKiB?: int |
@@ -368,19 +410,19 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SelfManagedActiveDirectoryConfiguration: close({
-	DnsIps?:                              [...string | fn.#StringExpression] | fn.#ListExpression
-	DomainJoinServiceAccountSecret?:      string | fn.#StringExpression
-	DomainName?:                          string | fn.#StringExpression
-	FileSystemAdministratorsGroup?:       string | fn.#StringExpression
-	OrganizationalUnitDistinguishedName?: string | fn.#StringExpression
-	Password?:                            string | fn.#StringExpression
-	UserName?:                            string | fn.#StringExpression
+	DnsIps?:                              [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	DomainJoinServiceAccountSecret?:      string | number | bool | fn.#StringExpression
+	DomainName?:                          string | number | bool | fn.#StringExpression
+	FileSystemAdministratorsGroup?:       string | number | bool | fn.#StringExpression
+	OrganizationalUnitDistinguishedName?: string | number | bool | fn.#StringExpression
+	Password?:                            string | number | bool | fn.#StringExpression
+	UserName?:                            string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -413,13 +455,13 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Type?: string | fn.#StringExpression
+	Type?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #WindowsConfiguration: close({
-	ActiveDirectoryId?:     string | fn.#StringExpression
-	Aliases?:               [...string | fn.#StringExpression] | fn.#ListExpression
+	ActiveDirectoryId?:     string | number | bool | fn.#StringExpression
+	Aliases?:               [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	AuditLogConfiguration?: #AuditLogConfiguration
 	AutomaticBackupRetentionDays?: int |
 		{
@@ -436,11 +478,11 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	CopyTagsToBackups?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	DailyAutomaticBackupStartTime?:           string | fn.#StringExpression
-	DeploymentType?:                          string | fn.#StringExpression
+	DailyAutomaticBackupStartTime?:           string | number | bool | fn.#StringExpression
+	DeploymentType?:                          string | number | bool | fn.#StringExpression
 	DiskIopsConfiguration?:                   #DiskIopsConfiguration
 	FsrmConfiguration?:                       #FsrmConfiguration
-	PreferredSubnetId?:                       string | fn.#StringExpression
+	PreferredSubnetId?:                       string | number | bool | fn.#StringExpression
 	SelfManagedActiveDirectoryConfiguration?: #SelfManagedActiveDirectoryConfiguration
 	ThroughputCapacity!: int |
 		{
@@ -456,6 +498,6 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	WeeklyMaintenanceStartTime?: string | fn.#StringExpression
+	WeeklyMaintenanceStartTime?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

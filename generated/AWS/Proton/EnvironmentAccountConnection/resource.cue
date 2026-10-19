@@ -5,5 +5,4 @@ package EnvironmentAccountConnection
 import schema "github.com/cueformation/cfn-cue/resources/hd6c4755cb5ae0f79:schema"
 
 #Resource: schema.#Resource
-#Status:   schema.#Status
 #Tag:      schema.#Tag

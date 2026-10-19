@@ -9,6 +9,5 @@ import schema "github.com/cueformation/cfn-cue/resources/h641c2d60092a1d34:schem
 #ConnectionType:   schema.#ConnectionType
 #DataStorage:      schema.#DataStorage
 #ECPUPerSecond:    schema.#ECPUPerSecond
-#Endpoint:         schema.#Endpoint
 #NetworkType:      schema.#NetworkType
 #Tag:              schema.#Tag

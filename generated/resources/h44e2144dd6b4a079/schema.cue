@@ -6,8 +6,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -26,10 +26,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in ASH.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityHub::FindingAggregator"
-	Properties!: close({
+	let properties = close({
 		RegionLinkingMode!: "ALL_REGIONS" | "ALL_REGIONS_EXCEPT_SPECIFIED" | "SPECIFIED_REGIONS" | fn.#StringExpression
 		Regions?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Region] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Region: =~"^[a-zA-Z0-9-]{1,32}$" | fn.#StringExpression
+#Region: =~"^[a-zA-Z0-9-]{1,32}$" |
+{
+	number | bool
+	_cfnString: =~"^[a-zA-Z0-9-]{1,32}$" & "\(self)"
+} |
+fn.#StringExpression

@@ -4,9 +4,8 @@ package GatewayRateLimit
 
 import schema "github.com/cueformation/cfn-cue/resources/h0769d8d725cd7160:schema"
 
-#Resource:               schema.#Resource
-#Dimensions:             schema.#Dimensions
-#GatewayRateLimitStatus: schema.#GatewayRateLimitStatus
-#LimitEntry:             schema.#LimitEntry
-#Period:                 schema.#Period
-#RateConfig:             schema.#RateConfig
+#Resource:   schema.#Resource
+#Dimensions: schema.#Dimensions
+#LimitEntry: schema.#LimitEntry
+#Period:     schema.#Period
+#RateConfig: schema.#RateConfig

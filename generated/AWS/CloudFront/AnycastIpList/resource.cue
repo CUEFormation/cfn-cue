@@ -4,12 +4,9 @@ package AnycastIpList
 
 import schema "github.com/cueformation/cfn-cue/resources/hfc6982960c35177d:schema"
 
-#Resource:              schema.#Resource
-#AnycastIpList:         schema.#AnycastIpList
-#IpAddressType:         schema.#IpAddressType
-#IpamCidrConfig:        schema.#IpamCidrConfig
-#IpamCidrConfigResult:  schema.#IpamCidrConfigResult
-#IpamCidrConfigResults: schema.#IpamCidrConfigResults
-#IpamCidrConfigs:       schema.#IpamCidrConfigs
-#Tag:                   schema.#Tag
-#Tags:                  schema.#Tags
+#Resource:        schema.#Resource
+#IpAddressType:   schema.#IpAddressType
+#IpamCidrConfig:  schema.#IpamCidrConfig
+#IpamCidrConfigs: schema.#IpamCidrConfigs
+#Tag:             schema.#Tag
+#Tags:            schema.#Tags

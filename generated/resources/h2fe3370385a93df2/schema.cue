@@ -8,8 +8,8 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,22 +20,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IAM::Group"
-	Properties?: close({
-		GroupName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-		ManagedPolicyArns?: list.MaxItems(20) & list.UniqueItems() & [...] & [
-			...=~"arn:(aws[a-zA-Z-]*)?:iam::(\\d{12}|aws):policy/[a-zA-Z_0-9+=,.@\\-_/]+" | fn.#StringExpression
-		] |
-			fn.#ListExpression
+	let properties = close({
+		GroupName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ManagedPolicyArns?: list.MaxItems(20) & list.UniqueItems() & [...] & [...=~"arn:(aws[a-zA-Z-]*)?:iam::(\\d{12}|aws):policy/[a-zA-Z_0-9+=,.@\\-_/]+" |
+		{
+			number | bool
+			_cfnString: =~"arn:(aws[a-zA-Z-]*)?:iam::(\\d{12}|aws):policy/[a-zA-Z_0-9+=,.@\\-_/]+" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		Path?: strings.MaxRunes(512) &
 		strings.MinRunes(1) &
 		=~"^(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F})$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) &
+			strings.MinRunes(1) &
+			=~"^(\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007E}]+\\x{002F})$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Policies?: [...#Policy] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #Policy: close({
 	PolicyDocument!: iam.#IdentityPolicyValue
-	PolicyName!:     string | fn.#StringExpression
+	PolicyName!:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -1,0 +1,22 @@
+{
+  "Resources": {
+    "Broker": {
+      "Properties": {
+        "AutoMinorVersionUpgrade": true,
+        "BrokerName": "test",
+        "DeploymentMode": "SINGLE_INSTANCE",
+        "EngineType": "RABBITMQ",
+        "EngineVersion": "3.13",
+        "HostInstanceType": "{{resolve:ssm:/broker/instance-type}}",
+        "PubliclyAccessible": false,
+        "Users": [
+          {
+            "Password": "pass:word",
+            "Username": "test"
+          }
+        ]
+      },
+      "Type": "AWS::AmazonMQ::Broker"
+    }
+  }
+}

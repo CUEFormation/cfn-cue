@@ -7,35 +7,69 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of the AWS::QuickSight::Topic Resource Type.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::QuickSight::Topic"
-	Properties?: close({
-		AwsAccountId?:       strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+	let properties = close({
+		AwsAccountId?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ConfigOptions?:      #TopicConfigOptions
 		CustomInstructions?: #CustomInstructions
 		DataSets?:           [...#DatasetMetadata] | fn.#ListExpression
-		Description?:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		FolderArns?:         list.MaxItems(20) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-		Name?:               strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:               list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
-		TopicId?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9-_.\\\\+]*$" | fn.#StringExpression
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		FolderArns?: list.MaxItems(20) & [...] & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		Name?: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+		TopicId?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9-_.\\\\+]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[A-Za-z0-9-_.\\\\+]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		UserExperienceVersion?: #TopicUserExperienceVersion
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #AggregationFunctionParameters: close({
 
-	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
+	{
+		[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #AuthorSpecifiedAggregation: "COUNT" |
@@ -57,19 +91,25 @@ fn.#ObjectExpression
 #CategoryFilterType: "CUSTOM_FILTER" | "CUSTOM_FILTER_LIST" | "FILTER_LIST" | fn.#StringExpression
 
 #CellValueSynonym: close({
-	CellValue?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Synonyms?:  [...string | fn.#StringExpression] | fn.#ListExpression
+	CellValue?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Synonyms?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#CollectiveConstant: close({ValueList?: [...string | fn.#StringExpression] | fn.#ListExpression}) | fn.#ObjectExpression
+#CollectiveConstant: close({ValueList?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression}) |
+	fn.#ObjectExpression
 
 #ColumnDataRole: "DIMENSION" | "MEASURE" | fn.#StringExpression
 
 #ColumnOrderingType: "GREATER_IS_BETTER" | "LESSER_IS_BETTER" | "SPECIFIED" | fn.#StringExpression
 
 #ComparativeOrder: close({
-	SpecifedOrder?:                 [...string | fn.#StringExpression] | fn.#ListExpression
+	SpecifedOrder?:                 [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	TreatUndefinedSpecifiedValues?: #UndefinedSpecifiedValueType
 	UseOrdering?:                   #ColumnOrderingType
 }) |
@@ -77,26 +117,46 @@ fn.#ObjectExpression
 
 #ConstantType: "SINGULAR" | "RANGE" | "COLLECTIVE" | fn.#StringExpression
 
-#CustomInstructions: close(
-	{CustomInstructionsString!: strings.MaxRunes(10000) & strings.MinRunes(0) | fn.#StringExpression},
-) |
+#CustomInstructions: close({
+	CustomInstructionsString!: strings.MaxRunes(10000) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #DataAggregation: close({
 	DatasetRowDateGranularity?: #TopicTimeGranularity
-	DefaultDateColumnName?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	DefaultDateColumnName?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #DatasetMetadata: close({
-	CalculatedFields?:   [...#TopicCalculatedField] | fn.#ListExpression
-	Columns?:            [...#TopicColumn] | fn.#ListExpression
-	DataAggregation?:    #DataAggregation
-	DatasetArn!:         string | fn.#StringExpression
-	DatasetDescription?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	DatasetName?:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Filters?:            [...#TopicFilter] | fn.#ListExpression
-	NamedEntities?:      [...#TopicNamedEntity] | fn.#ListExpression
+	CalculatedFields?: [...#TopicCalculatedField] | fn.#ListExpression
+	Columns?:          [...#TopicColumn] | fn.#ListExpression
+	DataAggregation?:  #DataAggregation
+	DatasetArn!:       string | number | bool | fn.#StringExpression
+	DatasetDescription?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	DatasetName?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Filters?:       [...#TopicFilter] | fn.#ListExpression
+	NamedEntities?: [...#TopicNamedEntity] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -122,9 +182,24 @@ fn.#ObjectExpression
 #DisplayFormat: "AUTO" | "PERCENT" | "CURRENCY" | "NUMBER" | "DATE" | "STRING" | fn.#StringExpression
 
 #DisplayFormatOptions: close({
-	BlankCellFormat?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	CurrencySymbol?:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	DateFormat?:       strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	BlankCellFormat?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	CurrencySymbol?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	DateFormat?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	DecimalSeparator?: #TopicNumericSeparatorSymbol
 	FractionDigits?: number |
 		{
@@ -145,10 +220,25 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	GroupingSeparator?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	NegativeFormat?:     #NegativeFormat
-	Prefix?:             strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Suffix?:             strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	GroupingSeparator?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	NegativeFormat?: #NegativeFormat
+	Prefix?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Suffix?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	UnitScaler?:         #NumberScale
 	UseBlankCellFormat?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	UseGrouping?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -177,9 +267,19 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #NamedEntityDefinition: close({
-	FieldName?:     strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Metric?:        #NamedEntityDefinitionMetric
-	PropertyName?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	FieldName?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Metric?: #NamedEntityDefinitionMetric
+	PropertyName?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	PropertyRole?:  #PropertyRole
 	PropertyUsage?: #PropertyUsage
 }) |
@@ -214,8 +314,18 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #NegativeFormat: close({
-	Prefix?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Suffix?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Prefix?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Suffix?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -234,48 +344,108 @@ fn.#ObjectExpression
 #PropertyUsage: "INHERIT" | "DIMENSION" | "MEASURE" | fn.#StringExpression
 
 #RangeConstant: close({
-	Maximum?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Minimum?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Maximum?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Minimum?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SemanticEntityType: close({
-	SubTypeName?:    strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	TypeName?:       strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	SubTypeName?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	TypeName?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	TypeParameters?: #TypeParameters
 }) |
 fn.#ObjectExpression
 
 #SemanticType: close({
-	FalseyCellValue?:         string | fn.#StringExpression
-	FalseyCellValueSynonyms?: [...string | fn.#StringExpression] | fn.#ListExpression
-	SubTypeName?:             strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	TruthyCellValue?:         string | fn.#StringExpression
-	TruthyCellValueSynonyms?: [...string | fn.#StringExpression] | fn.#ListExpression
-	TypeName?:                strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	TypeParameters?:          #TypeParameters
+	FalseyCellValue?:         string | number | bool | fn.#StringExpression
+	FalseyCellValueSynonyms?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	SubTypeName?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	TruthyCellValue?:         string | number | bool | fn.#StringExpression
+	TruthyCellValueSynonyms?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	TypeName?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	TypeParameters?: #TypeParameters
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TopicCalculatedField: close({
-	Aggregation?:                #DefaultAggregation
-	AllowedAggregations?:        [...#AuthorSpecifiedAggregation] | fn.#ListExpression
-	CalculatedFieldDescription?: strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	CalculatedFieldName!:        strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	CalculatedFieldSynonyms?: [...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression] |
+	Aggregation?:         #DefaultAggregation
+	AllowedAggregations?: [...#AuthorSpecifiedAggregation] | fn.#ListExpression
+	CalculatedFieldDescription?: strings.MaxRunes(500) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	CalculatedFieldName!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	CalculatedFieldSynonyms?: [...strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	CellValueSynonyms?:      [...#CellValueSynonym] | fn.#ListExpression
-	ColumnDataRole?:         #ColumnDataRole
-	ComparativeOrder?:       #ComparativeOrder
-	DefaultFormatting?:      #DefaultFormatting
-	DisableIndexing?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Expression!:             strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+	CellValueSynonyms?: [...#CellValueSynonym] | fn.#ListExpression
+	ColumnDataRole?:    #ColumnDataRole
+	ComparativeOrder?:  #ComparativeOrder
+	DefaultFormatting?: #DefaultFormatting
+	DisableIndexing?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Expression!: strings.MaxRunes(4096) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	IsIncludedInTopic?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	NeverAggregateInFilter?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	NonAdditive?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -296,7 +466,12 @@ fn.#ObjectExpression
 #TopicCategoryFilterConstant: close({
 	CollectiveConstant?: #CollectiveConstant
 	ConstantType?:       #ConstantType
-	SingularConstant?:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	SingularConstant?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -305,14 +480,35 @@ fn.#ObjectExpression
 	AllowedAggregations?: [...#AuthorSpecifiedAggregation] | fn.#ListExpression
 	CellValueSynonyms?:   [...#CellValueSynonym] | fn.#ListExpression
 	ColumnDataRole?:      #ColumnDataRole
-	ColumnDescription?:   strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	ColumnFriendlyName?:  strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	ColumnName!:          strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	ColumnSynonyms?:      [...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
-	ComparativeOrder?:    #ComparativeOrder
-	DefaultFormatting?:   #DefaultFormatting
-	DisableIndexing?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	IsIncludedInTopic?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ColumnDescription?: strings.MaxRunes(500) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	ColumnFriendlyName?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	ColumnName!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	ColumnSynonyms?: [...strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	ComparativeOrder?:       #ComparativeOrder
+	DefaultFormatting?:      #DefaultFormatting
+	DisableIndexing?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	IsIncludedInTopic?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	NeverAggregateInFilter?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	NonAdditive?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	NotAllowedAggregations?: [...#AuthorSpecifiedAggregation] | fn.#ListExpression
@@ -332,35 +528,63 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#TopicDetails: close({
-	ConfigOptions?:         #TopicConfigOptions
-	DataSets?:              [...#DatasetMetadata] | fn.#ListExpression
-	Description?:           strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Name?:                  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	UserExperienceVersion?: #TopicUserExperienceVersion
-}) |
-fn.#ObjectExpression
-
 #TopicFilter: close({
-	CategoryFilter?:        #TopicCategoryFilter
-	DateRangeFilter?:       #TopicDateRangeFilter
-	FilterClass?:           #FilterClass
-	FilterDescription?:     strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	FilterName!:            strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	FilterSynonyms?:        [...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
+	CategoryFilter?:  #TopicCategoryFilter
+	DateRangeFilter?: #TopicDateRangeFilter
+	FilterClass?:     #FilterClass
+	FilterDescription?: strings.MaxRunes(500) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	FilterName!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	FilterSynonyms?: [...strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	FilterType?:            #NamedFilterType
 	NumericEqualityFilter?: #TopicNumericEqualityFilter
 	NumericRangeFilter?:    #TopicNumericRangeFilter
-	OperandFieldName!:      strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	RelativeDateFilter?:    #TopicRelativeDateFilter
+	OperandFieldName!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	RelativeDateFilter?: #TopicRelativeDateFilter
 }) |
 fn.#ObjectExpression
 
 #TopicNamedEntity: close({
-	Definition?:         [...#NamedEntityDefinition] | fn.#ListExpression
-	EntityDescription?:  strings.MaxRunes(500) & strings.MinRunes(0) | fn.#StringExpression
-	EntityName!:         strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	EntitySynonyms?:     [...strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression] | fn.#ListExpression
+	Definition?: [...#NamedEntityDefinition] | fn.#ListExpression
+	EntityDescription?: strings.MaxRunes(500) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	EntityName!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	EntitySynonyms?: [...strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	SemanticEntityType?: #SemanticEntityType
 }) |
 fn.#ObjectExpression
@@ -396,8 +620,13 @@ fn.#ObjectExpression
 #TopicRelativeDateFilterFunction: "PREVIOUS" | "THIS" | "LAST" | "NEXT" | "NOW" | fn.#StringExpression
 
 #TopicSingularFilterConstant: close({
-	ConstantType?:     #ConstantType
-	SingularConstant?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	ConstantType?: #ConstantType
+	SingularConstant?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -415,7 +644,19 @@ fn.#ObjectExpression
 
 #TypeParameters: close({
 
-	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
+	{
+		[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #UndefinedSpecifiedValueType: "LEAST" | "MOST" | fn.#StringExpression

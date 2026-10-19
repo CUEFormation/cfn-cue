@@ -4,14 +4,10 @@ package ProjectProfile
 
 import schema "github.com/cueformation/cfn-cue/resources/h5fa4eb28daa1cd45:schema"
 
-#Resource:                                  schema.#Resource
-#AwsAccount:                                schema.#AwsAccount
-#DeploymentMode:                            schema.#DeploymentMode
-#DesignationConfiguration:                  schema.#DesignationConfiguration
-#EnvironmentConfiguration:                  schema.#EnvironmentConfiguration
-#EnvironmentConfigurationParameter:         schema.#EnvironmentConfigurationParameter
-#EnvironmentConfigurationParametersDetails: schema.#EnvironmentConfigurationParametersDetails
-#ProjectScope:                              schema.#ProjectScope
-#Region:                                    schema.#Region
-#ResourceTagParameter:                      schema.#ResourceTagParameter
-#Status:                                    schema.#Status
+#Resource:                          schema.#Resource
+#AwsAccount:                        schema.#AwsAccount
+#DeploymentMode:                    schema.#DeploymentMode
+#EnvironmentConfigurationParameter: schema.#EnvironmentConfigurationParameter
+#Region:                            schema.#Region
+#ResourceTagParameter:              schema.#ResourceTagParameter
+#Status:                            schema.#Status

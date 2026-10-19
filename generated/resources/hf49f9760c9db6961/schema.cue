@@ -7,32 +7,43 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::DataTable
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::DataTable"
-	Properties!: close({
+	let properties = close({
 		// The description of the Data Table.
 		Description?: #Description
 		InstanceArn!: strings.MaxRunes(100) &
 		strings.MinRunes(1) &
 		=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) &
+			strings.MinRunes(1) &
+			=~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}\\-_.:=@'|]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{Z}\\p{N}\\-_.:=@'|]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Status!:         "PUBLISHED" | fn.#StringExpression
 		Tags?:           list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		TimeZone!:       string | fn.#StringExpression
+		TimeZone!:       string | number | bool | fn.#StringExpression
 		ValueLockLevel!: "NONE" | "DATA_TABLE" | "PRIMARY_VALUE" | "ATTRIBUTE" | "VALUE" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Description: strings.MaxRunes(250) &
@@ -41,30 +52,35 @@ strings.MinRunes(0) &
 	^[\\P{C}\r
 	\t]+$
 	""" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(250) &
+	strings.MinRunes(0) &
+	=~"""
+		^[\\P{C}\r
+		\t]+$
+		""" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Timestamp: number |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatFloat(
-					cfnScalarStrconv.ParseFloat(
-						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-						64,
-					) &
-						number,
-					"g",
-					-1,
-					64,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression

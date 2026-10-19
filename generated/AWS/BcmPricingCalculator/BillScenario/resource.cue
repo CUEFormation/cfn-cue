@@ -5,7 +5,5 @@ package BillScenario
 import schema "github.com/cueformation/cfn-cue/resources/h2c0fa9f3c4b3f9a2:schema"
 
 #Resource:               schema.#Resource
-#BillInterval:           schema.#BillInterval
-#BillScenarioStatus:     schema.#BillScenarioStatus
 #GroupSharingPreference: schema.#GroupSharingPreference
 #Tag:                    schema.#Tag

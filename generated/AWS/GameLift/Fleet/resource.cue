@@ -10,7 +10,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h5618adba88af8d4d:schem
 #IpPermission:                 schema.#IpPermission
 #Location:                     schema.#Location
 #LocationCapacity:             schema.#LocationCapacity
-#LocationConfiguration:        schema.#LocationConfiguration
 #ManagedCapacityConfiguration: schema.#ManagedCapacityConfiguration
 #PlayerGatewayConfiguration:   schema.#PlayerGatewayConfiguration
 #ResourceCreationLimitPolicy:  schema.#ResourceCreationLimitPolicy

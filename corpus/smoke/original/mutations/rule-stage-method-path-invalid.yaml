@@ -1,0 +1,9 @@
+Resources:
+  Thing:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId: abc
+      MethodSettings:
+      - HttpMethod: '*'
+        ResourcePath: x
+        MetricsEnabled: true

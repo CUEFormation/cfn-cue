@@ -3,24 +3,28 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Macie AllowList resource schema
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Macie::AllowList"
-	Properties!: close({
+	let properties = close({
 		// AllowList criteria.
 		Criteria!:    #Criteria
-		Description?: string | fn.#StringExpression
-		Name!:        string | fn.#StringExpression
+		Description?: string | number | bool | fn.#StringExpression
+		Name!:        string | number | bool | fn.#StringExpression
 		Tags?:        [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Criteria: fn.#Object & {...} & matchN(1, [close(
+#Criteria: fn.#Object & matchN(1, [close(
 	{Regex!: string | fn.#StringExpression},
 ), close({
 	// The S3 location for the AllowList.
@@ -28,26 +32,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 })]) |
 fn.#ObjectExpression
 
-#Regex: string | fn.#StringExpression
-
 #S3WordsList: close({
-	BucketName!: string | fn.#StringExpression
-	ObjectKey!:  string | fn.#StringExpression
+	BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ObjectKey!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Status: "OK" |
-	"S3_OBJECT_NOT_FOUND" |
-	"S3_USER_ACCESS_DENIED" |
-	"S3_OBJECT_ACCESS_DENIED" |
-	"S3_THROTTLED" |
-	"S3_OBJECT_OVERSIZE" |
-	"S3_OBJECT_EMPTY" |
-	"UNKNOWN_ERROR" |
-	fn.#StringExpression
-
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

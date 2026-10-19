@@ -7,25 +7,54 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::Entitlement
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppStream::Entitlement"
-	Properties!: close({
+	let properties = close({
 		AppVisibility!: "ALL" | "ASSOCIATED" | fn.#StringExpression
 		Attributes!:    list.MinItems(1) & list.UniqueItems() & [...#Attribute] | fn.#ListExpression
-		Description?:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		Name!:          =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
-		StackName!:     =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		StackName!: =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Attribute: close({
-	Name!:  strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MinRunes(1) | fn.#StringExpression
+	Name!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

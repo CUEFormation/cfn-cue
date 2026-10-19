@@ -67,7 +67,11 @@ import (
 	DbServerVersion?: string
 
 	// The user-friendly name for the Exadata infrastructure.
-	DisplayName?: strings.MaxRunes(255) & strings.MinRunes(1)
+	DisplayName?: =~"^[a-zA-Z_][a-zA-Z0-9_-]*$" &
+	matchN(0, [=~"^(?s:.){1}(?:.*--)"]) &
+	string &
+	strings.MaxRunes(255) &
+	strings.MinRunes(1)
 
 	// The scheduling details for the maintenance window. Patching and system
 	// updates take place during the maintenance window.

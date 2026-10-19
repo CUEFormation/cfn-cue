@@ -6,17 +6,31 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ServiceDiscovery::Instance
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ServiceDiscovery::Instance"
-	Properties!: close({
-		InstanceAttributes!: fn.#Object & {...} | string | fn.#StringObjectExpression
-		InstanceId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_/:.@-]+$" | fn.#StringExpression
-		ServiceId!:  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		InstanceAttributes!: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		InstanceId?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_/:.@-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_/:.@-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ServiceId!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

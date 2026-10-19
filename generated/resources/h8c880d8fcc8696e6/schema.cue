@@ -7,33 +7,48 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RUM::AppMonitor
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RUM::AppMonitor"
-	Properties!: close({
+	let properties = close({
 		AppMonitorConfiguration?: #AppMonitorConfiguration
 		CustomEvents?:            #CustomEvents
 		CwLogEnabled?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		DeobfuscationConfiguration?: #DeobfuscationConfiguration
-		Domain?:                     strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
-		DomainList?: list.MaxItems(5) & list.MinItems(1) & [
-			...strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
-		] |
+		Domain?: strings.MaxRunes(253) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(253) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		DomainList?: list.MaxItems(5) & list.MinItems(1) & [...strings.MaxRunes(253) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(253) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		Name!:           strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		Platform?:       "Web" | "Android" | "iOS" | fn.#StringExpression
 		ResourcePolicy?: #ResourcePolicy
 		Tags?:           #TagDef
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AppMonitorConfiguration: close({
@@ -47,15 +62,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 	// A list of pages in the RUM console that are to be displayed with a favorite icon.
 	FavoritePages?: #FavoritePages
-	GuestRoleArn?: #Arn &
-	(null |
-	bool |
-	number |
-	=~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-	[...] |
-	{...}) |
+	GuestRoleArn?: #Arn & (null | bool | number | =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" | [...] | {...}) |
 	fn.#StringExpression
-	IdentityPoolId?: strings.MaxRunes(55) & strings.MinRunes(1) & =~"[\\w-]+:[0-9a-f-]+" | fn.#StringExpression
+	IdentityPoolId?: strings.MaxRunes(55) & strings.MinRunes(1) & =~"[\\w-]+:[0-9a-f-]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(55) & strings.MinRunes(1) & =~"[\\w-]+:[0-9a-f-]+" & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// If this app monitor is to collect data from only certain pages in your
 	// application, this structure lists those pages. You can't include both
@@ -86,7 +100,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#Arn: =~"arn:[^:]*:[^:]*:[^:]*:[^:]*:.*" | fn.#StringExpression
+#Arn: =~"arn:[^:]*:[^:]*:[^:]*:[^:]*:.*" |
+{
+	number | bool
+	_cfnString: =~"arn:[^:]*:[^:]*:[^:]*:[^:]*:.*" & "\(self)"
+} |
+fn.#StringExpression
 
 #CustomEvents: close({
 	// Indicates whether AppMonitor accepts custom events.
@@ -101,6 +120,13 @@ fn.#ObjectExpression
 		S3Uri?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"^s3://[a-z0-9][-.a-z0-9]{1,62}(?:/[-!_*'().a-z0-9A-Z]+(?:/[-!_*'().a-z0-9A-Z]+)*)?/?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^s3://[a-z0-9][-.a-z0-9]{1,62}(?:/[-!_*'().a-z0-9A-Z]+(?:/[-!_*'().a-z0-9A-Z]+)*)?/?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Status!: "ENABLED" | "DISABLED" | fn.#StringExpression
 	}) |
@@ -108,24 +134,76 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#FavoritePages: list.MaxItems(50) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+#FavoritePages: list.MaxItems(50) & [...] & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 
 #MetricDefinition: close({
-	DimensionKeys?: {...} | fn.#ObjectExpression
-	EventPattern?:  strings.MaxRunes(4000) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:          strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Namespace?:     strings.MaxRunes(237) & strings.MinRunes(1) & =~"[a-zA-Z0-9-._/#:]+$" | fn.#StringExpression
-	UnitLabel?:     strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ValueKey?:      strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
+	DimensionKeys?: close({
+
+		{[=~"^(?::)"]: error("disallowed")}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{
+			[=~"^.*[^\\s].*"]: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*[^\\s].*" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*[^\\s].*" & "\(self)"
+			} |
+			fn.#StringExpression
+		}
+	}) |
+	fn.#ObjectExpression
+	EventPattern?: strings.MaxRunes(4000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Namespace?: strings.MaxRunes(237) & strings.MinRunes(1) & =~"[a-zA-Z0-9-._/#:]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(237) & strings.MinRunes(1) & =~"[a-zA-Z0-9-._/#:]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	UnitLabel?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ValueKey?: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MetricDestination: close({
-	Destination!:    "CloudWatch" | "Evidently" | fn.#StringExpression
-	DestinationArn?: =~"arn:[^:]*:[^:]*:[^:]*:[^:]*:.*" | fn.#StringExpression
-	IamRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-		=~"arn:[^:]*:[^:]*:[^:]*:[^:]*:.*" |
-		fn.#StringExpression
+	Destination!: "CloudWatch" | "Evidently" | fn.#StringExpression
+	DestinationArn?: =~"arn:[^:]*:[^:]*:[^:]*:[^:]*:.*" |
+	{
+		number | bool
+		_cfnString: =~"arn:[^:]*:[^:]*:[^:]*:[^:]*:.*" & "\(self)"
+	} |
+	fn.#StringExpression
+	IamRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & =~"arn:[^:]*:[^:]*:[^:]*:[^:]*:.*" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			=~"arn:[^:]*:[^:]*:[^:]*:[^:]*:.*" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	MetricDefinitions?: list.MaxItems(2000) & list.UniqueItems() & [...] & [...#MetricDefinition] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -133,14 +211,34 @@ fn.#ObjectExpression
 #Pages: list.MaxItems(50) & [...] & [...#Url] | fn.#ListExpression
 
 #ResourcePolicy: close({
-	PolicyDocument!:   string | fn.#StringExpression
-	PolicyRevisionId?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	PolicyDocument!: string | number | bool | fn.#StringExpression
+	PolicyRevisionId?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -151,4 +249,11 @@ fn.#ObjectExpression
 #Url: strings.MaxRunes(1260) &
 strings.MinRunes(1) &
 =~"https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1260) &
+	strings.MinRunes(1) &
+	=~"https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)" &
+	"\(self)"
+} |
 fn.#StringExpression

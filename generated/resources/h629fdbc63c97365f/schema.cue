@@ -6,17 +6,36 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for StateMachineVersion
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::StepFunctions::StateMachineVersion"
-	Properties!: close({
-		Description?:            strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		StateMachineArn!:        strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-		StateMachineRevisionId?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		StateMachineArn!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		StateMachineRevisionId?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

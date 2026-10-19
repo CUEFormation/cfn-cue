@@ -7,19 +7,17 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A replication configuration template for AWS Elastic Disaster Recovery Service.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DRS::ReplicationConfigurationTemplate"
-	Properties!: close({
+	let properties = close({
 		AssociateDefaultSecurityGroup?: bool |
 			"true" |
 			"True" |
@@ -48,21 +46,52 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		CreatePublicIP?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		DataPlaneRouting?: "PRIVATE_IP" | "PUBLIC_IP" | fn.#StringExpression
-		DefaultLargeStagingDiskType?:   "GP2" | "GP3" | "ST1" | "AUTO" | fn.#StringExpression
-		EbsEncryption!:                 "DEFAULT" | "CUSTOM" | "NONE" | fn.#StringExpression
-		EbsEncryptionKeyArn?:           strings.MaxRunes(2048) & strings.MinRunes(20) | fn.#StringExpression
-		InternetProtocol?:              "IPV4" | "IPV6" | fn.#StringExpression
-		PitPolicy!:                     list.MaxItems(10) & list.MinItems(1) & [...#PITPolicyRule] | fn.#ListExpression
-		ReplicationServerInstanceType?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-		ReplicationServersSecurityGroupsIDs!: list.MaxItems(32) & [...] & [
-			...strings.MaxRunes(255) & strings.MinRunes(0) & =~"^sg-[0-9a-fA-F]{8,}$" | fn.#StringExpression
-		] |
+		DefaultLargeStagingDiskType?: "GP2" | "GP3" | "ST1" | "AUTO" | fn.#StringExpression
+		EbsEncryption!:               "DEFAULT" | "CUSTOM" | "NONE" | fn.#StringExpression
+		EbsEncryptionKeyArn?: strings.MaxRunes(2048) & strings.MinRunes(20) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & "\(self)"
+		} |
+		fn.#StringExpression
+		InternetProtocol?: "IPV4" | "IPV6" | fn.#StringExpression
+		PitPolicy!:        list.MaxItems(10) & list.MinItems(1) & [...#PITPolicyRule] | fn.#ListExpression
+		ReplicationServerInstanceType?: strings.MaxRunes(255) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		ReplicationServersSecurityGroupsIDs!: list.MaxItems(32) & [...] & [...strings.MaxRunes(255) &
+		strings.MinRunes(0) &
+		=~"^sg-[0-9a-fA-F]{8,}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^sg-[0-9a-fA-F]{8,}$" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		StagingAreaSubnetId!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^subnet-[0-9a-fA-F]{8,}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^subnet-[0-9a-fA-F]{8,}$" & "\(self)"
+		} |
 		fn.#StringExpression
 		StagingAreaTags!: close({
 
-			{[=~"^.{0,256}$"]: strings.MaxRunes(256) | fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{
+				[=~"^.{0,256}$"]: strings.MaxRunes(256) |
+				{
+					number | bool
+					_cfnString: strings.MaxRunes(256) & "\(self)"
+				} |
+				fn.#StringExpression
+			}
+		}) |
 		fn.#ObjectExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		UseDedicatedReplicationServer?: bool |
@@ -74,6 +103,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"FALSE" |
 			fn.#BooleanExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #PITPolicyRule: close({
@@ -128,7 +161,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

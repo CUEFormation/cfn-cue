@@ -4,9 +4,6 @@ package IdentitySource
 
 import schema "github.com/cueformation/cfn-cue/resources/h03ba299c95ff6cb5:schema"
 
-#Resource:                 schema.#Resource
-#IamIdentityCenter:        schema.#IamIdentityCenter
-#IdentitySourceArn:        schema.#IdentitySourceArn
-#IdentitySourceParameters: schema.#IdentitySourceParameters
-#Tag:                      schema.#Tag
-#Tags:                     schema.#Tags
+#Resource: schema.#Resource
+#Tag:      schema.#Tag
+#Tags:     schema.#Tags

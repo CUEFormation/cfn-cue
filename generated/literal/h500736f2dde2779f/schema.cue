@@ -12,7 +12,13 @@ import (
 // Resource schema for AWS::Route53::HealthCheck.
 #Properties: close({
 	// A complex type that contains information about the health check.
-	HealthCheckConfig!: close({
+	HealthCheckConfig!: matchIf({
+		Type?: "CLOUDWATCH_METRIC"
+		...
+	}, {
+		AlarmIdentifier!: _
+		...
+	}, _) & close({
 		AlarmIdentifier?:          #AlarmIdentifier
 		ChildHealthChecks?:        list.MaxItems(256) & [...] & [...strings.MaxRunes(64) & strings.MinRunes(0)]
 		EnableSNI?:                bool

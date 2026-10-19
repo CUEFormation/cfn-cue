@@ -95,7 +95,10 @@ import (
 // provisioning.
 #ClusterAccountingDatabase: close({
 	// Hostname or endpoint of the accounting database, such as an RDS endpoint.
-	Endpoint!: strings.MaxRunes(255) & strings.MinRunes(1)
+	Endpoint!: =~"^([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?)(\\.[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?)*$" &
+	=~"^(?:.{1,255}$)" &
+	strings.MaxRunes(255) &
+	strings.MinRunes(1)
 
 	// Name of the accounting database schema. Defaults to slurm_acct_db when omitted.
 	Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9$_]+$"
@@ -147,7 +150,13 @@ import (
 	MountName!: strings.MaxRunes(8) & strings.MinRunes(1) & =~"^([A-Za-z0-9_-]{1,8})$"
 
 	// The mount path for the FSx for Lustre file system.
-	MountPath?: strings.MaxRunes(1024) & strings.MinRunes(1)
+	MountPath?: =~"^/[a-zA-Z0-9._-]+(/[a-zA-Z0-9._-]+)*$" &
+	matchN(0, [=~"^(?s:.){1}(?:/)"]) &
+	string &
+	matchN(0, [=~"^(?s:.){1}(?:.*/$)"]) &
+	string &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(1)
 })
 
 // Configuration for mounting an Amazon FSx OpenZFS file system to the instances
@@ -157,7 +166,13 @@ import (
 	DnsName!: strings.MaxRunes(275) & strings.MinRunes(16) & =~"^((fs|fc)i?-[0-9a-f]{8,}\\..{4,253})$"
 
 	// The mount path for the FSx for OpenZFS file system.
-	MountPath?: strings.MaxRunes(1024) & strings.MinRunes(1)
+	MountPath?: =~"^/[a-zA-Z0-9._-]+(/[a-zA-Z0-9._-]+)*$" &
+	matchN(0, [=~"^(?s:.){1}(?:/)"]) &
+	string &
+	matchN(0, [=~"^(?s:.){1}(?:.*/$)"]) &
+	string &
+	strings.MaxRunes(1024) &
+	strings.MinRunes(1)
 })
 
 // Details of an instance group in a SageMaker HyperPod cluster.
@@ -474,5 +489,10 @@ strings.MinRunes(7) &
 	]
 
 	// The ID of the subnets in the VPC to which you want to connect your training job or model.
-	Subnets!: list.MaxItems(16) & list.MinItems(1) & [...strings.MaxRunes(32) & strings.MinRunes(0) & =~"[-0-9a-zA-Z]+"]
+	Subnets!: list.MaxItems(16) & list.MinItems(1) & [
+		...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(32) &
+		strings.MinRunes(0) &
+		=~"[-0-9a-zA-Z]+"
+	]
 })

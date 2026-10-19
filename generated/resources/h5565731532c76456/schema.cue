@@ -7,22 +7,50 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Route53Profiles::Profile
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53Profiles::Profile"
-	Properties!: close({
-		Name!: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Name!: =~"^([a-zA-Z0-9\\-_' ']+)$" &
+		matchN(0, [=~"^(?:^[0-9]+$)"]) &
+		string &
+		strings.MaxRunes(64) &
+		strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^([a-zA-Z0-9\\-_' ']+)$" &
+			matchN(0, [=~"^(?:^[0-9]+$)"]) &
+			string &
+			strings.MaxRunes(64) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -5,7 +5,6 @@ package Application
 import schema "github.com/cueformation/cfn-cue/resources/hc52f04d24365a1a9:schema"
 
 #Resource:                      schema.#Resource
-#ApplicationStatus:             schema.#ApplicationStatus
 #AttachmentsConfiguration:      schema.#AttachmentsConfiguration
 #AttachmentsControlMode:        schema.#AttachmentsControlMode
 #AutoSubscriptionConfiguration: schema.#AutoSubscriptionConfiguration

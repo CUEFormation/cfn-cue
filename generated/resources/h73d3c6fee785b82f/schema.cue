@@ -8,15 +8,15 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::BedrockAgentCore::OAuth2CredentialProvider
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::OAuth2CredentialProvider"
-	Properties!: close({
+	let properties = close({
 		CredentialProviderVendor!: "GoogleOauth2" |
 			"GithubOauth2" |
 			"SlackOauth2" |
@@ -43,32 +43,57 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"Auth0Oauth2" |
 			"CognitoOauth2" |
 			fn.#StringExpression
-		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" | fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-_]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The configuration settings for the OAuth2 provider
 		Oauth2ProviderConfigInput?: #Oauth2ProviderConfigInput
 		Tags?:                      list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AdditionalClaims: struct.MaxFields(10) & close({
 
-	{[=~"^[A-Za-z0-9_.:#-]+$"]: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[A-Za-z0-9_.:#-]+$"]: strings.MaxRunes(2048) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #AtlassianOauth2ProviderConfigInput: close({
-	ClientId!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	ClientId!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ClientSecret?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ClientSecretConfig?: #SecretReference
 	ClientSecretSource?: "MANAGED" | "EXTERNAL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#ClientSecretArn: close({
-	SecretArn!: =~"^arn:(aws|aws-us-gov):secretsmanager:[A-Za-z0-9-]{1,64}:[0-9]{12}:secret:[a-zA-Z0-9-_/+=.@!]+$" |
-		fn.#StringExpression
-}) |
-	fn.#ObjectExpression
 
 #CustomOauth2ProviderConfigInput: close({
 	ClientAuthenticationMethod?: "CLIENT_SECRET_BASIC" |
@@ -76,8 +101,18 @@ fn.#ObjectExpression
 		"AWS_IAM_ID_TOKEN_JWT" |
 		"PRIVATE_KEY_JWT" |
 		fn.#StringExpression
-	ClientId?:                      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecret?:                  strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	ClientId?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ClientSecret?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ClientSecretConfig?:            #SecretReference
 	ClientSecretSource?:            "MANAGED" | "EXTERNAL" | fn.#StringExpression
 	OauthDiscovery!:                #Oauth2Discovery
@@ -89,44 +124,92 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #GithubOauth2ProviderConfigInput: close({
-	ClientId!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	ClientId!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ClientSecret?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ClientSecretConfig?: #SecretReference
 	ClientSecretSource?: "MANAGED" | "EXTERNAL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GoogleOauth2ProviderConfigInput: close({
-	ClientId!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	ClientId!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ClientSecret?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ClientSecretConfig?: #SecretReference
 	ClientSecretSource?: "MANAGED" | "EXTERNAL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #IncludedOauth2ProviderConfigInput: close({
-	AuthorizationEndpoint?: string | fn.#StringExpression
-	ClientId!:              strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecret?:          strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecretConfig?:    #SecretReference
-	ClientSecretSource?:    "MANAGED" | "EXTERNAL" | fn.#StringExpression
-	Issuer?:                string | fn.#StringExpression
-	TokenEndpoint?:         string | fn.#StringExpression
+	AuthorizationEndpoint?: string | number | bool | fn.#StringExpression
+	ClientId!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ClientSecret?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ClientSecretConfig?: #SecretReference
+	ClientSecretSource?: "MANAGED" | "EXTERNAL" | fn.#StringExpression
+	Issuer?:             string | number | bool | fn.#StringExpression
+	TokenEndpoint?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #KmsKeySourceType: close({
-	KmsKeyArn!: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	KmsKeyArn!: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LinkedinOauth2ProviderConfigInput: close({
-	ClientId!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	ClientId!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ClientSecret?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ClientSecretConfig?: #SecretReference
 	ClientSecretSource?: "MANAGED" | "EXTERNAL" | fn.#StringExpression
 }) |
@@ -134,41 +217,79 @@ fn.#ObjectExpression
 
 #ManagedVpcResource: close({
 	EndpointIpAddressType!: "IPV4" | "IPV6" | fn.#StringExpression
-	RoutingDomain?:         strings.MaxRunes(255) & strings.MinRunes(3) | fn.#StringExpression
-	SecurityGroupIds?: list.MaxItems(5) & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
-			=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SubnetIds!: [...=~"^subnet-[0-9a-zA-Z]{8,17}$" | fn.#StringExpression] | fn.#ListExpression
+	RoutingDomain?: strings.MaxRunes(255) & strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & "\(self)"
+	} |
+	fn.#StringExpression
+	SecurityGroupIds?: list.MaxItems(5) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & =~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SubnetIds!: [...=~"^subnet-[0-9a-zA-Z]{8,17}$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-[0-9a-zA-Z]{8,17}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 
 	// Tags to apply to the managed VPC Lattice resource gateway
-	Tags?:          #TagsMap
-	VpcIdentifier!: =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" | fn.#StringExpression
+	Tags?: #TagsMap
+	VpcIdentifier!: =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MicrosoftOauth2ProviderConfigInput: close({
-	ClientId!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	ClientId!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ClientSecret?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ClientSecretConfig?: #SecretReference
 	ClientSecretSource?: "MANAGED" | "EXTERNAL" | fn.#StringExpression
-	TenantId?:           strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	TenantId?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Oauth2AuthorizationServerMetadata: close({
-	AuthorizationEndpoint!: string | fn.#StringExpression
-	Issuer!:                string | fn.#StringExpression
-	ResponseTypes?:         [...string | fn.#StringExpression] | fn.#ListExpression
-	TokenEndpoint!:         string | fn.#StringExpression
+	AuthorizationEndpoint!: string | number | bool | fn.#StringExpression
+	Issuer!:                string | number | bool | fn.#StringExpression
+	ResponseTypes?:         [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	TokenEndpoint!:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Oauth2Discovery: close({
 	AuthorizationServerMetadata?: #Oauth2AuthorizationServerMetadata
-	DiscoveryUrl?:                =~"^.+/\\.well-known/openid-configuration$" | fn.#StringExpression
+	DiscoveryUrl?: =~"^.+/\\.well-known/openid-configuration$" |
+	{
+		number | bool
+		_cfnString: =~"^.+/\\.well-known/openid-configuration$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -185,21 +306,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Oauth2ProviderConfigOutput: close({
-	ClientAuthenticationMethod?: "CLIENT_SECRET_BASIC" |
-		"CLIENT_SECRET_POST" |
-		"AWS_IAM_ID_TOKEN_JWT" |
-		"PRIVATE_KEY_JWT" |
-		fn.#StringExpression
-	ClientId?:                      strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	OauthDiscovery?:                #Oauth2Discovery
-	OnBehalfOfTokenExchangeConfig?: #OnBehalfOfTokenExchangeConfig
-	PrivateEndpoint?:               #PrivateEndpoint
-	PrivateEndpointOverrides?:      list.MaxItems(5) & [...#PrivateEndpointOverride] | fn.#ListExpression
-	PrivateKeyJwtConfig?:           #PrivateKeyJwtConfig
-}) |
-fn.#ObjectExpression
-
 #OnBehalfOfTokenExchangeConfig: close({
 	GrantType!:                    "TOKEN_EXCHANGE" | "JWT_AUTHORIZATION_GRANT" | fn.#StringExpression
 	TokenExchangeGrantTypeConfig?: #TokenExchangeGrantTypeConfig
@@ -213,7 +319,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PrivateEndpointOverride: close({
-	Domain!:          strings.MaxRunes(253) & strings.MinRunes(1) | fn.#StringExpression
+	Domain!: strings.MaxRunes(253) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(253) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	PrivateEndpoint!: #PrivateEndpoint
 }) |
 fn.#ObjectExpression
@@ -229,16 +340,36 @@ fn.#ObjectExpression
 #PrivateKeySource: close({KmsKeySource?: #KmsKeySourceType}) | fn.#ObjectExpression
 
 #SalesforceOauth2ProviderConfigInput: close({
-	ClientId!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	ClientId!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ClientSecret?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ClientSecretConfig?: #SecretReference
 	ClientSecretSource?: "MANAGED" | "EXTERNAL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SecretReference: close({
-	JsonKey!:  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	SecretId!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	JsonKey!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	SecretId!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -246,32 +377,72 @@ fn.#ObjectExpression
 	ResourceConfigurationIdentifier!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((rcfg-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}))$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^((rcfg-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:resourceconfiguration/rcfg-[0-9a-z]{17}))$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SlackOauth2ProviderConfigInput: close({
-	ClientId!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecret?:       strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	ClientId!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ClientSecret?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ClientSecretConfig?: #SecretReference
 	ClientSecretSource?: "MANAGED" | "EXTERNAL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TagsMap: struct.MaxFields(50) & close({
 
-	{[=~"^[a-zA-Z0-9\\s._:/=+@-]{1,128}$"]: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
-	fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[a-zA-Z0-9\\s._:/=+@-]{1,128}$"]: strings.MaxRunes(256) &
+		strings.MinRunes(0) &
+		=~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #TokenExchangeGrantTypeConfig: close({
 	ActorTokenContent!: "NONE" | "M2M" | "AWS_IAM_ID_TOKEN_JWT" | fn.#StringExpression
-	ActorTokenScopes?:  [...string | fn.#StringExpression] | fn.#ListExpression
+	ActorTokenScopes?:  [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression

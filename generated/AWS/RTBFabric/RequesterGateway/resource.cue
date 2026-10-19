@@ -4,18 +4,10 @@ package RequesterGateway
 
 import schema "github.com/cueformation/cfn-cue/resources/h29c26bb857ed86f2:schema"
 
-#Resource:               schema.#Resource
-#ActiveLinksCount:       schema.#ActiveLinksCount
-#Arn:                    schema.#Arn
-#CreatedTimestamp:       schema.#CreatedTimestamp
-#Description:            schema.#Description
-#DomainName:             schema.#DomainName
-#GatewayId:              schema.#GatewayId
-#RequesterGatewayStatus: schema.#RequesterGatewayStatus
-#SecurityGroupIds:       schema.#SecurityGroupIds
-#SubnetIds:              schema.#SubnetIds
-#Tag:                    schema.#Tag
-#Tags:                   schema.#Tags
-#TotalLinksCount:        schema.#TotalLinksCount
-#UpdatedTimestamp:       schema.#UpdatedTimestamp
-#VpcId:                  schema.#VpcId
+#Resource:         schema.#Resource
+#Description:      schema.#Description
+#SecurityGroupIds: schema.#SecurityGroupIds
+#SubnetIds:        schema.#SubnetIds
+#Tag:              schema.#Tag
+#Tags:             schema.#Tags
+#VpcId:            schema.#VpcId

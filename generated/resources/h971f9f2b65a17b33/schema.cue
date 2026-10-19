@@ -8,12 +8,10 @@ import (
 	"list"
 	"time"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -21,23 +19,54 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // endpoint location within a service and environment.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApplicationSignals::InstrumentationConfig"
-	Properties!: close({
+	let properties = close({
 		AttributeFilters?:     list.MaxItems(10) & list.MinItems(1) & [...#AttributeFilterGroup] | fn.#ListExpression
 		CaptureConfiguration!: close({CodeCapture!: #CodeCaptureConfiguration}) | fn.#ObjectExpression
-		Description?:          strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-		Environment!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9:/+=,.@_-]+$" | fn.#StringExpression
-		ExpiresAt?:   time.Time | fn.#StringExpression
+		Description?: strings.MaxRunes(50) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Environment!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9:/+=,.@_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9:/+=,.@_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ExpiresAt?:           time.Time | fn.#StringExpression
 		InstrumentationType!: "BREAKPOINT" | "PROBE" | fn.#StringExpression
 		Location!:            close({CodeLocation!: #CodeLocation}) | fn.#ObjectExpression
-		Service!:    strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9:/+=,.@_-]+$" | fn.#StringExpression
+		Service!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9:/+=,.@_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9:/+=,.@_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		SignalType!: "SNAPSHOT" | fn.#StringExpression
 		Tags?:       list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AttributeFilterGroup: close({
 
-	{[=~"^.{1,50}$"]: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^.{1,50}$"]: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #CaptureLimitsConfig: close({
@@ -173,10 +202,20 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CodeCaptureConfiguration: close({
-	CaptureArguments?: list.MaxItems(10) & [...strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression] |
+	CaptureArguments?: list.MaxItems(10) & [...strings.MaxRunes(80) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(80) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	CaptureLimits!: #CaptureLimitsConfig
-	CaptureLocals?: list.MaxItems(20) & [...strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression] |
+	CaptureLocals?: list.MaxItems(20) & [...strings.MaxRunes(80) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(80) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	CaptureReturn?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CaptureStackTrace?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -184,10 +223,25 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CodeLocation: close({
-	ClassName?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	CodeUnit?:  strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	FilePath!:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Language!:  "Java" | "Python" | "Javascript" | fn.#StringExpression
+	ClassName?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	CodeUnit?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	FilePath!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Language!: "Java" | "Python" | "Javascript" | fn.#StringExpression
 	LineNumber?: int & >=1 |
 		{
 			string &
@@ -203,12 +257,27 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	MethodName?: strings.MaxRunes(80) & strings.MinRunes(1) | fn.#StringExpression
+	MethodName?: strings.MaxRunes(80) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(80) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

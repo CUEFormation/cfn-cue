@@ -15,7 +15,11 @@ import (
 	AssetIds?: list.UniqueItems() & [...#AssetId]
 
 	// The ID of the portal in which to create the project.
-	PortalId!: strings.MaxRunes(36) & strings.MinRunes(36)
+	PortalId!: =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+	matchN(0, [=~"^(?:00000000-0000-0000-0000-000000000000)"]) &
+	string &
+	strings.MaxRunes(36) &
+	strings.MinRunes(36)
 
 	// The ARN of the project.
 	ProjectArn?: string

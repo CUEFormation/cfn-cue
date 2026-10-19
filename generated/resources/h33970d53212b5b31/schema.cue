@@ -6,12 +6,10 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -21,8 +19,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // predictable load changes.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AutoScaling::ScheduledAction"
-	Properties!: close({
-		AutoScalingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		AutoScalingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		DesiredCapacity?: int |
 			{
 				string &
@@ -39,7 +42,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		EndTime?: string | fn.#StringExpression
+		EndTime?: string | number | bool | fn.#StringExpression
 		MaxSize?: int |
 			{
 				string &
@@ -72,8 +75,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Recurrence?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		StartTime?:  string | fn.#StringExpression
-		TimeZone?:   strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Recurrence?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		StartTime?: string | number | bool | fn.#StringExpression
+		TimeZone?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

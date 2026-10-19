@@ -24,7 +24,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h34ebeb73fa9b145e:schem
 #RegistryRecordCredentialProviderUnion:         schema.#RegistryRecordCredentialProviderUnion
 #RegistryRecordIamCredentialProvider:           schema.#RegistryRecordIamCredentialProvider
 #RegistryRecordOAuthCredentialProvider:         schema.#RegistryRecordOAuthCredentialProvider
-#RegistryRecordStatus:                          schema.#RegistryRecordStatus
 #SkillMdSource:                                 schema.#SkillMdSource
 #SkillMdSourceFromUrl:                          schema.#SkillMdSourceFromUrl
 #SourceOnlyDescriptorSource:                    schema.#SourceOnlyDescriptorSource

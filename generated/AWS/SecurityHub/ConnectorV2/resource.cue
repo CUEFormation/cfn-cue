@@ -5,11 +5,8 @@ package ConnectorV2
 import schema "github.com/cueformation/cfn-cue/resources/hf328b958ceb30bf7:schema"
 
 #Resource:                        schema.#Resource
-#AuthStatus:                      schema.#AuthStatus
 #AzureProviderConfiguration:      schema.#AzureProviderConfiguration
 #AzureScopeConfiguration:         schema.#AzureScopeConfiguration
-#HealthIssue:                     schema.#HealthIssue
-#ISO8601DateString:               schema.#ISO8601DateString
 #JiraCloudProviderConfiguration:  schema.#JiraCloudProviderConfiguration
 #Provider:                        schema.#Provider
 #ServiceNowProviderConfiguration: schema.#ServiceNowProviderConfiguration

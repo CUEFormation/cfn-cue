@@ -6,26 +6,45 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DocDB::EventSubscription
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DocDB::EventSubscription"
-	Properties!: close({
+	let properties = close({
 		Enabled?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		EventCategories?: [...string | fn.#StringExpression] | fn.#ListExpression
-		SnsTopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-		SourceIds?: [...=~"^[a-zA-Z][a-zA-Z0-9-]*[a-zA-Z0-9]$|^[a-zA-Z]$" | fn.#StringExpression] | fn.#ListExpression
+		EventCategories?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		SnsTopicArn!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SourceIds?: [...=~"^[a-zA-Z][a-zA-Z0-9-]*[a-zA-Z0-9]$|^[a-zA-Z]$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z][a-zA-Z0-9-]*[a-zA-Z0-9]$|^[a-zA-Z]$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		SourceType?: "db-instance" |
 			"db-cluster" |
 			"db-parameter-group" |
 			"db-security-group" |
 			"db-cluster-snapshot" |
 			fn.#StringExpression
-		SubscriptionName?: strings.MaxRunes(255) | fn.#StringExpression
+		SubscriptionName?: strings.MaxRunes(255) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

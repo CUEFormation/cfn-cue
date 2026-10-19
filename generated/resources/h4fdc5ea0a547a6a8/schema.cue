@@ -3,18 +3,37 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Redshift::ClusterSecurityGroupIngress
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Redshift::ClusterSecurityGroupIngress"
-	Properties!: close({
-		CIDRIP?:                   string | fn.#StringExpression
-		ClusterSecurityGroupName!: string | fn.#StringExpression
-		EC2SecurityGroupName?:     string | fn.#StringExpression
-		EC2SecurityGroupOwnerId?:  string | fn.#StringExpression
+	let properties = close({
+		CIDRIP?: fn.#IPv4Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv4Network & string & "\(self)"
+		} |
+		fn.#StringExpression
+		ClusterSecurityGroupName!: =~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		EC2SecurityGroupName?: =~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9 \\._\\-:\\/()#\\,@\\[\\]+=&;\\{\\}!\\$\\*]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		EC2SecurityGroupOwnerId?: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

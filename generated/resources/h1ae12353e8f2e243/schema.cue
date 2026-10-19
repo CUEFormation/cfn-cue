@@ -3,20 +3,18 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApiGatewayV2::ApiGatewayManagedOverrides
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGatewayV2::ApiGatewayManagedOverrides"
-	Properties!: close({
-		ApiId!: string | fn.#StringExpression
+	let properties = close({
+		ApiId!: string | number | bool | fn.#StringExpression
 
 		// Overrides the integration configuration for an API Gateway-managed integration.
 		Integration?: #IntegrationOverrides
@@ -27,18 +25,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Overrides the stage configuration for an API Gateway-managed stage.
 		Stage?: #StageOverrides
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AccessLogSettings: close({
-	DestinationArn?: string | fn.#StringExpression
-	Format?:         string | fn.#StringExpression
+	DestinationArn?: string | number | bool | fn.#StringExpression
+	Format?:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #IntegrationOverrides: close({
-	Description?:          string | fn.#StringExpression
-	IntegrationMethod?:    string | fn.#StringExpression
-	PayloadFormatVersion?: string | fn.#StringExpression
+	Description?:          string | number | bool | fn.#StringExpression
+	IntegrationMethod?:    string | number | bool | fn.#StringExpression
+	PayloadFormatVersion?: string | number | bool | fn.#StringExpression
 	TimeoutInMillis?: int |
 		{
 			string &
@@ -57,11 +59,11 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RouteOverrides: close({
-	AuthorizationScopes?: [...string | fn.#StringExpression] | fn.#ListExpression
-	AuthorizationType?:   string | fn.#StringExpression
-	AuthorizerId?:        string | fn.#StringExpression
-	OperationName?:       string | fn.#StringExpression
-	Target?:              string | fn.#StringExpression
+	AuthorizationScopes?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	AuthorizationType?:   string | number | bool | fn.#StringExpression
+	AuthorizerId?:        string | number | bool | fn.#StringExpression
+	OperationName?:       string | number | bool | fn.#StringExpression
+	Target?:              string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -110,8 +112,8 @@ fn.#ObjectExpression
 
 	// The default route settings for the stage.
 	DefaultRouteSettings?: #RouteSettings
-	Description?:          string | fn.#StringExpression
-	RouteSettings?:        fn.#Object & {...} | string | fn.#StringObjectExpression
-	StageVariables?:       fn.#Object & {...} | string | fn.#StringObjectExpression
+	Description?:          string | number | bool | fn.#StringExpression
+	RouteSettings?:        fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+	StageVariables?:       fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression

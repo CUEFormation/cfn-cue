@@ -59,7 +59,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hff7d5431367e8660:schem
 #PipeSourceRabbitMQBrokerParameters:             schema.#PipeSourceRabbitMQBrokerParameters
 #PipeSourceSelfManagedKafkaParameters:           schema.#PipeSourceSelfManagedKafkaParameters
 #PipeSourceSqsQueueParameters:                   schema.#PipeSourceSqsQueueParameters
-#PipeState:                                      schema.#PipeState
 #PipeTargetBatchJobParameters:                   schema.#PipeTargetBatchJobParameters
 #PipeTargetCloudWatchLogsParameters:             schema.#PipeTargetCloudWatchLogsParameters
 #PipeTargetEcsTaskParameters:                    schema.#PipeTargetEcsTaskParameters

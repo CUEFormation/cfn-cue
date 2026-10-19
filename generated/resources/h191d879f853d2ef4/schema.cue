@@ -7,19 +7,17 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ApplicationInsights::Application
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApplicationInsights::Application"
-	Properties!: close({
+	let properties = close({
 		AttachMissingPermission?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		AutoConfigurationEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		CWEMonitorEnabled?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -31,23 +29,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		OpsItemSNSTopicArn?: strings.MaxRunes(300) &
 		strings.MinRunes(20) &
 		=~"^arn:aws(-[\\w]+)*:[\\w\\d-]+:([\\w\\d-]*)?:[\\w\\d_-]*([:/].+)*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(300) &
+			strings.MinRunes(20) &
+			=~"^arn:aws(-[\\w]+)*:[\\w\\d-]+:([\\w\\d-]*)?:[\\w\\d_-]*([:/].+)*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		ResourceGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" | fn.#StringExpression
+		ResourceGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" & "\(self)"
+		} |
+		fn.#StringExpression
 		SNSNotificationArn?: strings.MaxRunes(300) &
 		strings.MinRunes(20) &
 		=~"^arn:aws(-[\\w]+)*:[\\w\\d-]+:([\\w\\d-]*)?:[\\w\\d_-]*([:/].+)*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(300) &
+			strings.MinRunes(20) &
+			=~"^arn:aws(-[\\w]+)*:[\\w\\d-]+:([\\w\\d-]*)?:[\\w\\d_-]*([:/].+)*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Alarm: close({
-	AlarmName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-	Severity?:  "HIGH" | "MEDIUM" | "LOW" | fn.#StringExpression
+	AlarmName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Severity?: "HIGH" | "MEDIUM" | "LOW" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#AlarmMetric: close({AlarmMetricName!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#AlarmMetric: close({AlarmMetricName!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #ComponentConfiguration: close({
 	// The configuration settings
@@ -60,16 +86,33 @@ fn.#ObjectExpression
 	ComponentARN?: strings.MaxRunes(300) &
 	strings.MinRunes(20) &
 	=~"^arn:aws(-[\\w]+)*:[\\w\\d-]+:([\\w\\d-]*)?:[\\w\\d_-]*([:/].+)*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(300) &
+		strings.MinRunes(20) &
+		=~"^arn:aws(-[\\w]+)*:[\\w\\d-]+:([\\w\\d-]*)?:[\\w\\d_-]*([:/].+)*$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	ComponentConfigurationMode!: "DEFAULT" | "DEFAULT_WITH_OVERWRITE" | "CUSTOM" | fn.#StringExpression
-	ComponentName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\d\\w\\-_.+]*$" | fn.#StringExpression
+	ComponentName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\d\\w\\-_.+]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\d\\w\\-_.+]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// The monitoring configuration of the component.
 	CustomComponentConfiguration?: #ComponentConfiguration
 
 	// The overwritten settings on default component monitoring configuration.
 	DefaultOverwriteComponentConfiguration?: #ComponentConfiguration
-	Tier!:                                   =~"^[A-Z][A-Z_]*$" | fn.#StringExpression
+	Tier!: =~"^[A-Z][A-Z_]*$" |
+	{
+		number | bool
+		_cfnString: =~"^[A-Z][A-Z_]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 	if ComponentName != _|_ if ComponentName."Fn::If" == _|_ {
 		ComponentARN?: close({"Fn::If": _}) | error(
 			"ComponentARN cannot be used with ComponentName; set exactly one of ComponentName, ComponentARN",
@@ -103,50 +146,100 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CustomComponent: close({
-	ComponentName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\d\\w\\-_.+]*$" | fn.#StringExpression
-	ResourceList!: list.MinItems(1) & [
-		...strings.MaxRunes(300) &
+	ComponentName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\d\\w\\-_.+]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\d\\w\\-_.+]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ResourceList!: list.MinItems(1) & [...strings.MaxRunes(300) &
+	strings.MinRunes(20) &
+	=~"^arn:aws(-[\\w]+)*:[\\w\\d-]+:([\\w\\d-]*)?:[\\w\\d_-]*([:/].+)*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(300) &
 		strings.MinRunes(20) &
-		=~"^arn:aws(-[\\w]+)*:[\\w\\d-]+:([\\w\\d-]*)?:[\\w\\d_-]*([:/].+)*$" |
-		fn.#StringExpression
-	] |
+		=~"^arn:aws(-[\\w]+)*:[\\w\\d-]+:([\\w\\d-]*)?:[\\w\\d_-]*([:/].+)*$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #EventLevel: "INFORMATION" | "WARNING" | "ERROR" | "CRITICAL" | "VERBOSE" | fn.#StringExpression
 
-#HAClusterPrometheusExporter: close({PrometheusPort?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#HAClusterPrometheusExporter: close({PrometheusPort?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #HANAPrometheusExporter: close({
 	AgreeToInstallHANADBClient!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	HANAPort!:                   string | fn.#StringExpression
-	HANASID!:                    string | fn.#StringExpression
-	HANASecretName!:             string | fn.#StringExpression
-	PrometheusPort?:             string | fn.#StringExpression
+	HANAPort!:                   string | number | bool | fn.#StringExpression
+	HANASID!:                    string | number | bool | fn.#StringExpression
+	HANASecretName!:             string | number | bool | fn.#StringExpression
+	PrometheusPort?:             string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #JMXPrometheusExporter: close({
-	HostPort?:       string | fn.#StringExpression
-	JMXURL?:         string | fn.#StringExpression
-	PrometheusPort?: string | fn.#StringExpression
+	HostPort?:       string | number | bool | fn.#StringExpression
+	JMXURL?:         string | number | bool | fn.#StringExpression
+	PrometheusPort?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Log: close({
-	Encoding?:     "utf-8" | "utf-16" | "ascii" | fn.#StringExpression
-	LogGroupName?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
-	LogPath?: strings.MaxRunes(260) & strings.MinRunes(1) & =~"^([a-zA-Z]:\\\\[\\\\\\S|*\\S]?.*|/[^\"']*)$" |
+	Encoding?: "utf-8" | "utf-16" | "ascii" | fn.#StringExpression
+	LogGroupName?: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"[\\.\\-_/#A-Za-z0-9]+" |
+	{
+		number | bool
+		_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"[\\.\\-_/#A-Za-z0-9]+" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	LogType!:    =~"^[A-Z][A-Z_]*$" | fn.#StringExpression
-	PatternSet?: strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" | fn.#StringExpression
+	LogPath?: strings.MaxRunes(260) & strings.MinRunes(1) & =~"^([a-zA-Z]:\\\\[\\\\\\S|*\\S]?.*|/[^\"']*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(260) &
+		strings.MinRunes(1) &
+		=~"^([a-zA-Z]:\\\\[\\\\\\S|*\\S]?.*|/[^\"']*)$" &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	LogType!: =~"^[A-Z][A-Z_]*$" |
+	{
+		number | bool
+		_cfnString: =~"^[A-Z][A-Z_]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	PatternSet?: strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LogPattern: close({
-	Pattern!:     strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	PatternName!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" | fn.#StringExpression
+	Pattern!: strings.MaxRunes(50) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	PatternName!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" & "\(self)"
+	} |
+	fn.#StringExpression
 	Rank!: int |
 		{
 			string &
@@ -165,30 +258,43 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #LogPatternSet: close({
-	LogPatterns!:    list.MinItems(1) & [...#LogPattern] | fn.#ListExpression
-	PatternSetName!: strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" | fn.#StringExpression
+	LogPatterns!: list.MinItems(1) & [...#LogPattern] | fn.#ListExpression
+	PatternSetName!: strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #NetWeaverPrometheusExporter: close({
-	InstanceNumbers!: [
-		...strings.MaxRunes(2) & strings.MinRunes(1) & =~"\\b([0-9]|[0-9][0-9])\\b" | fn.#StringExpression
-	] |
+	InstanceNumbers!: [...strings.MaxRunes(2) & strings.MinRunes(1) & =~"\\b([0-9]|[0-9][0-9])\\b" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2) & strings.MinRunes(1) & =~"\\b([0-9]|[0-9][0-9])\\b" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	PrometheusPort?: string | fn.#StringExpression
-	SAPSID!:         string | fn.#StringExpression
+	PrometheusPort?: string | number | bool | fn.#StringExpression
+	SAPSID!:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Process: close({
 	AlarmMetrics!: [...#AlarmMetric] | fn.#ListExpression
-	ProcessName!:  strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_,-]+$" | fn.#StringExpression
+	ProcessName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_,-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_,-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SQLServerPrometheusExporter: close({
-	PrometheusPort!: string | fn.#StringExpression
-	SQLSecretName!:  string | fn.#StringExpression
+	PrometheusPort!: string | number | bool | fn.#StringExpression
+	SQLSecretName!:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -208,15 +314,47 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #WindowsEvent: close({
-	EventLevels!:  list.MinItems(1) & [...#EventLevel] | fn.#ListExpression
-	EventName!:    strings.MaxRunes(260) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_ \\\\/-]+$" | fn.#StringExpression
-	LogGroupName!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"[\\.\\-_/#A-Za-z0-9]+" | fn.#StringExpression
-	PatternSet?:   strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" | fn.#StringExpression
+	EventLevels!: list.MinItems(1) & [...#EventLevel] | fn.#ListExpression
+	EventName!: strings.MaxRunes(260) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_ \\\\/-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(260) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_ \\\\/-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LogGroupName!: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+	strings.MaxRunes(512) &
+	strings.MinRunes(1) &
+	=~"[\\.\\-_/#A-Za-z0-9]+" |
+	{
+		number | bool
+		_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"[\\.\\-_/#A-Za-z0-9]+" &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	PatternSet?: strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(30) & strings.MinRunes(1) & =~"[a-zA-Z0-9.-_]*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -7,15 +7,15 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::ARCZonalShift::ZonalAutoshiftConfiguration Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ARCZonalShift::ZonalAutoshiftConfiguration"
-	Properties?: {
+	let properties = {
 		ResourceIdentifier!: _
 		...
 	} & matchN(>=1, [{
@@ -26,30 +26,59 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		...
 	}]) & close({
 		PracticeRunConfiguration?: #PracticeRunConfiguration
-		ResourceIdentifier?:       strings.MaxRunes(1024) & strings.MinRunes(8) | fn.#StringExpression
-		ZonalAutoshiftStatus?:     #ZonalAutoshiftStatus
+		ResourceIdentifier?: strings.MaxRunes(1024) & strings.MinRunes(8) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(8) & "\(self)"
+		} |
+		fn.#StringExpression
+		ZonalAutoshiftStatus?: #ZonalAutoshiftStatus
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #ControlCondition: close({
-	AlarmIdentifier!: strings.MaxRunes(1024) & strings.MinRunes(8) & =~"^.*$" | fn.#StringExpression
-	Type!:            #ControlConditionType
+	AlarmIdentifier!: strings.MaxRunes(1024) & strings.MinRunes(8) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(8) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: #ControlConditionType
 }) |
 fn.#ObjectExpression
 
-#ControlConditionType: strings.MaxRunes(10) & strings.MinRunes(8) & =~"^[a-zA-Z]*$" | fn.#StringExpression
+#ControlConditionType: strings.MaxRunes(10) & strings.MinRunes(8) & =~"^[a-zA-Z]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(10) & strings.MinRunes(8) & =~"^[a-zA-Z]*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #PracticeRunConfiguration: close({
-	BlockedDates?: list.MaxItems(15) & [...] & [
-		...strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9]{4}-[0-9]{2}-[0-9]{2}$" | fn.#StringExpression
-	] |
+	BlockedDates?: list.MaxItems(15) & [...] & [...strings.MaxRunes(10) &
+	strings.MinRunes(10) &
+	=~"^[0-9]{4}-[0-9]{2}-[0-9]{2}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9]{4}-[0-9]{2}-[0-9]{2}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	BlockedWindows?: list.MaxItems(15) & [...] & [
-		...strings.MaxRunes(19) &
+	BlockedWindows?: list.MaxItems(15) & [...] & [...strings.MaxRunes(19) &
+	strings.MinRunes(19) &
+	=~"^(Mon|Tue|Wed|Thu|Fri|Sat|Sun):[0-9]{2}:[0-9]{2}-(Mon|Tue|Wed|Thu|Fri|Sat|Sun):[0-9]{2}:[0-9]{2}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(19) &
 		strings.MinRunes(19) &
-		=~"^(Mon|Tue|Wed|Thu|Fri|Sat|Sun):[0-9]{2}:[0-9]{2}-(Mon|Tue|Wed|Thu|Fri|Sat|Sun):[0-9]{2}:[0-9]{2}$" |
-		fn.#StringExpression
-	] |
+		=~"^(Mon|Tue|Wed|Thu|Fri|Sat|Sun):[0-9]{2}:[0-9]{2}-(Mon|Tue|Wed|Thu|Fri|Sat|Sun):[0-9]{2}:[0-9]{2}$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	BlockingAlarms?: list.MaxItems(1) & list.MinItems(1) & [...#ControlCondition] | fn.#ListExpression
 	OutcomeAlarms!:  list.MaxItems(1) & list.MinItems(1) & [...#ControlCondition] | fn.#ListExpression

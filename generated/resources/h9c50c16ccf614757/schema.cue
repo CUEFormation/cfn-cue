@@ -6,18 +6,32 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Schema for AWS::ServiceCatalogAppRegistry::ResourceAssociation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ServiceCatalogAppRegistry::ResourceAssociation"
-	Properties!: close({
-		Application!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\w+|[a-z0-9]{12}" | fn.#StringExpression
+	let properties = close({
+		Application!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\w+|[a-z0-9]{12}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"\\w+|[a-z0-9]{12}" & "\(self)"
+		} |
+		fn.#StringExpression
 		Resource!: =~"\\w+|arn:aws[-a-z]*:cloudformation:[a-z]{2}(-gov)?-[a-z]+-\\d:\\d{12}:stack/[a-zA-Z][-A-Za-z0-9]{0,127}/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"\\w+|arn:aws[-a-z]*:cloudformation:[a-z]{2}(-gov)?-[a-z]+-\\d:\\d{12}:stack/[a-zA-Z][-A-Za-z0-9]{0,127}/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		ResourceType!: "CFN_STACK" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

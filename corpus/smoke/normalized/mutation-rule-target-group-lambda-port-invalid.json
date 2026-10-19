@@ -1,0 +1,12 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "Port": 80,
+        "Protocol": "HTTP",
+        "TargetType": "lambda"
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup"
+    }
+  }
+}

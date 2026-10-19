@@ -7,41 +7,70 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents the resource definition of AWS IoT Command.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::Command"
-	Properties!: close({
-		CommandId!:     strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		CreatedAt?:     string | fn.#StringExpression
-		Deprecated?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Description?:   strings.MaxRunes(2028) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" | fn.#StringExpression
-		DisplayName?:   strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" | fn.#StringExpression
-		LastUpdatedAt?: string | fn.#StringExpression
+	let properties = close({
+		CommandId!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		CreatedAt?:  string | number | bool | fn.#StringExpression
+		Deprecated?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Description?: strings.MaxRunes(2028) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2028) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DisplayName?: strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		LastUpdatedAt?: string | number | bool | fn.#StringExpression
 
 		// The list of mandatory parameters for the command.
 		MandatoryParameters?: #CommandParameterList
 		Namespace?:           "AWS-IoT" | "AWS-IoT-FleetWise" | fn.#StringExpression
 
 		// The payload associated with the command.
-		Payload?:         #CommandPayload
-		PayloadTemplate?: strings.MaxRunes(32768) & strings.MinRunes(0) | fn.#StringExpression
+		Payload?: #CommandPayload
+		PayloadTemplate?: strings.MaxRunes(32768) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32768) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		PendingDeletion?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 		// The command preprocessor configuration.
 		Preprocessor?: #CommandPreprocessor
-		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2028) & strings.MinRunes(20)) |
+		RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2028) & strings.MinRunes(20)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2028) &
+			strings.MinRunes(20) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AwsJsonSubstitutionCommandPreprocessorConfig: close({OutputFormat!: #OutputFormat}) | fn.#ObjectExpression
@@ -56,11 +85,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#CommandParameterDescription: strings.MaxRunes(2028) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" | fn.#StringExpression
+#CommandParameterDescription: strings.MaxRunes(2028) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2028) & strings.MinRunes(0) & =~"^[^\\p{C}]*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #CommandParameterList: list.MinItems(1) & [...#CommandParameter] | fn.#ListExpression
 
-#CommandParameterName: strings.MaxRunes(192) & strings.MinRunes(1) & =~"^[.$a-zA-Z0-9_-]+$" | fn.#StringExpression
+#CommandParameterName: strings.MaxRunes(192) & strings.MinRunes(1) & =~"^[.$a-zA-Z0-9_-]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(192) & strings.MinRunes(1) & =~"^[.$a-zA-Z0-9_-]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #CommandParameterType: "STRING" |
 	"INTEGER" |
@@ -72,8 +111,13 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #CommandParameterValue: close({
-	B?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	BIN?: strings.MinRunes(1) | fn.#StringExpression
+	B?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	BIN?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	D?: number |
 		{
 			string &
@@ -107,18 +151,43 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	L?:  strings.MaxRunes(19) & =~"^-?\\d+$" | fn.#StringExpression
-	S?:  strings.MinRunes(1) | fn.#StringExpression
-	UL?: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[0-9]*$" | fn.#StringExpression
+	L?: strings.MaxRunes(19) & =~"^-?\\d+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(19) & =~"^-?\\d+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	S?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	UL?: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[0-9]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[0-9]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CommandParameterValueComparisonOperand: close({
-	Number?:      strings.MinRunes(1) | fn.#StringExpression
+	Number?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	NumberRange?: #CommandParameterValueNumberRange
 	Numbers?:     #CommandParameterValueStringList
-	String?:      strings.MinRunes(1) | fn.#StringExpression
-	Strings?:     #CommandParameterValueStringList
+	String?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Strings?: #CommandParameterValueStringList
 }) |
 fn.#ObjectExpression
 
@@ -143,12 +212,27 @@ fn.#ObjectExpression
 #CommandParameterValueConditionList: list.MinItems(1) & [...#CommandParameterValueCondition] | fn.#ListExpression
 
 #CommandParameterValueNumberRange: close({
-	Max!: strings.MinRunes(1) | fn.#StringExpression
-	Min!: strings.MinRunes(1) | fn.#StringExpression
+	Max!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Min!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#CommandParameterValueStringList: list.MaxItems(10) & list.MinItems(1) & [...strings.MinRunes(1) | fn.#StringExpression] |
+#CommandParameterValueStringList: list.MaxItems(10) & list.MinItems(1) & [...strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression] |
 fn.#ListExpression
 
 #CommandPayload: close({
@@ -157,17 +241,32 @@ fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#CommandPayloadContent: string | fn.#StringExpression
+#CommandPayloadContent: string | number | bool | fn.#StringExpression
 
 #CommandPreprocessor: close({AwsJsonSubstitution?: #AwsJsonSubstitutionCommandPreprocessorConfig}) |
 	fn.#ObjectExpression
 
-#MimeType: strings.MinRunes(1) | fn.#StringExpression
+#MimeType: strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #OutputFormat: "JSON" | "CBOR" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -3,12 +3,10 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -21,10 +19,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *API Gateway Developer Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGatewayV2::Authorizer"
-	Properties!: close({
-		ApiId!:                          string | fn.#StringExpression
-		AuthorizerCredentialsArn?:       string | fn.#StringExpression
-		AuthorizerPayloadFormatVersion?: string | fn.#StringExpression
+	let properties = close({
+		ApiId!:                          string | number | bool | fn.#StringExpression
+		AuthorizerCredentialsArn?:       string | number | bool | fn.#StringExpression
+		AuthorizerPayloadFormatVersion?: string | number | bool | fn.#StringExpression
 		AuthorizerResultTtlInSeconds?: int |
 			{
 				string &
@@ -41,22 +39,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		AuthorizerType!:        string | fn.#StringExpression
-		AuthorizerUri?:         string | fn.#StringExpression
+		AuthorizerType!:        string | number | bool | fn.#StringExpression
+		AuthorizerUri?:         string | number | bool | fn.#StringExpression
 		EnableSimpleResponses?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		IdentitySource?:        [...string | fn.#StringExpression] | fn.#ListExpression
-		IdentityValidationExpression?: string | fn.#StringExpression
+		IdentitySource?:        [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		IdentityValidationExpression?: string | number | bool | fn.#StringExpression
 
 		// The ``JWTConfiguration`` property specifies the configuration of a JWT
 		// authorizer. Required for the ``JWT`` authorizer type. Supported only for
 		// HTTP APIs.
 		JwtConfiguration?: #JWTConfiguration
-		Name!:             string | fn.#StringExpression
+		Name!:             string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #JWTConfiguration: close({
-	Audience?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Issuer?:   string | fn.#StringExpression
+	Audience?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Issuer?:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

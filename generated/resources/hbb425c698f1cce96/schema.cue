@@ -3,50 +3,45 @@
 package schema
 
 import (
-	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::RTBFabric::InboundExternalLink Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RTBFabric::InboundExternalLink"
-	Properties!: close({
+	let properties = close({
 		GatewayId!:       #GatewayId
 		LinkAttributes?:  #LinkAttributes
 		LinkLogSettings!: #LinkLogSettings
 		Tags?:            #Tags
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Arn: strings.MaxRunes(2048) &
-strings.MinRunes(20) &
-=~"^arn:aws:rtbfabric:[a-zA-Z0-9_-]+:[0-9]{12}:gateway/[a-zA-Z0-9-]+/link/[a-zA-Z0-9-]+$" |
+#GatewayId: =~"^rtb-gw-[a-z0-9-]{1,25}$" |
+{
+	number | bool
+	_cfnString: =~"^rtb-gw-[a-z0-9-]{1,25}$" & "\(self)"
+} |
 fn.#StringExpression
 
-#CreatedTimestamp: string | fn.#StringExpression
-
-#DomainName: =~"^(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(?:\\.(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?))+$" |
-	fn.#StringExpression
-
-#GatewayId: =~"^rtb-gw-[a-z0-9-]{1,25}$" | fn.#StringExpression
-
 #LinkAttributes: close({
-	CustomerProvidedId?: string | fn.#StringExpression
+	CustomerProvidedId?: string | number | bool | fn.#StringExpression
 	ResponderErrorMasking?: list.MaxItems(200) & list.MinItems(1) & [...#ResponderErrorMaskingForHttpCode] |
 		fn.#ListExpression
 }) |
 fn.#ObjectExpression
-
-#LinkId: =~"^link-[a-z0-9-]{1,25}$" | fn.#StringExpression
 
 #LinkLogSettings: close({
 	ApplicationLogs!: close({
@@ -98,25 +93,14 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#LinkStatus: "PENDING_CREATION" |
-	"PENDING_REQUEST" |
-	"REQUESTED" |
-	"ACCEPTED" |
-	"ACTIVE" |
-	"REJECTED" |
-	"FAILED" |
-	"PENDING_DELETION" |
-	"DELETED" |
-	"PENDING_UPDATE" |
-	"PENDING_ISOLATION" |
-	"ISOLATED" |
-	"PENDING_RESTORATION" |
-	"UNKNOWN_TO_SDK_VERSION" |
-	fn.#StringExpression
-
 #ResponderErrorMaskingForHttpCode: close({
-	Action!:   "NO_BID" | "PASSTHROUGH" | fn.#StringExpression
-	HttpCode!: strings.MaxRunes(7) & strings.MinRunes(3) & =~"^DEFAULT|4XX|5XX|\\d{3}$" | fn.#StringExpression
+	Action!: "NO_BID" | "PASSTHROUGH" | fn.#StringExpression
+	HttpCode!: strings.MaxRunes(7) & strings.MinRunes(3) & =~"^DEFAULT|4XX|5XX|\\d{3}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(7) & strings.MinRunes(3) & =~"^DEFAULT|4XX|5XX|\\d{3}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	LoggingTypes!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...#ResponderErrorMaskingLoggingType] |
 		fn.#ListExpression
 	ResponseLoggingPercentage?: <=100 & >=0 |
@@ -146,11 +130,21 @@ fn.#ObjectExpression
 
 #Tag: close({
 	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^(resourceArn|internalId|[a-zA-Z0-9+\\-=._:/@]+)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		=~"^(resourceArn|internalId|[a-zA-Z0-9+\\-=._:/@]+)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tags: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-
-#UpdatedTimestamp: string | fn.#StringExpression

@@ -7,44 +7,93 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::WorkSpacesWeb::DataProtectionSettings Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WorkSpacesWeb::DataProtectionSettings"
-	Properties?: close({
+	let properties = close({
 		AdditionalEncryptionContext?: #EncryptionContextMap
 		CustomerManagedKey?: strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:key\\/[a-zA-Z0-9-]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[ _\\-\\d\\w]+$" | fn.#StringExpression
-		DisplayName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[ _\\-\\d\\w]+$" | fn.#StringExpression
+		Description?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[ _\\-\\d\\w]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[ _\\-\\d\\w]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		DisplayName?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[ _\\-\\d\\w]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[ _\\-\\d\\w]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		InlineRedactionConfiguration?: #InlineRedactionConfiguration
 		Tags?:                         list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #CustomPattern: close({
 	KeywordRegex?: strings.MaxRunes(300) & strings.MinRunes(0) & =~"^\\/((?:[^\\n])+)\\/([gimsuyvd]{0,8})$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(300) & strings.MinRunes(0) & =~"^\\/((?:[^\\n])+)\\/([gimsuyvd]{0,8})$" & "\(self)"
+	} |
 	fn.#StringExpression
-	PatternDescription?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[ _\\-\\d\\w]+$" | fn.#StringExpression
-	PatternName!:        strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[_\\-\\d\\w]+$" | fn.#StringExpression
+	PatternDescription?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[ _\\-\\d\\w]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[ _\\-\\d\\w]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	PatternName!: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[_\\-\\d\\w]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[_\\-\\d\\w]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	PatternRegex!: strings.MaxRunes(300) & strings.MinRunes(0) & =~"^\\/((?:[^\\n])+)\\/([gimsuyvd]{0,8})$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(300) & strings.MinRunes(0) & =~"^\\/((?:[^\\n])+)\\/([gimsuyvd]{0,8})$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EncryptionContextMap: close({
 
-	{[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$" | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[\\s\\S]*$"]: strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(131072) & strings.MinRunes(0) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #InlineRedactionConfiguration: close({
@@ -68,22 +117,33 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	GlobalEnforcedUrls?: list.MaxItems(100) & list.MinItems(1) & [
-		...=~"^((([a-zA-Z][a-zA-Z0-9+.-]*):\\/\\/(\\*|[\\w%._\\-\\+~#=@]+)?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?)|(\\*|[\\w%._\\-\\+~#=@]+\\.[\\w%._\\-\\+~#=@]+)(?::(\\d{1,5}))?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?|(([a-zA-Z][a-zA-Z0-9+.-]*):(\\/\\/)?\\*))$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	GlobalExemptUrls?: list.MaxItems(100) & list.MinItems(1) & [
-		...=~"^((([a-zA-Z][a-zA-Z0-9+.-]*):\\/\\/(\\*|[\\w%._\\-\\+~#=@]+)?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?)|(\\*|[\\w%._\\-\\+~#=@]+\\.[\\w%._\\-\\+~#=@]+)(?::(\\d{1,5}))?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?|(([a-zA-Z][a-zA-Z0-9+.-]*):(\\/\\/)?\\*))$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
+	GlobalEnforcedUrls?: list.MaxItems(100) & list.MinItems(1) & [...=~"^((([a-zA-Z][a-zA-Z0-9+.-]*):\\/\\/(\\*|[\\w%._\\-\\+~#=@]+)?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?)|(\\*|[\\w%._\\-\\+~#=@]+\\.[\\w%._\\-\\+~#=@]+)(?::(\\d{1,5}))?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?|(([a-zA-Z][a-zA-Z0-9+.-]*):(\\/\\/)?\\*))$" |
+	{
+		number | bool
+		_cfnString: =~"^((([a-zA-Z][a-zA-Z0-9+.-]*):\\/\\/(\\*|[\\w%._\\-\\+~#=@]+)?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?)|(\\*|[\\w%._\\-\\+~#=@]+\\.[\\w%._\\-\\+~#=@]+)(?::(\\d{1,5}))?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?|(([a-zA-Z][a-zA-Z0-9+.-]*):(\\/\\/)?\\*))$" &
+			"\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	GlobalExemptUrls?: list.MaxItems(100) & list.MinItems(1) & [...=~"^((([a-zA-Z][a-zA-Z0-9+.-]*):\\/\\/(\\*|[\\w%._\\-\\+~#=@]+)?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?)|(\\*|[\\w%._\\-\\+~#=@]+\\.[\\w%._\\-\\+~#=@]+)(?::(\\d{1,5}))?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?|(([a-zA-Z][a-zA-Z0-9+.-]*):(\\/\\/)?\\*))$" |
+	{
+		number | bool
+		_cfnString: =~"^((([a-zA-Z][a-zA-Z0-9+.-]*):\\/\\/(\\*|[\\w%._\\-\\+~#=@]+)?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?)|(\\*|[\\w%._\\-\\+~#=@]+\\.[\\w%._\\-\\+~#=@]+)(?::(\\d{1,5}))?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?|(([a-zA-Z][a-zA-Z0-9+.-]*):(\\/\\/)?\\*))$" &
+			"\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	InlineRedactionPatterns!: list.MaxItems(150) & [...] & [...#InlineRedactionPattern] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #InlineRedactionPattern: close({
-	BuiltInPatternId?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[_\\-\\d\\w]+$" | fn.#StringExpression
+	BuiltInPatternId?: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[_\\-\\d\\w]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[_\\-\\d\\w]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ConfidenceLevel?: <=3 & >=1 |
 		{
 			string &
@@ -105,22 +165,33 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	CustomPattern?: #CustomPattern
-	EnforcedUrls?: list.MaxItems(20) & list.MinItems(1) & [
-		...=~"^((([a-zA-Z][a-zA-Z0-9+.-]*):\\/\\/(\\*|[\\w%._\\-\\+~#=@]+)?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?)|(\\*|[\\w%._\\-\\+~#=@]+\\.[\\w%._\\-\\+~#=@]+)(?::(\\d{1,5}))?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?|(([a-zA-Z][a-zA-Z0-9+.-]*):(\\/\\/)?\\*))$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	ExemptUrls?: list.MaxItems(20) & list.MinItems(1) & [
-		...=~"^((([a-zA-Z][a-zA-Z0-9+.-]*):\\/\\/(\\*|[\\w%._\\-\\+~#=@]+)?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?)|(\\*|[\\w%._\\-\\+~#=@]+\\.[\\w%._\\-\\+~#=@]+)(?::(\\d{1,5}))?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?|(([a-zA-Z][a-zA-Z0-9+.-]*):(\\/\\/)?\\*))$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
+	EnforcedUrls?: list.MaxItems(20) & list.MinItems(1) & [...=~"^((([a-zA-Z][a-zA-Z0-9+.-]*):\\/\\/(\\*|[\\w%._\\-\\+~#=@]+)?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?)|(\\*|[\\w%._\\-\\+~#=@]+\\.[\\w%._\\-\\+~#=@]+)(?::(\\d{1,5}))?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?|(([a-zA-Z][a-zA-Z0-9+.-]*):(\\/\\/)?\\*))$" |
+	{
+		number | bool
+		_cfnString: =~"^((([a-zA-Z][a-zA-Z0-9+.-]*):\\/\\/(\\*|[\\w%._\\-\\+~#=@]+)?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?)|(\\*|[\\w%._\\-\\+~#=@]+\\.[\\w%._\\-\\+~#=@]+)(?::(\\d{1,5}))?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?|(([a-zA-Z][a-zA-Z0-9+.-]*):(\\/\\/)?\\*))$" &
+			"\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	ExemptUrls?: list.MaxItems(20) & list.MinItems(1) & [...=~"^((([a-zA-Z][a-zA-Z0-9+.-]*):\\/\\/(\\*|[\\w%._\\-\\+~#=@]+)?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?)|(\\*|[\\w%._\\-\\+~#=@]+\\.[\\w%._\\-\\+~#=@]+)(?::(\\d{1,5}))?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?|(([a-zA-Z][a-zA-Z0-9+.-]*):(\\/\\/)?\\*))$" |
+	{
+		number | bool
+		_cfnString: =~"^((([a-zA-Z][a-zA-Z0-9+.-]*):\\/\\/(\\*|[\\w%._\\-\\+~#=@]+)?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?)|(\\*|[\\w%._\\-\\+~#=@]+\\.[\\w%._\\-\\+~#=@]+)(?::(\\d{1,5}))?(\\/[^@\\s]*)?(?:\\?([^*\\s]+(?:\\*?)))?|(([a-zA-Z][a-zA-Z0-9+.-]*):(\\/\\/)?\\*))$" &
+			"\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 	RedactionPlaceHolder!: #RedactionPlaceHolder
 }) |
 fn.#ObjectExpression
 
 #RedactionPlaceHolder: close({
-	RedactionPlaceHolderText?: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[*_\\-\\d\\w]+$" | fn.#StringExpression
+	RedactionPlaceHolderText?: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[*_\\-\\d\\w]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(20) & strings.MinRunes(1) & =~"^[*_\\-\\d\\w]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	RedactionPlaceHolderType!: #RedactionPlaceHolderType
 }) |
 fn.#ObjectExpression
@@ -128,7 +199,17 @@ fn.#ObjectExpression
 #RedactionPlaceHolderType: "CustomText" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

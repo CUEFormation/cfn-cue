@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,20 +17,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // manage Dataset and ProjectVersions.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Rekognition::Project"
-	Properties!: close({
+	let properties = close({
 		ProjectName!: #ProjectName
 		Tags?:        list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Arn: strings.MaxRunes(2048) &
-=~"(^arn:[a-z\\d-]+:rekognition:[a-z\\d-]+:\\d{12}:project/[a-zA-Z0-9_.\\-]{1,255}/[0-9]+$)" |
+#ProjectName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9][a-zA-Z0-9_\\-]*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9][a-zA-Z0-9_\\-]*" & "\(self)"
+} |
 fn.#StringExpression
 
-#ProjectName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"[a-zA-Z0-9][a-zA-Z0-9_\\-]*" | fn.#StringExpression
-
 #Tag: close({
-	Key!:   strings.MaxRunes(128) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & =~"\\A[a-zA-Z0-9+\\-=\\._\\:\\/@]+$" | fn.#StringExpression
+	Key!: =~"^[a-zA-Z0-9+\\-=\\._\\:\\/@]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9+\\-=\\._\\:\\/@]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & =~"\\A[a-zA-Z0-9+\\-=\\._\\:\\/@]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & =~"\\A[a-zA-Z0-9+\\-=\\._\\:\\/@]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

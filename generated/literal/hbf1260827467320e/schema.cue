@@ -72,7 +72,9 @@ import (
 
 	// Specifies the subnets associated with the task. These subnets must all be in
 	// the same VPC. You can specify as many as 16 subnets.
-	Subnets!: list.MaxItems(16) & list.MinItems(1) & [...strings.MaxRunes(1000) & strings.MinRunes(1)]
+	Subnets!: list.MaxItems(16) & list.MinItems(1) & [
+		...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & (strings.MaxRunes(1000) & strings.MinRunes(1))
+	]
 })
 
 // The details of a capacity provider strategy.
@@ -155,7 +157,8 @@ import (
 	DetailType!: strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// The source of the event.
-	Source!: strings.MaxRunes(256) & strings.MinRunes(1)
+	Source!: (=~"(\\$(\\.[\\w_-]+(\\[(\\d+|\\*)\\])*)*)$" |
+	=~"^(?:[/\\.\\-_A-Za-z0-9]+)" & matchN(0, [=~"^(?:aws\\.)"]) & string) & (strings.MaxRunes(256) & strings.MinRunes(1))
 })
 
 // Flexible time window allows configuration of a window within which a schedule can be invoked

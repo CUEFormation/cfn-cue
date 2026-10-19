@@ -6,18 +6,22 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElasticLoadBalancingV2::ListenerCertificate
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ElasticLoadBalancingV2::ListenerCertificate"
-	Properties!: close({
+	let properties = close({
 		Certificates!: list.UniqueItems() & [...#Certificate] | fn.#ListExpression
-		ListenerArn!:  string | fn.#StringExpression
+		ListenerArn!:  string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Certificate: close({CertificateArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Certificate: close({CertificateArn?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression

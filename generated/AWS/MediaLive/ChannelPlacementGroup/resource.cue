@@ -4,6 +4,5 @@ package ChannelPlacementGroup
 
 import schema "github.com/cueformation/cfn-cue/resources/hd662094507dd4efe:schema"
 
-#Resource:                   schema.#Resource
-#ChannelPlacementGroupState: schema.#ChannelPlacementGroupState
-#Tags:                       schema.#Tags
+#Resource: schema.#Resource
+#Tags:     schema.#Tags

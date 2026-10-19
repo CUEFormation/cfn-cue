@@ -7,45 +7,104 @@ import (
 	"list"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::SystemsManagerSAP::Application
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SystemsManagerSAP::Application"
-	Properties!: close({
-		ApplicationId!:     =~"[\\w\\d\\.-]{1,60}" | fn.#StringExpression
-		ApplicationType!:   "HANA" | "SAP_ABAP" | fn.#StringExpression
-		ComponentsInfo?:    list.MinItems(1) & [...#ComponentInfo] | fn.#ListExpression
-		Credentials?:       list.MinItems(1) & [...#Credential] | fn.#ListExpression
-		DatabaseArn?:       =~"^arn:(.+:){2,4}.+$|^arn:(.+:){1,3}.+\\/.+$" | fn.#StringExpression
-		Instances?:         list.MinItems(1) & [...#Instance] | fn.#ListExpression
-		SapInstanceNumber?: =~"[0-9]{2}" | fn.#StringExpression
-		Sid?:               =~"[A-Z][A-Z0-9]{2}" | fn.#StringExpression
-		Tags?:              [...#Tag] | fn.#ListExpression
+	let properties = close({
+		ApplicationId!: =~"[\\w\\d\\.-]{1,60}" |
+		{
+			number | bool
+			_cfnString: =~"[\\w\\d\\.-]{1,60}" & "\(self)"
+		} |
+		fn.#StringExpression
+		ApplicationType!: "HANA" | "SAP_ABAP" | fn.#StringExpression
+		ComponentsInfo?:  list.MinItems(1) & [...#ComponentInfo] | fn.#ListExpression
+		Credentials?:     list.MinItems(1) & [...#Credential] | fn.#ListExpression
+		DatabaseArn?: =~"^arn:(.+:){2,4}.+$|^arn:(.+:){1,3}.+\\/.+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:(.+:){2,4}.+$|^arn:(.+:){1,3}.+\\/.+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Instances?: list.MinItems(1) & [...#Instance] | fn.#ListExpression
+		SapInstanceNumber?: =~"[0-9]{2}" |
+		{
+			number | bool
+			_cfnString: =~"[0-9]{2}" & "\(self)"
+		} |
+		fn.#StringExpression
+		Sid?: =~"[A-Z][A-Z0-9]{2}" |
+		{
+			number | bool
+			_cfnString: =~"[A-Z][A-Z0-9]{2}" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ComponentInfo: {
 	ComponentType?: "HANA" | "HANA_NODE" | "ABAP" | "ASCS" | "DIALOG" | "WEBDISP" | "WD" | "ERS" | fn.#StringExpression
-	Ec2InstanceId?: =~"^i-[\\w\\d]{8}$|^i-[\\w\\d]{17}$" | fn.#StringExpression
-	Sid?:           =~"[A-Z][A-Z0-9]{2}" | fn.#StringExpression
+	Ec2InstanceId?: =~"^i-[\\w\\d]{8}$|^i-[\\w\\d]{17}$" |
+	{
+		number | bool
+		_cfnString: =~"^i-[\\w\\d]{8}$|^i-[\\w\\d]{17}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Sid?: =~"[A-Z][A-Z0-9]{2}" |
+	{
+		number | bool
+		_cfnString: =~"[A-Z][A-Z0-9]{2}" & "\(self)"
+	} |
+	fn.#StringExpression
 	...
 } | fn.#ObjectExpression
 
 #Credential: close({
 	CredentialType?: "ADMIN" | fn.#StringExpression
-	DatabaseName?:   string | fn.#StringExpression
-	SecretId?:       string | fn.#StringExpression
+	DatabaseName?: =~"^(?:.{1,100}$)" |
+	{
+		number | bool
+		_cfnString: =~"^(?:.{1,100}$)" & "\(self)"
+	} |
+	fn.#StringExpression
+	SecretId?: =~"^(?:.{1,100}$)" |
+	{
+		number | bool
+		_cfnString: =~"^(?:.{1,100}$)" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Instance: =~"^i-[\\w\\d]{8}$|^i-[\\w\\d]{17}$" | fn.#StringExpression
+#Instance: =~"^i-[\\w\\d]{8}$|^i-[\\w\\d]{17}$" |
+{
+	number | bool
+	_cfnString: =~"^i-[\\w\\d]{8}$|^i-[\\w\\d]{17}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

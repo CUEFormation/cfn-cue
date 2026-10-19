@@ -4,8 +4,7 @@ package NotificationConfiguration
 
 import schema "github.com/cueformation/cfn-cue/resources/h36f792305e11ef78:schema"
 
-#Resource:                        schema.#Resource
-#AggregationDuration:             schema.#AggregationDuration
-#NotificationConfigurationStatus: schema.#NotificationConfigurationStatus
-#Tag:                             schema.#Tag
-#TagMap:                          schema.#TagMap
+#Resource:            schema.#Resource
+#AggregationDuration: schema.#AggregationDuration
+#Tag:                 schema.#Tag
+#TagMap:              schema.#TagMap

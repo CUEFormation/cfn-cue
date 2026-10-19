@@ -6,26 +6,33 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppSync::FunctionConfiguration"
-	Properties!: close({
-		ApiId!:          string | fn.#StringExpression
-		Code?:           strings.MaxRunes(32768) & strings.MinRunes(1) | fn.#StringExpression
-		CodeS3Location?: string | fn.#StringExpression
-		DataSourceName!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" |
+	let properties = close({
+		ApiId!: string | number | bool | fn.#StringExpression
+		Code?: strings.MaxRunes(32768) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32768) & strings.MinRunes(1) & "\(self)"
+		} |
 		fn.#StringExpression
-		Description?:     string | fn.#StringExpression
-		FunctionVersion?: string | fn.#StringExpression
+		CodeS3Location?: string | number | bool | fn.#StringExpression
+		DataSourceName!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?:     string | number | bool | fn.#StringExpression
+		FunctionVersion?: string | number | bool | fn.#StringExpression
 		MaxBatchSize?: int & <=2000 & >=0 |
 			{
 				string &
@@ -44,11 +51,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" | fn.#StringExpression
-		RequestMappingTemplate?:            strings.MaxRunes(65536) & strings.MinRunes(0) | fn.#StringExpression
-		RequestMappingTemplateS3Location?:  string | fn.#StringExpression
-		ResponseMappingTemplate?:           strings.MaxRunes(65536) & strings.MinRunes(0) | fn.#StringExpression
-		ResponseMappingTemplateS3Location?: string | fn.#StringExpression
+		Name!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[_A-Za-z][_0-9A-Za-z]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		RequestMappingTemplate?: strings.MaxRunes(65536) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(65536) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		RequestMappingTemplateS3Location?: string | number | bool | fn.#StringExpression
+		ResponseMappingTemplate?: strings.MaxRunes(65536) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(65536) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		ResponseMappingTemplateS3Location?: string | number | bool | fn.#StringExpression
 
 		// Describes a runtime used by an AWS AppSync pipeline resolver or AWS AppSync
 		// function. Specifies the name and version of the runtime to use. Note that if
@@ -60,15 +82,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// invoked.
 		SyncConfig?: #SyncConfig
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AppSyncRuntime: close({
 	Name!:           "APPSYNC_JS" | fn.#StringExpression
-	RuntimeVersion!: string | fn.#StringExpression
+	RuntimeVersion!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#LambdaConflictHandlerConfig: close({LambdaConflictHandlerArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#LambdaConflictHandlerConfig: close({LambdaConflictHandlerArn?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #SyncConfig: close({
 	ConflictDetection!:           "NONE" | "VERSION" | fn.#StringExpression

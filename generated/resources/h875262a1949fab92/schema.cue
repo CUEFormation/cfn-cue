@@ -7,26 +7,59 @@ import (
 	"list"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Synthetics::Group
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Synthetics::Group"
-	Properties!: close({
-		Name!:         =~"^[0-9a-z_\\-]{1,64}$" | fn.#StringExpression
+	let properties = close({
+		Name!: =~"^[0-9a-z_\\-]{1,64}$" |
+		{
+			number | bool
+			_cfnString: =~"^[0-9a-z_\\-]{1,64}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ResourceArns?: list.MaxItems(10) & list.UniqueItems() & [...#ResourceArn] | fn.#ListExpression
 		Tags?:         [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ResourceArn: =~"arn:(aws[a-zA-Z-]*)?:synthetics:[a-z]{2}((-gov)|(-iso(b|e|f?)))?-[a-z]+-\\d{1}:\\d{12}:canary:[0-9a-z_\\-]" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"arn:(aws[a-zA-Z-]*)?:synthetics:[a-z]{2}((-gov)|(-iso(b|e|f?)))?-[a-z]+-\\d{1}:\\d{12}:canary:[0-9a-z_\\-]" &
+		"\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([a-zA-Z\\d\\s_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: =~"^([a-zA-Z\\d\\s_.:/=+\\-@]+)$" &
+	matchN(0, [=~"^(?:aws:)"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^([a-zA-Z\\d\\s_.:/=+\\-@]+)$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([a-zA-Z\\d\\s_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([a-zA-Z\\d\\s_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -6,10 +6,8 @@ import schema "github.com/cueformation/cfn-cue/resources/hb6e9499f8bccb648:schem
 
 #Resource:            schema.#Resource
 #Arn:                 schema.#Arn
-#InstanceArn:         schema.#InstanceArn
 #LocalizedString:     schema.#LocalizedString
 #NotificationContent: schema.#NotificationContent
 #Priority:            schema.#Priority
 #RecipientList:       schema.#RecipientList
 #Tag:                 schema.#Tag
-#UserArn:             schema.#UserArn

@@ -6,22 +6,26 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaTailor::SourceLocation Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaTailor::SourceLocation"
-	Properties!: close({
+	let properties = close({
 		AccessConfiguration?:                 #AccessConfiguration
 		DefaultSegmentDeliveryConfiguration?: #DefaultSegmentDeliveryConfiguration
 		HttpConfiguration!:                   #HttpConfiguration
 		SegmentDeliveryConfigurations?:       [...#SegmentDeliveryConfiguration] | fn.#ListExpression
-		SourceLocationName!:                  string | fn.#StringExpression
+		SourceLocationName!:                  string | number | bool | fn.#StringExpression
 		Tags?:                                list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AccessConfiguration: close({
@@ -32,25 +36,26 @@ fn.#ObjectExpression
 
 #AccessType: "S3_SIGV4" | "SECRETS_MANAGER_ACCESS_TOKEN" | "AUTODETECT_SIGV4" | fn.#StringExpression
 
-#DefaultSegmentDeliveryConfiguration: close({BaseUrl?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#DefaultSegmentDeliveryConfiguration: close({BaseUrl?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
-#HttpConfiguration: close({BaseUrl!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#HttpConfiguration: close({BaseUrl!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #SecretsManagerAccessTokenConfiguration: close({
-	HeaderName?:      string | fn.#StringExpression
-	SecretArn?:       string | fn.#StringExpression
-	SecretStringKey?: string | fn.#StringExpression
+	HeaderName?:      string | number | bool | fn.#StringExpression
+	SecretArn?:       string | number | bool | fn.#StringExpression
+	SecretStringKey?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SegmentDeliveryConfiguration: close({
-	BaseUrl?: string | fn.#StringExpression
-	Name?:    string | fn.#StringExpression
+	BaseUrl?: string | number | bool | fn.#StringExpression
+	Name?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

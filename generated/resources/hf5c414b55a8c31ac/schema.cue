@@ -7,43 +7,86 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoT::ThingType
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::ThingType"
-	Properties?: close({
+	let properties = close({
 		DeprecateThingType?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Tags?:               list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		ThingTypeName?:      strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" | fn.#StringExpression
+		ThingTypeName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"[a-zA-Z0-9:_-]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		ThingTypeProperties?: close({
 			Mqtt5Configuration?: close(
 				{PropagatingAttributes?: list.UniqueItems() & [...#PropagatingAttribute] | fn.#ListExpression},
 			) |
 				fn.#ObjectExpression
-			SearchableAttributes?: list.MaxItems(3) & list.UniqueItems() & [
-				...strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9_.,@/:#-]+" | fn.#StringExpression
-			] |
+			SearchableAttributes?: list.MaxItems(3) & list.UniqueItems() & [...strings.MaxRunes(128) &
+			strings.MinRunes(0) &
+			=~"[a-zA-Z0-9_.,@/:#-]+" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9_.,@/:#-]+" & "\(self)"
+			} |
+			fn.#StringExpression] |
 			fn.#ListExpression
-			ThingTypeDescription?: strings.MaxRunes(2028) & strings.MinRunes(0) | fn.#StringExpression
+			ThingTypeDescription?: strings.MaxRunes(2028) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(2028) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #PropagatingAttribute: close({
 	ConnectionAttribute?: ("iot:ClientId" | "iot:Thing.ThingName") & (strings.MaxRunes(128) & strings.MinRunes(0)) |
+	{
+		number | bool
+		_cfnString: ("iot:ClientId" | "iot:Thing.ThingName") & strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+	} |
 	fn.#StringExpression
-	ThingAttribute?:  strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9_.,@/:#-]+" | fn.#StringExpression
-	UserPropertyKey!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9:$.]+" | fn.#StringExpression
+	ThingAttribute?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9_.,@/:#-]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9_.,@/:#-]+" & "\(self)"
+	} |
+	fn.#StringExpression
+	UserPropertyKey!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9:$.]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"[a-zA-Z0-9:$.]+" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

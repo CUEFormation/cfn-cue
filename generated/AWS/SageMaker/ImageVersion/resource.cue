@@ -8,15 +8,11 @@ import schema "github.com/cueformation/cfn-cue/resources/h680a92e70be5ac38:schem
 #Alias:           schema.#Alias
 #Aliases:         schema.#Aliases
 #BaseImage:       schema.#BaseImage
-#ContainerImage:  schema.#ContainerImage
 #Horovod:         schema.#Horovod
-#ImageArn:        schema.#ImageArn
 #ImageName:       schema.#ImageName
-#ImageVersionArn: schema.#ImageVersionArn
 #JobType:         schema.#JobType
 #MLFramework:     schema.#MLFramework
 #Processor:       schema.#Processor
 #ProgrammingLang: schema.#ProgrammingLang
 #ReleaseNotes:    schema.#ReleaseNotes
 #VendorGuidance:  schema.#VendorGuidance
-#Version:         schema.#Version

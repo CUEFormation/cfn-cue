@@ -7,43 +7,87 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Wisdom::MessageTemplate Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Wisdom::MessageTemplate"
-	Properties!: close({
+	let properties = close({
 		ChannelSubtype!:    #ChannelSubtype
 		Content!:           #Content
 		DefaultAttributes?: #MessageTemplateAttributes
-		Description?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\\\s_.,-]+" | fn.#StringExpression
+		Description?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\\\s_.,-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\\\s_.,-]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		GroupingConfiguration?: #GroupingConfiguration
 		KnowledgeBaseArn!: =~"^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})?$" |
-			fn.#StringExpression
-		Language?: strings.MaxRunes(5) & strings.MinRunes(2) | fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:[a-z-]*?:wisdom:[a-z0-9-]*?:[0-9]{12}:[a-z-]*?/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}(?:/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})?$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		Language?: strings.MaxRunes(5) & strings.MinRunes(2) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(5) & strings.MinRunes(2) & "\(self)"
+		} |
+		fn.#StringExpression
 		MessageTemplateAttachments?: [...close({
 			AttachmentName!: #AttachmentName
 			S3PresignedUrl!: #AttachmentUrl
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\\\s_.,-]+" | fn.#StringExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\\\s_.,-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\\\s_.,-]+" & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AgentAttributes: close({
-	FirstName?: strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	LastName?:  strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
+	FirstName?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	LastName?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#AttachmentName: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#AttachmentName: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#AttachmentUrl: strings.MinRunes(1) | fn.#StringExpression
+#AttachmentUrl: strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #ChannelSubtype: "EMAIL" | "SMS" | fn.#StringExpression
 
@@ -60,75 +104,377 @@ fn.#ObjectExpression
 
 #CustomAttributes: close({
 
-	{[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[a-zA-Z0-9\\s._:/=+@-]*$"]: strings.MaxRunes(32767) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #CustomerProfileAttributes: close({
-	AccountNumber?:         strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	AdditionalInformation?: strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	Address1?:              strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	Address2?:              strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	Address3?:              strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	Address4?:              strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	BillingAddress1?:       strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	BillingAddress2?:       strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	BillingAddress3?:       strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	BillingAddress4?:       strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	BillingCity?:           strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	BillingCountry?:        strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	BillingCounty?:         strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	BillingPostalCode?:     strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	BillingProvince?:       strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	BillingState?:          strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	BirthDate?:             strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	BusinessEmailAddress?:  strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	BusinessName?:          strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	BusinessPhoneNumber?:   strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	City?:                  strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	Country?:               strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	County?:                strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	Custom?:                #CustomAttributes
-	EmailAddress?:          strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	FirstName?:             strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	Gender?:                strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	HomePhoneNumber?:       strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	LastName?:              strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	MailingAddress1?:       strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	MailingAddress2?:       strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	MailingAddress3?:       strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	MailingAddress4?:       strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	MailingCity?:           strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	MailingCountry?:        strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	MailingCounty?:         strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	MailingPostalCode?:     strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	MailingProvince?:       strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	MailingState?:          strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	MiddleName?:            strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	MobilePhoneNumber?:     strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	PartyType?:             strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	PhoneNumber?:           strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	PostalCode?:            strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	ProfileARN?:            strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	ProfileId?:             strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	Province?:              strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	ShippingAddress1?:      strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	ShippingAddress2?:      strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	ShippingAddress3?:      strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	ShippingAddress4?:      strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	ShippingCity?:          strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	ShippingCountry?:       strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	ShippingCounty?:        strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	ShippingPostalCode?:    strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	ShippingProvince?:      strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	ShippingState?:         strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
-	State?:                 strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
+	AccountNumber?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	AdditionalInformation?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Address1?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Address2?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Address3?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Address4?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	BillingAddress1?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	BillingAddress2?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	BillingAddress3?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	BillingAddress4?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	BillingCity?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	BillingCountry?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	BillingCounty?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	BillingPostalCode?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	BillingProvince?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	BillingState?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	BirthDate?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	BusinessEmailAddress?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	BusinessName?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	BusinessPhoneNumber?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	City?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Country?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	County?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Custom?: #CustomAttributes
+	EmailAddress?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	FirstName?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Gender?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	HomePhoneNumber?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	LastName?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	MailingAddress1?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	MailingAddress2?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	MailingAddress3?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	MailingAddress4?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	MailingCity?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	MailingCountry?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	MailingCounty?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	MailingPostalCode?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	MailingProvince?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	MailingState?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	MiddleName?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	MobilePhoneNumber?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	PartyType?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	PhoneNumber?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	PostalCode?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ProfileARN?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ProfileId?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Province?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ShippingAddress1?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ShippingAddress2?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ShippingAddress3?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ShippingAddress4?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ShippingCity?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ShippingCountry?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ShippingCounty?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ShippingPostalCode?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ShippingProvince?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ShippingState?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	State?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EmailMessageTemplateContent: close({
 	Body!:    #EmailMessageTemplateContentBody
 	Headers!: list.MaxItems(15) & list.UniqueItems() & [...] & [...#EmailMessageTemplateHeader] | fn.#ListExpression
-	Subject!: strings.MinRunes(1) | fn.#StringExpression
+	Subject!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -148,25 +494,38 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #EmailMessageTemplateHeader: close({
-	Name?:  strings.MaxRunes(126) & strings.MinRunes(1) & =~"^[!-9;-@A-~]+$" | fn.#StringExpression
-	Value?: strings.MaxRunes(870) & strings.MinRunes(1) & =~"[ -~]*" | fn.#StringExpression
+	Name?: strings.MaxRunes(126) & strings.MinRunes(1) & =~"^[!-9;-@A-~]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(126) & strings.MinRunes(1) & =~"^[!-9;-@A-~]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(870) & strings.MinRunes(1) & =~"[ -~]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(870) & strings.MinRunes(1) & =~"[ -~]*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GroupingConfiguration: close({
-	Criteria!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Values!:   list.UniqueItems() & [...#GroupingValue] | fn.#ListExpression
+	Criteria!: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Values!: list.UniqueItems() & [...#GroupingValue] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#GroupingValue: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-
-#MessageTemplateAttachment: close({
-	AttachmentId?:   strings.MinRunes(1) | fn.#StringExpression
-	AttachmentName!: #AttachmentName
-	S3PresignedUrl!: #AttachmentUrl
-}) |
-fn.#ObjectExpression
+#GroupingValue: strings.MaxRunes(2048) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #MessageTemplateAttributes: close({
 	AgentAttributes?:           #AgentAttributes
@@ -176,7 +535,14 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#MessageTemplateBodyContentProvider: close({Content?: strings.MinRunes(1) | fn.#StringExpression}) |
+#MessageTemplateBodyContentProvider: close({
+	Content?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #SmsMessageTemplateContent: close({Body!: #SmsMessageTemplateContentBody}) | fn.#ObjectExpression
@@ -186,18 +552,45 @@ fn.#ObjectExpression
 #SystemAttributes: close({
 	// The CustomerEndpoint attribute.
 	CustomerEndpoint?: #SystemEndpointAttributes
-	Name?:             strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression
+	Name?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 
 	// The SystemEndpoint attribute.
 	SystemEndpoint?: #SystemEndpointAttributes
 }) |
 fn.#ObjectExpression
 
-#SystemEndpointAttributes: close({Address?: strings.MaxRunes(32767) & strings.MinRunes(1) | fn.#StringExpression}) |
+#SystemEndpointAttributes: close({
+	Address?: strings.MaxRunes(32767) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32767) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

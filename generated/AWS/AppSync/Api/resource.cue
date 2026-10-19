@@ -12,7 +12,6 @@ import schema "github.com/cueformation/cfn-cue/resources/he72ed46456f3921d:schem
 #AuthProviders:          schema.#AuthProviders
 #AuthenticationType:     schema.#AuthenticationType
 #CognitoConfig:          schema.#CognitoConfig
-#DnsMap:                 schema.#DnsMap
 #EventConfig:            schema.#EventConfig
 #EventLogConfig:         schema.#EventLogConfig
 #EventLogLevel:          schema.#EventLogLevel

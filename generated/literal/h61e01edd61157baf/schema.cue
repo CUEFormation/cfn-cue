@@ -18,7 +18,7 @@ package schema
 
 	// The name of the Amazon S3 bucket to which AWS Config delivers configuration
 	// snapshots and configuration history files.
-	S3BucketName!: string
+	S3BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$"
 
 	// The prefix for the specified Amazon S3 bucket.
 	S3KeyPrefix?: string

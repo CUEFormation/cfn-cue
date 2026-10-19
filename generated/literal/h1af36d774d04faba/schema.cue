@@ -3,6 +3,7 @@
 package schema
 
 import (
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 	"strings"
 )
@@ -97,7 +98,7 @@ import (
 	...
 }]) & close({
 	// Condition for the IPAM Resource CIDR rule type. CIDR (like 10.24.34.0/23).
-	Cidr?: string
+	Cidr?: fn.#IPv4Network & string
 
 	// Condition for the IPAM Pool CIDR rule type. If not chosen, the resolver
 	// applies to all IPAM Pool CIDRs in the scope.

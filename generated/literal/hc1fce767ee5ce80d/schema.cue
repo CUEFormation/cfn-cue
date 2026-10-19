@@ -7,27 +7,24 @@ import "strings"
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::UserPoolDomain
-#Properties: matchN(2, [
-	matchIf({
-		CustomDomainConfig!: _
-		...
-	}, {
-		Domain?: null |
-		bool |
-		number |
-		=~"^[a-z0-9](?:[a-z0-9\\-]*[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9\\-]*[a-z0-9])?)+$" |
-		[...] |
-		{...}
-		...
-	}, _) & {...},
-	matchIf(matchN(0, [null | bool | number | string | [...] | {
-		CustomDomainConfig!: _
-		...
-	}]) & {...}, {
-		Domain?: null | bool | number | =~"^[a-z0-9](?:[a-z0-9\\-]{0,61}[a-z0-9])?$" | [...] | {...}
-		...
-	}, _) & {...}
-]) & close({
+#Properties: matchN(2, [matchIf({
+	CustomDomainConfig!: _
+	...
+}, {
+	Domain?: null |
+	bool |
+	number |
+	=~"^[a-z0-9](?:[a-z0-9\\-]*[a-z0-9])?(?:\\.[a-z0-9](?:[a-z0-9\\-]*[a-z0-9])?)+$" |
+	[...] |
+	{...}
+	...
+}, _), matchIf(matchN(0, [null | bool | number | string | [...] | {
+	CustomDomainConfig!: _
+	...
+}]), {
+	Domain?: null | bool | number | =~"^[a-z0-9](?:[a-z0-9\\-]{0,61}[a-z0-9])?$" | [...] | {...}
+	...
+}, _)]) & close({
 	CloudFrontDistribution?: string
 	CustomDomainConfig?:     #CustomDomainConfigType
 	Domain!:                 strings.MaxRunes(63) & strings.MinRunes(1)

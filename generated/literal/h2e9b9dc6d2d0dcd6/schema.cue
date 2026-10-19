@@ -2,6 +2,8 @@
 
 package schema
 
+import "github.com/cueformation/cfn-cue/fn:fn"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SES::ReceiptFilter
@@ -23,7 +25,7 @@ package schema
 // block or allow incoming mail from them.
 #IpFilter: close({
 	// A single IP address or a range of IP addresses to block or allow, specified in CIDR notation.
-	Cidr!: string
+	Cidr!: fn.#IPv4Network & string
 
 	// Indicates whether to block or allow incoming mail from the specified IP addresses.
 	Policy!: "Allow" | "Block"

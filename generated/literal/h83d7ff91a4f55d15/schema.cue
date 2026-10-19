@@ -2,12 +2,14 @@
 
 package schema
 
+import "github.com/cueformation/cfn-cue/fn:fn"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::EC2::TransitGatewayMeteringPolicyEntry Resource Definition
 #Properties: close({
 	// The list of IP addresses of the instances receiving traffic from the transit gateway
-	DestinationCidrBlock?: string
+	DestinationCidrBlock?: fn.#IPv4Network & string
 
 	// The list of ports on destination instances receiving traffic from the transit gateway
 	DestinationPortRange?: string
@@ -30,7 +32,7 @@ package schema
 
 	// The list of IP addresses of the instances sending traffic to the transit
 	// gateway for which the metering policy entry is applicable
-	SourceCidrBlock?: string
+	SourceCidrBlock?: fn.#IPv4Network & string
 
 	// The list of ports on source instances sending traffic to the transit gateway
 	SourcePortRange?: string

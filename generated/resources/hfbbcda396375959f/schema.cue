@@ -6,21 +6,32 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ARN of the IAM principal to remove from the pull time update exclusion list.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ECR::PullTimeUpdateExclusion"
-	Properties!: close({
+	let properties = close({
 		// The ARN of the IAM principal to remove from the pull time update exclusion list.
 		PrincipalArn!: #PrincipalArn
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #PrincipalArn: strings.MaxRunes(200) &
 strings.MinRunes(0) &
 =~"^arn:aws(-[a-z]+)*:iam::[0-9]{12}:(role|user)/[\\w+=,.@-]+(/[\\w+=,.@-]+)*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(200) &
+	strings.MinRunes(0) &
+	=~"^arn:aws(-[a-z]+)*:iam::[0-9]{12}:(role|user)/[\\w+=,.@-]+(/[\\w+=,.@-]+)*$" &
+	"\(self)"
+} |
 fn.#StringExpression

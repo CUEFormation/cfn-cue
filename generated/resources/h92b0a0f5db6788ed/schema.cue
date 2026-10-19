@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,13 +17,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // irrespective of the region in which they were created.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudTrail::Trail"
-	Properties!: close({
+	let properties = close({
 		AdvancedEventSelectors?: list.UniqueItems() & [...#AdvancedEventSelector] | fn.#ListExpression
 		AggregationConfigurations?: list.MaxItems(1) & list.UniqueItems() & [...] & [...#AggregationConfiguration] |
 			fn.#ListExpression
-		CloudWatchLogsLogGroupArn?: string | fn.#StringExpression
-		CloudWatchLogsRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		CloudWatchLogsLogGroupArn?: string | number | bool | fn.#StringExpression
+		CloudWatchLogsRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		EnableLogFileValidation?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		EventSelectors?:          list.MaxItems(5) & list.UniqueItems() & [...#EventSelector] | fn.#ListExpression
 		IncludeGlobalServiceEvents?: bool |
@@ -38,51 +42,121 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		IsLogging!:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		IsMultiRegionTrail?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		IsOrganizationTrail?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		KMSKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string |
-			fn.#StringExpression
-		S3BucketName!: string | fn.#StringExpression
-		S3KeyPrefix?:  strings.MaxRunes(200) | fn.#StringExpression
-		SnsTopicName?: strings.MaxRunes(256) | fn.#StringExpression
-		Tags?:         [...#Tag] | fn.#ListExpression
+		KMSKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+		} |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+				"\(self)"
+		} |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
+		S3BucketName!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+				=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		S3KeyPrefix?: strings.MaxRunes(200) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & "\(self)"
+		} |
+		fn.#StringExpression
+		SnsTopicName?: strings.MaxRunes(256) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
 		TrailName?: strings.MaxRunes(128) &
 		strings.MinRunes(3) &
 		=~"(^[a-zA-Z0-9]$)|(^[a-zA-Z0-9]([a-zA-Z0-9\\._-])*[a-zA-Z0-9]$)" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(3) &
+			=~"(^[a-zA-Z0-9]$)|(^[a-zA-Z0-9]([a-zA-Z0-9\\._-])*[a-zA-Z0-9]$)" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AdvancedEventSelector: close({
 	FieldSelectors!: list.MinItems(1) & list.UniqueItems() & [...#AdvancedFieldSelector] | fn.#ListExpression
-	Name?:           strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
+	Name?: strings.MaxRunes(1000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #AdvancedFieldSelector: close({
-	EndsWith?: list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" | fn.#StringExpression
-	] |
+	EndsWith?: list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Equals?: list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" | fn.#StringExpression
-	] |
+	Equals?: list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Field!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"([\\w|\\d|\\.|_]+)" | fn.#StringExpression
-	NotEndsWith?: list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" | fn.#StringExpression
-	] |
+	Field!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"([\\w|\\d|\\.|_]+)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"([\\w|\\d|\\.|_]+)" & "\(self)"
+	} |
+	fn.#StringExpression
+	NotEndsWith?: list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	NotEquals?: list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" | fn.#StringExpression
-	] |
+	NotEquals?: list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	NotStartsWith?: list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" | fn.#StringExpression
-	] |
+	NotStartsWith?: list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	StartsWith?: list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" | fn.#StringExpression
-	] |
+	StartsWith?: list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"(.+)" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -104,13 +178,14 @@ fn.#ObjectExpression
 		"AWS::S3::AccessPoint" |
 		"AWS::DynamoDB::Stream" |
 		fn.#StringExpression
-	Values?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	Values?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #EventSelector: close({
-	DataResources?:                 list.UniqueItems() & [...#DataResource] | fn.#ListExpression
-	ExcludeManagementEventSources?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	DataResources?: list.UniqueItems() & [...#DataResource] | fn.#ListExpression
+	ExcludeManagementEventSources?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
 	IncludeManagementEvents?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ReadWriteType?:           "All" | "ReadOnly" | "WriteOnly" | fn.#StringExpression
 }) |
@@ -125,8 +200,8 @@ fn.#ObjectExpression
 #SourceEventCategory: "Management" | "Data" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

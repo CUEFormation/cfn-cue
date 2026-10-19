@@ -6,8 +6,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,8 +16,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // hosted zone to an Amazon CloudWatch Logs log group.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53::QueryLoggingConfig"
-	Properties!: close({
-		CloudWatchLogsLogGroupArn!: string | fn.#StringExpression
-		HostedZoneId!:              strings.MaxRunes(32) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		CloudWatchLogsLogGroupArn!: string | number | bool | fn.#StringExpression
+		HostedZoneId!: strings.MaxRunes(32) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

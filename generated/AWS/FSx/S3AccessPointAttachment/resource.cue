@@ -11,7 +11,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h9d425a936cc2a555:schem
 #OntapWindowsFileSystemUser:        schema.#OntapWindowsFileSystemUser
 #OpenZFSFileSystemIdentity:         schema.#OpenZFSFileSystemIdentity
 #OpenZFSPosixFileSystemUser:        schema.#OpenZFSPosixFileSystemUser
-#S3AccessPoint:                     schema.#S3AccessPoint
 #S3AccessPointOntapConfiguration:   schema.#S3AccessPointOntapConfiguration
 #S3AccessPointOpenZFSConfiguration: schema.#S3AccessPointOpenZFSConfiguration
 #S3AccessPointVpcConfiguration:     schema.#S3AccessPointVpcConfiguration

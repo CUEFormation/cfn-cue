@@ -3,29 +3,31 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::KinesisAnalytics::Application
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::KinesisAnalytics::Application"
-	Properties!: close({
-		ApplicationCode?:        string | fn.#StringExpression
-		ApplicationDescription?: string | fn.#StringExpression
-		ApplicationName?:        string | fn.#StringExpression
+	let properties = close({
+		ApplicationCode?:        string | number | bool | fn.#StringExpression
+		ApplicationDescription?: string | number | bool | fn.#StringExpression
+		ApplicationName?:        string | number | bool | fn.#StringExpression
 		Inputs!:                 [...#Input] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CSVMappingParameters: close({
-	RecordColumnDelimiter!: string | fn.#StringExpression
-	RecordRowDelimiter!:    string | fn.#StringExpression
+	RecordColumnDelimiter!: string | number | bool | fn.#StringExpression
+	RecordRowDelimiter!:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -35,14 +37,18 @@ fn.#ObjectExpression
 	InputSchema!:                  #InputSchema
 	KinesisFirehoseInput?:         #KinesisFirehoseInput
 	KinesisStreamsInput?:          #KinesisStreamsInput
-	NamePrefix!:                   string | fn.#StringExpression
+	NamePrefix!:                   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #InputLambdaProcessor: close({
-	ResourceARN!: string | fn.#StringExpression
-	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	ResourceARN!: string | number | bool | fn.#StringExpression
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -68,24 +74,32 @@ fn.#ObjectExpression
 
 #InputSchema: close({
 	RecordColumns!:  [...#RecordColumn] | fn.#ListExpression
-	RecordEncoding?: string | fn.#StringExpression
+	RecordEncoding?: string | number | bool | fn.#StringExpression
 	RecordFormat!:   #RecordFormat
 }) |
 fn.#ObjectExpression
 
-#JSONMappingParameters: close({RecordRowPath!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#JSONMappingParameters: close({RecordRowPath!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #KinesisFirehoseInput: close({
-	ResourceARN!: string | fn.#StringExpression
-	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	ResourceARN!: string | number | bool | fn.#StringExpression
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #KinesisStreamsInput: close({
-	ResourceARN!: string | fn.#StringExpression
-	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	ResourceARN!: string | number | bool | fn.#StringExpression
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -96,14 +110,14 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RecordColumn: close({
-	Mapping?: string | fn.#StringExpression
-	Name!:    string | fn.#StringExpression
-	SqlType!: string | fn.#StringExpression
+	Mapping?: string | number | bool | fn.#StringExpression
+	Name!:    string | number | bool | fn.#StringExpression
+	SqlType!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RecordFormat: close({
 	MappingParameters?: #MappingParameters
-	RecordFormatType!:  string | fn.#StringExpression
+	RecordFormatType!:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

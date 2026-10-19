@@ -7,15 +7,15 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Connect::PredefinedAttribute
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::PredefinedAttribute"
-	Properties!: close({
+	let properties = close({
 		AttributeConfiguration?: close({
 			EnableValueValidationOnAssociation?: bool |
 				"true" |
@@ -28,15 +28,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			IsReadOnly?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		}) |
 		fn.#ObjectExpression
-		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" | fn.#StringExpression
-		Name!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		Purposes?:    list.MaxItems(10) & list.MinItems(1) & [...#Purpose] | fn.#ListExpression
-		Values?:      close({StringList?: #StringList}) | fn.#ObjectExpression
+		InstanceArn!: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[-a-z0-9]*:connect:[-a-z0-9]*:[0-9]{12}:instance/[-a-zA-Z0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Purposes?: list.MaxItems(10) & list.MinItems(1) & [...#Purpose] | fn.#ListExpression
+		Values?:   close({StringList?: #StringList}) | fn.#ObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Purpose: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+#Purpose: strings.MaxRunes(100) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #StringList: list.MaxItems(500) & list.MinItems(1) & [...#Value] | fn.#ListExpression
 
-#Value: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+#Value: strings.MaxRunes(100) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression

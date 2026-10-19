@@ -3,21 +3,32 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AMZN::SDC::Deployment
 #Resource: base.#ResourceAttributes & {
 	Type!: "AMZN::SDC::Deployment"
-	Properties!: close({
-		ConfigName!:           string | fn.#StringExpression
-		Dimension!:            string | fn.#StringExpression
-		PipelineId?:           string | fn.#StringExpression
-		S3Bucket!:             string | fn.#StringExpression
-		S3Key!:                string | fn.#StringExpression
-		Stage!:                string | fn.#StringExpression
-		TargetRegionOverride?: string | fn.#StringExpression
+	let properties = close({
+		ConfigName!: string | number | bool | fn.#StringExpression
+		Dimension!:  string | number | bool | fn.#StringExpression
+		PipelineId?: string | number | bool | fn.#StringExpression
+		S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+				=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		S3Key!:                string | number | bool | fn.#StringExpression
+		Stage!:                string | number | bool | fn.#StringExpression
+		TargetRegionOverride?: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

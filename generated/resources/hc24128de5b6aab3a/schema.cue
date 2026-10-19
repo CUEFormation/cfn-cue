@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -19,23 +19,58 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // featured in the search results.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Kendra::FeaturedResultsSet"
-	Properties!: close({
-		Description?:       strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^\\P{C}*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		FeaturedDocuments?: [...#FeaturedDocument] | fn.#ListExpression
 		FeaturedResultsSetName!: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][ a-zA-Z0-9_-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][ a-zA-Z0-9_-]*$" & "\(self)"
+		} |
 		fn.#StringExpression
-		IndexId!:    strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]*$" | fn.#StringExpression
-		QueryTexts?: list.MaxItems(49) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+		IndexId!: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-zA-Z0-9][a-zA-Z0-9-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		QueryTexts?: list.MaxItems(49) & [...] & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Status?:     "ACTIVE" | "INACTIVE" | fn.#StringExpression
 		Tags?:       list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#FeaturedDocument: close({Id?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression}) |
+#FeaturedDocument: close({
+	Id?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

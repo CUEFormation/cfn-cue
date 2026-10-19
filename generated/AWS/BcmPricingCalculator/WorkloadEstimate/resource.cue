@@ -5,7 +5,5 @@ package WorkloadEstimate
 import schema "github.com/cueformation/cfn-cue/resources/h3a5032661b0a25bc:schema"
 
 #Resource:                 schema.#Resource
-#CurrencyCode:             schema.#CurrencyCode
 #Tag:                      schema.#Tag
 #WorkloadEstimateRateType: schema.#WorkloadEstimateRateType
-#WorkloadEstimateStatus:   schema.#WorkloadEstimateStatus

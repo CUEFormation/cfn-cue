@@ -6,26 +6,47 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a snapshot of a DB cluster.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RDS::ClusterSnapshot"
-	Properties!: close({
-		DBClusterIdentifier!: string | fn.#StringExpression
+	let properties = close({
+		DBClusterIdentifier!: string | number | bool | fn.#StringExpression
 		DBClusterSnapshotIdentifier!: strings.MaxRunes(63) &
 		strings.MinRunes(1) &
 		=~"^[a-zA-Z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

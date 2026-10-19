@@ -6,8 +6,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,7 +16,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // accounts, and others.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DevOpsAgent::Association"
-	Properties!: close({
+	let properties = close({
 		// The unique identifier of the AgentSpace
 		AgentSpaceId!: #AgentSpaceId
 
@@ -27,22 +27,39 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// The identifier for the associated service
 		ServiceId!: #ServiceId
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AWSConfiguration: close({
-	AccountId!:   =~"\\d{12}" | fn.#StringExpression
+	AccountId!: =~"\\d{12}" |
+	{
+		number | bool
+		_cfnString: =~"\\d{12}" & "\(self)"
+	} |
+	fn.#StringExpression
 	AccountType!: "monitor" | fn.#StringExpression
-	AgentElevatedRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	AssumableRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	AgentElevatedRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	AssumableRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Resources?: #AWSResourceList
 	Tags?:      #AWSTagList
 }) |
 fn.#ObjectExpression
 
 #AWSResource: close({
-	ResourceArn!:      string | fn.#StringExpression
+	ResourceArn!:      string | number | bool | fn.#StringExpression
 	ResourceMetadata?: fn.#Object & {...} | fn.#ObjectExpression
 	ResourceType?: "AWS::CloudFormation::Stack" |
 		"AWS::ECR::Repository" |
@@ -56,16 +73,26 @@ fn.#ObjectExpression
 
 #AWSTagList: [...#KeyValuePair] | fn.#ListExpression
 
-#AgentSpaceId: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#AgentSpaceId: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#AssociationId: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#AssociationId: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#AzureConfiguration: close({SubscriptionId!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#AzureConfiguration: close({SubscriptionId!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #DynatraceConfiguration: close({
 	EnableWebhookUpdates?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnvId!:                string | fn.#StringExpression
-	Resources?:            [...string | fn.#StringExpression] | fn.#ListExpression
+	EnvId!:                string | number | bool | fn.#StringExpression
+	Resources?:            [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -75,55 +102,102 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #GitHubConfiguration: close({
-	Owner!:     string | fn.#StringExpression
+	Owner!:     string | number | bool | fn.#StringExpression
 	OwnerType!: "organization" | "user" | fn.#StringExpression
-	RepoId!:    string | fn.#StringExpression
-	RepoName!:  string | fn.#StringExpression
+	RepoId!:    string | number | bool | fn.#StringExpression
+	RepoName!:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GitLabConfiguration: close({
 	EnableWebhookUpdates?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InstanceIdentifier?:   string | fn.#StringExpression
-	ProjectId!:            string | fn.#StringExpression
-	ProjectPath!:          string | fn.#StringExpression
+	InstanceIdentifier?:   string | number | bool | fn.#StringExpression
+	ProjectId!:            string | number | bool | fn.#StringExpression
+	ProjectPath!:          string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #KeyValuePair: close({
-	Key!:   strings.MaxRunes(512) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MCPServerConfiguration: close({
-	Description?:          string | fn.#StringExpression
+	Description?:          string | number | bool | fn.#StringExpression
 	EnableWebhookUpdates?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Endpoint?:             =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
-	Name?:                 =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	Tools!:                [...=~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression] | fn.#ListExpression
+	Endpoint?: =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" |
+	{
+		number | bool
+		_cfnString: =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name?: =~"^[a-zA-Z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Tools!: [...=~"^[a-zA-Z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #MCPServerDatadogConfiguration: close({
-	Description?:          string | fn.#StringExpression
+	Description?:          string | number | bool | fn.#StringExpression
 	EnableWebhookUpdates?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnabledElevatedTools?: [
-		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	] |
+	EnabledElevatedTools?: [...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Endpoint?: =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
-	Name?:     =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	Endpoint?: =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" |
+	{
+		number | bool
+		_cfnString: =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name?: =~"^[a-zA-Z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MCPServerGrafanaConfiguration: close({
 	EnableWebhookUpdates?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	EnabledElevatedTools?: [
-		...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	] |
+	EnabledElevatedTools?: [...strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	Endpoint!: =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
+	Endpoint!: =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" |
+	{
+		number | bool
+		_cfnString: =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Tools?: [
 		..."alerting" |
 			"annotations" |
@@ -151,30 +225,58 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #MCPServerNewRelicConfiguration: close({
-	AccountId!: strings.MinRunes(6) & =~"^[0-9]+$" | fn.#StringExpression
-	Endpoint!:  =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
+	AccountId!: strings.MinRunes(6) & =~"^[0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(6) & =~"^[0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Endpoint!: =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" |
+	{
+		number | bool
+		_cfnString: =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#MCPServerSigV4Configuration: close({Tools!: [...=~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression] | fn.#ListExpression}) |
-	fn.#ObjectExpression
+#MCPServerSigV4Configuration: close({
+	Tools!: [...=~"^[a-zA-Z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+}) |
+fn.#ObjectExpression
 
 #MCPServerSplunkConfiguration: close({
-	Description?:          string | fn.#StringExpression
+	Description?:          string | number | bool | fn.#StringExpression
 	EnableWebhookUpdates?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Endpoint?:             =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" | fn.#StringExpression
-	Name?:                 =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	Endpoint?: =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" |
+	{
+		number | bool
+		_cfnString: =~"^https://[a-zA-Z0-9.-]+(?::[0-9]+)?(?:/.*)?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Name?: =~"^[a-zA-Z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PagerDutyConfiguration: close({
-	CustomerEmail!:        string | fn.#StringExpression
+	CustomerEmail!:        string | number | bool | fn.#StringExpression
 	EnableWebhookUpdates?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Services!:             [...string | fn.#StringExpression] | fn.#ListExpression
+	Services!:             [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#ServiceConfiguration: fn.#Object & {...} & matchN(1, [close(
+#ServiceConfiguration: fn.#Object & matchN(1, [close(
 	{SourceAws!: #SourceAwsConfiguration},
 ), close(
 	{Aws!: #AWSConfiguration},
@@ -209,35 +311,58 @@ fn.#ObjectExpression
 )]) |
 fn.#ObjectExpression
 
-#ServiceId: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#ServiceId: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #ServiceNowConfiguration: close({
 	EnableWebhookUpdates?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	InstanceId?:           string | fn.#StringExpression
+	InstanceId?:           string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SlackBidirectionalConfiguration: close({
 	Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(255) &
 	strings.MinRunes(1) &
 	=~"^arn:(aws|aws-cn|aws-us-gov):iam::\\d{12}:role/[a-zA-Z0-9+=,.@_/-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		=~"^arn:(aws|aws-cn|aws-us-gov):iam::\\d{12}:role/[a-zA-Z0-9+=,.@_/-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SlackChannel: close({
-	ChannelId!:   strings.MaxRunes(16) & strings.MinRunes(8) & =~"^[CGD][A-Z0-9]+$" | fn.#StringExpression
-	ChannelName?: string | fn.#StringExpression
+	ChannelId!: strings.MaxRunes(16) & strings.MinRunes(8) & =~"^[CGD][A-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(16) & strings.MinRunes(8) & =~"^[CGD][A-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	ChannelName?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SlackConfiguration: close({
 	Bidirectional?:      #SlackBidirectionalConfiguration
 	TransmissionTarget!: #SlackTransmissionTarget
-	WorkspaceId!:        =~"^[TE][A-Z0-9]+$" | fn.#StringExpression
-	WorkspaceName!:      string | fn.#StringExpression
+	WorkspaceId!: =~"^[TE][A-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[TE][A-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	WorkspaceName!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -248,12 +373,25 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #SourceAwsConfiguration: close({
-	AccountId!:   =~"\\d{12}" | fn.#StringExpression
+	AccountId!: =~"\\d{12}" |
+	{
+		number | bool
+		_cfnString: =~"\\d{12}" & "\(self)"
+	} |
+	fn.#StringExpression
 	AccountType!: "source" | fn.#StringExpression
-	AgentElevatedRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	AssumableRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	AgentElevatedRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	AssumableRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Resources?: #AWSResourceList
 	Tags?:      #AWSTagList
 }) |

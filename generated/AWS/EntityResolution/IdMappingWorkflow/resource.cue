@@ -6,13 +6,11 @@ import schema "github.com/cueformation/cfn-cue/resources/h22a5d799889c8f36:schem
 
 #Resource:                        schema.#Resource
 #AttributeName:                   schema.#AttributeName
-#CreatedAt:                       schema.#CreatedAt
 #Description:                     schema.#Description
 #EntityName:                      schema.#EntityName
 #IdMappingIncrementalRunConfig:   schema.#IdMappingIncrementalRunConfig
 #IdMappingRuleBasedProperties:    schema.#IdMappingRuleBasedProperties
 #IdMappingTechniques:             schema.#IdMappingTechniques
-#IdMappingWorkflowArn:            schema.#IdMappingWorkflowArn
 #IdMappingWorkflowInputSource:    schema.#IdMappingWorkflowInputSource
 #IdMappingWorkflowOutputSource:   schema.#IdMappingWorkflowOutputSource
 #IntermediateSourceConfiguration: schema.#IntermediateSourceConfiguration
@@ -21,4 +19,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h22a5d799889c8f36:schem
 #Rule:                            schema.#Rule
 #SchemaMappingArn:                schema.#SchemaMappingArn
 #Tag:                             schema.#Tag
-#UpdatedAt:                       schema.#UpdatedAt

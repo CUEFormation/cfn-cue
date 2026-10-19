@@ -4,7 +4,5 @@ package AgentContext
 
 import schema "github.com/cueformation/cfn-cue/resources/h10b8030d3247470b:schema"
 
-#Resource:        schema.#Resource
-#ApplicationType: schema.#ApplicationType
-#ContextType:     schema.#ContextType
-#Criticality:     schema.#Criticality
+#Resource:    schema.#Resource
+#ContextType: schema.#ContextType

@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/iam:iam"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -38,11 +38,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // [AWS::IAM::UserPolicy](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-userpolicy.html)
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IAM::Policy"
-	Properties!: close({
-		Groups?:         [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		Groups?:         [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		PolicyDocument!: iam.#IdentityPolicyValue
-		PolicyName!:     strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" | fn.#StringExpression
-		Roles?:          [...string | fn.#StringExpression] | fn.#ListExpression
-		Users?:          [...string | fn.#StringExpression] | fn.#ListExpression
+		PolicyName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\w+=,.@-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Roles?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		Users?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	}) & matchN(>=1, [{Users!: _}, {Groups!: _}, {Roles!: _}])
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

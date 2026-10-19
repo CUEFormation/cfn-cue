@@ -4,6 +4,5 @@ package ConnectionAlias
 
 import schema "github.com/cueformation/cfn-cue/resources/h8e004a2825170b30:schema"
 
-#Resource:                   schema.#Resource
-#ConnectionAliasAssociation: schema.#ConnectionAliasAssociation
-#Tag:                        schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

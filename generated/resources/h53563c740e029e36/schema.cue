@@ -7,29 +7,35 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The scanning configuration for a private registry.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ECR::RegistryScanningConfiguration"
-	Properties!: close({
+	let properties = close({
 		// The scanning rules associated with the registry.
 		Rules!: #ScanningRules
 
 		// The type of scanning configured for the registry.
 		ScanType!: #ScanType
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Filter: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-z0-9*](?:[._\\-/a-z0-9*]?[a-z0-9*]+)*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-z0-9*](?:[._\\-/a-z0-9*]?[a-z0-9*]+)*$" & "\(self)"
+} |
 fn.#StringExpression
 
 #FilterType: "WILDCARD" | fn.#StringExpression
-
-#RegistryId: =~"^[0-9]{12}$" | fn.#StringExpression
 
 #RepositoryFilter: close({
 	// The filter to use when scanning.

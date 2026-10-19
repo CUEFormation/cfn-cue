@@ -6,8 +6,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h94695a8f8a7f5a32:schem
 
 #Resource:                        schema.#Resource
 #IamFederationConfigOptions:      schema.#IamFederationConfigOptions
-#IamIdentityCenterApplicationArn: schema.#IamIdentityCenterApplicationArn
-#IamIdentityCenterConfigOptions:  schema.#IamIdentityCenterConfigOptions
 #IamIdentityCenterGroupAttribute: schema.#IamIdentityCenterGroupAttribute
 #IamIdentityCenterInstanceArn:    schema.#IamIdentityCenterInstanceArn
 #IamIdentityCenterUserAttribute:  schema.#IamIdentityCenterUserAttribute

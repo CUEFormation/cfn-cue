@@ -6,20 +6,35 @@ import (
 	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::LoadBalancerTlsCertificate
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lightsail::LoadBalancerTlsCertificate"
-	Properties!: close({
-		CertificateAlternativeNames?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-		CertificateDomainName!:       string | fn.#StringExpression
-		CertificateName!:             =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
+	let properties = close({
+		CertificateAlternativeNames?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
+		CertificateDomainName!: string | number | bool | fn.#StringExpression
+		CertificateName!: =~"^\\w[\\w\\-]*\\w$" |
+		{
+			number | bool
+			_cfnString: =~"^\\w[\\w\\-]*\\w$" & "\(self)"
+		} |
+		fn.#StringExpression
 		HttpsRedirectionEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		IsAttached?:              bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		LoadBalancerName!:        =~"\\w[\\w\\-]*\\w" | fn.#StringExpression
+		LoadBalancerName!: =~"\\w[\\w\\-]*\\w" |
+		{
+			number | bool
+			_cfnString: =~"\\w[\\w\\-]*\\w" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

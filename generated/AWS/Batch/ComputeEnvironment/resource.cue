@@ -6,12 +6,8 @@ import schema "github.com/cueformation/cfn-cue/resources/he955fb1747ae7c60:schem
 
 #Resource:                                  schema.#Resource
 #CapacityReservations:                      schema.#CapacityReservations
-#ComputeResources:                          schema.#ComputeResources
 #ComputeScalingPolicy:                      schema.#ComputeScalingPolicy
-#Ec2ConfigurationObject:                    schema.#Ec2ConfigurationObject
 #EcsSettings:                               schema.#EcsSettings
-#EksAccessEntry:                            schema.#EksAccessEntry
-#EksConfiguration:                          schema.#EksConfiguration
 #InfrastructureOptimization:                schema.#InfrastructureOptimization
 #InstanceLaunchTemplate:                    schema.#InstanceLaunchTemplate
 #InstanceRequirements:                      schema.#InstanceRequirements

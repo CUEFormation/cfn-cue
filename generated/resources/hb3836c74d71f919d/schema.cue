@@ -3,30 +3,32 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppMesh::Route
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppMesh::Route"
-	Properties!: close({
-		MeshName!:          string | fn.#StringExpression
-		MeshOwner?:         string | fn.#StringExpression
-		RouteName?:         string | fn.#StringExpression
+	let properties = close({
+		MeshName!:          string | number | bool | fn.#StringExpression
+		MeshOwner?:         string | number | bool | fn.#StringExpression
+		RouteName?:         string | number | bool | fn.#StringExpression
 		Spec!:              #RouteSpec
 		Tags?:              [...#Tag] | fn.#ListExpression
-		VirtualRouterName!: string | fn.#StringExpression
+		VirtualRouterName!: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Duration: close({
-	Unit!: string | fn.#StringExpression
+	Unit!: string | number | bool | fn.#StringExpression
 	Value!: int |
 		{
 			string &
@@ -45,8 +47,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #GrpcRetryPolicy: close({
-	GrpcRetryEvents?: [...string | fn.#StringExpression] | fn.#ListExpression
-	HttpRetryEvents?: [...string | fn.#StringExpression] | fn.#ListExpression
+	GrpcRetryEvents?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	HttpRetryEvents?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	MaxRetries!: int |
 		{
 			string &
@@ -62,7 +64,7 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	PerRetryTimeout!: #Duration
-	TcpRetryEvents?:  [...string | fn.#StringExpression] | fn.#ListExpression
+	TcpRetryEvents?:  [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -78,7 +80,7 @@ fn.#ObjectExpression
 
 #GrpcRouteMatch: close({
 	Metadata?:   [...#GrpcRouteMetadata] | fn.#ListExpression
-	MethodName?: string | fn.#StringExpression
+	MethodName?: string | number | bool | fn.#StringExpression
 	Port?: int |
 		{
 			string &
@@ -93,23 +95,23 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ServiceName?: string | fn.#StringExpression
+	ServiceName?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GrpcRouteMetadata: close({
 	Invert?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Match?:  #GrpcRouteMetadataMatchMethod
-	Name!:   string | fn.#StringExpression
+	Name!:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GrpcRouteMetadataMatchMethod: close({
-	Exact?:  string | fn.#StringExpression
-	Prefix?: string | fn.#StringExpression
+	Exact?:  string | number | bool | fn.#StringExpression
+	Prefix?: string | number | bool | fn.#StringExpression
 	Range?:  #MatchRange
-	Regex?:  string | fn.#StringExpression
-	Suffix?: string | fn.#StringExpression
+	Regex?:  string | number | bool | fn.#StringExpression
+	Suffix?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -120,24 +122,24 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #HeaderMatchMethod: close({
-	Exact?:  string | fn.#StringExpression
-	Prefix?: string | fn.#StringExpression
+	Exact?:  string | number | bool | fn.#StringExpression
+	Prefix?: string | number | bool | fn.#StringExpression
 	Range?:  #MatchRange
-	Regex?:  string | fn.#StringExpression
-	Suffix?: string | fn.#StringExpression
+	Regex?:  string | number | bool | fn.#StringExpression
+	Suffix?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #HttpPathMatch: close({
-	Exact?: string | fn.#StringExpression
-	Regex?: string | fn.#StringExpression
+	Exact?: string | number | bool | fn.#StringExpression
+	Regex?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#HttpQueryParameterMatch: close({Exact?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#HttpQueryParameterMatch: close({Exact?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #HttpRetryPolicy: close({
-	HttpRetryEvents?: [...string | fn.#StringExpression] | fn.#ListExpression
+	HttpRetryEvents?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	MaxRetries!: int |
 		{
 			string &
@@ -153,7 +155,7 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	PerRetryTimeout!: #Duration
-	TcpRetryEvents?:  [...string | fn.#StringExpression] | fn.#ListExpression
+	TcpRetryEvents?:  [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -170,13 +172,13 @@ fn.#ObjectExpression
 #HttpRouteHeader: close({
 	Invert?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Match?:  #HeaderMatchMethod
-	Name!:   string | fn.#StringExpression
+	Name!:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #HttpRouteMatch: close({
 	Headers?: [...#HttpRouteHeader] | fn.#ListExpression
-	Method?:  string | fn.#StringExpression
+	Method?:  string | number | bool | fn.#StringExpression
 	Path?:    #HttpPathMatch
 	Port?: int |
 		{
@@ -192,9 +194,9 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Prefix?:          string | fn.#StringExpression
+	Prefix?:          string | number | bool | fn.#StringExpression
 	QueryParameters?: [...#QueryParameter] | fn.#ListExpression
-	Scheme?:          string | fn.#StringExpression
+	Scheme?:          string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -238,7 +240,7 @@ fn.#ObjectExpression
 
 #QueryParameter: close({
 	Match?: #HttpQueryParameterMatch
-	Name!:  string | fn.#StringExpression
+	Name!:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -265,8 +267,8 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -314,7 +316,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	VirtualNode!: string | fn.#StringExpression
+	VirtualNode!: string | number | bool | fn.#StringExpression
 	Weight!: int |
 		{
 			string &

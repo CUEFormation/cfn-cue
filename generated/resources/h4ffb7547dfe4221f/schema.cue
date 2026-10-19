@@ -7,46 +7,70 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::NetworkFirewall::FirewallPolicy
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::NetworkFirewall::FirewallPolicy"
-	Properties!: close({
-		Description?:        strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-		FirewallPolicy!:     #FirewallPolicy
-		FirewallPolicyName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
-		Tags?:               list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	let properties = close({
+		Description?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^.*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		FirewallPolicy!: #FirewallPolicy
+		FirewallPolicyName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ActionDefinition: close({PublishMetricAction?: #PublishMetricAction}) | fn.#ObjectExpression
 
 #CustomAction: close({
 	ActionDefinition!: #ActionDefinition
-	ActionName!:       strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
+	ActionName!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Dimension: close({Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_ ]+$" | fn.#StringExpression}) |
+#Dimension: close({
+	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_ ]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_ ]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #FirewallPolicy: close({
 	EnableTLSSessionHolding?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PolicyVariables?:             close({RuleVariables?: #RuleVariables}) | fn.#ObjectExpression
-	StatefulDefaultActions?:      [...string | fn.#StringExpression] | fn.#ListExpression
+	StatefulDefaultActions?:      [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	StatefulEngineOptions?:       #StatefulEngineOptions
 	StatefulRuleGroupReferences?: [...#StatefulRuleGroupReference] | fn.#ListExpression
 	StatelessCustomActions?:      [...#CustomAction] | fn.#ListExpression
-	StatelessDefaultActions!:     [...string | fn.#StringExpression] | fn.#ListExpression
-	StatelessFragmentDefaultActions!: [...string | fn.#StringExpression] | fn.#ListExpression
+	StatelessDefaultActions!:     [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	StatelessFragmentDefaultActions!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	StatelessRuleGroupReferences?:    [...#StatelessRuleGroupReference] | fn.#ListExpression
 	TLSInspectionConfigurationArn?:   #ResourceArn
 }) |
@@ -76,13 +100,21 @@ fn.#ObjectExpression
 #PublishMetricAction: close({Dimensions!: list.MaxItems(1) & list.MinItems(1) & [...#Dimension] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-#ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$" | fn.#StringExpression
+#ResourceArn: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^(arn:aws.*)$" & "\(self)"
+} |
+fn.#StringExpression
 
 #RuleOrder: "DEFAULT_ACTION_ORDER" | "STRICT_ORDER" | fn.#StringExpression
 
 #RuleVariables: close({
 
-	{[=~"^[A-Za-z0-9_]{1,32}$"]: #IPSet}}) |
+	{[=~"^(?:Ref)$"]: error("disallowed")}
+
+	{[=~"^[A-Za-z0-9_]{1,32}$"]: #IPSet}
+}) |
 fn.#ObjectExpression
 
 #StatefulEngineOptions: close({
@@ -131,9 +163,24 @@ fn.#ObjectExpression
 #StreamExceptionPolicy: "DROP" | "CONTINUE" | "REJECT" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#VariableDefinition: strings.MinRunes(1) & =~"^.*$" | fn.#StringExpression
+#VariableDefinition: strings.MinRunes(1) & =~"^.*$" |
+{
+	number | bool
+	_cfnString: strings.MinRunes(1) & =~"^.*$" & "\(self)"
+} |
+fn.#StringExpression

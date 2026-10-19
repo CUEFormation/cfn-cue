@@ -5,9 +5,7 @@ package Metric
 import schema "github.com/cueformation/cfn-cue/resources/h08cfc9a1da17498f:schema"
 
 #Resource:                     schema.#Resource
-#AvailableFilter:              schema.#AvailableFilter
 #CalculationComponent:         schema.#CalculationComponent
-#CreatedByInfo:                schema.#CreatedByInfo
 #MetricFilter:                 schema.#MetricFilter
 #MetricFilterBooleanCondition: schema.#MetricFilterBooleanCondition
 #MetricFilterNumberCondition:  schema.#MetricFilterNumberCondition

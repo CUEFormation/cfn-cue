@@ -6,21 +6,31 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElasticBeanstalk::ConfigurationTemplate
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ElasticBeanstalk::ConfigurationTemplate"
-	Properties!: close({
-		ApplicationName!:   strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		Description?:       strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
-		EnvironmentId?:     string | fn.#StringExpression
+	let properties = close({
+		ApplicationName!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(200) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		EnvironmentId?:     string | number | bool | fn.#StringExpression
 		OptionSettings?:    [...#ConfigurationOptionSetting] | fn.#ListExpression
-		PlatformArn?:       string | fn.#StringExpression
-		SolutionStackName?: string | fn.#StringExpression
+		PlatformArn?:       string | number | bool | fn.#StringExpression
+		SolutionStackName?: string | number | bool | fn.#StringExpression
 
 		// An Elastic Beanstalk configuration template to base this one on. If
 		// specified, Elastic Beanstalk uses the configuration values from the
@@ -36,18 +46,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// match the specified solution stack name.
 		SourceConfiguration?: #SourceConfiguration
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ConfigurationOptionSetting: close({
-	Namespace!:    string | fn.#StringExpression
-	OptionName!:   string | fn.#StringExpression
-	ResourceName?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Value?:        string | fn.#StringExpression
+	Namespace!:  string | number | bool | fn.#StringExpression
+	OptionName!: string | number | bool | fn.#StringExpression
+	ResourceName?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SourceConfiguration: close({
-	ApplicationName!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	TemplateName!:    strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	ApplicationName!: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TemplateName!: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

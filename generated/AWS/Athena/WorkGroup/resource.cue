@@ -11,12 +11,10 @@ import schema "github.com/cueformation/cfn-cue/resources/h21dcc4c1cd7fe2c9:schem
 #Classification:                               schema.#Classification
 #CloudWatchLoggingConfiguration:               schema.#CloudWatchLoggingConfiguration
 #CustomerContentEncryptionConfiguration:       schema.#CustomerContentEncryptionConfiguration
-#EffectiveEngineVersion:                       schema.#EffectiveEngineVersion
 #EncryptionConfiguration:                      schema.#EncryptionConfiguration
 #EncryptionOption:                             schema.#EncryptionOption
 #EnforceWorkGroupConfiguration:                schema.#EnforceWorkGroupConfiguration
 #EngineConfiguration:                          schema.#EngineConfiguration
-#EngineVersion:                                schema.#EngineVersion
 #ExecutionRole:                                schema.#ExecutionRole
 #ExpectedBucketOwner:                          schema.#ExpectedBucketOwner
 #KmsKey:                                       schema.#KmsKey
@@ -40,5 +38,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h21dcc4c1cd7fe2c9:schem
 #SelectedEngineVersion:                        schema.#SelectedEngineVersion
 #Tag:                                          schema.#Tag
 #Tags:                                         schema.#Tags
-#WorkGroupConfiguration:                       schema.#WorkGroupConfiguration
-#WorkGroupConfigurationUpdates:                schema.#WorkGroupConfigurationUpdates

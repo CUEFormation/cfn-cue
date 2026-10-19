@@ -7,20 +7,21 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GameLift::Build
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GameLift::Build"
-	Properties?: close({
-		Name?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Name?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		OperatingSystem?: "AMAZON_LINUX" |
 			"AMAZON_LINUX_2" |
 			"AMAZON_LINUX_2023" |
@@ -28,7 +29,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"WINDOWS_2016" |
 			"WINDOWS_2022" |
 			fn.#StringExpression
-		ServerSdkVersion?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\d+\\.\\d+\\.\\d+$" | fn.#StringExpression
+		ServerSdkVersion?: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\d+\\.\\d+\\.\\d+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^\\d+\\.\\d+\\.\\d+$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Information indicating where your game build files are stored. Use this
 		// parameter only when creating a build with files stored in an Amazon S3
@@ -38,61 +44,59 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// your new build must be in the same Region.
 		StorageLocation?: #StorageLocation
 		Tags?:            list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-		Version?:         strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Version?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
-#S3Location: null |
-bool |
-number |
-string |
-[...] |
-{
-	RoleArn?: null |
-	bool |
-	"true" |
-	"True" |
-	"TRUE" |
-	"false" |
-	"False" |
-	"FALSE" |
-	number |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatFloat(
-					cfnScalarStrconv.ParseFloat(
-						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-						64,
-					) &
-						number,
-					"g",
-					-1,
-					64,
-				))*0 + 1,
-			)
-	} |
-	=~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-	[...] |
-	{...} |
-	fn.#ValueExpression
-	...
-} |
-fn.#ValueExpression
-
 #StorageLocation: close({
-	Bucket!:        strings.MinRunes(1) | fn.#StringExpression
-	Key!:           strings.MinRunes(1) | fn.#StringExpression
-	ObjectVersion?: strings.MinRunes(1) | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
+	Bucket!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Key!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ObjectVersion?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & strings.MinRunes(1) & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

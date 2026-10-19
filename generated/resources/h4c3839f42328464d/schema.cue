@@ -7,12 +7,10 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -22,20 +20,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // the resource. Only its tags can be updated in place.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::HealthLake::DataTransformationProfile"
-	Properties!: close({
-		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string) & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	let properties = close({
+		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+				=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+				=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		ProfileDescription?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-		ProfileName!:        strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		Source?:             #Source
-		SourceFormat!:       "CCDA" | "CSV" | fn.#StringExpression
-		Tags?:               list.UniqueItems() & [...#Tag] | fn.#ListExpression
+		ProfileDescription?: strings.MaxRunes(1000) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		ProfileName!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Source?:       #Source
+		SourceFormat!: "CCDA" | "CSV" | fn.#StringExpression
+		Tags?:         list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ExistingVersionedProfileSource: close({
-	ProfileId!: string | fn.#StringExpression
+	ProfileId!: string | number | bool | fn.#StringExpression
 	Version!: int |
 		{
 			string &
@@ -56,7 +78,12 @@ fn.#ObjectExpression
 #ProfileMappingSource: close({
 	ProfileMapping!: close({
 
-		{[=~"^.+$"]: string | fn.#StringExpression}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
@@ -68,10 +95,21 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#StarterProfileSource: close({StarterProfileName!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#StarterProfileSource: close({StarterProfileName!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

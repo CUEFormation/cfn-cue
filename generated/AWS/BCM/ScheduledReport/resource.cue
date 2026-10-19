@@ -4,13 +4,11 @@ package ScheduledReport
 
 import schema "github.com/cueformation/cfn-cue/resources/h181b3238454cf54e:schema"
 
-#Resource:         schema.#Resource
-#DateTimeRange:    schema.#DateTimeRange
-#DateTimeType:     schema.#DateTimeType
-#DateTimeValue:    schema.#DateTimeValue
-#HealthStatus:     schema.#HealthStatus
-#HealthStatusCode: schema.#HealthStatusCode
-#ScheduleConfig:   schema.#ScheduleConfig
-#SchedulePeriod:   schema.#SchedulePeriod
-#ScheduleState:    schema.#ScheduleState
-#Tag:              schema.#Tag
+#Resource:       schema.#Resource
+#DateTimeRange:  schema.#DateTimeRange
+#DateTimeType:   schema.#DateTimeType
+#DateTimeValue:  schema.#DateTimeValue
+#ScheduleConfig: schema.#ScheduleConfig
+#SchedulePeriod: schema.#SchedulePeriod
+#ScheduleState:  schema.#ScheduleState
+#Tag:            schema.#Tag

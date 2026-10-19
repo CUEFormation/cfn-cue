@@ -15,4 +15,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h96a4bd8f3f441a26:schem
 #DocumentAttribute:                              schema.#DocumentAttribute
 #DocumentAttributeValue:                         schema.#DocumentAttributeValue
 #Tag:                                            schema.#Tag
-#Unit:                                           schema.#Unit

@@ -28,7 +28,9 @@ import (
 
 	// The ID of the AWS Key Management Service encryption key used to encrypt and
 	// decrypt the repository.
-	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) &
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 	strings.MaxRunes(100) &
 	strings.MinRunes(1) &
 	=~"^[a-zA-Z0-9:/_-]+$"
@@ -43,7 +45,11 @@ import (
 	RepositoryId?: string
 
 	// The name of the new repository to be created.
-	RepositoryName!: strings.MaxRunes(100) & strings.MinRunes(1)
+	RepositoryName!: =~"^[a-zA-Z0-9._\\-]+$" &
+	matchN(0, [=~"(?:\\.git)$"]) &
+	string &
+	strings.MaxRunes(100) &
+	strings.MinRunes(1)
 
 	// One or more tag key-value pairs to use when tagging this repository.
 	Tags?: list.UniqueItems() & [...#Tag]

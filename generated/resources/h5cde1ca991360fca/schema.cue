@@ -6,18 +6,27 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Associates WebACL to Application Load Balancer, CloudFront or API Gateway.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WAFv2::WebACLAssociation"
-	Properties!: close({
+	let properties = close({
 		ResourceArn!: #ResourceArn
 		WebACLArn!:   #ResourceArn
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#ResourceArn: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"\\S" | fn.#StringExpression
+#ResourceArn: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"\\S" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"\\S" & "\(self)"
+} |
+fn.#StringExpression

@@ -4,6 +4,5 @@ package KeyPair
 
 import schema "github.com/cueformation/cfn-cue/resources/ha88acefa171d9a00:schema"
 
-#Resource:         schema.#Resource
-#ResourceLocation: schema.#ResourceLocation
-#Tag:              schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

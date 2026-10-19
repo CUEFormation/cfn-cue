@@ -19,7 +19,16 @@ import (
 	SinkIdentifier!:    strings.MaxRunes(2048) & strings.MinRunes(1)
 
 	// Tags to apply to the link
-	Tags?: {...}
+	Tags?: close({
+
+		{[=~"^(?:aws:.*)"]: error("disallowed")}
+
+		{[=~"^.{1,128}$"]: =~"^.{0,256}$" &
+		matchN(0, [=~"^(?:aws:.*)"]) &
+		string &
+		strings.MaxRunes(256) &
+		strings.MinRunes(0)}
+	})
 })
 
 #LinkConfiguration: close({

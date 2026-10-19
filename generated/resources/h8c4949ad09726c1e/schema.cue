@@ -7,20 +7,22 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SageMaker::AppImageConfig
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SageMaker::AppImageConfig"
-	Properties!: close({
+	let properties = close({
 		AppImageConfigName!: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(1) & =~"^[a-zA-Z0-9](-*[a-zA-Z0-9]){0,62}" & "\(self)"
+		} |
 		fn.#StringExpression
 
 		// The CodeEditorAppImageConfig.
@@ -33,6 +35,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		KernelGatewayImageConfig?: #KernelGatewayImageConfig
 		Tags?:                     list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CodeEditorAppImageConfig: close({
@@ -49,13 +55,51 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#CustomImageContainerArguments: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+#CustomImageContainerArguments: =~"^.+" &
+matchN(0, [=~"^(?:\\s*$)"]) &
+string &
+strings.MaxRunes(64) &
+strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: =~"^.+" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
-#CustomImageContainerEntrypoint: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+#CustomImageContainerEntrypoint: =~"^.+" &
+matchN(0, [=~"^(?:\\s*$)"]) &
+string &
+strings.MaxRunes(256) &
+strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: =~"^.+" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #CustomImageContainerEnvironmentVariable: close({
-	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: =~"^.+" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^.+" &
+		matchN(0, [=~"^(?:\\s*$)"]) &
+		string &
+		strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: =~"^.+" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^.+" &
+		matchN(0, [=~"^(?:\\s*$)"]) &
+		string &
+		strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -92,7 +136,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	MountPath?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^/.*" | fn.#StringExpression
+	MountPath?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^/.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^/.*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -110,13 +159,33 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #KernelSpec: close({
-	DisplayName?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:        strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	DisplayName?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -6,31 +6,84 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a custom DB engine version (CEV).
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RDS::CustomDBEngineVersion"
-	Properties!: close({
-		DatabaseInstallationFiles?:             [...string | fn.#StringExpression] | fn.#ListExpression
-		DatabaseInstallationFilesS3BucketName?: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-		DatabaseInstallationFilesS3Prefix?:     strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Description?:                           strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-		Engine!:        strings.MaxRunes(35) & strings.MinRunes(1) & =~"^[A-Za-z0-9-]{1,35}$" | fn.#StringExpression
-		EngineVersion!: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-z0-9_.-]{1,60}$" | fn.#StringExpression
-		ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+	let properties = close({
+		DatabaseInstallationFiles?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		DatabaseInstallationFilesS3BucketName?: strings.MaxRunes(63) & strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & "\(self)"
+		} |
 		fn.#StringExpression
-		KMSKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string) &
+		DatabaseInstallationFilesS3Prefix?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Engine!: strings.MaxRunes(35) & strings.MinRunes(1) & =~"^[A-Za-z0-9-]{1,35}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(35) & strings.MinRunes(1) & =~"^[A-Za-z0-9-]{1,35}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		EngineVersion!: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-z0-9_.-]{1,60}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(60) & strings.MinRunes(1) & =~"^[a-z0-9_.-]{1,60}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ImageId?: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" &
+			strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		KMSKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(1) &
 		=~"^[a-zA-Z0-9_:\\-\\/]+$" |
+		{
+			number | bool
+			_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+				=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+				=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z0-9_:\\-\\/]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Manifest?: strings.MaxRunes(51000) & strings.MinRunes(1) & =~"^[\\s\\S]*$" | fn.#StringExpression
-		SourceCustomDbEngineVersionIdentifier?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+		Manifest?: strings.MaxRunes(51000) & strings.MinRunes(1) & =~"^[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(51000) & strings.MinRunes(1) & =~"^[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SourceCustomDbEngineVersionIdentifier?: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		Status?: "available" | "inactive" | "inactive-except-restore" | "pending-validation" | fn.#StringExpression
 		Tags?:   [...#Tag] | fn.#ListExpression
 		UseAwsProvidedLatestImage?: bool |
@@ -42,10 +95,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"FALSE" |
 			fn.#BooleanExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

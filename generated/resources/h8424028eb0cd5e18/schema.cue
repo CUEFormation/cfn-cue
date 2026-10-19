@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -12,15 +12,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // associate one permission with each resource type in a resource share.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RAM::PermissionAssociation"
-	Properties!: close({
-		PermissionArn!:    string | fn.#StringExpression
+	let properties = close({
+		PermissionArn!:    string | number | bool | fn.#StringExpression
 		Replace?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ResourceShareArn!: string | fn.#StringExpression
+		ResourceShareArn!: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
-
-#PermissionTemplateParameter: close({
-	Name!:   string | fn.#StringExpression
-	Values!: [...string | fn.#StringExpression] | fn.#ListExpression
-}) |
-fn.#ObjectExpression

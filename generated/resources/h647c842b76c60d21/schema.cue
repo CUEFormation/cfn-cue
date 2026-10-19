@@ -7,18 +7,29 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Files::AccessPoint
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3Files::AccessPoint"
-	Properties!: close({
-		ClientToken?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^(.+)$" | fn.#StringExpression
+	let properties = close({
+		ClientToken?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^(.+)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^(.+)$" & "\(self)"
+		} |
+		fn.#StringExpression
 		FileSystemId!: strings.MaxRunes(128) &
 		=~"^(arn:aws[-a-z]*:s3files:[0-9a-z-:]+:file-system/fs-[0-9a-f]{17,40}|fs-[0-9a-f]{17,40})$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			=~"^(arn:aws[-a-z]*:s3files:[0-9a-z-:]+:file-system/fs-[0-9a-f]{17,40}|fs-[0-9a-f]{17,40})$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 
 		// The operating system user and group applied to all compute drive requests
@@ -35,25 +46,70 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		RootDirectory?: #RootDirectory
 		Tags?: list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#AccessPointTag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AccessPointTag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$" | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]+)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CreationPermissions: close({
-	OwnerGid!:    =~"^[0-9]+$" | fn.#StringExpression
-	OwnerUid!:    =~"^[0-9]+$" | fn.#StringExpression
-	Permissions!: =~"^[0-7]{3,4}$" | fn.#StringExpression
+	OwnerGid!: =~"^[0-9]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	OwnerUid!: =~"^[0-9]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Permissions!: =~"^[0-7]{3,4}$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-7]{3,4}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PosixUser: close({
-	Gid!:           =~"^[0-9]+$" | fn.#StringExpression
-	SecondaryGids?: [...=~"^[0-9]+$" | fn.#StringExpression] | fn.#ListExpression
-	Uid!:           =~"^[0-9]+$" | fn.#StringExpression
+	Gid!: =~"^[0-9]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SecondaryGids?: [...=~"^[0-9]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Uid!: =~"^[0-9]+$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -66,6 +122,11 @@ fn.#ObjectExpression
 	// CreationPermissions and the specified RootDirectory>Path does not exist,
 	// attempts to mount the file system using the access point will fail.
 	CreationPermissions?: #CreationPermissions
-	Path?:                strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	Path?: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

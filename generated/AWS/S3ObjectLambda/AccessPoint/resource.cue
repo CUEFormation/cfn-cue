@@ -4,11 +4,8 @@ package AccessPoint
 
 import schema "github.com/cueformation/cfn-cue/resources/h93b0bc1c4c1e00ce:schema"
 
-#Resource:                       schema.#Resource
-#Action:                         schema.#Action
-#Alias:                          schema.#Alias
-#AwsLambda:                      schema.#AwsLambda
-#ObjectLambdaConfiguration:      schema.#ObjectLambdaConfiguration
-#PolicyStatus:                   schema.#PolicyStatus
-#PublicAccessBlockConfiguration: schema.#PublicAccessBlockConfiguration
-#TransformationConfiguration:    schema.#TransformationConfiguration
+#Resource:                    schema.#Resource
+#Action:                      schema.#Action
+#AwsLambda:                   schema.#AwsLambda
+#ObjectLambdaConfiguration:   schema.#ObjectLambdaConfiguration
+#TransformationConfiguration: schema.#TransformationConfiguration

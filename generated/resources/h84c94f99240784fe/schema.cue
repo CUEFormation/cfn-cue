@@ -7,40 +7,81 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Registers a CA Certificate in IoT.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::CACertificate"
-	Properties!: close({
+	let properties = close({
 		AutoRegistrationStatus?: "ENABLE" | "DISABLE" | fn.#StringExpression
-		CACertificatePem!:       strings.MaxRunes(65536) & strings.MinRunes(1) & =~"[\\s\\S]*" | fn.#StringExpression
+		CACertificatePem!: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"[\\s\\S]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"[\\s\\S]*" & "\(self)"
+		} |
+		fn.#StringExpression
 		CertificateMode?:        "DEFAULT" | "SNI_ONLY" | fn.#StringExpression
 		RegistrationConfig?:     #RegistrationConfig
 		RemoveAutoRegistration?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Status!:                 "ACTIVE" | "INACTIVE" | fn.#StringExpression
 		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		VerificationCertificatePem?: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"[\\s\\S]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"[\\s\\S]*" & "\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #RegistrationConfig: close({
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"arn:(aws[a-zA-Z-]*)?:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	TemplateBody?: strings.MaxRunes(10240) & strings.MinRunes(0) & =~"[\\s\\S]*" | fn.#StringExpression
-	TemplateName?: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" | fn.#StringExpression
+	TemplateBody?: strings.MaxRunes(10240) & strings.MinRunes(0) & =~"[\\s\\S]*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10240) & strings.MinRunes(0) & =~"[\\s\\S]*" & "\(self)"
+	} |
+	fn.#StringExpression
+	TemplateName?: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(36) & strings.MinRunes(1) & =~"^[0-9A-Za-z_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

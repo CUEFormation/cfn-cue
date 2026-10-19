@@ -7,19 +7,17 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An entity that defines the scope of audit evidence collected by AWS Audit Manager.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AuditManager::Assessment"
-	Properties?: close({
+	let properties = close({
 		AssessmentReportsDestination?: #AssessmentReportsDestination
 		AwsAccount?:                   #AWSAccount
 		Delegations?:                  [...#Delegation] | fn.#ListExpression
@@ -31,6 +29,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Status?:                       #AssessmentStatus
 		Tags?:                         [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #AWSAccount: close({
@@ -42,17 +44,40 @@ fn.#ObjectExpression
 
 #AWSService: close({ServiceName?: #AWSServiceName}) | fn.#ObjectExpression
 
-#AWSServiceName: strings.MaxRunes(40) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-\\s().]+$" | fn.#StringExpression
+#AWSServiceName: strings.MaxRunes(40) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-\\s().]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(40) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-\\s().]+$" & "\(self)"
+} |
+fn.#StringExpression
 
-#AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+#AccountId: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+} |
+fn.#StringExpression
 
-#AccountName: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\x{0020}-\\x{007E}]+$" | fn.#StringExpression
+#AccountName: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\x{0020}-\\x{007E}]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[\\x{0020}-\\x{007E}]+$" & "\(self)"
+} |
+fn.#StringExpression
 
-#AssessmentArn: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*:auditmanager:.*" | fn.#StringExpression
+#AssessmentDescription: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\w\\W\\s\\S]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\w\\W\\s\\S]*$" & "\(self)"
+} |
+fn.#StringExpression
 
-#AssessmentDescription: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\w\\W\\s\\S]*$" | fn.#StringExpression
-
-#AssessmentName: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\.]+$" | fn.#StringExpression
+#AssessmentName: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\.]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_\\.]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #AssessmentReportDestinationType: "S3" | fn.#StringExpression
 
@@ -64,9 +89,19 @@ fn.#ObjectExpression
 
 #AssessmentStatus: "ACTIVE" | "INACTIVE" | fn.#StringExpression
 
-#ControlSetId: strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[\\w\\W\\s\\S]*$" | fn.#StringExpression
+#ControlSetId: strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[\\w\\W\\s\\S]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(300) & strings.MinRunes(1) & =~"^[\\w\\W\\s\\S]*$" & "\(self)"
+} |
+fn.#StringExpression
 
-#CreatedBy: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*:*:.*" | fn.#StringExpression
+#CreatedBy: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*:*:.*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*:*:.*" & "\(self)"
+} |
+fn.#StringExpression
 
 #Delegation: close({
 	AssessmentId?:   #UUID
@@ -83,21 +118,46 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#DelegationComment: strings.MaxRunes(350) & =~"^[\\w\\W\\s\\S]*$" | fn.#StringExpression
+#DelegationComment: strings.MaxRunes(350) & =~"^[\\w\\W\\s\\S]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(350) & =~"^[\\w\\W\\s\\S]*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #DelegationStatus: "IN_PROGRESS" | "UNDER_REVIEW" | "COMPLETE" | fn.#StringExpression
 
-#EmailAddress: strings.MaxRunes(320) & strings.MinRunes(1) & =~"^.*@.*$" | fn.#StringExpression
+#EmailAddress: strings.MaxRunes(320) & strings.MinRunes(1) & =~"^.*@.*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(320) & strings.MinRunes(1) & =~"^.*@.*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #FrameworkId: strings.MaxRunes(36) &
 strings.MinRunes(32) &
 =~"^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|.*\\S.*)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(36) &
+	strings.MinRunes(32) &
+	=~"^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|.*\\S.*)$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#IamArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#IamArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(2048) &
 strings.MinRunes(20) &
 =~"^arn:.*:iam:.*" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(2048) &
+	strings.MinRunes(20) &
+	=~"^arn:.*:iam:.*" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #Role: close({
@@ -111,6 +171,13 @@ fn.#ObjectExpression
 #S3Url: strings.MaxRunes(1024) &
 strings.MinRunes(1) &
 =~"^(S|s)3:\\/\\/[a-zA-Z0-9\\-\\.\\(\\)\\'\\*\\_\\!\\=\\+\\@\\:\\s\\,\\?\\/]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) &
+	strings.MinRunes(1) &
+	=~"^(S|s)3:\\/\\/[a-zA-Z0-9\\-\\.\\(\\)\\'\\*\\_\\!\\=\\+\\@\\:\\s\\,\\?\\/]+$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #Scope: close({
@@ -120,8 +187,18 @@ fn.#StringExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -146,4 +223,11 @@ fn.#ObjectExpression
 	fn.#NumberExpression
 
 #UUID: strings.MaxRunes(36) & strings.MinRunes(36) & =~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(36) &
+	strings.MinRunes(36) &
+	=~"^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" &
+	"\(self)"
+} |
 fn.#StringExpression

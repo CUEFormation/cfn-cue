@@ -7,15 +7,15 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A resource schema representing a Lake Formation Tag.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::LakeFormation::Tag"
-	Properties!: close({
+	let properties = close({
 		// The identifier for the Data Catalog. By default, the account ID. The Data
 		// Catalog is the persistent metadata store. It contains database definitions,
 		// table definitions, and other control information to manage your Lake
@@ -28,14 +28,31 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// A list of possible values an attribute can take.
 		TagValues!: #TagValueList
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#CatalogIdString: strings.MaxRunes(12) & strings.MinRunes(12) | fn.#StringExpression
+#CatalogIdString: strings.MaxRunes(12) & strings.MinRunes(12) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & "\(self)"
+} |
+fn.#StringExpression
 
 #LFTagKey: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([{a-zA-Z}{\\s}{0-9}_.:\\/=+\\-@%]*)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([{a-zA-Z}{\\s}{0-9}_.:\\/=+\\-@%]*)$" & "\(self)"
+} |
 fn.#StringExpression
 
 #LFTagValue: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([{a-zA-Z}{\\s}{0-9}_.:\\*\\/=+\\-@%]*)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([{a-zA-Z}{\\s}{0-9}_.:\\*\\/=+\\-@%]*)$" & "\(self)"
+} |
 fn.#StringExpression
 
 #TagValueList: list.MaxItems(1000) & list.MinItems(1) & [...#LFTagValue] | fn.#ListExpression

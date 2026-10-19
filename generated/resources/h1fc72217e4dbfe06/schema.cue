@@ -7,8 +7,8 @@ import (
 	"strings"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -55,13 +55,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *Developer Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Config::ConfigRule"
-	Properties!: close({
-		Compliance?:                close({}) | fn.#ObjectExpression
-		ConfigRuleName?:            string | fn.#StringExpression
-		Description?:               strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		Compliance?:     close({}) | fn.#ObjectExpression
+		ConfigRuleName?: string | number | bool | fn.#StringExpression
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		EvaluationModes?:           [...#EvaluationModeConfiguration] | fn.#ListExpression
-		InputParameters?:           fn.#Object & {...} | string | fn.#StringObjectExpression
-		MaximumExecutionFrequency?: string | fn.#StringExpression
+		InputParameters?:           fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		MaximumExecutionFrequency?: string | number | bool | fn.#StringExpression
 
 		// Defines which resources can trigger an evaluation for the rule. The scope can
 		// include one or more resource types, a combination of one resource type and
@@ -77,22 +82,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// AWS resources.
 		Source!: #Source
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CustomPolicyDetails: close({
 	EnableDebugLogDelivery?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PolicyRuntime?:          string | fn.#StringExpression
-	PolicyText?:             string | fn.#StringExpression
+	PolicyRuntime?:          string | number | bool | fn.#StringExpression
+	PolicyText?:             string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#EvaluationModeConfiguration: close({Mode?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#EvaluationModeConfiguration: close({Mode?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Scope: close({
-	ComplianceResourceId?:    string | fn.#StringExpression
-	ComplianceResourceTypes?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	TagKey?:                  string | fn.#StringExpression
-	TagValue?:                string | fn.#StringExpression
+	ComplianceResourceId?: string | number | bool | fn.#StringExpression
+	ComplianceResourceTypes?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
+		fn.#ListExpression
+	TagKey?:   string | number | bool | fn.#StringExpression
+	TagValue?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -100,15 +110,15 @@ fn.#ObjectExpression
 	// Provides the runtime system, policy definition, and whether debug logging is
 	// enabled. Required when owner is set to ``CUSTOM_POLICY``.
 	CustomPolicyDetails?: #CustomPolicyDetails
-	Owner!:               string | fn.#StringExpression
+	Owner!:               string | number | bool | fn.#StringExpression
 	SourceDetails?:       list.UniqueItems() & [...#SourceDetail] | fn.#ListExpression
-	SourceIdentifier?:    string | fn.#StringExpression
+	SourceIdentifier?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SourceDetail: close({
-	EventSource!:               string | fn.#StringExpression
-	MaximumExecutionFrequency?: string | fn.#StringExpression
-	MessageType!:               string | fn.#StringExpression
+	EventSource!:               string | number | bool | fn.#StringExpression
+	MaximumExecutionFrequency?: string | number | bool | fn.#StringExpression
+	MessageType!:               string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -4,8 +4,6 @@ package DatasetGroup
 
 import schema "github.com/cueformation/cfn-cue/resources/hb91c3df5eef9329e:schema"
 
-#Resource:   schema.#Resource
-#Arn:        schema.#Arn
-#MaxResults: schema.#MaxResults
-#NextToken:  schema.#NextToken
-#Tag:        schema.#Tag
+#Resource: schema.#Resource
+#Arn:      schema.#Arn
+#Tag:      schema.#Tag

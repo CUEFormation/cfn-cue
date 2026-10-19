@@ -3,18 +3,22 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::IdentityPoolPrincipalTag
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cognito::IdentityPoolPrincipalTag"
-	Properties!: close({
-		IdentityPoolId!:       string | fn.#StringExpression
-		IdentityProviderName!: string | fn.#StringExpression
+	let properties = close({
+		IdentityPoolId!:       string | number | bool | fn.#StringExpression
+		IdentityProviderName!: string | number | bool | fn.#StringExpression
 		PrincipalTags?:        fn.#Object & {...} | fn.#ObjectExpression
 		UseDefaults?:          bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

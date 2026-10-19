@@ -7,21 +7,34 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::SSM::OpsItem.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSM::OpsItem"
-	Properties!: close({
-		Category?:    strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-		Description!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[\\s\\S]*\\S[\\s\\S]*$" | fn.#StringExpression
+	let properties = close({
+		Category?: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^.+$" &
+			matchN(0, [=~"^(?:\\s*$)"]) &
+			string &
+			strings.MaxRunes(64) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		Description!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[\\s\\S]*\\S[\\s\\S]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[\\s\\S]*\\S[\\s\\S]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Priority?: int & <=5 & >=1 |
 			{
 				string &
@@ -40,15 +53,59 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Severity?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
-		Source!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:     list.MaxItems(1000) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-		Title!:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Severity?: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^.+$" &
+			matchN(0, [=~"^(?:\\s*$)"]) &
+			string &
+			strings.MaxRunes(64) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		Source!: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^.+$" &
+			matchN(0, [=~"^(?:\\s*$)"]) &
+			string &
+			strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(1000) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		Title!: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^.+$" &
+			matchN(0, [=~"^(?:\\s*$)"]) &
+			string &
+			strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

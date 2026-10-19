@@ -29,13 +29,21 @@ import (
 	=~"^arn:aws[-a-z0-9]*:bcm-dashboards::[0-9]{12}:dashboard/(\\*|[-a-z0-9]+)$"
 
 	// A description of the scheduled report's purpose or contents.
-	Description?: strings.MaxRunes(200) & strings.MinRunes(1)
+	Description?: =~"^[ a-zA-Z0-9.,!?;:@#$%&\\-_/\\\\]*$" &
+	matchN(0, [=~"^(?:.* {2})"]) &
+	string &
+	strings.MaxRunes(200) &
+	strings.MinRunes(1)
 
 	// The health status of the scheduled report at its last refresh time.
 	HealthStatus?: #HealthStatus
 
 	// The name of the scheduled report.
-	Name!: strings.MaxRunes(50) & strings.MinRunes(2)
+	Name!: =~"^[a-zA-Z][a-zA-Z0-9 _-]{0,48}[a-zA-Z0-9_-]$" &
+	matchN(0, [=~"^(?:.* {2})"]) &
+	string &
+	strings.MaxRunes(50) &
+	strings.MinRunes(2)
 
 	// The schedule configuration that defines when and how often the report is generated.
 	ScheduleConfig!: #ScheduleConfig

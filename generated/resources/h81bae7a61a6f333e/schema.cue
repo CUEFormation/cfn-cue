@@ -8,12 +8,10 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -23,13 +21,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // delete_then_create.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EventsV2::Subscriber"
-	Properties!: close({
+	let properties = close({
 		// Configuration for batching events into a single delivery to the target.
 		BatchConfiguration?: #BatchConfiguration
-		Description?:        strings.MaxRunes(512) | fn.#StringExpression
+		Description?: =~"^[^\\x{0000}-\\x{001F}\\x{007F}-\\x{009F}\\x{2028}\\x{2029}]*$" & strings.MaxRunes(512) |
+		{
+			number | bool
+			_cfnString: =~"^[^\\x{0000}-\\x{001F}\\x{007F}-\\x{009F}\\x{2028}\\x{2029}]*$" &
+			strings.MaxRunes(512) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 		EventBusArn!: strings.MaxRunes(1011) &
 		strings.MinRunes(1) &
 		=~"^arn:aws(-[a-z0-9]+)*:events:[a-z][a-z0-9]*(-[a-z0-9]+)*:([0-9]{12}):event-busv2\\/[A-Za-z0-9][\\.\\-_A-Za-z0-9]{0,255}\\/[a-z0-9]{25}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1011) &
+			strings.MinRunes(1) &
+			=~"^arn:aws(-[a-z0-9]+)*:events:[a-z][a-z0-9]*(-[a-z0-9]+)*:([0-9]{12}):event-busv2\\/[A-Za-z0-9][\\.\\-_A-Za-z0-9]{0,255}\\/[a-z0-9]{25}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 
 		// Configuration for filtering which events are delivered to the target. An
@@ -43,7 +55,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		// Delivery logging configuration for the subscriber.
 		LogConfiguration?: #LogConfiguration
-		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][\\.\\-_A-Za-z0-9]*$" | fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][\\.\\-_A-Za-z0-9]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[A-Za-z0-9][\\.\\-_A-Za-z0-9]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The destination for events that could not be delivered to the target.
 		OnFailureConfiguration?: #OnFailureConfiguration
@@ -62,6 +79,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Transformer?: #Transformer
 		Type?:        "FIFO" | "UNORDERED" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #BatchConfiguration: close({
@@ -104,18 +125,28 @@ fn.#ObjectExpression
 
 #EventBusV2MetadataMap: struct.MaxFields(100) & close({
 
-	{[=~"^[\\s\\S]*$"]: string | fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^[\\s\\S]*$"]: string | number | bool | fn.#StringExpression}
+}) |
 fn.#ObjectExpression
 
 #EventBusV2SystemMetadata: close({
-	DeduplicationId?: string | fn.#StringExpression
-	EventGroupId?:    string | fn.#StringExpression
+	DeduplicationId?: string | number | bool | fn.#StringExpression
+	EventGroupId?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Filter: close({
-	Pattern!: strings.MaxRunes(4096) | fn.#StringExpression
-	Scope!:   "DATA" | "METADATA" | "SYSTEM_METADATA" | fn.#StringExpression
+	Pattern!: strings.MaxRunes(4096) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & "\(self)"
+	} |
+	fn.#StringExpression
+	Scope!: "DATA" | "METADATA" | "SYSTEM_METADATA" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -128,7 +159,7 @@ fn.#ObjectExpression
 #HeaderParametersMap: struct.MaxFields(50) & {...} | fn.#ObjectExpression
 
 #InvokeConfiguration: ({
-	TargetArn?: fn.#Value
+	TargetArn?: matchN(0, [=~"^(?:arn:[^:]*:events:::aws-sdk:)"]) | fn.#ValueExpression
 	...
 } | {
 	UniversalTargetParameters!: _
@@ -438,70 +469,101 @@ fn.#ObjectExpression
 	"HttpParameters"?: close({
 		// HTTP headers to add to the request.
 		HeaderParameters?:         #HeaderParametersMap
-		InvocationTimeoutSeconds?: string | fn.#StringExpression
-		PathParameterValues?:      list.MaxItems(50) & [...string | fn.#StringExpression] | fn.#ListExpression
+		InvocationTimeoutSeconds?: string | number | bool | fn.#StringExpression
+		PathParameterValues?: list.MaxItems(50) & [...=~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string |
+		{
+			number | bool
+			_cfnString: =~"^.+$" & matchN(0, [=~"^(?:\\s*$)"]) & string & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 
 		// Query string parameters to add to the request.
 		QueryStringParameters?: #QueryStringParametersMap
 	}) |
 	fn.#ObjectExpression
 	"KinesisParameters"?: close({
-		ExplicitHashKey?: string | fn.#StringExpression
-		PartitionKey?:    string | fn.#StringExpression
+		ExplicitHashKey?: string | number | bool | fn.#StringExpression
+		PartitionKey?:    string | number | bool | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	"LambdaParameters"?: close({
-		DurableExecutionName?:     string | fn.#StringExpression
-		InvocationTimeoutSeconds?: string | fn.#StringExpression
-		InvocationType?:           string | fn.#StringExpression
-		Qualifier?:                string | fn.#StringExpression
-		TenantId?:                 string | fn.#StringExpression
+		DurableExecutionName?:     string | number | bool | fn.#StringExpression
+		InvocationTimeoutSeconds?: string | number | bool | fn.#StringExpression
+		InvocationType?:           string | number | bool | fn.#StringExpression
+		Qualifier?:                string | number | bool | fn.#StringExpression
+		TenantId?:                 string | number | bool | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[a-z0-9]+)*:iam::\\d{12}:role\\/[\\w+=,.@/-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(1600) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[a-z0-9]+)*:iam::\\d{12}:role\\/[\\w+=,.@/-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	"SnsParameters"?: close({
 		// Custom message attributes to attach to each message; Amazon SNS subscription
 		// filter policies can match on them.
 		MessageAttributes?:      #MessageAttributeMap
-		MessageDeduplicationId?: string | fn.#StringExpression
-		MessageGroupId?:         string | fn.#StringExpression
-		MessageStructure?:       string | fn.#StringExpression
-		Subject?:                string | fn.#StringExpression
+		MessageDeduplicationId?: string | number | bool | fn.#StringExpression
+		MessageGroupId?:         string | number | bool | fn.#StringExpression
+		MessageStructure?:       string | number | bool | fn.#StringExpression
+		Subject?:                string | number | bool | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	"SqsParameters"?: close({
-		DelaySeconds?: string | fn.#StringExpression
+		DelaySeconds?: string | number | bool | fn.#StringExpression
 
 		// Custom message attributes to attach to each message.
 		MessageAttributes?:      #MessageAttributeMap
-		MessageDeduplicationId?: string | fn.#StringExpression
-		MessageGroupId?:         string | fn.#StringExpression
+		MessageDeduplicationId?: string | number | bool | fn.#StringExpression
+		MessageGroupId?:         string | number | bool | fn.#StringExpression
 
 		// Message system attributes to attach to each message, such as AWSTraceHeader.
 		MessageSystemAttributes?: #MessageAttributeMap
 	}) |
 	fn.#ObjectExpression
 	"StepFunctionsParameters"?: close({
-		InvocationTimeoutSeconds?: string | fn.#StringExpression
-		InvocationType?:           string | fn.#StringExpression
-		Name?:                     string | fn.#StringExpression
-		TraceHeader?:              string | fn.#StringExpression
+		InvocationTimeoutSeconds?: string | number | bool | fn.#StringExpression
+		InvocationType?:           string | number | bool | fn.#StringExpression
+		Name?:                     string | number | bool | fn.#StringExpression
+		TraceHeader?:              string | number | bool | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	TargetArn!: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:" | fn.#StringExpression
+	TargetArn!: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1600) & strings.MinRunes(1) & =~"^arn:" & "\(self)"
+	} |
+	fn.#StringExpression
 	"UniversalTargetParameters"?: close({
-		Input!:                    strings.MaxRunes(262144) & strings.MinRunes(1) | fn.#StringExpression
-		InvocationTimeoutSeconds?: string | fn.#StringExpression
+		Input!: strings.MaxRunes(262144) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(262144) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		InvocationTimeoutSeconds?: string | number | bool | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#JsonataConfiguration: close({Expression!: strings.MaxRunes(8192) & strings.MinRunes(1) | fn.#StringExpression}) |
+#JsonataConfiguration: close({
+	Expression!: =~"^\\{%[\\s\\S]+?%\\}$" & (strings.MaxRunes(8192) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: =~"^\\{%[\\s\\S]+?%\\}$" & strings.MaxRunes(8192) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #LogConfiguration: close({
@@ -512,13 +574,18 @@ fn.#ObjectExpression
 
 #MessageAttributeMap: struct.MaxFields(50) & close({
 
-	{[=~"^[\\s\\S]*$"]: #MessageAttributeValue}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^[\\s\\S]*$"]: #MessageAttributeValue}
+}) |
 fn.#ObjectExpression
 
 #MessageAttributeValue: close({
-	BinaryValue?: string | fn.#StringExpression
-	DataType!:    string | fn.#StringExpression
-	StringValue?: string | fn.#StringExpression
+	BinaryValue?: string | number | bool | fn.#StringExpression
+	DataType!:    string | number | bool | fn.#StringExpression
+	StringValue?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -526,6 +593,13 @@ fn.#ObjectExpression
 	Arn?: strings.MaxRunes(1600) &
 	strings.MinRunes(1) &
 	=~"^arn:aws(-[a-z0-9]+)*:sqs:[a-z][a-z0-9]*(-[a-z0-9]+)*:[0-9]{12}:([A-Za-z0-9_-]{1,80}|[A-Za-z0-9_-]{1,75}\\.fifo)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1600) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[a-z0-9]+)*:sqs:[a-z][a-z0-9]*(-[a-z0-9]+)*:[0-9]{12}:([A-Za-z0-9_-]{1,80}|[A-Za-z0-9_-]{1,75}\\.fifo)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -565,9 +639,22 @@ fn.#ObjectExpression
 
 #QueryStringParametersMap: struct.MaxFields(50) & close({
 
-	{[=~"^[^\\x{0000}-\\x{001F}\\x{007F}]{1,512}$"]: strings.MaxRunes(512) &
-	=~"^[^\\x{0000}-\\x{0009}\\x{000B}\\x{000C}\\x{000E}-\\x{001F}\\x{007F}]+$" |
-	fn.#StringExpression}}) |
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{
+		[=~"^[^\\x{0000}-\\x{001F}\\x{007F}]{1,512}$"]: strings.MaxRunes(512) &
+		=~"^[^\\x{0000}-\\x{0009}\\x{000B}\\x{000C}\\x{000E}-\\x{001F}\\x{007F}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) &
+			=~"^[^\\x{0000}-\\x{0009}\\x{000B}\\x{000C}\\x{000E}-\\x{001F}\\x{007F}]+$" &
+			"\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
 fn.#ObjectExpression
 
 #RetryPolicy: close({
@@ -608,8 +695,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: =~"^\\S([\\s\\S]*\\S)?$" & (strings.MaxRunes(128) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: =~"^\\S([\\s\\S]*\\S)?$" & strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: =~"^(\\S([\\s\\S]*\\S)?)?$" & (strings.MaxRunes(256) & strings.MinRunes(0)) |
+	{
+		number | bool
+		_cfnString: =~"^(\\S([\\s\\S]*\\S)?)?$" & strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

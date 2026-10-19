@@ -4,17 +4,15 @@ package AnnotationStore
 
 import schema "github.com/cueformation/cfn-cue/resources/hbf56409d29f10bfc:schema"
 
-#Resource:          schema.#Resource
-#AnnotationType:    schema.#AnnotationType
-#EncryptionType:    schema.#EncryptionType
-#FormatToHeader:    schema.#FormatToHeader
-#FormatToHeaderKey: schema.#FormatToHeaderKey
-#ReferenceItem:     schema.#ReferenceItem
-#SchemaItem:        schema.#SchemaItem
-#SchemaValueType:   schema.#SchemaValueType
-#SseConfig:         schema.#SseConfig
-#StoreFormat:       schema.#StoreFormat
-#StoreOptions:      schema.#StoreOptions
-#StoreStatus:       schema.#StoreStatus
-#TagMap:            schema.#TagMap
-#TsvStoreOptions:   schema.#TsvStoreOptions
+#Resource:        schema.#Resource
+#AnnotationType:  schema.#AnnotationType
+#EncryptionType:  schema.#EncryptionType
+#FormatToHeader:  schema.#FormatToHeader
+#ReferenceItem:   schema.#ReferenceItem
+#SchemaItem:      schema.#SchemaItem
+#SchemaValueType: schema.#SchemaValueType
+#SseConfig:       schema.#SseConfig
+#StoreFormat:     schema.#StoreFormat
+#StoreOptions:    schema.#StoreOptions
+#TagMap:          schema.#TagMap
+#TsvStoreOptions: schema.#TsvStoreOptions

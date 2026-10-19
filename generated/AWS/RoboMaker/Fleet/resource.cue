@@ -5,5 +5,4 @@ package Fleet
 import schema "github.com/cueformation/cfn-cue/resources/h99ed6d29b0b6d276:schema"
 
 #Resource: schema.#Resource
-#Arn:      schema.#Arn
 #Tags:     schema.#Tags

@@ -3,40 +3,56 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::KinesisAnalytics::ApplicationOutput
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::KinesisAnalytics::ApplicationOutput"
-	Properties!: close({
-		ApplicationName!: string | fn.#StringExpression
+	let properties = close({
+		ApplicationName!: string | number | bool | fn.#StringExpression
 		Output!:          #Output
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#DestinationSchema: close({RecordFormatType?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#DestinationSchema: close({RecordFormatType?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #KinesisFirehoseOutput: close({
-	ResourceARN!: string | fn.#StringExpression
-	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	ResourceARN!: string | number | bool | fn.#StringExpression
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #KinesisStreamsOutput: close({
-	ResourceARN!: string | fn.#StringExpression
-	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	ResourceARN!: string | number | bool | fn.#StringExpression
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #LambdaOutput: close({
-	ResourceARN!: string | fn.#StringExpression
-	RoleARN!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	ResourceARN!: string | number | bool | fn.#StringExpression
+	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -45,6 +61,6 @@ fn.#ObjectExpression
 	KinesisFirehoseOutput?: #KinesisFirehoseOutput
 	KinesisStreamsOutput?:  #KinesisStreamsOutput
 	LambdaOutput?:          #LambdaOutput
-	Name?:                  string | fn.#StringExpression
+	Name?:                  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

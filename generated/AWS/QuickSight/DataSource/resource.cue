@@ -11,7 +11,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hfe515dc4584e4429:schem
 #AuroraParameters:              schema.#AuroraParameters
 #AuroraPostgreSqlParameters:    schema.#AuroraPostgreSqlParameters
 #AuthenticationType:            schema.#AuthenticationType
-#AwsIotAnalyticsParameters:     schema.#AwsIotAnalyticsParameters
 #CredentialPair:                schema.#CredentialPair
 #DataSourceCredentials:         schema.#DataSourceCredentials
 #DataSourceErrorInfo:           schema.#DataSourceErrorInfo
@@ -20,7 +19,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hfe515dc4584e4429:schem
 #DataSourceType:                schema.#DataSourceType
 #DatabricksParameters:          schema.#DatabricksParameters
 #IdentityCenterConfiguration:   schema.#IdentityCenterConfiguration
-#ImpalaParameters:              schema.#ImpalaParameters
 #KeyPairCredentials:            schema.#KeyPairCredentials
 #ManifestFileLocation:          schema.#ManifestFileLocation
 #MariaDbParameters:             schema.#MariaDbParameters
@@ -33,7 +31,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hfe515dc4584e4429:schem
 #RedshiftIAMParameters:         schema.#RedshiftIAMParameters
 #RedshiftParameters:            schema.#RedshiftParameters
 #ResourcePermission:            schema.#ResourcePermission
-#ResourceStatus:                schema.#ResourceStatus
 #S3Parameters:                  schema.#S3Parameters
 #S3TablesParameters:            schema.#S3TablesParameters
 #SnowflakeParameters:           schema.#SnowflakeParameters

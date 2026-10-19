@@ -4,5 +4,4 @@ package PermissionAssociation
 
 import schema "github.com/cueformation/cfn-cue/resources/h8424028eb0cd5e18:schema"
 
-#Resource:                    schema.#Resource
-#PermissionTemplateParameter: schema.#PermissionTemplateParameter
+#Resource: schema.#Resource

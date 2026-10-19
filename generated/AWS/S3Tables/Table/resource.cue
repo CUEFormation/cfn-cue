@@ -23,11 +23,8 @@ import schema "github.com/cueformation/cfn-cue/resources/hf68616a60c3ecc55:schem
 #SchemaV2FieldList:         schema.#SchemaV2FieldList
 #SnapshotManagement:        schema.#SnapshotManagement
 #StorageClassConfiguration: schema.#StorageClassConfiguration
-#TableARN:                  schema.#TableARN
 #TableBucketARN:            schema.#TableBucketARN
 #TableName:                 schema.#TableName
 #TableProperties:           schema.#TableProperties
 #Tag:                       schema.#Tag
-#VersionToken:              schema.#VersionToken
-#WarehouseLocation:         schema.#WarehouseLocation
 #WithoutMetadata:           schema.#WithoutMetadata

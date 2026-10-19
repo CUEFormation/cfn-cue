@@ -4,7 +4,4 @@ package DomainUnit
 
 import schema "github.com/cueformation/cfn-cue/resources/hea21e9f74587ecf1:schema"
 
-#Resource:                  schema.#Resource
-#DomainUnitGroupProperties: schema.#DomainUnitGroupProperties
-#DomainUnitOwnerProperties: schema.#DomainUnitOwnerProperties
-#DomainUnitUserProperties:  schema.#DomainUnitUserProperties
+#Resource: schema.#Resource

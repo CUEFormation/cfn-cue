@@ -3,79 +3,115 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::IoTSiteWise::Asset
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTSiteWise::Asset"
-	Properties!: close({
+	let properties = close({
 		AssetDescription?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		AssetExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(2) &
+			=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		AssetHierarchies?: [...close({
-			ChildAssetId!: string | fn.#StringExpression
+			ChildAssetId!: string | number | bool | fn.#StringExpression
 			ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) &
+				strings.MinRunes(2) &
+				=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			LogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) &
+				strings.MinRunes(1) &
+				=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-		AssetModelId!: strings.MaxRunes(139) & strings.MinRunes(13) | fn.#StringExpression
+		AssetModelId!: (=~"^externalId:[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+$" |
+		=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+		matchN(0, [=~"^(?:00000000-0000-0000-0000-000000000000)"]) &
+		string) & (strings.MaxRunes(139) & strings.MinRunes(13)) |
+		{
+			number | bool
+			_cfnString: (=~"^externalId:[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+$" |
+			=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+			matchN(0, [=~"^(?:00000000-0000-0000-0000-000000000000)"]) &
+			string) &
+			strings.MaxRunes(139) &
+			strings.MinRunes(13) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 		AssetName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 		AssetProperties?: [...close({
-			Alias?: string | fn.#StringExpression
+			Alias?: string | number | bool | fn.#StringExpression
 			ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) &
+				strings.MinRunes(2) &
+				=~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			LogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) &
+				strings.MinRunes(1) &
+				=~"[^\\x{0000}-\\x{001F}\\x{007F}]+" &
+				"\(self)"
+			} |
 			fn.#StringExpression
 			NotificationState?: "ENABLED" | "DISABLED" | fn.#StringExpression
-			Unit?:              string | fn.#StringExpression
+			Unit?:              string | number | bool | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
 		Tags?: [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#AssetHierarchy: close({
-	ChildAssetId!: string | fn.#StringExpression
-	ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
-	fn.#StringExpression
-	Id?: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
-	fn.#StringExpression
-	LogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
-	fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#AssetProperty: close({
-	Alias?: string | fn.#StringExpression
-	ExternalId?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"[a-zA-Z0-9_][a-zA-Z_\\-0-9.:]*[a-zA-Z0-9_]+" |
-	fn.#StringExpression
-	Id?: strings.MaxRunes(36) &
-	strings.MinRunes(36) &
-	=~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" |
-	fn.#StringExpression
-	LogicalId?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"[^\\x{0000}-\\x{001F}\\x{007F}]+" |
-	fn.#StringExpression
-	NotificationState?: "ENABLED" | "DISABLED" | fn.#StringExpression
-	Unit?:              string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

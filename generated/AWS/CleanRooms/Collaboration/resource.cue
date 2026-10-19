@@ -20,7 +20,6 @@ import schema "github.com/cueformation/cfn-cue/resources/ha30a36a9c1e0bda0:schem
 #MemberAbilities:                      schema.#MemberAbilities
 #MemberAbility:                        schema.#MemberAbility
 #MemberSpecification:                  schema.#MemberSpecification
-#MemberStatus:                         schema.#MemberStatus
 #ModelInferencePaymentConfig:          schema.#ModelInferencePaymentConfig
 #ModelTrainingPaymentConfig:           schema.#ModelTrainingPaymentConfig
 #Name:                                 schema.#Name

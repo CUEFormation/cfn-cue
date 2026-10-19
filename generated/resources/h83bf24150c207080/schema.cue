@@ -6,24 +6,28 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::GuardDuty::MalwareProtectionPlan
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GuardDuty::MalwareProtectionPlan"
-	Properties!: close({
+	let properties = close({
 		// Specifies the action that is to be applied to the Malware Protection plan resource.
 		Actions?: #CFNActions
 
 		// Information about the protected resource. Presently, S3Bucket is the only
 		// supported protected resource.
 		ProtectedResource!: #CFNProtectedResource
-		Role!:              string | fn.#StringExpression
+		Role!:              string | number | bool | fn.#StringExpression
 		Tags?:              [...#TagItem] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CFNActions: close({
@@ -33,24 +37,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #CFNProtectedResource: close({
-	S3Bucket!: close({
-		BucketName?:     string | fn.#StringExpression
-		ObjectPrefixes?: list.MaxItems(5) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
+	S3Bucket!: matchN(2, [{...}, {...}]) & close({
+		BucketName?: =~"^[a-z0-9.\\-]{3,63}\\n?$" & =~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+				=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		ObjectPrefixes?: list.MaxItems(5) & [...] & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
 	}) |
 	fn.#ObjectExpression
-}) |
-fn.#ObjectExpression
-
-#CFNStatusReasons: close({
-	Code?:    string | fn.#StringExpression
-	Message?: string | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CFNTagging: close({Status?: "DISABLED" | "ENABLED" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #TagItem: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

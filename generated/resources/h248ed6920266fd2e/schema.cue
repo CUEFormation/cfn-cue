@@ -6,8 +6,8 @@ import (
 	"list"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -24,15 +24,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SecurityHub::Standard"
-	Properties!: close({
+	let properties = close({
 		DisabledStandardsControls?: list.MaxItems(100) & list.UniqueItems() & [...] & [...#StandardsControl] |
 			fn.#ListExpression
-		StandardsArn!: =~"arn:aws\\S*:securityhub:\\S" | fn.#StringExpression
+		StandardsArn!: =~"arn:aws\\S*:securityhub:\\S" |
+		{
+			number | bool
+			_cfnString: =~"arn:aws\\S*:securityhub:\\S" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #StandardsControl: close({
-	Reason?:              string | fn.#StringExpression
-	StandardsControlArn!: =~"arn:aws\\S*:securityhub:\\S*" | fn.#StringExpression
+	Reason?: string | number | bool | fn.#StringExpression
+	StandardsControlArn!: =~"arn:aws\\S*:securityhub:\\S*" |
+	{
+		number | bool
+		_cfnString: =~"arn:aws\\S*:securityhub:\\S*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

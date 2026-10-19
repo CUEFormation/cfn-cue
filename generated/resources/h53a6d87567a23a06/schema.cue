@@ -8,39 +8,92 @@ import (
 	"list"
 	"struct"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::GameLiftStreams::Application Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::GameLiftStreams::Application"
-	Properties!: close({
+	let properties = close({
 		ApplicationLogOutputUri?: strings.MaxRunes(1024) &
 		strings.MinRunes(0) &
 		=~"^$|^s3://([a-zA-Z0-9][a-zA-Z0-9._-]{1,61}[a-zA-Z0-9])(/[a-zA-Z0-9._-]+)*/?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(0) &
+			=~"^$|^s3://([a-zA-Z0-9][a-zA-Z0-9._-]{1,61}[a-zA-Z0-9])(/[a-zA-Z0-9._-]+)*/?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		ApplicationLogPaths?: list.MaxItems(10) & [...] & [
-			...strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		] |
+		ApplicationLogPaths?: list.MaxItems(10) & [...] & [...strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		ApplicationSourceUri!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		Description!: strings.MaxRunes(80) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.!+@/][a-zA-Z0-9-_.!+@/ ]*$" |
+		ApplicationSourceUri!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
 		fn.#StringExpression
-		ExecutablePath!:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Description!: strings.MaxRunes(80) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_.!+@/][a-zA-Z0-9-_.!+@/ ]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(80) &
+			strings.MinRunes(1) &
+			=~"^[a-zA-Z0-9-_.!+@/][a-zA-Z0-9-_.!+@/ ]*$" &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		ExecutablePath!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		RuntimeEnvironment!: #RuntimeEnvironment
 		Tags?:               #Tags
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #RuntimeEnvironment: close({
-	Type!:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Version!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Type!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Version!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tags: struct.MaxFields(50) & struct.MinFields(1) & close({
 
-	{[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression}}) |
+	{
+		[=~".+"]: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression

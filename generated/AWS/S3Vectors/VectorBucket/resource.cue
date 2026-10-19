@@ -5,8 +5,6 @@ package VectorBucket
 import schema "github.com/cueformation/cfn-cue/resources/he2664c5f98356312:schema"
 
 #Resource:                schema.#Resource
-#CreationTime:            schema.#CreationTime
 #EncryptionConfiguration: schema.#EncryptionConfiguration
 #Tag:                     schema.#Tag
-#VectorBucketArn:         schema.#VectorBucketArn
 #VectorBucketName:        schema.#VectorBucketName

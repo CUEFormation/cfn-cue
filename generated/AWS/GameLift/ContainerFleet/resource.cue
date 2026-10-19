@@ -7,12 +7,10 @@ import schema "github.com/cueformation/cfn-cue/resources/hd830e1d71ca6521f:schem
 #Resource:                       schema.#Resource
 #ConnectionPortRange:            schema.#ConnectionPortRange
 #DeploymentConfiguration:        schema.#DeploymentConfiguration
-#DeploymentDetails:              schema.#DeploymentDetails
 #GameSessionCreationLimitPolicy: schema.#GameSessionCreationLimitPolicy
 #IpPermission:                   schema.#IpPermission
 #Location:                       schema.#Location
 #LocationCapacity:               schema.#LocationCapacity
-#LocationConfiguration:          schema.#LocationConfiguration
 #LogConfiguration:               schema.#LogConfiguration
 #LogDestination:                 schema.#LogDestination
 #ManagedCapacityConfiguration:   schema.#ManagedCapacityConfiguration

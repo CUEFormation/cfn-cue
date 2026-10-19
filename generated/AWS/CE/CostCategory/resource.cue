@@ -4,6 +4,5 @@ package CostCategory
 
 import schema "github.com/cueformation/cfn-cue/resources/ha1c49c1a812e5f2e:schema"
 
-#Resource:      schema.#Resource
-#ResourceTag:   schema.#ResourceTag
-#ZonedDateTime: schema.#ZonedDateTime
+#Resource:    schema.#Resource
+#ResourceTag: schema.#ResourceTag

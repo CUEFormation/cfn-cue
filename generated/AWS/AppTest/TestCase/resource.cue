@@ -39,5 +39,3 @@ import schema "github.com/cueformation/cfn-cue/resources/ha61bee4e4ab06042:schem
 #TagMap:                        schema.#TagMap
 #TargetDatabase:                schema.#TargetDatabase
 #TargetDatabaseMetadata:        schema.#TargetDatabaseMetadata
-#TestCaseLatestVersion:         schema.#TestCaseLatestVersion
-#TestCaseLifecycle:             schema.#TestCaseLifecycle

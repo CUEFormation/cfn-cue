@@ -7,23 +7,24 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::SSM::PatchBaseline
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SSM::PatchBaseline"
-	Properties!: close({
+	let properties = close({
 		ApprovalRules?: #RuleGroup
-		ApprovedPatches?: list.MaxItems(50) & [...] & [
-			...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		] |
+		ApprovedPatches?: list.MaxItems(50) & [...] & [...strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		ApprovedPatchesComplianceLevel?: "CRITICAL" |
 			"HIGH" |
@@ -42,11 +43,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#BooleanExpression
 		AvailableSecurityUpdatesComplianceStatus?: "NON_COMPLIANT" | "COMPLIANT" | fn.#StringExpression
 		DefaultBaseline?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Description?:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// A set of global filters used to include patches in the baseline.
 		GlobalFilters?: #PatchFilterGroup
-		Name!: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.]{3,128}$" | fn.#StringExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.]{3,128}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-.]{3,128}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		OperatingSystem?: "WINDOWS" |
 			"AMAZON_LINUX" |
 			"AMAZON_LINUX_2" |
@@ -63,15 +74,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"ROCKY_LINUX" |
 			"ALMA_LINUX" |
 			fn.#StringExpression
-		PatchGroups?: [...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression] | fn.#ListExpression
-		RejectedPatches?: list.MaxItems(50) & [...] & [
-			...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		] |
+		PatchGroups?: [...strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		RejectedPatches?: list.MaxItems(50) & [...] & [...strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		RejectedPatchesAction?: "ALLOW_AS_DEPENDENCY" | "BLOCK" | fn.#StringExpression
 		Sources?:               list.MaxItems(20) & [...] & [...#PatchSource] | fn.#ListExpression
 		Tags?:                  list.MaxItems(1000) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #PatchFilter: close({
@@ -95,7 +119,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		"SEVERITY" |
 		"VERSION" |
 		fn.#StringExpression
-	Values?: list.MaxItems(20) & [...] & [...strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression] |
+	Values?: list.MaxItems(20) & [...] & [...strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -104,9 +133,24 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #PatchSource: close({
-	Configuration?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Name?:          =~"^[a-zA-Z0-9_\\-.]{3,50}$" | fn.#StringExpression
-	Products?: list.MaxItems(20) & [...] & [...strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression] |
+	Configuration?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name?: =~"^[a-zA-Z0-9_\\-.]{3,50}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9_\\-.]{3,50}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Products?: list.MaxItems(20) & [...] & [...strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -128,7 +172,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ApproveUntilDate?:  strings.MaxRunes(10) & strings.MinRunes(0) | fn.#StringExpression
+	ApproveUntilDate?: strings.MaxRunes(10) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	ComplianceLevel?:   "CRITICAL" | "HIGH" | "INFORMATIONAL" | "LOW" | "MEDIUM" | "UNSPECIFIED" | fn.#StringExpression
 	EnableNonSecurity?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	PatchFilterGroup?:  #PatchFilterGroup
@@ -138,7 +187,17 @@ fn.#ObjectExpression
 #RuleGroup: close({PatchRules?: list.MaxItems(10) & [...] & [...#Rule] | fn.#ListExpression}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

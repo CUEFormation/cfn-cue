@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -13,8 +13,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // required for Amazon Macie to become operational.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Macie::Session"
-	Properties?: close({
+	let properties = close({
 		FindingPublishingFrequency?: "FIFTEEN_MINUTES" | "ONE_HOUR" | "SIX_HOURS" | fn.#StringExpression
 		Status?:                     "ENABLED" | "PAUSED" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }

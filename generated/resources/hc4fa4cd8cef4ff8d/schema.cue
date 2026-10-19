@@ -6,20 +6,23 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Deadline::QueueEnvironment
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Deadline::QueueEnvironment"
-	Properties!: close({
-		FarmId!: =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
+	let properties = close({
+		FarmId!: =~"^farm-[0-9a-f]{32}$" |
+		{
+			number | bool
+			_cfnString: =~"^farm-[0-9a-f]{32}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Priority!: int & <=10000 & >=0 |
 			{
 				string &
@@ -38,10 +41,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		QueueId!:      =~"^queue-[0-9a-f]{32}$" | fn.#StringExpression
-		Template!:     strings.MaxRunes(15000) & strings.MinRunes(1) | fn.#StringExpression
+		QueueId!: =~"^queue-[0-9a-f]{32}$" |
+		{
+			number | bool
+			_cfnString: =~"^queue-[0-9a-f]{32}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Template!: strings.MaxRunes(15000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(15000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		TemplateType!: #EnvironmentTemplateType
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #EnvironmentTemplateType: "JSON" | "YAML" | fn.#StringExpression

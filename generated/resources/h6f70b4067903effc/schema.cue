@@ -7,57 +7,73 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::AccessAnalyzer::Analyzer type specifies an analyzer of the user's account
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AccessAnalyzer::Analyzer"
-	Properties!: close({
+	let properties = close({
 		AnalyzerConfiguration?: close({
 			InternalAccessConfiguration?: #InternalAccessConfiguration
 			UnusedAccessConfiguration?:   #UnusedAccessConfiguration
 		}) |
 		fn.#ObjectExpression
 		AnalyzerName?: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[A-Za-z_][A-Za-z0-9_.-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[A-Za-z_][A-Za-z0-9_.-]*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		ArchiveRules?: [...#ArchiveRule] | fn.#ListExpression
 		Tags?:         list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		Type!:         strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Type!: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AnalysisRuleCriteria: close({
-	AccountIds?:   [...string | fn.#StringExpression] | fn.#ListExpression
+	AccountIds?:   [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	ResourceTags?: [...#Tags] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #ArchiveRule: close({
-	Filter!:   list.MinItems(1) & [...#Filter] | fn.#ListExpression
-	RuleName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_.-]*$" | fn.#StringExpression
+	Filter!: list.MinItems(1) & [...#Filter] | fn.#ListExpression
+	RuleName!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_.-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z][A-Za-z0-9_.-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Filter: close({
-	Contains?: [...string | fn.#StringExpression] | fn.#ListExpression
-	Eq?:       [...string | fn.#StringExpression] | fn.#ListExpression
+	Contains?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Eq?:       [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Exists?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Neq?:      [...string | fn.#StringExpression] | fn.#ListExpression
-	Property!: string | fn.#StringExpression
+	Neq?:      [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Property!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #InternalAccessAnalysisRuleCriteria: close({
-	AccountIds?:    [...string | fn.#StringExpression] | fn.#ListExpression
-	ResourceArns?:  [...string | fn.#StringExpression] | fn.#ListExpression
-	ResourceTypes?: [...string | fn.#StringExpression] | fn.#ListExpression
+	AccountIds?:    [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	ResourceArns?:  [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	ResourceTypes?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
@@ -68,8 +84,18 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

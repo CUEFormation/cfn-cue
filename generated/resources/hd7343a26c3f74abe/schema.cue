@@ -7,12 +7,10 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -21,9 +19,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // that checks for connection requests to your services.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::VpcLattice::Listener"
-	Properties!: close({
+	let properties = close({
 		DefaultAction!: #DefaultAction
-		Name?:          strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+		Name?: =~"^[a-z0-9-]+$" &
+		matchN(0, [=~"^(?:listener-)"]) &
+		string &
+		matchN(0, [=~"^(?:[-])"]) &
+		string &
+		matchN(0, [=~"^(?:.*[-]$)"]) &
+		string &
+		matchN(0, [=~"^(?:.*[-]{2})"]) &
+		string &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: =~"^[a-z0-9-]+$" &
+			matchN(0, [=~"^(?:listener-)"]) &
+			string &
+			matchN(0, [=~"^(?:[-])"]) &
+			string &
+			matchN(0, [=~"^(?:.*[-]$)"]) &
+			string &
+			matchN(0, [=~"^(?:.*[-]{2})"]) &
+			string &
+			strings.MaxRunes(63) &
+			strings.MinRunes(3) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 		Port?: int & <=65535 & >=1 |
 			{
 				string &
@@ -46,9 +70,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ServiceIdentifier?: strings.MaxRunes(2048) &
 		strings.MinRunes(21) &
 		=~"^((svc-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:service/svc-[0-9a-z]{17}))$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(21) &
+			=~"^((svc-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:service/svc-[0-9a-z]{17}))$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #DefaultAction: close({
@@ -81,8 +116,18 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -90,6 +135,13 @@ fn.#ObjectExpression
 	TargetGroupIdentifier!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((tg-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:targetgroup/tg-[0-9a-z]{17}))$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^((tg-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:targetgroup/tg-[0-9a-z]{17}))$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Weight?: int & <=999 & >=0 |
 		{

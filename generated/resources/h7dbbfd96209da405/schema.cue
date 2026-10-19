@@ -7,12 +7,10 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -21,14 +19,47 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // of a priority, one or more actions, and one or more conditions.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::VpcLattice::Rule"
-	Properties!: close({
+	let properties = close({
 		Action!: #Action
 		ListenerIdentifier?: strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^((listener-[0-9a-z]{17})|(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:service/svc-[0-9a-z]{17}/listener/listener-[0-9a-z]{17}))$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^((listener-[0-9a-z]{17})|(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:service/svc-[0-9a-z]{17}/listener/listener-[0-9a-z]{17}))$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Match!: #Match
-		Name?:  strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+		Name?: =~"^[a-z0-9-]+$" &
+		matchN(0, [=~"^(?:rule-)"]) &
+		string &
+		matchN(0, [=~"^(?:[-])"]) &
+		string &
+		matchN(0, [=~"^(?:.*[-]$)"]) &
+		string &
+		matchN(0, [=~"^(?:.*[-]{2})"]) &
+		string &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: =~"^[a-z0-9-]+$" &
+			matchN(0, [=~"^(?:rule-)"]) &
+			string &
+			matchN(0, [=~"^(?:[-])"]) &
+			string &
+			matchN(0, [=~"^(?:.*[-]$)"]) &
+			string &
+			matchN(0, [=~"^(?:.*[-]{2})"]) &
+			string &
+			strings.MaxRunes(63) &
+			strings.MinRunes(3) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 		Priority!: int & <=2000 & >=1 |
 			{
 				string &
@@ -50,9 +81,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		ServiceIdentifier?: strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^((svc-[0-9a-z]{17})|(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:service/svc-[0-9a-z]{17}))$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^((svc-[0-9a-z]{17})|(arn(:[a-z0-9]+([.-][a-z0-9]+)*){2}(:([a-z0-9]+([.-][a-z0-9]+)*)?){2}:service/svc-[0-9a-z]{17}))$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Action: close({
@@ -87,14 +129,34 @@ fn.#ObjectExpression
 #HeaderMatch: close({
 	CaseSensitive?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Match!:         #HeaderMatchType
-	Name!:          strings.MaxRunes(40) & strings.MinRunes(1) | fn.#StringExpression
+	Name!: strings.MaxRunes(40) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(40) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #HeaderMatchType: close({
-	Contains?: strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Exact?:    strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Prefix?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	Contains?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Exact?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Prefix?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -114,14 +176,34 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #PathMatchType: close({
-	Exact?:  strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\/[a-zA-Z0-9@:%_+.~#?&\\/=-]*$" | fn.#StringExpression
-	Prefix?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\/[a-zA-Z0-9@:%_+.~#?&\\/=-]*$" | fn.#StringExpression
+	Exact?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\/[a-zA-Z0-9@:%_+.~#?&\\/=-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\/[a-zA-Z0-9@:%_+.~#?&\\/=-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Prefix?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\/[a-zA-Z0-9@:%_+.~#?&\\/=-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^\\/[a-zA-Z0-9@:%_+.~#?&\\/=-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -129,6 +211,13 @@ fn.#ObjectExpression
 	TargetGroupIdentifier!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^((tg-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:targetgroup/tg-[0-9a-z]{17}))$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^((tg-[0-9a-z]{17})|(arn:[a-z0-9\\-]+:vpc-lattice:[a-zA-Z0-9\\-]+:\\d{12}:targetgroup/tg-[0-9a-z]{17}))$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	Weight?: int & <=999 & >=0 |
 		{

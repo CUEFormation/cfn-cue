@@ -3,289 +3,41 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::EC2::NetworkInsightsAnalysis
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::NetworkInsightsAnalysis"
-	Properties!: close({
-		AdditionalAccounts?:    list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		AdditionalAccounts?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
 		FilterInArns?:          [...#ResourceArn] | fn.#ListExpression
 		FilterOutArns?:         [...#ResourceArn] | fn.#ListExpression
-		NetworkInsightsPathId!: string | fn.#StringExpression
+		NetworkInsightsPathId!: string | number | bool | fn.#StringExpression
 		Tags?:                  list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#AdditionalDetail: close({
-	AdditionalDetailType?: string | fn.#StringExpression
-	Component?:            #AnalysisComponent
-	LoadBalancers?:        [...#AnalysisComponent] | fn.#ListExpression
-	ServiceName?:          string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#AlternatePathHint: close({
-	ComponentArn?: string | fn.#StringExpression
-	ComponentId?:  string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#AnalysisAclRule: close({
-	Cidr?:       string | fn.#StringExpression
-	Egress?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	PortRange?:  #PortRange
-	Protocol?:   #Protocol
-	RuleAction?: string | fn.#StringExpression
-	RuleNumber?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
-#AnalysisComponent: close({
-	Arn?: string | fn.#StringExpression
-	Id?:  string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#AnalysisLoadBalancerListener: close({
-	InstancePort?:     #Port
-	LoadBalancerPort?: #Port
-}) |
-fn.#ObjectExpression
-
-#AnalysisLoadBalancerTarget: close({
-	Address?:          #IpAddress
-	AvailabilityZone?: string | fn.#StringExpression
-	Instance?:         #AnalysisComponent
-	Port?:             #Port
-}) |
-fn.#ObjectExpression
-
-#AnalysisPacketHeader: close({
-	DestinationAddresses?:  [...#IpAddress] | fn.#ListExpression
-	DestinationPortRanges?: [...#PortRange] | fn.#ListExpression
-	Protocol?:              #Protocol
-	SourceAddresses?:       [...#IpAddress] | fn.#ListExpression
-	SourcePortRanges?:      [...#PortRange] | fn.#ListExpression
-}) |
-fn.#ObjectExpression
-
-#AnalysisRouteTableRoute: close({
-	NatGatewayId?:                string | fn.#StringExpression
-	NetworkInterfaceId?:          string | fn.#StringExpression
-	Origin?:                      string | fn.#StringExpression
-	State?:                       string | fn.#StringExpression
-	TransitGatewayId?:            string | fn.#StringExpression
-	VpcPeeringConnectionId?:      string | fn.#StringExpression
-	destinationCidr?:             string | fn.#StringExpression
-	destinationPrefixListId?:     string | fn.#StringExpression
-	egressOnlyInternetGatewayId?: string | fn.#StringExpression
-	gatewayId?:                   string | fn.#StringExpression
-	instanceId?:                  string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#AnalysisSecurityGroupRule: close({
-	Cidr?:            string | fn.#StringExpression
-	Direction?:       string | fn.#StringExpression
-	PortRange?:       #PortRange
-	PrefixListId?:    string | fn.#StringExpression
-	Protocol?:        #Protocol
-	SecurityGroupId?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#AnalysisTransitGatewayPolicyTableEntry: null |
-bool |
-number |
-string |
-[...] |
+#ResourceArn: strings.MaxRunes(1283) & strings.MinRunes(1) |
 {
-	DestinationCidr?: fn.#Value
-	...
+	number | bool
+	_cfnString: strings.MaxRunes(1283) & strings.MinRunes(1) & "\(self)"
 } |
-fn.#ValueExpression
-
-#Explanation: close({
-	Acl?:                           #AnalysisComponent
-	AclRule?:                       #AnalysisAclRule
-	Address?:                       #IpAddress
-	Addresses?:                     [...#IpAddress] | fn.#ListExpression
-	AttachedTo?:                    #AnalysisComponent
-	AvailabilityZones?:             [...string | fn.#StringExpression] | fn.#ListExpression
-	Cidrs?:                         [...string | fn.#StringExpression] | fn.#ListExpression
-	ClassicLoadBalancerListener?:   #AnalysisLoadBalancerListener
-	Component?:                     #AnalysisComponent
-	ComponentAccount?:              string | fn.#StringExpression
-	ComponentRegion?:               string | fn.#StringExpression
-	CustomerGateway?:               #AnalysisComponent
-	Destination?:                   #AnalysisComponent
-	DestinationVpc?:                #AnalysisComponent
-	Direction?:                     string | fn.#StringExpression
-	ElasticLoadBalancerListener?:   #AnalysisComponent
-	ExplanationCode?:               string | fn.#StringExpression
-	IngressRouteTable?:             #AnalysisComponent
-	InternetGateway?:               #AnalysisComponent
-	LoadBalancerArn?:               #ResourceArn
-	LoadBalancerListenerPort?:      #Port
-	LoadBalancerTarget?:            #AnalysisLoadBalancerTarget
-	LoadBalancerTargetGroup?:       #AnalysisComponent
-	LoadBalancerTargetGroups?:      [...#AnalysisComponent] | fn.#ListExpression
-	LoadBalancerTargetPort?:        #Port
-	MissingComponent?:              string | fn.#StringExpression
-	NatGateway?:                    #AnalysisComponent
-	NetworkInterface?:              #AnalysisComponent
-	PacketField?:                   string | fn.#StringExpression
-	Port?:                          #Port
-	PortRanges?:                    [...#PortRange] | fn.#ListExpression
-	PrefixList?:                    #AnalysisComponent
-	Protocols?:                     [...#Protocol] | fn.#ListExpression
-	RouteTable?:                    #AnalysisComponent
-	RouteTableRoute?:               #AnalysisRouteTableRoute
-	SecurityGroup?:                 #AnalysisComponent
-	SecurityGroupRule?:             #AnalysisSecurityGroupRule
-	SecurityGroups?:                [...#AnalysisComponent] | fn.#ListExpression
-	SourceVpc?:                     #AnalysisComponent
-	State?:                         string | fn.#StringExpression
-	Subnet?:                        #AnalysisComponent
-	SubnetRouteTable?:              #AnalysisComponent
-	TransitGateway?:                #AnalysisComponent
-	TransitGatewayAttachment?:      #AnalysisComponent
-	TransitGatewayRouteTable?:      #AnalysisComponent
-	TransitGatewayRouteTableRoute?: #TransitGatewayRouteTableRoute
-	Vpc?:                           #AnalysisComponent
-	VpcPeeringConnection?:          #AnalysisComponent
-	VpnConnection?:                 #AnalysisComponent
-	VpnGateway?:                    #AnalysisComponent
-	vpcEndpoint?:                   #AnalysisComponent
-}) |
-fn.#ObjectExpression
-
-#IpAddress: string | fn.#StringExpression
-
-#PathComponent: close({
-	AclRule?:                     #AnalysisAclRule
-	AdditionalDetails?:           [...#AdditionalDetail] | fn.#ListExpression
-	Component?:                   #AnalysisComponent
-	DestinationVpc?:              #AnalysisComponent
-	ElasticLoadBalancerListener?: #AnalysisComponent
-	Explanations?:                [...#Explanation] | fn.#ListExpression
-	InboundHeader?:               #AnalysisPacketHeader
-	OutboundHeader?:              #AnalysisPacketHeader
-	RouteTableRoute?:             #AnalysisRouteTableRoute
-	SecurityGroupRule?:           #AnalysisSecurityGroupRule
-	SequenceNumber?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ServiceName?:                   string | fn.#StringExpression
-	SourceVpc?:                     #AnalysisComponent
-	Subnet?:                        #AnalysisComponent
-	TransitGateway?:                #AnalysisComponent
-	TransitGatewayRouteTableRoute?: #TransitGatewayRouteTableRoute
-	Vpc?:                           #AnalysisComponent
-}) |
-fn.#ObjectExpression
-
-#Port: int |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatInt(
-					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) & int,
-					10,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression
-
-#PortRange: close({
-	From?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	To?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
-#Protocol: string | fn.#StringExpression
-
-#ResourceArn: strings.MaxRunes(1283) & strings.MinRunes(1) | fn.#StringExpression
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-
-#TransitGatewayRouteTableRoute: close({
-	AttachmentId?:    string | fn.#StringExpression
-	DestinationCidr?: string | fn.#StringExpression
-	PrefixListId?:    string | fn.#StringExpression
-	ResourceId?:      string | fn.#StringExpression
-	ResourceType?:    string | fn.#StringExpression
-	RouteOrigin?:     string | fn.#StringExpression
-	State?:           string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

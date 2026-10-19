@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,11 +16,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // connect to an application.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppFabric::AppAuthorization"
-	Properties!: close({
-		App!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		App!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		AppBundleIdentifier!: strings.MaxRunes(1011) &
 		strings.MinRunes(1) &
 		=~"^arn:.+$|^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1011) &
+			strings.MinRunes(1) &
+			=~"^arn:.+$|^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		AuthType!: "oauth2" | "apiKey" | fn.#StringExpression
 
@@ -31,9 +43,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Contains information about an application tenant.
 		Tenant!: #Tenant
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#ApiKeyCredential: close({ApiKey!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression}) |
+#ApiKeyCredential: close({
+	ApiKey!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Credential: close({
@@ -43,19 +66,49 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Oauth2Credential: close({
-	ClientId!:     strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	ClientSecret!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	ClientId!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ClientSecret!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tenant: close({
-	TenantDisplayName!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	TenantIdentifier!:  strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	TenantDisplayName!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TenantIdentifier!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

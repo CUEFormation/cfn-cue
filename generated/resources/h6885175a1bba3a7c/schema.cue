@@ -3,42 +3,78 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ImageBuilder::Component
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ImageBuilder::Component"
-	Properties!: close({
-		ChangeDescription?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		Data?:              strings.MaxRunes(16000) & strings.MinRunes(1) & =~"^[^\\x00]+$" | fn.#StringExpression
-		Description?:       strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		KmsKeyId?: (=~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string) & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+	let properties = close({
+		ChangeDescription?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
 		fn.#StringExpression
-		Name!:     =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" | fn.#StringExpression
+		Data?: strings.MaxRunes(16000) & strings.MinRunes(1) & =~"^[^\\x00]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(16000) & strings.MinRunes(1) & =~"^[^\\x00]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+			=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+			=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(1024) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+				=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+				=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") &
+			strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
+		Name!: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" |
+		{
+			number | bool
+			_cfnString: =~"^[-_A-Za-z-0-9][-_A-Za-z0-9 ]{1,126}[-_A-Za-z-0-9]$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Platform!: "Windows" | "Linux" | "macOS" | fn.#StringExpression
-		SupportedOsVersions?: list.MaxItems(25) & list.MinItems(1) & [...strings.MinRunes(1) | fn.#StringExpression] |
+		SupportedOsVersions?: list.MaxItems(25) & list.MinItems(1) & [...strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		Tags?: close({
 
-			{[=~".{1,}"]: string | fn.#StringExpression}}) |
-		fn.#ObjectExpression
-		Uri?:     string | fn.#StringExpression
-		Version!: string | fn.#StringExpression
-	})
-}
+			{[=~".{1,}"]: string | number | bool | fn.#StringExpression}
 
-#LatestVersion: close({
-	Arn?:   string | fn.#StringExpression
-	Major?: string | fn.#StringExpression
-	Minor?: string | fn.#StringExpression
-	Patch?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
+		fn.#ObjectExpression
+		Uri?:     string | number | bool | fn.#StringExpression
+		Version!: string | number | bool | fn.#StringExpression
+	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
+}

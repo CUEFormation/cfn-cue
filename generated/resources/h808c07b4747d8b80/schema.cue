@@ -6,59 +6,123 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // An example resource schema demonstrating some basic constructs and validation rules.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataPipeline::Pipeline"
-	Properties!: close({
-		Activate?:         bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		Description?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-		Name!:             strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Activate?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ParameterObjects?: [...#ParameterObject] | fn.#ListExpression
 		ParameterValues?:  [...#ParameterValue] | fn.#ListExpression
 		PipelineObjects?:  [...#PipelineObject] | fn.#ListExpression
 		PipelineTags?:     [...#PipelineTag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Field: close({
-	Key!:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	RefValue?:    strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	StringValue?: strings.MaxRunes(10240) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	RefValue?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	StringValue?: strings.MaxRunes(10240) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10240) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ParameterAttribute: close({
-	Key!:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	StringValue!: strings.MaxRunes(10240) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	StringValue!: strings.MaxRunes(10240) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10240) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ParameterObject: close({
 	Attributes!: [...#ParameterAttribute] | fn.#ListExpression
-	Id!:         strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Id!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ParameterValue: close({
-	Id!:          strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	StringValue!: strings.MaxRunes(10240) & strings.MinRunes(0) | fn.#StringExpression
+	Id!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	StringValue!: strings.MaxRunes(10240) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10240) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PipelineObject: close({
 	Fields!: [...#Field] | fn.#ListExpression
-	Id!:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Name!:   strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	Id!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #PipelineTag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

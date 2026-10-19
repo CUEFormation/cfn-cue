@@ -5,13 +5,11 @@ package ComputeNodeGroup
 import schema "github.com/cueformation/cfn-cue/resources/he88b3f933801498c:schema"
 
 #Resource:             schema.#Resource
-#ErrorInfo:            schema.#ErrorInfo
 #GresCustomSetting:    schema.#GresCustomSetting
 #InstanceConfig:       schema.#InstanceConfig
 #NodeLifecycleActions: schema.#NodeLifecycleActions
 #NodeLifecycleScript:  schema.#NodeLifecycleScript
 #NodeLifecycleStages:  schema.#NodeLifecycleStages
 #ScriptSource:         schema.#ScriptSource
-#SecurityGroupId:      schema.#SecurityGroupId
 #SlurmCustomSetting:   schema.#SlurmCustomSetting
 #SubnetId:             schema.#SubnetId

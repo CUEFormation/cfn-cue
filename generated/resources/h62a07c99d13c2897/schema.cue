@@ -6,24 +6,44 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::PCAConnectorAD::TemplateGroupAccessControlEntry Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::PCAConnectorAD::TemplateGroupAccessControlEntry"
-	Properties!: close({
-		AccessRights!:     #AccessRights
-		GroupDisplayName!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\x20-\\x7E]+$" | fn.#StringExpression
+	let properties = close({
+		AccessRights!: #AccessRights
+		GroupDisplayName!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\x20-\\x7E]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\x20-\\x7E]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		GroupSecurityIdentifier!: strings.MaxRunes(256) & strings.MinRunes(7) & =~"^S-[0-9]-([0-9]+-){1,14}[0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(7) & =~"^S-[0-9]-([0-9]+-){1,14}[0-9]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 		TemplateArn!: strings.MaxRunes(200) &
 		strings.MinRunes(5) &
 		=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:connector(\\/[\\w-]+)\\/template(\\/[\\w-]+)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) &
+			strings.MinRunes(5) &
+			=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:connector(\\/[\\w-]+)\\/template(\\/[\\w-]+)$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AccessRight: "ALLOW" | "DENY" | fn.#StringExpression

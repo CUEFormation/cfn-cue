@@ -7,22 +7,30 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::AmazonMQ::Broker
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AmazonMQ::Broker"
-	Properties!: close({
-		AuthenticationStrategy?:  =~"(?i)^(?:config_managed|ldap|simple)$" | fn.#StringExpression
+	let properties = close({
+		AuthenticationStrategy?: =~"(?i)^(?:config_managed|ldap|simple)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:config_managed|ldap|simple)$" & "\(self)"
+		} |
+		fn.#StringExpression
 		AutoMinorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		BrokerName!:              =~"^[0-9A-Za-z_-]{1,50}$" | fn.#StringExpression
+		BrokerName!: =~"^[0-9A-Za-z_-]{1,50}$" |
+		{
+			number | bool
+			_cfnString: =~"^[0-9A-Za-z_-]{1,50}$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The intended configuration (ID and revision) to be set when creating or updating.
 		// This property is write-only so that applications of a
@@ -30,8 +38,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Configuration?: #ConfigurationId
 		DataReplicationMode?: =~"(?i)^(?:crdr|none)$" &
 			("NONE" | "CRDR" | =~"^[Nn][Oo][Nn][Ee]$" | =~"^[Cc][Rr][Dd][Rr]$") |
-			fn.#StringExpression
-		DataReplicationPrimaryBrokerArn?: =~"^arn:.*" | fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:crdr|none)$" &
+				("NONE" | "CRDR" | =~"^[Nn][Oo][Nn][Ee]$" | =~"^[Cc][Rr][Dd][Rr]$") &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		DataReplicationPrimaryBrokerArn?: =~"^arn:.*" |
+		{
+			number | bool
+			_cfnString: =~"^arn:.*" & "\(self)"
+		} |
+		fn.#StringExpression
 		DeploymentMode!: =~"(?i)^(?:active_standby_multi_az|cluster_multi_az|single_instance)$" &
 			("SINGLE_INSTANCE" |
 				"ACTIVE_STANDBY_MULTI_AZ" |
@@ -39,23 +58,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				=~"^[Ss][Ii][Nn][Gg][Ll][Ee]_[Ii][Nn][Ss][Tt][Aa][Nn][Cc][Ee]$" |
 				=~"^[Aa][Cc][Tt][Ii][Vv][Ee]_[Ss][Tt][Aa][Nn][Dd][Bb][Yy][__][Mm][Uu][Ll][Tt][Ii]_[Aa][Zz]$" |
 				=~"^[Cc][Ll][Uu][Ss][Tt][Ee][Rr]_[Mm][Uu][Ll][Tt][Ii][__][Aa][Zz]$") |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:active_standby_multi_az|cluster_multi_az|single_instance)$" &
+				("SINGLE_INSTANCE" |
+					"ACTIVE_STANDBY_MULTI_AZ" |
+					"CLUSTER_MULTI_AZ" |
+					=~"^[Ss][Ii][Nn][Gg][Ll][Ee]_[Ii][Nn][Ss][Tt][Aa][Nn][Cc][Ee]$" |
+					=~"^[Aa][Cc][Tt][Ii][Vv][Ee]_[Ss][Tt][Aa][Nn][Dd][Bb][Yy][__][Mm][Uu][Ll][Tt][Ii]_[Aa][Zz]$" |
+					=~"^[Cc][Ll][Uu][Ss][Tt][Ee][Rr]_[Mm][Uu][Ll][Tt][Ii][__][Aa][Zz]$") &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		EncryptionOptions?: #EncryptionOptions
 		EngineType!: =~"(?i)^(?:activemq|rabbitmq)$" &
 			("ACTIVEMQ" | "RABBITMQ" | =~"^[Aa][Cc][Tt][Ii][Vv][Ee][Mm][Qq]$" | =~"^[Rr][Aa][Bb][Bb][Ii][Tt][Mm][Qq]$") |
-			fn.#StringExpression
-		EngineVersion?:              string | fn.#StringExpression
-		HostInstanceType!:           string | fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:activemq|rabbitmq)$" &
+				("ACTIVEMQ" |
+					"RABBITMQ" |
+					=~"^[Aa][Cc][Tt][Ii][Vv][Ee][Mm][Qq]$" |
+					=~"^[Rr][Aa][Bb][Bb][Ii][Tt][Mm][Qq]$") &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		EngineVersion?:              string | number | bool | fn.#StringExpression
+		HostInstanceType!:           string | number | bool | fn.#StringExpression
 		LdapServerMetadata?:         #LdapServerMetadata
 		Logs?:                       #LogList
 		MaintenanceWindowStartTime?: #MaintenanceWindow
 		PubliclyAccessible!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ResourceShareArns?:  list.UniqueItems() & [...=~"^arn:.*" | fn.#StringExpression] | fn.#ListExpression
-		SecurityGroups?: list.MaxItems(5) & list.MinItems(1) & [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
+		ResourceShareArns?: list.UniqueItems() & [...=~"^arn:.*" |
+		{
+			number | bool
+			_cfnString: =~"^arn:.*" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		SecurityGroups?: list.MaxItems(5) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		StorageSize?: int |
 			{
 				string &
@@ -72,15 +119,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		StorageType?: =~"(?i)^(?:EBS|EFS)$" & ("EBS" | "EFS" | =~"^[Ee]([Bb]|[Ff])[Ss]$") | fn.#StringExpression
-		SubnetIds?:   [...string | fn.#StringExpression] | fn.#ListExpression
-		Tags?:        [...#TagsEntry] | fn.#ListExpression
-		Users?:       [...#User] | fn.#ListExpression
+		StorageType?: =~"(?i)^(?:EBS|EFS)$" & ("EBS" | "EFS" | =~"^[Ee]([Bb]|[Ff])[Ss]$") |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:EBS|EFS)$" & ("EBS" | "EFS" | =~"^[Ee]([Bb]|[Ff])[Ss]$") & "\(self)"
+		} |
+		fn.#StringExpression
+		SubnetIds?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		Tags?:      [...#TagsEntry] | fn.#ListExpression
+		Users?:     [...#User] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ConfigurationId: close({
-	Id!: string | fn.#StringExpression
+	Id!: string | number | bool | fn.#StringExpression
 	Revision!: int |
 		{
 			string &
@@ -99,24 +155,38 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #EncryptionOptions: close({
-	KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		string |
-		fn.#StringExpression
+	KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+	} |
+	=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+			"\(self)"
+	} |
+	=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	UseAwsOwnedKey!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #LdapServerMetadata: close({
-	Hosts!:                  [...string | fn.#StringExpression] | fn.#ListExpression
-	RoleBase!:               string | fn.#StringExpression
-	RoleName?:               string | fn.#StringExpression
-	RoleSearchMatching!:     string | fn.#StringExpression
+	Hosts!:                  [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	RoleBase!:               string | number | bool | fn.#StringExpression
+	RoleName?:               string | number | bool | fn.#StringExpression
+	RoleSearchMatching!:     string | number | bool | fn.#StringExpression
 	RoleSearchSubtree?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ServiceAccountPassword?: string | fn.#StringExpression
-	ServiceAccountUsername!: string | fn.#StringExpression
-	UserBase!:               string | fn.#StringExpression
-	UserRoleName?:           string | fn.#StringExpression
-	UserSearchMatching!:     string | fn.#StringExpression
+	ServiceAccountPassword?: string | number | bool | fn.#StringExpression
+	ServiceAccountUsername!: string | number | bool | fn.#StringExpression
+	UserBase!:               string | number | bool | fn.#StringExpression
+	UserRoleName?:           string | number | bool | fn.#StringExpression
+	UserSearchMatching!:     string | number | bool | fn.#StringExpression
 	UserSearchSubtree?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
@@ -143,23 +213,63 @@ fn.#ObjectExpression
 			=~"^[Ff][Rr][Ii][Dd][Aa][Yy]$" |
 			=~"^[Ss][Aa][Tt][Uu][Rr][Dd][Aa][Yy]$" |
 			=~"^[Ss][Uu][Nn][Dd][Aa][Yy]$") |
-		fn.#StringExpression
-	TimeOfDay!: =~"^[0-9]{1,2}:[0-9]{2}(:[0-9]{2})?$" | fn.#StringExpression
-	TimeZone!:  string | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:friday|monday|saturday|sunday|thursday|tuesday|wednesday)$" &
+			("MONDAY" |
+				"TUESDAY" |
+				"WEDNESDAY" |
+				"THURSDAY" |
+				"FRIDAY" |
+				"SATURDAY" |
+				"SUNDAY" |
+				=~"^[Mm][Oo][Nn][Dd][Aa][Yy]$" |
+				=~"^[Tt][Uu][Ee][Ss][Dd][Aa][Yy]$" |
+				=~"^[Ww][Ee][Dd][Nn][Ee][Ss][Dd][Aa][Yy]$" |
+				=~"^[Tt][Hh][Uu][Rr][Ss][Dd][Aa][Yy]$" |
+				=~"^[Ff][Rr][Ii][Dd][Aa][Yy]$" |
+				=~"^[Ss][Aa][Tt][Uu][Rr][Dd][Aa][Yy]$" |
+				=~"^[Ss][Uu][Nn][Dd][Aa][Yy]$") &
+			"\(self)"
+	} |
+	fn.#StringExpression
+	TimeOfDay!: =~"^[0-9]{1,2}:[0-9]{2}(:[0-9]{2})?$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9]{1,2}:[0-9]{2}(:[0-9]{2})?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TimeZone!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TagsEntry: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #User: close({
-	ConsoleAccess?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Groups?:          list.MaxItems(20) & [...=~"^[A-Za-z0-9._~-]{2,100}$" | fn.#StringExpression] | fn.#ListExpression
-	Password!:        strings.MinRunes(12) & =~"^[^,:=]+$" | fn.#StringExpression
+	ConsoleAccess?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Groups?: list.MaxItems(20) & [...=~"^[A-Za-z0-9._~-]{2,100}$" |
+	{
+		number | bool
+		_cfnString: =~"^[A-Za-z0-9._~-]{2,100}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Password!: strings.MinRunes(12) & =~"^[^,:=]+$" |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(12) & =~"^[^,:=]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ReplicationUser?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Username!:        =~"^[A-Za-z0-9_.~-]{2,100}$" | fn.#StringExpression
+	Username!: =~"^[A-Za-z0-9_.~-]{2,100}$" |
+	{
+		number | bool
+		_cfnString: =~"^[A-Za-z0-9_.~-]{2,100}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

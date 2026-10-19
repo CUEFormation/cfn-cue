@@ -7,37 +7,78 @@ import (
 	"list"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Deadline::Worker Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Deadline::Worker"
-	Properties!: close({
-		FarmId!:  =~"^farm-[0-9a-f]{32}$" | fn.#StringExpression
-		FleetId!: =~"^fleet-[0-9a-f]{32}$" | fn.#StringExpression
+	let properties = close({
+		FarmId!: =~"^farm-[0-9a-f]{32}$" |
+		{
+			number | bool
+			_cfnString: =~"^farm-[0-9a-f]{32}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		FleetId!: =~"^fleet-[0-9a-f]{32}$" |
+		{
+			number | bool
+			_cfnString: =~"^fleet-[0-9a-f]{32}$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The IP address and host name of the worker.
 		HostProperties?: #HostPropertiesRequest
 		Tags?: list.MaxItems(50) & [...close({
-			Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-			Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+			Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #HostPropertiesRequest: close({
-	HostName?:    =~"^[a-zA-Z0-9_\\.\\-]{0,255}$" | fn.#StringExpression
+	HostName?: =~"^[a-zA-Z0-9_\\.\\-]{0,255}$" |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9_\\.\\-]{0,255}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	IpAddresses?: #IpAddresses
 }) |
 fn.#ObjectExpression
 
 #IpAddresses: close({
-	IpV4Addresses?: [...=~"^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$" | fn.#StringExpression] | fn.#ListExpression
-	IpV6Addresses?: [...=~"^(?:[A-F0-9]{1,4}:){7}[A-F0-9]{1,4}$" | fn.#StringExpression] | fn.#ListExpression
+	IpV4Addresses?: [...=~"^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$" |
+	{
+		number | bool
+		_cfnString: =~"^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	IpV6Addresses?: [...=~"^(?:[A-F0-9]{1,4}:){7}[A-F0-9]{1,4}$" |
+	{
+		number | bool
+		_cfnString: =~"^(?:[A-F0-9]{1,4}:){7}[A-F0-9]{1,4}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression

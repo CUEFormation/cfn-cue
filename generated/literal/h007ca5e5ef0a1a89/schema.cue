@@ -54,13 +54,21 @@ import "strings"
 // A portal resource.
 #Portal: close({
 	// The ID of the portal.
-	id?: strings.MaxRunes(36) & strings.MinRunes(36)
+	id?: =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+	matchN(0, [=~"^(?:00000000-0000-0000-0000-000000000000)"]) &
+	string &
+	strings.MaxRunes(36) &
+	strings.MinRunes(36)
 })
 
 // A project resource.
 #Project: close({
 	// The ID of the project.
-	id?: strings.MaxRunes(36) & strings.MinRunes(36)
+	id?: =~"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$" &
+	matchN(0, [=~"^(?:00000000-0000-0000-0000-000000000000)"]) &
+	string &
+	strings.MaxRunes(36) &
+	strings.MinRunes(36)
 })
 
 // Contains information for a user identity in an access policy.

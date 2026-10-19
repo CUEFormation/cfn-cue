@@ -8,7 +8,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h9fcfa92780965940:schem
 #AccessDescription:                          schema.#AccessDescription
 #AccessMethod:                               schema.#AccessMethod
 #AccessMethodType:                           schema.#AccessMethodType
-#Arn:                                        schema.#Arn
 #CrlConfiguration:                           schema.#CrlConfiguration
 #CrlDistributionPointExtensionConfiguration: schema.#CrlDistributionPointExtensionConfiguration
 #CsrExtensions:                              schema.#CsrExtensions

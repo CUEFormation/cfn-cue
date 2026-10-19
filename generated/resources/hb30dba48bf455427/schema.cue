@@ -3,37 +3,41 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // AWS::PCS::Queue resource creates an AWS PCS queue.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::PCS::Queue"
-	Properties!: close({
-		ClusterId!:                      string | fn.#StringExpression
+	let properties = close({
+		ClusterId!:                      string | number | bool | fn.#StringExpression
 		ComputeNodeGroupConfigurations?: [...#ComputeNodeGroupConfiguration] | fn.#ListExpression
-		Name?:                           string | fn.#StringExpression
+		Name?:                           string | number | bool | fn.#StringExpression
 		SlurmConfiguration?: close({SlurmCustomSettings?: [...#SlurmCustomSetting] | fn.#ListExpression}) |
 			fn.#ObjectExpression
 		Tags?: close({
 
-			{[=~"^.+$"]: string | fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+		}) |
 		fn.#ObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#ComputeNodeGroupConfiguration: close({ComputeNodeGroupId?: string | fn.#StringExpression}) | fn.#ObjectExpression
-
-#ErrorInfo: close({
-	Code?:    string | fn.#StringExpression
-	Message?: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
+#ComputeNodeGroupConfiguration: close({ComputeNodeGroupId?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #SlurmCustomSetting: close({
-	ParameterName!:  string | fn.#StringExpression
-	ParameterValue!: string | fn.#StringExpression
+	ParameterName!:  string | number | bool | fn.#StringExpression
+	ParameterValue!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

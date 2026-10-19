@@ -8,43 +8,76 @@ import (
 	"list"
 	"struct"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Represents a Test Case that can be captured and executed
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppTest::TestCase"
-	Properties!: close({
-		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-		Name!:        =~"^[A-Za-z][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
-		Steps!:       list.MaxItems(20) & list.MinItems(1) & [...#Step] | fn.#ListExpression
-		Tags?:        #TagMap
+	let properties = close({
+		Description?: strings.MaxRunes(1000) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: =~"^[A-Za-z][A-Za-z0-9_\\-]{1,59}$" |
+		{
+			number | bool
+			_cfnString: =~"^[A-Za-z][A-Za-z0-9_\\-]{1,59}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Steps!: list.MaxItems(20) & list.MinItems(1) & [...#Step] | fn.#ListExpression
+		Tags?:  #TagMap
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Batch: close({
-	BatchJobName!:       =~"^\\S{1,1000}$" | fn.#StringExpression
+	BatchJobName!: =~"^\\S{1,1000}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\S{1,1000}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	BatchJobParameters?: #BatchJobParameters
-	ExportDataSetNames?: [...=~"^\\S{1,100}$" | fn.#StringExpression] | fn.#ListExpression
+	ExportDataSetNames?: [...=~"^\\S{1,100}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\S{1,100}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #BatchJobParameters: close({
 
-	{[=~".+"]: string | fn.#StringExpression}}) |
+	{[=~".+"]: string | number | bool | fn.#StringExpression}
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+}) |
 fn.#ObjectExpression
 
 #CaptureTool: "Precisely" | "AWS DMS" | fn.#StringExpression
 
 #CloudFormationAction: close({
 	ActionType?: #CloudFormationActionType
-	Resource!:   =~"^\\S{1,1000}$" | fn.#StringExpression
+	Resource!: =~"^\\S{1,1000}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\S{1,1000}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -57,7 +90,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #DataSet: close({
-	Ccsid!:  =~"^\\S{1,50}$" | fn.#StringExpression
+	Ccsid!: =~"^\\S{1,50}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\S{1,50}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Format!: #Format
 	Length!: number |
 		{
@@ -78,7 +116,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Name!: =~"^\\S{1,100}$" | fn.#StringExpression
+	Name!: =~"^\\S{1,100}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\S{1,100}$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Type!: #DataSetType
 }) |
 fn.#ObjectExpression
@@ -99,15 +142,30 @@ fn.#ValueExpression
 #Input: close({File!: #InputFile}) | fn.#ValueExpression
 
 #InputFile: close({
-	FileMetadata!:   #FileMetadata
-	SourceLocation!: =~"^\\S{1,1000}$" | fn.#StringExpression
-	TargetLocation!: =~"^\\S{1,1000}$" | fn.#StringExpression
+	FileMetadata!: #FileMetadata
+	SourceLocation!: =~"^\\S{1,1000}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\S{1,1000}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	TargetLocation!: =~"^\\S{1,1000}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\S{1,1000}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #M2ManagedActionProperties: close({
-	ForceStop?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ImportDataSetLocation?: =~"^\\S{1,1000}$" | fn.#StringExpression
+	ForceStop?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	ImportDataSetLocation?: =~"^\\S{1,1000}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\S{1,1000}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -116,7 +174,12 @@ fn.#ObjectExpression
 #M2ManagedApplicationAction: close({
 	ActionType!: #M2ManagedActionType
 	Properties?: #M2ManagedActionProperties
-	Resource!:   =~"^\\S{1,1000}$" | fn.#StringExpression
+	Resource!: =~"^\\S{1,1000}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\S{1,1000}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -124,24 +187,49 @@ fn.#ObjectExpression
 
 #M2NonManagedApplicationAction: close({
 	ActionType!: #M2NonManagedActionType
-	Resource!:   =~"^\\S{1,1000}$" | fn.#StringExpression
+	Resource!: =~"^\\S{1,1000}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\S{1,1000}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MainframeAction: close({
 	ActionType!: #MainframeActionType
 	Properties?: #MainframeActionProperties
-	Resource!:   =~"^\\S{1,1000}$" | fn.#StringExpression
+	Resource!: =~"^\\S{1,1000}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\S{1,1000}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#MainframeActionProperties: close({DmsTaskArn?: =~"^\\S{1,1000}$" | fn.#StringExpression}) | fn.#ObjectExpression
+#MainframeActionProperties: close({
+	DmsTaskArn?: =~"^\\S{1,1000}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\S{1,1000}$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #MainframeActionType: matchN(1, [close({Batch!: #Batch}), close({Tn3270!: #TN3270})]) | fn.#ValueExpression
 
 #Output: close({File!: #OutputFile}) | fn.#ValueExpression
 
-#OutputFile: close({FileLocation?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression}) |
+#OutputFile: close({
+	FileLocation?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #ResourceAction: matchN(1, [close(
@@ -154,8 +242,13 @@ fn.#ObjectExpression
 fn.#ValueExpression
 
 #Script: close({
-	ScriptLocation!: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
-	Type!:           #ScriptType
+	ScriptLocation!: strings.MaxRunes(1024) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: #ScriptType
 }) |
 fn.#ObjectExpression
 
@@ -170,9 +263,19 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Step: close({
-	Action!:      #StepAction
-	Description?: strings.MaxRunes(1000) & strings.MinRunes(0) | fn.#StringExpression
-	Name!:        =~"^[A-Za-z][A-Za-z0-9_\\-]{1,59}$" | fn.#StringExpression
+	Action!: #StepAction
+	Description?: strings.MaxRunes(1000) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Name!: =~"^[A-Za-z][A-Za-z0-9_\\-]{1,59}$" |
+	{
+		number | bool
+		_cfnString: =~"^[A-Za-z][A-Za-z0-9_\\-]{1,59}$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -186,12 +289,35 @@ fn.#ObjectExpression
 fn.#ValueExpression
 
 #TN3270: close({
-	ExportDataSetNames?: [...=~"^\\S{1,100}$" | fn.#StringExpression] | fn.#ListExpression
-	Script!:             #Script
+	ExportDataSetNames?: [...=~"^\\S{1,100}$" |
+	{
+		number | bool
+		_cfnString: =~"^\\S{1,100}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Script!: #Script
 }) |
 fn.#ObjectExpression
 
-#TagMap: struct.MaxFields(200) & struct.MinFields(0) & {...} | fn.#ObjectExpression
+#TagMap: struct.MaxFields(200) & struct.MinFields(0) & close({
+
+	{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+		"disallowed",
+	)}
+
+	{[=~"^(?:aws:)"]: error("disallowed")}
+
+	{
+		[=~"^.+$"]: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+	}
+}) |
+fn.#ObjectExpression
 
 #TargetDatabase: "PostgreSQL" | fn.#StringExpression
 
@@ -200,29 +326,3 @@ fn.#ObjectExpression
 	Type!:        #TargetDatabase
 }) |
 fn.#ObjectExpression
-
-#TestCaseLatestVersion: close({
-	Status!: #TestCaseLifecycle
-	Version!: number |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							number,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
-#TestCaseLifecycle: "Active" | "Deleting" | fn.#StringExpression

@@ -8,20 +8,23 @@ import (
 	"struct"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ServiceDiscovery::Service
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ServiceDiscovery::Service"
-	Properties?: close({
-		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// DNS-related configurations for the service.
 		DnsConfig?: #DnsConfig
@@ -31,11 +34,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		// Settings for custom health checks.
 		HealthCheckCustomConfig?: #HealthCheckCustomConfig
-		Name?:                    string | fn.#StringExpression
-		NamespaceId?:             strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
+		Name?: =~"(^\\.$)$" |
+		{
+			number | bool
+			_cfnString: =~"(^\\.$)$" & "\(self)"
+		} |
+		=~"^^([a-zA-Z0-9_][a-zA-Z0-9-_]{0,61}[a-zA-Z0-9_]|[a-zA-Z0-9])(\\.([a-zA-Z0-9_][a-zA-Z0-9-_]{0,61}[a-zA-Z0-9_]|[a-zA-Z0-9]))*$" &
+			=~"^(?:^.{1,127}$)" |
+		{
+			number | bool
+			_cfnString: =~"^^([a-zA-Z0-9_][a-zA-Z0-9-_]{0,61}[a-zA-Z0-9_]|[a-zA-Z0-9])(\\.([a-zA-Z0-9_][a-zA-Z0-9-_]{0,61}[a-zA-Z0-9_]|[a-zA-Z0-9]))*$" &
+				=~"^(?:^.{1,127}$)" &
+				"\(self)"
+		} |
+		fn.#StringExpression
+		NamespaceId?: strings.MaxRunes(255) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		ServiceAttributes?: struct.MaxFields(30) & close({
 
-			{[=~"^[A-Za-z0-9_]{1,64}$"]: string | fn.#StringExpression}}) |
+			{[=~"^(?:Ref)$"]: error("disallowed")}
+
+			{[=~"^[A-Za-z0-9_]{1,64}$"]: string | number | bool | fn.#StringExpression}
+		}) |
 		fn.#ObjectExpression
 		Tags?: list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 		Type?: "HTTP" | fn.#StringExpression
@@ -45,11 +69,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			)
 		}
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #DnsConfig: close({
-	DnsRecords!:    [...#DnsRecord] | fn.#ListExpression
-	NamespaceId?:   strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+	DnsRecords!: [...#DnsRecord] | fn.#ListExpression
+	NamespaceId?: strings.MaxRunes(64) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	RoutingPolicy?: "MULTIVALUE" | "WEIGHTED" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -100,8 +133,13 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ResourcePath?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-	Type!:         "HTTP" | "HTTPS" | "TCP" | fn.#StringExpression
+	ResourcePath?: strings.MaxRunes(255) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: "HTTP" | "HTTPS" | "TCP" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -130,7 +168,17 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -1,0 +1,17 @@
+{
+  "Parameters": {
+    "Acl": {
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "AccessControl": {
+          "Ref": "Acl"
+        }
+      },
+      "Type": "AWS::S3::Bucket"
+    }
+  }
+}

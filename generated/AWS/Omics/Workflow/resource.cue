@@ -13,9 +13,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hadf17dd90ef4ade4:schem
 #SourceReference:           schema.#SourceReference
 #StorageType:               schema.#StorageType
 #TagMap:                    schema.#TagMap
-#Uuid:                      schema.#Uuid
 #WorkflowEngine:            schema.#WorkflowEngine
 #WorkflowParameter:         schema.#WorkflowParameter
 #WorkflowParameterTemplate: schema.#WorkflowParameterTemplate
-#WorkflowStatus:            schema.#WorkflowStatus
-#WorkflowType:              schema.#WorkflowType

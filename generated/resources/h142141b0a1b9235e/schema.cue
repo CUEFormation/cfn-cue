@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -13,10 +13,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // infrastructure metrics with AWS resource tags. For more details:
 // https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/resource-tags-for-telemetry.html
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::ObservabilityAdmin::TelemetryEnrichment"
-	Properties!: close({Scope!: #Scope})
+	Type!: "AWS::ObservabilityAdmin::TelemetryEnrichment"
+	let properties = close({Scope!: #Scope})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Scope: "ACCOUNT" | fn.#StringExpression
-
-#Status: "RUNNING" | "STOPPED" | "IMPAIRED" | fn.#StringExpression

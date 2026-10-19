@@ -6,27 +6,56 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for a Device Farm Instance Profile
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DeviceFarm::InstanceProfile"
-	Properties!: close({
-		Description?: strings.MaxRunes(16384) & strings.MinRunes(1) | fn.#StringExpression
-		ExcludeAppPackagesFromCleanup?: [...strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression] |
+	let properties = close({
+		Description?: strings.MaxRunes(16384) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(16384) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ExcludeAppPackagesFromCleanup?: [...strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		Name!:           strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		PackageCleanup?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		RebootAfterUse?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		Tags?:           [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

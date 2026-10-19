@@ -3,31 +3,40 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::UserPoolUser
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cognito::UserPoolUser"
-	Properties!: close({
+	let properties = close({
 		ClientMetadata?: close({
 
-			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"]: string | number | bool | fn.#StringExpression}
+		}) |
 		fn.#ObjectExpression
-		DesiredDeliveryMediums?: [...string | fn.#StringExpression] | fn.#ListExpression
+		DesiredDeliveryMediums?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		ForceAliasCreation?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		MessageAction?:          string | fn.#StringExpression
+		MessageAction?:          string | number | bool | fn.#StringExpression
 		UserAttributes?:         [...#AttributeType] | fn.#ListExpression
-		UserPoolId!:             string | fn.#StringExpression
-		Username?:               string | fn.#StringExpression
+		UserPoolId!:             string | number | bool | fn.#StringExpression
+		Username?:               string | number | bool | fn.#StringExpression
 		ValidationData?:         [...#AttributeType] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AttributeType: close({
-	Name?:  string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Name?:  string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

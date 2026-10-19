@@ -6,27 +6,29 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaLive::Multiplex
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaLive::Multiplex"
-	Properties!: close({
-		AvailabilityZones!: [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		AvailabilityZones!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Destinations?:      [...#MultiplexOutputDestination] | fn.#ListExpression
 
 		// Configuration for a multiplex event.
 		MultiplexSettings!: #MultiplexSettings
-		Name!:              string | fn.#StringExpression
+		Name!:              string | number | bool | fn.#StringExpression
 		Tags?:              [...#Tags] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #MultiplexOutputDestination: close({
@@ -35,7 +37,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	number |
 	string |
 	[...] |
-	close({EntitlementArn?: strings.MinRunes(1) | fn.#StringExpression}) |
+	close({
+		EntitlementArn?: strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}) |
 	fn.#ValueExpression
 }) |
 fn.#ObjectExpression
@@ -109,7 +118,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tags: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

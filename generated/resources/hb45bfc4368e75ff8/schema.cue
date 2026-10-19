@@ -6,19 +6,48 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Athena::NamedQuery
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Athena::NamedQuery"
-	Properties!: close({
-		Database!:    strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		Name?:        strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		QueryString!: strings.MaxRunes(262144) & strings.MinRunes(1) | fn.#StringExpression
-		WorkGroup?:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]{1,128}$" | fn.#StringExpression
+	let properties = close({
+		Database!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name?: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		QueryString!: strings.MaxRunes(262144) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(262144) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		WorkGroup?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]{1,128}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._-]{1,128}$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

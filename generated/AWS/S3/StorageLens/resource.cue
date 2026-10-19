@@ -24,7 +24,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h5b44aa129041a26c:schem
 #S3BucketDestination:                   schema.#S3BucketDestination
 #SSEKMS:                                schema.#SSEKMS
 #SelectionCriteria:                     schema.#SelectionCriteria
-#StorageLensConfiguration:              schema.#StorageLensConfiguration
 #StorageLensExpandedPrefixesDataExport: schema.#StorageLensExpandedPrefixesDataExport
 #StorageLensGroupArn:                   schema.#StorageLensGroupArn
 #StorageLensGroupLevel:                 schema.#StorageLensGroupLevel

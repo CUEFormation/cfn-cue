@@ -7,44 +7,92 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppStream::AppBlock
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppStream::AppBlock"
-	Properties!: close({
-		Description?:            strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		DisplayName?:            strings.MaxRunes(100) & strings.MinRunes(0) | fn.#StringExpression
-		Name!:                   =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DisplayName?: strings.MaxRunes(100) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,100}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		PackagingType?:          #PackagingType
 		PostSetupScriptDetails?: #ScriptDetails
 		SetupScriptDetails?:     #ScriptDetails
 		SourceS3Location!:       #S3Location
 		Tags?:                   list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
-
-#Arn: string | fn.#StringExpression
 
 #PackagingType: "APPSTREAM2" | "CUSTOM" | fn.#StringExpression
 
 #S3Location: close({
-	S3Bucket!: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	S3Key?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	=~"^[0-9a-z\\.\\-]*$" &
+	matchN(0, [=~"(?:\\.)$"]) &
+	string &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		=~"^[0-9a-z\\.\\-]*$" &
+		matchN(0, [=~"(?:\\.)$"]) &
+		string &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	S3Key?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ScriptDetails: close({
-	ExecutableParameters?: strings.MinRunes(1) | fn.#StringExpression
-	ExecutablePath!:       strings.MinRunes(1) | fn.#StringExpression
-	ScriptS3Location!:     #S3Location
+	ExecutableParameters?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ExecutablePath!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ScriptS3Location!: #S3Location
 	TimeoutInSeconds!: int |
 		{
 			string &

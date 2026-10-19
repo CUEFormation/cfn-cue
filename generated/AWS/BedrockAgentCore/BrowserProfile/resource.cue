@@ -5,16 +5,6 @@ package BrowserProfile
 import schema "github.com/cueformation/cfn-cue/resources/h1f701f55ad63b290:schema"
 
 #Resource:                  schema.#Resource
-#BrowserProfileArn:         schema.#BrowserProfileArn
 #BrowserProfileDescription: schema.#BrowserProfileDescription
-#BrowserProfileId:          schema.#BrowserProfileId
 #BrowserProfileName:        schema.#BrowserProfileName
-#BrowserProfileStatus:      schema.#BrowserProfileStatus
-#BrowserProfileSummaries:   schema.#BrowserProfileSummaries
-#BrowserProfileSummary:     schema.#BrowserProfileSummary
-#CreatedAt:                 schema.#CreatedAt
-#LastSavedAt:               schema.#LastSavedAt
-#LastSavedBrowserId:        schema.#LastSavedBrowserId
-#LastSavedBrowserSessionId: schema.#LastSavedBrowserSessionId
-#LastUpdatedAt:             schema.#LastUpdatedAt
 #TagsMap:                   schema.#TagsMap

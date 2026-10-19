@@ -7,12 +7,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -22,8 +20,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // refresh schedule and modify dashboard widgets.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudTrail::Dashboard"
-	Properties?: close({
-		Name?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-]+$" | fn.#StringExpression
+	let properties = close({
+		Name?: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(3) & =~"^[a-zA-Z0-9_\\-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Configures the automatic refresh schedule for the dashboard. Includes the
 		// frequency unit (DAYS or HOURS) and value, as well as the status (ENABLED or
@@ -40,9 +43,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#BooleanExpression
 		Widgets?: list.UniqueItems() & [...#Widget] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
-#QueryParameter: strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" | fn.#StringExpression
+#QueryParameter: strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~".*" & "\(self)"
+} |
+fn.#StringExpression
 
 #RefreshSchedule: close({
 	Frequency?: close({
@@ -65,26 +77,43 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 	}) |
 	fn.#ObjectExpression
-	Status?:    "ENABLED" | "DISABLED" | fn.#StringExpression
-	TimeOfDay?: =~"^[0-9]{2}:[0-9]{2}" | fn.#StringExpression
+	Status?: "ENABLED" | "DISABLED" | fn.#StringExpression
+	TimeOfDay?: =~"^[0-9]{2}:[0-9]{2}" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9]{2}:[0-9]{2}" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Timestamp: string | fn.#StringExpression
-
 #Widget: close({
 	QueryParameters?: list.MaxItems(10) & list.MinItems(1) & [...#QueryParameter] | fn.#ListExpression
-	QueryStatement!:  strings.MaxRunes(10000) & strings.MinRunes(1) & =~"(?s).*" | fn.#StringExpression
+	QueryStatement!: strings.MaxRunes(10000) & strings.MinRunes(1) & =~"(?s).*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(10000) & strings.MinRunes(1) & =~"(?s).*" & "\(self)"
+	} |
+	fn.#StringExpression
 	ViewProperties?: close({
 
-		{[=~"^[a-zA-Z0-9._-]{3,128}$"]: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._\\- ]+$" |
-		fn.#StringExpression}}) |
+		{[=~"^(?:Ref)$"]: error("disallowed")}
+
+		{
+			[=~"^[a-zA-Z0-9._-]{3,128}$"]: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._\\- ]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9._\\- ]+$" & "\(self)"
+			} |
+			fn.#StringExpression
+		}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression

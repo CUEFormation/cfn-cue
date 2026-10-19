@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -19,14 +19,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // Amazon DataZone domain policies.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DataZone::GroupProfile"
-	Properties!: close({
-		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" | fn.#StringExpression
+	let properties = close({
+		DomainIdentifier!: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" |
+		{
+			number | bool
+			_cfnString: =~"^dzd[-_][a-zA-Z0-9_-]{1,36}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		GroupIdentifier?: =~"(^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$|[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r  ]+)" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"(^([0-9a-f]{10}-|)[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$|[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}\\t\\n\\r  ]+)" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		GroupType?:        #GroupType
-		RolePrincipalArn?: string | fn.#StringExpression
+		RolePrincipalArn?: string | number | bool | fn.#StringExpression
 		Status?:           #GroupProfileStatus
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #GroupProfileStatus: "ASSIGNED" | "NOT_ASSIGNED" | fn.#StringExpression

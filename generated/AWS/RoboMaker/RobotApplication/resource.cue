@@ -5,7 +5,6 @@ package RobotApplication
 import schema "github.com/cueformation/cfn-cue/resources/hc0db83bd32a3390e:schema"
 
 #Resource:           schema.#Resource
-#Arn:                schema.#Arn
 #RobotSoftwareSuite: schema.#RobotSoftwareSuite
 #SourceConfig:       schema.#SourceConfig
 #Tags:               schema.#Tags

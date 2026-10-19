@@ -20,7 +20,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h0392c0db89e7e1af:schem
 #S3StorageOptions:             schema.#S3StorageOptions
 #SetStatOption:                schema.#SetStatOption
 #SftpAuthenticationMethods:    schema.#SftpAuthenticationMethods
-#State:                        schema.#State
 #Tag:                          schema.#Tag
 #TlsSessionResumptionMode:     schema.#TlsSessionResumptionMode
 #WorkflowDetail:               schema.#WorkflowDetail

@@ -11,7 +11,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h1d7d7242c9a86b62:schem
 #EncryptionContext:     schema.#EncryptionContext
 #EncryptionSettings:    schema.#EncryptionSettings
 #KmsEncryptionSettings: schema.#KmsEncryptionSettings
-#KmsEncryptionState:    schema.#KmsEncryptionState
 #KmsKey:                schema.#KmsKey
 #SchemaDefinition:      schema.#SchemaDefinition
 #SchemaJson:            schema.#SchemaJson

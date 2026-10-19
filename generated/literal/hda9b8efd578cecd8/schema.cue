@@ -2,6 +2,8 @@
 
 package schema
 
+import "github.com/cueformation/cfn-cue/fn:fn"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Specifies a subnet for the specified VPC.
@@ -49,7 +51,7 @@ package schema
 
 	// The IPv4 CIDR block assigned to the subnet.
 	// If you update this property, we create a new subnet, and then delete the existing one.
-	CidrBlock?: string
+	CidrBlock?: fn.#IPv4Network & string
 
 	// Indicates whether DNS queries made to the Amazon-provided DNS Resolver in
 	// this subnet should return synthetic IPv6 addresses for IPv4-only
@@ -75,7 +77,7 @@ package schema
 
 	// The IPv6 CIDR block.
 	// If you specify ``AssignIpv6AddressOnCreation``, you must also specify an IPv6 CIDR block.
-	Ipv6CidrBlock?:  string
+	Ipv6CidrBlock?:  fn.#IPv6Network & string
 	Ipv6CidrBlocks?: [...string]
 
 	// An IPv6 IPAM pool ID for the subnet.
@@ -116,7 +118,7 @@ package schema
 		EnableResourceNameDnsARecord?:    bool
 		HostnameType?:                    string
 	})
-	SubnetId?: string
+	SubnetId?: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$"
 
 	// Any tags assigned to the subnet.
 	Tags?: [...#Tag]

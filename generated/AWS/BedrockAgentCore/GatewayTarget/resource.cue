@@ -12,7 +12,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hf867e1d54a22602c:schem
 #ApiKeyCredentialLocation:              schema.#ApiKeyCredentialLocation
 #ApiKeyCredentialProvider:              schema.#ApiKeyCredentialProvider
 #ApiSchemaConfiguration:                schema.#ApiSchemaConfiguration
-#AuthorizationData:                     schema.#AuthorizationData
 #ConnectorConfiguration:                schema.#ConnectorConfiguration
 #ConnectorParameterOverride:            schema.#ConnectorParameterOverride
 #ConnectorSource:                       schema.#ConnectorSource
@@ -33,7 +32,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hf867e1d54a22602c:schem
 #InferenceProviderTargetConfiguration:  schema.#InferenceProviderTargetConfiguration
 #InferenceTargetConfiguration:          schema.#InferenceTargetConfiguration
 #ListingMode:                           schema.#ListingMode
-#ManagedResourceDetails:                schema.#ManagedResourceDetails
 #ManagedVpcResource:                    schema.#ManagedVpcResource
 #McpLambdaTargetConfiguration:          schema.#McpLambdaTargetConfiguration
 #McpServerTargetConfiguration:          schema.#McpServerTargetConfiguration
@@ -42,7 +40,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hf867e1d54a22602c:schem
 #MetadataConfiguration:                 schema.#MetadataConfiguration
 #ModelEntry:                            schema.#ModelEntry
 #ModelMapping:                          schema.#ModelMapping
-#OAuth2AuthorizationData:               schema.#OAuth2AuthorizationData
 #OAuthCredentialProvider:               schema.#OAuthCredentialProvider
 #OAuthCustomParameters:                 schema.#OAuthCustomParameters
 #OAuthGrantType:                        schema.#OAuthGrantType
@@ -60,7 +57,5 @@ import schema "github.com/cueformation/cfn-cue/resources/hf867e1d54a22602c:schem
 #StickinessConfiguration:               schema.#StickinessConfiguration
 #TagsMap:                               schema.#TagsMap
 #TargetConfiguration:                   schema.#TargetConfiguration
-#TargetProtocolType:                    schema.#TargetProtocolType
-#TargetStatus:                          schema.#TargetStatus
 #ToolDefinition:                        schema.#ToolDefinition
 #ToolSchema:                            schema.#ToolSchema

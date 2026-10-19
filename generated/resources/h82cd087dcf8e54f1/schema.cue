@@ -7,19 +7,17 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates a resource gateway for a service.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::VpcLattice::ResourceGateway"
-	Properties!: close({
+	let properties = close({
 		IpAddressType?: "IPV4" | "IPV6" | "DUALSTACK" | fn.#StringExpression
 		Ipv4AddressesPerEni?: int & <=62 & >=1 |
 			{
@@ -39,27 +37,86 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name!:                        strings.MaxRunes(40) & strings.MinRunes(3) | fn.#StringExpression
+		Name!: =~"^[a-z0-9-]+$" &
+		matchN(0, [=~"^(?:rgw-)"]) &
+		string &
+		matchN(0, [=~"^(?:[-])"]) &
+		string &
+		matchN(0, [=~"^(?:.*[-]$)"]) &
+		string &
+		matchN(0, [=~"^(?:.*[-]{2})"]) &
+		string &
+		strings.MaxRunes(40) &
+		strings.MinRunes(3) |
+		{
+			number | bool
+			_cfnString: =~"^[a-z0-9-]+$" &
+			matchN(0, [=~"^(?:rgw-)"]) &
+			string &
+			matchN(0, [=~"^(?:[-])"]) &
+			string &
+			matchN(0, [=~"^(?:.*[-]$)"]) &
+			string &
+			matchN(0, [=~"^(?:.*[-]{2})"]) &
+			string &
+			strings.MaxRunes(40) &
+			strings.MinRunes(3) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 		ResourceConfigDnsResolution?: "IN_VPC" | "PUBLIC" | fn.#StringExpression
-		SecurityGroupIds?: list.UniqueItems() & [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		SecurityGroupIds?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+		string &
+		strings.MaxRunes(200) &
+		strings.MinRunes(5) &
+		=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
 			string &
 			strings.MaxRunes(200) &
 			strings.MinRunes(5) &
-			=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
-			fn.#StringExpression
-		] |
+			=~"^sg-(([0-9a-z]{8})|([0-9a-z]{17}))$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		SubnetIds!: list.UniqueItems() & [...strings.MaxRunes(200) & strings.MinRunes(5) | fn.#StringExpression] |
+		SubnetIds!: list.UniqueItems() & [...strings.MaxRunes(200) & strings.MinRunes(5) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(5) & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 		VpcIdentifier!: strings.MaxRunes(50) & strings.MinRunes(5) & =~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) &
+			strings.MinRunes(5) &
+			=~"^vpc-(([0-9a-z]{8})|([0-9a-z]{17}))$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

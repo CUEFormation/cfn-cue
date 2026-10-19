@@ -6,9 +6,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h452815b7c456bdc1:schem
 
 #Resource:                         schema.#Resource
 #DBClusterRole:                    schema.#DBClusterRole
-#Endpoint:                         schema.#Endpoint
-#MasterUserSecret:                 schema.#MasterUserSecret
-#ReadEndpoint:                     schema.#ReadEndpoint
 #ScalingConfiguration:             schema.#ScalingConfiguration
 #ServerlessV2ScalingConfiguration: schema.#ServerlessV2ScalingConfiguration
 #Tag:                              schema.#Tag

@@ -6,32 +6,36 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::MediaTailor::LiveSource Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaTailor::LiveSource"
-	Properties!: close({
+	let properties = close({
 		HttpPackageConfigurations!: [...#HttpPackageConfiguration] | fn.#ListExpression
-		LiveSourceName!:            string | fn.#StringExpression
-		SourceLocationName!:        string | fn.#StringExpression
+		LiveSourceName!:            string | number | bool | fn.#StringExpression
+		SourceLocationName!:        string | number | bool | fn.#StringExpression
 		Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #HttpPackageConfiguration: close({
-	Path!:        string | fn.#StringExpression
-	SourceGroup!: string | fn.#StringExpression
+	Path!:        string | number | bool | fn.#StringExpression
+	SourceGroup!: string | number | bool | fn.#StringExpression
 	Type!:        #Type
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

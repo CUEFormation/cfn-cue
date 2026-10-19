@@ -7,31 +7,44 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Batch::JobDefinition
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Batch::JobDefinition"
-	Properties!: close({
+	let properties = close({
 		ConsumableResourceProperties?: #ConsumableResourceProperties
 		ContainerProperties?:          #ContainerProperties
 		EcsProperties?:                #EcsProperties
 		EksProperties?:                #EksProperties
-		JobDefinitionName?:            strings.MaxRunes(128) | fn.#StringExpression
-		NodeProperties?:               #NodeProperties
+		JobDefinitionName?: strings.MaxRunes(128) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & "\(self)"
+		} |
+		fn.#StringExpression
+		NodeProperties?: #NodeProperties
 		Parameters?: close({
 
-			{[=~".*"]: string | fn.#StringExpression}}) |
+			{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
-		PlatformCapabilities?: [...=~"(?i)^(?:ec2|fargate|managed_instances)$" | fn.#StringExpression] |
-			fn.#ListExpression
+		PlatformCapabilities?: [...=~"(?i)^(?:ec2|fargate|managed_instances)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:ec2|fargate|managed_instances)$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 		PropagateTags?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		ResourceRetentionPolicy?: #ResourceRetentionPolicy
 		RetryStrategy?:           #RetryStrategy
@@ -53,11 +66,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		Tags?: close({
 
-			{[=~".*"]: string | fn.#StringExpression}}) |
+			{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 		Timeout?: #JobTimeout
-		Type!:    =~"(?i)^(?:container|multinode)$" | fn.#StringExpression
+		Type!: =~"(?i)^(?:container|multinode)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:container|multinode)$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ConsumableResourceProperties: close(
@@ -66,7 +93,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	fn.#ObjectExpression
 
 #ConsumableResourceRequirement: close({
-	ConsumableResource!: string | fn.#StringExpression
+	ConsumableResource!: string | number | bool | fn.#StringExpression
 	Quantity!: int |
 		{
 			string &
@@ -85,16 +112,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #ContainerProperties: close({
-	Command?:              [...string | fn.#StringExpression] | fn.#ListExpression
+	Command?:              [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	EnableExecuteCommand?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Environment?:          [...#Environment] | fn.#ListExpression
 	EphemeralStorage?:     #EphemeralStorage
-	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	FargatePlatformConfiguration?: close({PlatformVersion?: string | fn.#StringExpression}) | fn.#ObjectExpression
-	Image!:                        string | fn.#StringExpression
-	JobRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	FargatePlatformConfiguration?: close({PlatformVersion?: string | number | bool | fn.#StringExpression}) |
+		fn.#ObjectExpression
+	Image!: string | number | bool | fn.#StringExpression
+	JobRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	LinuxParameters?:  #LinuxParameters
 	LogConfiguration?: #LogConfiguration
 	Memory?: int |
@@ -120,7 +156,7 @@ fn.#ObjectExpression
 	RuntimePlatform?:        #RuntimePlatform
 	Secrets?:                [...#Secret] | fn.#ListExpression
 	Ulimits?:                [...#Ulimit] | fn.#ListExpression
-	User?:                   string | fn.#StringExpression
+	User?:                   string | number | bool | fn.#StringExpression
 	Vcpus?: int |
 		{
 			string &
@@ -140,23 +176,39 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Device: close({
-	ContainerPath?: string | fn.#StringExpression
-	HostPath?:      string | fn.#StringExpression
-	Permissions?:   [...=~"(?i)^(?:mknod|read|write)$" | fn.#StringExpression] | fn.#ListExpression
+	ContainerPath?: string | number | bool | fn.#StringExpression
+	HostPath?:      string | number | bool | fn.#StringExpression
+	Permissions?: [...=~"(?i)^(?:mknod|read|write)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:mknod|read|write)$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #EFSAuthorizationConfig: close({
-	AccessPointId?: string | fn.#StringExpression
-	Iam?:           =~"(?i)^(?:disabled|enabled)$" | fn.#StringExpression
+	AccessPointId?: string | number | bool | fn.#StringExpression
+	Iam?: =~"(?i)^(?:disabled|enabled)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:disabled|enabled)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EFSVolumeConfiguration: close({
 	AuthorizationConfig?: #EFSAuthorizationConfig
-	FileSystemId!:        string | fn.#StringExpression
-	RootDirectory?:       string | fn.#StringExpression
-	TransitEncryption?:   =~"(?i)^(?:disabled|enabled)$" | fn.#StringExpression
+	FileSystemId!:        string | number | bool | fn.#StringExpression
+	RootDirectory?:       string | number | bool | fn.#StringExpression
+	TransitEncryption?: =~"(?i)^(?:disabled|enabled)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:disabled|enabled)$" & "\(self)"
+	} |
+	fn.#StringExpression
 	TransitEncryptionPort?: int |
 		{
 			string &
@@ -180,27 +232,35 @@ fn.#ObjectExpression
 	Containers?:           [...#TaskContainerProperties] | fn.#ListExpression
 	EnableExecuteCommand?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	EphemeralStorage?:     #EphemeralStorage
-	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	IpcMode?:              string | fn.#StringExpression
+	ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	IpcMode?:              string | number | bool | fn.#StringExpression
 	NetworkConfiguration?: #NetworkConfiguration
-	NetworkMode?:          string | fn.#StringExpression
-	PidMode?:              string | fn.#StringExpression
-	PlatformVersion?:      string | fn.#StringExpression
+	NetworkMode?:          string | number | bool | fn.#StringExpression
+	PidMode?:              string | number | bool | fn.#StringExpression
+	PlatformVersion?:      string | number | bool | fn.#StringExpression
 	RuntimePlatform?:      #RuntimePlatform
-	TaskRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	TaskRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Volumes?: [...#Volume] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #EksContainer: close({
-	Args?:            [...string | fn.#StringExpression] | fn.#ListExpression
-	Command?:         [...string | fn.#StringExpression] | fn.#ListExpression
+	Args?:            [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	Command?:         [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Env?:             [...#EksContainerEnvironmentVariable] | fn.#ListExpression
-	Image!:           string | fn.#StringExpression
-	ImagePullPolicy?: string | fn.#StringExpression
-	Name?:            string | fn.#StringExpression
+	Image!:           string | number | bool | fn.#StringExpression
+	ImagePullPolicy?: string | number | bool | fn.#StringExpression
+	Name?:            string | number | bool | fn.#StringExpression
 	Resources?:       #EksContainerResourceRequirements
 	SecurityContext?: #EksContainerSecurityContext
 	VolumeMounts?:    [...#EksContainerVolumeMount] | fn.#ListExpression
@@ -208,19 +268,29 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #EksContainerEnvironmentVariable: close({
-	Name!:  string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Name!:  string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EksContainerResourceRequirements: close({
 	Limits?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
+		{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	Requests?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
+		{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
@@ -262,48 +332,63 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #EksContainerVolumeMount: close({
-	MountPath?: string | fn.#StringExpression
-	Name?:      string | fn.#StringExpression
+	MountPath?: string | number | bool | fn.#StringExpression
+	Name?:      string | number | bool | fn.#StringExpression
 	ReadOnly?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SubPath?:   string | fn.#StringExpression
+	SubPath?:   string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EksEmptyDir: close({
-	Medium?:    string | fn.#StringExpression
-	SizeLimit?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Medium?: string | number | bool | fn.#StringExpression
+	SizeLimit?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#EksHostPath: close({Path?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#EksHostPath: close({Path?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #EksMetadata: close({
 	Annotations?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
+		{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	Labels?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
+		{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
-	Namespace?: string | fn.#StringExpression
+	Namespace?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EksPersistentVolumeClaim: close({
-	ClaimName!: string | fn.#StringExpression
+	ClaimName!: string | number | bool | fn.#StringExpression
 	ReadOnly?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
 
 #EksPodProperties: close({
 	Containers?:            [...#EksContainer] | fn.#ListExpression
-	DnsPolicy?:             string | fn.#StringExpression
+	DnsPolicy?:             string | number | bool | fn.#StringExpression
 	HostNetwork?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ImagePullSecrets?:      [...#ImagePullSecret] | fn.#ListExpression
 	InitContainers?:        [...#EksContainer] | fn.#ListExpression
 	Metadata?:              #EksMetadata
-	ServiceAccountName?:    string | fn.#StringExpression
+	ServiceAccountName?:    string | number | bool | fn.#StringExpression
 	ShareProcessNamespace?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Volumes?:               [...#EksVolume] | fn.#ListExpression
 }) |
@@ -313,22 +398,22 @@ fn.#ObjectExpression
 
 #EksSecret: close({
 	Optional?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SecretName!: string | fn.#StringExpression
+	SecretName!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #EksVolume: close({
 	EmptyDir?:              #EksEmptyDir
 	HostPath?:              #EksHostPath
-	Name!:                  string | fn.#StringExpression
+	Name!:                  string | number | bool | fn.#StringExpression
 	PersistentVolumeClaim?: #EksPersistentVolumeClaim
 	Secret?:                #EksSecret
 }) |
 fn.#ObjectExpression
 
 #Environment: close({
-	Name?:  string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Name?:  string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -351,16 +436,21 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #EvaluateOnExit: close({
-	Action!:         =~"(?i)^(?:exit|retry)$" | fn.#StringExpression
-	OnExitCode?:     string | fn.#StringExpression
-	OnReason?:       string | fn.#StringExpression
-	OnStatusReason?: string | fn.#StringExpression
+	Action!: =~"(?i)^(?:exit|retry)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:exit|retry)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	OnExitCode?:     string | number | bool | fn.#StringExpression
+	OnReason?:       string | number | bool | fn.#StringExpression
+	OnStatusReason?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Host: close({SourcePath?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Host: close({SourcePath?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
-#ImagePullSecret: close({Name?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#ImagePullSecret: close({Name?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #JobTimeout: close({
 	AttemptDurationSeconds?: int |
@@ -430,33 +520,51 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #LogConfiguration: close({
-	LogDriver!: =~"(?i)^(?:awsfirelens|awslogs|fluentd|gelf|journald|json-file|splunk|syslog)$" | fn.#StringExpression
+	LogDriver!: =~"(?i)^(?:awsfirelens|awslogs|fluentd|gelf|journald|json-file|splunk|syslog)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:awsfirelens|awslogs|fluentd|gelf|journald|json-file|splunk|syslog)$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Options?: close({
 
-		{[=~".*"]: string | fn.#StringExpression}}) |
+		{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	SecretOptions?: [...#Secret] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #MountPoint: close({
-	ContainerPath?: string | fn.#StringExpression
+	ContainerPath?: string | number | bool | fn.#StringExpression
 	ReadOnly?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	SourceVolume?:  string | fn.#StringExpression
+	SourceVolume?:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MultiNodeContainerProperties: close({
-	Command?:              [...string | fn.#StringExpression] | fn.#ListExpression
+	Command?:              [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	EnableExecuteCommand?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Environment?:          [...#Environment] | fn.#ListExpression
 	EphemeralStorage?:     #EphemeralStorage
-	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	Image!:        string | fn.#StringExpression
-	InstanceType?: string | fn.#StringExpression
-	JobRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Image!:        string | number | bool | fn.#StringExpression
+	InstanceType?: string | number | bool | fn.#StringExpression
+	JobRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	LinuxParameters?:  #LinuxParameters
 	LogConfiguration?: #LogConfiguration
 	Memory?: int |
@@ -481,7 +589,7 @@ fn.#ObjectExpression
 	RuntimePlatform?:        #RuntimePlatform
 	Secrets?:                [...#Secret] | fn.#ListExpression
 	Ulimits?:                [...#Ulimit] | fn.#ListExpression
-	User?:                   string | fn.#StringExpression
+	User?:                   string | number | bool | fn.#StringExpression
 	Vcpus?: int |
 		{
 			string &
@@ -506,18 +614,33 @@ fn.#ObjectExpression
 #MultiNodeEcsTaskProperties: close({
 	Containers?:           [...#TaskContainerProperties] | fn.#ListExpression
 	EnableExecuteCommand?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ExecutionRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	IpcMode?: string | fn.#StringExpression
-	PidMode?: string | fn.#StringExpression
-	TaskRoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	ExecutionRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	IpcMode?: string | number | bool | fn.#StringExpression
+	PidMode?: string | number | bool | fn.#StringExpression
+	TaskRoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	Volumes?: [...#Volume] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#NetworkConfiguration: close({AssignPublicIp?: =~"(?i)^(?:disabled|enabled)$" | fn.#StringExpression}) |
-	fn.#ObjectExpression
+#NetworkConfiguration: close({
+	AssignPublicIp?: =~"(?i)^(?:disabled|enabled)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:disabled|enabled)$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #NodeProperties: close({
 	MainNode!: int |
@@ -557,16 +680,22 @@ fn.#ObjectExpression
 	Container?:                    #MultiNodeContainerProperties
 	EcsProperties?:                #MultiNodeEcsProperties
 	EksProperties?:                #EksProperties
-	InstanceTypes?:                [...string | fn.#StringExpression] | fn.#ListExpression
-	TargetNodes!:                  string | fn.#StringExpression
+	InstanceTypes?:                [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	TargetNodes!:                  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#RepositoryCredentials: close({CredentialsParameter!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#RepositoryCredentials: close({CredentialsParameter!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #ResourceRequirement: close({
-	Type?:  =~"(?i)^(?:gpu|memory|vcpu)$" | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Type?: =~"(?i)^(?:gpu|memory|vcpu)$" |
+	{
+		number | bool
+		_cfnString: =~"(?i)^(?:gpu|memory|vcpu)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -595,15 +724,15 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #RuntimePlatform: close({
-	CpuArchitecture?:       string | fn.#StringExpression
-	OperatingSystemFamily?: string | fn.#StringExpression
+	CpuArchitecture?:       string | number | bool | fn.#StringExpression
+	OperatingSystemFamily?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #S3FilesVolumeConfiguration: close({
-	AccessPointArn?: string | fn.#StringExpression
-	FileSystemArn!:  string | fn.#StringExpression
-	RootDirectory?:  string | fn.#StringExpression
+	AccessPointArn?: string | number | bool | fn.#StringExpression
+	FileSystemArn!:  string | number | bool | fn.#StringExpression
+	RootDirectory?:  string | number | bool | fn.#StringExpression
 	TransitEncryptionPort?: int |
 		{
 			string &
@@ -622,35 +751,45 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Secret: close({
-	Name!:      string | fn.#StringExpression
-	ValueFrom!: string | fn.#StringExpression
+	Name!:      string | number | bool | fn.#StringExpression
+	ValueFrom!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TaskContainerDependency: close({
-	Condition!:     string | fn.#StringExpression
-	ContainerName!: string | fn.#StringExpression
+	Condition!:     string | number | bool | fn.#StringExpression
+	ContainerName!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TaskContainerProperties: close({
-	Command?:     [...string | fn.#StringExpression] | fn.#ListExpression
+	Command?:     [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	DependsOn?:   [...#TaskContainerDependency] | fn.#ListExpression
 	Environment?: [...#Environment] | fn.#ListExpression
 	Essential?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	FirelensConfiguration?: close({
 		Options?: close({
 
-			{[=~".*"]: string | fn.#StringExpression}}) |
+			{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
-		Type!: =~"(?i)^(?:fluentbit|fluentd)$" | fn.#StringExpression
+		Type!: =~"(?i)^(?:fluentbit|fluentd)$" |
+		{
+			number | bool
+			_cfnString: =~"(?i)^(?:fluentbit|fluentd)$" & "\(self)"
+		} |
+		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
-	Image!:                  string | fn.#StringExpression
+	Image!:                  string | number | bool | fn.#StringExpression
 	LinuxParameters?:        #LinuxParameters
 	LogConfiguration?:       #LogConfiguration
 	MountPoints?:            [...#MountPoint] | fn.#ListExpression
-	Name?:                   string | fn.#StringExpression
+	Name?:                   string | number | bool | fn.#StringExpression
 	Privileged?:             bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ReadonlyRootFilesystem?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RepositoryCredentials?:  #RepositoryCredentials
@@ -685,13 +824,13 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	Ulimits?: [...#Ulimit] | fn.#ListExpression
-	User?:    string | fn.#StringExpression
+	User?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tmpfs: close({
-	ContainerPath!: string | fn.#StringExpression
-	MountOptions?:  [...string | fn.#StringExpression] | fn.#ListExpression
+	ContainerPath!: string | number | bool | fn.#StringExpression
+	MountOptions?:  [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Size!: int |
 		{
 			string &
@@ -724,7 +863,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Name!: string | fn.#StringExpression
+	Name!: string | number | bool | fn.#StringExpression
 	SoftLimit!: int |
 		{
 			string &
@@ -745,7 +884,7 @@ fn.#ObjectExpression
 #Volume: close({
 	EfsVolumeConfiguration?:     #EFSVolumeConfiguration
 	Host?:                       #Host
-	Name?:                       string | fn.#StringExpression
+	Name?:                       string | number | bool | fn.#StringExpression
 	S3FilesVolumeConfiguration?: #S3FilesVolumeConfiguration
 }) |
 fn.#ObjectExpression

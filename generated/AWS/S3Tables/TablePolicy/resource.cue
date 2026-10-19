@@ -5,8 +5,5 @@ package TablePolicy
 import schema "github.com/cueformation/cfn-cue/resources/h8587a3a8ded92121:schema"
 
 #Resource:       schema.#Resource
-#Namespace:      schema.#Namespace
 #ResourcePolicy: schema.#ResourcePolicy
 #TableARN:       schema.#TableARN
-#TableBucketARN: schema.#TableBucketARN
-#TableName:      schema.#TableName

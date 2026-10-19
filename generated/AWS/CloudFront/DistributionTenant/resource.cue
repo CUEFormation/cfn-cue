@@ -7,7 +7,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h91b953295442c53d:schem
 #Resource:                    schema.#Resource
 #Certificate:                 schema.#Certificate
 #Customizations:              schema.#Customizations
-#DomainResult:                schema.#DomainResult
 #GeoRestrictionCustomization: schema.#GeoRestrictionCustomization
 #ManagedCertificateRequest:   schema.#ManagedCertificateRequest
 #Parameter:                   schema.#Parameter

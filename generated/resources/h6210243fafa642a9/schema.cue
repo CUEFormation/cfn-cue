@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,14 +17,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // development, beta deployment, and production.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lex::BotVersion"
-	Properties!: close({
+	let properties = close({
 		BotId!:                         #Id
 		BotVersionLocaleSpecification!: #BotVersionLocaleSpecificationList
 		Description?:                   #Description
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#BotVersion: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]+)$" | fn.#StringExpression
+#BotVersion: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]+)$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(5) & strings.MinRunes(1) & =~"^(DRAFT|[0-9]+)$" & "\(self)"
+} |
+fn.#StringExpression
 
 #BotVersionLocaleDetails: close({SourceBotVersion!: #BotVersion}) | fn.#ObjectExpression
 
@@ -36,8 +45,18 @@ fn.#ObjectExpression
 
 #BotVersionLocaleSpecificationList: list.MinItems(1) & [...#BotVersionLocaleSpecification] | fn.#ListExpression
 
-#Description: strings.MaxRunes(200) | fn.#StringExpression
+#Description: strings.MaxRunes(200) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(200) & "\(self)"
+} |
+fn.#StringExpression
 
-#Id: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]+$" | fn.#StringExpression
+#Id: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(10) & strings.MinRunes(10) & =~"^[0-9a-zA-Z]+$" & "\(self)"
+} |
+fn.#StringExpression
 
-#LocaleId: string | fn.#StringExpression
+#LocaleId: string | number | bool | fn.#StringExpression

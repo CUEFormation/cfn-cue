@@ -6,45 +6,57 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
-	"time"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MPA::ApprovalTeam.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MPA::ApprovalTeam"
-	Properties!: close({
+	let properties = close({
 		ApprovalStrategy!: #ApprovalStrategy
 		Approvers!: list.MaxItems(20) & list.MinItems(1) & list.UniqueItems() & [...close({
-			PrimaryIdentityId!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-			PrimaryIdentitySourceArn!: strings.MaxRunes(1000) | fn.#StringExpression
+			PrimaryIdentityId!: strings.MaxRunes(100) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
+			PrimaryIdentitySourceArn!: strings.MaxRunes(1000) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(1000) & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-		Description!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		Name!:        strings.MaxRunes(64) & =~"^[a-zA-Z0-9._-]+$" | fn.#StringExpression
-		Policies!:    list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#Policy] | fn.#ListExpression
-		Tags?:        #Tags
+		Description!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Name!: strings.MaxRunes(64) & =~"^[a-zA-Z0-9._-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & =~"^[a-zA-Z0-9._-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Policies!: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#Policy] | fn.#ListExpression
+		Tags?:     #Tags
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ApprovalStrategy: close({MofN!: #MofNApprovalStrategy}) | fn.#ObjectExpression
-
-#Approver: close({
-	ApproverId?:               string | fn.#StringExpression
-	PrimaryIdentityId!:        strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	PrimaryIdentitySourceArn!: strings.MaxRunes(1000) | fn.#StringExpression
-	PrimaryIdentityStatus?:    string | fn.#StringExpression
-	ResponseTime?:             #Timestamp
-}) |
-fn.#ObjectExpression
 
 #MofNApprovalStrategy: close({
 	MinApprovalsRequired!: int |
@@ -69,15 +81,20 @@ bool |
 number |
 string |
 [...] |
-close({PolicyArn!: strings.MaxRunes(1224) | fn.#StringExpression}) |
+close({
+	PolicyArn!: strings.MaxRunes(1224) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1224) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ValueExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-
-#Timestamp: time.Time | fn.#StringExpression

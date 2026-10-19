@@ -6,19 +6,17 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A signing profile is a signing template that can be used to carry out a pre-defined signing job.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Signer::SigningProfile"
-	Properties!: close({
+	let properties = close({
 		// The ID of the target signing platform.
 		PlatformId!: #PlatformId
 
@@ -26,15 +24,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		SignatureValidityPeriod?: #SignatureValidityPeriod
 		Tags?:                    [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Arn: =~"^arn:aws(-[a-z]{1,4}){0,2}:[a-z-]+:(([a-z]+-)+[0-9])?:([0-9]{12})?:[^.]+$" | fn.#StringExpression
-
 #PlatformId: "AWSLambda-SHA384-ECDSA" | "Notation-OCI-SHA384-ECDSA" | fn.#StringExpression
-
-#ProfileName: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[0-9a-zA-Z_]{2,64}$" | fn.#StringExpression
-
-#ProfileVersion: =~"^[0-9a-zA-Z]{10}$" | fn.#StringExpression
 
 #SignatureValidityPeriod: close({
 	Type?: "DAYS" | "MONTHS" | "YEARS" | fn.#StringExpression
@@ -56,7 +52,22 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Key?: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(127) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

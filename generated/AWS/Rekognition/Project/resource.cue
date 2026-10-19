@@ -5,6 +5,5 @@ package Project
 import schema "github.com/cueformation/cfn-cue/resources/hcd8e48eb12a1c8a1:schema"
 
 #Resource:    schema.#Resource
-#Arn:         schema.#Arn
 #ProjectName: schema.#ProjectName
 #Tag:         schema.#Tag

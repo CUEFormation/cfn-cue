@@ -2,6 +2,8 @@
 
 package schema
 
+import "github.com/cueformation/cfn-cue/fn:fn"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Specifies a route in a route table. For more information, see
@@ -21,7 +23,7 @@ package schema
 	// You can only use this option when the VPC contains a subnet which is
 	// associated with a Wavelength Zone.
 	CarrierGatewayId?: string
-	CidrBlock?:        string
+	CidrBlock?:        fn.#IPv4Network & string
 
 	// The Amazon Resource Name (ARN) of the core network.
 	CoreNetworkArn?: string
@@ -30,7 +32,7 @@ package schema
 	// are based on the most specific match. We modify the specified CIDR block to
 	// its canonical form; for example, if you specify ``100.68.0.18/18``, we
 	// modify it to ``100.68.0.0/18``.
-	DestinationCidrBlock?: string
+	DestinationCidrBlock?: fn.#IPv4Network & string
 
 	// The IPv6 CIDR block used for the destination match. Routing decisions are
 	// based on the most specific match.

@@ -7,15 +7,15 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lambda::LayerVersion
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lambda::LayerVersion"
-	Properties!: close({
+	let properties = close({
 		CompatibleArchitectures?: list.MaxItems(2) & [...] & [..."arm64" | "x86_64" | fn.#StringExpression] |
 			fn.#ListExpression
 		CompatibleRuntimes?: list.MaxItems(15) & [...] & [
@@ -75,20 +75,69 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#ListExpression
 
 		// The function layer archive.
-		Content!:     #Content
-		Description?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+		Content!: #Content
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		LayerName?: strings.MaxRunes(140) &
 		strings.MinRunes(1) &
 		=~"^(arn:(aws[a-zA-Z-]*)?:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:layer:[a-zA-Z0-9-_]+)|[a-zA-Z0-9-_]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(140) &
+			strings.MinRunes(1) &
+			=~"^(arn:(aws[a-zA-Z-]*)?:lambda:(eusc-)?[a-z]{2}((-gov)|(-iso([a-z]?)))?-[a-z]+-\\d{1}:\\d{12}:layer:[a-zA-Z0-9-_]+)|[a-zA-Z0-9-_]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		LicenseInfo?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
+		LicenseInfo?: strings.MaxRunes(512) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Content: close({
-	S3Bucket!:            strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
-	S3Key!:               strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	S3Bucket!: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+	=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+	=~"^[0-9A-Za-z\\.\\-_]*$" &
+	matchN(0, [=~"(?:\\.)$"]) &
+	string &
+	strings.MaxRunes(63) &
+	strings.MinRunes(3) |
+	{
+		number | bool
+		_cfnString: =~"^[a-z0-9.\\-]{3,63}\\n?$" &
+		=~"^[a-z0-9](?:[a-z0-9]|-+[a-z0-9]|\\.[a-z0-9])*\\n?$" &
+		=~"^[0-9A-Za-z\\.\\-_]*$" &
+		matchN(0, [=~"(?:\\.)$"]) &
+		string &
+		strings.MaxRunes(63) &
+		strings.MinRunes(3) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	S3Key!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	S3ObjectStorageMode?: "COPY" | "REFERENCE" | fn.#StringExpression
-	S3ObjectVersion?:     strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	S3ObjectVersion?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

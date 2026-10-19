@@ -7,7 +7,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h8c81e89aedcf3bd9:schem
 #Resource:                                 schema.#Resource
 #CreateDetails:                            schema.#CreateDetails
 #CreateGitLabSelfManagedIntegrationDetail: schema.#CreateGitLabSelfManagedIntegrationDetail
-#IntegrationStatus:                        schema.#IntegrationStatus
 #IntegrationType:                          schema.#IntegrationType
 #TagMap:                                   schema.#TagMap
 #UpdateDetails:                            schema.#UpdateDetails

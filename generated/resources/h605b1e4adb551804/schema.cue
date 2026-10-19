@@ -3,17 +3,21 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // A pseudo-resource that manages which of your ECS task sets is primary.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ECS::PrimaryTaskSet"
-	Properties!: close({
-		Cluster!:   string | fn.#StringExpression
-		Service!:   string | fn.#StringExpression
-		TaskSetId!: string | fn.#StringExpression
+	let properties = close({
+		Cluster!:   string | number | bool | fn.#StringExpression
+		Service!:   string | number | bool | fn.#StringExpression
+		TaskSetId!: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

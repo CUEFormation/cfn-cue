@@ -3,18 +3,18 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DocDB::DBInstance
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DocDB::DBInstance"
-	Properties!: close({
+	let properties = close({
 		AutoMinorVersionUpgrade?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		AvailabilityZone?:        string | fn.#StringExpression
-		CACertificateIdentifier?: string | fn.#StringExpression
+		AvailabilityZone?:        string | number | bool | fn.#StringExpression
+		CACertificateIdentifier?: string | number | bool | fn.#StringExpression
 		CertificateRotationRestart?: bool |
 			"true" |
 			"True" |
@@ -23,9 +23,9 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		DBClusterIdentifier!:  string | fn.#StringExpression
-		DBInstanceClass!:      string | fn.#StringExpression
-		DBInstanceIdentifier?: string | fn.#StringExpression
+		DBClusterIdentifier!:  string | number | bool | fn.#StringExpression
+		DBInstanceClass!:      string | number | bool | fn.#StringExpression
+		DBInstanceIdentifier?: string | number | bool | fn.#StringExpression
 		EnablePerformanceInsights?: bool |
 			"true" |
 			"True" |
@@ -34,13 +34,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		PreferredMaintenanceWindow?: string | fn.#StringExpression
+		PreferredMaintenanceWindow?: string | number | bool | fn.#StringExpression
 		Tags?:                       [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

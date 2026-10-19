@@ -146,7 +146,12 @@ import (
 	// "event_details.fileType": "FileType"
 	//
 	// All dimensions listed in this field must also be included in EventPattern.
-	DimensionKeys?: {...}
+	DimensionKeys?: close({
+
+		{[=~"^(?::)"]: error("disallowed")}
+
+		{[=~"^.*[^\\s].*"]: strings.MaxRunes(255) & strings.MinRunes(1) & =~".*[^\\s].*"}
+	})
 
 	// The pattern that defines the metric, specified as a JSON object. RUM checks
 	// events that happen in a user's session against the pattern, and events that
@@ -314,7 +319,7 @@ import (
 	// characters in length and cannot be prefixed with aws:. You can use any of
 	// the following characters: the set of Unicode letters, digits, whitespace, _,
 	// ., /, =, +, and -.
-	Key!: strings.MaxRunes(128) & strings.MinRunes(1)
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// The value for the tag. You can specify a value that is 0 to 256 Unicode
 	// characters in length and cannot be prefixed with aws:. You can use any of

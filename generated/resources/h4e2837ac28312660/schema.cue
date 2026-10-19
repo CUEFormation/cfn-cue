@@ -7,28 +7,31 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::CodeDeploy::DeploymentGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodeDeploy::DeploymentGroup"
-	Properties!: close({
+	let properties = close({
 		// Information about the Amazon CloudWatch alarms that are associated with the deployment group.
 		AlarmConfiguration?: #AlarmConfiguration
-		ApplicationName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" | fn.#StringExpression
+		ApplicationName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// Information about the automatic rollback configuration that is associated
 		// with the deployment group. If you specify this property, don't specify the
 		// Deployment property.
 		AutoRollbackConfiguration?: #AutoRollbackConfiguration
-		AutoScalingGroups?:         list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+		AutoScalingGroups?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 
 		// Information about blue/green deployment options for a deployment group.
 		BlueGreenDeploymentConfiguration?: #BlueGreenDeploymentConfiguration
@@ -39,8 +42,16 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// specify the AutoRollbackConfiguration property.
 		Deployment?: #Deployment
 		DeploymentConfigName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" & "\(self)"
+		} |
 		fn.#StringExpression
 		DeploymentGroupName?: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[A-Za-z0-9+=,.@_-]*$" & "\(self)"
+		} |
 		fn.#StringExpression
 
 		// Attributes that determine the type of deployment to run and whether to route
@@ -66,15 +77,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// OnPremisesInstanceTagSet, but not both.
 		OnPremisesTagSet?:          #OnPremisesTagSet
 		OutdatedInstancesStrategy?: "IGNORE" | "UPDATE" | fn.#StringExpression
-		ServiceRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		ServiceRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Tags?:                   [...#Tag] | fn.#ListExpression
 		TerminationHookEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		TriggerConfigurations?:  list.UniqueItems() & [...#TriggerConfig] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Alarm: close({Name?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#Alarm: close({Name?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #AlarmConfiguration: close({
 	Alarms?:                 list.UniqueItems() & [...#Alarm] | fn.#ListExpression
@@ -127,7 +146,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Deployment: close({
-	Description?: string | fn.#StringExpression
+	Description?: string | number | bool | fn.#StringExpression
 	IgnoreApplicationStopFailures?: bool |
 		"true" |
 		"True" |
@@ -169,9 +188,9 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #EC2TagFilter: close({
-	Key?:   string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
 	Type?:  "KEY_AND_VALUE" | "KEY_ONLY" | "VALUE_ONLY" | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -182,16 +201,16 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #ECSService: close({
-	ClusterName!: string | fn.#StringExpression
-	ServiceName!: string | fn.#StringExpression
+	ClusterName!: string | number | bool | fn.#StringExpression
+	ServiceName!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ELBInfo: close({Name?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#ELBInfo: close({Name?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #GitHubLocation: close({
-	CommitId!:   string | fn.#StringExpression
-	Repository!: string | fn.#StringExpression
+	CommitId!:   string | number | bool | fn.#StringExpression
+	Repository!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -215,34 +234,34 @@ fn.#ObjectExpression
 
 #RevisionLocation: close({
 	GitHubLocation?: #GitHubLocation
-	RevisionType?:   string | fn.#StringExpression
+	RevisionType?:   string | number | bool | fn.#StringExpression
 	S3Location?:     #S3Location
 }) |
 fn.#ObjectExpression
 
 #S3Location: close({
-	Bucket!:     string | fn.#StringExpression
-	BundleType?: string | fn.#StringExpression
-	ETag?:       string | fn.#StringExpression
-	Key!:        string | fn.#StringExpression
-	Version?:    string | fn.#StringExpression
+	Bucket!:     string | number | bool | fn.#StringExpression
+	BundleType?: string | number | bool | fn.#StringExpression
+	ETag?:       string | number | bool | fn.#StringExpression
+	Key!:        string | number | bool | fn.#StringExpression
+	Version?:    string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TagFilter: close({
-	Key?:   string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
 	Type?:  "KEY_AND_VALUE" | "KEY_ONLY" | "VALUE_ONLY" | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#TargetGroupInfo: close({Name?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#TargetGroupInfo: close({Name?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #TargetGroupPairInfo: close({
 	// The path used by a load balancer to route production traffic when an Amazon
@@ -257,7 +276,9 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#TrafficRoute: close({ListenerArns?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression}) |
+#TrafficRoute: close(
+	{ListenerArns?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression},
+) |
 	fn.#ObjectExpression
 
 #TriggerConfig: close({
@@ -275,7 +296,7 @@ fn.#ObjectExpression
 			fn.#StringExpression
 	] |
 		fn.#ListExpression
-	TriggerName?:      string | fn.#StringExpression
-	TriggerTargetArn?: string | fn.#StringExpression
+	TriggerName?:      string | number | bool | fn.#StringExpression
+	TriggerTargetArn?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

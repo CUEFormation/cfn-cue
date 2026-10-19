@@ -7,24 +7,40 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoTAnalytics::Channel
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTAnalytics::Channel"
-	Properties?: close({
-		ChannelName?:     strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		ChannelName?: =~"^(^[a-zA-Z0-9_]+$)" &
+		matchN(0, [=~"^(?:_{2})"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^(^[a-zA-Z0-9_]+$)" &
+			matchN(0, [=~"^(?:_{2})"]) &
+			string &
+			strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
+		fn.#StringExpression
 		ChannelStorage?:  #ChannelStorage
 		RetentionPeriod?: #RetentionPeriod
 		Tags?:            list.MaxItems(50) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #ChannelStorage: close({
@@ -34,9 +50,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #CustomerManagedS3: close({
-	Bucket!:    strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9.\\-_]*$" | fn.#StringExpression
-	KeyPrefix?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!_.*'()/{}:-]*/$" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	Bucket!: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9.\\-_]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(3) & =~"^[a-zA-Z0-9.\\-_]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	KeyPrefix?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!_.*'()/{}:-]*/$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9!_.*'()/{}:-]*/$" & "\(self)"
+	} |
+	fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(20)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -62,10 +95,20 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ServiceManagedS3: fn.#Object & {...} | string | fn.#StringObjectExpression
+#ServiceManagedS3: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

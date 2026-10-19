@@ -8,8 +8,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h8de1012311991c4d:schem
 #AttributeDefinition:              schema.#AttributeDefinition
 #ContributorInsightsSpecification: schema.#ContributorInsightsSpecification
 #Csv:                              schema.#Csv
-#DeprecatedHashKeyElement:         schema.#DeprecatedHashKeyElement
-#DeprecatedKeySchema:              schema.#DeprecatedKeySchema
 #GlobalSecondaryIndex:             schema.#GlobalSecondaryIndex
 #ImportSourceSpecification:        schema.#ImportSourceSpecification
 #InputFormatOptions:               schema.#InputFormatOptions

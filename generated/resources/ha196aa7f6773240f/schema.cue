@@ -7,19 +7,56 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElasticLoadBalancingV2::TargetGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ElasticLoadBalancingV2::TargetGroup"
-	Properties?: close({
+	let properties = matchN(3, [matchIf({
+		HealthCheckProtocol!: string
+		...
+	}, matchIf({
+		HealthCheckProtocol!: "HTTP" | "HTTPS"
+		...
+	}, _, {
+		Matcher?:         error("disallowed")
+		ProtocolVersion?: error("disallowed")
+		...
+	}), _), matchIf({
+		Protocol!: string
+		...
+	}, matchIf({
+		Port?:     int | string
+		Protocol!: "GENEVE"
+		...
+	}, {
+		Port?: ==6081 | "6081" | fn.#ValueExpression
+		...
+	}, _), _), matchIf({
+		TargetType!: string
+		...
+	}, matchIf({
+		TargetType!: "lambda"
+		...
+	}, {
+		HealthCheckPort?:     error("disallowed")
+		HealthCheckProtocol?: error("disallowed")
+		Port?:                error("disallowed")
+		Protocol?:            error("disallowed")
+		ProtocolVersion?:     error("disallowed")
+		VpcId?:               error("disallowed")
+		...
+	}, {
+		Port!:     _
+		Protocol!: _
+		VpcId!:    _
+		...
+	}), _)]) & close({
 		HealthCheckEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		HealthCheckIntervalSeconds?: int & <=300 & >=5 |
 			{
@@ -39,8 +76,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		HealthCheckPath?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-		HealthCheckPort?: string | fn.#StringExpression
+		HealthCheckPath?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		HealthCheckPort?: string | number | bool | fn.#StringExpression
 		HealthCheckProtocol?: "GENEVE" |
 			"HTTP" |
 			"HTTPS" |
@@ -92,7 +134,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// [HTTP/HTTPS health checks] The HTTP or gRPC codes to use when checking for a
 		// successful response from a target.
 		Matcher?: #Matcher
-		Name?:    string | fn.#StringExpression
+		Name?:    string | number | bool | fn.#StringExpression
 		Port?: int & <=65535 & >=1 |
 			{
 				string &
@@ -121,7 +163,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"TLS" |
 			"UDP" |
 			fn.#StringExpression
-		ProtocolVersion?: string | fn.#StringExpression
+		ProtocolVersion?: string | number | bool | fn.#StringExpression
 		Tags?:            [...#Tag] | fn.#ListExpression
 		TargetControlPort?: int & <=65535 & >=1 |
 			{
@@ -162,26 +204,44 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
+		VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #Matcher: close({
-	GrpcCode?: string | fn.#StringExpression
-	HttpCode?: string | fn.#StringExpression
+	GrpcCode?: string | number | bool | fn.#StringExpression
+	HttpCode?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TargetDescription: close({
-	AvailabilityZone?: string | fn.#StringExpression
-	Id!:               string | fn.#StringExpression
+	AvailabilityZone?: string | number | bool | fn.#StringExpression
+	Id!:               string | number | bool | fn.#StringExpression
 	Port?: int & <=65535 & >=1 |
 		{
 			string &
@@ -198,12 +258,17 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	QuicServerId?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	QuicServerId?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TargetGroupAttribute: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

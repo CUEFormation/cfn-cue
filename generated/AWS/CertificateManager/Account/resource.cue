@@ -5,5 +5,4 @@ package Account
 import schema "github.com/cueformation/cfn-cue/resources/ha3161919c7b9f322:schema"
 
 #Resource:                  schema.#Resource
-#AccountId:                 schema.#AccountId
 #ExpiryEventsConfiguration: schema.#ExpiryEventsConfiguration

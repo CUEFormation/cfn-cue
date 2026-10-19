@@ -3,41 +3,55 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for a Redshift-managed VPC endpoint.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Redshift::EndpointAccess"
-	Properties!: close({
-		ClusterIdentifier!: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-		EndpointName!:      string | fn.#StringExpression
-		ResourceOwner?:     strings.MaxRunes(2147483647) & strings.MinRunes(0) & =~"^\\d{12}$" | fn.#StringExpression
-		SubnetGroupName!:   string | fn.#StringExpression
-		VpcSecurityGroupIds!: [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
-			fn.#StringExpression
-		] |
+	let properties = close({
+		ClusterIdentifier!: strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		EndpointName!: =~"^.{1,30}$" & =~"^(?:^[a-z][a-z0-9]*(-[a-z0-9]+)*$)" |
+		{
+			number | bool
+			_cfnString: =~"^.{1,30}$" & =~"^(?:^[a-z][a-z0-9]*(-[a-z0-9]+)*$)" & "\(self)"
+		} |
+		fn.#StringExpression
+		ResourceOwner?: strings.MaxRunes(2147483647) & strings.MinRunes(0) & =~"^\\d{12}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & =~"^\\d{12}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SubnetGroupName!: =~"^.{1,255}$" & =~"^(?:^[a-zA-Z0-9-]+$)" |
+		{
+			number | bool
+			_cfnString: =~"^.{1,255}$" & =~"^(?:^[a-zA-Z0-9-]+$)" & "\(self)"
+		} |
+		fn.#StringExpression
+		VpcSecurityGroupIds!: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & (strings.MaxRunes(2147483647) & strings.MinRunes(0)) |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" &
+			strings.MaxRunes(2147483647) &
+			strings.MinRunes(0) &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
-
-#NetworkInterface: close({
-	AvailabilityZone?:   string | fn.#StringExpression
-	NetworkInterfaceId?: string | fn.#StringExpression
-	PrivateIpAddress?:   string | fn.#StringExpression
-	SubnetId?:           string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#VpcSecurityGroup: close({
-	Status?: string | fn.#StringExpression
-	VpcSecurityGroupId?: =~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-}) |
-fn.#ObjectExpression

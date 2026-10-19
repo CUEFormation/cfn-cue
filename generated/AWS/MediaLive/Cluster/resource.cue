@@ -4,10 +4,8 @@ package Cluster
 
 import schema "github.com/cueformation/cfn-cue/resources/h3b47d7caf1ff88ce:schema"
 
-#Resource:                schema.#Resource
-#ClusterNetworkSettings:  schema.#ClusterNetworkSettings
-#ClusterState:            schema.#ClusterState
-#ClusterType:             schema.#ClusterType
-#InterfaceMapping:        schema.#InterfaceMapping
-#InterfaceNetworkMapping: schema.#InterfaceNetworkMapping
-#Tags:                    schema.#Tags
+#Resource:               schema.#Resource
+#ClusterNetworkSettings: schema.#ClusterNetworkSettings
+#ClusterType:            schema.#ClusterType
+#InterfaceMapping:       schema.#InterfaceMapping
+#Tags:                   schema.#Tags

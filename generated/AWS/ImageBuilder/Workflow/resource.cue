@@ -4,5 +4,4 @@ package Workflow
 
 import schema "github.com/cueformation/cfn-cue/resources/h73f9634cc7bb6738:schema"
 
-#Resource:      schema.#Resource
-#LatestVersion: schema.#LatestVersion
+#Resource: schema.#Resource

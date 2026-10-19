@@ -28,11 +28,13 @@ func run() error {
 	flag.BoolVar(&opt.LanguageExtensions, "language-extensions", false, "allow LanguageExtensions intrinsics and require the transform")
 	flag.BoolVar(&opt.Strict, "strict", false, "fail without publishing when constraints require approximations")
 	iamPolicies := flag.Bool("iam-policies", true, "check listed IAM policy properties with iam package profiles")
+	cfnLintRules := flag.Bool("cfn-lint-rules", true, "add single-resource service rules from cfn-lint's extension schemas")
 	flag.Parse()
 	if flag.NArg() != 0 {
 		return fmt.Errorf("unexpected arguments: %v", flag.Args())
 	}
 	opt.NoIAMPolicies = !*iamPolicies
+	opt.NoCfnLintRules = !*cfnLintRules
 	opt.Regions = split(*regions)
 	opt.Resources = split(*resources)
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)

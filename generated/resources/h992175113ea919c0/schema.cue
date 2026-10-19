@@ -6,8 +6,8 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -15,24 +15,64 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // that specifies an App Runner VpcIngressConnection.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppRunner::VpcIngressConnection"
-	Properties!: close({
+	let properties = close({
 		IngressVpcConfiguration!: #IngressVpcConfiguration
-		ServiceArn!:              strings.MaxRunes(1011) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:                    [...#Tag] | fn.#ListExpression
+		ServiceArn!: strings.MaxRunes(1011) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1011) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: [...#Tag] | fn.#ListExpression
 		VpcIngressConnectionName?: strings.MaxRunes(40) & strings.MinRunes(4) & =~"[A-Za-z0-9][A-Za-z0-9\\-_]{3,39}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(40) & strings.MinRunes(4) & =~"[A-Za-z0-9][A-Za-z0-9\\-_]{3,39}" & "\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #IngressVpcConfiguration: close({
-	VpcEndpointId!: strings.MaxRunes(51200) & strings.MinRunes(0) | fn.#StringExpression
-	VpcId!: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(51200) & strings.MinRunes(0)) |
+	VpcEndpointId!: strings.MaxRunes(51200) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(51200) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	VpcId!: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & (strings.MaxRunes(51200) & strings.MinRunes(0)) |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" &
+		strings.MaxRunes(51200) &
+		strings.MinRunes(0) &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key?: =~"^.+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^.+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

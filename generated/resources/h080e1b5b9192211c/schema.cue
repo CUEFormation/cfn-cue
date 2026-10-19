@@ -3,12 +3,10 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -26,7 +24,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // instance.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::VolumeAttachment"
-	Properties!: close({
+	let properties = close({
 		// The device name (for example, ``/dev/sdh`` or ``xvdh``).
 		Device?: #Device
 
@@ -46,9 +44,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// resource, or it can be the volume ID of an existing Amazon EBS volume.
 		VolumeId!: #VolumeId
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Device: string | fn.#StringExpression
+#Device: string | number | bool | fn.#StringExpression
 
 #EbsCardIndex: int |
 	{
@@ -64,8 +66,6 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	} |
 	fn.#NumberExpression
 
-#Id: string | fn.#StringExpression
+#InstanceId: string | number | bool | fn.#StringExpression
 
-#InstanceId: string | fn.#StringExpression
-
-#VolumeId: string | fn.#StringExpression
+#VolumeId: string | number | bool | fn.#StringExpression

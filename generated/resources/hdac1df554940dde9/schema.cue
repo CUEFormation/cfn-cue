@@ -6,31 +6,60 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Redshift::ClusterParameterGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Redshift::ClusterParameterGroup"
-	Properties!: close({
-		Description!:          strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-		ParameterGroupFamily!: strings.MaxRunes(2147483647) & strings.MinRunes(0) | fn.#StringExpression
-		ParameterGroupName?:   strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-		Parameters?:           [...#Parameter] | fn.#ListExpression
-		Tags?:                 [...#Tag] | fn.#ListExpression
+	let properties = close({
+		Description!: strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		ParameterGroupFamily!: strings.MaxRunes(2147483647) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2147483647) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		ParameterGroupName?: strings.MaxRunes(255) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Parameters?: [...#Parameter] | fn.#ListExpression
+		Tags?:       [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Parameter: close({
-	ParameterName!:  string | fn.#StringExpression
-	ParameterValue!: string | fn.#StringExpression
+	ParameterName!:  string | number | bool | fn.#StringExpression
+	ParameterValue!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

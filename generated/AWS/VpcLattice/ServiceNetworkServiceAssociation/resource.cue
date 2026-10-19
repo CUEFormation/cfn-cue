@@ -5,5 +5,4 @@ package ServiceNetworkServiceAssociation
 import schema "github.com/cueformation/cfn-cue/resources/h7b36254650953e38:schema"
 
 #Resource: schema.#Resource
-#DnsEntry: schema.#DnsEntry
 #Tag:      schema.#Tag

@@ -5,10 +5,8 @@ package LocationObjectStorage
 import schema "github.com/cueformation/cfn-cue/resources/h50a87d24c0a55fa4:schema"
 
 #Resource:                             schema.#Resource
-#CmkSecretConfig:                      schema.#CmkSecretConfig
 #CustomSecretConfig:                   schema.#CustomSecretConfig
 #GoogleOidcConfig:                     schema.#GoogleOidcConfig
-#ManagedSecretConfig:                  schema.#ManagedSecretConfig
 #ObjectStorageExternalIdentityConfig:  schema.#ObjectStorageExternalIdentityConfig
 #ObjectStorageFederatedIdentityConfig: schema.#ObjectStorageFederatedIdentityConfig
 #Tag:                                  schema.#Tag

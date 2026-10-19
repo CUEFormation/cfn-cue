@@ -7,7 +7,6 @@ import schema "github.com/cueformation/cfn-cue/resources/he09bd164a4c7c2a1:schem
 #Resource:                       schema.#Resource
 #DlpAction:                      schema.#DlpAction
 #DlpProviderType:                schema.#DlpProviderType
-#DlpSettingStatus:               schema.#DlpSettingStatus
 #LabelActionMapping:             schema.#LabelActionMapping
 #MicrosoftPurviewCredentials:    schema.#MicrosoftPurviewCredentials
 #MicrosoftPurviewProviderConfig: schema.#MicrosoftPurviewProviderConfig

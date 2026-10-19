@@ -6,24 +6,38 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::S3Vectors::VectorBucketPolicy
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3Vectors::VectorBucketPolicy"
-	Properties!: close({
+	let properties = close({
 		Policy!:           #Policy
 		VectorBucketArn?:  #VectorBucketArn
 		VectorBucketName?: #VectorBucketName
 	}) & matchN(>=1, [{VectorBucketName!: _}, {VectorBucketArn!: _}])
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Policy: fn.#Object & {...} | string | fn.#StringObjectExpression
+#Policy: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 
 #VectorBucketArn: =~"^arn:aws[-a-z0-9]*:s3vectors:[a-z0-9-]+:[0-9]{12}:bucket/[a-z0-9][a-z0-9-.]{1,61}[a-z0-9]$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^arn:aws[-a-z0-9]*:s3vectors:[a-z0-9-]+:[0-9]{12}:bucket/[a-z0-9][a-z0-9-.]{1,61}[a-z0-9]$" &
+		"\(self)"
+} |
+fn.#StringExpression
 
-#VectorBucketName: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+#VectorBucketName: strings.MaxRunes(63) & strings.MinRunes(3) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & "\(self)"
+} |
+fn.#StringExpression

@@ -6,8 +6,8 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -15,19 +15,45 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // to enables an AWS resource to be synchronized from a source-provider.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodeStarConnections::SyncConfiguration"
-	Properties!: close({
-		Branch!:                  strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		ConfigFile!:              string | fn.#StringExpression
+	let properties = close({
+		Branch!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		ConfigFile!:              string | number | bool | fn.#StringExpression
 		PublishDeploymentStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
 		RepositoryLinkId!: =~"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}" |
-			fn.#StringExpression
-		ResourceName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"[a-za-z0-9_\\.-]+" | fn.#StringExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		{
+			number | bool
+			_cfnString: =~"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}" & "\(self)"
+		} |
+		fn.#StringExpression
+		ResourceName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"[a-za-z0-9_\\.-]+" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"[a-za-z0-9_\\.-]+" & "\(self)"
+		} |
+		fn.#StringExpression
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"^arn:aws(-[\\w]+)*:iam::\\d{12}:role/[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^arn:aws(-[\\w]+)*:iam::\\d{12}:role/[a-zA-Z_0-9+=,.@\\-_/]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		SyncType!:                "CFN_STACK_SYNC" | fn.#StringExpression
 		TriggerResourceUpdateOn?: "ANY_CHANGE" | "FILE_CHANGE" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

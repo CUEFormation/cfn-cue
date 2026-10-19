@@ -3,18 +3,22 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ServiceCatalog::PortfolioProductAssociation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ServiceCatalog::PortfolioProductAssociation"
-	Properties?: close({
-		AcceptLanguage?:    string | fn.#StringExpression
-		PortfolioId?:       string | fn.#StringExpression
-		ProductId?:         string | fn.#StringExpression
-		SourcePortfolioId?: string | fn.#StringExpression
+	let properties = close({
+		AcceptLanguage?:    string | number | bool | fn.#StringExpression
+		PortfolioId?:       string | number | bool | fn.#StringExpression
+		ProductId?:         string | number | bool | fn.#StringExpression
+		SourcePortfolioId?: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }

@@ -3,20 +3,18 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::DocDB::DBCluster
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DocDB::DBCluster"
-	Properties?: close({
-		AvailabilityZones?: [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		AvailabilityZones?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		BackupRetentionPeriod?: int & <=35 & >=1 |
 			{
 				string &
@@ -36,21 +34,35 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		CopyTagsToSnapshot?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		DBClusterIdentifier?: string | fn.#StringExpression
-		DBClusterParameterGroupName?: string | fn.#StringExpression
-		DBSubnetGroupName?:           string | fn.#StringExpression
+		DBClusterIdentifier?: string | number | bool | fn.#StringExpression
+		DBClusterParameterGroupName?: string | number | bool | fn.#StringExpression
+		DBSubnetGroupName?:           string | number | bool | fn.#StringExpression
 		DeletionProtection?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		EnableCloudwatchLogsExports?: [...string | fn.#StringExpression] | fn.#ListExpression
-		EngineVersion?: "3.6.0" | "4.0" | "4.0.0" | "5.0.0" | "5.0.1" | "8.0.0" | "8.0.1" | fn.#StringExpression
-		GlobalClusterIdentifier?: string | fn.#StringExpression
-		KmsKeyId?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			string |
-			fn.#StringExpression
+		EnableCloudwatchLogsExports?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		EngineVersion?: "3.6.0" | "4.0" | 4.0 | "4.0.0" | "5.0.0" | "5.0.1" | "8.0.0" | "8.0.1" | fn.#StringExpression
+		GlobalClusterIdentifier?: string | number | bool | fn.#StringExpression
+		KmsKeyId?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+		} |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" &
+				"\(self)"
+		} |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^alias/[a-zA-Z0-9:/_-]+\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression
 		ManageMasterUserPassword?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		MasterUserPassword?:       string | fn.#StringExpression
-		MasterUserSecretKmsKeyId?: string | fn.#StringExpression
-		MasterUsername?:           string | fn.#StringExpression
-		NetworkType?:              string | fn.#StringExpression
+		MasterUserPassword?:       string | number | bool | fn.#StringExpression
+		MasterUserSecretKmsKeyId?: string | number | bool | fn.#StringExpression
+		MasterUsername?:           string | number | bool | fn.#StringExpression
+		NetworkType?:              string | number | bool | fn.#StringExpression
 		Port?: int |
 			{
 				string &
@@ -67,24 +79,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		PreferredBackupWindow?:      string | fn.#StringExpression
-		PreferredMaintenanceWindow?: string | fn.#StringExpression
-		RestoreToTime?:              string | fn.#StringExpression
-		RestoreType?:                string | fn.#StringExpression
+		PreferredBackupWindow?:      string | number | bool | fn.#StringExpression
+		PreferredMaintenanceWindow?: string | number | bool | fn.#StringExpression
+		RestoreToTime?:              string | number | bool | fn.#StringExpression
+		RestoreType?:                string | number | bool | fn.#StringExpression
 		RotateMasterUserPassword?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		ServerlessV2ScalingConfiguration?: #ServerlessV2ScalingConfiguration
-		SnapshotIdentifier?:               string | fn.#StringExpression
-		SourceDBClusterIdentifier?:        string | fn.#StringExpression
+		SnapshotIdentifier?:               string | number | bool | fn.#StringExpression
+		SourceDBClusterIdentifier?:        string | number | bool | fn.#StringExpression
 		StorageEncrypted?:        bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		StorageType?:             string | fn.#StringExpression
+		StorageType?:             string | number | bool | fn.#StringExpression
 		Tags?:                    [...#Tag] | fn.#ListExpression
 		UseLatestRestorableTime?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		VpcSecurityGroupIds?: [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
+		VpcSecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #ServerlessV2ScalingConfiguration: close({
@@ -130,7 +148,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

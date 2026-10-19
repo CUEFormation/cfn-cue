@@ -4,12 +4,11 @@ package ManagedLoginBranding
 
 import schema "github.com/cueformation/cfn-cue/resources/hb85c903f0dabb1a8:schema"
 
-#Resource:                   schema.#Resource
-#AssetList:                  schema.#AssetList
-#AssetType:                  schema.#AssetType
-#BytesType:                  schema.#BytesType
-#CategoryType:               schema.#CategoryType
-#ColorModeType:              schema.#ColorModeType
-#ExtensionType:              schema.#ExtensionType
-#ManagedLoginBrandingIdType: schema.#ManagedLoginBrandingIdType
-#ResourceIdType:             schema.#ResourceIdType
+#Resource:       schema.#Resource
+#AssetList:      schema.#AssetList
+#AssetType:      schema.#AssetType
+#BytesType:      schema.#BytesType
+#CategoryType:   schema.#CategoryType
+#ColorModeType:  schema.#ColorModeType
+#ExtensionType:  schema.#ExtensionType
+#ResourceIdType: schema.#ResourceIdType

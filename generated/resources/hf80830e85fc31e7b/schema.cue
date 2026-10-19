@@ -6,23 +6,27 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::Cassandra::Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cassandra::Type"
-	Properties!: close({
+	let properties = close({
 		Fields!:       list.UniqueItems() & [...#Field] | fn.#ListExpression
-		KeyspaceName!: string | fn.#StringExpression
-		TypeName!:     string | fn.#StringExpression
+		KeyspaceName!: string | number | bool | fn.#StringExpression
+		TypeName!:     string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Field: close({
-	FieldName!: string | fn.#StringExpression
-	FieldType!: string | fn.#StringExpression
+	FieldName!: string | number | bool | fn.#StringExpression
+	FieldType!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

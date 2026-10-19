@@ -6,19 +6,17 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaConnect::FlowEntitlement
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaConnect::FlowEntitlement"
-	Properties!: close({
+	let properties = close({
 		DataTransferSubscriberFeePercent?: int |
 			{
 				string &
@@ -35,36 +33,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Description!: string | fn.#StringExpression
+		Description!: string | number | bool | fn.#StringExpression
 
 		// The type of encryption that will be used on the output that is associated with this entitlement.
 		Encryption?:        #Encryption
 		EntitlementStatus?: "ENABLED" | "DISABLED" | fn.#StringExpression
-		FlowArn!:           string | fn.#StringExpression
-		Name!:              string | fn.#StringExpression
-		Subscribers!:       [...string | fn.#StringExpression] | fn.#ListExpression
+		FlowArn!:           string | number | bool | fn.#StringExpression
+		Name!:              string | number | bool | fn.#StringExpression
+		Subscribers!:       [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Tags?:              list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Encryption: close({
 	Algorithm!:                    "aes128" | "aes192" | "aes256" | fn.#StringExpression
-	ConstantInitializationVector?: string | fn.#StringExpression
-	DeviceId?:                     string | fn.#StringExpression
+	ConstantInitializationVector?: string | number | bool | fn.#StringExpression
+	DeviceId?:                     string | number | bool | fn.#StringExpression
 	KeyType?:                      "speke" | "static-key" | fn.#StringExpression
-	Region?:                       string | fn.#StringExpression
-	ResourceId?:                   string | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	Region?:                       string | number | bool | fn.#StringExpression
+	ResourceId?:                   string | number | bool | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	SecretArn?: =~"^arn:(aws[a-zA-Z-]*):secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:[a-zA-Z0-9/_+=.@-]+$" |
-		fn.#StringExpression
-	Url?: string | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:(aws[a-zA-Z-]*):secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:[a-zA-Z0-9/_+=.@-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Url?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

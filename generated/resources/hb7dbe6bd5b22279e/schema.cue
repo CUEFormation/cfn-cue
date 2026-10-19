@@ -3,26 +3,27 @@
 package schema
 
 import (
-	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
+	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Notifications::NotificationHub
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::Notifications::NotificationHub"
-	Properties!: close({Region!: #Region})
+	Type!: "AWS::Notifications::NotificationHub"
+	let properties = close({Region!: #Region})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#NotificationHubStatus: "ACTIVE" | "REGISTERING" | "DEREGISTERING" | "INACTIVE" | fn.#StringExpression
-
-#NotificationHubStatusSummary: close({
-	NotificationHubStatus!:       #NotificationHubStatus
-	NotificationHubStatusReason!: string | fn.#StringExpression
-}) |
-fn.#ObjectExpression
-
-#Region: strings.MaxRunes(25) & strings.MinRunes(2) | fn.#StringExpression
+#Region: strings.MaxRunes(25) & strings.MinRunes(2) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(25) & strings.MinRunes(2) & "\(self)"
+} |
+fn.#StringExpression

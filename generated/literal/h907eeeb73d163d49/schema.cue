@@ -2,6 +2,8 @@
 
 package schema
 
+import "github.com/cueformation/cfn-cue/fn:fn"
+
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::MediaLive::Network.
@@ -32,7 +34,7 @@ package schema
 // IP address cidr pool
 #IpPool: close({
 	// IP address cidr pool
-	Cidr?: string
+	Cidr?: fn.#IPv4Network & string
 })
 
 #NetworkState: "CREATING" |
@@ -47,7 +49,7 @@ package schema
 
 #Route: close({
 	// Ip address cidr
-	Cidr?: string
+	Cidr?: fn.#IPv4Network & string
 
 	// IP address for the route packet paths
 	Gateway?: string

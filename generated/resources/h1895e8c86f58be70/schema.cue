@@ -7,12 +7,10 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -29,7 +27,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // attribute.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApplicationAutoScaling::ScalableTarget"
-	Properties!: close({
+	let properties = close({
 		MaxCapacity!: int |
 			{
 				string &
@@ -62,8 +60,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		ResourceId!: strings.MaxRunes(1600) & strings.MinRunes(1) | fn.#StringExpression
-		RoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(1600) & strings.MinRunes(1)) |
+		ResourceId!: strings.MaxRunes(1600) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1600) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		RoleARN?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(1600) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(1600) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		ScalableDimension!: "appstream:fleet:DesiredCapacity" |
 			"cassandra:table:ReadCapacityUnits" |
@@ -123,6 +133,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		SuspendedState?: #SuspendedState
 		Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ScalableTargetAction: close({
@@ -158,7 +172,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #ScheduledAction: close({
-	EndTime?: string | fn.#StringExpression
+	EndTime?: string | number | bool | fn.#StringExpression
 
 	// The new minimum and maximum capacity. You can set both values or just one. At
 	// the scheduled time, if the current capacity is below the minimum capacity,
@@ -166,10 +180,10 @@ fn.#ObjectExpression
 	// capacity is above the maximum capacity, Application Auto Scaling scales in
 	// to the maximum capacity.
 	ScalableTargetAction?: #ScalableTargetAction
-	Schedule!:             string | fn.#StringExpression
-	ScheduledActionName!:  string | fn.#StringExpression
-	StartTime?:            string | fn.#StringExpression
-	Timezone?:             string | fn.#StringExpression
+	Schedule!:             string | number | bool | fn.#StringExpression
+	ScheduledActionName!:  string | number | bool | fn.#StringExpression
+	StartTime?:            string | number | bool | fn.#StringExpression
+	Timezone?:             string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -181,7 +195,17 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

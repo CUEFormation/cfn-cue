@@ -1,0 +1,12 @@
+Parameters:
+  Zones:
+    Type: String
+Conditions:
+  NATGateway&3AZCondition:
+    Fn::Equals:
+    - Ref: Zones
+    - '3'
+Resources:
+  Queue:
+    Type: AWS::SQS::Queue
+    Condition: NATGateway&3AZCondition

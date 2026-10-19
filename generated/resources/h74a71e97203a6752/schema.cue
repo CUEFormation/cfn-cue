@@ -7,25 +7,32 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Device Profile's resource schema demonstrating some basic constructs and validation rules.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTWireless::DeviceProfile"
-	Properties?: close({
+	let properties = close({
 		// LoRaWANDeviceProfile supports all LoRa specific attributes for service
 		// profile for CreateDeviceProfile operation
 		LoRaWAN?: #LoRaWANDeviceProfile
-		Name?:    strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
-		Tags?:    list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
+		Name?: strings.MaxRunes(256) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #FactoryPresetFreq: int & <=16700000 & >=1000000 |
@@ -79,7 +86,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		} |
 		fn.#NumberExpression
 	FactoryPresetFreqsList?: list.MaxItems(20) & [...] & [...#FactoryPresetFreq] | fn.#ListExpression
-	MacVersion?:             strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+	MacVersion?: strings.MaxRunes(64) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	MaxDutyCycle?: int & <=100 & >=0 |
 		{
 			string &
@@ -160,8 +172,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	RegParamsRevision?: strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
-	RfRegion?:          strings.MaxRunes(64) & strings.MinRunes(0) | fn.#StringExpression
+	RegParamsRevision?: strings.MaxRunes(64) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
+	RfRegion?: strings.MaxRunes(64) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 	RxDataRate2?: int & <=15 & >=0 |
 		{
 			string &
@@ -234,7 +256,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 fn.#ObjectExpression
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -41,8 +41,8 @@ import (
 
 #Credential: close({
 	CredentialType?: "ADMIN"
-	DatabaseName?:   string
-	SecretId?:       string
+	DatabaseName?:   =~"^(?:.{1,100}$)"
+	SecretId?:       =~"^(?:.{1,100}$)"
 })
 
 #Instance: =~"^i-[\\w\\d]{8}$|^i-[\\w\\d]{17}$"

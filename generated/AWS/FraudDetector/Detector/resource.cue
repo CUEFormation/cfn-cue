@@ -4,12 +4,5 @@ package Detector
 
 import schema "github.com/cueformation/cfn-cue/resources/h0ae0105764171eb8:schema"
 
-#Resource:      schema.#Resource
-#EntityType:    schema.#EntityType
-#EventType:     schema.#EventType
-#EventVariable: schema.#EventVariable
-#Label:         schema.#Label
-#Model:         schema.#Model
-#Outcome:       schema.#Outcome
-#Rule:          schema.#Rule
-#Tag:           schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

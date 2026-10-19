@@ -6,21 +6,24 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::AutoScaling::WarmPool.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AutoScaling::WarmPool"
-	Properties!: close({
-		AutoScalingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		InstanceReusePolicy?:  #InstanceReusePolicy
+	let properties = close({
+		AutoScalingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		InstanceReusePolicy?: #InstanceReusePolicy
 		MaxGroupPreparedCapacity?: int & >=-1 |
 			{
 				string &
@@ -57,6 +60,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		PoolState?: "Hibernated" | "Running" | "Stopped" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #InstanceReusePolicy: close(

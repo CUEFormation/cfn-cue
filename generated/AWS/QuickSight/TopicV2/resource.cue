@@ -11,4 +11,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h1930a08ba3318796:schem
 #DataSetRelationEndpoint: schema.#DataSetRelationEndpoint
 #ResourcePermission:      schema.#ResourcePermission
 #Tag:                     schema.#Tag
-#TopicV2Details:          schema.#TopicV2Details

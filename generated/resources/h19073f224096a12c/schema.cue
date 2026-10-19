@@ -3,18 +3,27 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::EC2::TransitGatewayRoute
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::TransitGatewayRoute"
-	Properties!: close({
-		Blackhole?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		DestinationCidrBlock!: string | fn.#StringExpression
-		TransitGatewayAttachmentId?: string | fn.#StringExpression
-		TransitGatewayRouteTableId!: string | fn.#StringExpression
+	let properties = close({
+		Blackhole?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		DestinationCidrBlock!: fn.#IPv4Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv4Network & string & "\(self)"
+		} |
+		fn.#StringExpression
+		TransitGatewayAttachmentId?: string | number | bool | fn.#StringExpression
+		TransitGatewayRouteTableId!: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

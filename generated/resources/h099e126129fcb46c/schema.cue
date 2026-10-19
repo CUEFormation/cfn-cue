@@ -7,12 +7,10 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -23,16 +21,34 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // supply.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::Evaluator"
-	Properties!: close({
-		Description?: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The configuration for the evaluator, including LLM-as-a-Judge, code-based, or derived settings.
 		EvaluatorConfig!: #EvaluatorConfig
-		EvaluatorName!:   =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" | fn.#StringExpression
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		EvaluatorName!: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" |
+		{
+			number | bool
+			_cfnString: =~"^[a-zA-Z][a-zA-Z0-9_]{0,47}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(1) &
 		=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]+:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^arn:aws(|-cn|-us-gov):kms:[a-zA-Z0-9-]+:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 
 		// The evaluation level that determines the scope of evaluation. Required for
@@ -41,18 +57,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Level!: #EvaluatorLevel
 		Tags?:  list.MaxItems(50) & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #BedrockEvaluatorModelConfig: close({
 	AdditionalModelRequestFields?: fn.#Object & {...} | fn.#ObjectExpression
 	InferenceConfig?:              #InferenceConfiguration
-	ModelId!:                      string | fn.#StringExpression
+	ModelId!:                      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CategoricalScaleDefinition: close({
-	Definition!: string | fn.#StringExpression
-	Label!:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	Definition!: string | number | bool | fn.#StringExpression
+	Label!: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -60,7 +85,12 @@ fn.#ObjectExpression
 
 #DerivedEvaluatorConfig: close({
 	BaseEvaluatorId!: =~"^(Builtin\\.[a-zA-Z0-9._-]+|ThirdParty\\.[a-zA-Z0-9._-]+|[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10})$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^(Builtin\\.[a-zA-Z0-9._-]+|ThirdParty\\.[a-zA-Z0-9._-]+|[a-zA-Z][a-zA-Z0-9-_]{0,99}-[a-zA-Z0-9]{10})$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	ModelConfig!: #EvaluatorModelConfig
 }) |
 fn.#ObjectExpression
@@ -97,16 +127,6 @@ fn.#ObjectExpression
 	}
 }) & matchN(>=1, [{BedrockEvaluatorModelConfig!: _}, {ResponsesEvaluatorModelConfig!: _}]) |
 fn.#ObjectExpression
-
-#EvaluatorStatus: "ACTIVE" |
-	"CREATING" |
-	"CREATE_FAILED" |
-	"UPDATING" |
-	"UPDATE_FAILED" |
-	"DELETING" |
-	fn.#StringExpression
-
-#EvaluatorType: "Builtin" | "ThirdParty" | "Custom" | "CustomCode" | "CustomDerived" | fn.#StringExpression
 
 #InferenceConfiguration: close({
 	MaxTokens?: int & >=1 |
@@ -168,9 +188,15 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #LambdaEvaluatorConfig: close({
-	LambdaArn!: =~"(?:^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	LambdaArn!: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
 		=~"^arn:(aws[a-zA-Z-]*)?:lambda:([a-z]{2}(-gov)?-[a-z]+-\\d{1}):(\\d{12}):function:([a-zA-Z0-9-_.]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+			=~"^arn:(aws[a-zA-Z-]*)?:lambda:([a-z]{2}(-gov)?-[a-z]+-\\d{1}):(\\d{12}):function:([a-zA-Z0-9-_.]+)(:(\\$LATEST|[a-zA-Z0-9-_]+))?$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	LambdaTimeoutInSeconds?: int & <=300 & >=1 |
 		{
 			string &
@@ -191,15 +217,20 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #LlmAsAJudgeEvaluatorConfig: close({
-	Instructions!: string | fn.#StringExpression
+	Instructions!: string | number | bool | fn.#StringExpression
 	ModelConfig!:  #EvaluatorModelConfig
 	RatingScale!:  #RatingScale
 }) |
 fn.#ObjectExpression
 
 #NumericalScaleDefinition: close({
-	Definition!: string | fn.#StringExpression
-	Label!:      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	Definition!: string | number | bool | fn.#StringExpression
+	Label!: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Value!: >=0 |
 		{
 			string &
@@ -238,7 +269,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ModelId!:   string | fn.#StringExpression
+	ModelId!:   string | number | bool | fn.#StringExpression
 	Reasoning?: #ReasoningConfiguration
 	Temperature?: <=2 & >=0 |
 		{
@@ -283,8 +314,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#Provider: "AWS" | "DeepEval" | "AutoEval" | "Custom" | fn.#StringExpression
-
 #RatingScale: close({
 	Categorical?: [...#CategoricalScaleDefinition] | fn.#ListExpression
 	Numerical?:   [...#NumericalScaleDefinition] | fn.#ListExpression
@@ -296,11 +325,28 @@ fn.#ObjectExpression
 }) & matchN(>=1, [{Numerical!: _}, {Categorical!: _}]) |
 fn.#ObjectExpression
 
-#ReasoningConfiguration: close({Effort?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression}) |
+#ReasoningConfiguration: close({
+	Effort?: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

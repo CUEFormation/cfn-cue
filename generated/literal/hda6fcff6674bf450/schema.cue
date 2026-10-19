@@ -39,7 +39,7 @@ import (
 	// The Amazon Resource Name (ARN) to use as the primary cluster of the global
 	// database. This parameter is optional. This parameter is stored as a
 	// lowercase string.
-	SourceDBClusterIdentifier?: matchN(1, [=~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$", string])
+	SourceDBClusterIdentifier?: matchN(1, [=~"^[a-zA-Z]{1}(?:-?[a-zA-Z0-9]){0,62}$", =~"^arn.*" & =~"^(?:.{40,128}$)"])
 
 	// The storage encryption setting for the new global database cluster.
 	// If you specify the SourceDBClusterIdentifier property, don't specify this

@@ -7,42 +7,76 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::WorkSpacesThinClient::Environment.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WorkSpacesThinClient::Environment"
-	Properties!: close({
-		DesiredSoftwareSetId?: =~"^[0-9]{1,9}$" | fn.#StringExpression
+	let properties = close({
+		DesiredSoftwareSetId?: =~"^[0-9]{1,9}$" |
+		{
+			number | bool
+			_cfnString: =~"^[0-9]{1,9}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		DesktopArn!: strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[0-9]{0,12}:[a-zA-Z0-9\\-\\/\\._]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[0-9]{0,12}:[a-zA-Z0-9\\-\\/\\._]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		DesktopEndpoint?: strings.MaxRunes(1024) &
 		strings.MinRunes(1) &
 		=~"^(https:\\/\\/)[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,32}(:[0-9]{1,5})?(\\/.*)?$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) &
+			strings.MinRunes(1) &
+			=~"^(https:\\/\\/)[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,32}(:[0-9]{1,5})?(\\/.*)?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		DeviceCreationTags?: list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[0-9]{0,12}:key\\/[a-zA-Z0-9-]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:[\\w+=\\/,.@-]+:kms:[a-zA-Z0-9\\-]*:[0-9]{0,12}:key\\/[a-zA-Z0-9-]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 
 		// A specification for a time window to apply software updates.
-		MaintenanceWindow?:         #MaintenanceWindow
-		Name?:                      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
+		MaintenanceWindow?: #MaintenanceWindow
+		Name?: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^.+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		SoftwareSetUpdateMode?:     "USE_LATEST" | "USE_DESIRED" | fn.#StringExpression
 		SoftwareSetUpdateSchedule?: "USE_MAINTENANCE_WINDOW" | "APPLY_IMMEDIATELY" | fn.#StringExpression
 		Tags?:                      list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #DayOfWeek: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY" | fn.#StringExpression
@@ -101,7 +135,22 @@ fn.#ObjectExpression
 	fn.#NumberExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

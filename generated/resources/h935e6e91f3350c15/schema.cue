@@ -3,25 +3,27 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Pinpoint::Segment
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Pinpoint::Segment"
-	Properties!: close({
-		ApplicationId!: string | fn.#StringExpression
+	let properties = close({
+		ApplicationId!: string | number | bool | fn.#StringExpression
 		Dimensions?:    #SegmentDimensions
-		Name!:          string | fn.#StringExpression
+		Name!:          string | number | bool | fn.#StringExpression
 		SegmentGroups?: #SegmentGroups
-		Tags?:          fn.#Object & {...} | string | fn.#StringObjectExpression
+		Tags?:          fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Behavior: close({Recency?: #Recency}) | fn.#ObjectExpression
@@ -105,8 +107,8 @@ fn.#ObjectExpression
 #Groups: close({
 	Dimensions?:     [...#SegmentDimensions] | fn.#ListExpression
 	SourceSegments?: [...#SourceSegments] | fn.#ListExpression
-	SourceType?:     string | fn.#StringExpression
-	Type?:           string | fn.#StringExpression
+	SourceType?:     string | number | bool | fn.#StringExpression
+	Type?:           string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -117,35 +119,35 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Recency: close({
-	Duration!:    string | fn.#StringExpression
-	RecencyType!: string | fn.#StringExpression
+	Duration!:    string | number | bool | fn.#StringExpression
+	RecencyType!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SegmentDimensions: close({
-	Attributes?:     fn.#Object & {...} | string | fn.#StringObjectExpression
+	Attributes?:     fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	Behavior?:       #Behavior
 	Demographic?:    #Demographic
 	Location?:       #Location
-	Metrics?:        fn.#Object & {...} | string | fn.#StringObjectExpression
-	UserAttributes?: fn.#Object & {...} | string | fn.#StringObjectExpression
+	Metrics?:        fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+	UserAttributes?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 }) |
 fn.#ObjectExpression
 
 #SegmentGroups: close({
 	Groups?:  [...#Groups] | fn.#ListExpression
-	Include?: string | fn.#StringExpression
+	Include?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SetDimension: close({
-	DimensionType?: string | fn.#StringExpression
-	Values?:        [...string | fn.#StringExpression] | fn.#ListExpression
+	DimensionType?: string | number | bool | fn.#StringExpression
+	Values?:        [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #SourceSegments: close({
-	Id!: string | fn.#StringExpression
+	Id!: string | number | bool | fn.#StringExpression
 	Version?: int |
 		{
 			string &

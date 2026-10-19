@@ -7,57 +7,109 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lambda::MicrovmImage
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lambda::MicrovmImage"
-	Properties!: close({
+	let properties = close({
 		AdditionalOsCapabilities!: list.UniqueItems() & [..."ALL" | fn.#StringExpression] | fn.#ListExpression
-		BaseImageArn!:             strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
-		BaseImageVersion!:         strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
-		BuildRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		BaseImageArn!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		BaseImageVersion!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		BuildRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 			=~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+				=~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 
 		// Code artifact for the active MicroVM image.
 		CodeArtifact!:      #CodeArtifact
 		CpuConfigurations!: list.UniqueItems() & [...#CpuConfiguration] | fn.#ListExpression
-		Description!:       string | fn.#StringExpression
-		EgressNetworkConnectors!: list.MaxItems(10) & list.UniqueItems() & [...string | fn.#StringExpression] |
+		Description!:       string | number | bool | fn.#StringExpression
+		EgressNetworkConnectors!: list.MaxItems(10) & list.UniqueItems() & [
+			...string | number | bool | fn.#StringExpression
+		] |
 			fn.#ListExpression
 		EnvironmentVariables!: list.MaxItems(50) & list.UniqueItems() & [...#EnvironmentVariable] | fn.#ListExpression
 		Hooks!:                #Hooks
 
 		// Configuration for MicroVM image logging.
-		Logging!:   #Logging
-		Name!:      strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" | fn.#StringExpression
+		Logging!: #Logging
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		Resources!: list.MaxItems(1) & list.UniqueItems() & [...#Resources] | fn.#ListExpression
 		Tags?:      list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CloudWatchLogging: close({
-	LogGroup?:  strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-/.#]+$" | fn.#StringExpression
-	LogStream?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]*$" | fn.#StringExpression
+	LogGroup?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-/.#]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_\\-/.#]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LogStream?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[^:*]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#CodeArtifact: close({Uri!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression}) |
+#CodeArtifact: close({
+	Uri!: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\s]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #CpuConfiguration: close({Architecture!: "ARM_64" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #EnvironmentVariable: close({
-	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\s]+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(4096) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\s]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[^\\s]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(4096) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(4096) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -201,17 +253,6 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#MicrovmImageState: "CREATING" |
-	"CREATED" |
-	"CREATE_FAILED" |
-	"UPDATING" |
-	"UPDATED" |
-	"UPDATE_FAILED" |
-	"DELETING" |
-	"DELETE_FAILED" |
-	"DELETED" |
-	fn.#StringExpression
-
 #Resources: close({
 	MinimumMemoryInMiB!: int |
 		{
@@ -231,7 +272,17 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -5,15 +5,10 @@ package LinkRoutingRule
 import schema "github.com/cueformation/cfn-cue/resources/h7df5782be5b4c6cd:schema"
 
 #Resource:                schema.#Resource
-#Arn:                     schema.#Arn
-#CreatedTimestamp:        schema.#CreatedTimestamp
 #GatewayId:               schema.#GatewayId
 #LinkId:                  schema.#LinkId
 #QueryStringKeyValuePair: schema.#QueryStringKeyValuePair
 #RuleCondition:           schema.#RuleCondition
-#RuleId:                  schema.#RuleId
 #RulePriority:            schema.#RulePriority
-#RuleStatus:              schema.#RuleStatus
 #Tag:                     schema.#Tag
 #Tags:                    schema.#Tags
-#UpdatedTimestamp:        schema.#UpdatedTimestamp

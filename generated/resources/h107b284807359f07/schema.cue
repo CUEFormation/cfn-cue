@@ -7,19 +7,17 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::RolesAnywhere::Profile Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RolesAnywhere::Profile"
-	Properties!: close({
+	let properties = close({
 		AcceptRoleSessionName?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		AttributeMappings?:     [...#AttributeMapping] | fn.#ListExpression
 		DurationSeconds?: <=43200 & >=900 |
@@ -42,9 +40,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Enabled?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		ManagedPolicyArns?: list.MaxItems(50) & [...] & [...string | fn.#StringExpression] | fn.#ListExpression
-		Name!:              strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9-_]*$" | fn.#StringExpression
+		Enabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		ManagedPolicyArns?: list.MaxItems(50) & [...] & [...string | number | bool | fn.#StringExpression] |
+			fn.#ListExpression
+		Name!: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9-_]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9-_]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		RequireInstanceProperties?: bool |
 			"true" |
 			"True" |
@@ -53,14 +57,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"False" |
 			"FALSE" |
 			fn.#BooleanExpression
-		RoleArns!: list.MaxItems(250) & [...] & [
-			...strings.MaxRunes(1011) & strings.MinRunes(1) & =~"^arn:aws(-[^:]+)?:iam(:.*){2}(:role.*)$" |
-			fn.#StringExpression
-		] |
+		RoleArns!: list.MaxItems(250) & [...] & [...strings.MaxRunes(1011) &
+		strings.MinRunes(1) &
+		=~"^arn:aws(-[^:]+)?:iam(:.*){2}(:role.*)$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1011) &
+			strings.MinRunes(1) &
+			=~"^arn:aws(-[^:]+)?:iam(:.*){2}(:role.*)$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		SessionPolicy?: string | fn.#StringExpression
+		SessionPolicy?: string | number | bool | fn.#StringExpression
 		Tags?:          list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AttributeMapping: close({
@@ -71,10 +86,20 @@ fn.#ObjectExpression
 
 #CertificateField: "x509Subject" | "x509Issuer" | "x509SAN" | fn.#StringExpression
 
-#MappingRule: close({Specifier!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#MappingRule: close({Specifier!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9_.:/=+@-]*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[ a-zA-Z0-9_.:/=+@-]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9_.:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[ a-zA-Z0-9_.:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[ a-zA-Z0-9_.:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[ a-zA-Z0-9_.:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

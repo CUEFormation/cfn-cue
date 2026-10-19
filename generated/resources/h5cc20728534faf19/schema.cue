@@ -6,8 +6,8 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -15,10 +15,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // resource type that specifies an App Runner observability configuration
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppRunner::ObservabilityConfiguration"
-	Properties?: close({
+	let properties = close({
 		ObservabilityConfigurationName?: strings.MaxRunes(32) &
 		strings.MinRunes(4) &
 		=~"[A-Za-z0-9][A-Za-z0-9\\-_]{3,31}" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32) & strings.MinRunes(4) & =~"[A-Za-z0-9][A-Za-z0-9\\-_]{3,31}" & "\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: [...#Tag] | fn.#ListExpression
 
@@ -26,11 +30,30 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// configuration. If you don't specify it, App Runner doesn't enable tracing.
 		TraceConfiguration?: #TraceConfiguration
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key?:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key?: =~"^.+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^.+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

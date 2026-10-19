@@ -7,15 +7,15 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Permission set on private certificate authority
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ACMPCA::Permission"
-	Properties!: close({
+	let properties = close({
 		Actions!: list.MaxItems(3) & list.MinItems(1) & [
 			..."GetCertificate" | "IssueCertificate" | "ListPermissions" | fn.#StringExpression
 		] |
@@ -23,8 +23,29 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		CertificateAuthorityArn!: strings.MaxRunes(200) &
 		strings.MinRunes(5) &
 		=~"^arn:[\\w+=/,.@-]+:acm-pca:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) &
+			strings.MinRunes(5) &
+			=~"^arn:[\\w+=/,.@-]+:acm-pca:[\\w+=/,.@-]*:[0-9]*:[\\w+=,.@-]+(/[\\w+=,.@-]+)*$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Principal!:     strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[^*]+$" | fn.#StringExpression
-		SourceAccount?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]+$" | fn.#StringExpression
+		Principal!: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[^*]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & =~"^[^*]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		SourceAccount?: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

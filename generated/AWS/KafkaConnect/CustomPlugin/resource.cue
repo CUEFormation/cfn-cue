@@ -4,8 +4,7 @@ package CustomPlugin
 
 import schema "github.com/cueformation/cfn-cue/resources/h0eca37390a4279c2:schema"
 
-#Resource:                    schema.#Resource
-#CustomPluginFileDescription: schema.#CustomPluginFileDescription
-#CustomPluginLocation:        schema.#CustomPluginLocation
-#S3Location:                  schema.#S3Location
-#Tag:                         schema.#Tag
+#Resource:             schema.#Resource
+#CustomPluginLocation: schema.#CustomPluginLocation
+#S3Location:           schema.#S3Location
+#Tag:                  schema.#Tag

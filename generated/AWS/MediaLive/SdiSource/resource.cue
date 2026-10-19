@@ -4,8 +4,7 @@ package SdiSource
 
 import schema "github.com/cueformation/cfn-cue/resources/h425baa2d60722ced:schema"
 
-#Resource:       schema.#Resource
-#SdiSourceMode:  schema.#SdiSourceMode
-#SdiSourceState: schema.#SdiSourceState
-#SdiSourceType:  schema.#SdiSourceType
-#Tags:           schema.#Tags
+#Resource:      schema.#Resource
+#SdiSourceMode: schema.#SdiSourceMode
+#SdiSourceType: schema.#SdiSourceType
+#Tags:          schema.#Tags

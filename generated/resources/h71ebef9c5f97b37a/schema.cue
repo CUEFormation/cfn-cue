@@ -6,26 +6,42 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::RefactorSpaces::Route Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RefactorSpaces::Route"
-	Properties!: close({
+	let properties = close({
 		ApplicationIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^app-([0-9A-Za-z]{10}$)" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^app-([0-9A-Za-z]{10}$)" & "\(self)"
+		} |
 		fn.#StringExpression
 		DefaultRoute?: #DefaultRouteInput
 		EnvironmentIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^env-([0-9A-Za-z]{10}$)" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^env-([0-9A-Za-z]{10}$)" & "\(self)"
+		} |
 		fn.#StringExpression
 		RouteType!: #RouteType
 		ServiceIdentifier!: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^svc-([0-9A-Za-z]{10}$)" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(14) & strings.MinRunes(14) & =~"^svc-([0-9A-Za-z]{10}$)" & "\(self)"
+		} |
 		fn.#StringExpression
 		Tags?:         [...#Tag] | fn.#ListExpression
 		UriPathRoute?: #UriPathRouteInput
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #DefaultRouteInput: close({ActivationState!: #RouteActivationState}) | fn.#ObjectExpression
@@ -37,8 +53,23 @@ import base "github.com/cueformation/cfn-cue/template:template"
 #RouteType: "DEFAULT" | "URI_PATH" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: =~"^.+" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^.+" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -48,6 +79,13 @@ fn.#ObjectExpression
 	IncludeChildPaths?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Methods?:           [...#Method] | fn.#ListExpression
 	SourcePath?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^(/([a-zA-Z0-9._:-]+|\\{[a-zA-Z0-9._:-]+\\}))+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		=~"^(/([a-zA-Z0-9._:-]+|\\{[a-zA-Z0-9._:-]+\\}))+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -8,12 +8,10 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -23,18 +21,42 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // via a Content Delivery Network (CDN), like Amazon CloudFront.</p>
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaPackageV2::OriginEndpoint"
-	Properties!: close({
-		ChannelGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		ChannelName!:      strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		ContainerType!:    #ContainerType
-		DashManifests?:    [...#DashManifestConfiguration] | fn.#ListExpression
-		Description?:      strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		ChannelGroupName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ChannelName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		ContainerType!: #ContainerType
+		DashManifests?: [...#DashManifestConfiguration] | fn.#ListExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		ForceEndpointErrorConfiguration?: #ForceEndpointErrorConfiguration
 		HlsManifests?: [...close({
 			ChildManifestName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+			} |
 			fn.#StringExpression
 			FilterConfiguration?: #FilterConfiguration
-			ManifestName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+			ManifestName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+			} |
+			fn.#StringExpression
 			ManifestWindowSeconds?: int |
 				{
 					string &
@@ -83,9 +105,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		fn.#ListExpression
 		LowLatencyHlsManifests?: [...close({
 			ChildManifestName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+			} |
 			fn.#StringExpression
 			FilterConfiguration?: #FilterConfiguration
-			ManifestName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+			ManifestName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+			} |
+			fn.#StringExpression
 			ManifestWindowSeconds?: int |
 				{
 					string &
@@ -132,9 +163,14 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-		MssManifests?:       [...#MssManifestConfiguration] | fn.#ListExpression
-		OriginEndpointName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-		Segment?:            #Segment
+		MssManifests?: [...#MssManifestConfiguration] | fn.#ListExpression
+		OriginEndpointName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Segment?: #Segment
 		StartoverWindowSeconds?: int & <=1209600 & >=0 |
 			{
 				string &
@@ -157,6 +193,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:                 [...#Tag] | fn.#ListExpression
 		UriSeparator?:         #UriSeparator
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AdMarkerDash: "BINARY" | "XML" | fn.#StringExpression
@@ -212,8 +252,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	ServiceLocation?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Url!:             strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	ServiceLocation?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Url!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -222,10 +272,27 @@ fn.#ObjectExpression
 #DashDrmSignaling: "INDIVIDUAL" | "REFERENCED" | fn.#StringExpression
 
 #DashDvbFontDownload: close({
-	FontFamily?: strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	MimeType?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_/-]*[a-zA-Z0-9]$" |
+	FontFamily?: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
 	fn.#StringExpression
-	Url?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	MimeType?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9][a-zA-Z0-9_/-]*[a-zA-Z0-9]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9][a-zA-Z0-9_/-]*[a-zA-Z0-9]$" &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Url?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -246,7 +313,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	ReportingUrl!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	ReportingUrl!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -264,7 +336,12 @@ fn.#ObjectExpression
 	DrmSignaling?:                       #DashDrmSignaling
 	DvbSettings?:                        #DashDvbSettings
 	FilterConfiguration?:                #FilterConfiguration
-	ManifestName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	ManifestName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ManifestWindowSeconds?: int |
 		{
 			string &
@@ -342,12 +419,36 @@ fn.#ObjectExpression
 #DashProfile: "DVB_DASH" | fn.#StringExpression
 
 #DashProgramInformation: close({
-	Copyright?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	LanguageCode?: strings.MaxRunes(5) & strings.MinRunes(2) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*[a-zA-Z0-9]$" |
+	Copyright?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
 	fn.#StringExpression
-	MoreInformationUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Source?:             strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	Title?:              strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+	LanguageCode?: strings.MaxRunes(5) & strings.MinRunes(2) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*[a-zA-Z0-9]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(5) & strings.MinRunes(2) & =~"^[a-zA-Z0-9][a-zA-Z0-9_-]*[a-zA-Z0-9]$" & "\(self)"
+	} |
+	fn.#StringExpression
+	MoreInformationUrl?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Source?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Title?: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -360,8 +461,13 @@ fn.#ObjectExpression
 #DashTtmlProfile: "IMSC_1" | "EBU_TT_D_101" | fn.#StringExpression
 
 #DashUtcTiming: close({
-	TimingMode?:   #DashUtcTimingMode
-	TimingSource?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	TimingMode?: #DashUtcTimingMode
+	TimingSource?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -379,6 +485,10 @@ fn.#ObjectExpression
 		"FALSE" |
 		fn.#BooleanExpression
 	ConstantInitializationVector?: strings.MaxRunes(32) & strings.MinRunes(32) & =~"^[0-9a-fA-F]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(32) & strings.MinRunes(32) & =~"^[0-9a-fA-F]+$" & "\(self)"
+	} |
 	fn.#StringExpression
 	EncryptionMethod!: #EncryptionMethod
 	KeyRotationIntervalSeconds?: int & <=31536000 & >=300 |
@@ -421,11 +531,21 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #FilterConfiguration: close({
-	ClipStartTime?:  time.Time | fn.#StringExpression
-	DrmSettings?:    strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	End?:            time.Time | fn.#StringExpression
-	ManifestFilter?: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
-	Start?:          time.Time | fn.#StringExpression
+	ClipStartTime?: time.Time | fn.#StringExpression
+	DrmSettings?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	End?: time.Time | fn.#StringExpression
+	ManifestFilter?: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Start?: time.Time | fn.#StringExpression
 	TimeDelaySeconds?: int & <=1209600 & >=0 |
 		{
 			string &
@@ -448,92 +568,17 @@ fn.#ObjectExpression
 #ForceEndpointErrorConfiguration: close({EndpointErrorConditions?: [...#EndpointErrorCondition] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
-#HlsManifestConfiguration: close({
-	ChildManifestName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	FilterConfiguration?: #FilterConfiguration
-	ManifestName!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	ManifestWindowSeconds?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ProgramDateTimeIntervalSeconds?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ScteHls?:                #ScteHls
-	StartTag?:               #StartTag
-	UriPathType?:            #UriPathType
-	Url?:                    string | fn.#StringExpression
-	UrlEncodeChildManifest?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-}) |
-fn.#ObjectExpression
-
 #IsmEncryptionMethod: "CENC" | fn.#StringExpression
-
-#LowLatencyHlsManifestConfiguration: close({
-	ChildManifestName?:   strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	FilterConfiguration?: #FilterConfiguration
-	ManifestName!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
-	ManifestWindowSeconds?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ProgramDateTimeIntervalSeconds?: int |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatInt(
-						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
-							int,
-						10,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-	ScteHls?:                #ScteHls
-	StartTag?:               #StartTag
-	UriPathType?:            #UriPathType
-	Url?:                    string | fn.#StringExpression
-	UrlEncodeChildManifest?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-}) |
-fn.#ObjectExpression
 
 #MssManifestConfiguration: close({
 	FilterConfiguration?: #FilterConfiguration
 	ManifestLayout?:      #MssManifestLayout
-	ManifestName!:        strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" | fn.#StringExpression
+	ManifestName!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	ManifestWindowSeconds?: int |
 		{
 			string &
@@ -639,7 +684,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	SegmentName?:              strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" | fn.#StringExpression
+	SegmentName?: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	TsIncludeDvbSubtitles?:    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	TsUseAudioRenditionGroup?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
@@ -649,13 +699,37 @@ fn.#ObjectExpression
 	CertificateArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:([^:\\n]+):acm:([^:\\n]+):([0-9]+):certificate/[a-zA-Z0-9-_]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:([^:\\n]+):acm:([^:\\n]+):([0-9]+):certificate/[a-zA-Z0-9-_]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	DrmSystems!:                      list.MaxItems(4) & list.MinItems(1) & [...#DrmSystem] | fn.#ListExpression
 	EncryptionContractConfiguration!: #EncryptionContractConfiguration
-	ResourceId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_-]+$" | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	ResourceId!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z_-]+$" & "\(self)"
+	} |
 	fn.#StringExpression
-	Url!: strings.MaxRunes(1024) & strings.MinRunes(1) | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Url!: strings.MaxRunes(1024) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -686,8 +760,8 @@ fn.#ObjectExpression
 #StreamNameOutputMode: "INDEX" | "PASSTHROUGH_NAME" | fn.#StringExpression
 
 #Tag: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

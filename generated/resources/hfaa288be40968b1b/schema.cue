@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -14,8 +14,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *User Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SQS::QueuePolicy"
-	Properties!: close({
-		PolicyDocument!: fn.#Object & {...} | string | fn.#StringObjectExpression
-		Queues!:         [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		PolicyDocument!: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		Queues!:         [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

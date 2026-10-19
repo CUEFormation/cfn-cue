@@ -4,7 +4,5 @@ package DirectConnectGatewayAttachment
 
 import schema "github.com/cueformation/cfn-cue/resources/hbd6bdbea81a7d09d:schema"
 
-#Resource:                           schema.#Resource
-#ProposedNetworkFunctionGroupChange: schema.#ProposedNetworkFunctionGroupChange
-#ProposedSegmentChange:              schema.#ProposedSegmentChange
-#Tag:                                schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

@@ -7,19 +7,122 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Route53::RecordSet.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Route53::RecordSet"
-	Properties!: close({
+	let properties = matchN(2, [
+		matchIf({
+			AliasTarget!: null | bool | number | string | list.MinItems(1) | {...}
+			...
+		}, {
+			TTL?: error("disallowed")
+			...
+		}, _),
+		matchIf({
+			Type?: "A"
+			...
+		}, {
+			ResourceRecords?: null | bool | number | string | [...#CfnLintE3023ARecord] | {...} | fn.#ValueExpression
+			...
+		}, _) & matchIf({
+			Type?: "AAAA"
+			...
+		}, {
+			ResourceRecords?: null | bool | number | string | [...#CfnLintE3023AAAARecord] | {...} | fn.#ValueExpression
+			...
+		}, _) & matchIf({
+			Type?: "CAA"
+			...
+		}, {
+			ResourceRecords?: null | bool | number | string | [...#CfnLintE3023CAARecord] | {...} | fn.#ValueExpression
+			...
+		}, _) & matchIf({
+			Type?: "CNAME"
+			...
+		}, {
+			ResourceRecords?: null |
+			bool |
+			number |
+			string |
+			list.MaxItems(1) & [...#CfnLintE3023CNAMERecord] |
+			{...} |
+			fn.#ValueExpression
+			...
+		}, _) & matchIf({
+			Type?: "DS"
+			...
+		}, {
+			ResourceRecords?: null | bool | number | string | [...#CfnLintE3023DSRecord] | {...} | fn.#ValueExpression
+			...
+		}, _) & matchIf({
+			Type?: "MX"
+			...
+		}, {
+			ResourceRecords?: null | bool | number | string | [...#CfnLintE3023MXRecord] | {...} | fn.#ValueExpression
+			...
+		}, _) & matchIf({
+			Type?: "NAPTR"
+			...
+		}, {
+			ResourceRecords?: null |
+			bool |
+			number |
+			string |
+			[...#CfnLintE3023NAPTRRecord] |
+			{...} |
+			fn.#ValueExpression
+			...
+		}, _) & matchIf({
+			Type?: "NS"
+			...
+		}, {
+			ResourceRecords?: null | bool | number | string | [...#CfnLintE3023NSRecord] | {...} | fn.#ValueExpression
+			...
+		}, _) & matchIf({
+			Type?: "PTR"
+			...
+		}, {
+			ResourceRecords?: null | bool | number | string | [...#CfnLintE3023PTRRecord] | {...} | fn.#ValueExpression
+			...
+		}, _) & matchIf({
+			Type?: "SOA"
+			...
+		}, {
+			ResourceRecords?: null |
+			bool |
+			number |
+			string |
+			list.MaxItems(1) & [...#CfnLintE3023SOARecord] |
+			{...} |
+			fn.#ValueExpression
+			...
+		}, _) & matchIf({
+			Type?: "SPF"
+			...
+		}, {
+			ResourceRecords?: null | bool | number | string | [...#CfnLintE3023SPFRecord] | {...} | fn.#ValueExpression
+			...
+		}, _) & matchIf({
+			Type?: "SRV"
+			...
+		}, {
+			ResourceRecords?: null | bool | number | string | [...#CfnLintE3023SRVRecord] | {...} | fn.#ValueExpression
+			...
+		}, _) & matchIf({
+			Type?: "TXT"
+			...
+		}, {
+			ResourceRecords?: null | bool | number | string | [...#CfnLintE3023TXTRecord] | {...} | fn.#ValueExpression
+			...
+		}, _)
+	]) & (close({
 		// Alias resource record sets only: Information about the AWS resource, such as
 		// a CloudFront distribution or an Amazon S3 bucket, that you want to route
 		// traffic to.
@@ -103,11 +206,20 @@ import base "github.com/cueformation/cfn-cue/template:template"
 	}) & (matchN(>=1, [{HostedZoneId!: _}, {HostedZoneName!: _}]) & matchN(
 		>=1,
 		[{HostedZoneId!: _}, {HostedZoneName!: _}],
-	))
+	)))
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AliasTarget: close({
-	DNSName!:              strings.MaxRunes(1024) | fn.#StringExpression
+	DNSName!: strings.MaxRunes(1024) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & "\(self)"
+	} |
+	fn.#StringExpression
 	EvaluateTargetHealth?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
 	// The value used depends on where you want to route traffic.
@@ -115,26 +227,225 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
+#CfnLintE3023AAAARecord: fn.#IPv6Address | fn.#ValueExpression
+
+#CfnLintE3023ARecord: fn.#IPv4Address | fn.#ValueExpression
+
+#CfnLintE3023CAARecord: null |
+bool |
+"true" |
+"True" |
+"TRUE" |
+"false" |
+"False" |
+"FALSE" |
+number |
+{
+	string &
+		=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+		cfnScalarStrings.Repeat(
+			self,
+			len(cfnScalarStrconv.FormatFloat(
+				cfnScalarStrconv.ParseFloat(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1), 64) &
+					number,
+				"g",
+				-1,
+				64,
+			))*0 + 1,
+		)
+} |
+=~"^(0|128)\\s([a-zA-Z0-9]+)\\s(\".+\")$" |
+[...] |
+{...} |
+fn.#ValueExpression
+
+#CfnLintE3023CNAMERecord: #CfnLintE3023DomainName |
+null |
+bool |
+"true" |
+"True" |
+"TRUE" |
+"false" |
+"False" |
+"FALSE" |
+number |
+{
+	string &
+		=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+		cfnScalarStrings.Repeat(
+			self,
+			len(cfnScalarStrconv.FormatFloat(
+				cfnScalarStrconv.ParseFloat(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1), 64) &
+					number,
+				"g",
+				-1,
+				64,
+			))*0 + 1,
+		)
+} |
+=~"^.*\\.acm-validations\\.aws\\.?$" |
+[...] |
+{...} |
+fn.#ValueExpression
+
+#CfnLintE3023DSRecord: fn.#Value
+
+#CfnLintE3023DomainName: null |
+bool |
+"true" |
+"True" |
+"TRUE" |
+"false" |
+"False" |
+"FALSE" |
+number |
+{
+	string &
+		=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+		cfnScalarStrings.Repeat(
+			self,
+			len(cfnScalarStrconv.FormatFloat(
+				cfnScalarStrconv.ParseFloat(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1), 64) &
+					number,
+				"g",
+				-1,
+				64,
+			))*0 + 1,
+		)
+} |
+=~"^[a-zA-Z0-9\\!\"\\#\\$\\%\\&\\'\\(\\)\\*\\+\\,-\\/\\:\\;\\<\\=\\>\\?\\@\\[\\\\\\]\\^\\_\\`\\{\\|\\}\\~\\.]+$" |
+[...] |
+{...} |
+fn.#ValueExpression
+
+#CfnLintE3023MXRecord: null |
+bool |
+"true" |
+"True" |
+"TRUE" |
+"false" |
+"False" |
+"FALSE" |
+number |
+{
+	string &
+		=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+		cfnScalarStrings.Repeat(
+			self,
+			len(cfnScalarStrconv.FormatFloat(
+				cfnScalarStrconv.ParseFloat(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1), 64) &
+					number,
+				"g",
+				-1,
+				64,
+			))*0 + 1,
+		)
+} |
+=~"^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{1-3}|65[0-4][0-9]{1-2}|655[0-2][0-9]|6553[0-5])\\s[a-zA-Z0-9\\!\"\\#\\$\\%\\&\\'\\(\\)\\*\\+\\,-\\/\\:\\;\\<\\=\\>\\?\\@\\[\\\\\\]\\^\\_\\`\\{\\|\\}\\~\\.]+$" |
+[...] |
+{...} |
+fn.#ValueExpression
+
+#CfnLintE3023NAPTRRecord: fn.#Value
+
+#CfnLintE3023NSRecord: #CfnLintE3023DomainName
+
+#CfnLintE3023PTRRecord: #CfnLintE3023DomainName
+
+#CfnLintE3023SOARecord: fn.#Value
+
+#CfnLintE3023SPFRecord: fn.#Value
+
+#CfnLintE3023SRVRecord: fn.#Value
+
+#CfnLintE3023TXTRecord: null |
+bool |
+"true" |
+"True" |
+"TRUE" |
+"false" |
+"False" |
+"FALSE" |
+number |
+{
+	string &
+		=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
+		cfnScalarStrings.Repeat(
+			self,
+			len(cfnScalarStrconv.FormatFloat(
+				cfnScalarStrconv.ParseFloat(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1), 64) &
+					number,
+				"g",
+				-1,
+				64,
+			))*0 + 1,
+		)
+} |
+=~"^(\"[^\"]{1,255}\" *)*\"[^\"]{1,255}\"$" |
+[...] |
+{...} |
+fn.#ValueExpression
+
 #CidrRoutingConfig: close({
-	CollectionId!: =~"^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$" | fn.#StringExpression
-	LocationName!: strings.MaxRunes(16) & strings.MinRunes(1) & =~"[0-9A-Za-z_\\-\\*]+" | fn.#StringExpression
+	CollectionId!: =~"^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$" |
+	{
+		number | bool
+		_cfnString: =~"^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$" & "\(self)"
+	} |
+	fn.#StringExpression
+	LocationName!: strings.MaxRunes(16) & strings.MinRunes(1) & =~"[0-9A-Za-z_\\-\\*]+" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(16) & strings.MinRunes(1) & =~"[0-9A-Za-z_\\-\\*]+" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Comment: strings.MaxRunes(256) | fn.#StringExpression
+#Comment: strings.MaxRunes(256) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & "\(self)"
+} |
+fn.#StringExpression
 
 #Coordinates: close({
-	Latitude!:  =~"[-+]?[0-9]{1,2}(\\.[0-9]{0,2})?" | fn.#StringExpression
-	Longitude!: =~"[-+]?[0-9]{1,3}(\\.[0-9]{0,2})?" | fn.#StringExpression
+	Latitude!: =~"[-+]?[0-9]{1,2}(\\.[0-9]{0,2})?" |
+	{
+		number | bool
+		_cfnString: =~"[-+]?[0-9]{1,2}(\\.[0-9]{0,2})?" & "\(self)"
+	} |
+	fn.#StringExpression
+	Longitude!: =~"[-+]?[0-9]{1,3}(\\.[0-9]{0,2})?" |
+	{
+		number | bool
+		_cfnString: =~"[-+]?[0-9]{1,3}(\\.[0-9]{0,2})?" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Failover: "PRIMARY" | "SECONDARY" | fn.#StringExpression
 
 #GeoLocation: close({
-	ContinentCode?:   strings.MaxRunes(2) & strings.MinRunes(2) | fn.#StringExpression
-	CountryCode?:     strings.MaxRunes(2) & strings.MinRunes(1) | fn.#StringExpression
-	SubdivisionCode?: strings.MaxRunes(3) & strings.MinRunes(1) | fn.#StringExpression
+	ContinentCode?: strings.MaxRunes(2) & strings.MinRunes(2) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2) & strings.MinRunes(2) & "\(self)"
+	} |
+	fn.#StringExpression
+	CountryCode?: strings.MaxRunes(2) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	SubdivisionCode?: strings.MaxRunes(3) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(3) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	if ContinentCode != _|_ if ContinentCode."Fn::If" == _|_ {
 		CountryCode?: close({"Fn::If": _}) | error(
 			"CountryCode cannot be used with ContinentCode; set exactly one of ContinentCode, CountryCode",
@@ -144,7 +455,12 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #GeoProximityLocation: close({
-	AWSRegion?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	AWSRegion?: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	Bias?: int & <=99 & >=-99 |
 		{
 			string &
@@ -163,8 +479,13 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 
 	// Contains the longitude and latitude for a geographic region.
-	Coordinates?:    #Coordinates
-	LocalZoneGroup?: strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+	Coordinates?: #Coordinates
+	LocalZoneGroup?: strings.MaxRunes(64) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	if AWSRegion != _|_ if AWSRegion."Fn::If" == _|_ {
 		LocalZoneGroup?: close({"Fn::If": _}) | error(
 			"LocalZoneGroup cannot be used with AWSRegion; set exactly one of AWSRegion, LocalZoneGroup, Coordinates",
@@ -181,25 +502,56 @@ fn.#ObjectExpression
 }) & matchN(>=1, [{AWSRegion!: _}, {LocalZoneGroup!: _}, {Coordinates!: _}]) |
 fn.#ObjectExpression
 
-#HealthCheckId: strings.MaxRunes(64) | fn.#StringExpression
+#HealthCheckId: strings.MaxRunes(64) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(64) & "\(self)"
+} |
+fn.#StringExpression
 
-#HostedZoneId: strings.MaxRunes(44) | fn.#StringExpression
+#HostedZoneId: strings.MaxRunes(44) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(44) & "\(self)"
+} |
+fn.#StringExpression
 
-#HostedZoneName: strings.MaxRunes(256) | fn.#StringExpression
+#HostedZoneName: strings.MaxRunes(256) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(256) & "\(self)"
+} |
+fn.#StringExpression
 
 #MultiValueAnswer: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 
-#Name: strings.MaxRunes(1024) | fn.#StringExpression
+#Name: strings.MaxRunes(1024) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(1024) & "\(self)"
+} |
+fn.#StringExpression
 
-#Region: string | fn.#StringExpression
+#Region: string | number | bool | fn.#StringExpression
 
-#ResourceRecords: list.UniqueItems() & [...strings.MaxRunes(4000) | fn.#StringExpression] | fn.#ListExpression
+#ResourceRecords: list.UniqueItems() & [...strings.MaxRunes(4000) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(4000) & "\(self)"
+} |
+fn.#StringExpression] |
+fn.#ListExpression
 
-#SetIdentifier: strings.MaxRunes(128) & strings.MinRunes(0) | fn.#StringExpression
+#SetIdentifier: strings.MaxRunes(128) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression
 
-#TTL: string | fn.#StringExpression
+#TTL: string | number | bool | fn.#StringExpression
 
-#Type: string | fn.#StringExpression
+#Type: string | number | bool | fn.#StringExpression
 
 #Weight: int |
 	{

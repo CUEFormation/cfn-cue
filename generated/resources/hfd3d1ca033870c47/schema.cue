@@ -3,25 +3,29 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The AWS::EC2::TransitGatewayConnect type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::TransitGatewayConnect"
-	Properties!: close({
+	let properties = close({
 		// The Connect attachment options.
 		Options!:                             #TransitGatewayConnectOptions
 		Tags?:                                [...#Tag] | fn.#ListExpression
-		TransportTransitGatewayAttachmentId!: string | fn.#StringExpression
+		TransportTransitGatewayAttachmentId!: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

@@ -3,21 +3,24 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for for AWS::EC2::TrafficMirrorFilterRule
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::TrafficMirrorFilterRule"
-	Properties!: close({
-		Description?:          string | fn.#StringExpression
-		DestinationCidrBlock!: string | fn.#StringExpression
+	let properties = close({
+		Description?: string | number | bool | fn.#StringExpression
+		DestinationCidrBlock!: fn.#IPv4Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv4Network & string & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The destination port range.
 		DestinationPortRange?: #TrafficMirrorPortRange
@@ -56,7 +59,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		SourceCidrBlock!: string | fn.#StringExpression
+		SourceCidrBlock!: fn.#IPv4Network & string |
+		{
+			number | bool
+			_cfnString: fn.#IPv4Network & string & "\(self)"
+		} |
+		fn.#StringExpression
 
 		// The source port range.
 		SourcePortRange?: #TrafficMirrorPortRange
@@ -64,17 +72,26 @@ import base "github.com/cueformation/cfn-cue/template:template"
 
 		// The direction of traffic (ingress/egress).
 		TrafficDirection!:      #TrafficDirection
-		TrafficMirrorFilterId!: string | fn.#StringExpression
+		TrafficMirrorFilterId!: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#TrafficDirection: =~"(?i)^(?:egress|ingress)$" | fn.#StringExpression
+#TrafficDirection: =~"(?i)^(?:egress|ingress)$" |
+{
+	number | bool
+	_cfnString: =~"(?i)^(?:egress|ingress)$" & "\(self)"
+} |
+fn.#StringExpression
 
 #TrafficMirrorPortRange: close({
 	FromPort!: int |
@@ -108,4 +125,9 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#TrafficMirrorRuleAction: =~"(?i)^(?:accept|reject)$" | fn.#StringExpression
+#TrafficMirrorRuleAction: =~"(?i)^(?:accept|reject)$" |
+{
+	number | bool
+	_cfnString: =~"(?i)^(?:accept|reject)$" & "\(self)"
+} |
+fn.#StringExpression

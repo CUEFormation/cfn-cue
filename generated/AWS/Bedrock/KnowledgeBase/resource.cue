@@ -21,7 +21,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h2170ed174e12bd76:schem
 #KendraIndexArn:                                        schema.#KendraIndexArn
 #KendraKnowledgeBaseConfiguration:                      schema.#KendraKnowledgeBaseConfiguration
 #KnowledgeBaseConfiguration:                            schema.#KnowledgeBaseConfiguration
-#KnowledgeBaseStatus:                                   schema.#KnowledgeBaseStatus
 #KnowledgeBaseStorageType:                              schema.#KnowledgeBaseStorageType
 #KnowledgeBaseType:                                     schema.#KnowledgeBaseType
 #ManagedKnowledgeBaseConfiguration:                     schema.#ManagedKnowledgeBaseConfiguration
@@ -49,8 +48,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h2170ed174e12bd76:schem
 #QueryGenerationTables:                                 schema.#QueryGenerationTables
 #RdsConfiguration:                                      schema.#RdsConfiguration
 #RdsFieldMapping:                                       schema.#RdsFieldMapping
-#RedisEnterpriseCloudConfiguration:                     schema.#RedisEnterpriseCloudConfiguration
-#RedisEnterpriseCloudFieldMapping:                      schema.#RedisEnterpriseCloudFieldMapping
 #RedshiftClusterIdentifier:                             schema.#RedshiftClusterIdentifier
 #RedshiftConfiguration:                                 schema.#RedshiftConfiguration
 #RedshiftDatabase:                                      schema.#RedshiftDatabase

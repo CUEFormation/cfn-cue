@@ -6,12 +6,10 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,21 +18,25 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // internet. The stage acts as an environment.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGateway::Deployment"
-	Properties!: close({
+	let properties = close({
 		DeploymentCanarySettings?: #DeploymentCanarySettings
-		Description?:              string | fn.#StringExpression
-		RestApiId!:                string | fn.#StringExpression
+		Description?:              string | number | bool | fn.#StringExpression
+		RestApiId!:                string | number | bool | fn.#StringExpression
 
 		// The description of the Stage resource for the Deployment resource to create.
 		// To specify a stage description, you must also provide a stage name.
 		StageDescription?: #StageDescription
-		StageName?:        string | fn.#StringExpression
+		StageName?:        string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AccessLogSetting: close({
-	DestinationArn?: string | fn.#StringExpression
-	Format?:         string | fn.#StringExpression
+	DestinationArn?: string | number | bool | fn.#StringExpression
+	Format?:         string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -60,7 +62,12 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	StageVariableOverrides?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	UseStageCache?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
@@ -88,7 +95,12 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	StageVariableOverrides?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 	UseStageCache?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
@@ -112,10 +124,10 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	CachingEnabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	DataTraceEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	HttpMethod?:       string | fn.#StringExpression
-	LoggingLevel?:     string | fn.#StringExpression
+	HttpMethod?:       string | number | bool | fn.#StringExpression
+	LoggingLevel?:     string | number | bool | fn.#StringExpression
 	MetricsEnabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	ResourcePath?:     string | fn.#StringExpression
+	ResourcePath?:     string | number | bool | fn.#StringExpression
 	ThrottlingBurstLimit?: int |
 		{
 			string &
@@ -156,7 +168,7 @@ fn.#ObjectExpression
 	// Specifies settings for logging access in this stage.
 	AccessLogSetting?:    #AccessLogSetting
 	CacheClusterEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	CacheClusterSize?:    string | fn.#StringExpression
+	CacheClusterSize?:    string | number | bool | fn.#StringExpression
 	CacheDataEncrypted?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	CacheTtlInSeconds?: int |
 		{
@@ -176,11 +188,11 @@ fn.#ObjectExpression
 
 	// Specifies settings for the canary deployment in this stage.
 	CanarySetting?:        #CanarySetting
-	ClientCertificateId?:  string | fn.#StringExpression
+	ClientCertificateId?:  string | number | bool | fn.#StringExpression
 	DataTraceEnabled?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Description?:          string | fn.#StringExpression
-	DocumentationVersion?: string | fn.#StringExpression
-	LoggingLevel?:         string | fn.#StringExpression
+	Description?:          string | number | bool | fn.#StringExpression
+	DocumentationVersion?: string | number | bool | fn.#StringExpression
+	LoggingLevel?:         string | number | bool | fn.#StringExpression
 	MethodSettings?:       list.UniqueItems() & [...#MethodSetting] | fn.#ListExpression
 	MetricsEnabled?:       bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Tags?:                 [...#Tag] | fn.#ListExpression
@@ -220,13 +232,18 @@ fn.#ObjectExpression
 	TracingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Variables?: close({
 
-		{[=~"[a-zA-Z0-9]+"]: string | fn.#StringExpression}}) |
+		{[=~"[a-zA-Z0-9]+"]: string | number | bool | fn.#StringExpression}
+
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

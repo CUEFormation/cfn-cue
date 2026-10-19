@@ -7,31 +7,57 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS::RDS::DBProxyEndpoint.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::RDS::DBProxyEndpoint"
-	Properties!: close({
-		DBProxyEndpointName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-z]*" | fn.#StringExpression
-		DBProxyName!:         strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-z]*" | fn.#StringExpression
+	let properties = close({
+		DBProxyEndpointName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-z]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-z]*" & "\(self)"
+		} |
+		fn.#StringExpression
+		DBProxyName!: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-z]*" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & =~"[0-z]*" & "\(self)"
+		} |
+		fn.#StringExpression
 		EndpointNetworkType?: "IPV4" | "IPV6" | "DUAL" | fn.#StringExpression
 		Tags?:                [...#TagFormat] | fn.#ListExpression
 		TargetRole?:          "READ_WRITE" | "READ_ONLY" | fn.#StringExpression
-		VpcSecurityGroupIds?: list.MinItems(1) & [
-			...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-				fn.#StringExpression
-		] |
-			fn.#ListExpression
-		VpcSubnetIds!: list.MinItems(2) & [...string | fn.#StringExpression] | fn.#ListExpression
+		VpcSecurityGroupIds?: list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+		{
+			number | bool
+			_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+		} |
+		fn.#StringExpression] |
+		fn.#ListExpression
+		VpcSubnetIds!: list.MinItems(2) & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #TagFormat: close({
-	Key?:   strings.MaxRunes(128) & =~"(\\w|\\d|\\s|\\\\|-|\\.:=+-)*" | fn.#StringExpression
-	Value?: strings.MaxRunes(128) & =~"(\\w|\\d|\\s|\\\\|-|\\.:=+-)*" | fn.#StringExpression
+	Key?: strings.MaxRunes(128) & =~"(\\w|\\d|\\s|\\\\|-|\\.:=+-)*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & =~"(\\w|\\d|\\s|\\\\|-|\\.:=+-)*" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: strings.MaxRunes(128) & =~"(\\w|\\d|\\s|\\\\|-|\\.:=+-)*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & =~"(\\w|\\d|\\s|\\\\|-|\\.:=+-)*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

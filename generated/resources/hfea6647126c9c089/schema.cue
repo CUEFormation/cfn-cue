@@ -6,15 +6,15 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::IoT::TopicRuleDestination
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoT::TopicRuleDestination"
-	Properties?: close({
+	let properties = close({
 		// HTTP URL destination properties.
 		HttpUrlProperties?: #HttpUrlDestinationSummary
 
@@ -27,31 +27,46 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// VPC destination properties.
 		VpcProperties?: #VpcDestinationProperties
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
-#HttpUrlDestinationSummary: close({ConfirmationUrl?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#HttpUrlDestinationSummary: close({ConfirmationUrl?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #InfluxDBDestinationProperties: close({
-	Endpoint!:        string | fn.#StringExpression
-	InfluxDBVersion!: string | fn.#StringExpression
-	SecretId!:        string | fn.#StringExpression
-	SecretKey?:       string | fn.#StringExpression
-	SecretType?:      string | fn.#StringExpression
+	Endpoint!:        string | number | bool | fn.#StringExpression
+	InfluxDBVersion!: string | number | bool | fn.#StringExpression
+	SecretId!:        string | number | bool | fn.#StringExpression
+	SecretKey?:       string | number | bool | fn.#StringExpression
+	SecretType?:      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TopicRuleDestinationStatus: "ENABLED" | "IN_PROGRESS" | "DISABLED" | fn.#StringExpression
 
 #VpcDestinationProperties: close({
-	RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	SecurityGroups?: list.UniqueItems() & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SubnetIds?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SecurityGroups?: list.UniqueItems() & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SubnetIds?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

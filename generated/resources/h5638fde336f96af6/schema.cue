@@ -7,17 +7,27 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::Connect::Vocabulary
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::Vocabulary"
-	Properties!: close({
-		Content!:    strings.MaxRunes(60000) & strings.MinRunes(1) | fn.#StringExpression
-		InstanceId!: strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		Content!: strings.MaxRunes(60000) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(60000) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		InstanceId!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		LanguageCode!: "ar-AE" |
 			"de-CH" |
 			"de-DE" |
@@ -52,13 +62,41 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"sv-SE" |
 			"tl-PH" |
 			fn.#StringExpression
-		Tags?:           list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-		VocabularyName!: strings.MaxRunes(140) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
+		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		VocabularyName!: strings.MaxRunes(140) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(140) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" &
+	matchN(0, [=~"^(?:aws:)"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

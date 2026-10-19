@@ -7,12 +7,10 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // describes a group of LocalGateway VirtualInterfaces
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::LocalGatewayVirtualInterfaceGroup"
-	Properties!: close({
+	let properties = close({
 		LocalBgpAsn?: int |
 			{
 				string &
@@ -53,15 +51,27 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		LocalGatewayId!: string | fn.#StringExpression
+		LocalGatewayId!: string | number | bool | fn.#StringExpression
 		Tags?:           list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key?:   strings.MaxRunes(127) & strings.MinRunes(1) | fn.#StringExpression
-	Value?: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+	Key?: matchN(0, [=~"^(?:aws:.*)"]) & string & strings.MaxRunes(127) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: matchN(0, [=~"^(?:aws:.*)"]) & string & strings.MaxRunes(127) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value?: matchN(0, [=~"^(?:aws:.*)"]) & string & strings.MaxRunes(255) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: matchN(0, [=~"^(?:aws:.*)"]) & string & strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#Tags: list.UniqueItems() & [...#Tag] | fn.#ListExpression

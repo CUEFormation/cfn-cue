@@ -3,26 +3,34 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaConnect::FlowSource
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaConnect::FlowSource"
-	Properties!: close({
+	let properties = close({
 		// The type of encryption that is used on the content ingested from this source.
 		Decryption?:  #Encryption
-		Description!: string | fn.#StringExpression
+		Description!: string | number | bool | fn.#StringExpression
 		EntitlementArn?: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:entitlement:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:entitlement:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 		FlowArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
-			fn.#StringExpression
+		{
+			number | bool
+			_cfnString: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:flow:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 
 		// The source configuration for cloud flows receiving a stream from a bridge.
 		GatewayBridgeSource?: #GatewayBridgeSource
@@ -90,7 +98,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Name!:     string | fn.#StringExpression
+		Name!:     string | number | bool | fn.#StringExpression
 		Protocol?: "zixi-push" | "rtp-fec" | "rtp" | "rist" | "srt-listener" | "srt-caller" | fn.#StringExpression
 		SenderControlPort?: int |
 			{
@@ -108,8 +116,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		SenderIpAddress?:       string | fn.#StringExpression
-		SourceListenerAddress?: string | fn.#StringExpression
+		SenderIpAddress?:       string | number | bool | fn.#StringExpression
+		SourceListenerAddress?: string | number | bool | fn.#StringExpression
 		SourceListenerPort?: int |
 			{
 				string &
@@ -126,32 +134,51 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		StreamId?:         string | fn.#StringExpression
+		StreamId?:         string | number | bool | fn.#StringExpression
 		Tags?:             [...#Tag] | fn.#ListExpression
-		VpcInterfaceName?: string | fn.#StringExpression
-		WhitelistCidr?:    string | fn.#StringExpression
+		VpcInterfaceName?: string | number | bool | fn.#StringExpression
+		WhitelistCidr?:    string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Encryption: close({
 	Algorithm?:                    "aes128" | "aes192" | "aes256" | fn.#StringExpression
-	ConstantInitializationVector?: string | fn.#StringExpression
-	DeviceId?:                     string | fn.#StringExpression
+	ConstantInitializationVector?: string | number | bool | fn.#StringExpression
+	DeviceId?:                     string | number | bool | fn.#StringExpression
 	KeyType?:                      "speke" | "static-key" | "srt-password" | fn.#StringExpression
-	Region?:                       string | fn.#StringExpression
-	ResourceId?:                   string | fn.#StringExpression
-	RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	Region?:                       string | number | bool | fn.#StringExpression
+	ResourceId?:                   string | number | bool | fn.#StringExpression
+	RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			=~"^arn:(aws[a-zA-Z-]*):iam::[0-9]{12}:role/[a-zA-Z0-9_+=,.@-]+$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 	SecretArn?: =~"^arn:(aws[a-zA-Z-]*):secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:[a-zA-Z0-9/_+=.@-]+$" |
-		fn.#StringExpression
-	Url?: string | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:(aws[a-zA-Z-]*):secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:[a-zA-Z0-9/_+=.@-]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Url?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #GatewayBridgeSource: close({
 	BridgeArn!: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:bridge:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" |
-		fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:(aws[a-zA-Z-]*):mediaconnect:[a-z0-9-]+:[0-9]{12}:bridge:[a-zA-Z0-9-]+:[a-zA-Z0-9_-]+$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
 
 	// The name of the VPC interface attachment to use for this bridge source.
 	VpcInterfaceAttachment?: #VpcInterfaceAttachment
@@ -159,9 +186,10 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#VpcInterfaceAttachment: close({VpcInterfaceName?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#VpcInterfaceAttachment: close({VpcInterfaceName?: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression

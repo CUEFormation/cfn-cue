@@ -35,9 +35,9 @@ import (
 		NetworkPerformanceOptions?:        #InstanceNetworkPerformanceOptionsRequest
 		Placement?:                        #Placement
 		PrivateDnsNameOptions?:            #PrivateDnsNameOptionsRequest
-		SubnetId?:                         =~"^subnet-[0-9a-zA-Z]{1,63}$"
-		TagSpecifications?:                list.MaxItems(30) & [...#TagSpecification]
-		UserData?:                         strings.MaxRunes(16000) & strings.MinRunes(0)
+		SubnetId?:          =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & =~"^subnet-[0-9a-zA-Z]{1,63}$"
+		TagSpecifications?: list.MaxItems(30) & [...#TagSpecification]
+		UserData?:          strings.MaxRunes(16000) & strings.MinRunes(0)
 	})
 
 	// The current state of the workspace instance
@@ -88,7 +88,9 @@ import (
 #EbsBlockDevice: close({
 	Encrypted?: bool
 	Iops?:      int & >=0
-	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" | string) & (strings.MaxRunes(128) & strings.MinRunes(0))
+	KmsKeyId?: (=~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+		=~"^([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|mrk-[0-9a-f]{32}|alias/[a-zA-Z0-9/_-]+)\\n?$" |
+		=~"^alias/[a-zA-Z0-9:/_-]+\\n?$") & (strings.MaxRunes(128) & strings.MinRunes(0))
 	Throughput?: int & >=0
 	VolumeSize?: int & >=0
 	VolumeType?: "standard" | "io1" | "io2" | "gp2" | "sc1" | "st1" | "gp3"
@@ -129,7 +131,7 @@ import (
 	Description?: strings.MaxRunes(1000) & strings.MinRunes(0) & =~"^[\\S\\s]*$"
 	DeviceIndex?: int & >=0
 	Groups?:      [...=~"^sg-[0-9a-zA-Z]{1,63}$"]
-	SubnetId?:    =~"^subnet-[0-9a-zA-Z]{1,63}$"
+	SubnetId?:    =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & =~"^subnet-[0-9a-zA-Z]{1,63}$"
 })
 
 #InstanceNetworkPerformanceOptionsRequest: close({BandwidthWeighting?: "default" | "vpc-1" | "ebs-1"})

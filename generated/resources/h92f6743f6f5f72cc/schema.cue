@@ -8,33 +8,48 @@ import (
 	"list"
 	"time"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::IoTFleetWise::Campaign Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTFleetWise::Campaign"
-	Properties!: close({
+	let properties = close({
 		Action?:                 #UpdateCampaignAction
 		CollectionScheme!:       #CollectionScheme
 		Compression?:            #Compression
 		DataDestinationConfigs?: list.MaxItems(1) & list.MinItems(1) & [...#DataDestinationConfig] | fn.#ListExpression
-		DataExtraDimensions?: list.MaxItems(5) & [...] & [
-			...strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.]+$" | fn.#StringExpression
-		] |
+		DataExtraDimensions?: list.MaxItems(5) & [...] & [...strings.MaxRunes(150) &
+		strings.MinRunes(1) &
+		=~"^[a-zA-Z0-9_.]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.]+$" & "\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
 		DataPartitions?: list.MaxItems(20) & list.UniqueItems() & [...] & [...#DataPartition] | fn.#ListExpression
 		Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		DiagnosticsMode?: #DiagnosticsMode
 		ExpiryTime?:      time.Time | fn.#StringExpression
-		Name!:            strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
+		Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		PostTriggerCollectionDuration?: <=4294967295 & >=0 |
 			{
 				string &
@@ -72,17 +87,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		SignalCatalogArn!: string | fn.#StringExpression
+		SignalCatalogArn!: string | number | bool | fn.#StringExpression
 		SignalsToCollect?: list.MaxItems(1000) & [...] & [...#SignalInformation] | fn.#ListExpression
 		SignalsToFetch?:   list.MaxItems(10) & [...] & [...#SignalFetchInformation] | fn.#ListExpression
 		SpoolingMode?:     #SpoolingMode
 		StartTime?:        time.Time | fn.#StringExpression
 		Tags?:             list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
-		TargetArn!:        string | fn.#StringExpression
+		TargetArn!:        string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
-
-#CampaignStatus: "CREATING" | "WAITING_FOR_APPROVAL" | "RUNNING" | "SUSPENDED" | fn.#StringExpression
 
 #CollectionScheme: matchN(1, [close(
 	{TimeBasedCollectionScheme!: #TimeBasedCollectionScheme},
@@ -121,8 +138,13 @@ fn.#ValueExpression
 fn.#ObjectExpression
 
 #ConditionBasedSignalFetchConfig: close({
-	ConditionExpression!: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	TriggerMode!:         #TriggerMode
+	ConditionExpression!: strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	TriggerMode!: #TriggerMode
 }) |
 fn.#ObjectExpression
 
@@ -144,7 +166,12 @@ fn.#ValueExpression
 }) |
 fn.#ObjectExpression
 
-#DataPartitionId: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" | fn.#StringExpression
+#DataPartitionId: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9]+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #DataPartitionStorageOptions: close({
 	MaximumSize!:       #StorageMaximumSize
@@ -161,7 +188,12 @@ fn.#ObjectExpression
 
 #DiagnosticsMode: "OFF" | "SEND_ACTIVE_DTCS" | fn.#StringExpression
 
-#EventExpression: strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
+#EventExpression: strings.MaxRunes(2048) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #LanguageVersion: int & <=1 & >=1 |
 	{
@@ -181,20 +213,42 @@ fn.#ObjectExpression
 	fn.#NumberExpression
 
 #MqttTopicConfig: close({
-	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	ExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws[a-zA-Z0-9-]*):iam::(\\d{12})?:(role((\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}))[\\w+=,.@-]+)$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:(aws[a-zA-Z0-9-]*):iam::(\\d{12})?:(role((\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}))[\\w+=,.@-]+)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	MqttTopicArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*" | fn.#StringExpression
+	MqttTopicArn!: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(20) & =~"^arn:.*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #S3Config: close({
 	BucketArn!: strings.MaxRunes(100) & strings.MinRunes(16) & =~"^arn:(aws[a-zA-Z0-9-]*):s3:::.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(16) & =~"^arn:(aws[a-zA-Z0-9-]*):s3:::.+$" & "\(self)"
+	} |
 	fn.#StringExpression
 	DataFormat?: #DataFormat
-	Prefix?:     strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_:./!*'()]+$" | fn.#StringExpression
+	Prefix?: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_:./!*'()]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & =~"^[a-zA-Z0-9-_:./!*'()]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	StorageCompressionFormat?: #StorageCompressionFormat
 }) |
 fn.#ObjectExpression
@@ -205,9 +259,12 @@ fn.#ObjectExpression
 fn.#ValueExpression
 
 #SignalFetchInformation: close({
-	Actions!: list.MaxItems(5) & list.MinItems(1) & [
-		...strings.MaxRunes(2048) & strings.MinRunes(1) | fn.#StringExpression
-	] |
+	Actions!: list.MaxItems(5) & list.MinItems(1) & [...strings.MaxRunes(2048) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	ConditionLanguageVersion?: <=1 & >=1 |
 		{
@@ -229,8 +286,13 @@ fn.#ValueExpression
 				)
 		} |
 		fn.#NumberExpression
-	FullyQualifiedName!: strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.]+$" | fn.#StringExpression
-	SignalFetchConfig!:  #SignalFetchConfig
+	FullyQualifiedName!: strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[a-zA-Z0-9_.]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	SignalFetchConfig!: #SignalFetchConfig
 }) |
 fn.#ObjectExpression
 
@@ -276,7 +338,12 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Name!: strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[\\w|*|-]+(\\.[\\w|*|-]+)*$" | fn.#StringExpression
+	Name!: strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[\\w|*|-]+(\\.[\\w|*|-]+)*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(150) & strings.MinRunes(1) & =~"^[\\w|*|-]+(\\.[\\w|*|-]+)*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -284,7 +351,12 @@ fn.#ObjectExpression
 
 #StorageCompressionFormat: "NONE" | "GZIP" | fn.#StringExpression
 
-#StorageLocation: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression
+#StorageLocation: strings.MaxRunes(4096) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #StorageMaximumSize: close({
 	Unit!:  #StorageMaximumSizeUnit
@@ -337,8 +409,18 @@ fn.#ObjectExpression
 	fn.#NumberExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -389,41 +471,30 @@ fn.#ObjectExpression
 }) |
 	fn.#ObjectExpression
 
-#TimePeriod: close({
-	Unit!: #TimeUnit
-	Value!: >=1 |
-		{
-			string &
-				=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-				cfnScalarStrings.Repeat(
-					self,
-					len(cfnScalarStrconv.FormatFloat(
-						cfnScalarStrconv.ParseFloat(
-							cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-							64,
-						) &
-							>=1,
-						"g",
-						-1,
-						64,
-					))*0 + 1,
-				)
-		} |
-		fn.#NumberExpression
-}) |
-fn.#ObjectExpression
-
-#TimeUnit: "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR" | fn.#StringExpression
-
 #TimestreamConfig: close({
-	ExecutionRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	ExecutionRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws[a-zA-Z0-9-]*):iam::(\\d{12})?:(role((\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}))[\\w+=,.@-]+)$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:(aws[a-zA-Z0-9-]*):iam::(\\d{12})?:(role((\\x{002F})|(\\x{002F}[\\x{0021}-\\x{007F}]+\\x{002F}))[\\w+=,.@-]+)$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	TimestreamTableArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws[a-zA-Z0-9-]*):timestream:[a-zA-Z0-9-]+:[0-9]{12}:database\\/[a-zA-Z0-9_.-]+\\/table\\/[a-zA-Z0-9_.-]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:(aws[a-zA-Z0-9-]*):timestream:[a-zA-Z0-9-]+:[0-9]{12}:database\\/[a-zA-Z0-9_.-]+\\/table\\/[a-zA-Z0-9_.-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

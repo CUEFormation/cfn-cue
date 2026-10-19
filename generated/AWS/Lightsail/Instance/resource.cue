@@ -8,12 +8,7 @@ import schema "github.com/cueformation/cfn-cue/resources/hef09262e04db072f:schem
 #AddOn:             schema.#AddOn
 #AutoSnapshotAddOn: schema.#AutoSnapshotAddOn
 #Disk:              schema.#Disk
-#Hardware:          schema.#Hardware
-#Location:          schema.#Location
-#MonthlyTransfer:   schema.#MonthlyTransfer
-#Networking:        schema.#Networking
 #Port:              schema.#Port
-#State:             schema.#State
 #Tag:               schema.#Tag
 #cidrListAliases:   schema.#cidrListAliases
 #cidrs:             schema.#cidrs

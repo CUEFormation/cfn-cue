@@ -3,19 +3,23 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::MediaConvert::Preset
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaConvert::Preset"
-	Properties!: close({
-		Category?:     string | fn.#StringExpression
-		Description?:  string | fn.#StringExpression
-		Name?:         string | fn.#StringExpression
-		SettingsJson!: fn.#Object & {...} | string | fn.#StringObjectExpression
-		Tags?:         fn.#Object & {...} | string | fn.#StringObjectExpression
+	let properties = close({
+		Category?:     string | number | bool | fn.#StringExpression
+		Description?:  string | number | bool | fn.#StringExpression
+		Name?:         string | number | bool | fn.#StringExpression
+		SettingsJson!: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		Tags?:         fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

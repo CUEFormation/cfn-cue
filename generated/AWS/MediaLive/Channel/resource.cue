@@ -65,7 +65,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hb4173fb508daaca9:schem
 #Eac3AtmosSettings:                                   schema.#Eac3AtmosSettings
 #Eac3Settings:                                        schema.#Eac3Settings
 #EbuTtDDestinationSettings:                           schema.#EbuTtDDestinationSettings
-#EmbeddedCaptionPositionSettings:                     schema.#EmbeddedCaptionPositionSettings
 #EmbeddedDestinationSettings:                         schema.#EmbeddedDestinationSettings
 #EmbeddedSourceSettings:                              schema.#EmbeddedSourceSettings
 #EmptyConfigurationSettings:                          schema.#EmptyConfigurationSettings
@@ -117,7 +116,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hb4173fb508daaca9:schem
 #MediaPackageGroupSettings:                           schema.#MediaPackageGroupSettings
 #MediaPackageOutputDestinationSettings:               schema.#MediaPackageOutputDestinationSettings
 #MediaPackageOutputSettings:                          schema.#MediaPackageOutputSettings
-#MediaPackageV2DestinationSettings:                   schema.#MediaPackageV2DestinationSettings
 #MediaPackageV2GroupSettings:                         schema.#MediaPackageV2GroupSettings
 #MediaPackageV2WatermarkingSettings:                  schema.#MediaPackageV2WatermarkingSettings
 #MotionGraphicsConfiguration:                         schema.#MotionGraphicsConfiguration

@@ -7,19 +7,15 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Creates an application instance and deploys it to a device.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Panorama::ApplicationInstance"
-	Properties!: close({
+	let properties = close({
 		// The ID of an application instance to replace with the new instance.
 		ApplicationInstanceIdToReplace?: #ApplicationInstanceId
 
@@ -44,36 +40,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// Tags for the application instance.
 		Tags?: #TagList
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#ApplicationInstanceArn: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-
-#ApplicationInstanceHealthStatus: "RUNNING" | "ERROR" | "NOT_AVAILABLE" | fn.#StringExpression
-
-#ApplicationInstanceId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" | fn.#StringExpression
-
-#ApplicationInstanceStatus: "DEPLOYMENT_PENDING" |
-	"DEPLOYMENT_REQUESTED" |
-	"DEPLOYMENT_IN_PROGRESS" |
-	"DEPLOYMENT_ERROR" |
-	"DEPLOYMENT_SUCCEEDED" |
-	"REMOVAL_PENDING" |
-	"REMOVAL_REQUESTED" |
-	"REMOVAL_IN_PROGRESS" |
-	"REMOVAL_FAILED" |
-	"REMOVAL_SUCCEEDED" |
-	fn.#StringExpression
-
-#ApplicationInstanceStatusDescription: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-
-#DefaultRuntimeContextDevice: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" |
+#ApplicationInstanceId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" & "\(self)"
+} |
 fn.#StringExpression
 
-#Description: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$" | fn.#StringExpression
+#DefaultRuntimeContextDevice: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" & "\(self)"
+} |
+fn.#StringExpression
 
-#DeviceId: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" | fn.#StringExpression
-
-#DeviceName: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" | fn.#StringExpression
+#Description: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^.*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #ManifestOverridesPayload: close({
 	// The overrides document.
@@ -81,7 +73,12 @@ fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#ManifestOverridesPayloadData: strings.MaxRunes(51200) & strings.MinRunes(0) & =~"^.+$" | fn.#StringExpression
+#ManifestOverridesPayloadData: strings.MaxRunes(51200) & strings.MinRunes(0) & =~"^.+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(51200) & strings.MinRunes(0) & =~"^.+$" & "\(self)"
+} |
+fn.#StringExpression
 
 #ManifestPayload: close({
 	// The application manifest.
@@ -89,42 +86,48 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#ManifestPayloadData: strings.MaxRunes(51200) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
+#ManifestPayloadData: strings.MaxRunes(51200) & strings.MinRunes(1) & =~"^.+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(51200) & strings.MinRunes(1) & =~"^.+$" & "\(self)"
+} |
+fn.#StringExpression
 
-#Name: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" | fn.#StringExpression
+#Name: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\-\\_]+$" & "\(self)"
+} |
+fn.#StringExpression
 
-#RuntimeRoleArn: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#RuntimeRoleArn: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 strings.MaxRunes(255) &
 strings.MinRunes(1) &
 =~"^arn:[a-z0-9][-.a-z0-9]{0,62}:iam::[0-9]{12}:role/.+$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+	strings.MaxRunes(255) &
+	strings.MinRunes(1) &
+	=~"^arn:[a-z0-9][-.a-z0-9]{0,62}:iam::[0-9]{12}:role/.+$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
-#StatusFilter: "DEPLOYMENT_SUCCEEDED" |
-	"DEPLOYMENT_ERROR" |
-	"REMOVAL_SUCCEEDED" |
-	"REMOVAL_FAILED" |
-	"PROCESSING_DEPLOYMENT" |
-	"PROCESSING_REMOVAL" |
-	fn.#StringExpression
-
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.+$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^.+$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^.+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TagList: list.UniqueItems() & [...#Tag] | fn.#ListExpression
-
-#Timestamp: int |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatInt(
-					cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) & int,
-					10,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression

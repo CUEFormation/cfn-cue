@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,12 +16,21 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // used to define a network boundary for router resources
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::MediaConnect::RouterNetworkInterface"
-	Properties!: close({
+	let properties = close({
 		Configuration!: #RouterNetworkInterfaceConfiguration
-		Name!:          strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-		RegionName?:    string | fn.#StringExpression
-		Tags?:          [...#Tag] | fn.#ListExpression
+		Name!: strings.MaxRunes(128) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		RegionName?: string | number | bool | fn.#StringExpression
+		Tags?:       [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #PublicRouterNetworkInterfaceConfiguration: close(
@@ -29,37 +38,40 @@ import base "github.com/cueformation/cfn-cue/template:template"
 ) |
 	fn.#ObjectExpression
 
-#PublicRouterNetworkInterfaceRule: close({Cidr!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#PublicRouterNetworkInterfaceRule: close({
+	Cidr!: fn.#IPv4Network & string |
+	{
+		number | bool
+		_cfnString: fn.#IPv4Network & string & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
+fn.#ObjectExpression
 
 #RouterNetworkInterfaceConfiguration: matchN(1, [
 	close({Public!: #PublicRouterNetworkInterfaceConfiguration}), close({Vpc!: #VpcRouterNetworkInterfaceConfiguration}),
 ]) |
 fn.#ValueExpression
 
-#RouterNetworkInterfaceState: "CREATING" |
-	"ACTIVE" |
-	"UPDATING" |
-	"DELETING" |
-	"ERROR" |
-	"RECOVERING" |
-	fn.#StringExpression
-
-#RouterNetworkInterfaceType: "PUBLIC" | "VPC" | fn.#StringExpression
-
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#Unit: close({}) | fn.#ObjectExpression
-
 #VpcRouterNetworkInterfaceConfiguration: close({
-	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	SubnetId!: string | fn.#StringExpression
+	SecurityGroupIds!: list.MaxItems(5) & list.MinItems(1) & [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	SubnetId!: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

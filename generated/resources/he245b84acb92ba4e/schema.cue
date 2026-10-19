@@ -7,37 +7,67 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::Bedrock::Guardrail Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Bedrock::Guardrail"
-	Properties!: close({
-		AutomatedReasoningPolicyConfig?:  #AutomatedReasoningPolicyConfig
-		BlockedInputMessaging!:           strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
-		BlockedOutputsMessaging!:         strings.MaxRunes(500) & strings.MinRunes(1) | fn.#StringExpression
+	let properties = close({
+		AutomatedReasoningPolicyConfig?: #AutomatedReasoningPolicyConfig
+		BlockedInputMessaging!: strings.MaxRunes(500) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		BlockedOutputsMessaging!: strings.MaxRunes(500) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(500) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ContentPolicyConfig?:             #ContentPolicyConfig
 		ContextualGroundingPolicyConfig?: #ContextualGroundingPolicyConfig
 		CrossRegionConfig?:               #GuardrailCrossRegionConfig
-		Description?:                     strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-		KmsKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		Description?: strings.MaxRunes(200) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		KmsKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(1) &
 		=~"^arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^arn:aws(-[^:]+)?:kms:[a-zA-Z0-9-]*:[0-9]{12}:key/[a-zA-Z0-9-]{36}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		Name!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_]+$" | fn.#StringExpression
+		Name!: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		SensitiveInformationPolicyConfig?: #SensitiveInformationPolicyConfig
 		Tags?:                             list.MaxItems(200) & [...] & [...#Tag] | fn.#ListExpression
 		TopicPolicyConfig?:                #TopicPolicyConfig
 		WordPolicyConfig?:                 #WordPolicyConfig
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AutomatedReasoningPolicyConfig: close({
@@ -61,12 +91,17 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	Policies!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(2048) &
+	Policies!: list.MaxItems(2) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(2048) &
+	strings.MinRunes(15) &
+	=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:automated-reasoning-policy\\/[a-z0-9]{12}(:([1-9][0-9]{0,11}))?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
 		strings.MinRunes(15) &
-		=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:automated-reasoning-policy\\/[a-z0-9]{12}(:([1-9][0-9]{0,11}))?$" |
-		fn.#StringExpression
-	] |
+		=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:automated-reasoning-policy\\/[a-z0-9]{12}(:([1-9][0-9]{0,11}))?$" &
+		"\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression
@@ -137,11 +172,16 @@ fn.#ObjectExpression
 	GuardrailProfileArn!: strings.MaxRunes(2048) &
 	strings.MinRunes(15) &
 	=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:guardrail-profile/[a-z0-9-]+[.]{1}guardrail[.]{1}v[0-9:]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2048) &
+		strings.MinRunes(15) &
+		=~"^arn:aws(-[^:]+)?:bedrock:[a-z0-9-]{1,20}:[0-9]{12}:guardrail-profile/[a-z0-9-]+[.]{1}guardrail[.]{1}v[0-9:]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#GuardrailStatus: "CREATING" | "UPDATING" | "VERSIONING" | "READY" | "FAILED" | "DELETING" | fn.#StringExpression
 
 #ManagedWordsConfig: close({
 	InputAction?:   #WordAction
@@ -200,14 +240,29 @@ fn.#ObjectExpression
 	fn.#StringExpression
 
 #RegexConfig: close({
-	Action!:        #SensitiveInformationAction
-	Description?:   strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	InputAction?:   #SensitiveInformationAction
-	InputEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name!:          strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
+	Action!: #SensitiveInformationAction
+	Description?: strings.MaxRunes(1000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	InputAction?:  #SensitiveInformationAction
+	InputEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Name!: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	OutputAction?:  #SensitiveInformationAction
 	OutputEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Pattern!:       strings.MinRunes(1) | fn.#StringExpression
+	Pattern!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -220,20 +275,45 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[a-zA-Z0-9\\s._:/=+@-]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TopicAction: "BLOCK" | "NONE" | fn.#StringExpression
 
 #TopicConfig: close({
-	Definition!: strings.MaxRunes(1000) & strings.MinRunes(1) | fn.#StringExpression
-	Examples?: list.MaxItems(5) & [...] & [...strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression] |
+	Definition!: strings.MaxRunes(1000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Examples?: list.MaxItems(5) & [...] & [...strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
-	InputAction?:   #TopicAction
-	InputEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Name!:          strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ !?.]+$" | fn.#StringExpression
+	InputAction?:  #TopicAction
+	InputEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+	Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ !?.]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9a-zA-Z-_ !?.]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 	OutputAction?:  #TopicAction
 	OutputEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	Type!:          #TopicType
@@ -257,7 +337,12 @@ fn.#ObjectExpression
 	InputEnabled?:  bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	OutputAction?:  #WordAction
 	OutputEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	Text!:          strings.MinRunes(1) | fn.#StringExpression
+	Text!: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

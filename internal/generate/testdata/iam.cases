@@ -22,6 +22,10 @@ bad	#IdentityPolicy	{Statement: [{Effect: "allow", Action: "s3:*", Resource: "*"
 bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3GetObject", Resource: "*"}]}
 bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "bucket/*"}]}
 bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Sid: "has space"}]}
+bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Sid: ""}]}
+ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Sid: "ReadAll1"}]}
+ok	#TrustPolicy	{Statement: [{Sid: "", Effect: "Allow", Principal: {Service: "lambda.amazonaws.com"}, Action: "sts:AssumeRole"}]}
+ok	#TrustPolicy	{Statement: [{Sid: "has space", Effect: "Allow", Principal: {Service: "lambda.amazonaws.com"}, Action: "sts:AssumeRole"}]}
 bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Bogus: 1}]}
 bad	#IdentityPolicy	{Version: "2012-10-18", Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*"}]}
 bad	#IdentityPolicy	{Statements: [{Effect: "Allow", Action: "s3:*", Resource: "*"}]}
@@ -100,3 +104,45 @@ ok	#KMSKeyPolicyValue	{"Fn::If": ["UseCustomPolicy", {Statement: [{Effect: "Allo
 ok	#IdentityPolicyValue	{"Fn::If": ["Attach", {Ref: "AWS::NoValue"}, {Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*"}]}]}
 ok	#ServiceControlPolicyValue	{"Fn::If": ["Strict", {Statement: [{Effect: "Deny", Action: "ec2:*", Resource: "*"}]}, {Ref: "AWS::NoValue"}]}
 bad	#KMSKeyPolicyValue	{"Fn::If": ["UseCustomPolicy", {Statement: [{Effect: "Allow", Action: "kms:*", Resource: "*"}]}, {Ref: "AWS::NoValue"}]}
+ok	#TrustPolicyValue	{"Fn::If": ["A", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {"Fn::If": ["B", {Ref: "AWS::NoValue"}, {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}]}]}
+bad	#TrustPolicyValue	{"Fn::If": ["A", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {"Fn::If": ["B", {Ref: "AWS::NoValue"}, {Statement: {Effect: "Allow", Action: "sts:AssumeRole"}}]}]}
+ok	#IdentityPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*"}]}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
+ok	#TrustPolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {Ref: "AWS::NoValue"}]}
+# Conditional documents nest to any depth; an inner Fn::If with only AWS::NoValue branches is not a document.
+ok	#TrustPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {"Fn::If": ["C", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
+ok	#TrustPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {"Fn::If": ["C", {"Fn::If": ["D", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
+bad	#TrustPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {"Fn::If": ["C", {Statement: {Effect: "Allow", Action: "sts:AssumeRole"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
+bad	#TrustPolicyValue	{"Fn::If": ["A", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {"Fn::If": ["B", {Ref: "AWS::NoValue"}, {Ref: "AWS::NoValue"}]}]}
+ok	#TrustPolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}]}]}
+bad	#TrustPolicyValue	{"Fn::If": ["A", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}]}
+bad	#TrustPolicyValue	{"Fn::If": ["A", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}], Extra: 1}
+ok	#TrustPolicyValue	{"Fn::If": ["A", {"Fn::Sub": "x"}, {Ref: "AWS::NoValue"}]}
+# Every profile: a nested conditional document, a bad document inside one, an empty struct, and a non-list Fn::If.
+ok	#IdentityPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {Statement: {Effect: "Allow", Action: "s3:*", Resource: "*"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
+bad	#IdentityPolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Statement: {Effect: "Allow", Action: "s3:*", Resource: "*"}}, {Statement: {Effect: "Allow", Action: "s3:*"}}]}]}
+bad	#IdentityPolicyValue	{}
+bad	#IdentityPolicyValue	{"Fn::If": "A"}
+ok	#TrustPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
+bad	#TrustPolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {Statement: {Effect: "Allow", Action: "sts:AssumeRole"}}]}]}
+bad	#TrustPolicyValue	{}
+bad	#TrustPolicyValue	{"Fn::If": "A"}
+ok	#ResourcePolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "sqs:*"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
+bad	#ResourcePolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "sqs:*"}}, {Statement: {Effect: "Allow", Action: "sqs:*"}}]}]}
+bad	#ResourcePolicyValue	{}
+bad	#ResourcePolicyValue	{"Fn::If": "A"}
+ok	#S3BucketPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "s3:GetObject", Resource: "arn:aws:s3:::b/*"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
+bad	#S3BucketPolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "s3:GetObject", Resource: "arn:aws:s3:::b/*"}}, {Statement: {Effect: "Allow", Action: "s3:GetObject", Resource: "arn:aws:s3:::b/*"}}]}]}
+bad	#S3BucketPolicyValue	{}
+bad	#S3BucketPolicyValue	{"Fn::If": "A"}
+ok	#KMSKeyPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: {AWS: "123456789012"}, Action: "kms:*", Resource: "*"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
+bad	#KMSKeyPolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: {AWS: "123456789012"}, Action: "kms:*", Resource: "*"}}, {Statement: {Effect: "Allow", Action: "kms:*", Resource: "*"}}]}]}
+bad	#KMSKeyPolicyValue	{}
+bad	#KMSKeyPolicyValue	{"Fn::If": "A"}
+ok	#ServiceControlPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {Statement: {Effect: "Deny", Action: "ec2:*", Resource: "*"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
+bad	#ServiceControlPolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Statement: {Effect: "Deny", Action: "ec2:*", Resource: "*"}}, {Statement: {Effect: "Deny", Principal: "*", Action: "ec2:*", Resource: "*"}}]}]}
+bad	#ServiceControlPolicyValue	{}
+bad	#ServiceControlPolicyValue	{"Fn::If": "A"}
+ok	#ResourceControlPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {Statement: {Effect: "Deny", Principal: "*", Action: "s3:*", Resource: "*"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
+bad	#ResourceControlPolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Statement: {Effect: "Deny", Principal: "*", Action: "s3:*", Resource: "*"}}, {Statement: {Effect: "Allow", Principal: "*", Action: "s3:*", Resource: "*"}}]}]}
+bad	#ResourceControlPolicyValue	{}
+bad	#ResourceControlPolicyValue	{"Fn::If": "A"}

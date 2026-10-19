@@ -5,7 +5,6 @@ package StreamProcessor
 import schema "github.com/cueformation/cfn-cue/resources/hb5990c47a35fa972:schema"
 
 #Resource:              schema.#Resource
-#Arn:                   schema.#Arn
 #BoundingBox:           schema.#BoundingBox
 #ConnectedHomeSettings: schema.#ConnectedHomeSettings
 #DataSharingPreference: schema.#DataSharingPreference

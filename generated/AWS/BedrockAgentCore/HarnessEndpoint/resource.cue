@@ -4,6 +4,5 @@ package HarnessEndpoint
 
 import schema "github.com/cueformation/cfn-cue/resources/hd678f5f0c80e9e76:schema"
 
-#Resource:              schema.#Resource
-#HarnessEndpointStatus: schema.#HarnessEndpointStatus
-#Tag:                   schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

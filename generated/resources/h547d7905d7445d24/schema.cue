@@ -6,8 +6,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"time"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -15,24 +15,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // backups from being deleted while under hold.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Backup::LegalHold"
-	Properties!: close({
-		Description!: string | fn.#StringExpression
+	let properties = close({
+		Description!: string | number | bool | fn.#StringExpression
 		RecoveryPointSelection!: close({
 			DateRange?: close({
 				FromDate!: time.Time | fn.#StringExpression
 				ToDate!:   time.Time | fn.#StringExpression
 			}) |
 			fn.#ObjectExpression
-			ResourceIdentifiers?: [...string | fn.#StringExpression] | fn.#ListExpression
-			VaultNames?:          [...string | fn.#StringExpression] | fn.#ListExpression
+			ResourceIdentifiers?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+			VaultNames?:          [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		}) |
 		fn.#ObjectExpression
 		Tags?: [...close({
-			Key!:   string | fn.#StringExpression
-			Value!: string | fn.#StringExpression
+			Key!:   string | number | bool | fn.#StringExpression
+			Value!: string | number | bool | fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
-		Title!: string | fn.#StringExpression
+		Title!: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

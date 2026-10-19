@@ -7,32 +7,51 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Transfer::Workflow
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Transfer::Workflow"
-	Properties!: close({
-		Description?:      strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w\\- ]*$" | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w\\- ]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^[\\w\\- ]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		OnExceptionSteps?: list.MaxItems(8) & list.UniqueItems() & [...] & [...#WorkflowStep] | fn.#ListExpression
 		Steps!:            list.MaxItems(8) & list.UniqueItems() & [...] & [...#WorkflowStep] | fn.#ListExpression
 		Tags?:             list.MaxItems(50) & list.MinItems(1) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #EfsInputFileLocation: close({
 	FileSystemId?: strings.MaxRunes(128) &
 	strings.MinRunes(0) &
 	=~"^(arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:(access-point/fsap|file-system/fs)-[0-9a-f]{8,40}|fs(ap)?-[0-9a-f]{8,40})$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) &
+		strings.MinRunes(0) &
+		=~"^(arn:aws[-a-z]*:elasticfilesystem:[0-9a-z-:]+:(access-point/fsap|file-system/fs)-[0-9a-f]{8,40}|fs(ap)?-[0-9a-f]{8,40})$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
-	Path?: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[^\\x00]+$" | fn.#StringExpression
+	Path?: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[^\\x00]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(65536) & strings.MinRunes(1) & =~"^[^\\x00]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -46,37 +65,89 @@ fn.#ObjectExpression
 
 #S3InputFileLocation: close({
 	Bucket?: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & =~"^[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9]$" & "\(self)"
+	} |
 	fn.#StringExpression
-	Key?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" | fn.#StringExpression
+	Key?: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~".*" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #S3Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #WorkflowStep: close({
 	CopyStepDetails?: close({
 		DestinationFileLocation?: #S3FileLocation
-		Name?:                    strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$" | fn.#StringExpression
-		OverwriteExisting?:       "TRUE" | "FALSE" | fn.#StringExpression
+		Name?: strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		OverwriteExisting?: "TRUE" | "FALSE" | fn.#StringExpression
 		SourceFileLocation?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^\\$\\{(\\w+.)+\\w+\\}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^\\$\\{(\\w+.)+\\w+\\}$" & "\(self)"
+		} |
 		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	CustomStepDetails?: close({
-		Name?: strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$" | fn.#StringExpression
-		SourceFileLocation?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^\\$\\{(\\w+.)+\\w+\\}$" |
+		Name?: strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$" & "\(self)"
+		} |
 		fn.#StringExpression
-		Target?: strings.MaxRunes(170) & strings.MinRunes(0) & =~"arn:[a-z-]+:lambda:.*$" | fn.#StringExpression
+		SourceFileLocation?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^\\$\\{(\\w+.)+\\w+\\}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^\\$\\{(\\w+.)+\\w+\\}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Target?: strings.MaxRunes(170) & strings.MinRunes(0) & =~"arn:[a-z-]+:lambda:.*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(170) & strings.MinRunes(0) & =~"arn:[a-z-]+:lambda:.*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		TimeoutSeconds?: int & <=1800 & >=1 |
 			{
 				string &
@@ -99,22 +170,49 @@ fn.#ObjectExpression
 	fn.#ObjectExpression
 	DecryptStepDetails?: close({
 		DestinationFileLocation!: #InputFileLocation
-		Name?:                    strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$" | fn.#StringExpression
-		OverwriteExisting?:       "TRUE" | "FALSE" | fn.#StringExpression
+		Name?: strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
+		OverwriteExisting?: "TRUE" | "FALSE" | fn.#StringExpression
 		SourceFileLocation?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^\\$\\{(\\w+.)+\\w+\\}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^\\$\\{(\\w+.)+\\w+\\}$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Type!: "PGP" | fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	DeleteStepDetails?: close({
-		Name?: strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$" | fn.#StringExpression
+		Name?: strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		SourceFileLocation?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^\\$\\{(\\w+.)+\\w+\\}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^\\$\\{(\\w+.)+\\w+\\}$" & "\(self)"
+		} |
 		fn.#StringExpression
 	}) |
 	fn.#ObjectExpression
 	TagStepDetails?: close({
-		Name?: strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$" | fn.#StringExpression
+		Name?: strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(30) & strings.MinRunes(0) & =~"^[\\w-]*$" & "\(self)"
+		} |
+		fn.#StringExpression
 		SourceFileLocation?: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^\\$\\{(\\w+.)+\\w+\\}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^\\$\\{(\\w+.)+\\w+\\}$" & "\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(10) & list.MinItems(1) & list.UniqueItems() & [...#S3Tag] | fn.#ListExpression
 	}) |

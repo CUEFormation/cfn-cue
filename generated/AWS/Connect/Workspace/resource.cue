@@ -13,7 +13,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hd01de64c5ada1efb:schem
 #PaletteNavigation:        schema.#PaletteNavigation
 #PalettePrimary:           schema.#PalettePrimary
 #Tag:                      schema.#Tag
-#ThemeImageLink:           schema.#ThemeImageLink
 #ThemeString:              schema.#ThemeString
 #Visibility:               schema.#Visibility
 #WorkspaceFontFamily:      schema.#WorkspaceFontFamily

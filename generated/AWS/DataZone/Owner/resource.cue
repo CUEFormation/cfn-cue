@@ -4,10 +4,7 @@ package Owner
 
 import schema "github.com/cueformation/cfn-cue/resources/h6bc162c74663dd1f:schema"
 
-#Resource:                   schema.#Resource
-#OwnerGroupProperties:       schema.#OwnerGroupProperties
-#OwnerGroupPropertiesOutput: schema.#OwnerGroupPropertiesOutput
-#OwnerProperties:            schema.#OwnerProperties
-#OwnerPropertiesOutput:      schema.#OwnerPropertiesOutput
-#OwnerUserProperties:        schema.#OwnerUserProperties
-#OwnerUserPropertiesOutput:  schema.#OwnerUserPropertiesOutput
+#Resource:             schema.#Resource
+#OwnerGroupProperties: schema.#OwnerGroupProperties
+#OwnerProperties:      schema.#OwnerProperties
+#OwnerUserProperties:  schema.#OwnerUserProperties

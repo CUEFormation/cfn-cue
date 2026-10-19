@@ -7,15 +7,19 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // This resource schema represents the NotificationChannel resource in the Amazon DevOps Guru.
 #Resource: base.#ResourceAttributes & {
-	Type!:       "AWS::DevOpsGuru::NotificationChannel"
-	Properties!: close({Config!: #NotificationChannelConfig})
+	Type!: "AWS::DevOpsGuru::NotificationChannel"
+	let properties = close({Config!: #NotificationChannelConfig})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #InsightSeveritiesFilterList: list.MaxItems(3) & list.MinItems(1) & [...#InsightSeverity] | fn.#ListExpression
@@ -45,10 +49,18 @@ fn.#ObjectExpression
 	fn.#ListExpression
 
 #SnsChannelConfig: close({
-	TopicArn?: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	TopicArn?: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" &
 	strings.MaxRunes(1024) &
 	strings.MinRunes(36) &
 	=~"^arn:aws[a-z0-9-]*:sns:[a-z0-9-]+:\\d{12}:[^:]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" &
+		strings.MaxRunes(1024) &
+		strings.MinRunes(36) &
+		=~"^arn:aws[a-z0-9-]*:sns:[a-z0-9-]+:\\d{12}:[^:]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression

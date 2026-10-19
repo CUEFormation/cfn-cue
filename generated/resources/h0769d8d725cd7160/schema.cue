@@ -8,41 +8,69 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::BedrockAgentCore::GatewayRateLimit Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::BedrockAgentCore::GatewayRateLimit"
-	Properties!: close({
-		Description?: strings.MaxRunes(512) & strings.MinRunes(0) | fn.#StringExpression
-		DimensionKeys!: list.MaxItems(10) & list.MinItems(1) & [
-			...strings.MaxRunes(80) &
+	let properties = close({
+		Description?: strings.MaxRunes(512) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		DimensionKeys!: list.MaxItems(10) & list.MinItems(1) & [...strings.MaxRunes(80) &
+		strings.MinRunes(1) &
+		=~"^(targetName|toolName|qualifiedModelId|\\$\\.context\\.iam\\.principal|\\$\\.context\\.iam\\.sourceIdentity|\\$\\.context\\.jwt\\.[a-zA-Z_][a-zA-Z0-9_\\-\\.]{0,61}[a-zA-Z0-9_])$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(80) &
 			strings.MinRunes(1) &
-			=~"^(targetName|toolName|qualifiedModelId|\\$\\.context\\.iam\\.principal|\\$\\.context\\.iam\\.sourceIdentity|\\$\\.context\\.jwt\\.[a-zA-Z_][a-zA-Z0-9_\\-\\.]{0,61}[a-zA-Z0-9_])$" |
-			fn.#StringExpression
-		] |
+			=~"^(targetName|toolName|qualifiedModelId|\\$\\.context\\.iam\\.principal|\\$\\.context\\.iam\\.sourceIdentity|\\$\\.context\\.jwt\\.[a-zA-Z_][a-zA-Z0-9_\\-\\.]{0,61}[a-zA-Z0-9_])$" &
+			"\(self)"
+		} |
+		fn.#StringExpression] |
 		fn.#ListExpression
-		Entries!:           list.MaxItems(1000) & list.MinItems(1) & [...#LimitEntry] | fn.#ListExpression
-		GatewayIdentifier?: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" | fn.#StringExpression
+		Entries!: list.MaxItems(1000) & list.MinItems(1) & [...#LimitEntry] | fn.#ListExpression
+		GatewayIdentifier?: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" |
+		{
+			number | bool
+			_cfnString: =~"^([0-9a-z][-]?){1,100}-[0-9a-z]{10}$" & "\(self)"
+		} |
+		fn.#StringExpression
 		RateLimitId?: strings.MaxRunes(64) & strings.MinRunes(2) & =~"^[a-zA-Z0-9][a-zA-Z0-9\\-_\\.]{0,62}[a-zA-Z0-9]$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) &
+			strings.MinRunes(2) &
+			=~"^[a-zA-Z0-9][a-zA-Z0-9\\-_\\.]{0,62}[a-zA-Z0-9]$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Dimensions: struct.MaxFields(10) & struct.MinFields(1) & close({
 
-	{[=~"^(targetName|toolName|qualifiedModelId|\\$\\.context\\.iam\\.principal|\\$\\.context\\.iam\\.sourceIdentity|\\$\\.context\\.jwt\\.[a-zA-Z_][a-zA-Z0-9_\\-\\.]{0,61}[a-zA-Z0-9_])$"]: strings.MaxRunes(256) & strings.MinRunes(1) |
-	fn.#StringExpression}}) |
+	{
+		[=~"^(targetName|toolName|qualifiedModelId|\\$\\.context\\.iam\\.principal|\\$\\.context\\.iam\\.sourceIdentity|\\$\\.context\\.jwt\\.[a-zA-Z_][a-zA-Z0-9_\\-\\.]{0,61}[a-zA-Z0-9_])$"]: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}}) |
 fn.#ObjectExpression
-
-#GatewayRateLimitStatus: "CREATING" | "ACTIVE" | "UPDATING" | "DELETING" | fn.#StringExpression
 
 #LimitEntry: close({
 	Connections?: list.MaxItems(1) & list.MinItems(1) & [...#RateConfig] | fn.#ListExpression

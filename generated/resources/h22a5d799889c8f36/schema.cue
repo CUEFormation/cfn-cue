@@ -7,15 +7,15 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // IdMappingWorkflow defined in AWS Entity Resolution service
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EntityResolution::IdMappingWorkflow"
-	Properties!: close({
+	let properties = close({
 		// The description of the IdMappingWorkflow
 		Description?:                   #Description
 		IdMappingIncrementalRunConfig?: #IdMappingIncrementalRunConfig
@@ -24,25 +24,50 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#ListExpression
 		OutputSourceConfig?: list.MaxItems(1) & list.MinItems(1) & [...#IdMappingWorkflowOutputSource] |
 			fn.#ListExpression
-		RoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		RoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(512) &
 		strings.MinRunes(0) &
 		=~"^arn:(aws|aws-us-gov|aws-cn):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(512) &
+			strings.MinRunes(0) &
+			=~"^arn:(aws|aws-us-gov|aws-cn):iam::\\d{12}:role/?[a-zA-Z_0-9+=,.@\\-_/]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(200) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 
 		// The name of the IdMappingWorkflow
 		WorkflowName!: #EntityName
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#AttributeName: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$" | fn.#StringExpression
+#AttributeName: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$" & "\(self)"
+} |
+fn.#StringExpression
 
-#CreatedAt: string | fn.#StringExpression
+#Description: strings.MaxRunes(255) & strings.MinRunes(0) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+} |
+fn.#StringExpression
 
-#Description: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-
-#EntityName: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9-]*$" | fn.#StringExpression
+#EntityName: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9-]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9-]*$" & "\(self)"
+} |
+fn.#StringExpression
 
 #IdMappingIncrementalRunConfig: close({IncrementalRunType!: "ON_DEMAND" | fn.#StringExpression}) | fn.#ObjectExpression
 
@@ -56,26 +81,37 @@ fn.#ObjectExpression
 
 #IdMappingTechniques: close({
 	IdMappingType?:        "PROVIDER" | "RULE_BASED" | fn.#StringExpression
-	NormalizationVersion?: string | fn.#StringExpression
+	NormalizationVersion?: string | number | bool | fn.#StringExpression
 	ProviderProperties?:   #ProviderProperties
 	RuleBasedProperties?:  #IdMappingRuleBasedProperties
 }) |
 fn.#ObjectExpression
 
-#IdMappingWorkflowArn: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(idmappingworkflow/.*)$" |
-	fn.#StringExpression
-
 #IdMappingWorkflowInputSource: close({
 	InputSourceARN!: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(idnamespace/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(matchingworkflow/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):glue:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(table/[a-zA-Z_0-9-]{1,255}/[a-zA-Z_0-9-]{1,255})$" |
-		fn.#StringExpression
-	SchemaArn?: #SchemaMappingArn & string | fn.#StringExpression
-	Type?:      "SOURCE" | "TARGET" | fn.#StringExpression
+	{
+		number | bool
+		_cfnString: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(idnamespace/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(matchingworkflow/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):glue:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(table/[a-zA-Z_0-9-]{1,255}/[a-zA-Z_0-9-]{1,255})$" &
+			"\(self)"
+	} |
+	fn.#StringExpression
+	SchemaArn?: #SchemaMappingArn & string |
+	{
+		number | bool
+		_cfnString: #SchemaMappingArn & string & "\(self)"
+	} |
+	fn.#StringExpression
+	Type?: "SOURCE" | "TARGET" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #IdMappingWorkflowOutputSource: close({
 	KMSArn?: #KMSArn
 	OutputS3Path!: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^s3://([^/]+)/?(.*?([^/]+)/?)$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^s3://([^/]+)/?(.*?([^/]+)/?)$" & "\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -84,40 +120,82 @@ fn.#ObjectExpression
 	IntermediateS3Path!: strings.MaxRunes(1024) &
 	strings.MinRunes(1) &
 	=~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(1024) &
+		strings.MinRunes(1) &
+		=~"^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#KMSArn: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#KMSArn: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 	=~"^arn:(aws|aws-us-gov|aws-cn):kms:.*:[0-9]+:.*$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+		=~"^arn:(aws|aws-us-gov|aws-cn):kms:.*:[0-9]+:.*$" &
+		"\(self)"
+} |
+fn.#StringExpression
 
 #ProviderProperties: close({
 	IntermediateSourceConfiguration?: #IntermediateSourceConfiguration
 	ProviderConfiguration?: close({
 
-		{[=~"^.+$"]: string | fn.#StringExpression}}) |
+		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+			"disallowed",
+		)}
+
+		{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+	}) |
 	fn.#ObjectExpression
 	ProviderServiceArn!: strings.MaxRunes(255) &
 	strings.MinRunes(20) &
 	=~"^arn:(aws|aws-us-gov|aws-cn):(entityresolution):([a-z]{2}-[a-z]{1,10}-[0-9])::providerservice/([a-zA-Z0-9_-]{1,255})/([a-zA-Z0-9_-]{1,255})$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) &
+		strings.MinRunes(20) &
+		=~"^arn:(aws|aws-us-gov|aws-cn):(entityresolution):([a-z]{2}-[a-z]{1,10}-[0-9])::providerservice/([a-zA-Z0-9_-]{1,255})/([a-zA-Z0-9_-]{1,255})$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #Rule: close({
 	MatchingKeys!: list.MaxItems(15) & list.MinItems(1) & [...#AttributeName] | fn.#ListExpression
-	RuleName!:     strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$" | fn.#StringExpression
+	RuleName!: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & =~"^[a-zA-Z_0-9- \\t]*$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SchemaMappingArn: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(schemamapping/.*)$" |
-	fn.#StringExpression
+{
+	number | bool
+	_cfnString: =~"^arn:(aws|aws-us-gov|aws-cn):entityresolution:.*:[0-9]+:(schemamapping/.*)$" & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
-
-#UpdatedAt: string | fn.#StringExpression

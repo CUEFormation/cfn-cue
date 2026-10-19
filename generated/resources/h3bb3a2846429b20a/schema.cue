@@ -6,20 +6,23 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Lightsail::Alarm
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Lightsail::Alarm"
-	Properties!: close({
-		AlarmName!: =~"\\w[\\w\\-]*\\w" | fn.#StringExpression
+	let properties = close({
+		AlarmName!: =~"\\w[\\w\\-]*\\w" |
+		{
+			number | bool
+			_cfnString: =~"\\w[\\w\\-]*\\w" & "\(self)"
+		} |
+		fn.#StringExpression
 		ComparisonOperator!: "GreaterThanOrEqualToThreshold" |
 			"GreaterThanThreshold" |
 			"LessThanOrEqualToThreshold" |
@@ -86,8 +89,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"SwapUsage" |
 			"UnhealthyHostCount" |
 			fn.#StringExpression
-		MonitoredResourceName!: =~"^\\w[\\w\\-]*\\w$" | fn.#StringExpression
-		NotificationEnabled?:   bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
+		MonitoredResourceName!: =~"^\\w[\\w\\-]*\\w$" |
+		{
+			number | bool
+			_cfnString: =~"^\\w[\\w\\-]*\\w$" & "\(self)"
+		} |
+		fn.#StringExpression
+		NotificationEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 		NotificationTriggers?: list.UniqueItems() & [..."ALARM" | "INSUFFICIENT_DATA" | "OK" | fn.#StringExpression] |
 			fn.#ListExpression
 		Threshold!: number |
@@ -111,4 +119,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			fn.#NumberExpression
 		TreatMissingData?: "breaching" | "ignore" | "missing" | "notBreaching" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

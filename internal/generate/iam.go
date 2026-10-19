@@ -2,6 +2,7 @@ package generate
 
 import (
 	_ "embed"
+	"maps"
 	"strconv"
 	"strings"
 
@@ -51,6 +52,16 @@ var iamPolicies = map[string]map[string]string{
 	"AWS::S3::BucketPolicy":   {"#/properties/PolicyDocument": "S3BucketPolicyValue"},
 	"AWS::KMS::Key":           {"#/properties/KeyPolicy": "KMSKeyPolicyValue"},
 	"AWS::KMS::ReplicaKey":    {"#/properties/KeyPolicy": "KMSKeyPolicyValue"},
+}
+
+// IAMPolicies returns the iam profile placed on each policy property, by
+// resource type and schema pointer.
+func IAMPolicies() map[string]map[string]string {
+	out := make(map[string]map[string]string, len(iamPolicies))
+	for typ, paths := range iamPolicies {
+		out[typ] = maps.Clone(paths)
+	}
+	return out
 }
 
 // selectedPolicy is a policy property whose grammar depends on a sibling

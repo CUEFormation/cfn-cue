@@ -7,19 +7,17 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CodeBuild::Fleet
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CodeBuild::Fleet"
-	Properties?: close({
+	let properties = close({
 		BaseCapacity?: int & >=0 |
 			{
 				string &
@@ -57,16 +55,36 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			"WINDOWS_EC2" |
 			fn.#StringExpression
 		FleetProxyConfiguration?: #ProxyConfiguration
-		FleetServiceRole?:        strings.MinRunes(1) & =~"^(?:arn:)[a-zA-Z+-=,._:/@]+$" | fn.#StringExpression
-		FleetVpcConfig?:          #VpcConfig
-		ImageId?: =~"(?:^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & strings.MinRunes(1) |
+		FleetServiceRole?: strings.MinRunes(1) & =~"^(?:arn:)[a-zA-Z+-=,._:/@]+$" |
+		{
+			number | bool
+			_cfnString: strings.MinRunes(1) & =~"^(?:arn:)[a-zA-Z+-=,._:/@]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		FleetVpcConfig?: #VpcConfig
+		ImageId?: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: =~"^ami-([0-9a-z]{8}|[0-9a-z]{17})\\n?$" & strings.MinRunes(1) & "\(self)"
+		} |
 		fn.#StringExpression
 		Name?: strings.MaxRunes(128) & strings.MinRunes(2) & =~"^[A-Za-z0-9][A-Za-z0-9\\-_]{1,127}$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(2) &
+			=~"^[A-Za-z0-9][A-Za-z0-9\\-_]{1,127}$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		OverflowBehavior?:     "QUEUE" | "ON_DEMAND" | fn.#StringExpression
 		ScalingConfiguration?: #ScalingConfigurationInput
 		Tags?:                 list.MaxItems(50) & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }
 
 #ComputeConfiguration: close({
@@ -84,8 +102,13 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	instanceType?: strings.MinRunes(1) | fn.#StringExpression
-	machineType?:  "GENERAL" | "NVME" | fn.#StringExpression
+	instanceType?: strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	machineType?: "GENERAL" | "NVME" | fn.#StringExpression
 	memory?: int |
 		{
 			string &
@@ -119,7 +142,7 @@ fn.#ObjectExpression
 
 #FleetProxyRule: close({
 	Effect?:   "ALLOW" | "DENY" | fn.#StringExpression
-	Entities?: [...string | fn.#StringExpression] | fn.#ListExpression
+	Entities?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	Type?:     "DOMAIN" | "IP" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -152,8 +175,23 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[a-zA-Z+-=._:/]+$" | fn.#StringExpression
+	Key!: =~"^[a-zA-Z+-=._:/]+$" & matchN(0, [=~"^(?:aws:)"]) & string & strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z+-=._:/]+$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[a-zA-Z+-=._:/]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[a-zA-Z+-=._:/]+$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -182,13 +220,25 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #VpcConfig: close({
-	SecurityGroupIds?: [
-		...=~"(?:^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-			fn.#StringExpression
-	] |
-		fn.#ListExpression
-	Subnets?: [...string | fn.#StringExpression] | fn.#ListExpression
-	VpcId?: =~"(?:^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	SecurityGroupIds?: [...=~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^sg-([a-fA-F0-9]{8}|[a-fA-F0-9]{17})\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	Subnets?: [...=~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^subnet-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression] |
+	fn.#ListExpression
+	VpcId?: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^vpc-(([0-9A-Fa-f]{8})|([0-9A-Fa-f]{17}))\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

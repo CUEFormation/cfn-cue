@@ -3,24 +3,28 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Greengrass::SubscriptionDefinitionVersion
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Greengrass::SubscriptionDefinitionVersion"
-	Properties!: close({
-		SubscriptionDefinitionId!: string | fn.#StringExpression
+	let properties = close({
+		SubscriptionDefinitionId!: string | number | bool | fn.#StringExpression
 		Subscriptions!:            [...#Subscription] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Subscription: close({
-	Id!:      string | fn.#StringExpression
-	Source!:  string | fn.#StringExpression
-	Subject!: string | fn.#StringExpression
-	Target!:  string | fn.#StringExpression
+	Id!:      string | number | bool | fn.#StringExpression
+	Source!:  string | number | bool | fn.#StringExpression
+	Subject!: string | number | bool | fn.#StringExpression
+	Target!:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

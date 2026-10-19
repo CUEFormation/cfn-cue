@@ -6,18 +6,37 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WorkspacesInstances::VolumeAssociation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WorkspacesInstances::VolumeAssociation"
-	Properties!: close({
-		Device!:              strings.MaxRunes(32) | fn.#StringExpression
-		DisassociateMode?:    "FORCE" | "NO_FORCE" | fn.#StringExpression
-		VolumeId!:            =~"^vol-[0-9a-zA-Z]{1,63}$" | fn.#StringExpression
-		WorkspaceInstanceId!: =~"^wsinst-[0-9a-zA-Z]{8,63}$" | fn.#StringExpression
+	let properties = close({
+		Device!: strings.MaxRunes(32) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(32) & "\(self)"
+		} |
+		fn.#StringExpression
+		DisassociateMode?: "FORCE" | "NO_FORCE" | fn.#StringExpression
+		VolumeId!: =~"^vol-[0-9a-zA-Z]{1,63}$" |
+		{
+			number | bool
+			_cfnString: =~"^vol-[0-9a-zA-Z]{1,63}$" & "\(self)"
+		} |
+		fn.#StringExpression
+		WorkspaceInstanceId!: =~"^wsinst-[0-9a-zA-Z]{8,63}$" |
+		{
+			number | bool
+			_cfnString: =~"^wsinst-[0-9a-zA-Z]{8,63}$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

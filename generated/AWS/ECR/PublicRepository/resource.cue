@@ -10,7 +10,6 @@ import schema "github.com/cueformation/cfn-cue/resources/hb1c4063651f82603:schem
 #ArchitectureList:      schema.#ArchitectureList
 #OperatingSystem:       schema.#OperatingSystem
 #OperatingSystemList:   schema.#OperatingSystemList
-#RegistryId:            schema.#RegistryId
 #RepositoryDescription: schema.#RepositoryDescription
 #Tag:                   schema.#Tag
 #UsageText:             schema.#UsageText

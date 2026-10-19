@@ -7,12 +7,10 @@ import (
 	"list"
 	"strings"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -20,7 +18,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // create the AWS CloudFormation stack.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::S3Tables::TableBucket"
-	Properties!: close({
+	let properties = close({
 		EncryptionConfiguration?:   #EncryptionConfiguration
 		MetricsConfiguration?:      #MetricsConfiguration
 		ReplicationConfiguration?:  #ReplicationConfiguration
@@ -29,11 +27,19 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Tags?:                      list.UniqueItems() & [...#Tag] | fn.#ListExpression
 		UnreferencedFileRemoval?:   #UnreferencedFileRemoval
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #EncryptionConfiguration: close({
-	KMSKeyArn?: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	KMSKeyArn?: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 	SSEAlgorithm?: "AES256" | "aws:kms" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -41,12 +47,13 @@ fn.#ObjectExpression
 #MetricsConfiguration: close({Status?: "Enabled" | "Disabled" | fn.#StringExpression}) | fn.#ObjectExpression
 
 #ReplicationConfiguration: close({
-	Role!:  string | fn.#StringExpression
+	Role!:  string | number | bool | fn.#StringExpression
 	Rules!: list.MaxItems(1) & list.MinItems(1) & [...#ReplicationRule] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
-#ReplicationDestination: close({DestinationTableBucketARN!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#ReplicationDestination: close({DestinationTableBucketARN!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #ReplicationRule: close(
 	{Destinations!: list.MaxItems(5) & list.MinItems(1) & [...#ReplicationDestination] | fn.#ListExpression},
@@ -56,13 +63,26 @@ fn.#ObjectExpression
 #StorageClassConfiguration: close({StorageClass?: "STANDARD" | "INTELLIGENT_TIERING" | fn.#StringExpression}) |
 	fn.#ObjectExpression
 
-#TableBucketARN: =~"^(arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:bucket/[a-z0-9_-]{3,63})$" | fn.#StringExpression
-
-#TableBucketName: strings.MaxRunes(63) & strings.MinRunes(3) | fn.#StringExpression
+#TableBucketName: strings.MaxRunes(63) & strings.MinRunes(3) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(63) & strings.MinRunes(3) & "\(self)"
+} |
+fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 

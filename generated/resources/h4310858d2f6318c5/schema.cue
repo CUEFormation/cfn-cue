@@ -7,24 +7,31 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource type definition for AWS::Transcribe::CallAnalyticsCategory
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Transcribe::CallAnalyticsCategory"
-	Properties!: close({
-		CategoryName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" | fn.#StringExpression
-		InputType?:    "REAL_TIME" | "POST_CALL" | fn.#StringExpression
-		Rules!:        list.MaxItems(20) & list.MinItems(1) & [...#Rule] | fn.#ListExpression
-		Tags?:         list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
+	let properties = close({
+		CategoryName!: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & =~"^[0-9a-zA-Z._-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		InputType?: "REAL_TIME" | "POST_CALL" | fn.#StringExpression
+		Rules!:     list.MaxItems(20) & list.MinItems(1) & [...#Rule] | fn.#ListExpression
+		Tags?:      list.MaxItems(200) & list.MinItems(1) & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AbsoluteTimeRange: close({
@@ -231,8 +238,18 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -241,7 +258,12 @@ fn.#ObjectExpression
 	Negate?:            bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ParticipantRole?:   "AGENT" | "CUSTOMER" | fn.#StringExpression
 	RelativeTimeRange?: #RelativeTimeRange
-	Targets!: list.MinItems(1) & [...strings.MaxRunes(2000) & strings.MinRunes(1) | fn.#StringExpression] |
+	Targets!: list.MinItems(1) & [...strings.MaxRunes(2000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 	TranscriptFilterType!: "EXACT" | fn.#StringExpression
 }) |

@@ -6,7 +6,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h6998cc156e6c786a:schem
 
 #Resource:                  schema.#Resource
 #DataTieringStatus:         schema.#DataTieringStatus
-#Endpoint:                  schema.#Endpoint
 #SupportedIpDiscoveryTypes: schema.#SupportedIpDiscoveryTypes
 #SupportedNetworkTypes:     schema.#SupportedNetworkTypes
 #Tag:                       schema.#Tag

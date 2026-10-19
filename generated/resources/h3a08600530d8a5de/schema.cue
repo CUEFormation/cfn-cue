@@ -3,8 +3,8 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -17,8 +17,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // in the *API Gateway Developer Guide*.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGatewayV2::DomainName"
-	Properties!: close({
-		DomainName!:               string | fn.#StringExpression
+	let properties = close({
+		DomainName!:               string | number | bool | fn.#StringExpression
 		DomainNameConfigurations?: [...#DomainNameConfiguration] | fn.#ListExpression
 
 		// The mutual TLS authentication configuration for a custom domain name.
@@ -26,24 +26,37 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		RoutingMode?: "API_MAPPING_ONLY" | "ROUTING_RULE_THEN_API_MAPPING" | "ROUTING_RULE_ONLY" | fn.#StringExpression
 		Tags?: close({
 
-			{[=~".*"]: string | fn.#StringExpression}}) |
+			{[=~".*"]: string | number | bool | fn.#StringExpression}
+
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+		}) |
 		fn.#ObjectExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #DomainNameConfiguration: close({
-	CertificateArn?: =~"(?:^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
-	CertificateName?:                     string | fn.#StringExpression
-	EndpointType?:                        string | fn.#StringExpression
-	IpAddressType?:                       string | fn.#StringExpression
-	OwnershipVerificationCertificateArn?: string | fn.#StringExpression
-	SecurityPolicy?:                      string | fn.#StringExpression
+	CertificateArn?: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:acm:[a-z0-9-]+:\\p{Nd}{12}:certificate/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
+	CertificateName?:                     string | number | bool | fn.#StringExpression
+	EndpointType?:                        string | number | bool | fn.#StringExpression
+	IpAddressType?:                       string | number | bool | fn.#StringExpression
+	OwnershipVerificationCertificateArn?: string | number | bool | fn.#StringExpression
+	SecurityPolicy?:                      string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #MutualTlsAuthentication: close({
-	TruststoreUri?:     string | fn.#StringExpression
-	TruststoreVersion?: string | fn.#StringExpression
+	TruststoreUri?:     string | number | bool | fn.#StringExpression
+	TruststoreVersion?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

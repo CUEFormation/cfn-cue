@@ -7,12 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
-import cfnScalarStrings "strings"
-
-import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -21,7 +17,7 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // and configures your invoice for each business entity.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Invoicing::InvoiceUnit"
-	Properties!: close({
+	let properties = close({
 		Description?:            #Description
 		InvoiceReceiver!:        #InvoiceReceiver
 		Name!:                   #Name
@@ -29,51 +25,71 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Rule!:                   #Rule
 		TaxInheritanceDisabled?: #TaxInheritanceDisabled
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#Description: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\S\\s]*$" | fn.#StringExpression
-
-#InvoiceReceiver: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" | fn.#StringExpression
-
-#InvoiceUnitArn: strings.MaxRunes(256) &
-strings.MinRunes(1) &
-=~"^arn:aws[-a-z0-9]*:[a-z0-9]+:[-a-z0-9]*:[0-9]{12}:[-a-zA-Z0-9/:_]+$" |
+#Description: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\S\\s]*$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(500) & strings.MinRunes(0) & =~"^[\\S\\s]*$" & "\(self)"
+} |
 fn.#StringExpression
 
-#LastModified: number |
-	{
-		string &
-			=~"^[[:space:]]*[+-]?(?:[0-9](?:_?[0-9])*(?:\\.(?:[0-9](?:_?[0-9])*)?)?|\\.[0-9](?:_?[0-9])*)(?:[eE][+-]?[0-9](?:_?[0-9])*)?[[:space:]]*$" &
-			cfnScalarStrings.Repeat(
-				self,
-				len(cfnScalarStrconv.FormatFloat(
-					cfnScalarStrconv.ParseFloat(
-						cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1),
-						64,
-					) &
-						number,
-					"g",
-					-1,
-					64,
-				))*0 + 1,
-			)
-	} |
-	fn.#NumberExpression
+#InvoiceReceiver: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" & "\(self)"
+} |
+fn.#StringExpression
 
-#Name: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+#Name: =~"^[\\p{L}\\p{N}\\p{Z}-_]*$" &
+matchN(0, [=~"^(?: )"]) &
+string &
+matchN(0, [=~"(?: )$"]) &
+string &
+strings.MaxRunes(50) &
+strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: =~"^[\\p{L}\\p{N}\\p{Z}-_]*$" &
+	matchN(0, [=~"^(?: )"]) &
+	string &
+	matchN(0, [=~"(?: )$"]) &
+	string &
+	strings.MaxRunes(50) &
+	strings.MinRunes(1) &
+	"\(self)"
+} |
+fn.#StringExpression
 
 #ResourceTag: close({
-	Key!:   strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(200) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(256) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(200) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(200) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ResourceTags: list.MaxItems(200) & [...] & [...#ResourceTag] | fn.#ListExpression
 
 #Rule: close({
-	LinkedAccounts!: list.MaxItems(1000) & [...] & [
-		...strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" | fn.#StringExpression
-	] |
+	LinkedAccounts!: list.MaxItems(1000) & [...] & [...strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^\\d{12}$" & "\(self)"
+	} |
+	fn.#StringExpression] |
 	fn.#ListExpression
 }) |
 fn.#ObjectExpression

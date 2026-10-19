@@ -10,7 +10,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h17614dbf0575867a:schem
 #EnvironmentVariable:        schema.#EnvironmentVariable
 #HealthCheckConfig:          schema.#HealthCheckConfig
 #PortInfo:                   schema.#PortInfo
-#PrivateRegistryAccess:      schema.#PrivateRegistryAccess
 #PublicDomainName:           schema.#PublicDomainName
 #PublicEndpoint:             schema.#PublicEndpoint
 #Tag:                        schema.#Tag

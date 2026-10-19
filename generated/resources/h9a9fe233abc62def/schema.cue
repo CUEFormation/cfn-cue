@@ -6,24 +6,26 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::WAF::WebACL
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WAF::WebACL"
-	Properties!: close({
+	let properties = close({
 		DefaultAction!: #WafAction
-		MetricName!:    string | fn.#StringExpression
-		Name!:          string | fn.#StringExpression
+		MetricName!:    string | number | bool | fn.#StringExpression
+		Name!:          string | number | bool | fn.#StringExpression
 		Rules?:         list.UniqueItems() & [...#ActivatedRule] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ActivatedRule: close({
@@ -42,8 +44,8 @@ import base "github.com/cueformation/cfn-cue/template:template"
 				)
 		} |
 		fn.#NumberExpression
-	RuleId!: string | fn.#StringExpression
+	RuleId!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#WafAction: close({Type!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#WafAction: close({Type!: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression

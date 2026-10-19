@@ -3,28 +3,32 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::PinpointEmail::ConfigurationSetEventDestination
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::PinpointEmail::ConfigurationSetEventDestination"
-	Properties!: close({
-		ConfigurationSetName!: string | fn.#StringExpression
+	let properties = close({
+		ConfigurationSetName!: string | number | bool | fn.#StringExpression
 		EventDestination?:     #EventDestination
-		EventDestinationName!: string | fn.#StringExpression
+		EventDestinationName!: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CloudWatchDestination: close({DimensionConfigurations?: [...#DimensionConfiguration] | fn.#ListExpression}) |
 	fn.#ObjectExpression
 
 #DimensionConfiguration: close({
-	DefaultDimensionValue!: string | fn.#StringExpression
-	DimensionName!:         string | fn.#StringExpression
-	DimensionValueSource!:  string | fn.#StringExpression
+	DefaultDimensionValue!: string | number | bool | fn.#StringExpression
+	DimensionName!:         string | number | bool | fn.#StringExpression
+	DimensionValueSource!:  string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -32,23 +36,31 @@ fn.#ObjectExpression
 	CloudWatchDestination?:      #CloudWatchDestination
 	Enabled?:                    bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	KinesisFirehoseDestination?: #KinesisFirehoseDestination
-	MatchingEventTypes!:         [...string | fn.#StringExpression] | fn.#ListExpression
+	MatchingEventTypes!:         [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	PinpointDestination?:        #PinpointDestination
 	SnsDestination?:             #SnsDestination
 }) |
 fn.#ObjectExpression
 
 #KinesisFirehoseDestination: close({
-	DeliveryStreamArn!: string | fn.#StringExpression
-	IamRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	DeliveryStreamArn!: string | number | bool | fn.#StringExpression
+	IamRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#PinpointDestination: close({ApplicationArn?: string | fn.#StringExpression}) | fn.#ObjectExpression
+#PinpointDestination: close({ApplicationArn?: string | number | bool | fn.#StringExpression}) | fn.#ObjectExpression
 
 #SnsDestination: close({
-	TopicArn!: =~"(?:^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" |
-		fn.#StringExpression
+	TopicArn!: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\p{Nd}{12}:.+\\n?$" & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
-	fn.#ObjectExpression
+fn.#ObjectExpression

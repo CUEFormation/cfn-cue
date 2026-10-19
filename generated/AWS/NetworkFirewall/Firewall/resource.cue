@@ -7,7 +7,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h5a9db56d38ad6f4f:schem
 #Resource:                schema.#Resource
 #AvailabilityZoneMapping: schema.#AvailabilityZoneMapping
 #EnabledAnalysisType:     schema.#EnabledAnalysisType
-#EndpointId:              schema.#EndpointId
 #ResourceArn:             schema.#ResourceArn
 #SubnetMapping:           schema.#SubnetMapping
 #Tag:                     schema.#Tag

@@ -10,5 +10,4 @@ import schema "github.com/cueformation/cfn-cue/resources/h743479ab64d9fcf0:schem
 #Ipv4PrefixSpecification:         schema.#Ipv4PrefixSpecification
 #Ipv6PrefixSpecification:         schema.#Ipv6PrefixSpecification
 #PrivateIpAddressSpecification:   schema.#PrivateIpAddressSpecification
-#PublicIpDnsNameOptions:          schema.#PublicIpDnsNameOptions
 #Tag:                             schema.#Tag

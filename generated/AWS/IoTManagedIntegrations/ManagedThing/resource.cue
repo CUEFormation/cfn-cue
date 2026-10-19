@@ -9,10 +9,7 @@ import schema "github.com/cueformation/cfn-cue/resources/hb189890cbfe7f3ef:schem
 #CapabilityReport:             schema.#CapabilityReport
 #CapabilityReportCapability:   schema.#CapabilityReportCapability
 #CapabilityReportEndpoint:     schema.#CapabilityReportEndpoint
-#HubNetworkMode:               schema.#HubNetworkMode
 #MetaData:                     schema.#MetaData
-#ProvisioningStatus:           schema.#ProvisioningStatus
 #Role:                         schema.#Role
 #TagsMap:                      schema.#TagsMap
-#Unit:                         schema.#Unit
 #WiFiSimpleSetupConfiguration: schema.#WiFiSimpleSetupConfiguration

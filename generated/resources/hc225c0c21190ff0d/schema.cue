@@ -7,8 +7,8 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -16,16 +16,49 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // integration association.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Connect::UseCase"
-	Properties!: close({
-		InstanceId!:               strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-		IntegrationAssociationId!: strings.MaxRunes(200) & strings.MinRunes(1) | fn.#StringExpression
-		Tags?:                     list.MaxItems(50) & [...#Tag] | fn.#ListExpression
-		UseCaseType!:              "RULES_EVALUATION" | "CONNECT_CAMPAIGNS" | fn.#StringExpression
+	let properties = close({
+		InstanceId!: strings.MaxRunes(100) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		IntegrationAssociationId!: strings.MaxRunes(200) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(200) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?:        list.MaxItems(50) & [...#Tag] | fn.#ListExpression
+		UseCaseType!: "RULES_EVALUATION" | "CONNECT_CAMPAIGNS" | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) | fn.#StringExpression
+	Key!: =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" &
+	matchN(0, [=~"^(?:aws:)"]) &
+	string &
+	strings.MaxRunes(128) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*$" &
+		matchN(0, [=~"^(?:aws:)"]) &
+		string &
+		strings.MaxRunes(128) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

@@ -1,0 +1,41 @@
+{
+  "Conditions": {
+    "Dev": {
+      "Fn::Equals": [
+        {
+          "Ref": "Env"
+        },
+        "dev"
+      ]
+    },
+    "Prod": {
+      "Fn::Equals": [
+        {
+          "Ref": "Env"
+        },
+        "prod"
+      ]
+    }
+  },
+  "Parameters": {
+    "Env": {
+      "AllowedValues": [
+        "prod",
+        "dev"
+      ],
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "A": {
+      "Condition": "Prod",
+      "DependsOn": "B",
+      "Type": "AWS::SQS::Queue"
+    },
+    "B": {
+      "Condition": "Dev",
+      "DependsOn": "A",
+      "Type": "AWS::SQS::Queue"
+    }
+  }
+}

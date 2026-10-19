@@ -9,7 +9,7 @@ import "strings"
 // Resource Type definition for AWS::SSM::ResourcePolicy
 #Properties: close({
 	// Actual policy statement.
-	Policy!: string | {...}
+	Policy!: (=~"^.+$" | {...}) & matchN(0, [=~"^(?:\\s*$)"]) & (string | {...})
 
 	// A snapshot identifier for the policy over time.
 	PolicyHash?: string

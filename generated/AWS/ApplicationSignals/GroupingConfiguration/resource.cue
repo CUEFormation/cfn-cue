@@ -5,8 +5,6 @@ package GroupingConfiguration
 import schema "github.com/cueformation/cfn-cue/resources/h07db1cc8cbc0787d:schema"
 
 #Resource:                     schema.#Resource
-#AccountId:                    schema.#AccountId
 #GroupingAttributeDefinition:  schema.#GroupingAttributeDefinition
 #GroupingAttributeDefinitions: schema.#GroupingAttributeDefinitions
 #GroupingString:               schema.#GroupingString
-#Timestamp:                    schema.#Timestamp

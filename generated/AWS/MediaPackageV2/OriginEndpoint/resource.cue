@@ -35,9 +35,7 @@ import schema "github.com/cueformation/cfn-cue/resources/h39292fafcc48e311:schem
 #EndpointErrorCondition:                 schema.#EndpointErrorCondition
 #FilterConfiguration:                    schema.#FilterConfiguration
 #ForceEndpointErrorConfiguration:        schema.#ForceEndpointErrorConfiguration
-#HlsManifestConfiguration:               schema.#HlsManifestConfiguration
 #IsmEncryptionMethod:                    schema.#IsmEncryptionMethod
-#LowLatencyHlsManifestConfiguration:     schema.#LowLatencyHlsManifestConfiguration
 #MssManifestConfiguration:               schema.#MssManifestConfiguration
 #MssManifestLayout:                      schema.#MssManifestLayout
 #OutputTimestampMode:                    schema.#OutputTimestampMode

@@ -3,19 +3,17 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::CloudFormation::WaitCondition
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudFormation::WaitCondition"
-	Properties?: close({
+	let properties = close({
 		Count?: int |
 			{
 				string &
@@ -32,7 +30,11 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Handle?:  string | fn.#StringExpression
-		Timeout?: string | fn.#StringExpression
+		Handle?:  string | number | bool | fn.#StringExpression
+		Timeout?: string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties?: properties | _#propertiesIf
 }

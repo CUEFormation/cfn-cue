@@ -191,7 +191,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h00f2d9117ea851ee:schem
 #DropDownControlDisplayOptions:                    schema.#DropDownControlDisplayOptions
 #DynamicDefaultValue:                              schema.#DynamicDefaultValue
 #EmptyVisual:                                      schema.#EmptyVisual
-#Entity:                                           schema.#Entity
 #ExcludePeriodConfiguration:                       schema.#ExcludePeriodConfiguration
 #ExplicitHierarchy:                                schema.#ExplicitHierarchy
 #FieldBarSeriesItem:                               schema.#FieldBarSeriesItem
@@ -516,7 +515,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h00f2d9117ea851ee:schem
 #RelativeFontSize:                                 schema.#RelativeFontSize
 #ResizeOption:                                     schema.#ResizeOption
 #ResourcePermission:                               schema.#ResourcePermission
-#ResourceStatus:                                   schema.#ResourceStatus
 #RollingDateConfiguration:                         schema.#RollingDateConfiguration
 #RowAlternateColorOptions:                         schema.#RowAlternateColorOptions
 #SameSheetTargetVisualConfiguration:               schema.#SameSheetTargetVisualConfiguration
@@ -548,7 +546,6 @@ import schema "github.com/cueformation/cfn-cue/resources/h00f2d9117ea851ee:schem
 #SeriesItem:                                       schema.#SeriesItem
 #SetParameterValueConfiguration:                   schema.#SetParameterValueConfiguration
 #ShapeConditionalFormat:                           schema.#ShapeConditionalFormat
-#Sheet:                                            schema.#Sheet
 #SheetContentType:                                 schema.#SheetContentType
 #SheetControlDateTimePickerType:                   schema.#SheetControlDateTimePickerType
 #SheetControlInfoIconLabelOptions:                 schema.#SheetControlInfoIconLabelOptions
@@ -635,12 +632,9 @@ import schema "github.com/cueformation/cfn-cue/resources/h00f2d9117ea851ee:schem
 #TableVisual:                                      schema.#TableVisual
 #Tag:                                              schema.#Tag
 #TargetVisualOptions:                              schema.#TargetVisualOptions
-#TemplateError:                                    schema.#TemplateError
-#TemplateErrorType:                                schema.#TemplateErrorType
 #TemplateSourceAnalysis:                           schema.#TemplateSourceAnalysis
 #TemplateSourceEntity:                             schema.#TemplateSourceEntity
 #TemplateSourceTemplate:                           schema.#TemplateSourceTemplate
-#TemplateVersion:                                  schema.#TemplateVersion
 #TemplateVersionDefinition:                        schema.#TemplateVersionDefinition
 #TextAreaControlDisplayOptions:                    schema.#TextAreaControlDisplayOptions
 #TextConditionalFormat:                            schema.#TextConditionalFormat
@@ -717,4 +711,3 @@ import schema "github.com/cueformation/cfn-cue/resources/h00f2d9117ea851ee:schem
 #WordCloudWordOrientation:                         schema.#WordCloudWordOrientation
 #WordCloudWordPadding:                             schema.#WordCloudWordPadding
 #WordCloudWordScaling:                             schema.#WordCloudWordScaling
-#YAxisOptions:                                     schema.#YAxisOptions

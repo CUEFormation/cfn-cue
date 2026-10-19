@@ -8,5 +8,4 @@ import schema "github.com/cueformation/cfn-cue/resources/h125673c4197ee84e:schem
 #QueryParameter:  schema.#QueryParameter
 #RefreshSchedule: schema.#RefreshSchedule
 #Tag:             schema.#Tag
-#Timestamp:       schema.#Timestamp
 #Widget:          schema.#Widget

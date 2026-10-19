@@ -6,15 +6,15 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::LakeFormation::DataCellsFilter
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::LakeFormation::DataCellsFilter"
-	Properties!: close({
+	let properties = close({
 		// A list of columns to be included in this Data Cells Filter.
 		ColumnNames?: #ColumnNames
 
@@ -38,9 +38,18 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		// The name of the Table to create a Data Cells Filter for.
 		TableName!: #NameString
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#CatalogIdString: strings.MaxRunes(12) & strings.MinRunes(12) | fn.#StringExpression
+#CatalogIdString: strings.MaxRunes(12) & strings.MinRunes(12) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & "\(self)"
+} |
+fn.#StringExpression
 
 #ColumnNames: [...#NameString] | fn.#ListExpression
 
@@ -50,10 +59,15 @@ import base "github.com/cueformation/cfn-cue/template:template"
 }) |
 fn.#ObjectExpression
 
-#NameString: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
+#NameString: strings.MaxRunes(255) & strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #RowFilter: close({
 	AllRowsWildcard?:  close({}) | fn.#ObjectExpression
-	FilterExpression?: string | fn.#StringExpression
+	FilterExpression?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

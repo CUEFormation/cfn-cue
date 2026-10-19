@@ -7,19 +7,17 @@ import (
 	"strings"
 	"list"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AppConfig::DeploymentStrategy
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AppConfig::DeploymentStrategy"
-	Properties!: close({
+	let properties = close({
 		DeploymentDurationInMinutes!: <=1440 & >=0 |
 			{
 				string &
@@ -40,7 +38,12 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) | fn.#StringExpression
+		Description?: strings.MaxRunes(1024) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		FinalBakeTimeInMinutes?: <=1440 & >=0 |
 			{
 				string &
@@ -81,15 +84,24 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		GrowthType?:  "EXPONENTIAL" | "LINEAR" | fn.#StringExpression
-		Name!:        strings.MaxRunes(64) & strings.MinRunes(1) | fn.#StringExpression
+		GrowthType?: "EXPONENTIAL" | "LINEAR" | fn.#StringExpression
+		Name!: strings.MaxRunes(64) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
 		ReplicateTo!: "NONE" | "SSM_DOCUMENT" | fn.#StringExpression
 		Tags?:        list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key?:   string | fn.#StringExpression
-	Value?: string | fn.#StringExpression
+	Key?:   string | number | bool | fn.#StringExpression
+	Value?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

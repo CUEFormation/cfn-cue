@@ -7,20 +7,32 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Definition of AWS::IoTFleetWise::DecoderManifest Resource Type
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::IoTFleetWise::DecoderManifest"
-	Properties!: close({
+	let properties = close({
 		DefaultForUnmappedSignals?: #DefaultForUnmappedSignalsType
 		Description?: strings.MaxRunes(2048) & strings.MinRunes(1) & =~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			=~"^[^\\x{0000}-\\x{001F}\\x{007F}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		ModelManifestArn!: string | fn.#StringExpression
-		Name!:             strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression
+		ModelManifestArn!: string | number | bool | fn.#StringExpression
+		Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 		NetworkInterfaces?: list.MaxItems(5000) & list.MinItems(1) & [
 			...matchN(1, [#CanNetworkInterface, #ObdNetworkInterface, #CustomDecodingNetworkInterface]) |
 			fn.#ValueExpression
@@ -33,63 +45,138 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		Status?: #ManifestStatus
 		Tags?:   list.MaxItems(50) & list.UniqueItems() & [...] & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #CanInterface: close({
-	Name!:            strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	ProtocolName?:    strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	ProtocolVersion?: strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+	Name!: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ProtocolName?: strings.MaxRunes(50) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ProtocolVersion?: strings.MaxRunes(50) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CanNetworkInterface: close({
 	CanInterface!: #CanInterface
-	InterfaceId!:  strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	Type!:         "CAN_INTERFACE" | fn.#StringExpression
+	InterfaceId!: strings.MaxRunes(50) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: "CAN_INTERFACE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #CanSignal: close({
-	Factor!:          number | string | fn.#StringNumberExpression
-	IsBigEndian!:     bool | string | fn.#StringBooleanExpression
-	IsSigned!:        bool | string | fn.#StringBooleanExpression
-	Length!:          int | string | fn.#StringNumberExpression
-	MessageId!:       int | string | fn.#StringNumberExpression
-	Name?:            strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	Offset!:          number | string | fn.#StringNumberExpression
+	Factor!:      number | string | bool | fn.#StringNumberExpression
+	IsBigEndian!: bool | string | number | fn.#StringBooleanExpression
+	IsSigned!:    bool | string | number | fn.#StringBooleanExpression
+	Length!:      int | string | bool | fn.#StringNumberExpression
+	MessageId!:   int | string | bool | fn.#StringNumberExpression
+	Name?: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Offset!:          number | string | bool | fn.#StringNumberExpression
 	SignalValueType?: #SignalValueType
-	StartBit!:        int | string | fn.#StringNumberExpression
+	StartBit!:        int | string | bool | fn.#StringNumberExpression
 }) |
 fn.#ObjectExpression
 
 #CanSignalDecoder: close({
-	CanSignal!:          #CanSignal
-	FullyQualifiedName!: strings.MaxRunes(150) & strings.MinRunes(1) | fn.#StringExpression
-	InterfaceId!:        strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	Type!:               "CAN_SIGNAL" | fn.#StringExpression
+	CanSignal!: #CanSignal
+	FullyQualifiedName!: strings.MaxRunes(150) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(150) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	InterfaceId!: strings.MaxRunes(50) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: "CAN_SIGNAL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#CustomDecodingInterface: close(
-	{Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" | fn.#StringExpression},
-) |
+#CustomDecodingInterface: close({
+	Name!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[a-zA-Z\\d\\-_:]+$" & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #CustomDecodingNetworkInterface: close({
 	CustomDecodingInterface!: #CustomDecodingInterface
-	InterfaceId!:             strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	Type!:                    "CUSTOM_DECODING_INTERFACE" | fn.#StringExpression
+	InterfaceId!: strings.MaxRunes(50) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: "CUSTOM_DECODING_INTERFACE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#CustomDecodingSignal: close({Id!: strings.MaxRunes(150) & strings.MinRunes(1) | fn.#StringExpression}) |
+#CustomDecodingSignal: close({
+	Id!: =~"^[a-zA-Z0-9_\\-#:.]+$" &
+	matchN(0, [=~"^(?:.*\\.\\.)"]) &
+	string &
+	strings.MaxRunes(150) &
+	strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: =~"^[a-zA-Z0-9_\\-#:.]+$" &
+		matchN(0, [=~"^(?:.*\\.\\.)"]) &
+		string &
+		strings.MaxRunes(150) &
+		strings.MinRunes(1) &
+		"\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #CustomDecodingSignalDecoder: close({
 	CustomDecodingSignal!: #CustomDecodingSignal
-	FullyQualifiedName!:   strings.MaxRunes(150) & strings.MinRunes(1) | fn.#StringExpression
-	InterfaceId!:          strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	Type!:                 "CUSTOM_DECODING_SIGNAL" | fn.#StringExpression
+	FullyQualifiedName!: strings.MaxRunes(150) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(150) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	InterfaceId!: strings.MaxRunes(50) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Type!: "CUSTOM_DECODING_SIGNAL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
@@ -98,50 +185,85 @@ fn.#ObjectExpression
 #ManifestStatus: "ACTIVE" | "DRAFT" | fn.#StringExpression
 
 #ObdInterface: close({
-	DtcRequestIntervalSeconds?: int | string | fn.#StringNumberExpression
-	HasTransmissionEcu?:        bool | string | fn.#StringBooleanExpression
-	Name!:                      strings.MaxRunes(100) & strings.MinRunes(1) | fn.#StringExpression
-	ObdStandard?:               strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	PidRequestIntervalSeconds?: int | string | fn.#StringNumberExpression
-	RequestMessageId!:          int | string | fn.#StringNumberExpression
-	UseExtendedIds?:            bool | string | fn.#StringBooleanExpression
+	DtcRequestIntervalSeconds?: int | string | bool | fn.#StringNumberExpression
+	HasTransmissionEcu?:        bool | string | number | fn.#StringBooleanExpression
+	Name!: strings.MaxRunes(100) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ObdStandard?: strings.MaxRunes(50) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	PidRequestIntervalSeconds?: int | string | bool | fn.#StringNumberExpression
+	RequestMessageId!:          int | string | bool | fn.#StringNumberExpression
+	UseExtendedIds?:            bool | string | number | fn.#StringBooleanExpression
 }) |
 fn.#ObjectExpression
 
 #ObdNetworkInterface: close({
-	InterfaceId!:  strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
+	InterfaceId!: strings.MaxRunes(50) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	ObdInterface!: #ObdInterface
 	Type!:         "OBD_INTERFACE" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #ObdSignal: close({
-	BitMaskLength?:     int | string | fn.#StringNumberExpression
-	BitRightShift?:     int | string | fn.#StringNumberExpression
-	ByteLength!:        int | string | fn.#StringNumberExpression
-	IsSigned?:          bool | string | fn.#StringBooleanExpression
-	Offset!:            number | string | fn.#StringNumberExpression
-	Pid!:               int | string | fn.#StringNumberExpression
-	PidResponseLength!: int | string | fn.#StringNumberExpression
-	Scaling!:           number | string | fn.#StringNumberExpression
-	ServiceMode!:       int | string | fn.#StringNumberExpression
+	BitMaskLength?:     int | string | bool | fn.#StringNumberExpression
+	BitRightShift?:     int | string | bool | fn.#StringNumberExpression
+	ByteLength!:        int | string | bool | fn.#StringNumberExpression
+	IsSigned?:          bool | string | number | fn.#StringBooleanExpression
+	Offset!:            number | string | bool | fn.#StringNumberExpression
+	Pid!:               int | string | bool | fn.#StringNumberExpression
+	PidResponseLength!: int | string | bool | fn.#StringNumberExpression
+	Scaling!:           number | string | bool | fn.#StringNumberExpression
+	ServiceMode!:       int | string | bool | fn.#StringNumberExpression
 	SignalValueType?:   #SignalValueType
-	StartByte!:         int | string | fn.#StringNumberExpression
+	StartByte!:         int | string | bool | fn.#StringNumberExpression
 }) |
 fn.#ObjectExpression
 
 #ObdSignalDecoder: close({
-	FullyQualifiedName!: strings.MaxRunes(150) & strings.MinRunes(1) | fn.#StringExpression
-	InterfaceId!:        strings.MaxRunes(50) & strings.MinRunes(1) | fn.#StringExpression
-	ObdSignal!:          #ObdSignal
-	Type!:               "OBD_SIGNAL" | fn.#StringExpression
+	FullyQualifiedName!: strings.MaxRunes(150) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(150) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	InterfaceId!: strings.MaxRunes(50) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(50) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	ObdSignal!: #ObdSignal
+	Type!:      "OBD_SIGNAL" | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #SignalValueType: "INTEGER" | "FLOATING_POINT" | fn.#StringExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression

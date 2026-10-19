@@ -4,7 +4,6 @@ package AccessGrantsInstance
 
 import schema "github.com/cueformation/cfn-cue/resources/h815fa351d8b876b4:schema"
 
-#Resource:                schema.#Resource
-#AccessGrantsInstanceArn: schema.#AccessGrantsInstanceArn
-#IdentityCenterArn:       schema.#IdentityCenterArn
-#Tag:                     schema.#Tag
+#Resource:          schema.#Resource
+#IdentityCenterArn: schema.#IdentityCenterArn
+#Tag:               schema.#Tag

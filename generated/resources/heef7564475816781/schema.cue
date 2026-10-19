@@ -6,21 +6,24 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::AutoScaling::LifecycleHook
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::AutoScaling::LifecycleHook"
-	Properties!: close({
-		AutoScalingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) | fn.#StringExpression
-		DefaultResult?:        "ABANDON" | "CONTINUE" | fn.#StringExpression
+	let properties = close({
+		AutoScalingGroupName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		DefaultResult?: "ABANDON" | "CONTINUE" | fn.#StringExpression
 		HeartbeatTimeout?: int |
 			{
 				string &
@@ -38,6 +41,10 @@ import base "github.com/cueformation/cfn-cue/template:template"
 			} |
 			fn.#NumberExpression
 		LifecycleHookName?: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-_\\/]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & =~"^[A-Za-z0-9\\-_\\/]+$" & "\(self)"
+		} |
 		fn.#StringExpression
 		LifecycleTransition!: "autoscaling:EC2_INSTANCE_LAUNCHING" |
 			"autoscaling:EC2_INSTANCE_TERMINATING" |
@@ -45,9 +52,32 @@ import base "github.com/cueformation/cfn-cue/template:template"
 		NotificationMetadata?: strings.MaxRunes(1023) &
 		strings.MinRunes(1) &
 		=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007e}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(1023) &
+			strings.MinRunes(1) &
+			=~"^[\\x{0009}\\x{000A}\\x{000D}\\x{0020}-\\x{007e}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		NotificationTargetARN?: strings.MaxRunes(255) & strings.MinRunes(0) | fn.#StringExpression
-		RoleARN?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+		NotificationTargetARN?: strings.MaxRunes(255) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
+		RoleARN?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(255) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

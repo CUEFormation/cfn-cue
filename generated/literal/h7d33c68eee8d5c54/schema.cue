@@ -58,7 +58,7 @@ import (
 	SubscriptionCreationTime?: string
 
 	// The name of the Amazon Redshift event notification subscription
-	SubscriptionName!: string
+	SubscriptionName!: =~"^.{1,255}$" & =~"^(?:^[a-zA-Z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*$)"
 
 	// An array of key-value pairs to apply to this resource.
 	Tags?: [...#Tag]

@@ -4,6 +4,5 @@ package Asset
 
 import schema "github.com/cueformation/cfn-cue/resources/hda2044177d5cb066:schema"
 
-#Resource:       schema.#Resource
-#EgressEndpoint: schema.#EgressEndpoint
-#Tag:            schema.#Tag
+#Resource: schema.#Resource
+#Tag:      schema.#Tag

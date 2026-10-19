@@ -7,22 +7,36 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource schema for AWS:ObservabilityAdmin:OrganizationCentralizationRule
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ObservabilityAdmin::OrganizationCentralizationRule"
-	Properties!: close({
-		Rule!:     #CentralizationRule
-		RuleName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z-]+$" | fn.#StringExpression
-		Tags?:     list.UniqueItems() & [...#Tag] | fn.#ListExpression
+	let properties = close({
+		Rule!: #CentralizationRule
+		RuleName!: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z-]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & =~"^[0-9A-Za-z-]+$" & "\(self)"
+		} |
+		fn.#StringExpression
+		Tags?: list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
-#AccountIdentifier: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" | fn.#StringExpression
+#AccountIdentifier: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" |
+{
+	number | bool
+	_cfnString: strings.MaxRunes(12) & strings.MinRunes(12) & =~"^[0-9]{12}$" & "\(self)"
+} |
+fn.#StringExpression
 
 #CentralizationRule: close({
 	Destination!: #CentralizationRuleDestination
@@ -39,8 +53,13 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CentralizationRuleSource: close({
-	Regions!:                    #Regions
-	Scope?:                      strings.MaxRunes(2000) & strings.MinRunes(1) | fn.#StringExpression
+	Regions!: #Regions
+	Scope?: strings.MaxRunes(2000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 	SourceLogsConfiguration?:    #SourceLogsConfiguration
 	SourceMetricsConfiguration?: #SourceMetricsConfiguration
 }) |
@@ -60,6 +79,13 @@ fn.#ObjectExpression
 	LogGroupNamePattern!: strings.MaxRunes(512) &
 	strings.MinRunes(1) &
 	=~"^(?:[\\._\\-/#A-Za-z0-9]+|\\$\\{[A-Za-z]+(?:\\.[A-Za-z]+){1,2}\\})+$" |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		=~"^(?:[\\._\\-/#A-Za-z0-9]+|\\$\\{[A-Za-z]+(?:\\.[A-Za-z]+){1,2}\\})+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 }) |
 fn.#ObjectExpression
@@ -80,39 +106,85 @@ fn.#ObjectExpression
 
 #MetricsBackupConfiguration: close({Region!: #Region}) | fn.#ObjectExpression
 
-#Region: strings.MinRunes(1) | fn.#StringExpression
+#Region: strings.MinRunes(1) |
+{
+	number | bool
+	_cfnString: strings.MinRunes(1) & "\(self)"
+} |
+fn.#StringExpression
 
 #Regions: list.MinItems(1) & list.UniqueItems() & [...#Region] | fn.#ListExpression
 
-#ResourceArn: =~"(?:^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+#ResourceArn: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
 strings.MaxRunes(1011) &
 strings.MinRunes(1) &
 =~"^arn:aws([a-z0-9\\-]+)?:([a-zA-Z0-9\\-]+):([a-z0-9\\-]+)?:([0-9]{12})?:(.+)$" |
+{
+	number | bool
+	_cfnString: =~"^arn:aws[a-zA-Z-]*:kms:[a-z0-9-]+:\\p{Nd}{12}:(key|alias)/.+\\n?$" &
+	strings.MaxRunes(1011) &
+	strings.MinRunes(1) &
+	=~"^arn:aws([a-z0-9\\-]+)?:([a-zA-Z0-9\\-]+):([a-z0-9\\-]+)?:([0-9]{12})?:(.+)$" &
+	"\(self)"
+} |
 fn.#StringExpression
 
 #SourceLogsConfiguration: close({
-	DataSourceSelectionCriteria?: strings.MaxRunes(2000) & strings.MinRunes(1) | fn.#StringExpression
-	EncryptedLogGroupStrategy!:   "ALLOW" | "SKIP" | fn.#StringExpression
-	LogGroupSelectionCriteria?:   strings.MaxRunes(2000) & strings.MinRunes(1) | fn.#StringExpression
+	DataSourceSelectionCriteria?: strings.MaxRunes(2000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	EncryptedLogGroupStrategy!: "ALLOW" | "SKIP" | fn.#StringExpression
+	LogGroupSelectionCriteria?: strings.MaxRunes(2000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
-#SourceMetricsConfiguration: close(
-	{MetricsSelectionCriteria?: strings.MaxRunes(2000) & strings.MinRunes(1) | fn.#StringExpression},
-) |
+#SourceMetricsConfiguration: close({
+	MetricsSelectionCriteria?: strings.MaxRunes(2000) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(2000) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+}) |
 fn.#ObjectExpression
 
 #Tag: close({
-	Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-	Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+	Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+	} |
+	fn.#StringExpression
+	Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+	{
+		number | bool
+		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+	} |
+	fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #TagPropagationConfiguration: close({
-	DestinationRoleArn!: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+	DestinationRoleArn!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:role/[\\w+=,.@/-]+$" |
+	{
+		number | bool
+		_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+		strings.MaxRunes(2048) &
+		strings.MinRunes(20) &
+		=~"^arn:aws[a-zA-Z-]*:iam::\\d{12}:role/[\\w+=,.@/-]+$" &
+		"\(self)"
+	} |
 	fn.#StringExpression
 	TagConflictResolutionStrategy?: "IN_SYNC" | "ADD_ONLY" | "UPDATE_SYNC" | fn.#StringExpression
 }) |

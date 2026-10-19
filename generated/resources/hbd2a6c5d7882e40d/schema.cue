@@ -6,25 +6,29 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::UserPoolRiskConfigurationAttachment
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cognito::UserPoolRiskConfigurationAttachment"
-	Properties!: close({
+	let properties = close({
 		AccountTakeoverRiskConfiguration?:        #AccountTakeoverRiskConfigurationType
-		ClientId!:                                string | fn.#StringExpression
+		ClientId!:                                string | number | bool | fn.#StringExpression
 		CompromisedCredentialsRiskConfiguration?: #CompromisedCredentialsRiskConfigurationType
 		RiskExceptionConfiguration?:              #RiskExceptionConfigurationType
-		UserPoolId!:                              string | fn.#StringExpression
+		UserPoolId!:                              string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #AccountTakeoverActionType: close({
-	EventAction!: string | fn.#StringExpression
+	EventAction!: string | number | bool | fn.#StringExpression
 	Notify!:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 }) |
 fn.#ObjectExpression
@@ -42,33 +46,34 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#CompromisedCredentialsActionsType: close({EventAction!: string | fn.#StringExpression}) | fn.#ObjectExpression
+#CompromisedCredentialsActionsType: close({EventAction!: string | number | bool | fn.#StringExpression}) |
+	fn.#ObjectExpression
 
 #CompromisedCredentialsRiskConfigurationType: close({
 	Actions!:     #CompromisedCredentialsActionsType
-	EventFilter?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	EventFilter?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression
 
 #NotifyConfigurationType: close({
 	BlockEmail?:    #NotifyEmailType
-	From?:          string | fn.#StringExpression
+	From?:          string | number | bool | fn.#StringExpression
 	MfaEmail?:      #NotifyEmailType
 	NoActionEmail?: #NotifyEmailType
-	ReplyTo?:       string | fn.#StringExpression
-	SourceArn!:     string | fn.#StringExpression
+	ReplyTo?:       string | number | bool | fn.#StringExpression
+	SourceArn!:     string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #NotifyEmailType: close({
-	HtmlBody?: string | fn.#StringExpression
-	Subject!:  string | fn.#StringExpression
-	TextBody?: string | fn.#StringExpression
+	HtmlBody?: string | number | bool | fn.#StringExpression
+	Subject!:  string | number | bool | fn.#StringExpression
+	TextBody?: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression
 
 #RiskExceptionConfigurationType: close({
-	BlockedIPRangeList?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
-	SkippedIPRangeList?: list.UniqueItems() & [...string | fn.#StringExpression] | fn.#ListExpression
+	BlockedIPRangeList?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+	SkippedIPRangeList?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 }) |
 fn.#ObjectExpression

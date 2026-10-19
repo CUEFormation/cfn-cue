@@ -129,6 +129,76 @@
     "lint": "valid",
     "note": "Project-authored valid template."
   },
+  "mutation-bucket-name-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: bucket-name-invalid"
+  },
+  "mutation-bucket-name-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: bucket-name-invalid"
+  },
+  "mutation-bucket-name-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-bucket-name-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-cidr-host-bits-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: cidr-host-bits-invalid"
+  },
+  "mutation-cidr-host-bits-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: cidr-host-bits-invalid"
+  },
+  "mutation-cidr-host-bits-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-cidr-host-bits-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-condition-name-ampersand:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-condition-name-ampersand:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-custom-resource-if-properties-missing-token:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: custom-resource-if-properties-missing-token"
+  },
+  "mutation-custom-resource-if-properties-missing-token:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: custom-resource-if-properties-missing-token"
+  },
+  "mutation-custom-resource-if-properties:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-custom-resource-if-properties:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
   "mutation-custom-resource-intrinsic:us-east-1": {
     "cue": "valid",
     "lint": "valid",
@@ -179,6 +249,36 @@
     "lint": "valid",
     "note": "Project-authored valid template."
   },
+  "mutation-dynamic-reference-pattern-literal-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: dynamic-reference-pattern-literal-invalid"
+  },
+  "mutation-dynamic-reference-pattern-literal-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: dynamic-reference-pattern-literal-invalid"
+  },
+  "mutation-dynamic-reference-pattern-resolver-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: dynamic-reference-pattern-resolver-invalid"
+  },
+  "mutation-dynamic-reference-pattern-resolver-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: dynamic-reference-pattern-resolver-invalid"
+  },
+  "mutation-dynamic-reference-pattern-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-dynamic-reference-pattern-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
   "mutation-dynamic-vpc-id:us-east-1": {
     "cue": "valid",
     "lint": "valid",
@@ -198,6 +298,146 @@
     "cue": "invalid",
     "lint": "invalid",
     "note": "Intentional mutation: enum"
+  },
+  "mutation-iam-identity-sid-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: iam-identity-sid-invalid"
+  },
+  "mutation-iam-identity-sid-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: iam-identity-sid-invalid"
+  },
+  "mutation-iam-identity-sid-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-iam-identity-sid-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-if-properties-branch-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: if-properties-branch-invalid"
+  },
+  "mutation-if-properties-branch-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: if-properties-branch-invalid"
+  },
+  "mutation-if-properties-empty-branch:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-if-properties-empty-branch:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-if-properties-nested-arity-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: if-properties-nested-arity-invalid"
+  },
+  "mutation-if-properties-nested-arity-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: if-properties-nested-arity-invalid"
+  },
+  "mutation-if-properties-nested-deep:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-if-properties-nested-deep:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-if-properties-nested-leaf-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: if-properties-nested-leaf-invalid"
+  },
+  "mutation-if-properties-nested-leaf-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: if-properties-nested-leaf-invalid"
+  },
+  "mutation-if-properties-nested:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-if-properties-nested:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-if-properties:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-if-properties:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-if-update-policy:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-if-update-policy:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-kms-key-id-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: kms-key-id-invalid"
+  },
+  "mutation-kms-key-id-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: kms-key-id-invalid"
+  },
+  "mutation-kms-key-id-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-kms-key-id-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-logical-id-leading-digit:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-logical-id-leading-digit:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-mapping-boolean:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-mapping-boolean:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
   },
   "mutation-missing-required:us-east-1": {
     "cue": "invalid",
@@ -339,6 +579,256 @@
     "lint": "valid",
     "note": "Project-authored valid template."
   },
+  "mutation-rule-alarm-period-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-alarm-period-invalid"
+  },
+  "mutation-rule-alarm-period-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-alarm-period-invalid"
+  },
+  "mutation-rule-alarm-period-string-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-alarm-period-string-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-dynamodb-billing-mode-ref-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-dynamodb-billing-mode-ref-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-dynamodb-on-demand-capacity-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-dynamodb-on-demand-capacity-invalid"
+  },
+  "mutation-rule-dynamodb-on-demand-capacity-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-dynamodb-on-demand-capacity-invalid"
+  },
+  "mutation-rule-dynamodb-on-demand-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-dynamodb-on-demand-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-dynamodb-provisioned-capacity-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-dynamodb-provisioned-capacity-invalid"
+  },
+  "mutation-rule-dynamodb-provisioned-capacity-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-dynamodb-provisioned-capacity-invalid"
+  },
+  "mutation-rule-ecs-daemon-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-ecs-daemon-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-ecs-fargate-cpu-memory-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-ecs-fargate-cpu-memory-invalid"
+  },
+  "mutation-rule-ecs-fargate-cpu-memory-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-ecs-fargate-cpu-memory-invalid"
+  },
+  "mutation-rule-ecs-fargate-daemon-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-ecs-fargate-daemon-invalid"
+  },
+  "mutation-rule-ecs-fargate-daemon-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-ecs-fargate-daemon-invalid"
+  },
+  "mutation-rule-ecs-fargate-network-mode-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-ecs-fargate-network-mode-invalid"
+  },
+  "mutation-rule-ecs-fargate-network-mode-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-ecs-fargate-network-mode-invalid"
+  },
+  "mutation-rule-ecs-fargate-string-sizes-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-ecs-fargate-string-sizes-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-ecs-task-essential-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-ecs-task-essential-invalid"
+  },
+  "mutation-rule-ecs-task-essential-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-ecs-task-essential-invalid"
+  },
+  "mutation-rule-ecs-task-essential-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-ecs-task-essential-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-lambda-zipfile-runtime-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-lambda-zipfile-runtime-invalid"
+  },
+  "mutation-rule-lambda-zipfile-runtime-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-lambda-zipfile-runtime-invalid"
+  },
+  "mutation-rule-rds-aurora-exclusive-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-rds-aurora-exclusive-invalid"
+  },
+  "mutation-rule-rds-aurora-exclusive-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-rds-aurora-exclusive-invalid"
+  },
+  "mutation-rule-rds-backup-retention-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-rds-backup-retention-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-rds-cluster-float-version-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-rds-cluster-float-version-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-rds-engine-version-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-rds-engine-version-invalid"
+  },
+  "mutation-rule-rds-engine-version-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-rds-engine-version-invalid"
+  },
+  "mutation-rule-s3-acl-ref-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-s3-acl-ref-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-s3-public-acl-ownership-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-s3-public-acl-ownership-invalid"
+  },
+  "mutation-rule-s3-public-acl-ownership-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-s3-public-acl-ownership-invalid"
+  },
+  "mutation-rule-s3-public-acl-ownership-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-s3-public-acl-ownership-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-stage-method-path-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-stage-method-path-invalid"
+  },
+  "mutation-rule-stage-method-path-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-stage-method-path-invalid"
+  },
+  "mutation-rule-stage-method-path-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-stage-method-path-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-target-group-lambda-port-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-target-group-lambda-port-invalid"
+  },
+  "mutation-rule-target-group-lambda-port-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: rule-target-group-lambda-port-invalid"
+  },
+  "mutation-rule-target-group-lambda-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-rule-target-group-lambda-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
   "mutation-security-group-id-invalid:us-east-1": {
     "cue": "invalid",
     "lint": "invalid",
@@ -408,6 +898,16 @@
     "cue": "unsupported",
     "lint": "invalid",
     "note": "Intentional mutation: unknown-resource"
+  },
+  "mutation-update-policy-ref-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: update-policy-ref-invalid"
+  },
+  "mutation-update-policy-ref-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: update-policy-ref-invalid"
   },
   "mutation-vpc-id-invalid:us-east-1": {
     "cue": "invalid",

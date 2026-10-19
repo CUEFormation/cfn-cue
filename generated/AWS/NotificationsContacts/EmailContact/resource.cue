@@ -4,8 +4,6 @@ package EmailContact
 
 import schema "github.com/cueformation/cfn-cue/resources/ha9868ffe231a5611:schema"
 
-#Resource:           schema.#Resource
-#EmailContact:       schema.#EmailContact
-#EmailContactStatus: schema.#EmailContactStatus
-#Tag:                schema.#Tag
-#TagMap:             schema.#TagMap
+#Resource: schema.#Resource
+#Tag:      schema.#Tag
+#TagMap:   schema.#TagMap

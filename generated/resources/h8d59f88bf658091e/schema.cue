@@ -6,21 +6,31 @@ import (
 	"strings"
 	"github.com/cueformation/cfn-cue/fn:fn"
 )
-
 import cfnScalarStrings "strings"
-
 import cfnScalarStrconv "strconv"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::Cognito::UserPoolGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::Cognito::UserPoolGroup"
-	Properties!: close({
-		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) | fn.#StringExpression
+	let properties = close({
+		Description?: strings.MaxRunes(2048) & strings.MinRunes(0) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(2048) & strings.MinRunes(0) & "\(self)"
+		} |
+		fn.#StringExpression
 		GroupName?: strings.MaxRunes(128) & strings.MinRunes(1) & =~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(128) &
+			strings.MinRunes(1) &
+			=~"^[\\p{L}\\p{M}\\p{S}\\p{N}\\p{P}]+$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Precedence?: int & >=0 |
 			{
@@ -39,11 +49,28 @@ import base "github.com/cueformation/cfn-cue/template:template"
 					)
 			} |
 			fn.#NumberExpression
-		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" &
+		RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 		strings.MaxRunes(2048) &
 		strings.MinRunes(20) &
 		=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(20) &
+			=~"^arn:[\\w+=/,.@-]+:[\\w+=/,.@-]+:([\\w+=/,.@-]*)?:[0-9]+:[\\w+=/,.@-]+(:[\\w+=/,.@-]+)?(:[\\w+=/,.@-]+)?$" &
+			"\(self)"
+		} |
 		fn.#StringExpression
-		UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" | fn.#StringExpression
+		UserPoolId!: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(55) & strings.MinRunes(1) & =~"^[\\w-]+_[0-9a-zA-Z]+$" & "\(self)"
+		} |
+		fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

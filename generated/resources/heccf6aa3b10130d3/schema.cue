@@ -3,24 +3,28 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // Resource Type definition for AWS::ElastiCache::SubnetGroup
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ElastiCache::SubnetGroup"
-	Properties!: close({
-		CacheSubnetGroupName?: string | fn.#StringExpression
-		Description!:          string | fn.#StringExpression
-		SubnetIds!:            [...string | fn.#StringExpression] | fn.#ListExpression
+	let properties = close({
+		CacheSubnetGroupName?: string | number | bool | fn.#StringExpression
+		Description!:          string | number | bool | fn.#StringExpression
+		SubnetIds!:            [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 		Tags?:                 [...#Tag] | fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #Tag: close({
-	Key!:   string | fn.#StringExpression
-	Value!: string | fn.#StringExpression
+	Key!:   string | number | bool | fn.#StringExpression
+	Value!: string | number | bool | fn.#StringExpression
 }) |
 fn.#ObjectExpression

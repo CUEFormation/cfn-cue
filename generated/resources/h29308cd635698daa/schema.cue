@@ -8,8 +8,8 @@ import (
 	"struct"
 	"list"
 )
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
@@ -19,27 +19,65 @@ import base "github.com/cueformation/cfn-cue/template:template"
 // EXTERNAL_AGENT.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::CloudWatch::Integration"
-	Properties!: close({
+	let properties = close({
 		Credential?: #IntegrationCredential
 		IntegrationAttributes?: struct.MaxFields(50) & close({
 
-			{[=~"^.+$"]: string | fn.#StringExpression}}) |
+			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
+				"disallowed",
+			)}
+
+			{[=~"^.+$"]: string | number | bool | fn.#StringExpression}
+		}) |
 		fn.#ObjectExpression
 		IntegrationType!: "AWS_CONFIG_SLREC" | "AWS_INTEGRATION" | "EXTERNAL_AGENT" | fn.#StringExpression
-		Name!:            strings.MaxRunes(256) & strings.MinRunes(1) | fn.#StringExpression
-		RoleArn?: =~"(?:^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$)|^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		Name!: strings.MaxRunes(256) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(256) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+		RoleArn?: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" & (strings.MaxRunes(2048) & strings.MinRunes(1)) |
+		{
+			number | bool
+			_cfnString: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
+			strings.MaxRunes(2048) &
+			strings.MinRunes(1) &
+			"\(self)"
+		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & list.UniqueItems() & [...close({
-			Key!:   strings.MaxRunes(128) & strings.MinRunes(1) | fn.#StringExpression
-			Value!: strings.MaxRunes(256) & strings.MinRunes(0) | fn.#StringExpression
+			Key!: strings.MaxRunes(128) & strings.MinRunes(1) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(128) & strings.MinRunes(1) & "\(self)"
+			} |
+			fn.#StringExpression
+			Value!: strings.MaxRunes(256) & strings.MinRunes(0) |
+			{
+				number | bool
+				_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & "\(self)"
+			} |
+			fn.#StringExpression
 		}) |
 		fn.#ObjectExpression] |
 		fn.#ListExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #IntegrationCredential: close({
-	ApiKeyCredential!: close({ApiKeyValue!: strings.MaxRunes(4096) & strings.MinRunes(1) | fn.#StringExpression}) |
+	ApiKeyCredential!: close({
+		ApiKeyValue!: strings.MaxRunes(4096) & strings.MinRunes(1) |
+		{
+			number | bool
+			_cfnString: strings.MaxRunes(4096) & strings.MinRunes(1) & "\(self)"
+		} |
+		fn.#StringExpression
+	}) |
 	fn.#ObjectExpression
 }) |
 fn.#ObjectExpression

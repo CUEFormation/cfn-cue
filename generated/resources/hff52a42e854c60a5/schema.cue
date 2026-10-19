@@ -3,16 +3,20 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // VPC Route Server Propagation
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::EC2::RouteServerPropagation"
-	Properties!: close({
-		RouteServerId!: string | fn.#StringExpression
-		RouteTableId!:  string | fn.#StringExpression
+	let properties = close({
+		RouteServerId!: string | number | bool | fn.#StringExpression
+		RouteTableId!:  string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }

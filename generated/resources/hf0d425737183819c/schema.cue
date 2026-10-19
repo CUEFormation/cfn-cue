@@ -3,28 +3,32 @@
 package schema
 
 import "github.com/cueformation/cfn-cue/fn:fn"
-
 import base "github.com/cueformation/cfn-cue/template:template"
+import structs "struct"
 
 @jsonschema(schema="https://json-schema.org/draft/2020-12/schema")
 
 // The ``AWS::ApiGatewayV2::Route`` resource creates a route for an API.
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::ApiGatewayV2::Route"
-	Properties!: close({
-		ApiId!:                    string | fn.#StringExpression
+	let properties = close({
+		ApiId!:                    string | number | bool | fn.#StringExpression
 		ApiKeyRequired?:           bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-		AuthorizationScopes?:      [...string | fn.#StringExpression] | fn.#ListExpression
-		AuthorizationType?:        string | fn.#StringExpression
-		AuthorizerId?:             string | fn.#StringExpression
-		ModelSelectionExpression?: string | fn.#StringExpression
-		OperationName?:            string | fn.#StringExpression
-		RequestModels?:            fn.#Object & {...} | string | fn.#StringObjectExpression
+		AuthorizationScopes?:      [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
+		AuthorizationType?:        string | number | bool | fn.#StringExpression
+		AuthorizerId?:             string | number | bool | fn.#StringExpression
+		ModelSelectionExpression?: string | number | bool | fn.#StringExpression
+		OperationName?:            string | number | bool | fn.#StringExpression
+		RequestModels?:            fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
 		RequestParameters?:        fn.#Object & {...} | fn.#ObjectExpression
-		RouteKey!:                 string | fn.#StringExpression
-		RouteResponseSelectionExpression?: string | fn.#StringExpression
-		Target?:                           string | fn.#StringExpression
+		RouteKey!:                 string | number | bool | fn.#StringExpression
+		RouteResponseSelectionExpression?: string | number | bool | fn.#StringExpression
+		Target?:                           string | number | bool | fn.#StringExpression
 	})
+	_#propertiesIf: close(
+		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},
+	) & structs.MinFields(1)
+	Properties!: properties | _#propertiesIf
 }
 
 #ParameterConstraints: close(
