@@ -47,14 +47,16 @@ func Generate(source *Source, opt Options) (*bundle.Manifest, error) {
 			return nil, fmt.Errorf("output exists and is not a directory")
 		}
 		b, e := os.ReadFile(filepath.Join(opt.Out, bundle.ManifestFile))
-		var old bundle.Manifest
+		// Read only the generator so that a manifest in an older format can
+		// still be replaced.
+		var old struct{ Generator string }
 		if e != nil || json.Unmarshal(b, &old) != nil || old.Generator != bundle.Generator {
 			return nil, fmt.Errorf("refusing to replace an unmanaged directory: %s", opt.Out)
 		}
 	} else if !os.IsNotExist(e) {
 		return nil, e
 	}
-	m := &bundle.Manifest{Generator: bundle.Generator, Format: bundle.ManifestFormat, Source: source.Label, SourceSHA256: source.SHA256, Module: opt.Module, LanguageExtensions: opt.LanguageExtensions, IncludeSAM: opt.IncludeSAM, IAMPolicies: !opt.NoIAMPolicies, CfnLintRules: !opt.NoCfnLintRules, Regions: map[string]map[string]string{}, Schemas: map[string]bundle.SchemaInfo{}, Diagnostics: []bundle.Diagnostic{}}
+	m := &bundle.Manifest{Generator: bundle.Generator, Format: bundle.ManifestFormat, Source: source.Label, SourceSHA256: source.SHA256, Module: opt.Module, LanguageExtensions: opt.LanguageExtensions, IncludeSAM: opt.IncludeSAM, IAMPolicies: !opt.NoIAMPolicies, CfnLintRules: !opt.NoCfnLintRules, Schemas: map[string]bundle.SchemaInfo{}, Diagnostics: []bundle.Diagnostic{}}
 	m.ValidationNotes = []string{
 		"Each region has a full resource package and a separate types package. The types package checks template structure and regional type names, leaving resource Properties unconstrained.",
 		"Each resource type has one package, <Org>/<Service>/<Name>, which re-exports #Resource and the definitions of its resources/ schema. These packages do not check regional availability; the regional #Template and cfn-cue-validate do.",
@@ -67,6 +69,7 @@ func Generate(source *Source, opt Options) (*bundle.Manifest, error) {
 	if !opt.NoIAMPolicies {
 		m.ValidationNotes = append(m.ValidationNotes, "Listed IAM policy properties use iam package profiles in resources/ schemas. Profiles check policy grammar and placement rules, not whether actions, resources or condition keys exist; literal/ schemas keep provider types.")
 	}
+	regions := map[string]map[string]string{}
 	requested := map[string]bool{}
 	for _, r := range opt.Regions {
 		requested[r] = true
@@ -115,20 +118,20 @@ func Generate(source *Source, opt Options) (*bundle.Manifest, error) {
 		if len(mapping) == 0 {
 			return nil, fmt.Errorf("no selected resource types available in %s", region)
 		}
-		m.Regions[region] = mapping
+		regions[region] = mapping
 	}
 	if len(requested) > 0 {
 		return nil, fmt.Errorf("requested regions not found: %v", sortedBoolKeys(requested))
 	}
-	if len(m.Regions) == 0 {
+	if len(regions) == 0 {
 		return nil, fmt.Errorf("source contains no regional providers")
 	}
 	// Per-type packages are shared by every region, so each type must use one
 	// schema everywhere.
 	typeHashes := map[string]string{}
 	hashTypes := map[string]string{}
-	for _, region := range sortedRegionKeys(m.Regions) {
-		for typ, hash := range m.Regions[region] {
+	for _, region := range sortedRegionKeys(regions) {
+		for typ, hash := range regions[region] {
 			if prev, ok := typeHashes[typ]; ok && prev != hash {
 				return nil, fmt.Errorf("resource type %s uses schema %s in %s but %s elsewhere; per-type packages need one schema per type", typ, hash, region, prev)
 			}
@@ -147,6 +150,7 @@ func Generate(source *Source, opt Options) (*bundle.Manifest, error) {
 	if e := checkTypePaths(sortedStringKeys(typeHashes)); e != nil {
 		return nil, e
 	}
+	m.Regions, m.Types = buildTypes(regions)
 	parent := filepath.Dir(opt.Out)
 	if e := os.MkdirAll(parent, 0755); e != nil {
 		return nil, e
@@ -253,8 +257,8 @@ func Generate(source *Source, opt Options) (*bundle.Manifest, error) {
 		}
 		m.Diagnostics = append(m.Diagnostics, c.diagnostics...)
 	}
-	for _, region := range sortedRegionKeys(m.Regions) {
-		regional, err := Region(opt.Module, m.Regions[region], opt.LanguageExtensions)
+	for _, region := range sortedRegionKeys(regions) {
+		regional, err := Region(opt.Module, regions[region], opt.LanguageExtensions)
 		if err != nil {
 			return nil, fmt.Errorf("region %s: %w", region, err)
 		}
@@ -262,10 +266,10 @@ func Generate(source *Source, opt Options) (*bundle.Manifest, error) {
 		if e = writeAST(dir+"/region.cue", regional); e != nil {
 			return nil, e
 		}
-		if e = writeAST(dir+"/types/region.cue", RegionTypes(opt.Module, m.Regions[region], opt.LanguageExtensions)); e != nil {
+		if e = writeAST(dir+"/types/region.cue", RegionTypes(opt.Module, regions[region], opt.LanguageExtensions)); e != nil {
 			return nil, e
 		}
-		index := bundle.RegionIndex{Generator: m.Generator, Module: m.Module, Region: region, LanguageExtensions: m.LanguageExtensions, Resources: m.Regions[region]}
+		index := bundle.RegionIndex{Generator: m.Generator, Module: m.Module, Region: region, LanguageExtensions: m.LanguageExtensions, Resources: regions[region]}
 		b, e := json.MarshalIndent(index, "", "  ")
 		if e != nil {
 			return nil, e

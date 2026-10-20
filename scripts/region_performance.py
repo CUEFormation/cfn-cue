@@ -27,6 +27,21 @@ def schema_fingerprint(directory):
     return fingerprint.hexdigest()
 
 
+def region_types(manifest, region):
+    """The region's type-to-schema map, read from the manifest's types block."""
+    if region not in manifest["regions"]:
+        raise ValueError("region absent from the schema manifest: " + region)
+    types = {}
+    for typ, info in manifest["types"].items():
+        if info.get("regions", "*") == "*":
+            present = region not in info.get("exceptRegions", ())
+        else:
+            present = region in info["regions"]
+        if present:
+            types[typ] = info.get("hashes", {}).get(region, info["hash"])
+    return types
+
+
 def ordered_types(types, required=()):
     """Nested samples, with needed types first and a stable hash order after."""
     types = set(types)
@@ -131,7 +146,7 @@ def main():
     try:
         schemas = args.schemas.resolve()
         manifest = json.loads((schemas / "manifest.json").read_text())
-        types = manifest["regions"][args.region]
+        types = region_types(manifest, args.region)
         cue = executable(args.cue)
         sizes = sorted(set(len(types) if n == "all" else int(n) for n in args.sizes.split(",")))
         if not sizes or min(sizes) < 1 or max(sizes) > len(types):
@@ -183,7 +198,7 @@ def main():
                     command.append("-include-sam")
                 subprocess.run(command, cwd=REPO, check=True, stdout=subprocess.DEVNULL)
                 generated = json.loads((module / "manifest.json").read_text())
-                if generated["sourceSHA256"] != manifest["sourceSHA256"] or generated["regions"][args.region] != {t: types[t] for t in selected}:
+                if generated["sourceSHA256"] != manifest["sourceSHA256"] or region_types(generated, args.region) != {t: types[t] for t in selected}:
                     raise ValueError("filtered source or resource bindings differ from the checked-in module")
             metadata["moduleFingerprints"][str(count)] = schema_fingerprint(module)
             for repeat in range(1, args.repeats + 1):

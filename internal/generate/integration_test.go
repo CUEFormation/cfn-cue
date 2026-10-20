@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 
 	"cuelang.org/go/cue"
@@ -35,7 +36,15 @@ func TestCurrentResources(t *testing.T) {
 	if m.Format != bundle.ManifestFormat {
 		t.Errorf("manifest format %d, want %d", m.Format, bundle.ManifestFormat)
 	}
-	db, ok := m.Schemas[m.Regions["us-east-1"]["AWS::RDS::DBInstance"]]
+	index, e := bundle.ReadRegionIndex(dir, "us-east-1")
+	if e != nil {
+		t.Fatal(e)
+	}
+	if !reflect.DeepEqual(m.RegionTypes("us-east-1"), index.Resources) {
+		t.Error("manifest types differ from the us-east-1 region index")
+	}
+	hash, _ := m.SchemaHash("AWS::RDS::DBInstance", "us-east-1")
+	db, ok := m.Schemas[hash]
 	if !ok {
 		t.Fatal("manifest has no us-east-1 AWS::RDS::DBInstance schema")
 	}

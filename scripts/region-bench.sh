@@ -26,10 +26,10 @@ if [ -n "${OLD_REF:-}" ]; then
 fi
 # The six benchmark types first, then the rest of us-east-1 alphabetically.
 (cd "$REPO" && go run ./cmd/cfn-cue -source "$SNAP" -out "$OUT/all" -regions us-east-1 >/dev/null) || exit 1
-python3 - "$OUT/all/manifest.json" > "$OUT/types.txt" <<'EOF'
+python3 - "$OUT/all/regions/us-east-1/index.json" > "$OUT/types.txt" <<'EOF'
 import json, sys
 first = ["AWS::SQS::Queue", "AWS::IAM::Role", "AWS::EC2::Subnet", "AWS::S3::Bucket", "AWS::Lambda::Function", "AWS::DynamoDB::Table"]
-rest = sorted(t for t in json.load(open(sys.argv[1]))["regions"]["us-east-1"] if t not in first)
+rest = sorted(t for t in json.load(open(sys.argv[1]))["resources"] if t not in first)
 print("\n".join(first + rest))
 EOF
 generate() { # variant types dir
