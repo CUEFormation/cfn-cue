@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 )
 
@@ -18,7 +19,9 @@ const Generator = "cfn-cue/v2"
 const ManifestFile = "manifest.json"
 
 // ManifestFormat is the version of the manifest's shape. Format 2 adds the
-// provider lifecycle keywords to each schema (see Lifecycle).
+// provider lifecycle keywords to each schema (see Lifecycle) and replaces
+// format 1's per-region type maps with a region list and one Types entry per
+// resource type (see TypeInfo).
 const ManifestFormat = 2
 
 type SchemaInfo struct {
@@ -78,22 +81,107 @@ type Diagnostic struct {
 }
 
 // Manifest describes a generated module. Format is ManifestFormat; a manifest
-// without it is format 1, where the Lifecycle fields are unknown. Consumers
-// should refuse a newer format.
+// without it is format 1, where the Lifecycle fields are unknown and regions
+// maps each region to its type-to-schema map. Consumers should refuse a newer
+// format.
 type Manifest struct {
-	Generator          string                       `json:"generator"`
-	Format             int                          `json:"format"`
-	Source             string                       `json:"source"`
-	SourceSHA256       string                       `json:"sourceSHA256"`
-	Module             string                       `json:"module"`
-	LanguageExtensions bool                         `json:"languageExtensions"`
-	IncludeSAM         bool                         `json:"includeSAM"`
-	IAMPolicies        bool                         `json:"iamPolicies"`
-	CfnLintRules       bool                         `json:"cfnLintRules"`
-	Regions            map[string]map[string]string `json:"regions"`
-	Schemas            map[string]SchemaInfo        `json:"schemas"`
-	Diagnostics        []Diagnostic                 `json:"diagnostics"`
-	ValidationNotes    []string                     `json:"validationNotes"`
+	Generator          string `json:"generator"`
+	Format             int    `json:"format"`
+	Source             string `json:"source"`
+	SourceSHA256       string `json:"sourceSHA256"`
+	Module             string `json:"module"`
+	LanguageExtensions bool   `json:"languageExtensions"`
+	IncludeSAM         bool   `json:"includeSAM"`
+	IAMPolicies        bool   `json:"iamPolicies"`
+	CfnLintRules       bool   `json:"cfnLintRules"`
+	// Regions lists every generated region, sorted.
+	Regions []string `json:"regions"`
+	// Types maps each resource type to its schema and regional availability.
+	// RegionTypes and SchemaHash read it.
+	Types           map[string]TypeInfo   `json:"types"`
+	Schemas         map[string]SchemaInfo `json:"schemas"`
+	Diagnostics     []Diagnostic          `json:"diagnostics"`
+	ValidationNotes []string              `json:"validationNotes"`
+}
+
+// TypeInfo says where a resource type is available and which schema it uses.
+// Regions is "*" when the type is in every region of Manifest.Regions.
+// Otherwise exactly one of Regions (the sorted regions that have the type) and
+// ExceptRegions (the sorted regions that lack it) is set, whichever is
+// shorter, preferring Regions on a tie. Hash is the schema in every one of
+// those regions: generation requires one schema per type because the
+// per-type packages are shared by every region.
+type TypeInfo struct {
+	Hash          string        `json:"hash"`
+	Regions       *Availability `json:"regions,omitempty"`
+	ExceptRegions []string      `json:"exceptRegions,omitempty"`
+}
+
+// Availability is "*" in JSON when All is set and a sorted array of region
+// names otherwise. TypeInfo holds a pointer to it so that an unset Regions is
+// omitted.
+type Availability struct {
+	All  bool
+	List []string
+}
+
+func (a Availability) MarshalJSON() ([]byte, error) {
+	if a.All {
+		return []byte(`"*"`), nil
+	}
+	if a.List == nil {
+		return []byte("[]"), nil
+	}
+	return json.Marshal(a.List)
+}
+
+func (a *Availability) UnmarshalJSON(b []byte) error {
+	var s string
+	if json.Unmarshal(b, &s) == nil {
+		if s != "*" {
+			return fmt.Errorf("regions: want \"*\" or a list, got %q", s)
+		}
+		*a = Availability{All: true}
+		return nil
+	}
+	var list []string
+	if err := json.Unmarshal(b, &list); err != nil {
+		return fmt.Errorf("regions: want \"*\" or a list: %w", err)
+	}
+	*a = Availability{List: list}
+	return nil
+}
+
+// RegionTypes returns the type-to-schema map for region, the same map its
+// region index holds. It is empty for a region the manifest lacks.
+func (m *Manifest) RegionTypes(region string) map[string]string {
+	types := map[string]string{}
+	for typ := range m.Types {
+		if hash, ok := m.SchemaHash(typ, region); ok {
+			types[typ] = hash
+		}
+	}
+	return types
+}
+
+// SchemaHash returns the schema typ uses in region, if typ is available there.
+func (m *Manifest) SchemaHash(typ, region string) (string, bool) {
+	info, ok := m.Types[typ]
+	if !ok || !slices.Contains(m.Regions, region) {
+		return "", false
+	}
+	switch {
+	case info.Regions != nil && info.Regions.All:
+	case info.Regions != nil:
+		if !slices.Contains(info.Regions.List, region) {
+			return "", false
+		}
+	default:
+		if slices.Contains(info.ExceptRegions, region) {
+			return "", false
+		}
+	}
+	return info.Hash, true
 }
 
 // RegionIndex is the part of the manifest needed to check templates for one

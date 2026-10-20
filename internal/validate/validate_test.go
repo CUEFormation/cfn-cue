@@ -372,6 +372,18 @@ func TestSemanticChecks(t *testing.T) {
 	if result := Check([]byte(fmt.Sprintf(attribute, "Missing")), Options{Schemas: dir, Region: "us-east-1", Checks: ChecksSemantic}); result.Status != "valid" {
 		t.Fatalf("unknown attribute names must not be rejected: %+v", result)
 	}
+	// A format 1 manifest maps each region to its types. Semantic checks read
+	// only the schemas, so the older shape still serves them.
+	delete(manifest, "format")
+	delete(manifest, "types")
+	manifest["regions"] = map[string]any{"us-east-1": map[string]any{}}
+	data, _ = json.Marshal(manifest)
+	if err := os.WriteFile(path, data, 0644); err != nil {
+		t.Fatal(err)
+	}
+	if result := Check([]byte(fmt.Sprintf(attribute, "Missing")), Options{Schemas: dir, Region: "us-east-1", Checks: ChecksSemantic}); result.Status != "valid" {
+		t.Fatalf("format 1 manifest must still serve semantic checks: %+v", result)
+	}
 }
 
 // TestSemanticWithMixedFailures checks that semantic results follow the same

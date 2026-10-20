@@ -4,7 +4,7 @@ import sys
 import tempfile
 import unittest
 
-from region_performance import measure, ordered_types
+from region_performance import measure, ordered_types, region_types
 
 
 class PerformanceHarnessTests(unittest.TestCase):
@@ -16,6 +16,20 @@ class PerformanceHarnessTests(unittest.TestCase):
         self.assertEqual(ordered_types(types, {"AWS::B::Thing"})[0], "AWS::B::Thing")
         with self.assertRaises(ValueError):
             ordered_types(types, {"AWS::Unavailable::Thing"})
+
+    def test_region_types_reads_availability(self):
+        manifest = {"regions": ["us-east-1", "us-west-2"], "types": {
+            "AWS::A::All": {"hash": "a", "regions": "*"},
+            "AWS::B::East": {"hash": "b", "regions": ["us-east-1"]},
+            "AWS::C::NotEast": {"hash": "c", "exceptRegions": ["us-east-1"]},
+            "AWS::D::Diverged": {"hash": "d", "regions": "*", "hashes": {"us-west-2": "e"}},
+        }}
+        self.assertEqual(region_types(manifest, "us-east-1"),
+                         {"AWS::A::All": "a", "AWS::B::East": "b", "AWS::D::Diverged": "d"})
+        self.assertEqual(region_types(manifest, "us-west-2"),
+                         {"AWS::A::All": "a", "AWS::C::NotEast": "c", "AWS::D::Diverged": "e"})
+        with self.assertRaises(ValueError):
+            region_types(manifest, "eu-west-1")
 
     def run_child(self, code, timeout):
         with tempfile.TemporaryDirectory() as directory:

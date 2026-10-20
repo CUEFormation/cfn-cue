@@ -57,7 +57,7 @@ func TestResourcePerformance(t *testing.T) {
 		t.Fatal(e)
 	}
 	for _, c := range perfCases {
-		hash, ok := m.Regions["us-east-1"][c.typ]
+		hash, ok := m.SchemaHash(c.typ, "us-east-1")
 		if !ok {
 			t.Fatalf("%s is not in us-east-1", c.typ)
 		}
@@ -112,11 +112,10 @@ func TestRegionPerformance(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	var m bundle.Manifest
-	if e = json.Unmarshal(b, &m); e != nil {
+	types, e := regionTypeCount(b, "us-east-1")
+	if e != nil {
 		t.Fatal(e)
 	}
-	types := len(m.Regions["us-east-1"])
 	start := time.Now()
 	schema := build(t, dir, "./regions/us-east-1").LookupPath(cue.MakePath(cue.Def("Template")))
 	t.Logf("RESULT types=%d load_ms=%d", types, time.Since(start).Milliseconds())
@@ -146,4 +145,18 @@ func TestRegionPerformance(t *testing.T) {
 			t.Logf("RESULT types=%d if_depth=%d n=%d broken=%v ms=%d per_resource_us=%d", types, depth, n, broken, elapsed.Milliseconds(), elapsed.Microseconds()/int64(n))
 		}
 	}
+}
+
+// regionTypeCount reads format 1 manifests too, because region-bench.sh runs
+// TestRegionPerformance against modules from older generators.
+func regionTypeCount(manifest []byte, region string) (int, error) {
+	var m bundle.Manifest
+	if json.Unmarshal(manifest, &m) == nil {
+		return len(m.RegionTypes(region)), nil
+	}
+	var old struct{ Regions map[string]map[string]string }
+	if e := json.Unmarshal(manifest, &old); e != nil {
+		return 0, e
+	}
+	return len(old.Regions[region]), nil
 }

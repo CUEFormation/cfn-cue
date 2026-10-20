@@ -19,7 +19,7 @@ value.
 | `-checks` | What runs | Notes |
 | --- | --- | --- |
 | `structural` (default) | Generated CUE schemas | Unchanged results; existing contracts use this mode |
-| `semantic` | Reference checks only | Reads the manifest for regional availability, GetAtt names and primary identifiers; no CUE evaluation |
+| `semantic` | Reference checks only | Reads the region index for regional availability and the manifest for GetAtt names and primary identifiers; no CUE evaluation |
 | `all` | Both | Semantic diagnostics are reported even when the schemas reject the template |
 
 ```sh
