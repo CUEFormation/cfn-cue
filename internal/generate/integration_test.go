@@ -1,6 +1,7 @@
 package generate
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"os"
@@ -31,6 +32,25 @@ func TestCurrentResources(t *testing.T) {
 		t.Fatal(e)
 	}
 	t.Logf("checking %d regions and %d shared schemas", len(m.Regions), len(m.Schemas))
+	if m.Format != bundle.ManifestFormat {
+		t.Errorf("manifest format %d, want %d", m.Format, bundle.ManifestFormat)
+	}
+	db, ok := m.Schemas[m.Regions["us-east-1"]["AWS::RDS::DBInstance"]]
+	if !ok {
+		t.Fatal("manifest has no us-east-1 AWS::RDS::DBInstance schema")
+	}
+	if len(db.PrimaryIdentifier) == 0 || len(db.CreateOnlyProperties) == 0 || len(db.ConditionalCreateOnlyProperties) == 0 || len(db.WriteOnlyProperties) == 0 ||
+		len(db.ReadOnlyProperties) == 0 || len(db.DeprecatedProperties) == 0 || len(db.PropertyTransform) == 0 || db.Tagging == nil {
+		t.Errorf("AWS::RDS::DBInstance lifecycle incomplete: %+v", db.Lifecycle)
+	}
+	for _, name := range []string{"create", "read", "update", "delete", "list"} {
+		if len(db.Handlers[name].Permissions) == 0 {
+			t.Errorf("AWS::RDS::DBInstance has no %s handler permissions", name)
+		}
+	}
+	if bytes.Contains(b, []byte(`"handlerSchema"`)) {
+		t.Error("manifest contains handlerSchema")
+	}
 	source, e := OpenSource(context.Background(), "../../snapshots/schemas-2026-10-12.zip")
 	if e != nil {
 		t.Fatal(e)

@@ -17,6 +17,10 @@ const Generator = "cfn-cue/v2"
 
 const ManifestFile = "manifest.json"
 
+// ManifestFormat is the version of the manifest's shape. Format 2 adds the
+// provider lifecycle keywords to each schema (see Lifecycle).
+const ManifestFormat = 2
+
 type SchemaInfo struct {
 	Type               string `json:"type"`
 	SHA256             string `json:"sha256"`
@@ -25,10 +29,45 @@ type SchemaInfo struct {
 	// Manifests from earlier generators omit it, which a reader must treat as
 	// unknown.
 	Attributes []string `json:"attributes"`
-	// PrimaryIdentifier lists the writable top-level properties that make
+	// IdentifierProperties lists the writable top-level properties that make
 	// up the resource's primary identifier (see generate.PrimaryIdentifier).
 	// It is omitted when the template cannot set the whole identifier.
-	PrimaryIdentifier []string `json:"primaryIdentifier,omitempty"`
+	IdentifierProperties []string `json:"identifierProperties,omitempty"`
+	Lifecycle
+}
+
+// Lifecycle holds provider schema keywords copied verbatim, in provider
+// order. Property paths stay JSON pointers. A keyword the schema omits is
+// omitted here too.
+type Lifecycle struct {
+	PrimaryIdentifier               []string           `json:"primaryIdentifier,omitempty"`
+	AdditionalIdentifiers           [][]string         `json:"additionalIdentifiers,omitempty"`
+	CreateOnlyProperties            []string           `json:"createOnlyProperties,omitempty"`
+	ConditionalCreateOnlyProperties []string           `json:"conditionalCreateOnlyProperties,omitempty"`
+	WriteOnlyProperties             []string           `json:"writeOnlyProperties,omitempty"`
+	ReadOnlyProperties              []string           `json:"readOnlyProperties,omitempty"`
+	DeprecatedProperties            []string           `json:"deprecatedProperties,omitempty"`
+	ReplacementStrategy             string             `json:"replacementStrategy,omitempty"`
+	PropertyTransform               map[string]string  `json:"propertyTransform,omitempty"`
+	Tagging                         *Tagging           `json:"tagging,omitempty"`
+	Handlers                        map[string]Handler `json:"handlers,omitempty"`
+}
+
+// Tagging flags are pointers because the provider defaults an absent flag to
+// true, so false must survive and absent must stay absent.
+type Tagging struct {
+	Taggable                 *bool    `json:"taggable,omitempty"`
+	TagOnCreate              *bool    `json:"tagOnCreate,omitempty"`
+	TagUpdatable             *bool    `json:"tagUpdatable,omitempty"`
+	CloudFormationSystemTags *bool    `json:"cloudFormationSystemTags,omitempty"`
+	TagProperty              string   `json:"tagProperty,omitempty"`
+	Permissions              []string `json:"permissions,omitempty"`
+}
+
+// Handler omits the provider's handlerSchema.
+type Handler struct {
+	Permissions      []string `json:"permissions,omitempty"`
+	TimeoutInMinutes int      `json:"timeoutInMinutes,omitempty"`
 }
 
 type Diagnostic struct {
@@ -38,8 +77,12 @@ type Diagnostic struct {
 	Detail   string `json:"detail"`
 }
 
+// Manifest describes a generated module. Format is ManifestFormat; a manifest
+// without it is format 1, where the Lifecycle fields are unknown. Consumers
+// should refuse a newer format.
 type Manifest struct {
 	Generator          string                       `json:"generator"`
+	Format             int                          `json:"format"`
 	Source             string                       `json:"source"`
 	SourceSHA256       string                       `json:"sourceSHA256"`
 	Module             string                       `json:"module"`
