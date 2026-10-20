@@ -54,7 +54,7 @@ func Generate(source *Source, opt Options) (*bundle.Manifest, error) {
 	} else if !os.IsNotExist(e) {
 		return nil, e
 	}
-	m := &bundle.Manifest{Generator: bundle.Generator, Source: source.Label, SourceSHA256: source.SHA256, Module: opt.Module, LanguageExtensions: opt.LanguageExtensions, IncludeSAM: opt.IncludeSAM, IAMPolicies: !opt.NoIAMPolicies, CfnLintRules: !opt.NoCfnLintRules, Regions: map[string]map[string]string{}, Schemas: map[string]bundle.SchemaInfo{}, Diagnostics: []bundle.Diagnostic{}}
+	m := &bundle.Manifest{Generator: bundle.Generator, Format: bundle.ManifestFormat, Source: source.Label, SourceSHA256: source.SHA256, Module: opt.Module, LanguageExtensions: opt.LanguageExtensions, IncludeSAM: opt.IncludeSAM, IAMPolicies: !opt.NoIAMPolicies, CfnLintRules: !opt.NoCfnLintRules, Regions: map[string]map[string]string{}, Schemas: map[string]bundle.SchemaInfo{}, Diagnostics: []bundle.Diagnostic{}}
 	m.ValidationNotes = []string{
 		"Each region has a full resource package and a separate types package. The types package checks template structure and regional type names, leaving resource Properties unconstrained.",
 		"Each resource type has one package, <Org>/<Service>/<Name>, which re-exports #Resource and the definitions of its resources/ schema. These packages do not check regional availability; the regional #Template and cfn-cue-validate do.",
@@ -206,7 +206,7 @@ func Generate(source *Source, opt Options) (*bundle.Manifest, error) {
 			return nil, fmt.Errorf("schema %s typeName %q does not match %q", hash, typ, hashTypes[hash])
 		}
 		sum := sha256.Sum256(b)
-		m.Schemas[hash] = bundle.SchemaInfo{Type: typ, SHA256: hex.EncodeToString(sum[:]), PropertiesRequired: len(asArray(root["required"])) > 0, Attributes: Attributes(root), PrimaryIdentifier: PrimaryIdentifier(root)}
+		m.Schemas[hash] = bundle.SchemaInfo{Type: typ, SHA256: hex.EncodeToString(sum[:]), PropertiesRequired: len(asArray(root["required"])) > 0, Attributes: Attributes(root), IdentifierProperties: PrimaryIdentifier(root), Lifecycle: Lifecycle(root)}
 		c := &converter{module: opt.Module, resource: typ, extensions: opt.LanguageExtensions, iam: !opt.NoIAMPolicies, cfnLintRules: !opt.NoCfnLintRules}
 		f, e := c.extract(root, false)
 		if e != nil {

@@ -490,7 +490,7 @@ func checkSemantic(decoded any, schemas map[string]bundle.SchemaInfo, mapping ma
 		return names, names != nil
 	}, PrimaryIdentifier: func(typ string) []string {
 		if hash, ok := mapping[typ]; ok {
-			return schemas[hash].PrimaryIdentifier
+			return schemas[hash].IdentifierProperties
 		}
 		return nil
 	}})
