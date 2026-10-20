@@ -11,6 +11,8 @@ import (
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/cue/load"
+
+	"github.com/cueformation/cfn-cue/internal/bundle"
 )
 
 func fixture(t *testing.T) *Source {
@@ -283,6 +285,19 @@ func TestFailureLeavesOutputIntact(t *testing.T) {
 	after, _ := os.ReadFile(filepath.Join(out, "manifest.json"))
 	if string(before) != string(after) {
 		t.Fatal("failed generation modified output")
+	}
+}
+func TestReplacesFormatOneOutput(t *testing.T) {
+	out := filepath.Join(t.TempDir(), "generated")
+	if e := os.MkdirAll(out, 0755); e != nil {
+		t.Fatal(e)
+	}
+	old := `{"generator":"` + bundle.Generator + `","regions":{"us-east-1":{"AWS::Test::Thing":"test"}}}`
+	if e := os.WriteFile(filepath.Join(out, "manifest.json"), []byte(old), 0644); e != nil {
+		t.Fatal(e)
+	}
+	if _, e := Generate(fixture(t), Options{Out: out}); e != nil {
+		t.Fatal(e)
 	}
 }
 func TestDiagnosticsAndStrict(t *testing.T) {

@@ -32,7 +32,7 @@ func TestScopedRulesOnProviderSchemas(t *testing.T) {
 	}
 	schemas := map[string]cue.Value{}
 	for _, typ := range types {
-		schemas[typ] = build(t, out, "./resources/h"+manifest.Regions["us-east-1"][typ]).LookupPath(cue.MakePath(cue.Def("Resource")))
+		schemas[typ] = build(t, out, "./resources/h"+manifest.Types[typ].Hash).LookupPath(cue.MakePath(cue.Def("Resource")))
 	}
 	keys := `KeySchema:[{AttributeName:"id",KeyType:"HASH"}],AttributeDefinitions:[{AttributeName:"id",AttributeType:"S"}]`
 	fargate := `RequiresCompatibilities:["FARGATE"],NetworkMode:"awsvpc",ContainerDefinitions:[{Name:"app",Image:"nginx"}]`

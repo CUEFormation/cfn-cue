@@ -1,10 +1,12 @@
 package generate
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 
 	"cuelang.org/go/cue"
@@ -31,6 +33,33 @@ func TestCurrentResources(t *testing.T) {
 		t.Fatal(e)
 	}
 	t.Logf("checking %d regions and %d shared schemas", len(m.Regions), len(m.Schemas))
+	if m.Format != bundle.ManifestFormat {
+		t.Errorf("manifest format %d, want %d", m.Format, bundle.ManifestFormat)
+	}
+	index, e := bundle.ReadRegionIndex(dir, "us-east-1")
+	if e != nil {
+		t.Fatal(e)
+	}
+	if !reflect.DeepEqual(m.RegionTypes("us-east-1"), index.Resources) {
+		t.Error("manifest types differ from the us-east-1 region index")
+	}
+	hash, _ := m.SchemaHash("AWS::RDS::DBInstance", "us-east-1")
+	db, ok := m.Schemas[hash]
+	if !ok {
+		t.Fatal("manifest has no us-east-1 AWS::RDS::DBInstance schema")
+	}
+	if len(db.PrimaryIdentifier) == 0 || len(db.CreateOnlyProperties) == 0 || len(db.ConditionalCreateOnlyProperties) == 0 || len(db.WriteOnlyProperties) == 0 ||
+		len(db.ReadOnlyProperties) == 0 || len(db.DeprecatedProperties) == 0 || len(db.PropertyTransform) == 0 || db.Tagging == nil {
+		t.Errorf("AWS::RDS::DBInstance lifecycle incomplete: %+v", db.Lifecycle)
+	}
+	for _, name := range []string{"create", "read", "update", "delete", "list"} {
+		if len(db.Handlers[name].Permissions) == 0 {
+			t.Errorf("AWS::RDS::DBInstance has no %s handler permissions", name)
+		}
+	}
+	if bytes.Contains(b, []byte(`"handlerSchema"`)) {
+		t.Error("manifest contains handlerSchema")
+	}
 	source, e := OpenSource(context.Background(), "../../snapshots/schemas-2026-10-12.zip")
 	if e != nil {
 		t.Fatal(e)

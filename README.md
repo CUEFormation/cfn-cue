@@ -79,7 +79,7 @@ generated/
   regions/<region>/index.json      Module, options, and type-to-hash map for one region
   <Org>/<Service>/<Name>/resource.cue
                                    #Resource and definitions for one type, re-exported
-  manifest.json                   Source checksum, availability, conversion report
+  manifest.json                   Source checksum, region list, per-type schema and availability, schema lifecycle metadata, conversion report
 ```
 
 The two resource representations serve different purposes. `literal/` preserves resource data shapes, including read-only properties. `resources/` describes inputs to a template: it removes read-only properties and permits expressions at value boundaries. Required fields, closed objects, numeric limits, enums, arrays, local references and schema applicators are handled by the CUE JSON Schema extractor. Presence rules between properties are emitted as CUE directly, so errors name the fields. This covers mutually exclusive properties and exactly-one-of or at-least-one-of groups (for example `CidrIpv6 cannot be used with CidrIp; set exactly one of CidrIp, CidrIpv6, ...`). Groups that name several properties per alternative, or names that aren't capitalized identifiers, keep the extractor's `matchN` form.
@@ -120,6 +120,49 @@ the property's enum or pattern, so a number branch is accepted for an enum
 property just as a non-member string branch is; cfn-lint checks each branch.
 Function arguments such as `Fn::Join` items and `Fn::Sub` variables keep their
 string type, although cfn-lint accepts numbers there.
+
+### Manifest format
+
+`manifest.json` has a top-level `format`, currently 2. A manifest without
+`format` is format 1, where the lifecycle fields below are unknown and
+`regions` maps each region to its type-to-hash map. Consumers should refuse a
+newer format.
+
+`regions` lists the generated regions, sorted. `types` has one entry per
+resource type, giving its schema hash and the regions that have it:
+
+```jsonc
+"regions": ["af-south-1", "ap-east-1", ...],
+"types": {
+  "AWS::S3::Bucket":     { "hash": "69ff2c30cdaed778", "regions": "*" },
+  "AWS::Bedrock::Agent": { "hash": "24f43d472ecafdba", "exceptRegions": ["af-south-1", ...] },
+  "AWS::Foo::Rare":      { "hash": "...", "regions": ["us-east-1", "us-west-2"] }
+}
+```
+
+`regions` is `"*"` when the type is in every listed region. Otherwise the
+entry has either `regions`, the sorted regions that have the type, or
+`exceptRegions`, the sorted regions that lack it, whichever list is shorter;
+on a tie it has `regions`. `hash` is the type's schema in every one of those
+regions; generation requires one schema per type because the per-type
+packages are shared by every region. Each `regions/<region>/index.json`
+still holds that region's full type-to-hash map.
+
+`schemas.<hash>` describes one resource schema. Besides `type`, `sha256` and
+`propertiesRequired`, it has fields derived for semantic validation:
+
+- `attributes`: Fn::GetAtt names, with cfn-lint's per-type overrides.
+- `identifierProperties`: the top-level properties a template sets to make up
+  the primary identifier (see [primary identifiers](docs/semantic-validation.md#primary-identifiers)).
+
+It also copies these provider schema keywords verbatim, in provider order,
+with property paths kept as JSON pointers: `primaryIdentifier`,
+`additionalIdentifiers`, `createOnlyProperties`,
+`conditionalCreateOnlyProperties`, `writeOnlyProperties`,
+`readOnlyProperties`, `deprecatedProperties`, `replacementStrategy`,
+`propertyTransform`, `tagging` and `handlers`. A keyword the schema omits is
+omitted. `handlers` keeps each handler's `permissions` and `timeoutInMinutes`
+and drops `handlerSchema`. None of these keywords affect the generated CUE.
 
 ### Importing resource types
 
@@ -241,8 +284,8 @@ without CUE and never substitutes deployment-time values; a cycle or missing
 resource that occurs only for some parameter values is a warning. Select it
 with `cfn-cue-validate -checks semantic` or `-checks all`; the default,
 `structural`, runs the CUE schemas alone. The generator records each
-resource type's GetAtt names and primary identifier in `manifest.json` for
-this pass. See
+resource type's GetAtt names and the primary identifier properties a
+template sets in `manifest.json` for this pass. See
 [semantic validation](docs/semantic-validation.md) for the rules, the
 treatment of conditions and unknown values, and known differences from
 cfn-lint.

@@ -24,7 +24,7 @@ class RunIntegrityTests(unittest.TestCase):
         (root / "index.json").write_bytes(corpus.canonical(dict(templates=[record], normalizer="fixture", source_lock_sha256="fixture")))
         schemas = root / "schemas"
         schemas.mkdir()
-        (schemas / "manifest.json").write_bytes(corpus.canonical(dict(sourceSHA256="fixture", regions={"us-east-1": {}, "us-west-2": {}})))
+        (schemas / "manifest.json").write_bytes(corpus.canonical(dict(sourceSHA256="fixture", regions=["us-east-1", "us-west-2"])))
         (schemas / "test.cue").write_text("package fixture\n")
         validator = root / "validator"
         validator.write_bytes(b"validator fixture")
