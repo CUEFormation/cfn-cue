@@ -11,9 +11,9 @@ import (
 )
 
 // TestSidPlacements checks that sidPlacements lists exactly the identity,
-// trust and KMS key policies the generator places.
+// trust, resource and KMS key policies the generator places.
 func TestSidPlacements(t *testing.T) {
-	unique := map[string]bool{"IdentityPolicyValue": true, "TrustPolicyValue": true, "KMSKeyPolicyValue": true}
+	unique := map[string]bool{"IdentityPolicyValue": true, "TrustPolicyValue": true, "ResourcePolicyValue": true, "KMSKeyPolicyValue": true}
 	// Schema pointers as property paths. Policy is the inline policy list item.
 	paths := map[string]string{"#/definitions/Policy/properties/PolicyDocument": "Policies/*/PolicyDocument"}
 	want := map[string][]string{}
@@ -127,6 +127,12 @@ func TestDuplicateSids(t *testing.T) {
 			[]string{"error:duplicate-sid:/Resources/R/Properties/AssumeRolePolicyDocument/Statement/1/Sid"}},
 		{"kms", `{"Resources": {"K": {"Type": "AWS::KMS::Key", "Properties": {"KeyPolicy": {"Statement": [` + s("A") + `,` + s("A") + `]}}}}}`,
 			[]string{"error:duplicate-sid:/Resources/K/Properties/KeyPolicy/Statement/1/Sid"}},
+		{"queue policy", `{"Resources": {"P": {"Type": "AWS::SQS::QueuePolicy", "Properties": {"Queues": ["q"], "PolicyDocument": {"Statement": [` + s("A") + `,` + s("A") + `]}}}}}`,
+			[]string{"error:duplicate-sid:/Resources/P/Properties/PolicyDocument/Statement/1/Sid"}},
+		{"opensearch string", `{"Resources": {"D": {"Type": "AWS::OpenSearchService::Domain", "Properties": {"AccessPolicies": "{\"Statement\": [{\"Sid\": \"A\"}, {\"Sid\": \"A\"}]}"}}}}`,
+			[]string{"error:duplicate-sid:/Resources/D/Properties/AccessPolicies/Statement/1/Sid"}},
+		{"ecr repository", `{"Resources": {"R": {"Type": "AWS::ECR::Repository", "Properties": {"RepositoryPolicyText": {"Statement": [` + s("A") + `,` + s("A") + `]}}}}}`,
+			[]string{}},
 		{"bucket policy", `{"Resources": {"P": {"Type": "AWS::S3::BucketPolicy", "Properties": {"Bucket": "b", "PolicyDocument": {"Statement": [` + s("A") + `,` + s("A") + `]}}}}}`,
 			[]string{}},
 		{"scp", `{"Resources": {"P": {"Type": "AWS::Organizations::Policy", "Properties": {"Type": "SERVICE_CONTROL_POLICY", "Content": {"Statement": [` + s("A") + `,` + s("A") + `]}}}}}`,
