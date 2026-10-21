@@ -20,28 +20,24 @@ import (
 // unified every literal with that closed struct of patterns and formatted
 // the failure. List types repeat the scalar alternatives so that a list is
 // not also tried against a nested disjunction.
+//
+// A value that may be a string or a list takes fn.#StringListExpression. An
+// Fn::If over two Refs is both a string and a list intrinsic, so separate
+// string and list intrinsic alternatives would leave it ambiguous.
 
 #Version:  "2012-10-17" | "2008-10-17"
 _#Version: #Version | fn.#StringExpression
 #Str:      matchIf(string, string, fn.#StringExpression)
-#Strs:     string | fn.#StringExpression | [...#Str] | _#ListIntrinsic
-
-// Ref, GetAtt, FindInMap and Select already match fn.#StringExpression.
-// Repeating them here would make {Ref: ...} ambiguous in list positions.
-// Pattern labels keep absent keys from being evaluated; see fn.#Function.
-_#ListIntrinsic: close({
-	[=~"^Fn::Split$"]: [string, fn.#String]
-	[=~"^Fn::If$"]:    [string, fn.#ListValue, fn.#ListValue]
-}) & struct.MinFields(1) & struct.MaxFields(1)
+#Strs:     string | [...#Str] | fn.#StringListExpression
 
 // Service prefix, colon, action name with optional * and ? wildcards.
 // IAM compares actions case-insensitively.
 #ActionName: "*" | =~"^[A-Za-z0-9-]+:[A-Za-z0-9_*?-]+$"
 #Action:     matchIf(string, #ActionName, fn.#StringExpression)
-#Actions:    #ActionName | fn.#StringExpression | [...#Action] | _#ListIntrinsic
+#Actions:    #ActionName | [...#Action] | fn.#StringListExpression
 #ARN:        =~"^arn:[^:]+:[^:]*:[^:]*:[^:]*:.+$"
 #Resource:   matchIf(string, "*" | #ARN, fn.#StringExpression)
-#Resources:  "*" | #ARN | fn.#StringExpression | [...#Resource] | _#ListIntrinsic
+#Resources:  "*" | #ARN | [...#Resource] | fn.#StringListExpression
 
 #PrincipalMap: close({
 	AWS?:           #Strs
@@ -58,7 +54,7 @@ _#Principal: #Principal | close({"Fn::If": [string, #Principal, #Principal]})
 // A key is namespace:name. OIDC namespaces are issuer hosts and paths, such
 // as token.actions.githubusercontent.com or oidc.eks.<region>.amazonaws.com/id/<id>.
 #ConditionKey: =~"^[A-Za-z0-9._/-]+:."
-#Condition: [#ConditionOperator]: [#ConditionKey]: string | number | bool | fn.#StringExpression | [...#ConditionValue] | _#ListIntrinsic
+#Condition: [#ConditionOperator]: [#ConditionKey]: string | number | bool | [...#ConditionValue] | fn.#StringListExpression
 _#Condition: #Condition | close({"Fn::If": [string, #Condition | fn.#NoValue, #Condition | fn.#NoValue]})
 
 #Effect:  "Allow" | "Deny"
@@ -140,7 +136,7 @@ _atMostOneResource: {
 // Role trust policies grant sts actions to a principal: no Resource.
 #TrustAction:   "*" | =~"(?i)^sts:(\\*|AssumeRole|AssumeRoleWithSAML|AssumeRoleWithWebIdentity|TagSession|SetSourceIdentity|SetContext|[A-Za-z]*[*?][A-Za-z*?]*)$"
 _#TrustAction:  matchIf(string, #TrustAction, fn.#StringExpression)
-_#TrustActions: #TrustAction | fn.#StringExpression | [..._#TrustAction] | _#ListIntrinsic
+_#TrustActions: #TrustAction | [..._#TrustAction] | fn.#StringListExpression
 #TrustStatement: close({
 	Sid?:          _#Sid
 	Effect!:       _#Effect
@@ -190,10 +186,10 @@ _#TrustActions: #TrustAction | fn.#StringExpression | [..._#TrustAction] | _#Lis
 // S3 bucket policies: s3 actions on bucket or object ARNs.
 _#S3ActionName:   "*" | =~"(?i)^s3:[A-Za-z*?]+$"
 _#S3Action:       matchIf(string, _#S3ActionName, fn.#StringExpression)
-_#S3Actions:      _#S3ActionName | fn.#StringExpression | [..._#S3Action] | _#ListIntrinsic
+_#S3Actions:      _#S3ActionName | [..._#S3Action] | fn.#StringListExpression
 _#S3ResourceName: =~"^arn:[^:]+:s3:::[^/]+(/.*)?$"
 _#S3Resource:     matchIf(string, _#S3ResourceName, fn.#StringExpression)
-_#S3Resources:    _#S3ResourceName | fn.#StringExpression | [..._#S3Resource] | _#ListIntrinsic
+_#S3Resources:    _#S3ResourceName | [..._#S3Resource] | fn.#StringListExpression
 #S3BucketStatement: close({
 	Sid?:          _#Sid
 	Effect!:       _#Effect
@@ -212,7 +208,7 @@ _#S3Resources:    _#S3ResourceName | fn.#StringExpression | [..._#S3Resource] | 
 // KMS key policies: Resource "*" means the key the policy is attached to.
 _#KMSResourceName: "*" | =~"^arn:[^:]+:kms:"
 _#KMSResource:     matchIf(string, _#KMSResourceName, fn.#StringExpression)
-_#KMSResources:    _#KMSResourceName | fn.#StringExpression | [..._#KMSResource] | _#ListIntrinsic
+_#KMSResources:    _#KMSResourceName | [..._#KMSResource] | fn.#StringListExpression
 #KMSKeyStatement: close({
 	Sid?:          _#Sid
 	Effect!:       _#Effect
@@ -250,7 +246,7 @@ _#KMSResources:    _#KMSResourceName | fn.#StringExpression | [..._#KMSResource]
 // Principal "*", a service-qualified Action and no NotAction.
 _#RCPActionName: #ActionName & !="*"
 _#RCPAction:     matchIf(string, _#RCPActionName, fn.#StringExpression)
-_#RCPActions:    _#RCPActionName | fn.#StringExpression | [..._#RCPAction] | _#ListIntrinsic
+_#RCPActions:    _#RCPActionName | [..._#RCPAction] | fn.#StringListExpression
 #ResourceControlStatement: close({
 	Sid?:         _#Sid
 	Effect!:      "Deny" | fn.#StringExpression
