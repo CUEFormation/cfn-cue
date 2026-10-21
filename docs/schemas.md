@@ -186,7 +186,7 @@ this pass. See
 treatment of conditions and unknown values, and known differences from
 cfn-lint.
 
-Literal property constraints apply directly to literal values. Intrinsic values receive argument and result-type checks; this version does not evaluate them or specialize their branches with the complete target property's enum, pattern, or nested object schema. Parameter type names and SAM Globals have structural coverage. Listed IAM policy properties use the profiles described below; other policy objects have structural coverage. ForEach expansion and ForEach in Conditions/Outputs remain future work.
+Literal property constraints apply directly to literal values. Intrinsic values receive argument and result-type checks; this version does not evaluate them or specialize their branches with the complete target property's enum, pattern, or nested object schema. Parameter type names and SAM Globals have structural coverage. Listed IAM policy properties use the [IAM policy profiles](iam-policies.md); other policy objects have structural coverage. ForEach expansion and ForEach in Conditions/Outputs remain future work.
 
 `cfn-cue-validate` reports `invalid` when any check it can run fails, even if other resources have types missing from the bundle; those resources are listed as not checked. It reports `unsupported` only when everything checkable passes. Resources are checked in logical-ID order, so repeated runs give the same status and message. The [corpus guide](../corpus/README.md#compare-validators) gives the full policy.
 
@@ -218,6 +218,7 @@ reference (`fn.#DynamicReference`), as cfn-lint does. CloudFormation resolves
 the reference before it checks the property, so the provider's pattern, enum,
 length and format constraints don't apply to it. Object and list properties
 don't accept one. As in cfn-lint, the reference must be on the first line, which
-may be followed by one final newline. Placement and syntax checks, such as
-`ssm-secure` only in supported properties, remain with cfn-lint. Embedded IAM
+may be followed by one final newline. The semantic pass checks that `ssm-secure`
+appears only in supported properties (`ssm-secure-placement`); other placement
+and syntax checks remain with cfn-lint. Embedded IAM
 policy semantics remain separate.

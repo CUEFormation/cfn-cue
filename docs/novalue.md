@@ -16,7 +16,7 @@ Reachability uses the template's `Conditions` and `Parameters` (`internal/condit
 - `Fn::And`, `Fn::Or`, `Fn::Not` and `Condition` are evaluated as written. A branch is reachable only if some assignment satisfies every enclosing `Fn::If` choice and the resource's `Condition` attribute. A resource whose `Condition` can never hold is never created, so its branches aren't checked.
 - `Fn::Equals` of two literals is a known boolean, compared by string form (`"1"` equals `1`). An expression compared with literals takes at most one of them, so `Env = prod` and `Env = dev` can't both hold. A `Ref` to a `String` or `Number` parameter with `AllowedValues` takes only those values.
 - Every other comparison, such as two different `Ref`s or a `Fn::FindInMap` result, is an unknown boolean, independent of the rest.
-- An undeclared, cyclic or malformed condition is unknown, not true or false. Both of its branches stay reachable. Each use of the name has the same value, so a resource with `Condition: X` can't reach `X`'s false branch. Undeclared names themselves are left to cfn-lint.
+- An undeclared, cyclic or malformed condition is unknown, not true or false. Both of its branches stay reachable. Each use of the name has the same value, so a resource with `Condition: X` can't reach `X`'s false branch. The semantic pass (`-checks semantic` or `all`) reports undeclared names as `condition-undefined`.
 
 Compared with cfn-lint 1.57.2 on the IAM Role cases in `internal/validate/novalue_test.go`, both report one branch, either branch, both branches, nested conditionals, and the resource's own `Condition` the same way. The model is stricter about what is unreachable than cfn-lint in three cases, so it accepts templates that cfn-lint rejects:
 

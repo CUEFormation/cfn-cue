@@ -19,7 +19,9 @@ The schemas cover the parts of a template that are easy to get wrong:
 - Resource properties: required fields, unknown keys, types, enums, patterns
   and numeric limits.
 - Intrinsic functions such as `Fn::Sub`, `Fn::If` and `Ref`, nested to any
-  depth, checked for shape and result type.
+  depth, checked for shape and for the kind of value they can return. The
+  return type of a `Ref` or `Fn::GetAtt` depends on the template, so it isn't
+  checked.
 - Regional availability, so a resource type fails in a region that doesn't
   offer it.
 - IAM policy documents, checked against the rules for each kind of policy
@@ -65,16 +67,19 @@ seconds.
 The repository also includes a Go validator. It loads only the schemas a
 template uses, so a typical template takes tens of milliseconds. It also checks
 references the schemas can't see, such as a `Ref` to a resource that doesn't
-exist. It reads JSON:
+exist. It reads JSON. Run it from the repository root:
 
 ```sh
+cd ..
 go run ./cmd/cfn-cue-validate -template stack.json -region us-east-1 -checks all
 ```
 
 ## Write templates in CUE
 
-Each resource type has its own package. Inside the generated module (or a copy
-of it), import the types you use:
+Each resource type has its own package. Copy `generated/` somewhere outside
+the repository, add your files to the copy, and import the types you use. Don't
+keep your own files in `generated/` itself: regenerating replaces the whole
+directory.
 
 ```cue
 package stack
@@ -129,23 +134,28 @@ Resources: Logs: #PrivateBucket & {
 To check a whole template against a region, import
 `github.com/cueformation/cfn-cue/regions/us-east-1:cf` and unify with
 `cf.#Template`. The module isn't published to a CUE registry yet. To use it
-from another module, copy `generated/` or publish it yourself.
+from another module, copy `generated/` as above or publish it yourself.
 
 ## What it doesn't do
 
-cfn-cue checks the structure of a template. It doesn't evaluate conditions or
-intrinsic functions, run transforms, or know about relationships between
-services. Keep [cfn-lint](https://github.com/aws-cloudformation/cfn-lint) in
-your workflow. The two catch different mistakes. See the
+The CUE schemas check each resource on its own. They don't evaluate
+conditions or intrinsic functions, run transforms, or know about relationships
+between services. The Go validator goes further: it checks references and
+names, and works out which `Fn::If` branches each condition can reach, but it
+still doesn't resolve values at deploy time. Keep
+[cfn-lint](https://github.com/aws-cloudformation/cfn-lint) in your workflow.
+The two catch different mistakes. See the
 [validation boundary](docs/schemas.md#validation-boundary) for the details.
 
 ## Regenerating
 
 The checked-in module was built from the AWS schema snapshot in `snapshots/`.
-With Go 1.26 or later, you can rebuild it, fetch the latest schemas, or build a
-smaller module for a few regions and types:
+With Go 1.26 or later, run these from the repository root to rebuild it from
+that snapshot, fetch the latest schemas from AWS, or build a smaller module for
+a few regions and types:
 
 ```sh
+go run ./cmd/cfn-cue -source snapshots/schemas-2026-10-12.zip -out generated
 go run ./cmd/cfn-cue -out generated
 go run ./cmd/cfn-cue -out sample -regions us-east-1 \
   -resources AWS::S3::Bucket,AWS::SQS::Queue
