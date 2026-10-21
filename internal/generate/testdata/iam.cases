@@ -188,6 +188,14 @@ bad	#IdentityPolicy	{Statement: [{}]}
 # Only Allow statements are restricted to Resource "*"; NotResource is not.
 ok	#ServiceControlPolicy	{Statement: [{Effect: "Allow", Action: "ec2:*", NotResource: "arn:aws:ec2:*:*:instance/*"}]}
 bad	#ServiceControlPolicy	{Statement: [{Effect: "Allow", Action: "ec2:*", Resource: ["*", "arn:aws:ec2:*:*:instance/*"]}]}
+# An Fn::If condition value may return a string or a list.
+ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Condition: {ArnEquals: {"aws:SourceArn": {"Fn::If": ["C", {Ref: "A"}, {Ref: "B"}]}}}}]}
+ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Condition: {StringEquals: {"aws:x": {"Fn::If": ["C", ["a", "b"], {Ref: "AWS::NoValue"}]}}}}]}
+ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Condition: {StringEquals: {"aws:x": {"Fn::Split": [",", {Ref: "L"}]}}}}]}
+bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Condition: {StringEquals: {"aws:x": {"Fn::If": ["C", {a: 1}, "b"]}}}}]}
+ok	#ResourcePolicy	{Statement: [{Effect: "Allow", Principal: "*", Action: "sqs:*", Resource: "*", Condition: {ArnEquals: {"aws:SourceArn": {"Fn::If": ["C", {Ref: "A"}, {Ref: "B"}]}}}}]}
+ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: {"Fn::If": ["C", {Ref: "A"}, {Ref: "B"}]}, Resource: {"Fn::If": ["C", {Ref: "A"}, {Ref: "B"}]}}]}
+ok	#TrustPolicy	{Statement: [{Effect: "Allow", Principal: {AWS: {"Fn::If": ["C", {Ref: "A"}, {Ref: "B"}]}}, Action: "sts:AssumeRole"}]}
 # A dynamic reference resolves before IAM reads the policy, so a list element may be one.
 ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: ["s3:GetObject", "{{resolve:ssm:PolicyAction:1}}"], Resource: ["{{resolve:ssm:PolicyResource:1}}"]}]}
 ok	#TrustPolicy	{Statement: [{Effect: "Allow", Principal: "*", Action: ["{{resolve:ssm:TrustAction}}"]}]}
