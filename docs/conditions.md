@@ -117,7 +117,7 @@ checked-in `corpus/smoke` and `corpus/semantic` cases:
 - **Row 5 is binding.** Removal-variant queries reach exactly 2¹⁴
   assignments in three templates (`991fe4669e36b637`, `4ffc49ecc6f12f61`,
   `10d7a9b22b158286`). One query in `478f2237d9d3539f`, the widdix DynamoDB
-  table that the README describes, exceeds the limit and uses the fallback.
+  table that [novalue.md](novalue.md) describes, exceeds the limit and uses the fallback.
   Measuring `Combinations` any other way would change those results. The
   semantic pass peaks at 6 atoms (`35af08ef0f69b870`), so any limit of at
   least 2⁶ assignments decides every semantic query in the corpus.

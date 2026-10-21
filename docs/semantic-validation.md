@@ -220,7 +220,7 @@ divergences explicitly.
 
 IAM rejects a policy whose statements repeat a `Sid`, including the empty
 string. The rule checks the policy properties the generator gives the
-identity, trust and KMS key profiles (see [IAM policies](../README.md#iam-policies)).
+identity, trust and KMS key profiles (see [IAM policies](iam-policies.md)).
 cfn-lint checks the same uniqueness in identity policies (E3510), trust
 policies (E3530) and resource policies (E3512). E3512 also covers SNS, SQS and
 OpenSearch policies, which have no profile here, and doesn't cover
