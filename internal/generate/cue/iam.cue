@@ -117,13 +117,6 @@ _atMostOneResource: {
 	if Resource != _|_ if NotResource != _|_ {error("a statement has Resource or NotResource, not both")}
 }
 
-// The same rules as matchN validators, for policies written as JSON strings
-// (see Layer 1 documents).
-_#OneAction:          matchN(1, [{Action!: _}, {NotAction!: _}])
-_#OnePrincipal:       matchN(1, [{Principal!: _}, {NotPrincipal!: _}])
-_#OneResource:        matchN(1, [{Resource!: _}, {NotResource!: _}])
-_#AtMostOnePrincipal: matchN(<=1, [{Principal!: _}, {NotPrincipal!: _}])
-_#AtMostOneResource:  matchN(<=1, [{Resource!: _}, {NotResource!: _}])
 
 // Layer 1: one statement profile per policy kind.
 //
@@ -134,11 +127,6 @@ _#AtMostOneResource:  matchN(<=1, [{Resource!: _}, {NotResource!: _}])
 
 // Identity-based policies attach to users, groups and roles: no Principal.
 #IdentityStatement: close({
-	_identityFields
-	_oneAction
-	_oneResource
-})
-_identityFields: {
 	Sid?:         _#IAMSid
 	Effect!:      _#Effect
 	Action?:      #Actions
@@ -146,19 +134,15 @@ _identityFields: {
 	Resource?:    #Resources
 	NotResource?: #Resources
 	Condition?:   _#Condition
-}
-_#IdentityJSONStatement: close({_identityFields}) & _#OneAction & _#OneResource
+	_oneAction
+	_oneResource
+})
 
 // Role trust policies grant sts actions to a principal: no Resource.
 #TrustAction:   "*" | =~"(?i)^sts:(\\*|AssumeRole|AssumeRoleWithSAML|AssumeRoleWithWebIdentity|TagSession|SetSourceIdentity|SetContext|[A-Za-z]*[*?][A-Za-z*?]*)$"
 _#TrustAction:  matchIf(string, #TrustAction, fn.#StringExpression)
 _#TrustActions: #TrustAction | fn.#StringExpression | [..._#TrustAction] | _#ListIntrinsic
 #TrustStatement: close({
-	_trustFields
-	_oneAction
-	_onePrincipal
-})
-_trustFields: {
 	Sid?:          _#Sid
 	Effect!:       _#Effect
 	Action?:       _#TrustActions
@@ -166,17 +150,12 @@ _trustFields: {
 	Principal?:    _#Principal
 	NotPrincipal?: _#Principal
 	Condition?:    _#Condition
-}
-_#TrustJSONStatement: close({_trustFields}) & _#OneAction & _#OnePrincipal
+	_oneAction
+	_onePrincipal
+})
 
 // Resource-based policies name the principal they apply to.
 #ResourceStatement: close({
-	_resourceFields
-	_oneAction
-	_onePrincipal
-	_atMostOneResource
-})
-_resourceFields: {
 	Sid?:          _#Sid
 	Effect!:       _#Effect
 	Action?:       #Actions
@@ -186,8 +165,10 @@ _resourceFields: {
 	Resource?:     #Resources
 	NotResource?:  #Resources
 	Condition?:    _#Condition
-}
-_#ResourceJSONStatement: close({_resourceFields}) & _#OneAction & _#OnePrincipal & _#AtMostOneResource
+	_oneAction
+	_onePrincipal
+	_atMostOneResource
+})
 
 // S3 bucket policies: s3 actions on bucket or object ARNs.
 _#S3ActionName:   "*" | =~"(?i)^s3:[A-Za-z*?]+$"
@@ -197,12 +178,6 @@ _#S3ResourceName: =~"^arn:[^:]+:s3:::[^/]+(/.*)?$"
 _#S3Resource:     matchIf(string, _#S3ResourceName, fn.#StringExpression)
 _#S3Resources:    _#S3ResourceName | fn.#StringExpression | [..._#S3Resource] | _#ListIntrinsic
 #S3BucketStatement: close({
-	_s3BucketFields
-	_oneAction
-	_onePrincipal
-	_oneResource
-})
-_s3BucketFields: {
 	Sid?:          _#Sid
 	Effect!:       _#Effect
 	Action?:       _#S3Actions
@@ -212,20 +187,16 @@ _s3BucketFields: {
 	Resource?:     _#S3Resources
 	NotResource?:  _#S3Resources
 	Condition?:    _#Condition
-}
-_#S3BucketJSONStatement: close({_s3BucketFields}) & _#OneAction & _#OnePrincipal & _#OneResource
+	_oneAction
+	_onePrincipal
+	_oneResource
+})
 
 // KMS key policies: Resource "*" means the key the policy is attached to.
 _#KMSResourceName: "*" | =~"^arn:[^:]+:kms:"
 _#KMSResource:     matchIf(string, _#KMSResourceName, fn.#StringExpression)
 _#KMSResources:    _#KMSResourceName | fn.#StringExpression | [..._#KMSResource] | _#ListIntrinsic
 #KMSKeyStatement: close({
-	_kmsKeyFields
-	_oneAction
-	_onePrincipal
-	_oneResource
-})
-_kmsKeyFields: {
 	Sid?:          _#Sid
 	Effect!:       _#Effect
 	Action?:       #Actions
@@ -235,19 +206,15 @@ _kmsKeyFields: {
 	Resource?:     _#KMSResources
 	NotResource?:  _#KMSResources
 	Condition?:    _#Condition
-}
-_#KMSKeyJSONStatement: close({_kmsKeyFields}) & _#OneAction & _#OnePrincipal & _#OneResource
+	_oneAction
+	_onePrincipal
+	_oneResource
+})
 
 // Service control policies filter the permissions of accounts: no
 // Principal, and Allow statements may only name Resource "*". An intrinsic
 // Effect is not evaluated, so its Resource is not restricted.
 #ServiceControlStatement: close({
-	_serviceControlFields
-	_oneAction
-	_oneResource
-	_allowOnlyAnyResource
-})
-_serviceControlFields: {
 	Sid?:         _#Sid
 	Effect!:      _#Effect
 	Action?:      #Actions
@@ -255,15 +222,11 @@ _serviceControlFields: {
 	Resource?:    #Resources
 	NotResource?: #Resources
 	Condition?:   _#Condition
-}
-// Effect is required, so the comprehension tests its presence before
-// comparing it.
-_allowOnlyAnyResource: {
-	Effect?:   _
-	Resource?: _
+	_oneAction
+	_oneResource
+	// Effect is required, so test its presence before comparing it.
 	if Effect != _|_ if Effect == "Allow" {Resource?: "*" | ["*"]}
-}
-_#ServiceControlJSONStatement: close({_serviceControlFields}) & _#OneAction & _#OneResource & matchN(>=1, [{Effect: "Deny" | fn.#StringExpression}, {Resource: "*" | ["*"]}])
+})
 
 // Resource control policies: customer-managed RCPs only deny, with
 // Principal "*", a service-qualified Action and no NotAction.
@@ -271,10 +234,6 @@ _#RCPActionName: #ActionName & !="*"
 _#RCPAction:     matchIf(string, _#RCPActionName, fn.#StringExpression)
 _#RCPActions:    _#RCPActionName | fn.#StringExpression | [..._#RCPAction] | _#ListIntrinsic
 #ResourceControlStatement: close({
-	_resourceControlFields
-	_oneResource
-})
-_resourceControlFields: {
 	Sid?:         _#Sid
 	Effect!:      "Deny" | fn.#StringExpression
 	Principal!:   "*"
@@ -282,8 +241,8 @@ _resourceControlFields: {
 	Resource?:    #Resources
 	NotResource?: #Resources
 	Condition?:   _#Condition
-}
-_#ResourceControlJSONStatement: close({_resourceControlFields}) & _#OneResource
+	_oneResource
+})
 
 // Layer 1 documents. CUE has no parameterized definitions, and a
 // definition-valued field (#S: #XStatement) is validated on its own inside
@@ -306,10 +265,7 @@ _#ResourceControlJSONStatement: close({_resourceControlFields}) & _#OneResource
 // ("Fn::If"!:) no longer matches, because a pattern does not supply the
 // field; concrete template values are unaffected.
 //
-// Inside json.Validate, CUE v0.18 does not enforce all of matchN's
-// required-field alternatives, so JSON strings get every check except some
-// of the exactly-one rules. Each _#*JSONPolicy keeps the matchN statements
-// so that JSON strings are accepted and rejected as before.
+// A JSON string is checked against the same document as an object.
 
 #IdentityPolicy: close({
 	Version?:   _#Version
@@ -317,15 +273,9 @@ _#ResourceControlJSONStatement: close({_resourceControlFields}) & _#OneResource
 	Statement!: [..._#IdentityEntry] | _#IdentityEntry | close({"Fn::If": [string, [..._#IdentityEntry] | fn.#NoValue, [..._#IdentityEntry] | fn.#NoValue]})
 })
 _#IdentityEntry:      #IdentityStatement | fn.#NoValue | close({"Fn::If": [string, #IdentityStatement | fn.#NoValue, #IdentityStatement | fn.#NoValue]})
-#IdentityPolicyValue: #IdentityPolicy | _#IdentityPolicyIf | string & json.Validate(_#IdentityJSONPolicy) | fn.#StringExpression
+#IdentityPolicyValue: #IdentityPolicy | _#IdentityPolicyIf | string & json.Validate(#IdentityPolicy) | fn.#StringExpression
 _#IdentityPolicyIf: (close({[=~"^Fn::If$"]: [string, #IdentityPolicy | _#IdentityPolicyIf, #IdentityPolicy | fn.#NoValue | _#IdentityPolicyIf]}) |
 	close({[=~"^Fn::If$"]: [string, fn.#NoValue, #IdentityPolicy | _#IdentityPolicyIf]})) & struct.MinFields(1)
-_#IdentityJSONPolicy: close({
-	Version?:   _#Version
-	Id?:        #Str
-	Statement!: [..._#IdentityJSONEntry] | _#IdentityJSONEntry | close({"Fn::If": [string, [..._#IdentityJSONEntry] | fn.#NoValue, [..._#IdentityJSONEntry] | fn.#NoValue]})
-})
-_#IdentityJSONEntry: _#IdentityJSONStatement | fn.#NoValue | close({"Fn::If": [string, _#IdentityJSONStatement | fn.#NoValue, _#IdentityJSONStatement | fn.#NoValue]})
 
 #TrustPolicy: close({
 	Version?:   _#Version
@@ -333,15 +283,9 @@ _#IdentityJSONEntry: _#IdentityJSONStatement | fn.#NoValue | close({"Fn::If": [s
 	Statement!: [..._#TrustEntry] | _#TrustEntry | close({"Fn::If": [string, [..._#TrustEntry] | fn.#NoValue, [..._#TrustEntry] | fn.#NoValue]})
 })
 _#TrustEntry:      #TrustStatement | fn.#NoValue | close({"Fn::If": [string, #TrustStatement | fn.#NoValue, #TrustStatement | fn.#NoValue]})
-#TrustPolicyValue: #TrustPolicy | _#TrustPolicyIf | string & json.Validate(_#TrustJSONPolicy) | fn.#StringExpression
+#TrustPolicyValue: #TrustPolicy | _#TrustPolicyIf | string & json.Validate(#TrustPolicy) | fn.#StringExpression
 _#TrustPolicyIf: (close({[=~"^Fn::If$"]: [string, #TrustPolicy | _#TrustPolicyIf, #TrustPolicy | fn.#NoValue | _#TrustPolicyIf]}) |
 	close({[=~"^Fn::If$"]: [string, fn.#NoValue, #TrustPolicy | _#TrustPolicyIf]})) & struct.MinFields(1)
-_#TrustJSONPolicy: close({
-	Version?:   _#Version
-	Id?:        #Str
-	Statement!: [..._#TrustJSONEntry] | _#TrustJSONEntry | close({"Fn::If": [string, [..._#TrustJSONEntry] | fn.#NoValue, [..._#TrustJSONEntry] | fn.#NoValue]})
-})
-_#TrustJSONEntry: _#TrustJSONStatement | fn.#NoValue | close({"Fn::If": [string, _#TrustJSONStatement | fn.#NoValue, _#TrustJSONStatement | fn.#NoValue]})
 
 #ResourcePolicy: close({
 	Version?:   _#Version
@@ -349,15 +293,9 @@ _#TrustJSONEntry: _#TrustJSONStatement | fn.#NoValue | close({"Fn::If": [string,
 	Statement!: [..._#ResourceEntry] | _#ResourceEntry | close({"Fn::If": [string, [..._#ResourceEntry] | fn.#NoValue, [..._#ResourceEntry] | fn.#NoValue]})
 })
 _#ResourceEntry:      #ResourceStatement | fn.#NoValue | close({"Fn::If": [string, #ResourceStatement | fn.#NoValue, #ResourceStatement | fn.#NoValue]})
-#ResourcePolicyValue: #ResourcePolicy | _#ResourcePolicyIf | string & json.Validate(_#ResourceJSONPolicy) | fn.#StringExpression
+#ResourcePolicyValue: #ResourcePolicy | _#ResourcePolicyIf | string & json.Validate(#ResourcePolicy) | fn.#StringExpression
 _#ResourcePolicyIf: (close({[=~"^Fn::If$"]: [string, #ResourcePolicy | _#ResourcePolicyIf, #ResourcePolicy | fn.#NoValue | _#ResourcePolicyIf]}) |
 	close({[=~"^Fn::If$"]: [string, fn.#NoValue, #ResourcePolicy | _#ResourcePolicyIf]})) & struct.MinFields(1)
-_#ResourceJSONPolicy: close({
-	Version?:   _#Version
-	Id?:        #Str
-	Statement!: [..._#ResourceJSONEntry] | _#ResourceJSONEntry | close({"Fn::If": [string, [..._#ResourceJSONEntry] | fn.#NoValue, [..._#ResourceJSONEntry] | fn.#NoValue]})
-})
-_#ResourceJSONEntry: _#ResourceJSONStatement | fn.#NoValue | close({"Fn::If": [string, _#ResourceJSONStatement | fn.#NoValue, _#ResourceJSONStatement | fn.#NoValue]})
 
 #S3BucketPolicy: close({
 	Version?:   _#Version
@@ -365,15 +303,9 @@ _#ResourceJSONEntry: _#ResourceJSONStatement | fn.#NoValue | close({"Fn::If": [s
 	Statement!: [..._#S3BucketEntry] | _#S3BucketEntry | close({"Fn::If": [string, [..._#S3BucketEntry] | fn.#NoValue, [..._#S3BucketEntry] | fn.#NoValue]})
 })
 _#S3BucketEntry:      #S3BucketStatement | fn.#NoValue | close({"Fn::If": [string, #S3BucketStatement | fn.#NoValue, #S3BucketStatement | fn.#NoValue]})
-#S3BucketPolicyValue: #S3BucketPolicy | _#S3BucketPolicyIf | string & json.Validate(_#S3BucketJSONPolicy) | fn.#StringExpression
+#S3BucketPolicyValue: #S3BucketPolicy | _#S3BucketPolicyIf | string & json.Validate(#S3BucketPolicy) | fn.#StringExpression
 _#S3BucketPolicyIf: (close({[=~"^Fn::If$"]: [string, #S3BucketPolicy | _#S3BucketPolicyIf, #S3BucketPolicy | fn.#NoValue | _#S3BucketPolicyIf]}) |
 	close({[=~"^Fn::If$"]: [string, fn.#NoValue, #S3BucketPolicy | _#S3BucketPolicyIf]})) & struct.MinFields(1)
-_#S3BucketJSONPolicy: close({
-	Version?:   _#Version
-	Id?:        #Str
-	Statement!: [..._#S3BucketJSONEntry] | _#S3BucketJSONEntry | close({"Fn::If": [string, [..._#S3BucketJSONEntry] | fn.#NoValue, [..._#S3BucketJSONEntry] | fn.#NoValue]})
-})
-_#S3BucketJSONEntry: _#S3BucketJSONStatement | fn.#NoValue | close({"Fn::If": [string, _#S3BucketJSONStatement | fn.#NoValue, _#S3BucketJSONStatement | fn.#NoValue]})
 
 #KMSKeyPolicy: close({
 	Version?:   _#Version
@@ -381,15 +313,9 @@ _#S3BucketJSONEntry: _#S3BucketJSONStatement | fn.#NoValue | close({"Fn::If": [s
 	Statement!: [..._#KMSKeyEntry] | _#KMSKeyEntry | close({"Fn::If": [string, [..._#KMSKeyEntry] | fn.#NoValue, [..._#KMSKeyEntry] | fn.#NoValue]})
 })
 _#KMSKeyEntry:      #KMSKeyStatement | fn.#NoValue | close({"Fn::If": [string, #KMSKeyStatement | fn.#NoValue, #KMSKeyStatement | fn.#NoValue]})
-#KMSKeyPolicyValue: #KMSKeyPolicy | _#KMSKeyPolicyIf | string & json.Validate(_#KMSKeyJSONPolicy) | fn.#StringExpression
+#KMSKeyPolicyValue: #KMSKeyPolicy | _#KMSKeyPolicyIf | string & json.Validate(#KMSKeyPolicy) | fn.#StringExpression
 _#KMSKeyPolicyIf: (close({[=~"^Fn::If$"]: [string, #KMSKeyPolicy | _#KMSKeyPolicyIf, #KMSKeyPolicy | fn.#NoValue | _#KMSKeyPolicyIf]}) |
 	close({[=~"^Fn::If$"]: [string, fn.#NoValue, #KMSKeyPolicy | _#KMSKeyPolicyIf]})) & struct.MinFields(1)
-_#KMSKeyJSONPolicy: close({
-	Version?:   _#Version
-	Id?:        #Str
-	Statement!: [..._#KMSKeyJSONEntry] | _#KMSKeyJSONEntry | close({"Fn::If": [string, [..._#KMSKeyJSONEntry] | fn.#NoValue, [..._#KMSKeyJSONEntry] | fn.#NoValue]})
-})
-_#KMSKeyJSONEntry: _#KMSKeyJSONStatement | fn.#NoValue | close({"Fn::If": [string, _#KMSKeyJSONStatement | fn.#NoValue, _#KMSKeyJSONStatement | fn.#NoValue]})
 
 #ServiceControlPolicy: close({
 	Version?:   "2012-10-17" | fn.#StringExpression
@@ -397,15 +323,9 @@ _#KMSKeyJSONEntry: _#KMSKeyJSONStatement | fn.#NoValue | close({"Fn::If": [strin
 	Statement!: [..._#ServiceControlEntry] | _#ServiceControlEntry | close({"Fn::If": [string, [..._#ServiceControlEntry] | fn.#NoValue, [..._#ServiceControlEntry] | fn.#NoValue]})
 })
 _#ServiceControlEntry:      #ServiceControlStatement | fn.#NoValue | close({"Fn::If": [string, #ServiceControlStatement | fn.#NoValue, #ServiceControlStatement | fn.#NoValue]})
-#ServiceControlPolicyValue: #ServiceControlPolicy | _#ServiceControlPolicyIf | string & json.Validate(_#ServiceControlJSONPolicy) | fn.#StringExpression
+#ServiceControlPolicyValue: #ServiceControlPolicy | _#ServiceControlPolicyIf | string & json.Validate(#ServiceControlPolicy) | fn.#StringExpression
 _#ServiceControlPolicyIf: (close({[=~"^Fn::If$"]: [string, #ServiceControlPolicy | _#ServiceControlPolicyIf, #ServiceControlPolicy | fn.#NoValue | _#ServiceControlPolicyIf]}) |
 	close({[=~"^Fn::If$"]: [string, fn.#NoValue, #ServiceControlPolicy | _#ServiceControlPolicyIf]})) & struct.MinFields(1)
-_#ServiceControlJSONPolicy: close({
-	Version?:   "2012-10-17" | fn.#StringExpression
-	Id?:        #Str
-	Statement!: [..._#ServiceControlJSONEntry] | _#ServiceControlJSONEntry | close({"Fn::If": [string, [..._#ServiceControlJSONEntry] | fn.#NoValue, [..._#ServiceControlJSONEntry] | fn.#NoValue]})
-})
-_#ServiceControlJSONEntry: _#ServiceControlJSONStatement | fn.#NoValue | close({"Fn::If": [string, _#ServiceControlJSONStatement | fn.#NoValue, _#ServiceControlJSONStatement | fn.#NoValue]})
 
 #ResourceControlPolicy: close({
 	Version?:   "2012-10-17" | fn.#StringExpression
@@ -413,12 +333,6 @@ _#ServiceControlJSONEntry: _#ServiceControlJSONStatement | fn.#NoValue | close({
 	Statement!: [..._#ResourceControlEntry] | _#ResourceControlEntry | close({"Fn::If": [string, [..._#ResourceControlEntry] | fn.#NoValue, [..._#ResourceControlEntry] | fn.#NoValue]})
 })
 _#ResourceControlEntry:      #ResourceControlStatement | fn.#NoValue | close({"Fn::If": [string, #ResourceControlStatement | fn.#NoValue, #ResourceControlStatement | fn.#NoValue]})
-#ResourceControlPolicyValue: #ResourceControlPolicy | _#ResourceControlPolicyIf | string & json.Validate(_#ResourceControlJSONPolicy) | fn.#StringExpression
+#ResourceControlPolicyValue: #ResourceControlPolicy | _#ResourceControlPolicyIf | string & json.Validate(#ResourceControlPolicy) | fn.#StringExpression
 _#ResourceControlPolicyIf: (close({[=~"^Fn::If$"]: [string, #ResourceControlPolicy | _#ResourceControlPolicyIf, #ResourceControlPolicy | fn.#NoValue | _#ResourceControlPolicyIf]}) |
 	close({[=~"^Fn::If$"]: [string, fn.#NoValue, #ResourceControlPolicy | _#ResourceControlPolicyIf]})) & struct.MinFields(1)
-_#ResourceControlJSONPolicy: close({
-	Version?:   "2012-10-17" | fn.#StringExpression
-	Id?:        #Str
-	Statement!: [..._#ResourceControlJSONEntry] | _#ResourceControlJSONEntry | close({"Fn::If": [string, [..._#ResourceControlJSONEntry] | fn.#NoValue, [..._#ResourceControlJSONEntry] | fn.#NoValue]})
-})
-_#ResourceControlJSONEntry: _#ResourceControlJSONStatement | fn.#NoValue | close({"Fn::If": [string, _#ResourceControlJSONStatement | fn.#NoValue, _#ResourceControlJSONStatement | fn.#NoValue]})
