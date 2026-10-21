@@ -319,6 +319,26 @@
     "lint": "valid",
     "note": "Project-authored valid template."
   },
+  "mutation-iam-scp-allow-resource-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: iam-scp-allow-resource-invalid. Known lint gap: cfn-lint doesn't check SCP content."
+  },
+  "mutation-iam-scp-allow-resource-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: iam-scp-allow-resource-invalid. Known lint gap: cfn-lint doesn't check SCP content."
+  },
+  "mutation-iam-scp-allow-resource-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-iam-scp-allow-resource-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
   "mutation-if-properties-branch-invalid:us-east-1": {
     "cue": "invalid",
     "lint": "invalid",

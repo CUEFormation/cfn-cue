@@ -1,0 +1,12 @@
+Resources:
+  Thing:
+    Type: AWS::Organizations::Policy
+    Properties:
+      Name: scp
+      Type: SERVICE_CONTROL_POLICY
+      Content:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action: ec2:*
+          Resource: arn:aws:ec2:*:*:instance/*

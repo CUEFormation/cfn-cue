@@ -282,8 +282,8 @@ negative examples and documented known disagreements. Missing cases, unexecuted
 expectations, or changed results fail the contract; no automatic baseline
 updates occur.
 
-The checked-in `smoke/` corpus contains 96 templates: 11 pinned upstream examples
-and 85 project-authored cases, with 192 expectations across two regions. Cases
+The checked-in `smoke/` corpus contains 98 templates: 11 pinned upstream examples
+and 87 project-authored cases, with 196 expectations across two regions. Cases
 cover scalar compatibility, formats, nested intrinsics, required properties,
 enums, unknown/read-only fields, wrong function results and arguments, custom
 resource aliases, ServiceToken requirements, conditional custom properties,
@@ -297,7 +297,9 @@ Service rule cases (`rule-*`) cover rules taken from cfn-lint's extension schema
 including the condition shapes that needed rewriting for CUE, and the ECS,
 DynamoDB and RDS rules compiled to field-scoped comprehensions.
 The read-only property and malformed custom type name disagreements with cfn-lint
-remain documented. Expected failures are explicit and annotated.
+remain documented, as does an SCP `Allow` statement with a `Resource` other
+than `"*"` (`iam-scp-allow-resource-invalid`): cfn-lint doesn't check SCP content
+(see [IAM policies](../docs/iam-policies.md)). Expected failures are explicit and annotated.
 
 ```sh
 .venv/bin/python -m unittest discover -s corpus -v
