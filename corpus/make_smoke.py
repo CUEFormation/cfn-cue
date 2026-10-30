@@ -52,9 +52,9 @@ def compatibility_cases():
          {"Version": "2012-10-17", "Statement": [dict(statement, Sid="")]})
     # cfn-lint doesn't check Organizations policy content.
     scp = {"Name": "scp", "Type": "SERVICE_CONTROL_POLICY"}
-    pair("iam-scp-allow-resource", "AWS::Organizations::Policy", scp, "Content",
-         {"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": "ec2:*", "Resource": "*"}]},
+    pair("iam-scp-principal", "AWS::Organizations::Policy", scp, "Content",
          {"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": "ec2:*", "Resource": "arn:aws:ec2:*:*:instance/*"}]},
+         {"Version": "2012-10-17", "Statement": [{"Effect": "Deny", "Principal": "*", "Action": "ec2:*", "Resource": "*"}]},
          lint_bad="valid")
     pair("kms-key-id", "AWS::SNS::Topic", {}, "KmsMasterKeyId", "alias/aws/sns", "aws/sns")
     pair("bucket-name", "AWS::S3::Bucket", {}, "BucketName", "my.bucket-1", "my..bucket")
@@ -312,7 +312,7 @@ def build(source, output):
                 note="Project-authored valid template." if cue_status == "valid" else
                      "Intentional mutation: " + name + (". Known lint gap: the read-only property is accepted by cfn-lint." if name == "read-only-property" else
                      ". Known lint gap: the malformed custom type name is accepted by cfn-lint." if name == "custom-resource-invalid-name" else
-                     ". Known lint gap: cfn-lint doesn't check SCP content." if name == "iam-scp-allow-resource-invalid" else ""))
+                     ". Known lint gap: cfn-lint doesn't check SCP content." if name == "iam-scp-principal-invalid" else ""))
     index["templates"], index["skipped"] = records, []
     corpus.write(output / "index.json", corpus.canonical(index))
     corpus.write(output / "expectations.json", corpus.canonical(expected))

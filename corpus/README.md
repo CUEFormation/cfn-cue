@@ -297,8 +297,8 @@ Service rule cases (`rule-*`) cover rules taken from cfn-lint's extension schema
 including the condition shapes that needed rewriting for CUE, and the ECS,
 DynamoDB and RDS rules compiled to field-scoped comprehensions.
 The read-only property and malformed custom type name disagreements with cfn-lint
-remain documented, as does an SCP `Allow` statement with a `Resource` other
-than `"*"` (`iam-scp-allow-resource-invalid`): cfn-lint doesn't check SCP content
+remain documented, as does an SCP statement with a `Principal`
+(`iam-scp-principal-invalid`): cfn-lint doesn't check SCP content
 (see [IAM policies](../docs/iam-policies.md)). Expected failures are explicit and annotated.
 
 ```sh

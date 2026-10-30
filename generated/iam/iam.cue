@@ -249,8 +249,8 @@ _#KMSResources:    _#KMSResourceName | [..._#KMSResource] | fn.#StringListExpres
 })
 
 // Service control policies filter the permissions of accounts: no
-// Principal, and Allow statements may only name Resource "*". An intrinsic
-// Effect is not evaluated, so its Resource is not restricted.
+// Principal. Since September 2025, Allow statements may name resource ARNs
+// and use conditions and NotAction, as Deny statements could.
 #ServiceControlStatement: close({
 	Sid?:         _#Sid
 	Effect!:      _#Effect
@@ -261,9 +261,6 @@ _#KMSResources:    _#KMSResourceName | [..._#KMSResource] | fn.#StringListExpres
 	Condition?:   _#Condition
 	_oneAction
 	_oneResource
-
-	// Effect is required, so test its presence before comparing it.
-	if Effect != _|_ if Effect == "Allow" {Resource?: "*" | ["*"]}
 })
 
 // Resource control policies: customer-managed RCPs only deny, with

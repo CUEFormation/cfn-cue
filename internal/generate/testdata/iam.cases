@@ -65,7 +65,8 @@ bad	#ECRRepositoryPolicy	{Statement: [{Effect: "Allow", Principal: "*", Action: 
 ok	#ECRRepositoryPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"ecr:BatchGetImage\"}]}"
 # SCP / RCP
 ok	#ServiceControlPolicy	{Version: "2012-10-17", Statement: [{Effect: "Allow", Action: "*", Resource: "*"}, {Effect: "Deny", NotAction: ["iam:*", "sts:*"], Resource: "arn:aws:ec2:*:*:instance/*", Condition: {StringNotEquals: {"aws:RequestedRegion": ["eu-west-1"]}}}]}
-bad	#ServiceControlPolicy	{Statement: [{Effect: "Allow", Action: "ec2:*", Resource: "arn:aws:ec2:*:*:instance/*"}]}
+ok	#ServiceControlPolicy	{Statement: [{Effect: "Allow", Action: "ec2:*", Resource: "arn:aws:ec2:*:*:instance/*"}]}
+ok	#ServiceControlPolicy	{Statement: [{Effect: "Allow", NotAction: "iam:*", Resource: "*", Condition: {StringEquals: {"aws:RequestedRegion": "eu-west-1"}}}]}
 bad	#ServiceControlPolicy	{Statement: [{Effect: "Deny", Principal: "*", Action: "ec2:*", Resource: "*"}]}
 bad	#ServiceControlPolicy	{Statement: [{Effect: "Deny", Action: "ec2:*"}]}
 bad	#ServiceControlPolicy	{Version: "2008-10-17", Statement: [{Effect: "Deny", Action: "ec2:*", Resource: "*"}]}
@@ -91,7 +92,7 @@ ok	#ResourcePolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*
 bad	#ResourcePolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"sqs:SendMessage\"}]}"
 bad	#S3BucketPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"s3:GetObject\"}]}"
 bad	#KMSKeyPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"kms:*\"}]}"
-bad	#ServiceControlPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"ec2:*\",\"Resource\":\"arn:aws:ec2:*:*:instance/*\"}]}"
+bad	#ServiceControlPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"ec2:*\",\"Resource\":\"*\"}]}"
 bad	#ResourceControlPolicyValue	"{\"Statement\":[{\"Effect\":\"Deny\",\"Principal\":\"*\",\"Action\":\"s3:*\"}]}"
 bad	#TrustPolicyValue	"not json"
 ok	#TrustPolicyValue	{"Fn::Sub": "{\"Statement\": []}"}
@@ -186,9 +187,9 @@ bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*"
 bad	#IdentityPolicy	{Statement: [{"Fn::If": ["Cond", {Effect: "Allow", Action: "s3:*", Resource: "*"}, {Ref: "Other"}]}]}
 bad	#IdentityPolicy	{Statement: [{Ref: "AWS::NoValue", "Fn::If": ["Cond", {Effect: "Allow", Action: "s3:*", Resource: "*"}, {Ref: "AWS::NoValue"}]}]}
 bad	#IdentityPolicy	{Statement: [{}]}
-# Only Allow statements are restricted to Resource "*"; NotResource is not.
+# SCP Allow statements may name resources since September 2025.
 ok	#ServiceControlPolicy	{Statement: [{Effect: "Allow", Action: "ec2:*", NotResource: "arn:aws:ec2:*:*:instance/*"}]}
-bad	#ServiceControlPolicy	{Statement: [{Effect: "Allow", Action: "ec2:*", Resource: ["*", "arn:aws:ec2:*:*:instance/*"]}]}
+ok	#ServiceControlPolicy	{Statement: [{Effect: "Allow", Action: "ec2:*", Resource: ["*", "arn:aws:ec2:*:*:instance/*"]}]}
 # An Fn::If condition value may return a string or a list.
 ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Condition: {ArnEquals: {"aws:SourceArn": {"Fn::If": ["C", {Ref: "A"}, {Ref: "B"}]}}}}]}
 ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Condition: {StringEquals: {"aws:x": {"Fn::If": ["C", ["a", "b"], {Ref: "AWS::NoValue"}]}}}}]}
