@@ -243,3 +243,25 @@ ok	#ResourcePolicy	{Statement: {"Fn::If": ["C", [{Effect: "Allow", Principal: "*
 ok	#ECRRepositoryPolicy	{Statement: {"Fn::If": ["C", {Effect: "Allow", Principal: "*", Action: "ecr:BatchGetImage"}, {"Fn::If": ["D", [], [{Effect: "Allow", Principal: "*", Action: "ecr:BatchGetImage"}]]}]}}
 ok	#ResourcePolicy	{Statement: {"Fn::If": ["C", [{Effect: "Allow", Principal: "*", Action: "sqs:SendMessage", Resource: "*"}], {"Fn::If": ["D", {Ref: "AWS::NoValue"}, {Ref: "AWS::NoValue"}]}]}}
 bad	#ResourcePolicy	{Statement: {"Fn::If": ["C", [{Effect: "Allow", Principal: "*", Action: "sqs:SendMessage", Resource: "*"}], {Effect: "Allow", Principal: "*", Action: "sqs:SendMessage"}]}}
+# An empty object is not a statement. A JSON string may not contain an intrinsic function, which CloudFormation would not evaluate.
+bad	#ResourcePolicy	{Statement: {"Fn::If": ["C", {Effect: "Allow", Principal: "*", Action: "sqs:SendMessage", Resource: "*"}, {}]}}
+bad	#ResourcePolicyValue	"{\"Statement\":{\"Fn::If\":[\"C\",{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"sqs:SendMessage\",\"Resource\":\"*\"},{}]}}"
+bad	#ResourcePolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"sqs:SendMessage\",\"Resource\":\"*\"},{}]}"
+bad	#ResourcePolicyValue	"{\"Statement\":{\"Fn::If\":[\"C\",[],{\"Fn::If\":[\"D\",{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"sqs:SendMessage\",\"Resource\":\"*\"},{}]}]}}"
+bad	#ResourcePolicyValue	"{\"Statement\":{\"Fn::If\":[\"C\",{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"sqs:SendMessage\",\"Resource\":\"*\"},{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"sqs:SendMessage\",\"Resource\":\"*\"}]}}"
+bad	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:*\",\"Resource\":{\"Fn::GetAtt\":[\"B\",\"Arn\"]}}]}"
+bad	#TrustPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":{\"Ref\":\"A\"}},\"Action\":\"sts:AssumeRole\"}]}"
+ok	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:*\",\"Resource\":\"*\",\"Condition\":{\"StringEquals\":{\"aws:x\":[\"a\",1,true]},\"Null\":{\"aws:y\":\"true\"}}}]}"
+# json.Validate accepts an empty object where an intrinsic could stand; a JSON string rejects it, except as a Condition or operator map.
+bad	#ResourcePolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":{},\"Resource\":\"*\"}]}"
+bad	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":{},\"Action\":\"s3:*\",\"Resource\":\"*\"}]}"
+bad	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:*\",\"Resource\":[{}]}]}"
+bad	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:*\",\"Resource\":\"*\",\"Condition\":{\"StringEquals\":{\"aws:x\":{}}}}]}"
+bad	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:*\",\"Resource\":\"*\",\"Condition\":{\"Fn::If\":[\"C\",{},{}]}}]}"
+# json.Validate doesn't enforce MinFields, so a JSON string takes an empty principal map, which the object form rejects; cfn-lint accepts both.
+ok	#TrustPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{},\"Action\":\"sts:AssumeRole\"}]}"
+bad	#IdentityPolicyValue	"{\"Version\":{},\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:*\",\"Resource\":\"*\"}]}"
+ok	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:*\",\"Resource\":\"*\",\"Condition\":{}}]}"
+ok	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:*\",\"Resource\":\"*\",\"Condition\":{\"StringEquals\":{}}}]}"
+ok	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":[\"s3:GetObject\",\"{{resolve:ssm:A}}\"],\"Resource\":\"*\"}]}"
+ok	#ResourcePolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":[\"arn:aws:iam::123456789012:root\"]},\"Action\":\"sqs:*\",\"Resource\":\"*\",\"Condition\":{\"StringEquals\":{\"aws:ResourceTag/Ref\":\"x\"}}}]}"

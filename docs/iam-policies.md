@@ -20,7 +20,7 @@ cfn-lint doesn't check `AWS::Organizations::Policy` content, so it accepts SCPs 
 
 A placement that no longer matches the provider schema is reported as an `iamPolicy` diagnostic. `literal/` schemas keep provider types. Known limits with CUE v0.18.0-rc.1:
 
-- A policy written as a literal JSON string is checked with `json.Validate` against the same profile, but its errors don't give the path of the failing field.
+- A policy written as a literal JSON string is checked with `json.Validate` against the same profile, but its errors don't give the path of the failing field. It may not contain `Ref` or an `Fn::` function, because CloudFormation doesn't evaluate them inside a string; cfn-lint reports them as errors too. `json.Validate` doesn't enforce minimum field counts, so an empty `Principal` map passes in a JSON string though not in an object; cfn-lint accepts both.
 - Repeated statement `Sid`s are not checked here; the semantic pass reports them (see [semantic validation](semantic-validation.md#iam-statement-ids)).
 - A failing policy often produces a vague error such as `Statement: field not allowed`. To find the failing field, unify the statement with its statement profile, for example `iam.#TrustStatement & {...}`.
 
