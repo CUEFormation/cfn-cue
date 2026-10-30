@@ -1,0 +1,22 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "Content": {
+          "Statement": [
+            {
+              "Action": "ec2:*",
+              "Effect": "Deny",
+              "Principal": "*",
+              "Resource": "*"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "Name": "scp",
+        "Type": "SERVICE_CONTROL_POLICY"
+      },
+      "Type": "AWS::Organizations::Policy"
+    }
+  }
+}
