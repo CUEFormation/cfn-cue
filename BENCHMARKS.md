@@ -149,7 +149,7 @@ Measured on October 18, 2026, on an Apple M4 with Go 1.27.1. `TestIAMPolicyPerfo
 
 A template with one policy of 200 one-action statements went from 0.20 s and 167 MiB peak RSS to 0.12 s and 92 MiB through the CLI. The 46 smoke corpus templates, three of which have IAM policy properties, took about 20 ms and 36 MiB each before and after, with the same results.
 
-After the move to CUE v0.18.0-rc.1, the test took 3.0 s, 2.6 GiB allocated and 2.3 GiB peak heap on main (`3e7599d`), and 0.52 s, 661 MiB and 450 to 490 MiB with these profiles, three runs each. The CLI rows were not repeated.
+After the move to CUE v0.18.0-rc.1, the test took 3.0 s, 2.6 GiB allocated and 2.3 GiB peak heap on main (`3e7599d`), and 0.52 s, 661 MiB and 450 to 490 MiB with these profiles, three runs each. The CLI rows were not repeated. On October 30, the profiles measured 0.57 s, 661 MiB and 465 to 495 MiB; accepting dynamic references in list elements, with one regular expression per element, brought them to 0.52 s, 575 MiB and 390 to 410 MiB.
 
 ## Findings
 

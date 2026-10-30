@@ -163,3 +163,10 @@ bad	#IdentityPolicy	{Statement: [{}]}
 # Only Allow statements are restricted to Resource "*"; NotResource is not.
 ok	#ServiceControlPolicy	{Statement: [{Effect: "Allow", Action: "ec2:*", NotResource: "arn:aws:ec2:*:*:instance/*"}]}
 bad	#ServiceControlPolicy	{Statement: [{Effect: "Allow", Action: "ec2:*", Resource: ["*", "arn:aws:ec2:*:*:instance/*"]}]}
+# A dynamic reference resolves before IAM reads the policy, so a list element may be one.
+ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: ["s3:GetObject", "{{resolve:ssm:PolicyAction:1}}"], Resource: ["{{resolve:ssm:PolicyResource:1}}"]}]}
+ok	#TrustPolicy	{Statement: [{Effect: "Allow", Principal: "*", Action: ["{{resolve:ssm:TrustAction}}"]}]}
+ok	#S3BucketPolicy	{Statement: [{Effect: "Allow", Principal: "*", Action: ["{{resolve:ssm:A}}"], Resource: ["{{resolve:ssm:R}}"]}]}
+ok	#KMSKeyPolicy	{Statement: [{Effect: "Allow", Principal: "*", Action: "kms:*", Resource: ["{{resolve:ssm:R}}"]}]}
+ok	#ResourceControlPolicy	{Statement: [{Effect: "Deny", Principal: "*", Action: ["{{resolve:ssm:A}}"], Resource: "*"}]}
+bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: ["s3:GetObject", "{{resolve:bogus:A}}"], Resource: "*"}]}

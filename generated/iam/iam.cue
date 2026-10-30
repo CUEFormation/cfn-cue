@@ -22,6 +22,11 @@ import (
 // unified every literal with that closed struct of patterns and formatted
 // the failure. List types repeat the scalar alternatives so that a list is
 // not also tried against a nested disjunction.
+//
+// A string element matches its pattern or, as a scalar does, a dynamic
+// reference. One regular expression checks both: a disjunction with
+// fn.#DynamicReference cost about 25% more time and memory for large
+// policies. _dynamicReference is the pattern of fn.#DynamicReference.
 
 #Version:  "2012-10-17" | "2008-10-17"
 _#Version: #Version | fn.#StringExpression
@@ -38,11 +43,16 @@ _#ListIntrinsic: close({
 
 // Service prefix, colon, action name with optional * and ? wildcards.
 // IAM compares actions case-insensitively.
-#ActionName: "*" | =~"^[A-Za-z0-9-]+:[A-Za-z0-9_*?-]+$"
-#Action:     matchIf(string, #ActionName, fn.#StringExpression)
+_dynamicReference: "^.*\\{\\{resolve:(ssm|ssm-secure|secretsmanager):[^\\r\\n]+\\}\\}.*\\n?$"
+_star:             "^\\*$"
+_actionName:       "^[A-Za-z0-9-]+:[A-Za-z0-9_*?-]+$"
+_arn:              "^arn:[^:]+:[^:]*:[^:]*:[^:]*:.+$"
+
+#ActionName: "*" | =~_actionName
+#Action:     matchIf(string, =~(_star + "|" + _actionName + "|" + _dynamicReference), fn.#StringExpression)
 #Actions:    #ActionName | fn.#StringExpression | [...#Action] | _#ListIntrinsic
-#ARN:        =~"^arn:[^:]+:[^:]*:[^:]*:[^:]*:.+$"
-#Resource:   matchIf(string, "*" | #ARN, fn.#StringExpression)
+#ARN:        =~_arn
+#Resource:   matchIf(string, =~(_star + "|" + _arn + "|" + _dynamicReference), fn.#StringExpression)
 #Resources:  "*" | #ARN | fn.#StringExpression | [...#Resource] | _#ListIntrinsic
 
 #PrincipalMap: close({
@@ -153,8 +163,9 @@ _identityFields: {
 _#IdentityJSONStatement: close({_identityFields}) & _#OneAction & _#OneResource
 
 // Role trust policies grant sts actions to a principal: no Resource.
-#TrustAction:   "*" | =~"(?i)^sts:(\\*|AssumeRole|AssumeRoleWithSAML|AssumeRoleWithWebIdentity|TagSession|SetSourceIdentity|SetContext|[A-Za-z]*[*?][A-Za-z*?]*)$"
-_#TrustAction:  matchIf(string, #TrustAction, fn.#StringExpression)
+_trustAction:   "(?i:^sts:(\\*|AssumeRole|AssumeRoleWithSAML|AssumeRoleWithWebIdentity|TagSession|SetSourceIdentity|SetContext|[A-Za-z]*[*?][A-Za-z*?]*)$)"
+#TrustAction:   "*" | =~_trustAction
+_#TrustAction:  matchIf(string, =~(_star + "|" + _trustAction + "|" + _dynamicReference), fn.#StringExpression)
 _#TrustActions: #TrustAction | fn.#StringExpression | [..._#TrustAction] | _#ListIntrinsic
 #TrustStatement: close({
 	_trustFields
@@ -193,11 +204,13 @@ _resourceFields: {
 _#ResourceJSONStatement: close({_resourceFields}) & _#OneAction & _#OnePrincipal & _#AtMostOneResource
 
 // S3 bucket policies: s3 actions on bucket or object ARNs.
-_#S3ActionName:   "*" | =~"(?i)^s3:[A-Za-z*?]+$"
-_#S3Action:       matchIf(string, _#S3ActionName, fn.#StringExpression)
+_s3Action:        "(?i:^s3:[A-Za-z*?]+$)"
+_s3Resource:      "^arn:[^:]+:s3:::[^/]+(/.*)?$"
+_#S3ActionName:   "*" | =~_s3Action
+_#S3Action:       matchIf(string, =~(_star + "|" + _s3Action + "|" + _dynamicReference), fn.#StringExpression)
 _#S3Actions:      _#S3ActionName | fn.#StringExpression | [..._#S3Action] | _#ListIntrinsic
-_#S3ResourceName: =~"^arn:[^:]+:s3:::[^/]+(/.*)?$"
-_#S3Resource:     matchIf(string, _#S3ResourceName, fn.#StringExpression)
+_#S3ResourceName: =~_s3Resource
+_#S3Resource:     matchIf(string, =~(_s3Resource + "|" + _dynamicReference), fn.#StringExpression)
 _#S3Resources:    _#S3ResourceName | fn.#StringExpression | [..._#S3Resource] | _#ListIntrinsic
 #S3BucketStatement: close({
 	_s3BucketFields
@@ -219,8 +232,9 @@ _s3BucketFields: {
 _#S3BucketJSONStatement: close({_s3BucketFields}) & _#OneAction & _#OnePrincipal & _#OneResource
 
 // KMS key policies: Resource "*" means the key the policy is attached to.
-_#KMSResourceName: "*" | =~"^arn:[^:]+:kms:"
-_#KMSResource:     matchIf(string, _#KMSResourceName, fn.#StringExpression)
+_kmsResource:      "^arn:[^:]+:kms:"
+_#KMSResourceName: "*" | =~_kmsResource
+_#KMSResource:     matchIf(string, =~(_star + "|" + _kmsResource + "|" + _dynamicReference), fn.#StringExpression)
 _#KMSResources:    _#KMSResourceName | fn.#StringExpression | [..._#KMSResource] | _#ListIntrinsic
 #KMSKeyStatement: close({
 	_kmsKeyFields
@@ -270,8 +284,8 @@ _#ServiceControlJSONStatement: close({_serviceControlFields}) & _#OneAction & _#
 
 // Resource control policies: customer-managed RCPs only deny, with
 // Principal "*", a service-qualified Action and no NotAction.
-_#RCPActionName: #ActionName & !="*"
-_#RCPAction:     matchIf(string, _#RCPActionName, fn.#StringExpression)
+_#RCPActionName: =~_actionName
+_#RCPAction:     matchIf(string, =~(_actionName + "|" + _dynamicReference), fn.#StringExpression)
 _#RCPActions:    _#RCPActionName | fn.#StringExpression | [..._#RCPAction] | _#ListIntrinsic
 #ResourceControlStatement: close({
 	_resourceControlFields
