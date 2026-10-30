@@ -57,8 +57,14 @@ _arn:              "^arn:[^:]+:[^:]*:[^:]*:[^:]*:.+$"
 	Federated?:     #Strs
 	CanonicalUser?: #Strs
 }) & struct.MinFields(1)
-#Principal:  "*" | #PrincipalMap
-_#Principal: #Principal | close({"Fn::If": [string, #Principal, #Principal]})
+#Principal: "*" | #PrincipalMap
+
+// A principal may be a string intrinsic, such as a Ref to "*". A conditional
+// principal has a map in at least one branch; fn.#StringExpression already
+// accepts Fn::If over strings, and matching both would be ambiguous.
+_#Principal: #Principal | _#PrincipalIf | fn.#StringExpression
+_#PrincipalIf: (close({[=~"^Fn::If$"]: [string, #PrincipalMap | _#PrincipalIf, _#Principal]}) |
+	close({[=~"^Fn::If$"]: [string, "*" | fn.#StringExpression, #PrincipalMap | _#PrincipalIf]})) & struct.MinFields(1)
 
 #ConditionOperator: =~"^(ForAllValues:|ForAnyValue:)?(String(Not)?Equals(IgnoreCase)?|String(Not)?Like|(Numeric|Date)(Not)?Equals|(Numeric|Date)(LessThan|GreaterThan)(Equals)?|Bool|BinaryEquals|(Not)?IpAddress|Arn(Not)?(Equals|Like))(IfExists)?$" | "Null"
 #ConditionValue:    matchIf(string | number | bool, _, fn.#StringExpression)
@@ -67,7 +73,8 @@ _#Principal: #Principal | close({"Fn::If": [string, #Principal, #Principal]})
 // as token.actions.githubusercontent.com or oidc.eks.<region>.amazonaws.com/id/<id>.
 #ConditionKey: =~"^[A-Za-z0-9._/-]+:."
 #Condition: [#ConditionOperator]: [#ConditionKey]: string | number | bool | [...#ConditionValue] | fn.#StringListExpression
-_#Condition: #Condition | close({"Fn::If": [string, #Condition | fn.#NoValue, #Condition | fn.#NoValue]})
+_#Condition:   #Condition | _#ConditionIf
+_#ConditionIf: close({[=~"^Fn::If$"]: [string, _#Condition | fn.#NoValue, _#Condition | fn.#NoValue]}) & struct.MinFields(1)
 
 #Effect:  "Allow" | "Deny"
 _#Effect: #Effect | fn.#StringExpression
@@ -279,19 +286,24 @@ _#RCPActions:    _#RCPActionName | [..._#RCPAction] | fn.#StringListExpression
 // definition-valued field (#S: #XStatement) is validated on its own inside
 // disjunctions, so each profile spells out its document.
 //
-// A statement entry may be Fn::If (with AWS::NoValue branches) or
-// AWS::NoValue, and Statement itself may be Fn::If over two statement lists.
+// A statement entry may be AWS::NoValue or Fn::If over entries, nested to
+// any depth. Statement may also be Fn::If over lists: each branch is a
+// list, an entry or another list conditional, and at least one branch has
+// a list. Fn::If without a list in it is an entry conditional, so the two
+// don't overlap.
 //
 // A property value may be the document, a conditional document, a literal
 // JSON string, or a string intrinsic. A conditional document's branches are
-// documents, AWS::NoValue or nested conditional documents, and at least one
-// branch is not AWS::NoValue. The string intrinsic form already accepts
-// Fn::If with only AWS::NoValue branches; matching both forms left the
-// disjunction ambiguous. The conditional document matches Fn::If with a
-// pattern key rather than a regular field: CUE v0.18 evaluates a regular
-// field's recursive branch types even for a literal document, which cost
-// about 8 ms per policy document; a pattern applies only when the key is
-// present.
+// documents, nested conditional documents or strings, and at least one
+// branch is a document or a conditional document. AWS::NoValue is a Ref, so
+// it is one of the strings; the AWS::NoValue check reports a required
+// property it removes. fn.#StringExpression already accepts Fn::If over two
+// strings; matching both forms would leave the disjunction ambiguous.
+//
+// Conditionals match Fn::If with a pattern key rather than a regular field:
+// CUE v0.18 evaluates a regular field's recursive branch types even for a
+// literal document, which cost about 8 ms per policy document; a pattern
+// applies only when the key is present.
 // As with the fn keys, a CUE value that only declares Fn::If as required
 // ("Fn::If"!:) no longer matches, because a pattern does not supply the
 // field; concrete template values are unaffected.
@@ -301,79 +313,111 @@ _#RCPActions:    _#RCPActionName | [..._#RCPAction] | fn.#StringListExpression
 #IdentityPolicy: close({
 	Version?:   _#Version
 	Id?:        #Str
-	Statement!: [..._#IdentityEntry] | _#IdentityEntry | close({"Fn::If": [string, [..._#IdentityEntry] | fn.#NoValue, [..._#IdentityEntry] | fn.#NoValue]})
+	Statement!: [..._#IdentityEntry] | _#IdentityEntry | _#IdentityListIf
 })
-_#IdentityEntry:      #IdentityStatement | fn.#NoValue | close({"Fn::If": [string, #IdentityStatement | fn.#NoValue, #IdentityStatement | fn.#NoValue]})
-#IdentityPolicyValue: #IdentityPolicy | _#IdentityPolicyIf | string & json.Validate(#IdentityPolicy) | fn.#StringExpression
-_#IdentityPolicyIf: (close({[=~"^Fn::If$"]: [string, #IdentityPolicy | _#IdentityPolicyIf, #IdentityPolicy | fn.#NoValue | _#IdentityPolicyIf]}) |
-	close({[=~"^Fn::If$"]: [string, fn.#NoValue, #IdentityPolicy | _#IdentityPolicyIf]})) & struct.MinFields(1)
+_#IdentityEntry:   #IdentityStatement | fn.#NoValue | _#IdentityEntryIf
+_#IdentityEntryIf: close({[=~"^Fn::If$"]: [string, _#IdentityEntry, _#IdentityEntry]}) & struct.MinFields(1)
+_#IdentityListIf: (close({[=~"^Fn::If$"]: [string, [..._#IdentityEntry] | _#IdentityListIf, [..._#IdentityEntry] | _#IdentityListIf | _#IdentityEntry]}) |
+	close({[=~"^Fn::If$"]: [string, _#IdentityEntry, [..._#IdentityEntry] | _#IdentityListIf]})) & struct.MinFields(1)
+#IdentityPolicyValue:   #IdentityPolicy | _#IdentityPolicyIf | _#IdentityPolicyString
+_#IdentityPolicyString: string & json.Validate(#IdentityPolicy) | fn.#StringExpression
+_#IdentityPolicyIf: (close({[=~"^Fn::If$"]: [string, #IdentityPolicy | _#IdentityPolicyIf, #IdentityPolicy | _#IdentityPolicyIf | _#IdentityPolicyString]}) |
+	close({[=~"^Fn::If$"]: [string, _#IdentityPolicyString, #IdentityPolicy | _#IdentityPolicyIf]})) & struct.MinFields(1)
 
 #TrustPolicy: close({
 	Version?:   _#Version
 	Id?:        #Str
-	Statement!: [..._#TrustEntry] | _#TrustEntry | close({"Fn::If": [string, [..._#TrustEntry] | fn.#NoValue, [..._#TrustEntry] | fn.#NoValue]})
+	Statement!: [..._#TrustEntry] | _#TrustEntry | _#TrustListIf
 })
-_#TrustEntry:      #TrustStatement | fn.#NoValue | close({"Fn::If": [string, #TrustStatement | fn.#NoValue, #TrustStatement | fn.#NoValue]})
-#TrustPolicyValue: #TrustPolicy | _#TrustPolicyIf | string & json.Validate(#TrustPolicy) | fn.#StringExpression
-_#TrustPolicyIf: (close({[=~"^Fn::If$"]: [string, #TrustPolicy | _#TrustPolicyIf, #TrustPolicy | fn.#NoValue | _#TrustPolicyIf]}) |
-	close({[=~"^Fn::If$"]: [string, fn.#NoValue, #TrustPolicy | _#TrustPolicyIf]})) & struct.MinFields(1)
+_#TrustEntry:   #TrustStatement | fn.#NoValue | _#TrustEntryIf
+_#TrustEntryIf: close({[=~"^Fn::If$"]: [string, _#TrustEntry, _#TrustEntry]}) & struct.MinFields(1)
+_#TrustListIf: (close({[=~"^Fn::If$"]: [string, [..._#TrustEntry] | _#TrustListIf, [..._#TrustEntry] | _#TrustListIf | _#TrustEntry]}) |
+	close({[=~"^Fn::If$"]: [string, _#TrustEntry, [..._#TrustEntry] | _#TrustListIf]})) & struct.MinFields(1)
+#TrustPolicyValue:   #TrustPolicy | _#TrustPolicyIf | _#TrustPolicyString
+_#TrustPolicyString: string & json.Validate(#TrustPolicy) | fn.#StringExpression
+_#TrustPolicyIf: (close({[=~"^Fn::If$"]: [string, #TrustPolicy | _#TrustPolicyIf, #TrustPolicy | _#TrustPolicyIf | _#TrustPolicyString]}) |
+	close({[=~"^Fn::If$"]: [string, _#TrustPolicyString, #TrustPolicy | _#TrustPolicyIf]})) & struct.MinFields(1)
 
 #ResourcePolicy: close({
 	Version?:   _#Version
 	Id?:        #Str
-	Statement!: [..._#ResourceEntry] | _#ResourceEntry | close({"Fn::If": [string, [..._#ResourceEntry] | fn.#NoValue, [..._#ResourceEntry] | fn.#NoValue]})
+	Statement!: [..._#ResourceEntry] | _#ResourceEntry | _#ResourceListIf
 })
-_#ResourceEntry:      #ResourceStatement | fn.#NoValue | close({"Fn::If": [string, #ResourceStatement | fn.#NoValue, #ResourceStatement | fn.#NoValue]})
-#ResourcePolicyValue: #ResourcePolicy | _#ResourcePolicyIf | string & json.Validate(#ResourcePolicy) | fn.#StringExpression
-_#ResourcePolicyIf: (close({[=~"^Fn::If$"]: [string, #ResourcePolicy | _#ResourcePolicyIf, #ResourcePolicy | fn.#NoValue | _#ResourcePolicyIf]}) |
-	close({[=~"^Fn::If$"]: [string, fn.#NoValue, #ResourcePolicy | _#ResourcePolicyIf]})) & struct.MinFields(1)
+_#ResourceEntry:   #ResourceStatement | fn.#NoValue | _#ResourceEntryIf
+_#ResourceEntryIf: close({[=~"^Fn::If$"]: [string, _#ResourceEntry, _#ResourceEntry]}) & struct.MinFields(1)
+_#ResourceListIf: (close({[=~"^Fn::If$"]: [string, [..._#ResourceEntry] | _#ResourceListIf, [..._#ResourceEntry] | _#ResourceListIf | _#ResourceEntry]}) |
+	close({[=~"^Fn::If$"]: [string, _#ResourceEntry, [..._#ResourceEntry] | _#ResourceListIf]})) & struct.MinFields(1)
+#ResourcePolicyValue:   #ResourcePolicy | _#ResourcePolicyIf | _#ResourcePolicyString
+_#ResourcePolicyString: string & json.Validate(#ResourcePolicy) | fn.#StringExpression
+_#ResourcePolicyIf: (close({[=~"^Fn::If$"]: [string, #ResourcePolicy | _#ResourcePolicyIf, #ResourcePolicy | _#ResourcePolicyIf | _#ResourcePolicyString]}) |
+	close({[=~"^Fn::If$"]: [string, _#ResourcePolicyString, #ResourcePolicy | _#ResourcePolicyIf]})) & struct.MinFields(1)
 
 #ECRRepositoryPolicy: close({
 	Version?:   _#Version
 	Id?:        #Str
-	Statement!: [..._#ECRRepositoryEntry] | _#ECRRepositoryEntry | close({"Fn::If": [string, [..._#ECRRepositoryEntry] | fn.#NoValue, [..._#ECRRepositoryEntry] | fn.#NoValue]})
+	Statement!: [..._#ECRRepositoryEntry] | _#ECRRepositoryEntry | _#ECRRepositoryListIf
 })
-_#ECRRepositoryEntry:      #ECRRepositoryStatement | fn.#NoValue | close({"Fn::If": [string, #ECRRepositoryStatement | fn.#NoValue, #ECRRepositoryStatement | fn.#NoValue]})
-#ECRRepositoryPolicyValue: #ECRRepositoryPolicy | _#ECRRepositoryPolicyIf | string & json.Validate(#ECRRepositoryPolicy) | fn.#StringExpression
-_#ECRRepositoryPolicyIf: (close({[=~"^Fn::If$"]: [string, #ECRRepositoryPolicy | _#ECRRepositoryPolicyIf, #ECRRepositoryPolicy | fn.#NoValue | _#ECRRepositoryPolicyIf]}) |
-	close({[=~"^Fn::If$"]: [string, fn.#NoValue, #ECRRepositoryPolicy | _#ECRRepositoryPolicyIf]})) & struct.MinFields(1)
+_#ECRRepositoryEntry:   #ECRRepositoryStatement | fn.#NoValue | _#ECRRepositoryEntryIf
+_#ECRRepositoryEntryIf: close({[=~"^Fn::If$"]: [string, _#ECRRepositoryEntry, _#ECRRepositoryEntry]}) & struct.MinFields(1)
+_#ECRRepositoryListIf: (close({[=~"^Fn::If$"]: [string, [..._#ECRRepositoryEntry] | _#ECRRepositoryListIf, [..._#ECRRepositoryEntry] | _#ECRRepositoryListIf | _#ECRRepositoryEntry]}) |
+	close({[=~"^Fn::If$"]: [string, _#ECRRepositoryEntry, [..._#ECRRepositoryEntry] | _#ECRRepositoryListIf]})) & struct.MinFields(1)
+#ECRRepositoryPolicyValue:   #ECRRepositoryPolicy | _#ECRRepositoryPolicyIf | _#ECRRepositoryPolicyString
+_#ECRRepositoryPolicyString: string & json.Validate(#ECRRepositoryPolicy) | fn.#StringExpression
+_#ECRRepositoryPolicyIf: (close({[=~"^Fn::If$"]: [string, #ECRRepositoryPolicy | _#ECRRepositoryPolicyIf, #ECRRepositoryPolicy | _#ECRRepositoryPolicyIf | _#ECRRepositoryPolicyString]}) |
+	close({[=~"^Fn::If$"]: [string, _#ECRRepositoryPolicyString, #ECRRepositoryPolicy | _#ECRRepositoryPolicyIf]})) & struct.MinFields(1)
 
 #S3BucketPolicy: close({
 	Version?:   _#Version
 	Id?:        #Str
-	Statement!: [..._#S3BucketEntry] | _#S3BucketEntry | close({"Fn::If": [string, [..._#S3BucketEntry] | fn.#NoValue, [..._#S3BucketEntry] | fn.#NoValue]})
+	Statement!: [..._#S3BucketEntry] | _#S3BucketEntry | _#S3BucketListIf
 })
-_#S3BucketEntry:      #S3BucketStatement | fn.#NoValue | close({"Fn::If": [string, #S3BucketStatement | fn.#NoValue, #S3BucketStatement | fn.#NoValue]})
-#S3BucketPolicyValue: #S3BucketPolicy | _#S3BucketPolicyIf | string & json.Validate(#S3BucketPolicy) | fn.#StringExpression
-_#S3BucketPolicyIf: (close({[=~"^Fn::If$"]: [string, #S3BucketPolicy | _#S3BucketPolicyIf, #S3BucketPolicy | fn.#NoValue | _#S3BucketPolicyIf]}) |
-	close({[=~"^Fn::If$"]: [string, fn.#NoValue, #S3BucketPolicy | _#S3BucketPolicyIf]})) & struct.MinFields(1)
+_#S3BucketEntry:   #S3BucketStatement | fn.#NoValue | _#S3BucketEntryIf
+_#S3BucketEntryIf: close({[=~"^Fn::If$"]: [string, _#S3BucketEntry, _#S3BucketEntry]}) & struct.MinFields(1)
+_#S3BucketListIf: (close({[=~"^Fn::If$"]: [string, [..._#S3BucketEntry] | _#S3BucketListIf, [..._#S3BucketEntry] | _#S3BucketListIf | _#S3BucketEntry]}) |
+	close({[=~"^Fn::If$"]: [string, _#S3BucketEntry, [..._#S3BucketEntry] | _#S3BucketListIf]})) & struct.MinFields(1)
+#S3BucketPolicyValue:   #S3BucketPolicy | _#S3BucketPolicyIf | _#S3BucketPolicyString
+_#S3BucketPolicyString: string & json.Validate(#S3BucketPolicy) | fn.#StringExpression
+_#S3BucketPolicyIf: (close({[=~"^Fn::If$"]: [string, #S3BucketPolicy | _#S3BucketPolicyIf, #S3BucketPolicy | _#S3BucketPolicyIf | _#S3BucketPolicyString]}) |
+	close({[=~"^Fn::If$"]: [string, _#S3BucketPolicyString, #S3BucketPolicy | _#S3BucketPolicyIf]})) & struct.MinFields(1)
 
 #KMSKeyPolicy: close({
 	Version?:   _#Version
 	Id?:        #Str
-	Statement!: [..._#KMSKeyEntry] | _#KMSKeyEntry | close({"Fn::If": [string, [..._#KMSKeyEntry] | fn.#NoValue, [..._#KMSKeyEntry] | fn.#NoValue]})
+	Statement!: [..._#KMSKeyEntry] | _#KMSKeyEntry | _#KMSKeyListIf
 })
-_#KMSKeyEntry:      #KMSKeyStatement | fn.#NoValue | close({"Fn::If": [string, #KMSKeyStatement | fn.#NoValue, #KMSKeyStatement | fn.#NoValue]})
-#KMSKeyPolicyValue: #KMSKeyPolicy | _#KMSKeyPolicyIf | string & json.Validate(#KMSKeyPolicy) | fn.#StringExpression
-_#KMSKeyPolicyIf: (close({[=~"^Fn::If$"]: [string, #KMSKeyPolicy | _#KMSKeyPolicyIf, #KMSKeyPolicy | fn.#NoValue | _#KMSKeyPolicyIf]}) |
-	close({[=~"^Fn::If$"]: [string, fn.#NoValue, #KMSKeyPolicy | _#KMSKeyPolicyIf]})) & struct.MinFields(1)
+_#KMSKeyEntry:   #KMSKeyStatement | fn.#NoValue | _#KMSKeyEntryIf
+_#KMSKeyEntryIf: close({[=~"^Fn::If$"]: [string, _#KMSKeyEntry, _#KMSKeyEntry]}) & struct.MinFields(1)
+_#KMSKeyListIf: (close({[=~"^Fn::If$"]: [string, [..._#KMSKeyEntry] | _#KMSKeyListIf, [..._#KMSKeyEntry] | _#KMSKeyListIf | _#KMSKeyEntry]}) |
+	close({[=~"^Fn::If$"]: [string, _#KMSKeyEntry, [..._#KMSKeyEntry] | _#KMSKeyListIf]})) & struct.MinFields(1)
+#KMSKeyPolicyValue:   #KMSKeyPolicy | _#KMSKeyPolicyIf | _#KMSKeyPolicyString
+_#KMSKeyPolicyString: string & json.Validate(#KMSKeyPolicy) | fn.#StringExpression
+_#KMSKeyPolicyIf: (close({[=~"^Fn::If$"]: [string, #KMSKeyPolicy | _#KMSKeyPolicyIf, #KMSKeyPolicy | _#KMSKeyPolicyIf | _#KMSKeyPolicyString]}) |
+	close({[=~"^Fn::If$"]: [string, _#KMSKeyPolicyString, #KMSKeyPolicy | _#KMSKeyPolicyIf]})) & struct.MinFields(1)
 
 #ServiceControlPolicy: close({
 	Version?:   "2012-10-17" | fn.#StringExpression
 	Id?:        #Str
-	Statement!: [..._#ServiceControlEntry] | _#ServiceControlEntry | close({"Fn::If": [string, [..._#ServiceControlEntry] | fn.#NoValue, [..._#ServiceControlEntry] | fn.#NoValue]})
+	Statement!: [..._#ServiceControlEntry] | _#ServiceControlEntry | _#ServiceControlListIf
 })
-_#ServiceControlEntry:      #ServiceControlStatement | fn.#NoValue | close({"Fn::If": [string, #ServiceControlStatement | fn.#NoValue, #ServiceControlStatement | fn.#NoValue]})
-#ServiceControlPolicyValue: #ServiceControlPolicy | _#ServiceControlPolicyIf | string & json.Validate(#ServiceControlPolicy) | fn.#StringExpression
-_#ServiceControlPolicyIf: (close({[=~"^Fn::If$"]: [string, #ServiceControlPolicy | _#ServiceControlPolicyIf, #ServiceControlPolicy | fn.#NoValue | _#ServiceControlPolicyIf]}) |
-	close({[=~"^Fn::If$"]: [string, fn.#NoValue, #ServiceControlPolicy | _#ServiceControlPolicyIf]})) & struct.MinFields(1)
+_#ServiceControlEntry:   #ServiceControlStatement | fn.#NoValue | _#ServiceControlEntryIf
+_#ServiceControlEntryIf: close({[=~"^Fn::If$"]: [string, _#ServiceControlEntry, _#ServiceControlEntry]}) & struct.MinFields(1)
+_#ServiceControlListIf: (close({[=~"^Fn::If$"]: [string, [..._#ServiceControlEntry] | _#ServiceControlListIf, [..._#ServiceControlEntry] | _#ServiceControlListIf | _#ServiceControlEntry]}) |
+	close({[=~"^Fn::If$"]: [string, _#ServiceControlEntry, [..._#ServiceControlEntry] | _#ServiceControlListIf]})) & struct.MinFields(1)
+#ServiceControlPolicyValue:   #ServiceControlPolicy | _#ServiceControlPolicyIf | _#ServiceControlPolicyString
+_#ServiceControlPolicyString: string & json.Validate(#ServiceControlPolicy) | fn.#StringExpression
+_#ServiceControlPolicyIf: (close({[=~"^Fn::If$"]: [string, #ServiceControlPolicy | _#ServiceControlPolicyIf, #ServiceControlPolicy | _#ServiceControlPolicyIf | _#ServiceControlPolicyString]}) |
+	close({[=~"^Fn::If$"]: [string, _#ServiceControlPolicyString, #ServiceControlPolicy | _#ServiceControlPolicyIf]})) & struct.MinFields(1)
 
 #ResourceControlPolicy: close({
 	Version?:   "2012-10-17" | fn.#StringExpression
 	Id?:        #Str
-	Statement!: [..._#ResourceControlEntry] | _#ResourceControlEntry | close({"Fn::If": [string, [..._#ResourceControlEntry] | fn.#NoValue, [..._#ResourceControlEntry] | fn.#NoValue]})
+	Statement!: [..._#ResourceControlEntry] | _#ResourceControlEntry | _#ResourceControlListIf
 })
-_#ResourceControlEntry:      #ResourceControlStatement | fn.#NoValue | close({"Fn::If": [string, #ResourceControlStatement | fn.#NoValue, #ResourceControlStatement | fn.#NoValue]})
-#ResourceControlPolicyValue: #ResourceControlPolicy | _#ResourceControlPolicyIf | string & json.Validate(#ResourceControlPolicy) | fn.#StringExpression
-_#ResourceControlPolicyIf: (close({[=~"^Fn::If$"]: [string, #ResourceControlPolicy | _#ResourceControlPolicyIf, #ResourceControlPolicy | fn.#NoValue | _#ResourceControlPolicyIf]}) |
-	close({[=~"^Fn::If$"]: [string, fn.#NoValue, #ResourceControlPolicy | _#ResourceControlPolicyIf]})) & struct.MinFields(1)
+_#ResourceControlEntry:   #ResourceControlStatement | fn.#NoValue | _#ResourceControlEntryIf
+_#ResourceControlEntryIf: close({[=~"^Fn::If$"]: [string, _#ResourceControlEntry, _#ResourceControlEntry]}) & struct.MinFields(1)
+_#ResourceControlListIf: (close({[=~"^Fn::If$"]: [string, [..._#ResourceControlEntry] | _#ResourceControlListIf, [..._#ResourceControlEntry] | _#ResourceControlListIf | _#ResourceControlEntry]}) |
+	close({[=~"^Fn::If$"]: [string, _#ResourceControlEntry, [..._#ResourceControlEntry] | _#ResourceControlListIf]})) & struct.MinFields(1)
+#ResourceControlPolicyValue:   #ResourceControlPolicy | _#ResourceControlPolicyIf | _#ResourceControlPolicyString
+_#ResourceControlPolicyString: string & json.Validate(#ResourceControlPolicy) | fn.#StringExpression
+_#ResourceControlPolicyIf: (close({[=~"^Fn::If$"]: [string, #ResourceControlPolicy | _#ResourceControlPolicyIf, #ResourceControlPolicy | _#ResourceControlPolicyIf | _#ResourceControlPolicyString]}) |
+	close({[=~"^Fn::If$"]: [string, _#ResourceControlPolicyString, #ResourceControlPolicy | _#ResourceControlPolicyIf]})) & struct.MinFields(1)
