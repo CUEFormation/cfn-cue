@@ -82,6 +82,11 @@ class RunIntegrityTests(unittest.TestCase):
             before = path.stat()
             guard = corpus.FileGuard([path], "changed")
             path.write_bytes(b"after!")
+            # Kernels before Linux 6.13 keep timestamps at timer-tick
+            # granularity, so an immediate rewrite can leave ctime unchanged.
+            # Rewrite until the tick passes, as a real rebuild always would.
+            while path.stat().st_ctime_ns == before.st_ctime_ns:
+                path.write_bytes(b"after!")
             os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
             with self.assertRaisesRegex(ValueError, "changed"):
                 guard.check()
