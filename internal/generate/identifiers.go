@@ -18,6 +18,8 @@ var identifierExceptions = map[string][]string{
 // primary identifier when a template can set all of them. It returns nil when
 // the schema has no identifier, when any part is read-only (CloudFormation
 // assigns it), or when any part is nested below the top level of Properties.
+// The manifest records the result as identifierProperties; primaryIdentifier
+// there is the provider's raw list (see Lifecycle).
 func PrimaryIdentifier(root map[string]any) []string {
 	typ, _ := root["typeName"].(string)
 	if names, ok := identifierExceptions[typ]; ok {

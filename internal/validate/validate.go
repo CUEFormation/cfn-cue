@@ -235,7 +235,12 @@ func Check(data []byte, opt Options) (result Result) {
 		if err != nil {
 			return fail("error", err.Error())
 		}
-		var manifest bundle.Manifest
+		// Decode only what this pass reads, so a manifest in an older format
+		// (whose regions block has another shape) still serves semantic checks.
+		var manifest struct {
+			Generator string                       `json:"generator"`
+			Schemas   map[string]bundle.SchemaInfo `json:"schemas"`
+		}
 		if err := json.Unmarshal(b, &manifest); err != nil || manifest.Generator != bundle.Generator {
 			return fail("error", "invalid generated manifest")
 		}
@@ -490,7 +495,7 @@ func checkSemantic(decoded any, schemas map[string]bundle.SchemaInfo, mapping ma
 		return names, names != nil
 	}, PrimaryIdentifier: func(typ string) []string {
 		if hash, ok := mapping[typ]; ok {
-			return schemas[hash].PrimaryIdentifier
+			return schemas[hash].IdentifierProperties
 		}
 		return nil
 	}})

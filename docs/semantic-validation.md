@@ -19,7 +19,7 @@ value.
 | `-checks` | What runs | Notes |
 | --- | --- | --- |
 | `structural` (default) | Generated CUE schemas | Unchanged results; existing contracts use this mode |
-| `semantic` | Reference checks only | Reads the manifest for regional availability, GetAtt names and primary identifiers; no CUE evaluation |
+| `semantic` | Reference checks only | Reads the region index for regional availability and the manifest for GetAtt names and primary identifiers; no CUE evaluation |
 | `all` | Both | Semantic diagnostics are reported even when the schemas reject the template |
 
 ```sh
@@ -108,9 +108,9 @@ differ from the bundled snapshot.
 Each provider schema names the properties that identify a resource
 (`primaryIdentifier`). Two resources of one type with the same identifier
 can't both be created: CloudFormation creates the first and the second fails,
-although each is valid by itself. The generator records the identifier in
-`manifest.json` (`schemas.<hash>.primaryIdentifier`), following cfn-lint
-v1.57.2's `PrimaryIdentifiers.py` (E3019):
+although each is valid by itself. The generator records the identifier's
+property names in `manifest.json` (`schemas.<hash>.identifierProperties`),
+following cfn-lint v1.57.2's `PrimaryIdentifiers.py` (E3019):
 
 - Only identifiers a template sets are recorded. If any part is read-only,
   such as `VpcId` on `AWS::EC2::VPC` or `QueueUrl` on `AWS::SQS::Queue`,
@@ -118,6 +118,9 @@ v1.57.2's `PrimaryIdentifiers.py` (E3019):
 - Every part must be a top-level property. Nested pointers are omitted.
 - `AWS::CodeBuild::Project` is identified by a read-only `Id`, but cfn-lint
   checks `Name` instead, and so does the generator.
+
+The manifest's `primaryIdentifier` is the provider's list of pointers,
+without these rules applied.
 
 Composite identifiers, such as `RestApiId` and `StageName` on
 `AWS::ApiGateway::Stage`, collide only when every part is equal. The check

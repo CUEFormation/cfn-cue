@@ -221,7 +221,8 @@ func TestRegionIndexes(t *testing.T) {
 	if len(manifest.Regions) < 2 {
 		t.Fatalf("fixture has %d regions", len(manifest.Regions))
 	}
-	for region, resources := range manifest.Regions {
+	for _, region := range manifest.Regions {
+		resources := manifest.RegionTypes(region)
 		index, err := bundle.ReadRegionIndex(out, region)
 		if err != nil {
 			t.Fatal(err)
