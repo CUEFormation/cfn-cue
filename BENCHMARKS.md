@@ -137,15 +137,30 @@ Each role added 0.25 ms before #24, 7.9 ms on main, and nothing measurable with 
 
 `cfn-cue-validate` accepted and rejected the same 1,092 corpus templates with either module, one process per template including load: 839 valid and 253 invalid. Total time fell from 153 to 143 s; the largest savings were 0.9 to 1.4 s per template. Error messages changed for 5 templates: four no longer dump the expanded recursive document type, and one gains a `MinFields` line.
 
+### Large IAM policies
+
+Measured on October 18, 2026, on an Apple M4 with Go 1.27.1. `TestIAMPolicyPerformance` validates one value holding ten `AWS::IAM::ManagedPolicy` resources. Each has 30 statements of 40 actions, 40 resources and a `Condition`. The CLI rows run the same template through `cfn-cue-validate` and report `elapsedMs` and peak RSS from `/usr/bin/time -l`. Peak heap is sampled every millisecond. Three runs each, which agreed within 5%. These figures used CUE v0.18.0-alpha.3.
+
+| iam profiles | Time | Allocated | Peak heap | CLI time | CLI peak RSS |
+|---|---:|---:|---:|---:|---:|
+| matchN presence rules (`9bfcb45`) | 2.4 s | 2.3 GiB | 2.1 GiB | 2.5 s | 2.2 GiB |
+| presence comprehensions | 0.76 s | 704 MiB | 556 MiB | not run | not run |
+| plus matchIf list elements | 0.46 s | 582 MiB | 420 MiB | 0.50 s | 450 MiB |
+
+A template with one policy of 200 one-action statements went from 0.20 s and 167 MiB peak RSS to 0.12 s and 92 MiB through the CLI. The 46 smoke corpus templates, three of which have IAM policy properties, took about 20 ms and 36 MiB each before and after, with the same results.
+
+After the move to CUE v0.18.0-rc.1, the test took 3.0 s, 2.6 GiB allocated and 2.3 GiB peak heap on main (`3e7599d`), and 0.52 s, 661 MiB and 450 to 490 MiB with these profiles, three runs each. The CLI rows were not repeated. On October 30, the profiles measured 0.57 s, 661 MiB and 465 to 495 MiB; accepting dynamic references in list elements, with one regular expression per element, brought them to 0.52 s, 575 MiB and 390 to 410 MiB.
+
 ## Findings
 
 - **Pattern-constraint function keys made region evaluation feasible.** At equal region size the union is 460 to 1,400 times faster than with optional-field keys, which took 4.6 s per resource with only 6 types.
 - **The union cost about 0.3 ms per resource type for every resource.** In a full region that is about 0.5 s per resource, 31 s for 50 resources.
 - **Selecting the schema by `Type` removes the dependence on region size.** About 1 ms per resource for 6 or 1,839 types, valid or broken, with one error naming the problem instead of a `Type` conflict for every type. On 210 templates and edge cases (the corpus smoke templates, `Custom::` names, missing or non-string types, `Fn::ForEach` fragments, in filtered and full regions) it accepted and rejected exactly what the union did.
+- **matchN cost a full copy of the statement per alternative.** IAM statements checked "exactly one of Action or NotAction" with `matchN`, which unifies a copy of the value with each alternative. Comprehensions on field presence check the same rule without re-evaluating the statement. They cut validation of large policies by two thirds.
 - **Load time is what remains.** Loading 1,839 resource packages takes 2.7 s before any validation. Loading only the packages a template uses (for example per-service region packages, or a generated module for the template's types), or validating in a long-running process that loads once, would remove it.
 
 ## Not measured
 
-- Templates with many or large properties per resource. The per-type benchmark gives a floor of 1 to 3 ms per minimal resource.
+- Templates with many or large properties per resource, other than IAM policies. The per-type benchmark gives a floor of 1 to 3 ms per minimal resource.
 - The `cue` command line with the current generator. In-process figures exclude process start-up and CLI module loading.
 - Repeated runs and variance, except for nested `Fn::If` around `Properties`.

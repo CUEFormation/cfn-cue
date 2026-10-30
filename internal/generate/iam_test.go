@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -55,6 +57,15 @@ func TestIAMProfiles(t *testing.T) {
 	}
 	if e = scanner.Err(); e != nil {
 		t.Fatal(e)
+	}
+}
+
+// TestIAMDynamicReference checks that the iam package matches dynamic
+// references in list elements with fn.#DynamicReference's pattern.
+func TestIAMDynamicReference(t *testing.T) {
+	want := regexp.MustCompile(`(?m)^_dynamicReference:\s+(".*")$`).FindSubmatch(iamSource)
+	if want == nil || string(want[1]) != strconv.Quote(dynamicReferencePattern) {
+		t.Fatalf("cue/iam.cue _dynamicReference does not match dynamicReferencePattern %q", dynamicReferencePattern)
 	}
 }
 
