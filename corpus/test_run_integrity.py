@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import tempfile
+import time
 import unittest
 from unittest import mock
 
@@ -85,7 +86,12 @@ class RunIntegrityTests(unittest.TestCase):
             # Kernels before Linux 6.13 keep timestamps at timer-tick
             # granularity, so an immediate rewrite can leave ctime unchanged.
             # Rewrite until the tick passes, as a real rebuild always would.
+            # Where ctime is creation time, as on Windows, it never changes.
+            deadline = time.monotonic() + 1
             while path.stat().st_ctime_ns == before.st_ctime_ns:
+                if time.monotonic() > deadline:
+                    self.skipTest("rewriting a file does not change its ctime here")
+                time.sleep(0.001)
                 path.write_bytes(b"after!")
             os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
             with self.assertRaisesRegex(ValueError, "changed"):

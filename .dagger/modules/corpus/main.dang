@@ -1,7 +1,8 @@
 """
 The checks from ./scripts/corpus.sh test that need Python: cfn-lint comparisons
 over the smoke and semantic corpora, the Python unit tests, and the opt-in Go
-integration tests. Runs the same script as GitHub CI.
+integration tests. Runs the test phase of the script GitHub CI uses; the
+environment setup here replaces ./scripts/corpus.sh setup.
 """
 type Corpus {
   let mountPath: String! = "/src/cfn-cue"
@@ -18,6 +19,9 @@ type Corpus {
       .from("python:3.14-slim")
       .withDirectory("/usr/local/go", container.from("golang:1.26").directory("/usr/local/go"))
       .withEnvVariable("PATH", "/usr/local/go/bin:/root/go/bin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin")
+      # As in the golang image: fail rather than download a toolchain go.mod
+      # asks for.
+      .withEnvVariable("GOTOOLCHAIN", "local")
       .withMountedCache("/root/go/pkg/mod", cacheVolume("go-mod"))
       .withMountedCache("/root/.cache/go-build", cacheVolume("go-build"))
       .withEnvVariable("CORPUS_VENV", venv)
@@ -47,6 +51,10 @@ type Corpus {
     base(ws)
       .withDirectory(mountPath, source(ws))
       .withWorkdir(mountPath)
+      # Go keys cached test results on the size and mtime of files tests read,
+      # and the build cache outlives this container, so a changed fixture could
+      # replay an old pass.
+      .withEnvVariable("GOFLAGS", "-count=1")
       .withExec(["./scripts/corpus.sh", "test"])
       .sync
     null
