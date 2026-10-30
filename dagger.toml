@@ -1,0 +1,9 @@
+[modules.go]
+source = "dagger.io/go"
+
+[modules.go.settings]
+# Tests in internal/generate read the checked-in schema snapshot.
+includeExtraFiles = ["snapshots/**"]
+
+[modules.corpus]
+source = "./.dagger/modules/corpus"
