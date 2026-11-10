@@ -9,10 +9,28 @@ import re
 import sys
 
 
+# The upper bound is the locked cfn-lint's Requires-Python. Raise it when a
+# cfn-lint upgrade does.
+PYTHON_MINIMUM = (3, 12)
+PYTHON_LIMIT = (3, 15)
+
+
+def python_problem(version=None):
+    version = tuple((version or sys.version_info)[:2])
+    if PYTHON_MINIMUM <= version < PYTHON_LIMIT:
+        return None
+    return (
+        f"Python {PYTHON_MINIMUM[0]}.{PYTHON_MINIMUM[1]} to "
+        f"{PYTHON_LIMIT[0]}.{PYTHON_LIMIT[1] - 1} is required; this is "
+        f"{version[0]}.{version[1]}. ./scripts/corpus.sh setup installs the "
+        "version in .python-version."
+    )
+
+
 def check(requirements):
     problems = []
-    if sys.version_info < (3, 12):
-        problems.append("Python 3.12 or newer is required")
+    if python_problem():
+        problems.append(python_problem())
     pins = []
     for line in requirements.read_text().splitlines():
         if not line or line[0].isspace() or line.startswith("#"):
@@ -36,4 +54,6 @@ def check(requirements):
 
 
 if __name__ == "__main__":
+    if sys.argv[1:] == ["--python"]:
+        sys.exit(python_problem())
     check(Path(sys.argv[1]))
