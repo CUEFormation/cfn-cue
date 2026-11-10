@@ -1,0 +1,7 @@
+Resources:
+  Thing:
+    Type: AWS::IAM::User
+    Properties:
+      LoginProfile:
+        Password: example-password
+        PasswordResetRequired: true

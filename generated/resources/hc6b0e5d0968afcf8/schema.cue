@@ -37,7 +37,7 @@ import structs "struct"
 #Channel: {
 	channelId?:  #ChannelId
 	channelUri!: #ChannelUri
-	...
+	{[!~"^(channelId|channelUri)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #ChannelId: =~"[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}" |

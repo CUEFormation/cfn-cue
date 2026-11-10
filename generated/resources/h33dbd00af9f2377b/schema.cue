@@ -245,7 +245,7 @@ fn.#ObjectExpression
 #BaseScreenshot: {
 	IgnoreCoordinates?: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	ScreenshotName!:    string | number | bool | fn.#StringExpression
-	...
+	{[!~"^(IgnoreCoordinates|ScreenshotName)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #BrowserConfig: close({BrowserType!: #BrowserType}) | fn.#ObjectExpression

@@ -1158,6 +1158,378 @@
       "url": "https://github.com/CUEFormation/cfn-cue"
     },
     {
+      "depth": 5,
+      "id": "mutation-null-custom-array-invalid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 8,
+      "normalized": "normalized/mutation-null-custom-array-invalid.json",
+      "normalized_sha256": "4201961959f1e5c13258f431d8886f5c507627dce0623b37b1fddac6e691264e",
+      "original": "original/mutations/null-custom-array-invalid.yaml",
+      "original_sha256": "5587701a4a047a2a587bc7cb4135297c6a2180e2c0cf3a16322902e091fa0289",
+      "path": "null-custom-array-invalid",
+      "resource_count": 1,
+      "resource_types": [
+        "Custom::Thing"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 6,
+      "id": "mutation-null-custom-array-nested-invalid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 9,
+      "normalized": "normalized/mutation-null-custom-array-nested-invalid.json",
+      "normalized_sha256": "2edc271cbe5baa6835378b9e57e56bd601ceeafa4a6642cfdee27804d9792f78",
+      "original": "original/mutations/null-custom-array-nested-invalid.yaml",
+      "original_sha256": "ba2ccebf8de8d6ab6e9702321eb46d124fa88d07249733296b5f840bbd8a815c",
+      "path": "null-custom-array-nested-invalid",
+      "resource_count": 1,
+      "resource_types": [
+        "Custom::Thing"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 7,
+      "id": "mutation-null-custom-array-valid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 13,
+      "normalized": "normalized/mutation-null-custom-array-valid.json",
+      "normalized_sha256": "dbe8c3824b34b42aa321d60a2c65ff62cc3a119f77762bc28e9c572bd0f41b02",
+      "original": "original/mutations/null-custom-array-valid.yaml",
+      "original_sha256": "11dbbf5346a528361ff6460abd17b5f1face8da3b581be80f65a7a1410efa520",
+      "path": "null-custom-array-valid",
+      "resource_count": 1,
+      "resource_types": [
+        "Custom::Thing"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 5,
+      "id": "mutation-null-custom-resource-array-invalid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 8,
+      "normalized": "normalized/mutation-null-custom-resource-array-invalid.json",
+      "normalized_sha256": "b5c99b97414d6394c7bedb08ce7731e6b1398a4cd6bb234bc4fc3ac13e5533b2",
+      "original": "original/mutations/null-custom-resource-array-invalid.yaml",
+      "original_sha256": "7838526dc2fb456fe14f559cd2ad5670fb387f836a66b0349b8bb33d37a9f6ec",
+      "path": "null-custom-resource-array-invalid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::CloudFormation::CustomResource"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 6,
+      "id": "mutation-null-custom-resource-array-nested-invalid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 9,
+      "normalized": "normalized/mutation-null-custom-resource-array-nested-invalid.json",
+      "normalized_sha256": "822e87fba625bbca59f1f130c5f0630ba5d4e3ca695bdc693f6300fdbbbab9b0",
+      "original": "original/mutations/null-custom-resource-array-nested-invalid.yaml",
+      "original_sha256": "b9ecf8790885351d01684ec6313ba8a693f2bdee5e8d3f7f5013fd1fd71ab1a5",
+      "path": "null-custom-resource-array-nested-invalid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::CloudFormation::CustomResource"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 7,
+      "id": "mutation-null-custom-resource-array-valid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 13,
+      "normalized": "normalized/mutation-null-custom-resource-array-valid.json",
+      "normalized_sha256": "40df5439c2a79d0435bcc8f00164818a434a0a787adfd204455b21caf5561703",
+      "original": "original/mutations/null-custom-resource-array-valid.yaml",
+      "original_sha256": "9df6b8425693fa671a86729d843d0db9dea4b20e5b2052677e0d50d8345e377b",
+      "path": "null-custom-resource-array-valid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::CloudFormation::CustomResource"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 6,
+      "id": "mutation-null-if-branch-invalid",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 1,
+        "Fn::If": 1,
+        "Ref": 1
+      },
+      "license": "Apache-2.0",
+      "nodes": 16,
+      "normalized": "normalized/mutation-null-if-branch-invalid.json",
+      "normalized_sha256": "443702c9e747d2d0090166e1fc8d3d88980f18fc5907cb295b566711c370840d",
+      "original": "original/mutations/null-if-branch-invalid.yaml",
+      "original_sha256": "ca4c4f02791e7aaff90bac7fa454b4cf67fd9f025b1f8a30cdd68a57d1748799",
+      "path": "null-if-branch-invalid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::SQS::Queue"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 7,
+      "id": "mutation-null-join-argument-invalid",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 1,
+        "Fn::Join": 1,
+        "Ref": 1
+      },
+      "license": "Apache-2.0",
+      "nodes": 17,
+      "normalized": "normalized/mutation-null-join-argument-invalid.json",
+      "normalized_sha256": "dd2a33371995e81cb2fe9140ed6576a8abdf01c79e10870d1ede2b7ab5f9ccc7",
+      "original": "original/mutations/null-join-argument-invalid.yaml",
+      "original_sha256": "cafbb4b4466f78597b591549b1fa71c781b920449fbf6d3ea863259fd5994db9",
+      "path": "null-join-argument-invalid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::SQS::Queue"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 7,
+      "id": "mutation-null-json-property-invalid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 11,
+      "normalized": "normalized/mutation-null-json-property-invalid.json",
+      "normalized_sha256": "fa4c67a702104a1f02a4379d45538e54c030771285d4be6e5cdaf28631954d21",
+      "original": "original/mutations/null-json-property-invalid.yaml",
+      "original_sha256": "005555bc686a4ac3664dd62b0b74b050b6c42f20462eec46d107d9fdaac1d9a5",
+      "path": "null-json-property-invalid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::Events::Rule"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 4,
+      "id": "mutation-null-json-string-valid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 6,
+      "normalized": "normalized/mutation-null-json-string-valid.json",
+      "normalized_sha256": "5da44aa512dcdb70b690a9232779022777f3c166a10a3b30445054d9cf7320f5",
+      "original": "original/mutations/null-json-string-valid.yaml",
+      "original_sha256": "c19993a003724264f0f516a2e70eb7fa0203043e499cf82d359aa4baf94c8221",
+      "path": "null-json-string-valid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::Events::Rule"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 5,
+      "id": "mutation-null-nested-property-invalid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 8,
+      "normalized": "normalized/mutation-null-nested-property-invalid.json",
+      "normalized_sha256": "38bb9e9358d8fe5cef9da15065083fc1e7320ab6bfc250e82834cbeecbf980a8",
+      "original": "original/mutations/null-nested-property-invalid.yaml",
+      "original_sha256": "53167862446330d35a25638dc816fa7d40ed34934e60f6a7fd92fab06609318c",
+      "path": "null-nested-property-invalid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::IAM::User"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 5,
+      "id": "mutation-null-nested-property-valid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 8,
+      "normalized": "normalized/mutation-null-nested-property-valid.json",
+      "normalized_sha256": "8423e1822e7ef5a5421890a14453dc1907b37fd444c6f8c7640383e398c8b0db",
+      "original": "original/mutations/null-nested-property-valid.yaml",
+      "original_sha256": "6ab402e5d7873abb9067f2e8223bc83ddb6e4ee03bab46d456f8fed9bbfbea21",
+      "path": "null-nested-property-valid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::IAM::User"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 4,
+      "id": "mutation-null-property-invalid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 7,
+      "normalized": "normalized/mutation-null-property-invalid.json",
+      "normalized_sha256": "3e3165cb80687646445f4e4ece99d75a534fd76d584635b0a1f58828fdeea3ca",
+      "original": "original/mutations/null-property-invalid.yaml",
+      "original_sha256": "4a847f194664660c41aa1457012f219956ecbac6f13f3cb4908e6de8681751f2",
+      "path": "null-property-invalid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::ApiGateway::Stage"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 5,
+      "id": "mutation-null-property-valid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 9,
+      "normalized": "normalized/mutation-null-property-valid.json",
+      "normalized_sha256": "88bdb2b5a80e479777d6a72dce118039a99d87044b8e57379f4fe3bf620d9f1a",
+      "original": "original/mutations/null-property-valid.yaml",
+      "original_sha256": "5c527b86763d66c10e7eafe2733ea9e500b5d1627c5f847979494e02105e3abb",
+      "path": "null-property-valid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::ApiGateway::Stage"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 4,
+      "id": "mutation-null-required-property-invalid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 6,
+      "normalized": "normalized/mutation-null-required-property-invalid.json",
+      "normalized_sha256": "754befb9fb31070c35b1d79c121193bd7b2c67f2be159a5681078f6689cbc3dd",
+      "original": "original/mutations/null-required-property-invalid.yaml",
+      "original_sha256": "cd456be82b013fccb4d02120d69607b95676a19e13652db46c911552a554b569",
+      "path": "null-required-property-invalid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::ApiGateway::Stage"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 4,
+      "id": "mutation-null-resource-metadata-invalid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 6,
+      "normalized": "normalized/mutation-null-resource-metadata-invalid.json",
+      "normalized_sha256": "b6fbb090e4e27a45e2902905e2514f53d9bd6e89f355994f7308466f026fdb2d",
+      "original": "original/mutations/null-resource-metadata-invalid.yaml",
+      "original_sha256": "ec930a51860b8b99c54f763bc9087b90c3ae65452836d9d268070d6530470cee",
+      "path": "null-resource-metadata-invalid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::SQS::Queue"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 7,
+      "id": "mutation-null-sub-variable-invalid",
+      "intrinsic_depth": 2,
+      "intrinsics": {
+        "Fn::Equals": 1,
+        "Fn::Sub": 1,
+        "Ref": 1
+      },
+      "license": "Apache-2.0",
+      "nodes": 16,
+      "normalized": "normalized/mutation-null-sub-variable-invalid.json",
+      "normalized_sha256": "9d6aa72b4f2dad275bd3b960900554956864d2648536ca004723fa43ec6c3b6f",
+      "original": "original/mutations/null-sub-variable-invalid.yaml",
+      "original_sha256": "0086c8cb363dc6be81add31e0cc392dc2edc09c88375d532dc73049656952c9e",
+      "path": "null-sub-variable-invalid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::SQS::Queue"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 3,
+      "id": "mutation-null-template-metadata-invalid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 6,
+      "normalized": "normalized/mutation-null-template-metadata-invalid.json",
+      "normalized_sha256": "8f9fa464e4aca334594ed336fcb333c993213aab6828e8c0d5f8d213454b828f",
+      "original": "original/mutations/null-template-metadata-invalid.yaml",
+      "original_sha256": "b3a4dc763dc915aeecfddff454d0bc6c069fcd4eadb227068f9ff877684ce8e9",
+      "path": "null-template-metadata-invalid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::SQS::Queue"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
       "depth": 4,
       "id": "mutation-quoted-boolean-invalid",
       "intrinsic_depth": 0,

@@ -90,3 +90,47 @@ func TestKeyPatternReservesIntrinsicKeys(t *testing.T) {
 	literal := propertiesSchema(t, out, "./literal/htest")
 	validate(t, literal, `{Name: "one", Parameters: {Ref: "literal data"}}`, true)
 }
+
+// CloudFormation rejects null anywhere in a template. Arrays without items
+// and objects that allow extra keys take #Value, which has no null, so null
+// is rejected there at any depth while other values stay accepted.
+func TestOpenShapesRejectNull(t *testing.T) {
+	source := fixture(t)
+	root := map[string]any{
+		"typeName": "AWS::Test::Thing", "type": "object", "additionalProperties": false,
+		"properties": map[string]any{
+			"Name":  map[string]any{"type": "string"},
+			"List":  map[string]any{"type": "array"},
+			"Mixed": map[string]any{"type": []any{"string", "array"}},
+			"Open":  map[string]any{"type": "object", "properties": map[string]any{"Known": map[string]any{"type": "string"}}},
+		},
+		"patternProperties": map[string]any{".*": map[string]any{"type": []any{"string", "integer", "number", "array", "object"}}},
+	}
+	source.files["resources/test.json"], _ = json.Marshal(root)
+	out := filepath.Join(t.TempDir(), "generated")
+	if _, err := Generate(source, Options{Out: out, Regions: []string{"us-east-1"}}); err != nil {
+		t.Fatal(err)
+	}
+	schema := propertiesSchema(t, out, "./resources/htest")
+	for _, data := range []string{
+		`{List: [1, "a", true, {x: [2]}, {Ref: "Parameter"}]}`,
+		`{Mixed: "a"}`,
+		`{Mixed: [{x: "y"}]}`,
+		`{Open: {Known: "a", Extra: [1, {y: true}]}}`,
+		`{Extra: [1, {x: ["a"]}]}`,
+	} {
+		validate(t, schema, data, true)
+	}
+	for _, data := range []string{
+		`{List: [null]}`,
+		`{List: [{x: null}]}`,
+		`{Mixed: [[null]]}`,
+		`{Open: {Known: "a", Extra: null}}`,
+		`{Open: {Extra: [null]}}`,
+		`{Extra: [null]}`,
+		`{Extra: [{x: null}]}`,
+		`{Extra: {x: null}}`,
+	} {
+		validate(t, schema, data, false)
+	}
+}

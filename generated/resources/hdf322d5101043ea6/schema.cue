@@ -66,7 +66,7 @@ import structs "struct"
 		_cfnString: =~"[A-Z][A-Z0-9]{2}" & "\(self)"
 	} |
 	fn.#StringExpression
-	...
+	{[!~"^(ComponentType|Ec2InstanceId|Sid)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #Credential: close({

@@ -198,7 +198,7 @@ fn.#ObjectExpression
 }) |
 fn.#ObjectExpression
 
-#FilterGroup: [...] | fn.#ListExpression
+#FilterGroup: [...fn.#Value] | fn.#ListExpression
 
 #GitSubmodulesConfig: close(
 	{FetchSubmodules!: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression},

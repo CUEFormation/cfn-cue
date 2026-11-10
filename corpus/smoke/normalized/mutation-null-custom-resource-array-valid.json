@@ -1,0 +1,20 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "Payload": [
+          1,
+          "a",
+          {
+            "Key": [
+              "b",
+              true
+            ]
+          }
+        ],
+        "ServiceToken": "arn:aws:lambda:us-east-1:123456789012:function:CustomResourceProvider"
+      },
+      "Type": "AWS::CloudFormation::CustomResource"
+    }
+  }
+}

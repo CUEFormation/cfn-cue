@@ -65,7 +65,7 @@ import structs "struct"
 #AggregationConfig: {
 	AggregationType?: #AggregationType
 	TargetFileSize?:  #TargetFileSize
-	...
+	{[!~"^(AggregationType|TargetFileSize)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #AggregationType: "None" | "SingleFile" | fn.#StringExpression
@@ -122,7 +122,7 @@ fn.#StringExpression
 	Trendmicro?:      #TrendmicroConnectorOperator
 	Veeva?:           #VeevaConnectorOperator
 	Zendesk?:         #ZendeskConnectorOperator
-	...
+	{[!~"^(Amplitude|CustomConnector|Datadog|Dynatrace|GoogleAnalytics|InforNexus|Marketo|Pardot|S3|SAPOData|Salesforce|ServiceNow|Singular|Slack|Trendmicro|Veeva|Zendesk)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #ConnectorProfileName: strings.MaxRunes(256) & strings.MinRunes(0) & =~"[\\w/!@#+=.-]+" |
@@ -229,7 +229,7 @@ fn.#StringExpression
 	Snowflake?:       #SnowflakeDestinationProperties
 	Upsolver?:        #UpsolverDestinationProperties
 	Zendesk?:         #ZendeskDestinationProperties
-	...
+	{[!~"^(CustomConnector|EventBridge|LookoutMetrics|Marketo|Redshift|S3|SAPOData|Salesforce|Snowflake|Upsolver|Zendesk)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #DestinationFlowConfig: close({
@@ -340,7 +340,7 @@ fn.#ObjectExpression
 
 #IncrementalPullConfig: {
 	DatetimeTypeFieldName?: #DatetimeTypeFieldName
-	...
+	{[!~"^(DatetimeTypeFieldName)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #InforNexusConnectorOperator: "PROJECTION" |
@@ -519,7 +519,7 @@ fn.#ObjectExpression
 
 #S3InputFormatConfig: {
 	S3InputFileType?: "CSV" | "JSON" | fn.#StringExpression
-	...
+	{[!~"^(S3InputFileType)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #S3OutputFormatConfig: close({
@@ -864,7 +864,7 @@ fn.#ObjectExpression
 	Trendmicro?:      #TrendmicroSourceProperties
 	Veeva?:           #VeevaSourceProperties
 	Zendesk?:         #ZendeskSourceProperties
-	...
+	{[!~"^(Amplitude|CustomConnector|Datadog|Dynatrace|GoogleAnalytics|InforNexus|Marketo|Pardot|S3|SAPOData|Salesforce|ServiceNow|Singular|Slack|Trendmicro|Veeva|Zendesk)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #SourceFlowConfig: close({

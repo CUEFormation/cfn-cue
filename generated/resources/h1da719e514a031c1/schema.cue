@@ -83,7 +83,7 @@ fn.#StringExpression
 	// calling program to your API.
 	ApiKey!:    #ApiKey
 	SecretKey!: #SecretKey
-	...
+	{[!~"^(ApiKey|SecretKey)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #ApiKey: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" |
@@ -225,13 +225,13 @@ fn.#StringExpression
 		_cfnString: strings.MaxRunes(512) & strings.MinRunes(0) & =~"^\\S+$" & "\(self)"
 	} |
 	fn.#StringExpression
-	...
+	{[!~"^(AuthCode|RedirectUri)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #ConnectorProfileConfig: {
 	ConnectorProfileCredentials?: #ConnectorProfileCredentials
 	ConnectorProfileProperties?:  #ConnectorProfileProperties
-	...
+	{[!~"^(ConnectorProfileCredentials|ConnectorProfileProperties)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #ConnectorProfileCredentials: {
@@ -253,7 +253,7 @@ fn.#StringExpression
 	Trendmicro?:      #TrendmicroConnectorProfileCredentials
 	Veeva?:           #VeevaConnectorProfileCredentials
 	Zendesk?:         #ZendeskConnectorProfileCredentials
-	...
+	{[!~"^(Amplitude|CustomConnector|Datadog|Dynatrace|GoogleAnalytics|InforNexus|Marketo|Pardot|Redshift|SAPOData|Salesforce|ServiceNow|Singular|Slack|Snowflake|Trendmicro|Veeva|Zendesk)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #ConnectorProfileProperties: {
@@ -271,7 +271,7 @@ fn.#StringExpression
 	Snowflake?:       #SnowflakeConnectorProfileProperties
 	Veeva?:           #VeevaConnectorProfileProperties
 	Zendesk?:         #ZendeskConnectorProfileProperties
-	...
+	{[!~"^(CustomConnector|Datadog|Dynatrace|InforNexus|Marketo|Pardot|Redshift|SAPOData|Salesforce|ServiceNow|Slack|Snowflake|Veeva|Zendesk)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #ConnectorType: "Salesforce" |
@@ -375,25 +375,25 @@ fn.#StringExpression
 	// account that created them. The application key is used to log all requests
 	// made to the API.
 	ApplicationKey!: #ApplicationKey
-	...
+	{[!~"^(ApiKey|ApplicationKey)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #DatadogConnectorProfileProperties: {
 	// The location of the Datadog resource
 	InstanceUrl!: #InstanceUrl
-	...
+	{[!~"^(InstanceUrl)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #DynatraceConnectorProfileCredentials: {
 	// The API tokens used by Dynatrace API to authenticate various API calls.
 	ApiToken!: #ApiToken
-	...
+	{[!~"^(ApiToken)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #DynatraceConnectorProfileProperties: {
 	// The location of the Dynatrace resource
 	InstanceUrl!: #InstanceUrl
-	...
+	{[!~"^(InstanceUrl)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #GoogleAnalyticsConnectorProfileCredentials: {
@@ -411,7 +411,7 @@ fn.#StringExpression
 
 	// The credentials used to acquire new access tokens.
 	RefreshToken?: #RefreshToken
-	...
+	{[!~"^(AccessToken|ClientId|ClientSecret|ConnectorOAuthRequest|RefreshToken)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #InforNexusConnectorProfileCredentials: {
@@ -426,13 +426,13 @@ fn.#StringExpression
 
 	// The identiﬁer for the user.
 	UserId!: #Username
-	...
+	{[!~"^(AccessKeyId|Datakey|SecretAccessKey|UserId)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #InforNexusConnectorProfileProperties: {
 	// The location of the InforNexus resource
 	InstanceUrl!: #InstanceUrl
-	...
+	{[!~"^(InstanceUrl)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #InstanceUrl: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" |
@@ -478,13 +478,13 @@ fn.#StringExpression
 
 	// The oauth needed to request security tokens from the connector endpoint.
 	ConnectorOAuthRequest?: #ConnectorOAuthRequest
-	...
+	{[!~"^(AccessToken|ClientId|ClientSecret|ConnectorOAuthRequest)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #MarketoConnectorProfileProperties: {
 	// The location of the Marketo resource
 	InstanceUrl!: #InstanceUrl
-	...
+	{[!~"^(InstanceUrl)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #OAuth2Credentials: close({
@@ -545,7 +545,7 @@ fn.#ObjectExpression
 		"\(self)"
 	} |
 	fn.#StringExpression
-	...
+	{[!~"^(AuthCodeUrl|OAuthScopes|TokenUrl)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #PardotConnectorProfileCredentials: {
@@ -560,7 +560,7 @@ fn.#ObjectExpression
 
 	// The credentials used to acquire new access tokens.
 	RefreshToken?: #RefreshToken
-	...
+	{[!~"^(AccessToken|ClientCredentialsArn|ConnectorOAuthRequest|RefreshToken)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #PardotConnectorProfileProperties: {
@@ -570,7 +570,7 @@ fn.#ObjectExpression
 	// The location of the Salesforce Pardot resource
 	InstanceUrl?:          #InstanceUrl
 	IsSandboxEnvironment?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	...
+	{[!~"^(BusinessUnitId|InstanceUrl|IsSandboxEnvironment)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #Password: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
@@ -625,7 +625,7 @@ fn.#ObjectExpression
 
 	// The name of the user.
 	Username?: #Username
-	...
+	{[!~"^(Password|Username)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #RedshiftConnectorProfileProperties: {
@@ -654,7 +654,7 @@ fn.#ObjectExpression
 
 	// The name of the Amazon Redshift serverless workgroup
 	WorkgroupName?: #WorkgroupName
-	...
+	{[!~"^(BucketName|BucketPrefix|ClusterIdentifier|DataApiRoleArn|DatabaseName|DatabaseUrl|IsRedshiftServerless|RoleArn|WorkgroupName)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #RefreshToken: strings.MaxRunes(4096) & strings.MinRunes(0) & =~"\\S+" |
@@ -693,9 +693,9 @@ fn.#StringExpression
 		ClientSecret?:          #ClientSecret
 		ConnectorOAuthRequest?: #ConnectorOAuthRequest
 		RefreshToken?:          #RefreshToken
-		...
+		{[!~"^(AccessToken|ClientId|ClientSecret|ConnectorOAuthRequest|RefreshToken)$"]: fn.#Value}
 	} | fn.#ObjectExpression
-	...
+	{[!~"^(BasicAuthCredentials|OAuthCredentials)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #SAPODataConnectorProfileProperties: {
@@ -707,7 +707,7 @@ fn.#StringExpression
 	OAuthProperties?:        #OAuthProperties
 	PortNumber?:             #PortNumber
 	PrivateLinkServiceName?: #PrivateLinkServiceName
-	...
+	{[!~"^(ApplicationHostUrl|ApplicationServicePath|ClientNumber|DisableSSO|LogonLanguage|OAuthProperties|PortNumber|PrivateLinkServiceName)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #SalesforceConnectorProfileCredentials: {
@@ -728,7 +728,7 @@ fn.#StringExpression
 
 	// The credentials used to acquire new access tokens.
 	RefreshToken?: #RefreshToken
-	...
+	{[!~"^(AccessToken|ClientCredentialsArn|ConnectorOAuthRequest|JwtToken|OAuth2GrantType|RefreshToken)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #SalesforceConnectorProfileProperties: {
@@ -743,7 +743,7 @@ fn.#StringExpression
 		"False" |
 		"FALSE" |
 		fn.#BooleanExpression
-	...
+	{[!~"^(InstanceUrl|isSandboxEnvironment|usePrivateLinkForMetadataAndAuthorization)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #SecretKey: strings.MaxRunes(256) & strings.MinRunes(0) & =~"\\S+" |
@@ -762,20 +762,20 @@ fn.#StringExpression
 
 	// The name of the user.
 	Username?: #Username
-	...
+	{[!~"^(OAuth2Credentials|Password|Username)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #ServiceNowConnectorProfileProperties: {
 	// The location of the ServiceNow resource
 	InstanceUrl!: #InstanceUrl
-	...
+	{[!~"^(InstanceUrl)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #SingularConnectorProfileCredentials: {
 	// A unique alphanumeric identiﬁer used to authenticate a user, developer, or
 	// calling program to your API.
 	ApiKey!: #ApiKey
-	...
+	{[!~"^(ApiKey)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #SlackConnectorProfileCredentials: {
@@ -790,13 +790,13 @@ fn.#StringExpression
 
 	// The oauth needed to request security tokens from the connector endpoint.
 	ConnectorOAuthRequest?: #ConnectorOAuthRequest
-	...
+	{[!~"^(AccessToken|ClientId|ClientSecret|ConnectorOAuthRequest)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #SlackConnectorProfileProperties: {
 	// The location of the Slack resource
 	InstanceUrl!: #InstanceUrl
-	...
+	{[!~"^(InstanceUrl)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #SnowflakeConnectorProfileCredentials: {
@@ -805,7 +805,7 @@ fn.#StringExpression
 
 	// The name of the user.
 	Username!: #Username
-	...
+	{[!~"^(Password|Username)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #SnowflakeConnectorProfileProperties: {
@@ -830,7 +830,7 @@ fn.#StringExpression
 
 	// The name of the Snowﬂake warehouse.
 	Warehouse!: #Warehouse
-	...
+	{[!~"^(AccountName|BucketName|BucketPrefix|PrivateLinkServiceName|Region|Stage|Warehouse)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #Stage: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
@@ -858,7 +858,7 @@ fn.#ObjectExpression
 #TrendmicroConnectorProfileCredentials: {
 	// The Secret Access Key portion of the credentials.
 	ApiSecretKey!: #ApiSecretKey
-	...
+	{[!~"^(ApiSecretKey)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #Username: strings.MaxRunes(512) & strings.MinRunes(0) & =~"\\S+" |
@@ -874,13 +874,13 @@ fn.#StringExpression
 
 	// The name of the user.
 	Username!: #Username
-	...
+	{[!~"^(Password|Username)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #VeevaConnectorProfileProperties: {
 	// The location of the Veeva resource
 	InstanceUrl!: #InstanceUrl
-	...
+	{[!~"^(InstanceUrl)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #Warehouse: strings.MaxRunes(512) & strings.MinRunes(0) & =~"[\\s\\w/!@#+=.-]*" |
@@ -909,11 +909,11 @@ fn.#StringExpression
 
 	// The oauth needed to request security tokens from the connector endpoint.
 	ConnectorOAuthRequest?: #ConnectorOAuthRequest
-	...
+	{[!~"^(AccessToken|ClientId|ClientSecret|ConnectorOAuthRequest)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #ZendeskConnectorProfileProperties: {
 	// The location of the Zendesk resource
 	InstanceUrl!: #InstanceUrl
-	...
+	{[!~"^(InstanceUrl)$"]: fn.#Value}
 } | fn.#ObjectExpression

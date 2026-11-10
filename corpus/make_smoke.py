@@ -111,6 +111,40 @@ def compatibility_cases():
     invalid["Resources"]["Thing"]["Type"] = "Custom::bad!"
     # cfn-lint currently accepts names outside the regional schema's grammar.
     cases["custom-resource-invalid-name"] = (invalid, "invalid", "valid")
+    # CloudFormation rejects null anywhere in a template ("'null' values are
+    # not allowed in templates"). cfn-lint drops null properties as if they
+    # were AWS::NoValue, so it accepts the null property cases.
+    pair("null-property", "AWS::ApiGateway::Stage", {"RestApiId": "abc123"}, "AccessLogSetting",
+         {"DestinationArn": "arn:aws:logs:us-east-1:123456789012:log-group:access", "Format": "$context.requestId"},
+         None, lint_bad="valid")
+    pair("null-nested-property", "AWS::IAM::User", {}, "LoginProfile",
+         {"Password": "example-password", "PasswordResetRequired": True},
+         {"Password": "example-password", "PasswordResetRequired": None}, lint_bad="valid")
+    cases["null-required-property-invalid"] = ({"Resources": {"Stage": {"Type": "AWS::ApiGateway::Stage",
+        "Properties": {"RestApiId": None}}}}, "invalid", "invalid")
+    # AWS documents this EventBridge pattern as failing template validation.
+    cases["null-json-property-invalid"] = ({"Resources": {"Rule": {"Type": "AWS::Events::Rule", "Properties": {
+        "EventPattern": {"source": ["aws.ec2"], "detail": {"state": [None]}}}}}}, "invalid", "valid")
+    # AWS's documented workaround: a string-encoded JSON document may contain null.
+    cases["null-json-string-valid"] = ({"Resources": {"Rule": {"Type": "AWS::Events::Rule", "Properties": {
+        "EventPattern": '{"detail":{"responseElements":[null]}}'}}}}, "valid", "valid")
+    cases["null-resource-metadata-invalid"] = ({"Resources": {"Queue": {"Type": "AWS::SQS::Queue",
+        "Metadata": {"Owner": None}}}}, "invalid", "invalid")
+    cases["null-template-metadata-invalid"] = ({"Metadata": {"Owner": None},
+        "Resources": {"Queue": {"Type": "AWS::SQS::Queue"}}}, "invalid", "invalid")
+    # Custom resource properties accept arbitrary JSON, but not null at any depth.
+    for prefix, resource_type in (("null-custom", "Custom::Thing"), ("null-custom-resource", "AWS::CloudFormation::CustomResource")):
+        def custom_payload(payload):
+            return {"Resources": {"Thing": {"Type": resource_type, "Properties": {"ServiceToken": token, "Payload": payload}}}}
+        cases[prefix + "-array-valid"] = (custom_payload([1, "a", {"Key": ["b", True]}]), "valid", "valid")
+        cases[prefix + "-array-invalid"] = (custom_payload([None]), "invalid", "valid")
+        cases[prefix + "-array-nested-invalid"] = (custom_payload([{"Key": None}]), "invalid", "valid")
+    create = {"Create": {"Fn::Equals": [{"Ref": "AWS::Region"}, "us-east-1"]}}
+    for name, value in (("if-branch", {"Fn::If": ["Create", None, "queue"]}),
+                        ("join-argument", {"Fn::Join": ["-", ["queue", None]]}),
+                        ("sub-variable", {"Fn::Sub": ["${Name}", {"Name": None}]})):
+        cases["null-" + name + "-invalid"] = ({"Conditions": create, "Resources": {"Queue": {"Type": "AWS::SQS::Queue",
+            "Properties": {"QueueName": value}}}}, "invalid", "valid")
     for name, transform in (("transform-null", None), ("transform-list-null", ["AWS::LanguageExtensions", None])):
         cases[name] = ({"Transform": transform, "Resources": {"Queue": {"Type": "AWS::SQS::Queue"}}}, "invalid", "invalid")
     return cases
@@ -296,6 +330,14 @@ def build(source, output):
     cases.update(compatibility_cases())
     cases.update(template_grammar_cases())
     cases.update(service_rule_cases())
+    null_gap = ". Known lint gap: cfn-lint accepts null values, which CloudFormation rejects."
+    lint_gaps = {
+        "read-only-property": ". Known lint gap: the read-only property is accepted by cfn-lint.",
+        "custom-resource-invalid-name": ". Known lint gap: the malformed custom type name is accepted by cfn-lint.",
+        "iam-scp-principal-invalid": ". Known lint gap: cfn-lint doesn't check SCP content.",
+    }
+    lint_gaps.update({name: null_gap for name in cases
+                      if name.startswith("null-") and name.endswith("-invalid") and cases[name][2] == "valid"})
     for name, (value, cue_status, lint_status) in sorted(cases.items()):
         cid = "mutation-" + name
         raw = yaml.safe_dump(value, sort_keys=False).encode()
@@ -310,9 +352,7 @@ def build(source, output):
         for region in ("us-east-1", "us-west-2"):
             expected[cid + ":" + region] = dict(cue=cue_status, lint=lint_status,
                 note="Project-authored valid template." if cue_status == "valid" else
-                     "Intentional mutation: " + name + (". Known lint gap: the read-only property is accepted by cfn-lint." if name == "read-only-property" else
-                     ". Known lint gap: the malformed custom type name is accepted by cfn-lint." if name == "custom-resource-invalid-name" else
-                     ". Known lint gap: cfn-lint doesn't check SCP content." if name == "iam-scp-principal-invalid" else ""))
+                     "Intentional mutation: " + name + lint_gaps.get(name, ""))
     index["templates"], index["skipped"] = records, []
     corpus.write(output / "index.json", corpus.canonical(index))
     corpus.write(output / "expectations.json", corpus.canonical(expected))

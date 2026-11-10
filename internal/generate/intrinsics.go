@@ -31,7 +31,10 @@ func Intrinsics(extensions bool) *ast.File {
 	add := func(name string, x ast.Expr) { f.Decls = append(f.Decls, def(name, x)) }
 	fn := func(name, key string, args ast.Expr) { signatures[name] = sig{key, args} }
 	anyString := func(names ...string) ast.Expr { return union(id("string"), refs(names...)) }
-	add("Scalar", union(id("string"), id("number"), id("bool"), ast.NewNull()))
+	// CloudFormation rejects null anywhere in a template ("'null' values are
+	// not allowed in templates"), including inside JSON-typed properties and
+	// Metadata, so the generic JSON value has no null.
+	add("Scalar", union(id("string"), id("number"), id("bool")))
 	// Reserve intrinsic spellings so malformed functions cannot pass as an
 	// arbitrary JSON object in unconstrained properties or nested branches.
 	label := and(id("string"), &ast.UnaryExpr{Op: token.NEQ, X: str("Ref")}, &ast.UnaryExpr{Op: token.NMAT, X: str("^Fn::")})

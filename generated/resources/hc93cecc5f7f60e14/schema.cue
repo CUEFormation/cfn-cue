@@ -15,7 +15,7 @@ import structs "struct"
 	Type!: "AWS::CloudFormation::CustomResource" | =~"^Custom::[A-Za-z0-9_@-]{1,60}$"
 	let properties = close({
 
-		{[=~".*"]: fn.#Object & {...} | number | string | bool | [...] | fn.#StringNumberListObjectExpression}
+		{[=~".*"]: fn.#Object & {...} | number | string | bool | [...fn.#Value] | fn.#StringNumberListObjectExpression}
 		ServiceTimeout?: int |
 			{
 				string &

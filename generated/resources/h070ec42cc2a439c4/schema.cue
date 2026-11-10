@@ -129,7 +129,7 @@ fn.#StringExpression
 
 #Csv: {
 	Header?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	...
+	{[!~"^(Header)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #DataAnalysisTimeString: strings.MaxRunes(15) & strings.MinRunes(1) & =~"^.?P.*" |
@@ -143,7 +143,7 @@ fn.#StringExpression
 	Csv?:     #Csv
 	Json?:    #Json
 	Parquet?: #Parquet
-	...
+	{[!~"^(Csv|Json|Parquet)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #EndpointInput: close({
@@ -174,7 +174,7 @@ fn.#StringExpression
 
 #Json: {
 	Line?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	...
+	{[!~"^(Line)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #MonitoringAppSpecification: close({
@@ -233,7 +233,7 @@ fn.#ObjectExpression
 	} |
 	fn.#StringExpression
 	ScheduledTime!: string | number | bool | fn.#StringExpression
-	...
+	{[!~"^(CreationTime|EndpointName|FailureReason|LastModifiedTime|MonitoringExecutionStatus|MonitoringScheduleName|ProcessingJobArn|ScheduledTime)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #MonitoringInput: close({
@@ -268,7 +268,9 @@ fn.#ObjectExpression
 		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
 			"disallowed",
 		)}
-		...
+		{[!~"[\\S\\s]*" &
+			!~"[a-zA-Z_][a-zA-Z0-9_]*" &
+			!~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: fn.#Value}
 	} | fn.#ObjectExpression
 	MonitoringAppSpecification!: #MonitoringAppSpecification
 	MonitoringInputs!:           #MonitoringInputs
@@ -435,7 +437,7 @@ fn.#ObjectExpression
 		_cfnString: strings.MaxRunes(256) & strings.MinRunes(0) & =~"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$" & "\(self)"
 	} |
 	fn.#StringExpression
-	...
+	{[!~"^(Key|Value)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #VpcConfig: close({

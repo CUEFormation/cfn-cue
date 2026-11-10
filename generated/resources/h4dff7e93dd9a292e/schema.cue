@@ -164,7 +164,7 @@ fn.#ObjectExpression
 	} |
 	fn.#StringExpression
 	sourceReference?: #SourceReference
-	...
+	{[!~"^(connectionArn|excludeFilePatterns|fullRepositoryId|sourceReference)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #ImageMapping: close({
@@ -237,7 +237,7 @@ fn.#ObjectExpression
 #SourceReference: {
 	type?:  "BRANCH" | "TAG" | "COMMIT" | fn.#StringExpression
 	value?: string | number | bool | fn.#StringExpression
-	...
+	{[!~"^(type|value)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #StorageType: ("STATIC" | "DYNAMIC") & (strings.MaxRunes(64) & strings.MinRunes(1)) |

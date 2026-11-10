@@ -1,0 +1,13 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "LoginProfile": {
+          "Password": "example-password",
+          "PasswordResetRequired": null
+        }
+      },
+      "Type": "AWS::IAM::User"
+    }
+  }
+}

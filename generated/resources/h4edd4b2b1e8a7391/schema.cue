@@ -47,14 +47,14 @@ import structs "struct"
 #Action: {
 	// Represents an InvokeApi action.
 	InvokeApi!: #ActionInvokeApi
-	...
+	{[!~"^(InvokeApi)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #ActionInvokeApi: {
 	ApiId!:         string | number | bool | fn.#StringExpression
 	Stage!:         string | number | bool | fn.#StringExpression
 	StripBasePath?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	...
+	{[!~"^(ApiId|Stage|StripBasePath)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #Condition: {
@@ -63,21 +63,21 @@ import structs "struct"
 
 	// The headers to be matched.
 	MatchHeaders?: #MatchHeaders
-	...
+	{[!~"^(MatchBasePaths|MatchHeaders)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #MatchBasePaths: {
 	AnyOf!: [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-	...
+	{[!~"^(AnyOf)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #MatchHeaderValue: {
 	Header!:    string | number | bool | fn.#StringExpression
 	ValueGlob!: string | number | bool | fn.#StringExpression
-	...
+	{[!~"^(Header|ValueGlob)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #MatchHeaders: {
 	AnyOf!: [...#MatchHeaderValue] | fn.#ListExpression
-	...
+	{[!~"^(AnyOf)$"]: fn.#Value}
 } | fn.#ObjectExpression

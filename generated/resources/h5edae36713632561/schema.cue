@@ -7450,13 +7450,13 @@ fn.#ObjectExpression
 #VisualInteractionOptions: {
 	ContextMenuOption?: {
 		AvailabilityStatus?: #DashboardBehavior
-		...
+		{[!~"^(AvailabilityStatus)$"]: fn.#Value}
 	} | fn.#ObjectExpression
 	VisualMenuOption?: {
 		AvailabilityStatus?: #DashboardBehavior
-		...
+		{[!~"^(AvailabilityStatus)$"]: fn.#Value}
 	} | fn.#ObjectExpression
-	...
+	{[!~"^(ContextMenuOption|VisualMenuOption)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #VisualPalette: close({

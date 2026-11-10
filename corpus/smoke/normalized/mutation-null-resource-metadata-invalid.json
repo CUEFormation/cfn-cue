@@ -1,0 +1,10 @@
+{
+  "Resources": {
+    "Queue": {
+      "Metadata": {
+        "Owner": null
+      },
+      "Type": "AWS::SQS::Queue"
+    }
+  }
+}

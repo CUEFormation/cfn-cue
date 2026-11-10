@@ -38,7 +38,7 @@ import structs "struct"
 
 #ActionCondition: {
 	Action?: #Action
-	...
+	{[!~"^(Action)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #AdvancedEventSelector: close({
@@ -60,7 +60,7 @@ fn.#ObjectExpression
 	NotEquals?:     list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	NotStartsWith?: list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	StartsWith?:    list.UniqueItems() & [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
-	...
+	{[!~"^(EndsWith|Equals|Field|NotEndsWith|NotEquals|NotStartsWith|StartsWith)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #AllowFieldUpdates: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
@@ -73,7 +73,7 @@ fn.#ObjectExpression
 #Condition: {
 	ActionCondition?:    #ActionCondition
 	LabelNameCondition?: #LabelNameCondition
-	...
+	{[!~"^(ActionCondition|LabelNameCondition)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #Conditions: list.MinItems(1) & list.UniqueItems() & [...#Condition] | fn.#ListExpression
@@ -85,7 +85,7 @@ fn.#ObjectExpression
 #ELBLoadBalancerLoggingParameters: {
 	FieldDelimiter?: string | number | bool | fn.#StringExpression
 	OutputFormat?:   "plain" | "json" | fn.#StringExpression
-	...
+	{[!~"^(FieldDelimiter|OutputFormat)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #FieldToMatch: {
@@ -93,14 +93,14 @@ fn.#ObjectExpression
 	QueryString?:  string | number | bool | fn.#StringExpression
 	SingleHeader?: #SingleHeader
 	UriPath?:      string | number | bool | fn.#StringExpression
-	...
+	{[!~"^(Method|QueryString|SingleHeader|UriPath)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #Filter: {
 	Behavior?:    #FilterBehavior
 	Conditions?:  #Conditions
 	Requirement?: #FilterRequirement
-	...
+	{[!~"^(Behavior|Conditions|Requirement)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #FilterBehavior: "KEEP" | "DROP" | fn.#StringExpression
@@ -130,13 +130,13 @@ fn.#StringExpression
 		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(1) & =~"^[0-9A-Za-z_\\-:]+$" & "\(self)"
 	} |
 	fn.#StringExpression
-	...
+	{[!~"^(LabelName)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #LoggingFilter: {
 	DefaultBehavior?: #FilterBehavior
 	Filters?:         #Filters
-	...
+	{[!~"^(DefaultBehavior|Filters)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #MskMonitoringParameters: close({
@@ -304,5 +304,5 @@ fn.#ObjectExpression
 
 	// Fields not to be included in the logs.
 	RedactedFields?: #RedactedFields
-	...
+	{[!~"^(LogType|LoggingFilter|RedactedFields)$"]: fn.#Value}
 } | fn.#ObjectExpression

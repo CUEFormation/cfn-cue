@@ -8,7 +8,7 @@ import cfnScalarStrings "strings"
 import cfnScalarStrconv "strconv"
 import net "net"
 
-#Scalar: string | number | bool | null
+#Scalar: string | number | bool
 #Object: [string & !="Ref" & !~"^Fn::"]: #Value
 #List:                [...#Value]
 #Value:               #Scalar | #Object | #List | #ValueExpression

@@ -1,0 +1,26 @@
+{
+  "Conditions": {
+    "Create": {
+      "Fn::Equals": [
+        {
+          "Ref": "AWS::Region"
+        },
+        "us-east-1"
+      ]
+    }
+  },
+  "Resources": {
+    "Queue": {
+      "Properties": {
+        "QueueName": {
+          "Fn::If": [
+            "Create",
+            null,
+            "queue"
+          ]
+        }
+      },
+      "Type": "AWS::SQS::Queue"
+    }
+  }
+}

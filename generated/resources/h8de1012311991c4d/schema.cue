@@ -41,7 +41,7 @@ import structs "struct"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::DynamoDB::Table"
 	let properties = matchIf({
-		LocalSecondaryIndexes!: list.MinItems(1) | fn.#ListExpression
+		LocalSecondaryIndexes!: list.MinItems(1) & [...fn.#Value] | fn.#ListExpression
 		...
 	}, {
 		AttributeDefinitions?: null | bool | number | string | list.MinItems(2) | {...} | fn.#ValueExpression
@@ -331,11 +331,11 @@ fn.#ObjectExpression
 	[...]
 	[0]: {
 		KeyType!: "HASH" | fn.#StringExpression
-		...
+		{[!~"^(KeyType)$"]: fn.#Value}
 	} | fn.#ObjectExpression
 	[1]: {
 		KeyType!: "RANGE" | fn.#StringExpression
-		...
+		{[!~"^(KeyType)$"]: fn.#Value}
 	} | fn.#ObjectExpression
 	[>=2]: close({
 		AttributeName!: string | number | bool | fn.#StringExpression

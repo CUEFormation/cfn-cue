@@ -1,0 +1,10 @@
+Resources:
+  Rule:
+    Type: AWS::Events::Rule
+    Properties:
+      EventPattern:
+        source:
+        - aws.ec2
+        detail:
+          state:
+          - null

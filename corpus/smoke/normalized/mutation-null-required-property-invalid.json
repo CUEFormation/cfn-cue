@@ -1,0 +1,10 @@
+{
+  "Resources": {
+    "Stage": {
+      "Properties": {
+        "RestApiId": null
+      },
+      "Type": "AWS::ApiGateway::Stage"
+    }
+  }
+}

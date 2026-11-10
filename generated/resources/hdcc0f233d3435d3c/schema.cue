@@ -275,7 +275,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	...
+	{[!~"^(Feature|RetryGracePeriodSeconds)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #TokenValidityUnits: close({
