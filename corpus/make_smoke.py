@@ -27,12 +27,12 @@ def compatibility_cases():
     """Small real-resource positives and negatives for the first fixes."""
     cases = {}
 
-    def pair(name, resource_type, properties, key, good, bad):
-        for label, value, status in (("valid", good, "valid"), ("invalid", bad, "invalid")):
+    def pair(name, resource_type, properties, key, good, bad, lint_bad="invalid"):
+        for label, value, status, lint in (("valid", good, "valid", "valid"), ("invalid", bad, "invalid", lint_bad)):
             props = copy.deepcopy(properties)
             props[key] = value
             template = {"Resources": {"Thing": {"Type": resource_type, "Properties": props}}}
-            cases[name + "-" + label] = (template, status, status)
+            cases[name + "-" + label] = (template, status, lint)
 
     pair("quoted-boolean", "AWS::SQS::Queue", {"QueueName": "compatibility.fifo"},
          "FifoQueue", "true", "maybe")
@@ -50,6 +50,12 @@ def compatibility_cases():
     pair("iam-identity-sid", "AWS::IAM::ManagedPolicy", {}, "PolicyDocument",
          {"Version": "2012-10-17", "Statement": [dict(statement, Sid="ReadObjects")]},
          {"Version": "2012-10-17", "Statement": [dict(statement, Sid="")]})
+    # cfn-lint doesn't check Organizations policy content.
+    scp = {"Name": "scp", "Type": "SERVICE_CONTROL_POLICY"}
+    pair("iam-scp-principal", "AWS::Organizations::Policy", scp, "Content",
+         {"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": "ec2:*", "Resource": "arn:aws:ec2:*:*:instance/*"}]},
+         {"Version": "2012-10-17", "Statement": [{"Effect": "Deny", "Principal": "*", "Action": "ec2:*", "Resource": "*"}]},
+         lint_bad="valid")
     pair("kms-key-id", "AWS::SNS::Topic", {}, "KmsMasterKeyId", "alias/aws/sns", "aws/sns")
     pair("bucket-name", "AWS::S3::Bucket", {}, "BucketName", "my.bucket-1", "my..bucket")
     cases["dynamic-vpc-id"] = ({"Resources": {"Thing": {"Type": "AWS::EC2::Subnet", "Properties": {
@@ -305,7 +311,8 @@ def build(source, output):
             expected[cid + ":" + region] = dict(cue=cue_status, lint=lint_status,
                 note="Project-authored valid template." if cue_status == "valid" else
                      "Intentional mutation: " + name + (". Known lint gap: the read-only property is accepted by cfn-lint." if name == "read-only-property" else
-                     ". Known lint gap: the malformed custom type name is accepted by cfn-lint." if name == "custom-resource-invalid-name" else ""))
+                     ". Known lint gap: the malformed custom type name is accepted by cfn-lint." if name == "custom-resource-invalid-name" else
+                     ". Known lint gap: cfn-lint doesn't check SCP content." if name == "iam-scp-principal-invalid" else ""))
     index["templates"], index["skipped"] = records, []
     corpus.write(output / "index.json", corpus.canonical(index))
     corpus.write(output / "expectations.json", corpus.canonical(expected))

@@ -7,22 +7,25 @@ import (
 	"strings"
 )
 
-// sidPlacements are the identity, trust and KMS key policy properties of
-// internal/generate/iam.go, as property paths. "*" is a list index. As in
-// cfn-lint E3510, S3 bucket policies and Organizations policies may repeat a
-// Sid; TestSidPlacements keeps the two lists in step.
+// sidPlacements are the identity, trust, resource and KMS key policy
+// properties of internal/generate/iam.go, as property paths. "*" is a list
+// index. As in cfn-lint, S3 bucket, ECR repository and Organizations policies
+// may repeat a Sid; TestSidPlacements keeps the two lists in step.
 var sidPlacements = map[string][]string{
-	"AWS::IAM::Role":          {"AssumeRolePolicyDocument", "Policies/*/PolicyDocument"},
-	"AWS::IAM::User":          {"Policies/*/PolicyDocument"},
-	"AWS::IAM::Group":         {"Policies/*/PolicyDocument"},
-	"AWS::IAM::Policy":        {"PolicyDocument"},
-	"AWS::IAM::ManagedPolicy": {"PolicyDocument"},
-	"AWS::IAM::RolePolicy":    {"PolicyDocument"},
-	"AWS::IAM::UserPolicy":    {"PolicyDocument"},
-	"AWS::IAM::GroupPolicy":   {"PolicyDocument"},
-	"AWS::SSO::PermissionSet": {"InlinePolicy"},
-	"AWS::KMS::Key":           {"KeyPolicy"},
-	"AWS::KMS::ReplicaKey":    {"KeyPolicy"},
+	"AWS::IAM::Role":                 {"AssumeRolePolicyDocument", "Policies/*/PolicyDocument"},
+	"AWS::IAM::User":                 {"Policies/*/PolicyDocument"},
+	"AWS::IAM::Group":                {"Policies/*/PolicyDocument"},
+	"AWS::IAM::Policy":               {"PolicyDocument"},
+	"AWS::IAM::ManagedPolicy":        {"PolicyDocument"},
+	"AWS::IAM::RolePolicy":           {"PolicyDocument"},
+	"AWS::IAM::UserPolicy":           {"PolicyDocument"},
+	"AWS::IAM::GroupPolicy":          {"PolicyDocument"},
+	"AWS::SSO::PermissionSet":        {"InlinePolicy"},
+	"AWS::KMS::Key":                  {"KeyPolicy"},
+	"AWS::KMS::ReplicaKey":           {"KeyPolicy"},
+	"AWS::SNS::TopicPolicy":          {"PolicyDocument"},
+	"AWS::SQS::QueuePolicy":          {"PolicyDocument"},
+	"AWS::OpenSearchService::Domain": {"AccessPolicies"},
 }
 
 // sidEntry is one Statement list entry that uses a Sid. Its Fn::If branches

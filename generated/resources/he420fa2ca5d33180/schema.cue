@@ -2,7 +2,10 @@
 
 package schema
 
-import "github.com/cueformation/cfn-cue/fn:fn"
+import (
+	"github.com/cueformation/cfn-cue/iam:iam"
+	"github.com/cueformation/cfn-cue/fn:fn"
+)
 import base "github.com/cueformation/cfn-cue/template:template"
 import structs "struct"
 
@@ -15,7 +18,7 @@ import structs "struct"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::SNS::TopicPolicy"
 	let properties = close({
-		PolicyDocument!: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		PolicyDocument!: iam.#ResourcePolicyValue
 		Topics!:         [...string | number | bool | fn.#StringExpression] | fn.#ListExpression
 	})
 	_#propertiesIf: close(

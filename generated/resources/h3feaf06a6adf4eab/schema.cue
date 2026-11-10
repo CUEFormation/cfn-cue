@@ -6,6 +6,7 @@ import (
 	"github.com/cueformation/cfn-cue/fn:fn"
 	"strings"
 	"list"
+	"github.com/cueformation/cfn-cue/iam:iam"
 )
 import base "github.com/cueformation/cfn-cue/template:template"
 import structs "struct"
@@ -64,7 +65,7 @@ import structs "struct"
 			"\(self)"
 		} |
 		fn.#StringExpression
-		RepositoryPolicyText?: fn.#Object & {...} | string | number | bool | fn.#StringObjectExpression
+		RepositoryPolicyText?: iam.#ECRRepositoryPolicyValue
 		Tags?:                 list.MaxItems(50) & list.UniqueItems() & [...#Tag] | fn.#ListExpression
 	})
 	_#propertiesIf: close(

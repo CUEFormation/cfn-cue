@@ -792,6 +792,46 @@
     },
     {
       "depth": 7,
+      "id": "mutation-iam-scp-principal-invalid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 15,
+      "normalized": "normalized/mutation-iam-scp-principal-invalid.json",
+      "normalized_sha256": "ecc27d022f699062b12c2ebb49389148a66238c221548c58afa0df73f682bf58",
+      "original": "original/mutations/iam-scp-principal-invalid.yaml",
+      "original_sha256": "16ca053b057df705a933db8d6c305ea77b845bcc79f870124f9c457cee162409",
+      "path": "iam-scp-principal-invalid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::Organizations::Policy"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 7,
+      "id": "mutation-iam-scp-principal-valid",
+      "intrinsic_depth": 0,
+      "intrinsics": {},
+      "license": "Apache-2.0",
+      "nodes": 14,
+      "normalized": "normalized/mutation-iam-scp-principal-valid.json",
+      "normalized_sha256": "209ab76ac00bd91f132b018ffdc02dbcd7831010eb9fec9513deeef0abcfcebb",
+      "original": "original/mutations/iam-scp-principal-valid.yaml",
+      "original_sha256": "466bf8a91ff50b866027373b4e0f59fc9a4ae85f5d4d10314012d384b1ad0bec",
+      "path": "iam-scp-principal-valid",
+      "resource_count": 1,
+      "resource_types": [
+        "AWS::Organizations::Policy"
+      ],
+      "source": "mutations",
+      "transform": null,
+      "url": "https://github.com/CUEFormation/cfn-cue"
+    },
+    {
+      "depth": 7,
       "id": "mutation-if-properties",
       "intrinsic_depth": 3,
       "intrinsics": {

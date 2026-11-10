@@ -54,10 +54,19 @@ bad	#S3BucketPolicy	{Statement: [{Effect: "Allow", Principal: "*", Action: "s3:G
 ok	#KMSKeyPolicy	{Version: "2012-10-17", Id: "key-default-1", Statement: [{Sid: "Enable IAM User Permissions", Effect: "Allow", Principal: {AWS: {"Fn::Sub": "arn:${AWS::Partition}:iam::${AWS::AccountId}:root"}}, Action: "kms:*", Resource: "*"}]}
 bad	#KMSKeyPolicy	{Statement: [{Effect: "Allow", Principal: {AWS: "123456789012"}, Action: "kms:*", Resource: "arn:aws:s3:::b"}]}
 bad	#KMSKeyPolicy	{Statement: [{Effect: "Allow", Action: "kms:*", Resource: "*"}]}
-ok	#ResourcePolicy	{Statement: [{Effect: "Allow", NotPrincipal: {AWS: "arn:aws:iam::123456789012:root"}, Action: "sqs:*"}]}
+bad	#ResourcePolicy	{Statement: [{Effect: "Allow", NotPrincipal: {AWS: "arn:aws:iam::123456789012:root"}, Action: "sqs:*"}]}
+ok	#ResourcePolicy	{Statement: [{Effect: "Allow", NotPrincipal: {AWS: "arn:aws:iam::123456789012:root"}, Action: "sqs:*", Resource: "*"}]}
+bad	#ResourcePolicy	{Statement: [{Effect: "Allow", Principal: "*", Action: "sqs:*", Resource: "*", NotResource: "*"}]}
+# ECR repository policies apply to the repository, so Resource is optional.
+ok	#ECRRepositoryPolicy	{Statement: [{Effect: "Allow", Principal: {AWS: "arn:aws:iam::123456789012:root"}, Action: ["ecr:BatchGetImage", "ecr:GetDownloadUrlForLayer"]}]}
+ok	#ECRRepositoryPolicy	{Statement: [{Effect: "Allow", Principal: "*", Action: "ecr:BatchGetImage", Resource: "*"}]}
+bad	#ECRRepositoryPolicy	{Statement: [{Effect: "Allow", Action: "ecr:BatchGetImage"}]}
+bad	#ECRRepositoryPolicy	{Statement: [{Effect: "Allow", Principal: "*", Action: "ecr:BatchGetImage", Resource: "*", NotResource: "*"}]}
+ok	#ECRRepositoryPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"ecr:BatchGetImage\"}]}"
 # SCP / RCP
 ok	#ServiceControlPolicy	{Version: "2012-10-17", Statement: [{Effect: "Allow", Action: "*", Resource: "*"}, {Effect: "Deny", NotAction: ["iam:*", "sts:*"], Resource: "arn:aws:ec2:*:*:instance/*", Condition: {StringNotEquals: {"aws:RequestedRegion": ["eu-west-1"]}}}]}
-bad	#ServiceControlPolicy	{Statement: [{Effect: "Allow", Action: "ec2:*", Resource: "arn:aws:ec2:*:*:instance/*"}]}
+ok	#ServiceControlPolicy	{Statement: [{Effect: "Allow", Action: "ec2:*", Resource: "arn:aws:ec2:*:*:instance/*"}]}
+ok	#ServiceControlPolicy	{Statement: [{Effect: "Allow", NotAction: "iam:*", Resource: "*", Condition: {StringEquals: {"aws:RequestedRegion": "eu-west-1"}}}]}
 bad	#ServiceControlPolicy	{Statement: [{Effect: "Deny", Principal: "*", Action: "ec2:*", Resource: "*"}]}
 bad	#ServiceControlPolicy	{Statement: [{Effect: "Deny", Action: "ec2:*"}]}
 bad	#ServiceControlPolicy	{Version: "2008-10-17", Statement: [{Effect: "Deny", Action: "ec2:*", Resource: "*"}]}
@@ -78,11 +87,12 @@ bad	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:
 bad	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Resource\":\"*\"}]}"
 bad	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:GetObject\",\"NotAction\":\"s3:PutObject\",\"Resource\":\"*\"}]}"
 bad	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:GetObject\",\"Resource\":\"*\",\"NotResource\":\"*\"}]}"
-ok	#ResourcePolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"sqs:SendMessage\"}]}"
+bad	#ResourcePolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"sqs:SendMessage\"}]}"
+ok	#ResourcePolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"sqs:SendMessage\",\"Resource\":\"*\"}]}"
 bad	#ResourcePolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"sqs:SendMessage\"}]}"
 bad	#S3BucketPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"s3:GetObject\"}]}"
 bad	#KMSKeyPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"kms:*\"}]}"
-bad	#ServiceControlPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"ec2:*\",\"Resource\":\"arn:aws:ec2:*:*:instance/*\"}]}"
+bad	#ServiceControlPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"ec2:*\",\"Resource\":\"*\"}]}"
 bad	#ResourceControlPolicyValue	"{\"Statement\":[{\"Effect\":\"Deny\",\"Principal\":\"*\",\"Action\":\"s3:*\"}]}"
 bad	#TrustPolicyValue	"not json"
 ok	#TrustPolicyValue	{"Fn::Sub": "{\"Statement\": []}"}
@@ -102,7 +112,7 @@ ok	#IdentityPolicy	{Version: {Ref: "PolicyVersion"}, Statement: [{Effect: "Allow
 ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Condition: {"Fn::If": ["Restrict", {Bool: {"aws:SecureTransport": true}}, {Ref: "AWS::NoValue"}]}}]}
 ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: {"Fn::If": ["Write", "s3:PutObject", "s3:GetObject"]}, Resource: "*"}]}
 ok	#TrustPolicy	{Statement: [{Effect: "Allow", Principal: {"Fn::If": ["CrossAccount", {AWS: "arn:aws:iam::123456789012:root"}, {Service: "lambda.amazonaws.com"}]}, Action: "sts:AssumeRole"}]}
-ok	#ResourcePolicy	{Statement: [{Effect: "Allow", Principal: {"Fn::If": ["Public", "*", {AWS: {Ref: "AWS::AccountId"}}]}, Action: "sqs:SendMessage"}]}
+ok	#ResourcePolicy	{Statement: [{Effect: "Allow", Principal: {"Fn::If": ["Public", "*", {AWS: {Ref: "AWS::AccountId"}}]}, Action: "sqs:SendMessage", Resource: {"Fn::GetAtt": ["Queue", "Arn"]}}]}
 ok	#ServiceControlPolicy	{Statement: [{Effect: {Ref: "EffectParam"}, Action: "ec2:*", Resource: "*"}]}
 ok	#ServiceControlPolicy	{Statement: [{Effect: {Ref: "EffectParam"}, Action: "ec2:*", Resource: "arn:aws:ec2:*:*:instance/*"}]}
 ok	#ResourceControlPolicy	{Statement: [{Effect: "Deny", Principal: "*", Action: "s3:*", Resource: "*", Sid: {"Fn::Sub": "Deny${Env}"}}]}
@@ -120,11 +130,12 @@ ok	#TrustPolicyValue	{"Fn::If": ["A", {Statement: {Effect: "Allow", Principal: "
 bad	#TrustPolicyValue	{"Fn::If": ["A", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {"Fn::If": ["B", {Ref: "AWS::NoValue"}, {Statement: {Effect: "Allow", Action: "sts:AssumeRole"}}]}]}
 ok	#IdentityPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*"}]}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
 ok	#TrustPolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {Ref: "AWS::NoValue"}]}
-# Conditional documents nest to any depth; an inner Fn::If with only AWS::NoValue branches is not a document.
+# Conditional documents nest to any depth.
 ok	#TrustPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {"Fn::If": ["C", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
 ok	#TrustPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {"Fn::If": ["C", {"Fn::If": ["D", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
 bad	#TrustPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {"Fn::If": ["C", {Statement: {Effect: "Allow", Action: "sts:AssumeRole"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
-bad	#TrustPolicyValue	{"Fn::If": ["A", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {"Fn::If": ["B", {Ref: "AWS::NoValue"}, {Ref: "AWS::NoValue"}]}]}
+# A branch that resolves to AWS::NoValue removes the property; the AWS::NoValue check reports a required one.
+ok	#TrustPolicyValue	{"Fn::If": ["A", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {"Fn::If": ["B", {Ref: "AWS::NoValue"}, {Ref: "AWS::NoValue"}]}]}
 ok	#TrustPolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}]}]}
 bad	#TrustPolicyValue	{"Fn::If": ["A", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}]}
 bad	#TrustPolicyValue	{"Fn::If": ["A", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}], Extra: 1}
@@ -138,10 +149,14 @@ ok	#TrustPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {Statement: {Effect: "All
 bad	#TrustPolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}, {Statement: {Effect: "Allow", Action: "sts:AssumeRole"}}]}]}
 bad	#TrustPolicyValue	{}
 bad	#TrustPolicyValue	{"Fn::If": "A"}
-ok	#ResourcePolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "sqs:*"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
-bad	#ResourcePolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "sqs:*"}}, {Statement: {Effect: "Allow", Action: "sqs:*"}}]}]}
+ok	#ResourcePolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "sqs:*", Resource: "*"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
+bad	#ResourcePolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "sqs:*", Resource: "*"}}, {Statement: {Effect: "Allow", Action: "sqs:*", Resource: "*"}}]}]}
 bad	#ResourcePolicyValue	{}
 bad	#ResourcePolicyValue	{"Fn::If": "A"}
+ok	#ECRRepositoryPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "ecr:BatchGetImage"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
+bad	#ECRRepositoryPolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "ecr:BatchGetImage"}}, {Statement: {Effect: "Allow", Action: "ecr:BatchGetImage"}}]}]}
+bad	#ECRRepositoryPolicyValue	{}
+bad	#ECRRepositoryPolicyValue	{"Fn::If": "A"}
 ok	#S3BucketPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "s3:GetObject", Resource: "arn:aws:s3:::b/*"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}
 bad	#S3BucketPolicyValue	{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Statement: {Effect: "Allow", Principal: "*", Action: "s3:GetObject", Resource: "arn:aws:s3:::b/*"}}, {Statement: {Effect: "Allow", Action: "s3:GetObject", Resource: "arn:aws:s3:::b/*"}}]}]}
 bad	#S3BucketPolicyValue	{}
@@ -172,9 +187,17 @@ bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*"
 bad	#IdentityPolicy	{Statement: [{"Fn::If": ["Cond", {Effect: "Allow", Action: "s3:*", Resource: "*"}, {Ref: "Other"}]}]}
 bad	#IdentityPolicy	{Statement: [{Ref: "AWS::NoValue", "Fn::If": ["Cond", {Effect: "Allow", Action: "s3:*", Resource: "*"}, {Ref: "AWS::NoValue"}]}]}
 bad	#IdentityPolicy	{Statement: [{}]}
-# Only Allow statements are restricted to Resource "*"; NotResource is not.
+# SCP Allow statements may name resources since September 2025.
 ok	#ServiceControlPolicy	{Statement: [{Effect: "Allow", Action: "ec2:*", NotResource: "arn:aws:ec2:*:*:instance/*"}]}
-bad	#ServiceControlPolicy	{Statement: [{Effect: "Allow", Action: "ec2:*", Resource: ["*", "arn:aws:ec2:*:*:instance/*"]}]}
+ok	#ServiceControlPolicy	{Statement: [{Effect: "Allow", Action: "ec2:*", Resource: ["*", "arn:aws:ec2:*:*:instance/*"]}]}
+# An Fn::If condition value may return a string or a list.
+ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Condition: {ArnEquals: {"aws:SourceArn": {"Fn::If": ["C", {Ref: "A"}, {Ref: "B"}]}}}}]}
+ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Condition: {StringEquals: {"aws:x": {"Fn::If": ["C", ["a", "b"], {Ref: "AWS::NoValue"}]}}}}]}
+ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Condition: {StringEquals: {"aws:x": {"Fn::Split": [",", {Ref: "L"}]}}}}]}
+bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Condition: {StringEquals: {"aws:x": {"Fn::If": ["C", {a: 1}, "b"]}}}}]}
+ok	#ResourcePolicy	{Statement: [{Effect: "Allow", Principal: "*", Action: "sqs:*", Resource: "*", Condition: {ArnEquals: {"aws:SourceArn": {"Fn::If": ["C", {Ref: "A"}, {Ref: "B"}]}}}}]}
+ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: {"Fn::If": ["C", {Ref: "A"}, {Ref: "B"}]}, Resource: {"Fn::If": ["C", {Ref: "A"}, {Ref: "B"}]}}]}
+ok	#TrustPolicy	{Statement: [{Effect: "Allow", Principal: {AWS: {"Fn::If": ["C", {Ref: "A"}, {Ref: "B"}]}}, Action: "sts:AssumeRole"}]}
 # A dynamic reference resolves before IAM reads the policy, so a list element may be one.
 ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: ["s3:GetObject", "{{resolve:ssm:PolicyAction:1}}"], Resource: ["{{resolve:ssm:PolicyResource:1}}"]}]}
 ok	#TrustPolicy	{Statement: [{Effect: "Allow", Principal: "*", Action: ["{{resolve:ssm:TrustAction}}"]}]}
@@ -182,3 +205,63 @@ ok	#S3BucketPolicy	{Statement: [{Effect: "Allow", Principal: "*", Action: ["{{re
 ok	#KMSKeyPolicy	{Statement: [{Effect: "Allow", Principal: "*", Action: "kms:*", Resource: ["{{resolve:ssm:R}}"]}]}
 ok	#ResourceControlPolicy	{Statement: [{Effect: "Deny", Principal: "*", Action: ["{{resolve:ssm:A}}"], Resource: "*"}]}
 bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: ["s3:GetObject", "{{resolve:bogus:A}}"], Resource: "*"}]}
+# A principal may be a string intrinsic, and a conditional principal may nest or remove the field.
+ok	#ResourcePolicy	{Statement: [{Effect: "Allow", Principal: {Ref: "PrincipalParam"}, Action: "sqs:SendMessage", Resource: "*"}]}
+ok	#TrustPolicy	{Statement: [{Effect: "Allow", NotPrincipal: {"Fn::Sub": "*"}, Action: "sts:AssumeRole"}]}
+ok	#ResourcePolicy	{Statement: [{Effect: "Allow", Principal: {"Fn::If": ["A", {"Fn::If": ["B", "*", {AWS: "123456789012"}]}, {Service: "sns.amazonaws.com"}]}, Action: "sqs:SendMessage", Resource: "*"}]}
+ok	#ResourcePolicy	{Statement: [{Effect: "Allow", Principal: {"Fn::If": ["A", {Ref: "P"}, {AWS: "123456789012"}]}, Action: "sqs:SendMessage", Resource: "*"}]}
+ok	#ResourcePolicy	{Statement: [{Effect: "Allow", Principal: {"Fn::If": ["A", {Ref: "P"}, {Ref: "Q"}]}, Action: "sqs:SendMessage", Resource: "*"}]}
+ok	#ResourcePolicy	{Statement: [{Effect: "Allow", Principal: {"Fn::If": ["A", "*", "*"]}, Action: "sqs:SendMessage", Resource: "*"}]}
+ok	#ECRRepositoryPolicy	{Statement: [{Effect: "Allow", Principal: {"Fn::If": ["A", {AWS: "123456789012"}, {Ref: "AWS::NoValue"}]}, Action: "ecr:BatchGetImage"}]}
+bad	#ResourcePolicy	{Statement: [{Effect: "Allow", Principal: {"Fn::If": ["A", {"Fn::If": ["B", "*", {Bogus: "x"}]}, "*"]}, Action: "sqs:SendMessage", Resource: "*"}]}
+bad	#ResourcePolicy	{Statement: [{Effect: "Allow", Principal: {"Fn::If": ["A", "*", {}]}, Action: "sqs:SendMessage", Resource: "*"}]}
+bad	#ResourcePolicy	{Statement: [{Effect: "Allow", Principal: 5, Action: "sqs:SendMessage", Resource: "*"}]}
+# Conditional statement entries and conditions nest.
+ok	#ECRRepositoryPolicy	{Statement: [{Effect: "Allow", Principal: "*", Action: "ecr:BatchGetImage"}, {"Fn::If": ["A", {"Fn::If": ["B", {Effect: "Allow", Principal: "*", Action: "ecr:BatchGetImage"}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}]}
+ok	#ResourcePolicy	{Statement: [{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Effect: "Allow", Principal: "*", Action: "sqs:*", Resource: "*"}, {Effect: "Deny", Principal: "*", Action: "sqs:*", Resource: "*"}]}]}]}
+bad	#ResourcePolicy	{Statement: [{"Fn::If": ["A", {Ref: "AWS::NoValue"}, {"Fn::If": ["B", {Effect: "Allow", Principal: "*", Action: "sqs:*"}, {Ref: "AWS::NoValue"}]}]}]}
+ok	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Condition: {"Fn::If": ["A", {"Fn::If": ["B", {Bool: {"aws:SecureTransport": true}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}}]}
+bad	#IdentityPolicy	{Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*", Condition: {"Fn::If": ["A", {"Fn::If": ["B", {Bogus: {"aws:x": "a"}}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}}]}
+# A conditional policy value may mix a document with a JSON string or a string intrinsic.
+ok	#ResourcePolicyValue	{"Fn::If": ["C", {Statement: [{Effect: "Allow", Principal: "*", Action: "sqs:*", Resource: "*"}]}, "{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"sqs:*\",\"Resource\":\"*\"}]}"]}
+ok	#ResourcePolicyValue	{"Fn::If": ["C", {Ref: "PolicyParam"}, {Statement: [{Effect: "Allow", Principal: "*", Action: "sqs:*", Resource: "*"}]}]}
+ok	#IdentityPolicyValue	{"Fn::If": ["C", {Statement: [{Effect: "Allow", Action: "s3:*", Resource: "*"}]}, {"Fn::Sub": "{\"Statement\": []}"}]}
+ok	#TrustPolicyValue	{"Fn::If": ["A", {"Fn::If": ["B", {Ref: "P"}, {Statement: {Effect: "Allow", Principal: "*", Action: "sts:AssumeRole"}}]}, "{\"Statement\":[]}"]}
+ok	#ResourcePolicyValue	{"Fn::If": ["C", {Ref: "P"}, "{\"Statement\":[]}"]}
+bad	#ResourcePolicyValue	{"Fn::If": ["C", {Statement: [{Effect: "Allow", Principal: "*", Action: "sqs:*", Resource: "*"}]}, "{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"sqs:*\"}]}"]}
+bad	#ResourcePolicyValue	{"Fn::If": ["C", "not json", {Statement: [{Effect: "Allow", Principal: "*", Action: "sqs:*", Resource: "*"}]}]}
+bad	#ResourcePolicyValue	{"Fn::If": ["C", {Statement: [{Effect: "Allow", Action: "sqs:*", Resource: "*"}]}, {Ref: "P"}]}
+# Fn::If over statement lists nests too, and needs a list in at least one branch.
+ok	#ResourcePolicy	{Statement: {"Fn::If": ["C", [{Effect: "Allow", Principal: "*", Action: "sqs:SendMessage", Resource: "*"}], {"Fn::If": ["D", [{Effect: "Allow", Principal: "*", Action: "sqs:SendMessage", Resource: "*"}], {Ref: "AWS::NoValue"}]}]}}
+ok	#ECRRepositoryPolicy	{Statement: {"Fn::If": ["C", {"Fn::If": ["D", [], [{Effect: "Allow", Principal: "*", Action: "ecr:BatchGetImage"}]]}, {Ref: "AWS::NoValue"}]}}
+ok	#IdentityPolicy	{Statement: {"Fn::If": ["C", {Ref: "AWS::NoValue"}, {Ref: "AWS::NoValue"}]}}
+ok	#IdentityPolicy	{Statement: {"Fn::If": ["C", {"Fn::If": ["D", {Ref: "AWS::NoValue"}, {Ref: "AWS::NoValue"}]}, {Ref: "AWS::NoValue"}]}}
+bad	#ResourcePolicy	{Statement: {"Fn::If": ["C", [{Effect: "Allow", Principal: "*", Action: "sqs:SendMessage", Resource: "*"}], {"Fn::If": ["D", [{Effect: "Allow", Principal: "*", Action: "sqs:SendMessage"}], []]}]}}
+bad	#ResourcePolicy	{Statement: {"Fn::If": ["C", [{Effect: "Allow", Principal: "*", Action: "sqs:SendMessage", Resource: "*"}], {"Fn::If": ["D", [], "x"]}]}}
+# A branch of a list conditional may be anything Statement accepts.
+ok	#ResourcePolicy	{Statement: {"Fn::If": ["C", [{Effect: "Allow", Principal: "*", Action: "sqs:SendMessage", Resource: "*"}], {Effect: "Allow", Principal: "*", Action: "sqs:SendMessage", Resource: "*"}]}}
+ok	#ECRRepositoryPolicy	{Statement: {"Fn::If": ["C", {Effect: "Allow", Principal: "*", Action: "ecr:BatchGetImage"}, {"Fn::If": ["D", [], [{Effect: "Allow", Principal: "*", Action: "ecr:BatchGetImage"}]]}]}}
+ok	#ResourcePolicy	{Statement: {"Fn::If": ["C", [{Effect: "Allow", Principal: "*", Action: "sqs:SendMessage", Resource: "*"}], {"Fn::If": ["D", {Ref: "AWS::NoValue"}, {Ref: "AWS::NoValue"}]}]}}
+bad	#ResourcePolicy	{Statement: {"Fn::If": ["C", [{Effect: "Allow", Principal: "*", Action: "sqs:SendMessage", Resource: "*"}], {Effect: "Allow", Principal: "*", Action: "sqs:SendMessage"}]}}
+# An empty object is not a statement. A JSON string may not contain an intrinsic function, which CloudFormation would not evaluate.
+bad	#ResourcePolicy	{Statement: {"Fn::If": ["C", {Effect: "Allow", Principal: "*", Action: "sqs:SendMessage", Resource: "*"}, {}]}}
+bad	#ResourcePolicyValue	"{\"Statement\":{\"Fn::If\":[\"C\",{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"sqs:SendMessage\",\"Resource\":\"*\"},{}]}}"
+bad	#ResourcePolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"sqs:SendMessage\",\"Resource\":\"*\"},{}]}"
+bad	#ResourcePolicyValue	"{\"Statement\":{\"Fn::If\":[\"C\",[],{\"Fn::If\":[\"D\",{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"sqs:SendMessage\",\"Resource\":\"*\"},{}]}]}}"
+bad	#ResourcePolicyValue	"{\"Statement\":{\"Fn::If\":[\"C\",{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"sqs:SendMessage\",\"Resource\":\"*\"},{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"sqs:SendMessage\",\"Resource\":\"*\"}]}}"
+bad	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:*\",\"Resource\":{\"Fn::GetAtt\":[\"B\",\"Arn\"]}}]}"
+bad	#TrustPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":{\"Ref\":\"A\"}},\"Action\":\"sts:AssumeRole\"}]}"
+ok	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:*\",\"Resource\":\"*\",\"Condition\":{\"StringEquals\":{\"aws:x\":[\"a\",1,true]},\"Null\":{\"aws:y\":\"true\"}}}]}"
+# json.Validate accepts an empty object where an intrinsic could stand; a JSON string rejects it, except as a Condition or operator map.
+bad	#ResourcePolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":{},\"Resource\":\"*\"}]}"
+bad	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":{},\"Action\":\"s3:*\",\"Resource\":\"*\"}]}"
+bad	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:*\",\"Resource\":[{}]}]}"
+bad	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:*\",\"Resource\":\"*\",\"Condition\":{\"StringEquals\":{\"aws:x\":{}}}}]}"
+bad	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:*\",\"Resource\":\"*\",\"Condition\":{\"Fn::If\":[\"C\",{},{}]}}]}"
+# json.Validate doesn't enforce MinFields, so a JSON string takes an empty principal map, which the object form rejects; cfn-lint accepts both.
+ok	#TrustPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{},\"Action\":\"sts:AssumeRole\"}]}"
+bad	#IdentityPolicyValue	"{\"Version\":{},\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:*\",\"Resource\":\"*\"}]}"
+ok	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:*\",\"Resource\":\"*\",\"Condition\":{}}]}"
+ok	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:*\",\"Resource\":\"*\",\"Condition\":{\"StringEquals\":{}}}]}"
+ok	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":[\"s3:GetObject\",\"{{resolve:ssm:A}}\"],\"Resource\":\"*\"}]}"
+ok	#ResourcePolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":[\"arn:aws:iam::123456789012:root\"]},\"Action\":\"sqs:*\",\"Resource\":\"*\",\"Condition\":{\"StringEquals\":{\"aws:ResourceTag/Ref\":\"x\"}}}]}"
