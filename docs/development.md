@@ -84,6 +84,9 @@ GOMEMLIMIT=2GiB CFN_CUE_INTEGRATION=1 CFN_CUE_FULL_REGION=1 \
 # Per-resource cost against each resource's own schema.
 CFN_CUE_PERF=1 go test ./internal/generate -run TestResourcePerformance -v
 
+# Time and memory budget for ten large IAM managed policies.
+CFN_CUE_PERF=1 go test ./internal/generate -run TestIAMPolicyPerformance -v
+
 # Union versus Type-selection cost at several region sizes (see BENCHMARKS.md).
 scripts/region-bench.sh
 ```
