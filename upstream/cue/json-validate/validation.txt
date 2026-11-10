@@ -1,0 +1,45 @@
+cue version v0.18.0-alpha.3
+
+CUE language version v0.18.0
+
+Go version go1.27.1
+      -buildmode exe
+       -compiler gc
+       -trimpath true
+     CGO_ENABLED 0
+          GOARCH arm64
+            GOOS darwin
+         GOARM64 v8.0
+
+$ cue export repro.cue -e direct
+exit: 1
+elapsed: 0.010 s
+direct.s: invalid value {A?:string,B?:string} (does not satisfy matchN): 0 matched, expected 1:
+    ./repro.cue:4:39
+    ./repro.cue:4:46
+    ./repro.cue:5:16
+    ./repro.cue:6:18
+direct.s.A: field is required but not present:
+    ./repro.cue:4:39
+    ./repro.cue:4:51
+    ./repro.cue:6:18
+direct.s.B: field is required but not present:
+    ./repro.cue:4:39
+    ./repro.cue:4:60
+    ./repro.cue:6:18
+
+$ cue export repro.cue -e viaJSON
+exit: 0
+elapsed: 0.010 s
+"{\"s\":{}}"
+
+$ cue export repro.cue -e both
+exit: 1
+elapsed: 0.010 s
+both: invalid value "{\"s\":{\"A\":\"a\",\"B\":\"b\"}}" (does not satisfy encoding/json.Validate): invalid value {A:"a",B:"b"} (does not satisfy matchN): 2 matched, expected 1:
+    ./repro.cue:8:45
+    ./repro.cue:4:39
+    ./repro.cue:4:46
+    ./repro.cue:5:16
+    ./repro.cue:8:7
+    json.Validate:1:6

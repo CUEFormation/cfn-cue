@@ -1,0 +1,40 @@
+cue version v0.18.0-alpha.3
+
+CUE language version v0.18.0
+
+Go version go1.27.1
+      -buildmode exe
+       -compiler gc
+       -trimpath true
+     CGO_ENABLED 0
+          GOARCH arm64
+            GOOS darwin
+         GOARM64 v8.0
+
+$ cue export repro.cue -e two
+exit: 1
+elapsed: 0.009 s
+two: 2 errors in empty disjunction:
+two: 6 errors in empty disjunction:
+two: conflicting values [{a:"x"}] and {a!:int} (mismatched types list and struct):
+    ./repro.cue:3:11
+    ./repro.cue:4:17
+    ./repro.cue:4:23
+two: conflicting values [{a:"x"}] and {b!:int} (mismatched types list and struct):
+    ./repro.cue:3:30
+    ./repro.cue:4:17
+    ./repro.cue:4:23
+two.0: 2 errors in empty disjunction:
+two.0.a: conflicting values "x" and int (mismatched types string and int):
+    ./repro.cue:3:16
+    ./repro.cue:4:11
+    ./repro.cue:4:28
+two.0.a: field not allowed:
+    ./repro.cue:4:25
+
+$ cue export repro.cue -e three
+exit: 1
+elapsed: 0.010 s
+three: conflicting values [{a:"x"}] and {c!:int} (mismatched types list and struct):
+    ./repro.cue:5:30
+    ./repro.cue:5:44
