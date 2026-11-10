@@ -465,40 +465,29 @@ func (c *converter) removeReadOnly(root map[string]any) {
 		root["definitions"] = defs
 	}
 	saved := map[string]string{}
-	var rewrite func(any)
-	rewrite = func(v any) {
-		switch v := v.(type) {
-		case []any:
-			for _, x := range v {
-				rewrite(x)
-			}
-		case map[string]any:
-			if ref, ok := v["$ref"].(string); ok && strings.HasPrefix(ref, "#/properties/") {
-				name, exists := saved[ref]
-				if !exists {
-					if target, ok := resolvePointer(root, ref); ok {
-						sum := sha256.Sum256([]byte(ref))
-						name = fmt.Sprintf("_PropertyRef%x", sum[:8])
-						saved[ref] = name
-						defs[name] = clone(target)
-						rewrite(defs[name])
-					}
-				}
-				if name != "" {
-					v["$ref"] = "#/definitions/" + name
-				}
-			}
-			for k, x := range v {
-				if k != "definitions" {
-					rewrite(x)
-				}
-			}
+	var rewrite func(map[string]any)
+	rewrite = func(s map[string]any) {
+		ref, ok := s["$ref"].(string)
+		if !ok || !strings.HasPrefix(ref, "#/properties/") {
+			return
 		}
+		name, exists := saved[ref]
+		if !exists {
+			target, ok := resolvePointer(root, ref)
+			if !ok {
+				return
+			}
+			sum := sha256.Sum256([]byte(ref))
+			name = fmt.Sprintf("_PropertyRef%x", sum[:8])
+			saved[ref] = name
+			defs[name] = clone(target)
+			walkSchemaObjects(defs[name], rewrite)
+		}
+		s["$ref"] = "#/definitions/" + name
 	}
-	rewrite(root)
-	for _, name := range keys(defs) {
-		rewrite(defs[name])
-	}
+	// Only schemas hold references. A $ref key inside enum, const, default or
+	// examples data is part of a published value and stays as written.
+	walkSchemaObjects(root, rewrite)
 	for _, v := range asArray(root["readOnlyProperties"]) {
 		p, ok := v.(string)
 		if !ok {
@@ -721,24 +710,16 @@ func (c *converter) pruneDefinitions(root map[string]any) {
 	}
 	reached := map[string]bool{}
 	var pending []string
-	var visit func(any)
-	visit = func(v any) {
-		switch v := v.(type) {
-		case map[string]any:
-			if r, ok := v["$ref"].(string); ok {
-				if name, ok := definitionRef(r); ok && !reached[name] {
-					if _, ok := defs[name]; ok {
-						reached[name] = true
-						pending = append(pending, name)
-					}
-				}
-			}
-			for _, x := range v {
-				visit(x)
-			}
-		case []any:
-			for _, x := range v {
-				visit(x)
+	// A $ref key in const or enum data is not a reference and keeps nothing.
+	visit := func(s map[string]any) {
+		r, ok := s["$ref"].(string)
+		if !ok {
+			return
+		}
+		if name, ok := definitionRef(r); ok && !reached[name] {
+			if _, ok := defs[name]; ok {
+				reached[name] = true
+				pending = append(pending, name)
 			}
 		}
 	}
@@ -748,9 +729,9 @@ func (c *converter) pruneDefinitions(root map[string]any) {
 			rest[k] = v
 		}
 	}
-	visit(rest)
+	walkSchemaObjects(rest, visit)
 	for i := 0; i < len(pending); i++ {
-		visit(defs[pending[i]])
+		walkSchemaObjects(defs[pending[i]], visit)
 	}
 	for _, name := range keys(defs) {
 		if reached[name] {
