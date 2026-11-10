@@ -70,8 +70,20 @@ bad	#ResourceControlPolicy	{Statement: [{Effect: "Deny", Action: "s3:*", Resourc
 # Property values
 ok	#TrustPolicyValue	{Version: "2012-10-17", Statement: [{Effect: "Allow", Principal: {Service: "ec2.amazonaws.com"}, Action: "sts:AssumeRole"}]}
 ok	#TrustPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ec2.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
-# Known gap: json.Validate does not enforce matchN required-field checks in CUE v0.18.
-ok	#TrustPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"sts:AssumeRole\"}]}"
+# JSON strings get the same presence rules as objects.
+bad	#TrustPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"sts:AssumeRole\"}]}"
+bad	#TrustPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"NotPrincipal\":\"*\",\"Action\":\"sts:AssumeRole\"}]}"
+ok	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:GetObject\",\"Resource\":\"*\"}]}"
+bad	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:GetObject\"}]}"
+bad	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Resource\":\"*\"}]}"
+bad	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:GetObject\",\"NotAction\":\"s3:PutObject\",\"Resource\":\"*\"}]}"
+bad	#IdentityPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"s3:GetObject\",\"Resource\":\"*\",\"NotResource\":\"*\"}]}"
+ok	#ResourcePolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"sqs:SendMessage\"}]}"
+bad	#ResourcePolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"sqs:SendMessage\"}]}"
+bad	#S3BucketPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"s3:GetObject\"}]}"
+bad	#KMSKeyPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":\"kms:*\"}]}"
+bad	#ServiceControlPolicyValue	"{\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"ec2:*\",\"Resource\":\"arn:aws:ec2:*:*:instance/*\"}]}"
+bad	#ResourceControlPolicyValue	"{\"Statement\":[{\"Effect\":\"Deny\",\"Principal\":\"*\",\"Action\":\"s3:*\"}]}"
 bad	#TrustPolicyValue	"not json"
 ok	#TrustPolicyValue	{"Fn::Sub": "{\"Statement\": []}"}
 ok	#TrustPolicyValue	{Ref: "PolicyParam"}
