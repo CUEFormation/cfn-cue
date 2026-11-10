@@ -17,7 +17,8 @@ import (
 	Cors?:     #Cors
 
 	// The full Amazon Resource Name (ARN) of the function associated with the Function URL.
-	FunctionArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$"
+	FunctionArn?: =~"^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\p{Nd}{12}:function:.+(:.+)?\\n?$" &
+		=~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]{2}((-gov)|(-iso(b?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:([\\-A-Z\\_a-z][0-9a-zA-Z-_]*))?$"
 
 	// The generated url for this resource.
 	FunctionUrl?: string
@@ -33,7 +34,8 @@ import (
 	Qualifier?: (=~"^(?:([a-zA-Z0-9-_]+))" & matchN(0, [=~"^(?:^[0-9]+$)"]) & string | =~"^(?s:.)+(?:([a-zA-Z0-9-_]+))") & (strings.MaxRunes(128) & strings.MinRunes(1))
 
 	// The Amazon Resource Name (ARN) of the function associated with the Function URL.
-	TargetFunctionArn!: string
+	TargetFunctionArn!:
+		=~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]{2}((-gov)|(-iso(b?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:([\\-A-Z\\_a-z][0-9a-zA-Z-_]*))?$"
 })
 
 #AllowHeaders: list.MaxItems(100) & list.MinItems(1) & [...strings.MaxRunes(1024) & strings.MinRunes(1)]

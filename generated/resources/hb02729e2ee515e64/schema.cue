@@ -36,10 +36,13 @@ import structs "struct"
 		} |
 		fn.#StringExpression
 		CertificateSettings?: #CertificateSettings
-		DomainName!: strings.MaxRunes(255) & strings.MinRunes(0) |
+		DomainName!: =~"^(((?:[0-9A-Za-z][A-Za-z0-9-]{0,61}[A-Za-z0-9]|[0-9A-Za-z]))\\.)+([0-9A-Za-z][A-Za-z0-9-]{0,61}[A-Za-z0-9])(\\.)?$" & (strings.MaxRunes(255) & strings.MinRunes(0)) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(255) & strings.MinRunes(0) & "\(self)"
+			_cfnString: =~"^(((?:[0-9A-Za-z][A-Za-z0-9-]{0,61}[A-Za-z0-9]|[0-9A-Za-z]))\\.)+([0-9A-Za-z][A-Za-z0-9-]{0,61}[A-Za-z0-9])(\\.)?$" &
+			strings.MaxRunes(255) &
+			strings.MinRunes(0) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		EnableAutoSubDomain?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression

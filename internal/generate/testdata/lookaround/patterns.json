@@ -621,7 +621,11 @@
       "pattern": "^\\S([\\s\\S]*\\S)?(?![\\s\\S])"
     },
     {
-      "pattern": "^\\{%[\\s\\S]+?%\\}(?![\\s\\S])"
+      "pattern": "^\\{%[\\s\\S]+?%\\}(?![\\s\\S])",
+      "examples": [
+        "{%a%}",
+        "{%a%}b"
+      ]
     },
     {
       "pattern": "^[a-z]{2}(?<!ab)c$",
@@ -640,13 +644,211 @@
     },
     {
       "pattern": "^(?=.*[0-9])(?!.*  )[a-z0-9 ]+$|^-$"
+    },
+    {
+      "pattern": "^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:[a-z\\-]*\\/)?([a-zA-Z0-9]([a-zA-Z0-9-]){0,62})(?<!-)(\\/[0-9]{1,9})?$",
+      "examples": [
+        "abc-",
+        "a-",
+        "a-b",
+        "a--b",
+        "a-b-",
+        "a-/12",
+        "a-b/12",
+        "arn:aws:sagemaker:us-east-1:123456789012:model-package/my-pkg/3",
+        "arn:aws:sagemaker:us-east-1:123456789012:model-package/my-pkg-/3",
+        "arn:aws:sagemaker:us-east-1:123456789012:model-package/a",
+        "arn:aws:sagemaker:us-east-1:123456789012:model-package/-a",
+        "abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb-"
+      ]
+    },
+    {
+      "pattern": "^(((?!-)[A-Za-z0-9-]{0,62}[A-Za-z0-9])\\.)+((?!-)[A-Za-z0-9-]{1,62}[A-Za-z0-9])(\\.)?$",
+      "examples": [
+        "example.com",
+        "example.com.",
+        "-example.com",
+        "a.-bc",
+        "a.b-c",
+        "a-b.com",
+        "a.b",
+        "a.bc",
+        "-a.bc",
+        "a.-b",
+        "www.my-site.example.org",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com",
+        "x.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "x.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      ]
+    },
+    {
+      "pattern": "^((?![:*$])[\\x00-\\x7F]){1,255}",
+      "examples": [
+        ":abc",
+        "*",
+        ":",
+        "$x",
+        "a:b",
+        "a*",
+        "é",
+        "aé",
+        "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "Metric:Name"
+      ]
+    },
+    {
+      "pattern": "^(-?)P(?=\\d|T\\d)(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)([DW]))?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+(?:\\.\\d+)?)S)?)?$",
+      "examples": [
+        "PT1H",
+        "PT12H30M",
+        "P1D",
+        "P1Y2M3D",
+        "P2W",
+        "-P1D",
+        "-PT1H",
+        "P",
+        "PT",
+        "-P",
+        "-PT",
+        "PT1.5S",
+        "P1DT1H",
+        "-P1Y",
+        "P-1D",
+        "1PT1H"
+      ]
+    },
+    {
+      "pattern": "^(?!^\\s+$)((?![\\x5c'\\x2b,;<=>#\\x22])([\\x20-\\x7E]))+$",
+      "examples": [
+        "Template Name",
+        "   ",
+        " a ",
+        "a+b",
+        "a'b",
+        "a\\b",
+        "a,b",
+        "a;b",
+        "a<b",
+        "a=b",
+        "a>b",
+        "a#b",
+        "a\"b",
+        "a-b",
+        "a~b",
+        "a_b."
+      ]
+    },
+    {
+      "pattern": "^(?:(?!\\$\\{[a-zA-Z]+:)[\\P{C}])+$",
+      "examples": [
+        "hello world",
+        "${aws:region}",
+        "prefix ${env:FOO}",
+        "${x}",
+        "${a1:b}",
+        "$ {a:b}",
+        "{aws:x}",
+        "$${ab:",
+        "${ab",
+        "a\u0007b",
+        "café"
+      ]
+    },
+    {
+      "pattern": "^(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]{2}((-gov)|(-iso(b?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:((?!\\d+)[0-9a-zA-Z-_]+))?$",
+      "examples": [
+        "my-function",
+        "my-function:prod",
+        "my-function:1",
+        "my-function:1a",
+        "my-function:a1",
+        "my-function:-x",
+        "my-function:_1",
+        "arn:aws:lambda:us-east-1:123456789012:function:my-function",
+        "arn:aws:lambda:us-east-1:123456789012:function:my-function:live",
+        "arn:aws:lambda:us-east-1:123456789012:function:my-function:2",
+        "123456789012:function:fn:v2"
+      ]
+    },
+    {
+      "pattern": "^[a-zA-Z0-9]?((?!-)([A-Za-z0-9-]*[A-Za-z0-9])\\.)+[a-zA-Z0-9]+$",
+      "examples": [
+        "portal.example.com",
+        "a-b.example.com",
+        "-a.example.com",
+        "a.-b.com",
+        "ab.c",
+        "a.b",
+        "x-.com",
+        "a--b.com",
+        "1.2",
+        "a.b-.c"
+      ]
+    },
+    {
+      "pattern": "^jdbc:(redshift|postgresql)://((?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.)+(redshift(-serverless)?)\\.([a-zA-Z0-9\\.\\-]+):\\d{1,5}/[a-zA-Z0-9_$-]+$",
+      "examples": [
+        "jdbc:redshift://examplecluster.abc123xyz789.us-west-2.redshift.amazonaws.com:5439/dev",
+        "jdbc:redshift://-bad.abc.redshift.amazonaws.com:5439/dev",
+        "jdbc:redshift://bad-.abc.redshift.amazonaws.com:5439/dev",
+        "jdbc:redshift://b-d.redshift.x:1/d",
+        "jdbc:redshift://a.redshift.x:1/d",
+        "jdbc:redshift://-.redshift.x:1/d",
+        "jdbc:postgresql://wg.123456789012.us-east-1.redshift-serverless.amazonaws.com:5439/dev",
+        "jdbc:redshift://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.redshift.x:1/d",
+        "jdbc:redshift://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.redshift.x:1/d",
+        "jdbc:redshift://a.b-.redshift.x:1/d"
+      ]
+    },
+    {
+      "pattern": "^(?:(?!a{2})[ab-])+$",
+      "examples": [
+        "a",
+        "aa",
+        "ab",
+        "aba",
+        "baab",
+        "-a-",
+        "b",
+        "a-a",
+        "aaa",
+        ""
+      ]
+    },
+    {
+      "pattern": "^(?:(?!a{1,3})[ab-])+$",
+      "examples": [
+        "a",
+        "b",
+        "-",
+        "b-b",
+        "ba",
+        "ab",
+        "aa",
+        "--",
+        ""
+      ]
+    },
+    {
+      "pattern": "^(-?)(?!a{2})[ab]+$",
+      "examples": [
+        "a",
+        "aa",
+        "-aa",
+        "-a",
+        "ab",
+        "-ab",
+        "aab",
+        "baa",
+        "-baa",
+        "b"
+      ]
     }
   ],
   "unsupported": [
-    {
-      "pattern": "^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:[a-z\\-]*\\/)?([a-zA-Z0-9]([a-zA-Z0-9-]){0,62})(?<!-)(\\/[0-9]{1,9})?$",
-      "reason": "lookbehind at a variable position or with variable width"
-    },
     {
       "pattern": "(?!\\s*$).+",
       "reason": "lookahead at a variable position"
@@ -664,28 +866,8 @@
       "reason": "lookahead at a variable position"
     },
     {
-      "pattern": "^(((?!-)[A-Za-z0-9-]{0,62}[A-Za-z0-9])\\.)+((?!-)[A-Za-z0-9-]{1,62}[A-Za-z0-9])(\\.)?$",
-      "reason": "lookaround inside a repeated group"
-    },
-    {
-      "pattern": "^((?![:*$])[\\x00-\\x7F]){1,255}",
-      "reason": "lookaround inside a repeated group"
-    },
-    {
-      "pattern": "^(-?)P(?=\\d|T\\d)(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)([DW]))?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+(?:\\.\\d+)?)S)?)?$",
-      "reason": "lookahead at a variable position"
-    },
-    {
-      "pattern": "^(?!^\\s+$)((?![\\x5c'\\x2b,;<=>#\\x22])([\\x20-\\x7E]))+$",
-      "reason": "lookaround inside a repeated group"
-    },
-    {
       "pattern": "^(?!arn:)[!-~]{1,1024}$",
       "reason": "pattern is incompatible with RE2: error parsing regexp: invalid repeat count: `{1,1024}`"
-    },
-    {
-      "pattern": "^(?:(?!\\$\\{[a-zA-Z]+:)[\\P{C}])+$",
-      "reason": "lookaround inside a repeated group"
     },
     {
       "pattern": "^(?=.{20,2048}$)arn:aws[a-z-]*:secretsmanager:[a-z0-9-]+:\\d{12}:secret:[a-zA-Z0-9/_+=.@-]+$",
@@ -704,10 +886,6 @@
       "reason": "quantified assertion \"(?!\\\\.)+\""
     },
     {
-      "pattern": "^(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]{2}((-gov)|(-iso(b?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:((?!\\d+)[0-9a-zA-Z-_]+))?$",
-      "reason": "lookaround inside a repeated group"
-    },
-    {
       "pattern": "^(arn:.+:iam::((?!\\*|\\?)[0-9]{12}|(?=.*\\*)[0-9*?]{1,12}|[0-9?]{12}):role/.+|\\*)$",
       "reason": "lookahead at a variable position"
     },
@@ -716,19 +894,11 @@
       "reason": "lookahead at a variable position"
     },
     {
-      "pattern": "^[a-zA-Z0-9]?((?!-)([A-Za-z0-9-]*[A-Za-z0-9])\\.)+[a-zA-Z0-9]+$",
-      "reason": "lookaround inside a repeated group"
-    },
-    {
       "pattern": "^arn:(?=[^:]+:fsx:[^:]+:\\d{12}:)((|(?=[a-z0-9-.]{1,63})(?!\\d{1,3}(\\.\\d{1,3}){3})(?![^:]*-{2})(?![^:]*-\\.)(?![^:]*\\.-)[a-z0-9]([a-z0-9-\\.]{0,61}[a-z0-9])?):){4}(?!/).{0,1024}$",
       "reason": "lookaround inside a repeated group"
     },
     {
       "pattern": "^arn:(?=[^:]+:fsx:[^:]+:\\d{12}:)((|(?=[a-z0-9-.]{1,63})(?!\\d{1,3}(\\.\\d{1,3}){3})(?![^:]*-{2})(?![^:]*-\\.)(?![^:]*\\.-)[a-z0-9].*(?<!-)):){4}(?!/).{0,1024}$",
-      "reason": "lookaround inside a repeated group"
-    },
-    {
-      "pattern": "^jdbc:(redshift|postgresql)://((?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.)+(redshift(-serverless)?)\\.([a-zA-Z0-9\\.\\-]+):\\d{1,5}/[a-zA-Z0-9_$-]+$",
       "reason": "lookaround inside a repeated group"
     }
   ]

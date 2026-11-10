@@ -18,12 +18,13 @@ import (
 	Certificate?:                   #Certificate
 	CertificateRecord?:             strings.MaxRunes(1000)
 	CertificateSettings?:           #CertificateSettings
-	DomainName!:                    strings.MaxRunes(255) & strings.MinRunes(0)
-	DomainStatus?:                  string
-	EnableAutoSubDomain?:           bool
-	StatusReason?:                  strings.MaxRunes(1000)
-	SubDomainSettings!:             list.MaxItems(255) & [...] & [...#SubDomainSetting]
-	UpdateStatus?:                  string
+	DomainName!:
+		=~"^(((?:[0-9A-Za-z][A-Za-z0-9-]{0,61}[A-Za-z0-9]|[0-9A-Za-z]))\\.)+([0-9A-Za-z][A-Za-z0-9-]{0,61}[A-Za-z0-9])(\\.)?$" & (strings.MaxRunes(255) & strings.MinRunes(0))
+	DomainStatus?:        string
+	EnableAutoSubDomain?: bool
+	StatusReason?:        strings.MaxRunes(1000)
+	SubDomainSettings!:   list.MaxItems(255) & [...] & [...#SubDomainSetting]
+	UpdateStatus?:        string
 })
 
 #Certificate: close({

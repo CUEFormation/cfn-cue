@@ -31,10 +31,19 @@ import structs "struct"
 		} |
 		fn.#StringExpression
 		Definition!: #TemplateDefinition
-		Name!: strings.MaxRunes(64) & strings.MinRunes(1) |
+		Name!: =~"^([\\x{20}\\!\\$-\\&\\(-\\*\\--\\:\\?-\\[\\]-\\~])+$" &
+		matchN(0, [=~"^(?:^\\s+$)"]) &
+		string &
+		strings.MaxRunes(64) &
+		strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^([\\x{20}\\!\\$-\\&\\(-\\*\\--\\:\\?-\\[\\]-\\~])+$" &
+			matchN(0, [=~"^(?:^\\s+$)"]) &
+			string &
+			strings.MaxRunes(64) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		ReenrollAllCertificateHolders?: bool |
@@ -502,10 +511,19 @@ fn.#ValueExpression
 	PrivateKeyAttributes!: #PrivateKeyAttributesV2
 	PrivateKeyFlags!:      #PrivateKeyFlagsV2
 	SubjectNameFlags!:     #SubjectNameFlagsV2
-	SupersededTemplates?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(64) & strings.MinRunes(1) |
+	SupersededTemplates?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...=~"^([\\x{20}\\!\\$-\\&\\(-\\*\\--\\:\\?-\\[\\]-\\~])+$" &
+	matchN(0, [=~"^(?:^\\s+$)"]) &
+	string &
+	strings.MaxRunes(64) &
+	strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^([\\x{20}\\!\\$-\\&\\(-\\*\\--\\:\\?-\\[\\]-\\~])+$" &
+		matchN(0, [=~"^(?:^\\s+$)"]) &
+		string &
+		strings.MaxRunes(64) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression] |
 	fn.#ListExpression
@@ -521,10 +539,19 @@ fn.#ObjectExpression
 	PrivateKeyAttributes!: #PrivateKeyAttributesV3
 	PrivateKeyFlags!:      #PrivateKeyFlagsV3
 	SubjectNameFlags!:     #SubjectNameFlagsV3
-	SupersededTemplates?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(64) & strings.MinRunes(1) |
+	SupersededTemplates?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...=~"^([\\x{20}\\!\\$-\\&\\(-\\*\\--\\:\\?-\\[\\]-\\~])+$" &
+	matchN(0, [=~"^(?:^\\s+$)"]) &
+	string &
+	strings.MaxRunes(64) &
+	strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^([\\x{20}\\!\\$-\\&\\(-\\*\\--\\:\\?-\\[\\]-\\~])+$" &
+		matchN(0, [=~"^(?:^\\s+$)"]) &
+		string &
+		strings.MaxRunes(64) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression] |
 	fn.#ListExpression
@@ -540,10 +567,19 @@ fn.#ObjectExpression
 	PrivateKeyAttributes!: #PrivateKeyAttributesV4
 	PrivateKeyFlags!:      #PrivateKeyFlagsV4
 	SubjectNameFlags!:     #SubjectNameFlagsV4
-	SupersededTemplates?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...strings.MaxRunes(64) & strings.MinRunes(1) |
+	SupersededTemplates?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [...=~"^([\\x{20}\\!\\$-\\&\\(-\\*\\--\\:\\?-\\[\\]-\\~])+$" &
+	matchN(0, [=~"^(?:^\\s+$)"]) &
+	string &
+	strings.MaxRunes(64) &
+	strings.MinRunes(1) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(64) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^([\\x{20}\\!\\$-\\&\\(-\\*\\--\\:\\?-\\[\\]-\\~])+$" &
+		matchN(0, [=~"^(?:^\\s+$)"]) &
+		string &
+		strings.MaxRunes(64) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression] |
 	fn.#ListExpression

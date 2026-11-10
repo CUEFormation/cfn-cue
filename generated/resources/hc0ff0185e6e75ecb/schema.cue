@@ -1162,10 +1162,13 @@ fn.#ObjectExpression
 
 #RedshiftDestinationConfiguration: close({
 	CloudWatchLoggingOptions?: #CloudWatchLoggingOptions
-	ClusterJDBCURL!: strings.MaxRunes(512) & strings.MinRunes(1) |
+	ClusterJDBCURL!: =~"^jdbc:(redshift|postgresql)://((?:[0-9A-Za-z][A-Za-z0-9-]{0,61}[0-9A-Za-z]|[0-9A-Za-z])\\.)+(redshift(-serverless)?)\\.([a-zA-Z0-9\\.\\-]+):\\d{1,5}/[a-zA-Z0-9_$-]+$" & (strings.MaxRunes(512) & strings.MinRunes(1)) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(512) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^jdbc:(redshift|postgresql)://((?:[0-9A-Za-z][A-Za-z0-9-]{0,61}[0-9A-Za-z]|[0-9A-Za-z])\\.)+(redshift(-serverless)?)\\.([a-zA-Z0-9\\.\\-]+):\\d{1,5}/[a-zA-Z0-9_$-]+$" &
+		strings.MaxRunes(512) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 	CopyCommand!: #CopyCommand

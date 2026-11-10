@@ -28,7 +28,11 @@ import (
 	CreatedBy?: strings.MaxRunes(128) & strings.MinRunes(1)
 
 	// A description of the Agent Goal.
-	Description?: strings.MaxRunes(4000) & strings.MinRunes(1)
+	Description?: =~"^(?:[\\P{C}])+$" &
+	matchN(0, [=~"\\$\\{[a-zA-Z]+:"]) &
+	string &
+	strings.MaxRunes(4000) &
+	strings.MinRunes(1)
 
 	// The service-generated unique identifier of the Agent Goal.
 	Id?: strings.MaxRunes(36) &
@@ -52,7 +56,11 @@ import (
 	=~"^arn:aws([a-z0-9-]+)?:wellarchitected:[a-z0-9-]{6,64}:[0-9]{12}:agent-profile/[a-zA-Z0-9_-]+$"
 
 	// The title of the Agent Goal.
-	Title!: strings.MaxRunes(1000) & strings.MinRunes(1)
+	Title!: =~"^(?:[\\P{C}])+$" &
+	matchN(0, [=~"\\$\\{[a-zA-Z]+:"]) &
+	string &
+	strings.MaxRunes(1000) &
+	strings.MinRunes(1)
 })
 
 // A Well-Architected pillar the Agent Goal targets.

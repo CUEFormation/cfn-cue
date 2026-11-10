@@ -102,10 +102,13 @@ import structs "struct"
 			"\(self)"
 		} |
 		fn.#StringExpression
-		PortalCustomDomain?: strings.MaxRunes(128) & strings.MinRunes(0) |
+		PortalCustomDomain?: =~"^[a-zA-Z0-9]?((?:[0-9A-Za-z][A-Za-z0-9-]*[A-Za-z0-9]\\.|[0-9A-Za-z]\\.))+[a-zA-Z0-9]+$" & (strings.MaxRunes(128) & strings.MinRunes(0)) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(128) & strings.MinRunes(0) & "\(self)"
+			_cfnString: =~"^[a-zA-Z0-9]?((?:[0-9A-Za-z][A-Za-z0-9-]*[A-Za-z0-9]\\.|[0-9A-Za-z]\\.))+[a-zA-Z0-9]+$" &
+			strings.MaxRunes(128) &
+			strings.MinRunes(0) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		SessionLoggerArn?: strings.MaxRunes(2048) &

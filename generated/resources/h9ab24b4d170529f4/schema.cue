@@ -60,10 +60,19 @@ import structs "struct"
 			"\(self)"
 		} |
 		fn.#StringExpression
-		SessionDuration?: strings.MaxRunes(100) & strings.MinRunes(1) |
+		SessionDuration?: (=~"^P(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)([DW]))?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+(?:\\.\\d+)?)S)?)?$" &
+			=~"^(?s:.){1}(?:\\d|T\\d)" |
+			=~"^-P(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)([DW]))?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+(?:\\.\\d+)?)S)?)?$" &
+				=~"^(?s:.){2}(?:\\d|T\\d)") & (strings.MaxRunes(100) & strings.MinRunes(1)) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(100) & strings.MinRunes(1) & "\(self)"
+			_cfnString: (=~"^P(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)([DW]))?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+(?:\\.\\d+)?)S)?)?$" &
+				=~"^(?s:.){1}(?:\\d|T\\d)" |
+				=~"^-P(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)([DW]))?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+(?:\\.\\d+)?)S)?)?$" &
+					=~"^(?s:.){2}(?:\\d|T\\d)") &
+			strings.MaxRunes(100) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		Tags?: list.MaxItems(50) & [...#Tag] | fn.#ListExpression
