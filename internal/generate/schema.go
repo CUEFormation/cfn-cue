@@ -1,9 +1,12 @@
 package generate
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"io"
+	"math/big"
 	"net/url"
 	"regexp"
 	"sort"
@@ -49,7 +52,54 @@ func includes(ss []string, s string) bool {
 	}
 	return false
 }
-func clone(v any) any { b, _ := json.Marshal(v); var out any; _ = json.Unmarshal(b, &out); return out }
+func clone(v any) any { b, _ := json.Marshal(v); out, _ := decodeJSON(b); return out }
+
+// decodeJSON decodes a schema document without rounding its numbers.
+// json.Unmarshal reads every number as a float64 and json.Marshal writes the
+// shortest digits that give the same float64 back, so 9223372036854775807
+// came out as 9223372036854776000. A number is decoded as a float64 only when
+// those digits have the value the document wrote; any other number stays a
+// json.Number, which json.Marshal copies through as written.
+func decodeJSON(b []byte) (any, error) {
+	d := json.NewDecoder(bytes.NewReader(b))
+	d.UseNumber()
+	var v any
+	if e := d.Decode(&v); e != nil {
+		return nil, e
+	}
+	if _, e := d.Token(); e != io.EOF {
+		return nil, fmt.Errorf("unexpected data after the JSON value")
+	}
+	return exactNumbers(v), nil
+}
+
+func exactNumbers(v any) any {
+	switch x := v.(type) {
+	case map[string]any:
+		for k, child := range x {
+			x[k] = exactNumbers(child)
+		}
+	case []any:
+		for i, child := range x {
+			x[i] = exactNumbers(child)
+		}
+	case json.Number:
+		f, e := x.Float64()
+		if e != nil {
+			return x
+		}
+		rendered, e := json.Marshal(f)
+		if e != nil {
+			return x
+		}
+		written, ok := new(big.Rat).SetString(x.String())
+		kept, ok2 := new(big.Rat).SetString(string(rendered))
+		if ok && ok2 && written.Cmp(kept) == 0 {
+			return f
+		}
+	}
+	return v
+}
 func keys(m map[string]any) []string {
 	out := make([]string, 0, len(m))
 	for k := range m {

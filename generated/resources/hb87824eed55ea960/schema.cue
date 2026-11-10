@@ -341,7 +341,7 @@ fn.#ObjectExpression
 				)
 		} |
 		fn.#NumberExpression
-	Memory?: int & <=9223372036854772000 & >=0 |
+	Memory?: int & <=9223372036854771712 & >=0 |
 		{
 			string &
 				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -350,7 +350,7 @@ fn.#ObjectExpression
 					len(cfnScalarStrconv.FormatInt(
 						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
 							int &
-							<=9223372036854772000 &
+							<=9223372036854771712 &
 							>=0,
 						10,
 					))*0 + 1,

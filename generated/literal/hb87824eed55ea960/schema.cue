@@ -92,5 +92,5 @@ import (
 
 #SystemResourceLimits: close({
 	Cpus?:   >=0
-	Memory?: int & <=9223372036854772000 & >=0
+	Memory?: int & <=9223372036854771712 & >=0
 })

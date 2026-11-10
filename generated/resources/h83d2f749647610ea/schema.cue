@@ -189,7 +189,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #CheckpointConfiguration: close({
-	CheckpointInterval?: int & <=9223372036854776000 & >=1 |
+	CheckpointInterval?: int & <=9223372036854775807 & >=1 |
 		{
 			string &
 				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -198,7 +198,7 @@ fn.#ObjectExpression
 					len(cfnScalarStrconv.FormatInt(
 						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
 							int &
-							<=9223372036854776000 &
+							<=9223372036854775807 &
 							>=1,
 						10,
 					))*0 + 1,
@@ -207,7 +207,7 @@ fn.#ObjectExpression
 		fn.#NumberExpression
 	CheckpointingEnabled?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	ConfigurationType!:    "DEFAULT" | "CUSTOM" | fn.#StringExpression
-	MinPauseBetweenCheckpoints?: int & <=9223372036854776000 & >=0 |
+	MinPauseBetweenCheckpoints?: int & <=9223372036854775807 & >=0 |
 		{
 			string &
 				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -216,7 +216,7 @@ fn.#ObjectExpression
 					len(cfnScalarStrconv.FormatInt(
 						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
 							int &
-							<=9223372036854776000 &
+							<=9223372036854775807 &
 							>=0,
 						10,
 					))*0 + 1,

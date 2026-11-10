@@ -180,7 +180,7 @@ import (
 // Documentation.
 #CheckpointConfiguration: close({
 	// Describes the interval in milliseconds between checkpoint operations.
-	CheckpointInterval?: int & <=9223372036854776000 & >=1
+	CheckpointInterval?: int & <=9223372036854775807 & >=1
 
 	// Describes whether checkpointing is enabled for a Flink-based Kinesis Data Analytics application.
 	CheckpointingEnabled?: bool
@@ -196,7 +196,7 @@ import (
 	// operation takes longer than the CheckpointInterval, the application
 	// otherwise performs continual checkpoint operations. For more information,
 	// see Tuning Checkpointing in the Apache Flink Documentation.
-	MinPauseBetweenCheckpoints?: int & <=9223372036854776000 & >=0
+	MinPauseBetweenCheckpoints?: int & <=9223372036854775807 & >=0
 })
 
 // Specifies either the application code, or the location of the application
