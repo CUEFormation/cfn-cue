@@ -184,30 +184,19 @@ func moveDefinitions(root, schema map[string]any, prefix string) {
 		}
 		return "#/definitions/" + prefix + name
 	}
-	var rewrite func(any)
-	rewrite = func(v any) {
-		switch n := v.(type) {
-		case map[string]any:
-			if r, ok := n["$ref"].(string); ok {
-				n["$ref"] = rename(r)
-			}
-			for _, x := range n {
-				rewrite(x)
-			}
-		case []any:
-			for _, x := range n {
-				rewrite(x)
-			}
+	rewrite := func(n map[string]any) {
+		if r, ok := n["$ref"].(string); ok {
+			n["$ref"] = rename(r)
 		}
 	}
-	rewrite(schema)
+	walkSchemaObjects(schema, rewrite)
 	target, _ := root["definitions"].(map[string]any)
 	if target == nil {
 		target = map[string]any{}
 		root["definitions"] = target
 	}
 	for name, definition := range definitions {
-		rewrite(definition)
+		walkSchemaObjects(definition, rewrite)
 		target[prefix+name] = definition
 	}
 }
@@ -359,7 +348,20 @@ func prepareExtension(v any, literal, lowercaseEngine bool, property string) any
 					continue
 				}
 				out["enum"] = looseValues(values)
+			case "definitions", "$defs", "dependencies":
+				// Keyed by name, like properties: a definition called
+				// "pattern" or "const" is still a schema.
+				schemas := map[string]any{}
+				for name, schema := range x.(map[string]any) {
+					schemas[name] = prepareExtension(schema, literal, lowercaseEngine, "")
+				}
+				out[k] = schemas
 			default:
+				if !holdsSchemas(k) {
+					// Data such as required, default or dependentExcluded.
+					out[k] = x
+					continue
+				}
 				out[k] = prepareExtension(x, literal, lowercaseEngine, "")
 			}
 		}
@@ -502,28 +504,17 @@ func absentNames(v any) ([]string, bool) {
 
 var negativePrefix = regexp.MustCompile(`^\^\(\?!([A-Za-z0-9_-]+)\)\.\*\$$`)
 
-// unsupportedPattern returns the first pattern RE2 cannot compile.
+// unsupportedPattern returns a pattern RE2 cannot compile, if v has one.
 func unsupportedPattern(v any) string {
-	switch n := v.(type) {
-	case map[string]any:
-		for k, x := range n {
-			if p, ok := x.(string); ok && k == "pattern" {
-				if _, err := regexp.Compile(re2Pattern(p)); err != nil {
-					return p
-				}
-			}
-			if found := unsupportedPattern(x); found != "" {
-				return found
+	found := ""
+	walkSchemaObjects(v, func(n map[string]any) {
+		if p, ok := n["pattern"].(string); ok && found == "" {
+			if _, err := regexp.Compile(re2Pattern(p)); err != nil {
+				found = p
 			}
 		}
-	case []any:
-		for _, x := range n {
-			if found := unsupportedPattern(x); found != "" {
-				return found
-			}
-		}
-	}
-	return ""
+	})
+	return found
 }
 
 var numericKeywords = []string{"maximum", "minimum", "exclusiveMaximum", "exclusiveMinimum", "multipleOf"}

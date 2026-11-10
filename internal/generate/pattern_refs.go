@@ -54,31 +54,3 @@ func preservePatternReferences(root map[string]any) {
 		walkSchemaObjects(defs[pending[i]], rewrite)
 	}
 }
-
-func walkSchemaObjects(value any, visit func(map[string]any)) {
-	schema, ok := value.(map[string]any)
-	if !ok {
-		return
-	}
-	visit(schema)
-	for _, keyword := range keys(schema) {
-		value := schema[keyword]
-		switch keyword {
-		case "definitions", "$defs", "properties", "patternProperties", "dependentSchemas", "dependencies":
-			children, _ := value.(map[string]any)
-			for _, name := range keys(children) {
-				walkSchemaObjects(children[name], visit)
-			}
-		case "items", "prefixItems", "allOf", "anyOf", "oneOf":
-			if children, ok := value.([]any); ok {
-				for _, child := range children {
-					walkSchemaObjects(child, visit)
-				}
-			} else if keyword == "items" {
-				walkSchemaObjects(value, visit)
-			}
-		case "additionalItems", "additionalProperties", "contains", "not", "if", "then", "else", "propertyNames":
-			walkSchemaObjects(value, visit)
-		}
-	}
-}
