@@ -58,20 +58,24 @@ func decomposeLookarounds(pattern string) (schema map[string]any, superset strin
 			plain = append(plain, renderNodes(alternative))
 			continue
 		}
-		expanded, err := expandGroups(alternative)
+		bs, ss, err := translateAlternative(alternative)
 		if err != nil {
-			return nil, "", err
-		}
-		for _, nodes := range expanded {
-			branch, superset, err := decomposeAlternative(nodes)
-			if err != nil {
+			// Only shapes the positional translation cannot place are
+			// rewritten, so its established output does not change.
+			rewritten, e := eliminateCharLooks(alternative)
+			switch {
+			case e != nil:
+				return nil, "", err
+			case !containsLookaround(rewritten):
+				plain = append(plain, renderNodes(rewritten))
+				continue
+			}
+			if bs, ss, e = rewriteAlternative(rewritten); e != nil {
 				return nil, "", err
 			}
-			if branch != nil {
-				branches = append(branches, branch)
-				supersets = append(supersets, superset)
-			}
 		}
+		branches = append(branches, bs...)
+		supersets = append(supersets, ss...)
 	}
 	if len(plain) > 0 {
 		joined := re2Pattern(strings.Join(plain, "|"))
@@ -91,6 +95,26 @@ func decomposeLookarounds(pattern string) (schema map[string]any, superset strin
 }
 
 var errNoLookaround = errors.New("no lookaround")
+
+// translateAlternative translates one top-level alternative by placing each
+// lookaround at a fixed offset or at the end of the string.
+func translateAlternative(alternative []reNode) (branches []any, supersets []string, err error) {
+	expanded, err := expandGroups(alternative)
+	if err != nil {
+		return nil, nil, err
+	}
+	for _, nodes := range expanded {
+		branch, superset, err := decomposeAlternative(nodes)
+		if err != nil {
+			return nil, nil, err
+		}
+		if branch != nil {
+			branches = append(branches, branch)
+			supersets = append(supersets, superset)
+		}
+	}
+	return branches, supersets, nil
+}
 
 // lookaroundDetail explains why a pattern with lookarounds was not
 // translated, for a diagnostic.

@@ -160369,12 +160369,6 @@
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
     },
     {
-      "resource": "AWS::Amplify::Domain",
-      "path": "#/properties/DomainName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
-    },
-    {
       "resource": "AWS::ApiGateway::DomainName",
       "path": "#/properties/DistributionHostedZoneId/format",
       "keyword": "format",
@@ -162662,12 +162656,6 @@
     },
     {
       "resource": "AWS::KinesisFirehose::DeliveryStream",
-      "path": "#/definitions/RedshiftDestinationConfiguration/properties/ClusterJDBCURL/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
-    },
-    {
-      "resource": "AWS::KinesisFirehose::DeliveryStream",
       "path": "#/definitions/VpcConfiguration/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
@@ -162713,18 +162701,6 @@
       "path": "#/definitions/VpcEgressConfiguration/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::Lambda::Url",
-      "path": "#/properties/FunctionArn/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
-    },
-    {
-      "resource": "AWS::Lambda::Url",
-      "path": "#/properties/TargetFunctionArn/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
     },
     {
       "resource": "AWS::Lex::ResourcePolicy",
@@ -162833,12 +162809,6 @@
       "path": "#/properties/LogGroupName/pattern",
       "keyword": "pattern",
       "detail": "pattern is incompatible with RE2: error parsing regexp: invalid escape sequence: `\\Z`"
-    },
-    {
-      "resource": "AWS::Logs::MetricFilter",
-      "path": "#/definitions/MetricTransformation/properties/MetricName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
     },
     {
       "resource": "AWS::LookoutEquipment::InferenceScheduler",
@@ -163355,30 +163325,6 @@
       "path": "#/definitions/VpcInformation/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::PCAConnectorAD::Template",
-      "path": "#/definitions/TemplateV2/properties/SupersededTemplates/items/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
-    },
-    {
-      "resource": "AWS::PCAConnectorAD::Template",
-      "path": "#/definitions/TemplateV3/properties/SupersededTemplates/items/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
-    },
-    {
-      "resource": "AWS::PCAConnectorAD::Template",
-      "path": "#/definitions/TemplateV4/properties/SupersededTemplates/items/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
-    },
-    {
-      "resource": "AWS::PCAConnectorAD::Template",
-      "path": "#/properties/Name/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
     },
     {
       "resource": "AWS::PCS::Cluster",
@@ -164095,12 +164041,6 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::SSO::PermissionSet",
-      "path": "#/properties/SessionDuration/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?=`; lookarounds not translated: lookahead at a variable position"
-    },
-    {
       "resource": "AWS::SageMaker::Cluster",
       "path": "#/definitions/AlarmDetails/properties/AlarmName/pattern",
       "keyword": "pattern",
@@ -164195,12 +164135,6 @@
       "path": "#/definitions/ContainerDefinition/properties/Environment/format",
       "keyword": "format",
       "detail": "format annotation not enforced: json"
-    },
-    {
-      "resource": "AWS::SageMaker::Model",
-      "path": "#/definitions/ContainerDefinition/properties/ModelPackageName/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid named capture: `(?\u003c!-)(\\/[0-9]{1,9})?$`; lookarounds not translated: lookbehind at a variable position or with variable width"
     },
     {
       "resource": "AWS::SageMaker::Model",
@@ -164797,18 +164731,6 @@
       "detail": "format annotation not enforced: json"
     },
     {
-      "resource": "AWS::WellArchitected::AgentGoal",
-      "path": "#/properties/Description/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
-    },
-    {
-      "resource": "AWS::WellArchitected::AgentGoal",
-      "path": "#/properties/Title/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
-    },
-    {
       "resource": "AWS::WorkSpaces::Directory",
       "path": "#/definitions/DefaultWorkspaceCreationProperties/properties/InstanceIamRoleArn/pattern",
       "keyword": "pattern",
@@ -164837,18 +164759,6 @@
       "path": "#/properties/SecurityGroupIds/format",
       "keyword": "format",
       "detail": "format annotation not enforced: AWS::EC2::SecurityGroup.Ids"
-    },
-    {
-      "resource": "AWS::WorkSpacesWeb::Portal",
-      "path": "#/properties/PortalCustomDomain/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
-    },
-    {
-      "resource": "AWS::WorkSpacesWeb::Portal",
-      "path": "#/properties/PortalEndpoint/pattern",
-      "keyword": "pattern",
-      "detail": "pattern is incompatible with RE2: error parsing regexp: invalid or unsupported Perl syntax: `(?!`; lookarounds not translated: lookaround inside a repeated group"
     },
     {
       "resource": "Alexa::ASK::Skill",

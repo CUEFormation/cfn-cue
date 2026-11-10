@@ -80,10 +80,13 @@ import structs "struct"
 		_cfnString: strings.MaxRunes(1024) & strings.MinRunes(0) & =~"^(https|s3)://([^/]+)/?(.*)$" & "\(self)"
 	} |
 	fn.#StringExpression
-	ModelPackageName?: strings.MaxRunes(176) & strings.MinRunes(1) |
+	ModelPackageName?: =~"(?:^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:[a-z\\-]*\\/)?[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[0-9A-Za-z]|^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:[a-z\\-]*\\/)?[0-9A-Za-z])(\\/[0-9]{1,9})?$" & (strings.MaxRunes(176) & strings.MinRunes(1)) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(176) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"(?:^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:[a-z\\-]*\\/)?[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[0-9A-Za-z]|^(arn:aws[a-z\\-]*:sagemaker:[a-z0-9\\-]*:[0-9]{12}:[a-z\\-]*\\/)?[0-9A-Za-z])(\\/[0-9]{1,9})?$" &
+		strings.MaxRunes(176) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 	MultiModelConfig?: #MultiModelConfig

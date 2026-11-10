@@ -37,8 +37,10 @@ import (
 	PortalArn?: strings.MaxRunes(2048) &
 	strings.MinRunes(20) &
 	=~"^arn:[\\w+=\\/,.@-]+:[a-zA-Z0-9\\-]+:[a-zA-Z0-9\\-]*:[a-zA-Z0-9]{1,12}:[a-zA-Z]+(\\/[a-fA-F0-9\\-]{36})+$"
-	PortalCustomDomain?:          strings.MaxRunes(128) & strings.MinRunes(0)
-	PortalEndpoint?:              strings.MaxRunes(253) & strings.MinRunes(1)
+	PortalCustomDomain?:
+		=~"^[a-zA-Z0-9]?((?:[0-9A-Za-z][A-Za-z0-9-]*[A-Za-z0-9]\\.|[0-9A-Za-z]\\.))+[a-zA-Z0-9]+$" & (strings.MaxRunes(128) & strings.MinRunes(0))
+	PortalEndpoint?:
+		=~"^[a-zA-Z0-9]?((?:[0-9A-Za-z][A-Za-z0-9-]*[A-Za-z0-9]\\.|[0-9A-Za-z]\\.))+[a-zA-Z0-9]+$" & (strings.MaxRunes(253) & strings.MinRunes(1))
 	PortalStatus?:                #PortalStatus
 	RendererType?:                #RendererType
 	ServiceProviderSamlMetadata?: strings.MaxRunes(204800) & strings.MinRunes(0) & =~"^.*$"

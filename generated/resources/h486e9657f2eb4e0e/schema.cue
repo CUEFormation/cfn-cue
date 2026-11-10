@@ -101,10 +101,13 @@ fn.#ObjectExpression
 		} |
 		fn.#NumberExpression
 	Dimensions?: list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [...#Dimension] | fn.#ListExpression
-	MetricName!: strings.MaxRunes(255) & strings.MinRunes(1) |
+	MetricName!: =~"^([\\x{0}-\\#\\%-\\)\\+-9\\;-\\x{7f}]){1,255}" & (strings.MaxRunes(255) & strings.MinRunes(1)) |
 	{
 		number | bool
-		_cfnString: strings.MaxRunes(255) & strings.MinRunes(1) & "\(self)"
+		_cfnString: =~"^([\\x{0}-\\#\\%-\\)\\+-9\\;-\\x{7f}]){1,255}" &
+		strings.MaxRunes(255) &
+		strings.MinRunes(1) &
+		"\(self)"
 	} |
 	fn.#StringExpression
 	MetricNamespace!: strings.MaxRunes(256) & strings.MinRunes(1) & =~"^[0-9a-zA-Z\\.\\-_\\/#]{1,256}" |

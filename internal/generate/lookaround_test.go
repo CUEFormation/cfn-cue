@@ -115,6 +115,13 @@ func TestLookaroundOracle(t *testing.T) {
 			continue
 		}
 		widerRE := regexp.MustCompile(superset)
+		// The pattern with its lookarounds deleted accepts everything the
+		// source does, so a string it accepts and ECMAScript rejects shows
+		// that a lookaround is enforced.
+		stripped, err := regexp.Compile(re2Pattern(withoutLookarounds(t, p.Pattern)))
+		if err != nil {
+			stripped = widerRE
+		}
 		samples := append(append([]string(nil), oracle.Samples...), p.Examples...)
 		want := p.Samples + p.ExampleResults
 		if len(want) != len(samples) {
@@ -130,10 +137,13 @@ func TestLookaroundOracle(t *testing.T) {
 			if got && !wider {
 				t.Errorf("%s: %q matches, but not the wider pattern %s", p.Pattern, s, superset)
 			}
+			if want[i] == '1' && !stripped.MatchString(s) {
+				t.Errorf("%s: %q matches, but not without lookarounds", p.Pattern, s)
+			}
 			switch {
 			case got:
 				accepted++
-			case wider:
+			case wider || stripped.MatchString(s):
 				excluded++
 			default:
 				rejected++
@@ -144,11 +154,44 @@ func TestLookaroundOracle(t *testing.T) {
 		// That is impossible when the lookarounds only assert the end of the
 		// string, or when the rest of the pattern already excludes the same
 		// strings, as recorded in patterns.json.
-		onlyEnd := reflect.DeepEqual(schema, map[string]any{"pattern": superset})
+		onlyEnd := reflect.DeepEqual(schema, map[string]any{"pattern": superset}) && stripped == widerRE
 		if accepted == 0 || excluded == 0 && !onlyEnd && !redundant[p.Pattern] {
 			t.Errorf("%s: %d accepted, %d rejected only by lookarounds, %d otherwise rejected; add examples", p.Pattern, accepted, excluded, rejected)
 		}
 	}
+}
+
+// withoutLookarounds deletes every lookaround from a pattern.
+func withoutLookarounds(t *testing.T, pattern string) string {
+	t.Helper()
+	p := &reParser{src: pattern}
+	alts, err := p.alternatives()
+	if err != nil {
+		t.Fatalf("%s: %v", pattern, err)
+	}
+	var strip func([]reNode) []reNode
+	strip = func(nodes []reNode) []reNode {
+		var out []reNode
+		for _, n := range nodes {
+			switch n.kind {
+			case nodeLook:
+				continue
+			case nodeGroup:
+				alts := make([][]reNode, len(n.alts))
+				for i, alt := range n.alts {
+					alts[i] = strip(alt)
+				}
+				n.alts = alts
+			}
+			out = append(out, n)
+		}
+		return out
+	}
+	rendered := make([]string, len(alts))
+	for i, alt := range alts {
+		rendered[i] = renderNodes(strip(alt))
+	}
+	return strings.Join(rendered, "|")
 }
 
 func TestLookaroundShapes(t *testing.T) {
@@ -183,6 +226,27 @@ func TestLookaroundShapes(t *testing.T) {
 			`{"allOf":[{"pattern":"^[a-z-]+$"},{"not":{"pattern":"(?:-)$","type":"string"}}]}`, `^[a-z-]+$`},
 		// A nullable remainder adds no pattern.
 		{`^(?!arn:)`, `{"not":{"pattern":"^(?:arn:)","type":"string"}}`, `^`},
+		// A lookaround that tests one character is folded into the atom
+		// it tests, also inside a repeated group.
+		{`^((?!-)[a-z-])+$`, `{"pattern":"^([a-z])+$"}`, `^([a-z])+$`},
+		{`^((?!-)[a-z0-9-]{1,63}(?<!-)\.)+$`,
+			`{"pattern":"^((?:[0-9a-z][a-z0-9-]{0,61}[0-9a-z]|[0-9a-z])\\.)+$"}`, `^((?:[0-9a-z][a-z0-9-]{0,61}[0-9a-z]|[0-9a-z])\.)+$`},
+		// An atom that can be skipped gives two alternatives: one where it
+		// takes the tested character and one where the next atom does.
+		// \d+ tests what \d does.
+		{`^(:(?!\d+)[a-z0-9]*;)+$`,
+			`{"pattern":"^(:(?:[a-z][a-z0-9]*;|[\\;]))+$"}`, `^(:(?:[a-z][a-z0-9]*;|[\;]))+$`},
+		// A positive lookahead before $ never matches.
+		{`^(a(?=b)$)+|^c$`, `{"pattern":"^(a[^\\x00-\\x{10ffff}])+|^c$"}`, `^(a[^\x00-\x{10ffff}])+|^c$`},
+		// An optional prefix is distributed so the lookahead has a fixed
+		// offset in each alternative.
+		{`^(-?)P(?=T\d)[0-9DT]+$`,
+			`{"anyOf":[{"allOf":[{"pattern":"^P[0-9DT]+$"},{"pattern":"^(?s:.){1}(?:T\\d)"}]},{"allOf":[{"pattern":"^-P[0-9DT]+$"},{"pattern":"^(?s:.){2}(?:T\\d)"}]}]}`,
+			`(?:^P[0-9DT]+$)|(?:^-P[0-9DT]+$)`},
+		// A negative lookahead before every character of the string
+		// excludes its body anywhere.
+		{`^(?:(?!\$\{[a-z]+:)[^\n])+$`,
+			`{"allOf":[{"pattern":"^(?:[^\\n])+$"},{"not":{"pattern":"\\$\\{[a-z]+:","type":"string"}}]}`, `^(?:[^\n])+$`},
 	} {
 		schema, superset, err := decomposeLookarounds(tt.pattern)
 		if err != nil {
@@ -213,10 +277,16 @@ func TestLookaroundUnsupported(t *testing.T) {
 		{`^(?i)(?!aws)[a-z]+$`, "inline flags outside a lookaround"},
 		{`(?i)^x$|^(?!aws)[a-z]+$`, "inline flags outside a lookaround"},
 		{`^(?i:(?!aws)[a-z]+)$`, "lookaround inside a group with inline flags"},
-		{`^((?!-)[a-z-])+$`, "lookaround inside a repeated group"},
+		{`^((?!--)[a-z-]-)+$`, "lookaround inside a repeated group"},
+		{`^(:(?!\d)[a-z0-9]*)+$`, "lookaround inside a repeated group"},
+		{`^((?!-))+[a-z]$`, "lookaround inside a repeated group"},
+		{`^([a-z](?!-))+$`, "lookaround inside a repeated group"},
+		{`^(?:(?=\$\{)[^\n])+$`, "lookaround inside a repeated group"},
+		{`^(?:(?!\$|)[^\n])+$`, "lookaround inside a repeated group"},
+		{`^a*(?=.*b)[a-z]+$`, "lookahead at a variable position"},
 		{`^(a)(?!\1)`, "backreference"},
 		{`^[](?!a)`, "class starting with ]"},
-		{`^a+(?<=a)b`, "lookbehind at a variable position or with variable width"},
+		{`^a+(?<=ab)c`, "lookbehind at a variable position or with variable width"},
 	}...)
 	for _, tt := range cases {
 		_, _, err := decomposeLookarounds(tt.Pattern)
@@ -329,6 +399,11 @@ func TestGeneratedLookaroundConstraints(t *testing.T) {
 	}}
 	// A provider pattern and a cfn-lint format on one property both apply.
 	properties["Bucket"] = map[string]any{"type": "string", "format": "AWS::S3::Bucket.Name", "pattern": `(?!^(\d+\.)+\d+$)(^(([a-z0-9]|[a-z0-9][a-z0-9\-]*[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9\-]*[a-z0-9])$)`}
+	// Folded one-character lookarounds, an optional prefix before a
+	// lookahead, and a negative lookahead before every character.
+	properties["Host"] = map[string]any{"type": "string", "pattern": `^((?!-)[a-z0-9-]{1,63}(?<!-)\.)+[a-z]+$`}
+	properties["Period"] = map[string]any{"type": "string", "pattern": `^(-?)P(?=\d|T\d)(?:\d+D)?(?:T\d+H)?$`}
+	properties["Text"] = map[string]any{"type": "string", "pattern": `^(?:(?!\$\{[a-z]+:)[^\n])+$`}
 	source.files["resources/test.json"], _ = json.Marshal(root)
 	out := filepath.Join(t.TempDir(), "generated")
 	manifest, err := Generate(source, Options{Out: out, Regions: []string{"us-east-1"}, Strict: true})
@@ -344,6 +419,8 @@ func TestGeneratedLookaroundConstraints(t *testing.T) {
 		`{Name:"one",Key:"Name",Label:"a1",Tags:{Name:"x","a:b":"y"},Bucket:"my-bucket"}`,
 		`{Name:"one",Key:"aws",Label:"12"}`, // ECMAScript also finds "2" at offset 1
 		`{Name:"one",Bucket:"1.2.3.a"}`,
+		`{Name:"one",Host:"a-b.example.com",Period:"-PT1H",Text:"$x {a:b} ${c}"}`,
+		`{Name:"one",Host:"a.b.com",Period:"P1D",Text:"a"}`,
 	} {
 		validate(t, literal, data, true)
 		validate(t, template, data, true)
@@ -358,6 +435,11 @@ func TestGeneratedLookaroundConstraints(t *testing.T) {
 		`{Name:"one",Bucket:"1.2.3.4"}`,   // provider pattern
 		`{Name:"one",Bucket:"My-Bucket"}`, // both
 		`{Name:"one",Bucket:"a_b"}`,       // both
+		`{Name:"one",Host:"-a.com"}`,
+		`{Name:"one",Host:"a-.com"}`,
+		`{Name:"one",Period:"-PT"}`,
+		`{Name:"one",Period:"P"}`,
+		`{Name:"one",Text:"x ${env:HOME}"}`,
 	} {
 		validate(t, literal, data, false)
 		validate(t, template, data, false)
@@ -380,7 +462,7 @@ func TestUntranslatedLookaroundDiagnostics(t *testing.T) {
 		t.Fatal(err)
 	}
 	properties := root["properties"].(map[string]any)
-	properties["Host"] = map[string]any{"type": "string", "pattern": `^((?!-)[a-z0-9-]+\.)+[a-z]+$`}
+	properties["Host"] = map[string]any{"type": "string", "pattern": `^((?!--)[a-z0-9-]+\.)+[a-z]+$`}
 	// With other keys allowed, excluding a key would change their schema.
 	properties["Open"] = map[string]any{"type": "object", "patternProperties": map[string]any{`^(?!aws:).+$`: map[string]any{"type": "string"}}}
 	// A positive lookahead in a key cannot become an excluded key pattern.

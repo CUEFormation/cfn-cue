@@ -15,8 +15,12 @@ import (
 	ConnectorArn!: strings.MaxRunes(200) &
 	strings.MinRunes(5) &
 	=~"^arn:[\\w-]+:pca-connector-ad:[\\w-]+:[0-9]+:connector\\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
-	Definition!:                    #TemplateDefinition
-	Name!:                          strings.MaxRunes(64) & strings.MinRunes(1)
+	Definition!: #TemplateDefinition
+	Name!: =~"^([\\x{20}\\!\\$-\\&\\(-\\*\\--\\:\\?-\\[\\]-\\~])+$" &
+	matchN(0, [=~"^(?:^\\s+$)"]) &
+	string &
+	strings.MaxRunes(64) &
+	strings.MinRunes(1)
 	ReenrollAllCertificateHolders?: bool
 	Tags?:                          #Tags
 	TemplateArn?: strings.MaxRunes(200) &
@@ -316,7 +320,11 @@ import (
 	PrivateKeyFlags!:      #PrivateKeyFlagsV2
 	SubjectNameFlags!:     #SubjectNameFlagsV2
 	SupersededTemplates?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(64) & strings.MinRunes(1)
+		...=~"^([\\x{20}\\!\\$-\\&\\(-\\*\\--\\:\\?-\\[\\]-\\~])+$" &
+		matchN(0, [=~"^(?:^\\s+$)"]) &
+		string &
+		strings.MaxRunes(64) &
+		strings.MinRunes(1)
 	]
 })
 
@@ -330,7 +338,11 @@ import (
 	PrivateKeyFlags!:      #PrivateKeyFlagsV3
 	SubjectNameFlags!:     #SubjectNameFlagsV3
 	SupersededTemplates?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(64) & strings.MinRunes(1)
+		...=~"^([\\x{20}\\!\\$-\\&\\(-\\*\\--\\:\\?-\\[\\]-\\~])+$" &
+		matchN(0, [=~"^(?:^\\s+$)"]) &
+		string &
+		strings.MaxRunes(64) &
+		strings.MinRunes(1)
 	]
 })
 
@@ -344,7 +356,11 @@ import (
 	PrivateKeyFlags!:      #PrivateKeyFlagsV4
 	SubjectNameFlags!:     #SubjectNameFlagsV4
 	SupersededTemplates?: list.MaxItems(100) & list.MinItems(1) & list.UniqueItems() & [
-		...strings.MaxRunes(64) & strings.MinRunes(1)
+		...=~"^([\\x{20}\\!\\$-\\&\\(-\\*\\--\\:\\?-\\[\\]-\\~])+$" &
+		matchN(0, [=~"^(?:^\\s+$)"]) &
+		string &
+		strings.MaxRunes(64) &
+		strings.MinRunes(1)
 	]
 })
 

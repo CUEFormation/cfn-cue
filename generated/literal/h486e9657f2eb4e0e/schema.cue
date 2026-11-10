@@ -109,7 +109,7 @@ import (
 	Dimensions?: list.MaxItems(3) & list.MinItems(1) & list.UniqueItems() & [...#Dimension]
 
 	// The name of the CloudWatch metric.
-	MetricName!: strings.MaxRunes(255) & strings.MinRunes(1)
+	MetricName!: =~"^([\\x{0}-\\#\\%-\\)\\+-9\\;-\\x{7f}]){1,255}" & (strings.MaxRunes(255) & strings.MinRunes(1))
 
 	// A custom namespace to contain your metric in CloudWatch. Use namespaces to
 	// group together metrics that are similar. For more information, see

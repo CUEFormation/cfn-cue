@@ -32,7 +32,13 @@ import structs "struct"
 			"\(self)"
 		} |
 		fn.#StringExpression
-		TargetFunctionArn!: string | number | bool | fn.#StringExpression
+		TargetFunctionArn!: =~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]{2}((-gov)|(-iso(b?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:([\\-A-Z\\_a-z][0-9a-zA-Z-_]*))?$" |
+		{
+			number | bool
+			_cfnString: =~"^(arn:(aws[a-zA-Z-]*)?:lambda:)?([a-z]{2}((-gov)|(-iso(b?)))?-[a-z]+-\\d{1}:)?(\\d{12}:)?(function:)?([a-zA-Z0-9-_]+)(:([\\-A-Z\\_a-z][0-9a-zA-Z-_]*))?$" &
+				"\(self)"
+		} |
+		fn.#StringExpression
 	})
 	_#propertiesIf: close(
 		{[=~"^Fn::If$"]: [string, properties | fn.#NoValue | _#propertiesIf, properties | fn.#NoValue | _#propertiesIf]},

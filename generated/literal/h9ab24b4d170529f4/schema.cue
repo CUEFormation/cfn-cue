@@ -42,8 +42,11 @@ import (
 	=~"[a-zA-Z0-9&amp;$@#\\/%?=~\\-_'&quot;|!:,.;*+\\[\\]\\ \\(\\)\\{\\}]+"
 
 	// The length of time that a user can be signed in to an AWS account.
-	SessionDuration?: strings.MaxRunes(100) & strings.MinRunes(1)
-	Tags?:            list.MaxItems(50) & [...#Tag]
+	SessionDuration?: (=~"^P(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)([DW]))?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+(?:\\.\\d+)?)S)?)?$" &
+		=~"^(?s:.){1}(?:\\d|T\\d)" |
+		=~"^-P(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)([DW]))?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+(?:\\.\\d+)?)S)?)?$" &
+			=~"^(?s:.){2}(?:\\d|T\\d)") & (strings.MaxRunes(100) & strings.MinRunes(1))
+	Tags?: list.MaxItems(50) & [...#Tag]
 })
 
 #CustomerManagedPolicyReference: close({

@@ -19,10 +19,19 @@ import structs "struct"
 #Resource: base.#ResourceAttributes & {
 	Type!: "AWS::WellArchitected::AgentGoal"
 	let properties = close({
-		Description?: strings.MaxRunes(4000) & strings.MinRunes(1) |
+		Description?: =~"^(?:[\\P{C}])+$" &
+		matchN(0, [=~"\\$\\{[a-zA-Z]+:"]) &
+		string &
+		strings.MaxRunes(4000) &
+		strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(4000) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^(?:[\\P{C}])+$" &
+			matchN(0, [=~"\\$\\{[a-zA-Z]+:"]) &
+			string &
+			strings.MaxRunes(4000) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 		Pillars!: list.MaxItems(5) & list.MinItems(1) & list.UniqueItems() & [...#Pillar] | fn.#ListExpression
@@ -37,10 +46,19 @@ import structs "struct"
 			"\(self)"
 		} |
 		fn.#StringExpression
-		Title!: strings.MaxRunes(1000) & strings.MinRunes(1) |
+		Title!: =~"^(?:[\\P{C}])+$" &
+		matchN(0, [=~"\\$\\{[a-zA-Z]+:"]) &
+		string &
+		strings.MaxRunes(1000) &
+		strings.MinRunes(1) |
 		{
 			number | bool
-			_cfnString: strings.MaxRunes(1000) & strings.MinRunes(1) & "\(self)"
+			_cfnString: =~"^(?:[\\P{C}])+$" &
+			matchN(0, [=~"\\$\\{[a-zA-Z]+:"]) &
+			string &
+			strings.MaxRunes(1000) &
+			strings.MinRunes(1) &
+			"\(self)"
 		} |
 		fn.#StringExpression
 	})

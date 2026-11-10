@@ -395,11 +395,12 @@ import (
 
 #RedshiftDestinationConfiguration: close({
 	CloudWatchLoggingOptions?: #CloudWatchLoggingOptions
-	ClusterJDBCURL!:           strings.MaxRunes(512) & strings.MinRunes(1)
-	CopyCommand!:              #CopyCommand
-	Password?:                 strings.MaxRunes(512) & strings.MinRunes(6)
-	ProcessingConfiguration?:  #ProcessingConfiguration
-	RetryOptions?:             #RedshiftRetryOptions
+	ClusterJDBCURL!:
+		=~"^jdbc:(redshift|postgresql)://((?:[0-9A-Za-z][A-Za-z0-9-]{0,61}[0-9A-Za-z]|[0-9A-Za-z])\\.)+(redshift(-serverless)?)\\.([a-zA-Z0-9\\.\\-]+):\\d{1,5}/[a-zA-Z0-9_$-]+$" & (strings.MaxRunes(512) & strings.MinRunes(1))
+	CopyCommand!:             #CopyCommand
+	Password?:                strings.MaxRunes(512) & strings.MinRunes(6)
+	ProcessingConfiguration?: #ProcessingConfiguration
+	RetryOptions?:            #RedshiftRetryOptions
 	RoleARN!: =~"^arn:aws[a-zA-Z-]*:iam::\\p{Nd}{12}:role/.+\\n?$" &
 	strings.MaxRunes(512) &
 	strings.MinRunes(1) &
