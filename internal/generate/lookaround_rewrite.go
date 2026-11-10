@@ -259,7 +259,8 @@ func testedChar(re *syntax.Regexp, behind bool) ([]rune, bool) {
 	case syntax.OpCapture, syntax.OpPlus:
 		return testedChar(re.Sub[0], behind)
 	case syntax.OpRepeat:
-		if re.Min >= 1 {
+		// Only a{1,n} matches wherever a does; a{2} needs a second character.
+		if re.Min == 1 {
 			return testedChar(re.Sub[0], behind)
 		}
 	case syntax.OpConcat:

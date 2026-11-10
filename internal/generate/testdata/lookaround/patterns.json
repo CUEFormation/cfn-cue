@@ -802,6 +802,50 @@
         "jdbc:redshift://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.redshift.x:1/d",
         "jdbc:redshift://a.b-.redshift.x:1/d"
       ]
+    },
+    {
+      "pattern": "^(?:(?!a{2})[ab-])+$",
+      "examples": [
+        "a",
+        "aa",
+        "ab",
+        "aba",
+        "baab",
+        "-a-",
+        "b",
+        "a-a",
+        "aaa",
+        ""
+      ]
+    },
+    {
+      "pattern": "^(?:(?!a{1,3})[ab-])+$",
+      "examples": [
+        "a",
+        "b",
+        "-",
+        "b-b",
+        "ba",
+        "ab",
+        "aa",
+        "--",
+        ""
+      ]
+    },
+    {
+      "pattern": "^(-?)(?!a{2})[ab]+$",
+      "examples": [
+        "a",
+        "aa",
+        "-aa",
+        "-a",
+        "ab",
+        "-ab",
+        "aab",
+        "baa",
+        "-baa",
+        "b"
+      ]
     }
   ],
   "unsupported": [

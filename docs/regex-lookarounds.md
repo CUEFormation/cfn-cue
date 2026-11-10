@@ -53,8 +53,8 @@ rewritten, so their output doesn't change.
 - **One-character lookarounds.** A lookaround whose body only tests the
   character next to it, such as `(?!-)`, `(?![:*$])`, `(?!\d+)` (which matches
   wherever `\d` does) or `(?<!-)`, is folded into the atom that consumes that
-  character. The atom's class is narrowed, or widened for a positive
-  lookaround. This works anywhere, including inside a repeated group, because
+  character. The atom's class is narrowed to the characters the lookaround
+  allows. This works anywhere, including inside a repeated group, because
   the body only reads a character the atom consumes. When the atom can be
   skipped (`{0,n}`, `*`, `?`), the rewrite has two alternatives: one where the
   atom takes the character and one where the next atom does. A lookahead with
