@@ -1,0 +1,62 @@
+"""
+The checks from ./scripts/corpus.sh test that need Python: cfn-lint comparisons
+over the smoke and semantic corpora, the Python unit tests, and the opt-in Go
+integration tests. Runs the test phase of the script GitHub CI uses; the
+environment setup here replaces ./scripts/corpus.sh setup.
+"""
+type Corpus {
+  let mountPath: String! = "/src/cfn-cue"
+  let venv: String! = "/opt/corpus-venv"
+
+  """
+  Python with the hash-locked cfn-lint environment and the Go toolchain.
+  """
+  pub base(ws: Workspace!): Container! {
+    # Install the venv from the lock files alone, so a source change does not
+    # reinstall it.
+    let requirements = ws.directory("/", include: ["corpus/requirements.txt", "corpus/check_environment.py"])
+    container
+      .from("python:3.14-slim")
+      .withDirectory("/usr/local/go", container.from("golang:1.26").directory("/usr/local/go"))
+      .withEnvVariable("PATH", "/usr/local/go/bin:/root/go/bin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin")
+      # As in the golang image: fail rather than download a toolchain go.mod
+      # asks for.
+      .withEnvVariable("GOTOOLCHAIN", "local")
+      .withMountedCache("/root/go/pkg/mod", cacheVolume("go-mod"))
+      .withMountedCache("/root/.cache/go-build", cacheVolume("go-build"))
+      .withEnvVariable("CORPUS_VENV", venv)
+      .withDirectory("/requirements", requirements)
+      .withExec(["python", "-m", "venv", venv])
+      .withExec([venv + "/bin/python", "-m", "pip", "install", "--disable-pip-version-check",
+        "--no-cache-dir", "--require-hashes", "-r", "/requirements/corpus/requirements.txt"])
+      .withExec([venv + "/bin/python", "/requirements/corpus/check_environment.py",
+        "/requirements/corpus/requirements.txt"])
+  }
+
+  """
+  The repository as the checks see it, without build outputs and reports.
+  """
+  pub source(ws: Workspace!): Directory! {
+    ws.directory("/", exclude: [
+      ".git", ".dagger", "bin", ".venv", ".corpus*", ".region-performance*",
+      "**/__pycache__", "cfn-cue", ".cfn-cue-stage-*", ".cfn-cue-backup-*",
+    ])
+  }
+
+  """
+  Run ./scripts/corpus.sh test: gofmt, go test and vet, the Go integration
+  tests, the Python unit tests, and the smoke and semantic corpus contracts.
+  """
+  test(ws: Workspace!): Void @check {
+    base(ws)
+      .withDirectory(mountPath, source(ws))
+      .withWorkdir(mountPath)
+      # Go keys cached test results on the size and mtime of files tests read,
+      # and the build cache outlives this container, so a changed fixture could
+      # replay an old pass.
+      .withEnvVariable("GOFLAGS", "-count=1")
+      .withExec(["./scripts/corpus.sh", "test"])
+      .sync
+    null
+  }
+}
