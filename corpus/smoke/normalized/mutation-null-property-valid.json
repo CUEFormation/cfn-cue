@@ -1,0 +1,14 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "AccessLogSetting": {
+          "DestinationArn": "arn:aws:logs:us-east-1:123456789012:log-group:access",
+          "Format": "$context.requestId"
+        },
+        "RestApiId": "abc123"
+      },
+      "Type": "AWS::ApiGateway::Stage"
+    }
+  }
+}

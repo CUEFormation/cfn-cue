@@ -479,6 +479,76 @@
     "lint": "valid",
     "note": "Project-authored valid template."
   },
+  "mutation-null-json-property-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: null-json-property-invalid. Known lint gap: cfn-lint accepts null values, which CloudFormation rejects."
+  },
+  "mutation-null-json-property-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: null-json-property-invalid. Known lint gap: cfn-lint accepts null values, which CloudFormation rejects."
+  },
+  "mutation-null-metadata-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: null-metadata-invalid"
+  },
+  "mutation-null-metadata-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: null-metadata-invalid"
+  },
+  "mutation-null-nested-property-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: null-nested-property-invalid. Known lint gap: cfn-lint accepts null values, which CloudFormation rejects."
+  },
+  "mutation-null-nested-property-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: null-nested-property-invalid. Known lint gap: cfn-lint accepts null values, which CloudFormation rejects."
+  },
+  "mutation-null-nested-property-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-null-nested-property-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-null-property-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: null-property-invalid. Known lint gap: cfn-lint accepts null values, which CloudFormation rejects."
+  },
+  "mutation-null-property-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: null-property-invalid. Known lint gap: cfn-lint accepts null values, which CloudFormation rejects."
+  },
+  "mutation-null-property-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-null-property-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-null-required-property-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: null-required-property-invalid"
+  },
+  "mutation-null-required-property-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: null-required-property-invalid"
+  },
   "mutation-quoted-boolean-invalid:us-east-1": {
     "cue": "invalid",
     "lint": "invalid",

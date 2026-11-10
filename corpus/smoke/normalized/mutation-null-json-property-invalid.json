@@ -1,0 +1,19 @@
+{
+  "Resources": {
+    "Rule": {
+      "Properties": {
+        "EventPattern": {
+          "detail": {
+            "state": [
+              null
+            ]
+          },
+          "source": [
+            "aws.ec2"
+          ]
+        }
+      },
+      "Type": "AWS::Events::Rule"
+    }
+  }
+}

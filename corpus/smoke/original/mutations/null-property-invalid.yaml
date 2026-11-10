@@ -1,0 +1,6 @@
+Resources:
+  Thing:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId: abc123
+      AccessLogSetting: null

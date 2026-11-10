@@ -45,7 +45,7 @@ Requires Go 1.26+ and [uv](https://docs.astral.sh/uv/), which installs the Pytho
 ./scripts/corpus.sh test
 ```
 
-`test` runs Go checks, the pinned S3/IAM integration, parser tests, all 196
+`test` runs Go checks, the pinned S3/IAM integration, parser tests, all 210
 offline corpus expectations, and the 106 semantic reference expectations. To
 repeat the downloaded-example investigation:
 

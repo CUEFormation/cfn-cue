@@ -1,0 +1,11 @@
+{
+  "Resources": {
+    "Thing": {
+      "Properties": {
+        "AccessLogSetting": null,
+        "RestApiId": "abc123"
+      },
+      "Type": "AWS::ApiGateway::Stage"
+    }
+  }
+}

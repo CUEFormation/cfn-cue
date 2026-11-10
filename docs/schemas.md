@@ -59,6 +59,16 @@ property just as a non-member string branch is; cfn-lint checks each branch.
 Function arguments such as `Fn::Join` items and `Fn::Sub` variables keep their
 string type, although cfn-lint accepts numbers there.
 
+`null` is rejected everywhere in a template, including JSON-typed properties
+such as `EventPattern` and `Metadata`. A YAML key with no value is `null`.
+CloudFormation rejects any null with `'null' values are not allowed in
+templates`, and AWS documents this for
+[EventBridge patterns](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-event-patterns-null-values.html).
+Use `Ref: AWS::NoValue` to leave a property out conditionally. cfn-lint 1.57.2
+accepts null resource property values, both top-level and nested, because it
+treats them like `AWS::NoValue`. It still rejects null in Metadata, Parameters
+and Outputs.
+
 
 ### Manifest format
 
