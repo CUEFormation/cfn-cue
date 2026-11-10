@@ -96,7 +96,7 @@ import structs "struct"
 		} |
 		fn.#NumberExpression
 	Mode!: "STANDARD" | "NONE" | fn.#StringExpression
-	...
+	{[!~"^(DefaultPurgeTimeInDays|Mode)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #AuthKey: close({

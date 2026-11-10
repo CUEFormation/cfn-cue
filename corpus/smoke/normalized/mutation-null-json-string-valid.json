@@ -1,0 +1,10 @@
+{
+  "Resources": {
+    "Rule": {
+      "Properties": {
+        "EventPattern": "{\"detail\":{\"responseElements\":[null]}}"
+      },
+      "Type": "AWS::Events::Rule"
+    }
+  }
+}

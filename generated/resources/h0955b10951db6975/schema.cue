@@ -240,7 +240,7 @@ fn.#ObjectExpression
 #PIIEntitiesConfiguration: {
 	PiiEntityTypes?:    [...#PIIEntityTypes] | fn.#ListExpression
 	RedactionMaskMode?: #PIIRedactionMaskMode
-	...
+	{[!~"^(PiiEntityTypes|RedactionMaskMode)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #PIIEntityTypes: "ALL" |
@@ -283,7 +283,7 @@ fn.#ObjectExpression
 	DetectionMode?:            #SensitiveDataDetectionMode
 	DetectionScope?:           [...#SensitiveDataDetectionScope] | fn.#ListExpression
 	PiiEntitiesConfiguration?: #PIIEntitiesConfiguration
-	...
+	{[!~"^(DetectionMode|DetectionScope|PiiEntitiesConfiguration)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #SensitiveDataDetectionMode: "DETECTION" | "DETECTION_AND_REDACTION" | fn.#StringExpression

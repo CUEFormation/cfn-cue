@@ -307,6 +307,17 @@ func (c *converter) normalize(v any, path string, lift bool, root map[string]any
 		classes = []string{name + "Expression"}
 	}
 	reserveIntrinsicKeys(m)
+	// An array without items, or an object whose extra keys are allowed,
+	// would otherwise accept anything there, including null, which
+	// CloudFormation rejects anywhere in a template. #Value keeps them as
+	// permissive as before for every other value.
+	types := schemaTypes(m)
+	if includes(types, "array") && m["items"] == nil && m["prefixItems"] == nil {
+		m["items"] = map[string]any{"$ref": "cue://intrinsics/Value"}
+	}
+	if includes(types, "object") && m["additionalProperties"] == nil && (m["properties"] != nil || m["patternProperties"] != nil) {
+		m["additionalProperties"] = map[string]any{"$ref": "cue://intrinsics/Value"}
+	}
 	alternatives := []any{m}
 	if includes(schemaTypes(s), "object") && s["additionalProperties"] == nil && s["properties"] == nil && s["patternProperties"] == nil {
 		// Generic objects must use the same literal/expression distinction as

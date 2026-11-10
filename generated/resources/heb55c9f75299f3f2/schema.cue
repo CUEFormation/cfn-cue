@@ -132,7 +132,8 @@ fn.#ObjectExpression
 		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
 			"disallowed",
 		)}
-		...
+		{[!~"[a-zA-Z0-9]+" &
+			!~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: fn.#Value}
 	} | fn.#ObjectExpression
 	OnUnauthenticatedRequest?: "allow" | "authenticate" | "deny" | fn.#StringExpression
 	Scope?:                    string | number | bool | fn.#StringExpression
@@ -156,7 +157,8 @@ fn.#ObjectExpression
 		{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
 			"disallowed",
 		)}
-		...
+		{[!~"[a-zA-Z0-9]+" &
+			!~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: fn.#Value}
 	} | fn.#ObjectExpression
 	AuthorizationEndpoint!:    string | number | bool | fn.#StringExpression
 	ClientId!:                 string | number | bool | fn.#StringExpression

@@ -76,7 +76,7 @@ import structs "struct"
 	// Specifies that the automation rule action is an update to a finding field.
 	FindingFieldsUpdate!: #AutomationRulesFindingFieldsUpdate
 	Type!:                "FINDING_FIELDS_UPDATE" | fn.#StringExpression
-	...
+	{[!~"^(FindingFieldsUpdate|Type)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #AutomationRulesFindingFieldsUpdate: {
@@ -100,7 +100,7 @@ import structs "struct"
 	UserDefinedFields?: #map
 	VerificationState?: "UNKNOWN" | "TRUE_POSITIVE" | "FALSE_POSITIVE" | "BENIGN_POSITIVE" | fn.#StringExpression
 	Workflow?:          #WorkflowUpdate & fn.#Object & {...} | fn.#ObjectExpression
-	...
+	{[!~"^(Confidence|Criticality|Note|RelatedFindings|Severity|Types|UserDefinedFields|VerificationState|Workflow)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #AutomationRulesFindingFilters: close({

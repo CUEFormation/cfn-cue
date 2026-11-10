@@ -182,11 +182,11 @@ fn.#ObjectExpression
 	[...]
 	[0]: {
 		KeyType!: "HASH" | fn.#StringExpression
-		...
+		{[!~"^(KeyType)$"]: fn.#Value}
 	} | fn.#ObjectExpression
 	[1]: {
 		KeyType!: "RANGE" | fn.#StringExpression
-		...
+		{[!~"^(KeyType)$"]: fn.#Value}
 	} | fn.#ObjectExpression
 	[>=2]: close({
 		AttributeName!: strings.MaxRunes(255) & strings.MinRunes(1) |

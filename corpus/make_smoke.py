@@ -125,8 +125,26 @@ def compatibility_cases():
     # AWS documents this EventBridge pattern as failing template validation.
     cases["null-json-property-invalid"] = ({"Resources": {"Rule": {"Type": "AWS::Events::Rule", "Properties": {
         "EventPattern": {"source": ["aws.ec2"], "detail": {"state": [None]}}}}}}, "invalid", "valid")
-    cases["null-metadata-invalid"] = ({"Resources": {"Queue": {"Type": "AWS::SQS::Queue",
+    # AWS's documented workaround: a string-encoded JSON document may contain null.
+    cases["null-json-string-valid"] = ({"Resources": {"Rule": {"Type": "AWS::Events::Rule", "Properties": {
+        "EventPattern": '{"detail":{"responseElements":[null]}}'}}}}, "valid", "valid")
+    cases["null-resource-metadata-invalid"] = ({"Resources": {"Queue": {"Type": "AWS::SQS::Queue",
         "Metadata": {"Owner": None}}}}, "invalid", "invalid")
+    cases["null-template-metadata-invalid"] = ({"Metadata": {"Owner": None},
+        "Resources": {"Queue": {"Type": "AWS::SQS::Queue"}}}, "invalid", "invalid")
+    # Custom resource properties accept arbitrary JSON, but not null at any depth.
+    for prefix, resource_type in (("null-custom", "Custom::Thing"), ("null-custom-resource", "AWS::CloudFormation::CustomResource")):
+        def custom_payload(payload):
+            return {"Resources": {"Thing": {"Type": resource_type, "Properties": {"ServiceToken": token, "Payload": payload}}}}
+        cases[prefix + "-array-valid"] = (custom_payload([1, "a", {"Key": ["b", True]}]), "valid", "valid")
+        cases[prefix + "-array-invalid"] = (custom_payload([None]), "invalid", "valid")
+        cases[prefix + "-array-nested-invalid"] = (custom_payload([{"Key": None}]), "invalid", "valid")
+    create = {"Create": {"Fn::Equals": [{"Ref": "AWS::Region"}, "us-east-1"]}}
+    for name, value in (("if-branch", {"Fn::If": ["Create", None, "queue"]}),
+                        ("join-argument", {"Fn::Join": ["-", ["queue", None]]}),
+                        ("sub-variable", {"Fn::Sub": ["${Name}", {"Name": None}]})):
+        cases["null-" + name + "-invalid"] = ({"Conditions": create, "Resources": {"Queue": {"Type": "AWS::SQS::Queue",
+            "Properties": {"QueueName": value}}}}, "invalid", "valid")
     for name, transform in (("transform-null", None), ("transform-list-null", ["AWS::LanguageExtensions", None])):
         cases[name] = ({"Transform": transform, "Resources": {"Queue": {"Type": "AWS::SQS::Queue"}}}, "invalid", "invalid")
     return cases
@@ -317,10 +335,9 @@ def build(source, output):
         "read-only-property": ". Known lint gap: the read-only property is accepted by cfn-lint.",
         "custom-resource-invalid-name": ". Known lint gap: the malformed custom type name is accepted by cfn-lint.",
         "iam-scp-principal-invalid": ". Known lint gap: cfn-lint doesn't check SCP content.",
-        "null-property-invalid": null_gap,
-        "null-nested-property-invalid": null_gap,
-        "null-json-property-invalid": null_gap,
     }
+    lint_gaps.update({name: null_gap for name in cases
+                      if name.startswith("null-") and name.endswith("-invalid") and cases[name][2] == "valid"})
     for name, (value, cue_status, lint_status) in sorted(cases.items()):
         cid = "mutation-" + name
         raw = yaml.safe_dump(value, sort_keys=False).encode()

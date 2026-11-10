@@ -1,0 +1,13 @@
+Conditions:
+  Create:
+    Fn::Equals:
+    - Ref: AWS::Region
+    - us-east-1
+Resources:
+  Queue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName:
+        Fn::Sub:
+        - ${Name}
+        - Name: null

@@ -162,14 +162,14 @@ fn.#ObjectExpression
 
 #Csv: {
 	Header?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	...
+	{[!~"^(Header)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #DatasetFormat: {
 	Csv?:     #Csv
 	Json?:    #Json
 	Parquet?: #Parquet
-	...
+	{[!~"^(Csv|Json|Parquet)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #EndpointInput: close({
@@ -243,7 +243,7 @@ fn.#StringExpression
 
 #Json: {
 	Line?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	...
+	{[!~"^(Line)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #ModelBiasAppSpecification: close({

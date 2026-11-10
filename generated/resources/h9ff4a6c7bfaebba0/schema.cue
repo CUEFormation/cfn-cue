@@ -22,7 +22,8 @@ import structs "struct"
 			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(
 				"disallowed",
 			)}
-			...
+			{[!~"[a-zA-Z0-9]+" &
+				!~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: fn.#Value}
 		} | fn.#ObjectExpression
 		DataSources?:      list.UniqueItems() & [...#DataSource] | fn.#ListExpression
 		Description?:      string | number | bool | fn.#StringExpression

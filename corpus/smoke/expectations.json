@@ -479,6 +479,86 @@
     "lint": "valid",
     "note": "Project-authored valid template."
   },
+  "mutation-null-custom-array-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: null-custom-array-invalid. Known lint gap: cfn-lint accepts null values, which CloudFormation rejects."
+  },
+  "mutation-null-custom-array-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: null-custom-array-invalid. Known lint gap: cfn-lint accepts null values, which CloudFormation rejects."
+  },
+  "mutation-null-custom-array-nested-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: null-custom-array-nested-invalid. Known lint gap: cfn-lint accepts null values, which CloudFormation rejects."
+  },
+  "mutation-null-custom-array-nested-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: null-custom-array-nested-invalid. Known lint gap: cfn-lint accepts null values, which CloudFormation rejects."
+  },
+  "mutation-null-custom-array-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-null-custom-array-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-null-custom-resource-array-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: null-custom-resource-array-invalid. Known lint gap: cfn-lint accepts null values, which CloudFormation rejects."
+  },
+  "mutation-null-custom-resource-array-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: null-custom-resource-array-invalid. Known lint gap: cfn-lint accepts null values, which CloudFormation rejects."
+  },
+  "mutation-null-custom-resource-array-nested-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: null-custom-resource-array-nested-invalid. Known lint gap: cfn-lint accepts null values, which CloudFormation rejects."
+  },
+  "mutation-null-custom-resource-array-nested-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: null-custom-resource-array-nested-invalid. Known lint gap: cfn-lint accepts null values, which CloudFormation rejects."
+  },
+  "mutation-null-custom-resource-array-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-null-custom-resource-array-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
+  },
+  "mutation-null-if-branch-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: null-if-branch-invalid. Known lint gap: cfn-lint accepts null values, which CloudFormation rejects."
+  },
+  "mutation-null-if-branch-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: null-if-branch-invalid. Known lint gap: cfn-lint accepts null values, which CloudFormation rejects."
+  },
+  "mutation-null-join-argument-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: null-join-argument-invalid. Known lint gap: cfn-lint accepts null values, which CloudFormation rejects."
+  },
+  "mutation-null-join-argument-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: null-join-argument-invalid. Known lint gap: cfn-lint accepts null values, which CloudFormation rejects."
+  },
   "mutation-null-json-property-invalid:us-east-1": {
     "cue": "invalid",
     "lint": "valid",
@@ -489,15 +569,15 @@
     "lint": "valid",
     "note": "Intentional mutation: null-json-property-invalid. Known lint gap: cfn-lint accepts null values, which CloudFormation rejects."
   },
-  "mutation-null-metadata-invalid:us-east-1": {
-    "cue": "invalid",
-    "lint": "invalid",
-    "note": "Intentional mutation: null-metadata-invalid"
+  "mutation-null-json-string-valid:us-east-1": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
   },
-  "mutation-null-metadata-invalid:us-west-2": {
-    "cue": "invalid",
-    "lint": "invalid",
-    "note": "Intentional mutation: null-metadata-invalid"
+  "mutation-null-json-string-valid:us-west-2": {
+    "cue": "valid",
+    "lint": "valid",
+    "note": "Project-authored valid template."
   },
   "mutation-null-nested-property-invalid:us-east-1": {
     "cue": "invalid",
@@ -548,6 +628,36 @@
     "cue": "invalid",
     "lint": "invalid",
     "note": "Intentional mutation: null-required-property-invalid"
+  },
+  "mutation-null-resource-metadata-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: null-resource-metadata-invalid"
+  },
+  "mutation-null-resource-metadata-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: null-resource-metadata-invalid"
+  },
+  "mutation-null-sub-variable-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: null-sub-variable-invalid. Known lint gap: cfn-lint accepts null values, which CloudFormation rejects."
+  },
+  "mutation-null-sub-variable-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "valid",
+    "note": "Intentional mutation: null-sub-variable-invalid. Known lint gap: cfn-lint accepts null values, which CloudFormation rejects."
+  },
+  "mutation-null-template-metadata-invalid:us-east-1": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: null-template-metadata-invalid"
+  },
+  "mutation-null-template-metadata-invalid:us-west-2": {
+    "cue": "invalid",
+    "lint": "invalid",
+    "note": "Intentional mutation: null-template-metadata-invalid"
   },
   "mutation-quoted-boolean-invalid:us-east-1": {
     "cue": "invalid",

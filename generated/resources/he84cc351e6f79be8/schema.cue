@@ -1238,7 +1238,7 @@ fn.#ObjectExpression
 
 #Regex: {
 	RegexString?: #RegexPatternString
-	...
+	{[!~"^(RegexString)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #RegexMatchStatement: close({

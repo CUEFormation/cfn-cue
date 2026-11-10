@@ -467,7 +467,7 @@ fn.#StringExpression
 
 #TimeoutConfig: {
 	DurationInSeconds?: #TimeoutDuration
-	...
+	{[!~"^(DurationInSeconds)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #TimeoutDuration: int & <=300 & >=1 |

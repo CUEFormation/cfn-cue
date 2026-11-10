@@ -25,7 +25,7 @@ import structs "struct"
 			bool |
 			number |
 			string |
-			[...] |
+			[...fn.#Value] |
 			fn.#StringNumberBooleanListObjectExpression}
 
 			{[=~"^(?:Ref|Fn::Base64|Fn::Cidr|Fn::FindInMap|Fn::GetAZs|Fn::GetAtt|Fn::GetStackOutput|Fn::If|Fn::ImportValue|Fn::Join|Fn::Length|Fn::Select|Fn::Split|Fn::Sub|Fn::ToJsonString|Fn::Transform)$"]: error(

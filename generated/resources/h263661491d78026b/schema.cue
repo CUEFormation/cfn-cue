@@ -1372,8 +1372,8 @@ fn.#ObjectExpression
 			_cfnString: =~"^[\\.\\-_\\/#A-Za-z0-9]{1,512}$" & "\(self)"
 		} |
 		fn.#StringExpression
+		{[!~"^(awslogs-group)$"]: fn.#Value}
 		"awslogs-region"!: _
-		...
 	} |
 	fn.#ObjectExpression
 	...

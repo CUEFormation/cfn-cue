@@ -125,7 +125,7 @@ fn.#ObjectExpression
 
 #Csv: {
 	Header?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	...
+	{[!~"^(Header)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #DataQualityAppSpecification: close({
@@ -204,7 +204,7 @@ fn.#ObjectExpression
 	Csv?:     #Csv
 	Json?:    #Json
 	Parquet?: #Parquet
-	...
+	{[!~"^(Csv|Json|Parquet)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #EndpointInput: close({
@@ -242,7 +242,7 @@ fn.#StringExpression
 
 #Json: {
 	Line?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	...
+	{[!~"^(Line)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #MonitoringOutput: close({S3Output!: #S3Output}) | fn.#ObjectExpression

@@ -285,8 +285,8 @@ negative examples and documented known disagreements. Missing cases, unexecuted
 expectations, or changed results fail the contract; no automatic baseline
 updates occur.
 
-The checked-in `smoke/` corpus contains 105 templates: 11 pinned upstream examples
-and 94 project-authored cases, with 210 expectations across two regions. Cases
+The checked-in `smoke/` corpus contains 116 templates: 11 pinned upstream examples
+and 105 project-authored cases, with 232 expectations across two regions. Cases
 cover scalar compatibility, formats, nested intrinsics, required properties,
 enums, unknown/read-only fields, wrong function results and arguments, custom
 resource aliases, ServiceToken requirements, conditional custom properties,
@@ -302,10 +302,12 @@ DynamoDB and RDS rules compiled to field-scoped comprehensions.
 The read-only property and malformed custom type name disagreements with cfn-lint
 remain documented, as does an SCP statement with a `Principal`
 (`iam-scp-principal-invalid`): cfn-lint doesn't check SCP content
-(see [IAM policies](../docs/iam-policies.md)). Null values (`null-*`) are rejected
-everywhere, as CloudFormation does; cfn-lint accepts null resource properties,
-so the top-level, nested and JSON-typed cases are documented disagreements
-(see [Generated schemas](../docs/schemas.md)). Expected failures are explicit and annotated.
+(see [IAM policies](../docs/iam-policies.md)). Null cases (`null-*`) cover
+resource properties, JSON-typed properties, custom resource arrays, intrinsic
+arguments and branches, and template and resource `Metadata`; a string-encoded
+JSON document containing null stays valid. cfn-lint accepts null resource
+property values and intrinsic arguments, so those cases are documented
+disagreements (see [Generated schemas](../docs/schemas.md)). Expected failures are explicit and annotated.
 
 ```sh
 .venv/bin/python -m unittest discover -s corpus -v

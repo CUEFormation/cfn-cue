@@ -67,7 +67,7 @@ fn.#StringExpression
 #ConformancePackInputParameter: {
 	ParameterName!:  #ParameterName
 	ParameterValue!: #ParameterValue
-	...
+	{[!~"^(ParameterName|ParameterValue)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #ParameterName: strings.MaxRunes(255) & strings.MinRunes(0) |

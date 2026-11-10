@@ -60,7 +60,7 @@ import structs "struct"
 	BlockPublicPolicy?:     bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	IgnorePublicAcls?:      bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
 	RestrictPublicBuckets?: bool | "true" | "True" | "TRUE" | "false" | "False" | "FALSE" | fn.#BooleanExpression
-	...
+	{[!~"^(BlockPublicAcls|BlockPublicPolicy|IgnorePublicAcls|RestrictPublicBuckets)$"]: fn.#Value}
 } | fn.#ObjectExpression
 
 #Tag: close({
@@ -89,5 +89,5 @@ fn.#ObjectExpression
 		"\(self)"
 	} |
 	fn.#StringExpression
-	...
+	{[!~"^(VpcId)$"]: fn.#Value}
 } | fn.#ObjectExpression
