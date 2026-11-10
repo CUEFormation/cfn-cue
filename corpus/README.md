@@ -119,19 +119,22 @@ It records every classification transition in JSON and Markdown; machine load
 can still affect timeout outcomes. Keep timeouts separate from accept/reject
 disagreements when assessing improvements.
 
-`CORPUS_PYTHON` selects the setup interpreter, `CORPUS_VENV` selects the virtual
-environment, and `CORPUS_DIR` selects downloaded data. Defaults are `python3`,
-`.venv/`, and `.corpus/`. `./scripts/corpus.sh help` lists the commands. The
+Setup takes its Python version from `.python-version` and uses
+[uv](https://docs.astral.sh/uv/) to find that interpreter, or download it if the
+machine has none. `CORPUS_PYTHON` overrides it with another version or an
+interpreter path, `CORPUS_VENV` selects the virtual environment, and
+`CORPUS_DIR` selects downloaded data. Defaults are `.venv/` and `.corpus/`. `./scripts/corpus.sh help` lists the commands. The
 underlying commands are documented below for users who want to run stages
 individually.
 
 ## Individual setup commands
 
-Requires Go 1.26+ and Python 3.12+. Run from the repository root:
+Requires Go 1.26+ and uv. The locked cfn-lint supports Python 3.12 to 3.14;
+`.python-version` names the one CI uses. Run from the repository root:
 
 ```sh
-python3 -m venv .venv
-.venv/bin/python -m pip install --require-hashes -r corpus/requirements.txt
+uv venv .venv
+uv pip install --python .venv/bin/python --require-hashes -r corpus/requirements.txt
 go build -o bin/cfn-cue-validate ./cmd/cfn-cue-validate
 ```
 
@@ -162,7 +165,7 @@ same normalized JSON.
 Its optional comparison can check that both parsers produce equivalent values:
 
 ```sh
-.venv/bin/python -m pip install --require-hashes -r corpus/requirements-flip.txt
+uv pip install --python .venv/bin/python --require-hashes -r corpus/requirements-flip.txt
 .venv/bin/python corpus/corpus.py fetch --compare-flip --out .corpus-flip
 ```
 

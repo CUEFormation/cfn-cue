@@ -36,8 +36,12 @@ Options after the command are forwarded to corpus.py (or the generator for
 schemas). Repeat the same full options when resuming, including --report.
 Paths are relative to the repository root, even when invoked elsewhere.
 
-Environment: CORPUS_PYTHON selects the setup interpreter (default python3),
-CORPUS_VENV selects the virtual environment, CORPUS_DIR selects downloaded data.
+Setup needs uv (https://docs.astral.sh/uv/). It uses the Python version named
+in .python-version and downloads that interpreter if the machine lacks it.
+
+Environment: CORPUS_PYTHON overrides the setup interpreter (a version or a
+path), CORPUS_VENV selects the virtual environment, CORPUS_DIR selects
+downloaded data.
 EOF
 }
 
@@ -60,16 +64,18 @@ build_tools() {
 }
 
 setup() {
-    corpus_bootstrap=${CORPUS_PYTHON:-python3}
-    command -v "$corpus_bootstrap" >/dev/null 2>&1 || die 'Python 3.12 or newer is required.'
-    "$corpus_bootstrap" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 12) else "Python 3.12 or newer is required.")'
+    command -v uv >/dev/null 2>&1 || die 'uv is required to install the pinned Python: https://docs.astral.sh/uv/getting-started/installation/'
     command -v go >/dev/null 2>&1 || die 'Go 1.26 or newer is required.'
     if [ -e "$corpus_venv" ] && [ ! -f "$corpus_venv/pyvenv.cfg" ]; then
         die "Refusing to replace a directory that is not a virtual environment: $corpus_venv"
     fi
     printf '%s\n' 'Preparing the Python environment and locked dependencies...'
-    "$corpus_bootstrap" -m venv "$corpus_venv"
-    "$corpus_python" -m pip install --disable-pip-version-check --require-hashes -r "$1"
+    # Without CORPUS_PYTHON, uv reads .python-version. --allow-existing keeps
+    # what setup-flip added to an environment that setup refreshes.
+    uv venv --quiet --allow-existing ${CORPUS_PYTHON:+--python "$CORPUS_PYTHON"} "$corpus_venv"
+    # Report an unsupported interpreter before the installer's resolver does.
+    "$corpus_python" corpus/check_environment.py --python
+    uv pip install --quiet --python "$corpus_python" --require-hashes -r "$1"
     "$corpus_python" corpus/check_environment.py "$1"
     go mod download
     build_tools

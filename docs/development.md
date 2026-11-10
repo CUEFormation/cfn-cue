@@ -38,7 +38,7 @@ Output is generated in a staging directory. A failed run leaves the previous out
 
 ## Reproduce the tests
 
-Requires Go 1.26+ and Python 3.12+. These are the same entry points used in CI:
+Requires Go 1.26+ and [uv](https://docs.astral.sh/uv/), which installs the Python version named in `.python-version`. These are the same entry points used in CI:
 
 ```sh
 ./scripts/corpus.sh setup
