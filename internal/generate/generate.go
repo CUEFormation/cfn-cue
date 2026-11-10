@@ -198,9 +198,13 @@ func Generate(source *Source, opt Options) (*bundle.Manifest, error) {
 		if e != nil {
 			return nil, e
 		}
-		root := map[string]any{}
-		if e = json.Unmarshal(b, &root); e != nil {
-			return nil, e
+		doc, e := decodeJSON(b)
+		if e != nil {
+			return nil, fmt.Errorf("schema %s: %w", hash, e)
+		}
+		root, ok := doc.(map[string]any)
+		if !ok {
+			return nil, fmt.Errorf("schema %s must be an object", hash)
 		}
 		if e = validateSchema(root, "#"); e != nil {
 			return nil, fmt.Errorf("schema %s: %w", hash, e)

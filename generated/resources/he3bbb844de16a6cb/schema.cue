@@ -144,7 +144,7 @@ fn.#ObjectExpression
 		_cfnString: =~"arn:(aws|aws-us-gov|aws-cn):kafkaconnect:.*" & "\(self)"
 	} |
 	fn.#StringExpression
-	Revision!: int & <=9223372036854776000 & >=1 |
+	Revision!: int & <=9223372036854775807 & >=1 |
 		{
 			string &
 				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -153,7 +153,7 @@ fn.#ObjectExpression
 					len(cfnScalarStrconv.FormatInt(
 						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
 							int &
-							<=9223372036854776000 &
+							<=9223372036854775807 &
 							>=1,
 						10,
 					))*0 + 1,
@@ -285,7 +285,7 @@ fn.#ObjectExpression
 fn.#ObjectExpression
 
 #WorkerConfiguration: close({
-	Revision!: int & <=9223372036854776000 & >=1 |
+	Revision!: int & <=9223372036854775807 & >=1 |
 		{
 			string &
 				=~"^[[:space:]]*[+-]?[0-9](?:_?[0-9])*[[:space:]]*$" &
@@ -294,7 +294,7 @@ fn.#ObjectExpression
 					len(cfnScalarStrconv.FormatInt(
 						cfnScalarStrconv.Atoi(cfnScalarStrings.Replace(cfnScalarStrings.TrimSpace(self), "_", "", -1)) &
 							int &
-							<=9223372036854776000 &
+							<=9223372036854775807 &
 							>=1,
 						10,
 					))*0 + 1,

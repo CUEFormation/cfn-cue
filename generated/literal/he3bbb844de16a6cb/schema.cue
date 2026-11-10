@@ -101,7 +101,7 @@ import (
 	CustomPluginArn!: =~"arn:(aws|aws-us-gov|aws-cn):kafkaconnect:.*"
 
 	// The revision of the custom plugin to use.
-	Revision!: int & <=9223372036854776000 & >=1
+	Revision!: int & <=9223372036854775807 & >=1
 })
 
 // Details about delivering logs to Amazon Kinesis Data Firehose.
@@ -187,7 +187,7 @@ import (
 // Specifies the worker configuration to use with the connector.
 #WorkerConfiguration: close({
 	// The revision of the worker configuration to use.
-	Revision!: int & <=9223372036854776000 & >=1
+	Revision!: int & <=9223372036854775807 & >=1
 
 	// The Amazon Resource Name (ARN) of the worker configuration to use.
 	WorkerConfigurationArn!: =~"arn:(aws|aws-us-gov|aws-cn):kafkaconnect:.*"
